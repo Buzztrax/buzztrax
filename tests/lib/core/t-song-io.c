@@ -1,4 +1,4 @@
-/** $Id: t-song-io.c,v 1.1 2004-08-17 17:02:17 waffel Exp $
+/** $Id: t-song-io.c,v 1.2 2004-08-24 14:26:59 ensonic Exp $
 **/
 
 #include "t-song.h"
@@ -33,7 +33,7 @@ TCase *bt_song_io_obj_tcase(void) {
 
 
 Suite *bt_song_io_suite(void) { 
-  Suite *s=suite_create("BtSong"); 
+  Suite *s=suite_create("BtSongIO"); 
 
   suite_add_tcase(s,bt_song_io_obj_tcase());
   return(s);
