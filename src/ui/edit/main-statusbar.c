@@ -1,5 +1,9 @@
-/* $Id: main-statusbar.c,v 1.26 2005-02-02 16:35:58 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.27 2005-02-11 20:37:33 ensonic Exp $
  * class for the editor main statusbar
+ */
+
+/* @todo:
+ * - listen to play_pos,end changes in the sequence and update status
  */
 
 #define BT_EDIT
@@ -56,13 +60,14 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 	gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
 }
 
-static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer user_data) {
+static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   gchar *str;
-  gulong msec,sec,min;
+  gulong msec,sec,min,pos;
   
   g_assert(user_data);
 
+	g_object_get(G_OBJECT(sequence),"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
   // update elapsed statusbar
   msec=pos*bt_sequence_get_bar_time(sequence);
@@ -102,10 +107,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id); 
 	gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
  	g_free(str);
-  // subscribe to tick signal of song->sequence
-  g_signal_connect(G_OBJECT(sequence), "tick", (GCallback)on_sequence_tick, (gpointer)self);
+  // subscribe to play-pos changes of song->sequence
+	g_signal_connect(G_OBJECT(sequence), "notify::play-pos", (GCallback)on_sequence_tick, (gpointer)self);
   g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
-  // @todo shouldn't we disconnet these signals somewhere
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);

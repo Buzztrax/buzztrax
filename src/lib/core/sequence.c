@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.54 2005-01-29 14:18:31 ensonic Exp $
+/* $Id: sequence.c,v 1.55 2005-02-11 20:37:20 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -9,10 +9,9 @@
 
 //-- signal ids
 
-enum {
-  TICK,
-  LAST_SIGNAL
-};
+//enum {
+//  LAST_SIGNAL
+//};
 
 //-- property ids
 
@@ -22,7 +21,8 @@ enum {
   SEQUENCE_TRACKS,
   SEQUENCE_LOOP,
   SEQUENCE_LOOP_START,
-  SEQUENCE_LOOP_END
+  SEQUENCE_LOOP_END,
+	SEQUENCE_PLAY_POS
 };
 
 struct _BtSequencePrivate {
@@ -55,11 +55,13 @@ struct _BtSequencePrivate {
   /* flag to externally abort playing */
   GMutex *is_playing_mutex;
   gboolean volatile is_playing;
+	
+	gulong play_pos,play_start,play_end;
 };
 
 static GObjectClass *parent_class=NULL;
 
-static guint signals[LAST_SIGNAL]={0,};
+//static guint signals[LAST_SIGNAL]={0,};
 
 //-- helper methods
 
@@ -144,6 +146,17 @@ static void bt_sequence_init_machines(const BtSequence *self) {
   if(self->priv->tracks) {
     self->priv->machines=g_new0(BtMachine*,self->priv->tracks);
   }
+}
+
+static void bt_sequence_limit_play_pos(const BtSequence *self) {
+	if(self->priv->play_pos>self->priv->play_end) {
+		self->priv->play_pos=self->priv->play_end;
+		g_object_notify(G_OBJECT(self),"play-pos");
+	}
+	if(self->priv->play_pos<self->priv->play_start) {
+		self->priv->play_pos=self->priv->play_start;
+		g_object_notify(G_OBJECT(self),"play-pos");
+	}
 }
 
 //-- constructor methods
@@ -264,7 +277,6 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
-  //g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
 	g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
 
   ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
@@ -290,7 +302,7 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
 
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
-  res=(gulong)(self->priv->length*bt_sequence_get_bar_time(self));
+  res=(gulong)((self->priv->play_end-self->priv->play_start)*bt_sequence_get_bar_time(self));
   return(res);
 }
 
@@ -324,6 +336,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
     // DEBUG {
     //GTimer *timer;
     // }
+		gulong play_start,play_end;
 
     g_object_get(G_OBJECT(self->priv->song),"bin",&bin,"song-info",&song_info,NULL);
 		g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
@@ -338,35 +351,33 @@ gboolean bt_sequence_play(const BtSequence *self) {
     
     //GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
     GST_INFO("song.duration = %d * %d usec = %ld sec",self->priv->length,wait_per_position,(gulong)(((guint64)self->priv->length*(guint64)wait_per_position)/GST_SECOND));
+		GST_INFO("  play_start,pos,end: %d,%d,%d",self->priv->play_start,self->priv->play_pos,self->priv->play_end);
+		GST_INFO("  loop_start,end: %d,%d",self->priv->loop_start,self->priv->loop_end);
+		GST_INFO("  length: %d",self->priv->length);
   
     if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
       g_mutex_lock(self->priv->is_playing_mutex);
       self->priv->is_playing=TRUE;
       g_mutex_unlock(self->priv->is_playing_mutex);
-      // DEBUG {
       //timer=g_timer_new();
 			//g_timer_start(timer);
-      // }
+
       do {
-        // @todo handle loop-start/end
-        timeline=self->priv->timelines;
-        for(i=0;((i<self->priv->length) && (self->priv->is_playing));i++,timeline++) {
-          // DEBUG {
+				for(;((self->priv->play_pos<self->priv->play_end) && (self->priv->is_playing));self->priv->play_pos++) {
           //GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
-          // }
-          // emit a tick signal
-          g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
+
+					g_object_notify(G_OBJECT(self),"play-pos");
           // enter new patterns into the playline and stop or mute patterns
-          bt_timeline_update_playline(*timeline,playline);
+          bt_timeline_update_playline(self->priv->timelines[self->priv->play_pos],playline);
           // play the patterns in the cursor
           bt_playline_play(playline);
         }
+				self->priv->play_pos=self->priv->play_start;
+				g_object_notify(G_OBJECT(self),"play-pos");
       } while((self->priv->loop) && (self->priv->is_playing));
-      // DEBUG {
+
       //g_timer_destroy(timer);
-      // }
-      // emit a tick signal
-      g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
+
       if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
         GST_ERROR("can't stop playing");res=FALSE;
       }
@@ -435,6 +446,9 @@ static void bt_sequence_get_property(GObject      *object,
     case SEQUENCE_LOOP_END: {
       g_value_set_long(value, self->priv->loop_end);
     } break;
+    case SEQUENCE_PLAY_POS: {
+      g_value_set_ulong(value, self->priv->play_pos);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -459,13 +473,24 @@ static void bt_sequence_set_property(GObject      *object,
     case SEQUENCE_LENGTH: {
       bt_sequence_unref_timelines(self);
       bt_sequence_free_timelines(self);
+			// @todo check if song is playing
       self->priv->length = g_value_get_ulong(value);
       GST_DEBUG("set the length for sequence: %d",self->priv->length);
       bt_sequence_init_timelines(self);
+			if(self->priv->loop_end!=-1) {
+				if(self->priv->loop_end>self->priv->length) {
+					self->priv->play_end=self->priv->loop_end=self->priv->length;
+				}
+			}
+			else {
+				self->priv->play_end=self->priv->length;
+			}
+			bt_sequence_limit_play_pos(self);
     } break;
     case SEQUENCE_TRACKS: {
       self->priv->tracks = g_value_get_ulong(value);
       GST_DEBUG("set the tracks for sequence: %d",self->priv->tracks);
+			// @todo check if song is playing
       bt_sequence_init_machines(self);
       bt_sequence_init_timelinetracks(self);
     } break;
@@ -476,10 +501,19 @@ static void bt_sequence_set_property(GObject      *object,
     case SEQUENCE_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
       GST_DEBUG("set the loop-start for sequence: %d",self->priv->loop_start);
+			self->priv->play_start=(self->priv->loop_start!=-1)?self->priv->loop_start:0;
+			bt_sequence_limit_play_pos(self);
     } break;
     case SEQUENCE_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
       GST_DEBUG("set the loop-end for sequence: %d",self->priv->loop_end);
+			self->priv->play_end=(self->priv->loop_end!=-1)?self->priv->loop_end:self->priv->length;
+			bt_sequence_limit_play_pos(self);
+    } break;
+    case SEQUENCE_PLAY_POS: {
+      self->priv->play_pos = g_value_get_ulong(value);
+			bt_sequence_limit_play_pos(self);
+      GST_DEBUG("set the play-pos for sequence: %d",self->priv->play_pos);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -541,28 +575,6 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
   gobject_class->dispose      = bt_sequence_dispose;
   gobject_class->finalize     = bt_sequence_finalize;
 
-  klass->tick = NULL;
-  
-  /** 
-	 * BtSequence::tick:
-   * @self: the sequence object that emitted the signal
-   * @pos: the postion in the sequence
-	 *
-	 * This sequence has reached a new play position (with the number of ticks
-   * determined by the bars-property) during playback
-	 */
-  signals[TICK] = g_signal_new("tick",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtSequenceClass,tick),
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__LONG,
-                                        G_TYPE_NONE, // return type
-                                        1, // n_params
-                                        G_TYPE_LONG // param data
-                                        );
-
   g_object_class_install_property(gobject_class,SEQUENCE_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
@@ -613,6 +625,14 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      -1,
                                      G_PARAM_READWRITE));
 
+	g_object_class_install_property(gobject_class,SEQUENCE_PLAY_POS,
+																	g_param_spec_ulong("play-pos",
+                                     "play-pos prop",
+                                     "position of the play cursor of the sequence in timeline bars",
+                                     0,
+                                     G_MAXULONG,
+                                     0,
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_sequence_get_type(void) {

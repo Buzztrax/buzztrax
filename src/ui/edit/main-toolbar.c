@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.43 2005-02-08 19:58:30 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.44 2005-02-11 20:37:33 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -169,7 +169,6 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  //loop=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
   loop=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
   GST_INFO("toolbar loop toggle event occurred, new-state=%d",loop);
   // get song from app

@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.12 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: sequence.h,v 1.13 2005-02-11 20:37:21 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -37,8 +37,6 @@ struct _BtSequence {
 /* structure of the sequence class */
 struct _BtSequenceClass {
   GObjectClass parent_class;
-
-  void (*tick)(const BtSequence *sequence, glong pos, gpointer user_data);
 };
 
 /* used by SEQUENCE_TYPE */
@@ -46,4 +44,3 @@ GType bt_sequence_get_type(void);
 
 
 #endif // BT_SEQUENCE_H
-

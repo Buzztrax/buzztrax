@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.6 2005-02-10 15:28:01 ensonic Exp $
+/* $Id: sequence-view.c,v 1.7 2005-02-11 20:37:34 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -34,10 +34,13 @@ struct _BtSequenceViewPrivate {
 	
 	/* cache some ressources */
 	GdkWindow *window;
+	//GdkBitmap *loop_pos_stipple;
 	GdkGC *play_pos_gc,*loop_pos_gc;
 };
 
 static GtkTreeViewClass *parent_class=NULL;
+
+static gint8 loop_pos_dash_list[]= {4};
 
 //-- event handler
 
@@ -92,19 +95,40 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
 	color.blue = 65535;
 	self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
 	gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
+	gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
 	color.red = 65535;
 	color.green = (gint)(0.75*65535.0);
 	color.blue = 0;
 	self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);
 	gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,&color);
-
+	gdk_gc_set_line_attributes(self->priv->loop_pos_gc,2,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
+	gdk_gc_set_dashes(self->priv->loop_pos_gc,0,loop_pos_dash_list,1);
+	
 	path=gtk_tree_path_new_from_indices(0,-1);
 	gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
 	self->priv->row_height=br.height;
 	GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
+	
 }
 
+static void bt_sequence_view_unrealize (GtkWidget *widget) {
+	BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
+
+  // first let the parent realize itslf
+  if(GTK_WIDGET_CLASS(parent_class)->unrealize) {
+    (GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
+  }
+	
+	gdk_gc_unref(self->priv->loop_pos_gc);
+	self->priv->play_pos_gc=NULL;
+	
+	gdk_gc_unref(self->priv->loop_pos_gc);
+	self->priv->play_pos_gc=NULL;
+	
+}
+
+// @todo when scrolling the lines leave garbage on screen
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
 	BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
@@ -145,7 +169,7 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
 
 		y=(gint)(self->priv->loop_start*h);
   	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
-		y=(gint)(self->priv->loop_end*h);
+		y=(gint)(self->priv->loop_end*h)-2;
   	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
 	}
 	return(FALSE);
@@ -255,6 +279,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
 	
 	// override some gtkwidget methods
 	gtkwidget_class->realize = bt_sequence_view_realize;
+	gtkwidget_class->unrealize = bt_sequence_view_unrealize;
 	gtkwidget_class->expose_event = bt_sequence_view_expose_event;
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_APP,

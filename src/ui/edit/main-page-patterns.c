@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.43 2005-02-02 16:35:57 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.44 2005-02-11 20:37:22 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -165,7 +165,7 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
 	g_assert(self->priv->pattern_table);
 	GST_INFO("clearing pattern table");
   if((columns=gtk_grid_get_columns(self->priv->pattern_table))) {
-		GST_INFO("is not empty");
+		GST_DEBUG("is not empty");
 		for(node=g_list_first(columns);node;node=g_list_next(node)) {
       gtk_grid_remove_column(self->priv->pattern_table,GTK_GRID_COLUMN(node->data));
     }
@@ -209,7 +209,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 	if(pattern) {
 		g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"machine",&machine,NULL);
 		g_object_get(G_OBJECT(machine),"global-params",&number_of_global_params,NULL);
-	  GST_INFO("  size is %2d,%2d",number_of_ticks,number_of_global_params);
+	  GST_DEBUG("  size is %2d,%2d",number_of_ticks,number_of_global_params);
 
 		// build model
 		GST_DEBUG("  build model");

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.58 2005-02-10 15:28:01 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.59 2005-02-11 20:37:33 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -13,7 +13,9 @@
  *      - add the same context menu as the machines have in machine view
  *    - sequence view will have no visible column headers
  *  - adding/removing columns
- *  - left clicking in the pos or label columns, sets play pointer
+ *  - support different rythms
+ *    - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
+ *    - use different highlighing (strong bar every start of a beat)
  */
 
 #define BT_EDIT
@@ -89,7 +91,7 @@ static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoint
 
 //-- tree model helper
 
-static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,glong *col,glong *row) {
+static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gulong *col,gulong *row) {
 	gboolean res=FALSE;
 	GtkTreeModel *store;
 	GtkTreeModelFilter *filtered_store;
@@ -279,7 +281,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   
   g_object_get(G_OBJECT(song),"setup",&setup,"sequence",&sequence,NULL);
   g_object_get(G_OBJECT(sequence),"length",&timeline_ct,"tracks",&track_ct,NULL);
-  GST_INFO("  size is %2d,%2d",timeline_ct,track_ct);
+  GST_DEBUG("  size is %2d,%2d",timeline_ct,track_ct);
 	
   // reset columns
 	sequence_table_clear(self);
@@ -342,7 +344,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
           str="???";
           GST_ERROR("implement me");
       }
-      //GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
+      //GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
       if(free_str) g_free(str);
       g_object_unref(timelinetrack);
@@ -352,9 +354,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 	// create a filterd model to realize step filtering
 	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
 	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,(gpointer)self,NULL);
-	GST_INFO("  filter = %p",filtered_store);
-	// should we use the filtered_store here?
-  //gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
 	gtk_tree_view_set_model(self->priv->sequence_table,filtered_store);
 
   // build view
@@ -409,7 +408,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 	if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
 		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,NULL);
 		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
-		GST_INFO("    number of columns : %d",col_index);
+		GST_DEBUG("    number of columns : %d",col_index);
 	}
 	else GST_WARNING("can't create treeview column");
 
@@ -470,39 +469,45 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 
 //-- event handler
 
-static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer user_data) {
+static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	GtkTreeModel *store;
 	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
 	gdouble play_pos;
-	gulong sequence_length;
+	gulong sequence_length,pos;
 	GtkTreePath *path;
   
   g_assert(user_data);
 
 	// calculate fractional pos and set into sequence-viewer
-	g_object_get(G_OBJECT(sequence),"length",&sequence_length,NULL);
+	g_object_get(G_OBJECT(sequence),"length",&sequence_length,"play-pos",&pos,NULL);
 	play_pos=(gdouble)pos/(gdouble)sequence_length;
 	g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
+
+  //GST_INFO("sequence tick received : %d",pos);
 	
-	// reset old tick pos
-	if(!pos) self->priv->tick_pos=-1;
 	// do nothing for invisible rows
 	if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) return;
 	// scroll  to make play pos visible
-	path=gtk_tree_path_new_from_indices(pos,-1);
 	gdk_threads_enter();
-	gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+	if((path=gtk_tree_path_new_from_indices(pos,-1))) {
+		// that would try to keep the cursor in the middle (means it will scroll more)
+		gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
+		//gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+		gtk_tree_path_free(path);
+	}
 	gdk_threads_leave();
 
-  //GST_INFO("sequence tick received : %d",pos);
 	/*
+	// reset old tick pos
+	if(!pos) self->priv->tick_pos=-1;
+
 	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
 		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
 	{
 	  // update sequence table highlight
-		gdk_threads_enter();
+		//gdk_threads_enter();
 		// set color for new pos
 		if(sequence_model_get_iter_by_position(store,&iter,pos)) {
 			gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,TRUE,-1);
@@ -514,7 +519,7 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
 			}
 		}
 		self->priv->tick_pos=pos;
-		gdk_threads_leave();
+		//gdk_threads_leave();
 	}
 	else {
 		GST_WARNING("can't get tree model");
@@ -647,7 +652,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 				else {
 					GST_WARNING("  can't evaluate cursor pos");
 				}
-				if(free_str) g_free(str);
+				if(path) gtk_tree_path_free(path);
 			}
 			else {
 				GST_WARNING("  can't get tree-model");
@@ -656,6 +661,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 		else {
 			GST_WARNING("  nothing assgned to this key");
 		}
+		if(free_str) g_free(str);
 	}
 	else {
 		GST_WARNING("  can't locate timelinetrack related to curos pos");
@@ -676,35 +682,34 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 			GtkTreeViewColumn *column;
 			// determine sequence position from mouse coordinates
 			if(gtk_tree_view_get_path_at_pos(self->priv->sequence_table,event->x,event->y,&path,&column,NULL,NULL)) {
-				glong track,row;
+				gulong track,row;
 				if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&track,&row)) {
 					GST_DEBUG("  left click to column %d, row %d",track,row);
 					if(track==0) {
 						BtSequence *song;
 						BtSequence *sequence;
-						gdouble play_pos;
-						gulong sequence_length;
 
-						// calculate fractional pos and set into sequence-viewer
+						// adjust play pointer
 						g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 						g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-						g_object_get(G_OBJECT(sequence),"length",&sequence_length,NULL);
-						play_pos=(gdouble)row/(gdouble)sequence_length;
-						g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
+						// @hack setting the playpos triggers notify:: to which we listen too, this avoid gdk_locks
+						gdk_threads_leave();g_object_set(sequence,"play-pos",row,NULL);gdk_threads_enter();
 						g_object_unref(sequence);
 						g_object_unref(song);
 					}
 					else {
 						gtk_tree_view_set_cursor_on_cell(self->priv->sequence_table,path,column,NULL,FALSE);
 					}
+					res=TRUE;
 				}
 			}
+			if(path) gtk_tree_path_free(path);
 		}
 	}
 	else if(event->button==3) {
 		gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
 		res=TRUE;
-	}	
+	}
 	return(res);
 }
 
@@ -752,8 +757,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 	loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
 	loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
 	g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
-	// connect to the tick signal
-	g_signal_connect(G_OBJECT(sequence), "tick", (GCallback)on_sequence_tick, (gpointer)self);
+  // subscribe to play-pos changes of song->sequence
+	g_signal_connect(G_OBJECT(sequence), "notify::play-pos", (GCallback)on_sequence_tick, (gpointer)self);
   //-- release the references
   g_object_try_unref(song_info);
 	g_object_try_unref(sequence);
@@ -980,6 +985,7 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
       machine=bt_sequence_get_machine_by_track(sequence,track-2);
     }
   }
+	if(path) gtk_tree_path_free(path);
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);
@@ -1033,6 +1039,7 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
 			}
 		}
   }
+	if(path) gtk_tree_path_free(path);
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);	
