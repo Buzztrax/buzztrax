@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.18 2005-01-11 16:50:46 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.19 2005-01-25 12:00:46 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -219,6 +219,8 @@ bt_setup_get_machine_by_index
 bt_setup_get_wire_by_src_machine
 bt_setup_get_wire_by_dst_machine
 bt_setup_get_wire_by_machines
+bt_setup_get_wires_by_src_machine
+bt_setup_get_wires_by_dst_machine
 bt_setup_get_unique_machine_id
 <SUBSECTION Standard>
 BtSetupClass

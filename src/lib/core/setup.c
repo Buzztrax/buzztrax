@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.59 2005-01-16 15:36:42 waffel Exp $
+/* $Id: setup.c,v 1.60 2005-01-25 12:00:48 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -68,11 +68,11 @@ BtSetup *bt_setup_new(const BtSong *song) {
 /**
  * bt_setup_get_wire_by_machine_type:
  * @self: the setup to search for the wire
- * @machine: the machine that is at the src dst of the wire
+ * @machine: the machine that is at the src or dst of the wire
  * @type: the type name (src or dst) that the given machine should have in the wire
  *
  * Searches for the first wire in setup that uses the given #BtMachine as the given
- * type is.
+ * type.
  * In other words - it returns the first wire that has the the given #BtMachine as
  * the given type.
  *
@@ -93,6 +93,33 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
 	}
 	GST_DEBUG("no wire found for %s-machine %p",type,machine);
 	return(NULL);
+}
+
+/**
+ * bt_setup_get_wires_by_machine_type:
+ * @self: the setup to search for the wires
+ * @machine: the machine that is at the src or dst of the wire
+ * @type: the type name (src or dst) that the given machine should have in the wire
+ *
+ * Searches for all wires in setup that uses the given #BtMachine as the given
+ * type.
+ *
+ * Returns: a #GList with the #BtWires or %NULL 
+ */
+static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMachine *machine, const gchar *type) {
+	GList *wires=NULL,*node;
+	BtWire *wire=NULL;
+  BtMachine *search_machine;
+	
+	for(node=self->priv->wires;node;node=g_list_next(node)) {
+		wire=BT_WIRE(node->data);
+    g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
+		if(search_machine==machine) {
+			wires=g_list_append(wires,g_object_ref(wire));
+		}
+    g_object_try_unref(search_machine);
+	}
+	return(wires);
 }
 
 //-- public methods
@@ -353,6 +380,38 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
 	}
 	GST_DEBUG("no wire found for machines %p %p",src,dst);
 	return(NULL);
+}
+
+/**
+ * bt_setup_get_wires_by_src_machine:
+ * @self: the setup to search for the wire
+ * @src: the machine that is at the src end of the wire
+ *
+ * Searches for all wires in setup that use the given #BtMachine as a source.
+ * Free the list (and unref the wires), when done with it.
+ *
+ * Returns: a #GList with the #BtWires or %NULL 
+ */
+GList *bt_setup_get_wires_by_src_machine(const BtSetup *self,const BtMachine *src) {
+	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+	g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
+	return(bt_setup_get_wires_by_machine_type(self,src,"src"));
+}
+
+/**
+ * bt_setup_get_wires_by_dst_machine:
+ * @self: the setup to search for the wire
+ * @dst: the machine that is at the dst end of the wire
+ *
+ * Searches for all wires in setup that use the given #BtMachine as a target.
+ * Free the list (and unref the wires), when done with it.
+ *
+ * Returns: a #GList with the #BtWires or %NULL 
+ */
+GList *bt_setup_get_wires_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
+	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+	g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+	return(bt_setup_get_wires_by_machine_type(self,dst,"dst"));
 }
 
 /**

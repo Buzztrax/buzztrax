@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.73 2005-01-24 19:05:35 ensonic Exp $
+/* $Id: machine.c,v 1.74 2005-01-25 12:00:47 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -103,13 +103,21 @@ GType bt_machine_state_get_type(void) {
 
 //-- helper methods
 
-static gboolean bt_machine_set_mute(BtMachine *self) {
+static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
 	gboolean res=TRUE;
-
+	GList *wires;
+	
 	/*  we need to pause all elements downstream until we hit a loop-based element :(
-	 *  for each wire with src==self
-	 *    if bt_machine_has_active_adder(dst-machine), pause dst-machine
-	 *    else check all wires of dst-machine
+	 *  wires=bt_setup_get_wires_by_src_machine(setup,self->priv->machine);
+	 *  for each wire in wires {
+	 *    dst=wires->dst;
+	 *    if(bt_machine_has_active_adder(dst)) {
+	 *       pause src;
+	 *    }
+	 *    else {
+	 *      bt_machine_set_mute(dst,setup);
+	 *    }
+	 *  }
 	 */
 	if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
 		GST_WARNING("setting element '%s' to paused state failed",self->priv->id);
@@ -118,9 +126,9 @@ static gboolean bt_machine_set_mute(BtMachine *self) {
 	return(res);
 }
 
-static gboolean bt_machine_unset_mute(BtMachine *self) {
+static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
 	gboolean res=TRUE;
-
+	
 	if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
 		GST_WARNING("setting element '%s' to playing state failed",self->priv->id);
 		res=FALSE;
@@ -130,15 +138,18 @@ static gboolean bt_machine_unset_mute(BtMachine *self) {
 
 static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_state) {
 	gboolean res=TRUE;
+	BtSetup *setup;
 
 	// reject a few nonsense changes
 	if((new_state==BT_MACHINE_STATE_BYPASS) && (!BT_IS_PROCESSOR_MACHINE(self))) return(FALSE);
 	if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
+
+	g_object_get(self->priv->song,"setup",&setup,NULL);
 	
 	// return to normal state
 	switch(self->priv->state) {
 		case BT_MACHINE_STATE_MUTE:
-			if(!bt_machine_unset_mute(self)) res=FALSE;
+			if(!bt_machine_unset_mute(self,setup)) res=FALSE;
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to playing again
@@ -150,7 +161,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	// set to new state
 	switch(new_state) {
 		case BT_MACHINE_STATE_MUTE:
-			if(!bt_machine_set_mute(self)) res=FALSE;
+			if(!bt_machine_set_mute(self,setup)) res=FALSE;
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to paused
@@ -160,6 +171,8 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 			break;
 	}
 	self->priv->state=new_state;
+
+	g_object_try_unref(setup);
 	return(res);
 }
 
