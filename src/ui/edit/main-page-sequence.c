@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.15 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.16 2004-09-27 16:05:41 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -219,7 +219,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
  * sequence row
  */
 static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine *machine) {
-  BtPattern *pattern=NULL;
+  BtPattern *pattern;
   GtkListStore *store;
   GtkTreeIter tree_iter;
   gpointer *iter;

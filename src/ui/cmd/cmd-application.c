@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.31 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: cmd-application.c,v 1.32 2004-09-27 16:05:33 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -39,6 +39,9 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 
 //-- constructor methods
 
+// @todo ideally this would be a protected method, but how to do this in 'C' ?
+extern gboolean bt_application_new(BtApplication *self);
+                               
 /**
  * bt_cmd_application_new:
  *
@@ -50,6 +53,7 @@ BtCmdApplication *bt_cmd_application_new(void) {
   BtCmdApplication *self;
   self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL));
   
+  bt_application_new(BT_APPLICATION(self));
   return(self);
 }
 

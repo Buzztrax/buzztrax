@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.9 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: application.c,v 1.10 2004-09-27 16:05:33 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -20,6 +20,19 @@ struct _BtApplicationPrivate {
   /* a reference to the buzztard settings object */
   BtSettings *settings;
 };
+
+//-- constructor methods
+
+// @todo ideally this would be a protected method, but how to do this in 'C' ?
+gboolean bt_application_new(BtApplication *self) {
+  g_assert(self);
+  
+#ifdef USE_GCONF
+  self->private->settings=bt_gconf_settings_new();
+#else
+  self->private->settings=bt_plainfile_settings_new();
+#endif
+}
 
 //-- methods
 
@@ -70,6 +83,8 @@ static void bt_application_dispose(GObject *object) {
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->private->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->private->bin)->numchildren);
 	g_object_try_unref(self->private->bin);
+  
+  g_object_try_unref(self->private->settings);
 }
 
 static void bt_application_finalize(GObject *object) {

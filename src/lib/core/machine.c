@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.32 2004-09-26 10:36:32 ensonic Exp $
+/* $Id: machine.c,v 1.33 2004-09-27 16:05:33 ensonic Exp $
  * base class for a machine
  */
  
@@ -63,14 +63,16 @@ struct _BtMachinePrivate {
   */
 };
 
-//-- helper methods
+//-- constructor methods
 
 // @todo ideally this would be a protected method, but how to do this in 'C' ?
-gboolean bt_machine_init_gst_element(BtMachine *self) {
+gboolean bt_machine_new(BtMachine *self) {
 
+  g_assert(self);
   g_assert(self->machine==NULL);
   g_assert(self->private->id);
   g_assert(self->private->plugin_name);
+  GST_INFO("initializing machine");
 
   self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
   if(!self->machine) {
@@ -129,7 +131,7 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
  * let the machine know that the suplied pattern has been added for the machine.
  */
 void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
-	self->private->patterns=g_list_append(self->private->patterns,g_object_ref(G_OBJECT(pattern)));
+	self->private->patterns=g_list_append(self->private->patterns,g_object_ref(pattern));
 }
 
 /**
@@ -153,6 +155,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
 		if(!strcmp(pattern_id,"id")) found=TRUE;
     g_free(pattern_id);
+    // @todo return(g_object_ref(pattern));
     if(found) return(pattern);
 		node=g_list_next(node);
 	}
@@ -411,14 +414,14 @@ static void bt_machine_dispose(GObject *object) {
       gst_bin_remove(self->private->bin,self->spreader);
     }
     // @todo add the rest
-    GST_DEBUG("  elements removed from bin");
     g_object_try_unref(self->private->bin);
   }
 
   g_object_try_weak_unref(self->private->song);
   g_object_try_unref(self->private->dparam_manager);
-  g_object_try_unref(self->private->input_level);
-  g_object_try_unref(self->private->output_level);
+  //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
+  //g_object_try_unref(self->private->input_level);
+  //g_object_try_unref(self->private->output_level);
   //g_object_try_unref(self->machine);
   //g_object_try_unref(self->adder);
   //g_object_try_unref(self->spreader);

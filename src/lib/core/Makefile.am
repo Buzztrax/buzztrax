@@ -21,6 +21,7 @@ libbtcore_la_SOURCES = \
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
+	plainfile-settings.c libbtcore/plainfile-settings.h libbtcore/plainfile-settings-methods.h \
 	playline.c libbtcore/playline.h libbtcore/playline-methods.h \
 	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.12 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: sink-machine.c,v 1.13 2004-09-27 16:05:33 ensonic Exp $
  * class for a sink machine
  */
  
@@ -18,7 +18,7 @@ static BtMachineClass *parent_class=NULL;
 //-- constructor methods
 
 // @todo ideally this would be a protected method, but how to do this in 'C' ?
-extern gboolean bt_machine_init_gst_element(BtMachine *self);
+extern gboolean bt_machine_new(BtMachine *self);
 
 /**
  * bt_sink_machine_new:
@@ -36,7 +36,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gc
   BtSinkMachine *self;
   self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL));
   
-  bt_machine_init_gst_element(BT_MACHINE(self));
+  bt_machine_new(BT_MACHINE(self));
   return(self);
 }
 

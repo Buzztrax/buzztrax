@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.1 2004-09-25 13:40:07 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.2 2004-09-27 16:05:30 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -25,6 +25,25 @@ BT_APPLICATION_GET_CLASS
 bt_application_get_type
 BtApplicationPrivate
 </SECTION>
+
+<SECTION>
+<FILE>btgconfsettings</FILE>
+<TITLE>BtGConfSettings</TITLE>
+BtGConfSettings
+bt_gconf_settings_new
+<SUBSECTION Standard>
+BtGConfSettingsClass
+BT_GCONF_SETTINGS
+BT_IS_GCONF_SETTINGS
+BT_GCONF_SETTINGS_CLASS
+BT_IS_GCONF_SETTINGS_CLASS
+BT_TYPE_GCONF_SETTINGS
+BT_GCONF_SETTINGS_GET_CLASS
+<SUBSECTION Private>
+bt_gconf_settings_get_type
+BtGConfSettingsPrivate
+</SECTION>
+
 
 <SECTION>
 <FILE>btmachine</FILE>
@@ -78,6 +97,25 @@ BT_TYPE_PATTERN
 bt_pattern_get_type
 BtPatternPrivate
 </SECTION>
+
+<SECTION>
+<FILE>btplainfilesettings</FILE>
+<TITLE>BtPlainfileSettings</TITLE>
+BtPlainfileSettings
+bt_plainfile_settings_new
+<SUBSECTION Standard>
+BtPlainfileSettingsClass
+BT_PLAINFILE_SETTINGS
+BT_IS_PLAINFILE_SETTINGS
+BT_PLAINFILE_SETTINGS_CLASS
+BT_IS_PLAINFILE_SETTINGS_CLASS
+BT_TYPE_PLAINFILE_SETTINGS
+BT_PLAINFILE_SETTINGS_GET_CLASS
+<SUBSECTION Private>
+bt_plainfile_settings_get_type
+BtPlainfileSettingsPrivate
+</SECTION>
+
 
 <SECTION>
 <FILE>btplayline</FILE>

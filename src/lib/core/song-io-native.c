@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.30 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: song-io-native.c,v 1.31 2004-09-27 16:05:33 ensonic Exp $
  * class for native song input and output
  */
  
@@ -319,6 +319,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
     // add to machine's pattern-list
     bt_machine_add_pattern(machine,pattern);
+    g_object_unref(pattern);
   }
   else {
     GST_ERROR("invalid machine-id=\"%s\"",machine_id);

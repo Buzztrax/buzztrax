@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.38 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: core.h,v 1.39 2004-09-27 16:05:33 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -83,6 +83,7 @@
 #include "song-io-methods.h"
 #include "song-io-native-methods.h"
 #include "settings-methods.h"
+#include "plainfile-settings-methods.h"
 #include "application-methods.h"
 #include "tools.h"
 #include "version.h"

@@ -1,22 +1,23 @@
-/* $Id: gconf-settings.c,v 1.2 2004-09-27 16:05:33 ensonic Exp $
- * gconf based implementation sub class for buzztard settings handling
+/* $Id: plainfile-settings.c,v 1.1 2004-09-27 16:05:33 ensonic Exp $
+ * plain file based implementation sub class for buzztard settings handling
  */
 
 #define BT_CORE
-#define BT_GCONF_SETTINGS_C
+#define BT_PLAINFILE_SETTINGS_C
 
 #include <libbtcore/core.h>
 
 enum {
-  GCONF_SETTINGS_XXX=1
+  PLAINFILE_SETTINGS_XXX=1
 };
 
-struct _BtGConfSettingsPrivate {
+struct _BtPlainfileSettingsPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-
-  /* that is the handle we get config data from */
-  GConfClient *client;
+  
+  /* key=value list, keys are defined in BtSettings
+  GHashTable *settings;
+   */
 };
 
 static BtSettingsClass *parent_class=NULL;
@@ -24,15 +25,15 @@ static BtSettingsClass *parent_class=NULL;
 //-- constructor methods
 
 /**
- * bt_gconf_settings_new:
+ * bt_plainfile_settings_new:
  *
  * Create a new instance.
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtGConfSettings *bt_gconf_settings_new(void) {
-  BtGConfSettings *self;
-  self=BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL));
+BtPlainfileSettings *bt_plainfile_settings_new(void) {
+  BtPlainfileSettings *self;
+  self=BT_PLAINFILE_SETTINGS(g_object_new(BT_TYPE_PLAINFILE_SETTINGS,NULL));
   
   //bt_settings_new(BT_SETTINGS(self));
   return(self);  
@@ -45,12 +46,12 @@ BtGConfSettings *bt_gconf_settings_new(void) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_gconf_settings_get_property(GObject      *object,
+static void bt_plainfile_settings_get_property(GObject      *object,
                                guint         property_id,
                                GValue       *value,
                                GParamSpec   *pspec)
 {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+  BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -60,12 +61,12 @@ static void bt_gconf_settings_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_gconf_settings_set_property(GObject      *object,
+static void bt_plainfile_settings_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+  BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -74,22 +75,20 @@ static void bt_gconf_settings_set_property(GObject      *object,
   }
 }
 
-static void bt_gconf_settings_dispose(GObject *object) {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+static void bt_plainfile_settings_dispose(GObject *object) {
+  BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
 
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
   
-  g_object_unref(self->private->client);
-
   GST_DEBUG("!!!! self=%p",self);
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
 }
 
-static void bt_gconf_settings_finalize(GObject *object) {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+static void bt_plainfile_settings_finalize(GObject *object) {
+  BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -99,39 +98,38 @@ static void bt_gconf_settings_finalize(GObject *object) {
   }
 }
 
-static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(instance);
-  self->private = g_new0(BtGConfSettingsPrivate,1);
+static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class) {
+  BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(instance);
+  self->private = g_new0(BtPlainfileSettingsPrivate,1);
   self->private->dispose_has_run = FALSE;
-  self->private->client=gconf_client_get_default();
 }
 
-static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {
+static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_SETTINGS);
 
-  gobject_class->set_property = bt_gconf_settings_set_property;
-  gobject_class->get_property = bt_gconf_settings_get_property;
-  gobject_class->dispose      = bt_gconf_settings_dispose;
-  gobject_class->finalize     = bt_gconf_settings_finalize;
+  gobject_class->set_property = bt_plainfile_settings_set_property;
+  gobject_class->get_property = bt_plainfile_settings_get_property;
+  gobject_class->dispose      = bt_plainfile_settings_dispose;
+  gobject_class->finalize     = bt_plainfile_settings_finalize;
 }
 
-GType bt_gconf_settings_get_type(void) {
+GType bt_plainfile_settings_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtGConfSettingsClass),
+      sizeof (BtPlainfileSettingsClass),
       NULL, // base_init
       NULL, // base_finalize
-      (GClassInitFunc)bt_gconf_settings_class_init, // class_init
+      (GClassInitFunc)bt_plainfile_settings_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtGConfSettings),
+      sizeof (BtPlainfileSettings),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_gconf_settings_init, // instance_init
+	    (GInstanceInitFunc)bt_plainfile_settings_init, // instance_init
     };
-		type = g_type_register_static(BT_TYPE_SETTINGS,"BtGConfSettings",&info,0);
+		type = g_type_register_static(BT_TYPE_SETTINGS,"BtPlainfileSettings",&info,0);
   }
   return type;
 }

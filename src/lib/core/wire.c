@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.28 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: wire.c,v 1.29 2004-09-27 16:05:33 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -351,13 +351,14 @@ static void bt_wire_dispose(GObject *object) {
   }
 
 	g_object_try_weak_unref(self->private->song);
+  //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
 	g_object_try_unref(self->private->dst);
 	g_object_try_unref(self->private->src);
-  g_object_try_unref(self->private->convert);
-  g_object_try_unref(self->private->scale);
-  g_object_try_unref(self->private->gain);
-  g_object_try_unref(self->private->level);
-  g_object_try_unref(self->private->spectrum);
+  //g_object_try_unref(self->private->convert);
+  //g_object_try_unref(self->private->scale);
+  //g_object_try_unref(self->private->gain);
+  //g_object_try_unref(self->private->level);
+  //g_object_try_unref(self->private->spectrum);
 }
 
 static void bt_wire_finalize(GObject *object) {
