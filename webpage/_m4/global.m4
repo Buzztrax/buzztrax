@@ -56,14 +56,14 @@ m4_define(`__NAVBAR',`
 			<table border="0" width="100%" cellspacing="0" cellpadding="0">
 				<tr>
 					<td valign="bottom">
-						<!--img align="left" src="buzztard.gif"-->
-						<div style="position:absolute; left:22px; top:17px; z-index:1;">
+						<img align="left" src="/buzztard.gif">
+						<div style="position:absolute; left:122px; top:17px; z-index:1;">
 							<h1 style="color:#aaaaaa;">Buzztard - <br>Music Production Environment</h1>
 						</div>
-						<div style="position:absolute; left:21px; top:16px; z-index:2;"> 
+						<div style="position:absolute; left:121px; top:16px; z-index:2;"> 
 							<h1 style="color:#555555;">Buzztard - <br>Music Production Environment</h1>
 						</div>
-						<div style="position:absolute; left:20px; top:15px; z-index:3;"> 
+						<div style="position:absolute; left:120px; top:15px; z-index:3;"> 
 							<h1>Buzztard - <br>Music Production Environment</h1>
 						</div>
 					</td>

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.26 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: song.c,v 1.27 2004-07-26 18:00:10 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -62,7 +62,7 @@ gboolean bt_song_play(const BtSong *self) {
  *
  */
 gboolean bt_song_stop(const BtSong *self) {
-  return(gst_element_set_state(self->private->bin,GST_STATE_NULL)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_NULL)!=GST_STATE_FAILURE);
 }
 
 /**
@@ -76,7 +76,7 @@ gboolean bt_song_stop(const BtSong *self) {
  */
 gboolean bt_song_pause(const BtSong *self) {
   // @todo remember play position
-  return(gst_element_set_state(self->private->bin,GST_STATE_PAUSED)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
 }
 
 /**
@@ -90,7 +90,7 @@ gboolean bt_song_pause(const BtSong *self) {
  */
 gboolean bt_song_continue(const BtSong *self) {
   // @todo reuse play position
-  return(gst_element_set_state(self->private->bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
 }
 
 //-- wrapper

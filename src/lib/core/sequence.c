@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.15 2004-07-21 15:17:18 ensonic Exp $
+/* $Id: sequence.c,v 1.16 2004-07-26 18:00:10 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -125,8 +125,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
   glong i;
   BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
   BtTimeLine **timeline=self->private->timelines;
-  GstElement *master=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
-  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
+  GstElement *master=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
+  GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
   BtPlayLine *playline;
   glong playline_length, wait_per_position,bars;
   glong beats_per_minute, ticks_per_beat;

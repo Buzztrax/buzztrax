@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.17 2004-07-21 15:17:18 ensonic Exp $
+/* $Id: song-io-native.c,v 1.18 2004-07-26 18:00:10 ensonic Exp $
  * class for native song input and output
  */
  
@@ -78,7 +78,7 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 		gint i;
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
-    gchar *property_name;
+    const gchar *property_name;
 
 		GST_INFO(" got meta root node with %d items",items_len);
 		for(i=0;i<items_len;i++) {
@@ -489,6 +489,15 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song, c
 	g_assert(*filename);
 
 	GST_INFO("native loader will now load song from \"%s\"",filename);
+
+  // @todo add zip file processing
+  /*
+   * zip_file=g_object_new(BT_ZIP_FILE,"filename",filename,"mode",BT_ZIP_FILE_MODE_READ,NULL);
+   * xml_doc=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
+   */
+  
+  // @todo read from zip_file
+  /* ctxt=xmlCreateMemoryParserCtxt(xml_doc,xml_doc_size) */
 	if((ctxt=xmlCreateFileParserCtxt(filename))) {
 		ctxt->validate=FALSE;
 		xmlParseDocument(ctxt);
