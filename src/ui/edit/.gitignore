@@ -4,4 +4,6 @@
 *.la
 Makefile
 Makefile.in
-
+bt-edit.desktop.in
+bt-edit.desktop
+bt-edit
