@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.2 2004-08-06 23:52:39 ensonic Exp $
+/* $Id: main-window.c,v 1.3 2004-08-07 01:35:53 ensonic Exp $
  * class for the editor main window
  */
 
@@ -25,6 +25,35 @@ struct _BtMainWindowPrivate {
 
 //-- event handler
 
+static gboolean bt_main_check_quit(const BtMainWindow *self)  {
+  gboolean quit=FALSE;
+  gint result;
+  GtkWidget *dialog = gtk_dialog_new_with_buttons ("Really quit ?",
+                                                  self->private->window,
+                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                  GTK_STOCK_OK,
+                                                  GTK_RESPONSE_ACCEPT,
+                                                  GTK_STOCK_CANCEL,
+                                                  GTK_RESPONSE_REJECT,
+                                                  NULL);
+
+  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(result) {
+    case GTK_RESPONSE_ACCEPT:
+      quit=TRUE;
+      break;
+    case GTK_RESPONSE_REJECT:
+      quit=FALSE;
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d\n",result);
+  }
+  gtk_widget_destroy(dialog);
+  GST_INFO("menu quit result = %d\n",quit);
+  return(quit);
+}
+
+
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
   /* If you return FALSE in the "delete_event" signal handler, GTK will emit the
    * "destroy" signal. Returning TRUE means you don't want the window to be
@@ -33,7 +62,7 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) 
    */
 
   GST_INFO("delete event occurred\n");
- return(FALSE);
+  return(FALSE);
 }
 
 static void destroy(GtkWidget *widget, gpointer data) {
@@ -42,8 +71,12 @@ static void destroy(GtkWidget *widget, gpointer data) {
 }
 
 void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
-  // @todo add messagebox
-  gtk_main_quit();
+  BtMainWindow *self=BT_MAIN_WINDOW(data);
+  
+  GST_INFO("menu quit event occurred\n");
+  if(bt_main_check_quit(self)) {
+    gtk_main_quit();
+  }
 }
 
 
@@ -92,7 +125,7 @@ GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box)
   subitem=gtk_image_menu_item_new_from_stock("gtk-quit",accel_group);
   gtk_widget_set_name(subitem,_("Quit"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
-  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),self->private->window);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),self);
 
   gtk_window_add_accel_group(GTK_WINDOW(self->private->window),accel_group);
  
