@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.67 2005-03-18 08:50:06 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.68 2005-03-21 13:37:00 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -1074,13 +1074,16 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_add));
   gtk_widget_show(GTK_WIDGET(self->priv->context_menu_add));
 
-  // should that be in the context menu of table hheaders?
+  // @idea should that be in the context menu of table headers?
 	menu_item=gtk_image_menu_item_new_with_label(_("Remove track"));
 	image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
+
+	// --
+	// @todo cut, copy, paste
 
   // add a hpaned
   box=gtk_hpaned_new();

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.48 2005-03-21 08:02:04 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.49 2005-03-21 13:37:00 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -325,7 +325,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
 		GST_DEBUG("  done");
 		// release the references
-		g_object_unref(store); // drop with gridview
+		g_object_unref(store); // drop with treeview
 	}
 	else {
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),FALSE);
@@ -491,14 +491,52 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_container_add(GTK_CONTAINER(self),scrolled_window);
 
-  // generate the context menu  
+  // generate the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
-	menu_item=gtk_image_menu_item_new_with_label(_("New pattern"));
+	
+	menu_item=gtk_image_menu_item_new_with_label(_("New track"));
+	image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	
+	menu_item=gtk_image_menu_item_new_with_label(_("Remove last track"));
+	image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	
+	menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
+	menu_item=gtk_image_menu_item_new_with_label(_("New pattern  ..."));
 	image=gtk_image_new_from_stock(GTK_STOCK_NEW,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
 	//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_pattern_new_activated),(gpointer)self);
+	
+	menu_item=gtk_image_menu_item_new_with_label(_("Pattern properties ..."));
+	image=gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	
+	menu_item=gtk_image_menu_item_new_with_label(_("Remove pattern ..."));
+	image=gtk_image_new_from_stock(GTK_STOCK_DELETE,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	
+  menu_item=gtk_menu_item_new_with_label(_("Copy pattern ..."));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	// --
+	// @todo solo, mute, bypass
+	// --
+	// @todo cut, copy, paste
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
