@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.8 2004-05-10 20:46:26 ensonic Exp $
+# $Id: configure.ac,v 1.9 2004-07-01 12:53:06 waffel Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -191,13 +191,15 @@ AC_CONFIG_FILES(Makefile \
     docs/version.entities \
     docs/reference/Makefile \
   src/Makefile \
-	src/lib/Makefile \
-	src/lib/core/Makefile \
-	src/lib/core/libbtcore/version.h \
-	src/ui/Makefile \
-	src/ui/cmd/Makefile \
+		src/lib/Makefile \
+			src/lib/core/Makefile \
+			src/lib/core/libbtcore/version.h \
+		src/ui/Makefile \
+			src/ui/cmd/Makefile \
   tests/Makefile \
-	tests/lib/Makefile \
-	tests/lib/core/Makefile \
+		tests/lib/Makefile \
+			tests/lib/core/Makefile \
+		tests/ui/Makefile \
+			tests/ui/cmd/Makefile \
 )
 AC_OUTPUT
