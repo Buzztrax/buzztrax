@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.47 2005-01-26 17:29:50 ensonic Exp $
+/* $Id: wire.c,v 1.48 2005-01-28 18:47:49 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -328,12 +328,12 @@ static void bt_wire_set_property(GObject      *object,
     } break;
 		case WIRE_SRC: {
       g_object_try_unref(self->priv->src);
-			self->priv->src = g_object_try_ref(g_value_get_object(value));
+			self->priv->src=BT_MACHINE(g_value_dup_object(value));
       GST_DEBUG("set the source element for the wire: %p",self->priv->src);
 		} break;
 		case WIRE_DST: {
       g_object_try_unref(self->priv->dst);
-			self->priv->dst = g_object_try_ref(g_value_get_object(value));
+			self->priv->dst=BT_MACHINE(g_value_dup_object(value));
       GST_DEBUG("set the target element for the wire: %p",self->priv->dst);
 		} break;
     default: {

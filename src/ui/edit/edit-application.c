@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.50 2005-01-28 18:04:43 ensonic Exp $
+/* $Id: edit-application.c,v 1.51 2005-01-28 18:48:06 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -349,11 +349,9 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-		  // DEBUG
-  		if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
-  		// DEBUG
+  		//if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
       g_object_try_unref(self->priv->song);
-      self->priv->song=g_object_try_ref(g_value_get_object(value));
+      self->priv->song=BT_SONG(g_value_dup_object(value));
       GST_DEBUG("set the song for edit_application: %p",self->priv->song);
     } break;
     default: {

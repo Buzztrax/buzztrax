@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.31 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-menu.c,v 1.32 2005-01-28 18:48:06 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -25,7 +25,7 @@ static GtkMenuBarClass *parent_class=NULL;
 //-- event handler
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  gboolean not_quit;
+  gboolean cont;
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
@@ -33,10 +33,10 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   GST_INFO("menu quit event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-	g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&not_quit);
+	g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&cont);
   g_object_unref(main_window);
-	//GST_DEBUG("  result = %d",not_quit);
-  if(not_quit) {
+	GST_DEBUG("  result = %d",cont);
+  if(!cont) {
 		gtk_widget_destroy(GTK_WIDGET(main_window));
 	}
 }

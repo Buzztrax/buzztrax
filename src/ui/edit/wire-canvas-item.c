@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.17 2005-01-28 18:04:45 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.18 2005-01-28 18:48:06 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -313,7 +313,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
   switch (property_id) {
     case WIRE_CANVAS_ITEM_APP: {
       g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      self->priv->app=BT_EDIT_APPLICATION(g_value_dup_object(value));
       //GST_DEBUG("set the app for wire_canvas_item: %p",self->priv->app);
     } break;
     case WIRE_CANVAS_ITEM_MACHINES_PAGE: {
@@ -324,7 +324,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
     } break;
     case WIRE_CANVAS_ITEM_WIRE: {
       g_object_try_unref(self->priv->wire);
-      self->priv->wire=g_object_try_ref(g_value_get_object(value));
+      self->priv->wire=BT_WIRE(g_value_dup_object(value));
       //GST_DEBUG("set the wire for wire_canvas_item: %p",self->priv->wire);
     } break;
     case WIRE_CANVAS_ITEM_W: {
@@ -335,7 +335,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
     } break;
     case WIRE_CANVAS_ITEM_SRC: {
       g_object_try_unref(self->priv->src);
-      self->priv->src=g_object_try_ref(g_value_get_object(value));
+      self->priv->src=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->src) {
         self->priv->src_on_position_changed=g_signal_connect(G_OBJECT(self->priv->src),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
         GST_DEBUG("set the src for wire_canvas_item: %p",self->priv->src);
@@ -343,7 +343,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
     } break;
     case WIRE_CANVAS_ITEM_DST: {
       g_object_try_unref(self->priv->dst);
-      self->priv->dst=g_object_try_ref(g_value_get_object(value));
+      self->priv->dst=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->dst) {
         self->priv->dst_on_position_changed=g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
         GST_DEBUG("set the dst for wire_canvas_item: %p",self->priv->dst);

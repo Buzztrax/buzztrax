@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.40 2005-01-28 18:04:43 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.41 2005-01-28 18:48:06 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -549,7 +549,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
   switch (property_id) {
     case MACHINE_CANVAS_ITEM_APP: {
       g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      self->priv->app=BT_EDIT_APPLICATION(g_value_dup_object(value));
       //GST_DEBUG("set the app for machine_canvas_item: %p",self->priv->app);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINES_PAGE: {
@@ -560,7 +560,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
       g_object_try_unref(self->priv->machine);
-      self->priv->machine = g_object_try_ref(g_value_get_object(value));
+      self->priv->machine = BT_MACHINE(g_value_dup_object(value));
       if(self->priv->machine) {
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);

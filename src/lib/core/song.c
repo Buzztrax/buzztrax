@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.67 2005-01-28 18:04:21 ensonic Exp $
+/* $Id: song.c,v 1.68 2005-01-28 18:47:49 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -235,7 +235,7 @@ static void bt_song_set_property(GObject      *object,
     } break;
 		case SONG_BIN: {
       g_object_try_unref(self->priv->bin);
-			self->priv->bin = GST_BIN(g_object_try_ref(g_value_get_object(value)));
+			self->priv->bin=GST_BIN(g_value_dup_object(value));
       GST_DEBUG("set the bin for the song: %p",self->priv->bin);
 		} break;
 		case SONG_MASTER: {
