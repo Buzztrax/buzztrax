@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.55 2005-01-16 14:20:40 waffel Exp $
+/* $Id: song-io-native.c,v 1.56 2005-02-03 16:13:39 ensonic Exp $
  * class for native song input and output
  */
  
@@ -196,6 +196,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 	BtMachine *machine;
 	xmlChar *id,*plugin_name,*voices_str;
   glong voices;
+	gchar *name;
 	
 	GST_INFO(" got setup.machines root node");
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -204,6 +205,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			machine=NULL;
 			id=xmlGetProp(xml_node,XML_CHAR_PTR("id"));
 			plugin_name=xmlGetProp(xml_node,XML_CHAR_PTR("pluginname"));
+			name=bt_setup_get_unique_machine_id(setup,id);
 			// parse additional params
       if( (voices_str=xmlGetProp(xml_node,XML_CHAR_PTR("voices"))) ) {
         voices=atol(voices_str);
@@ -212,17 +214,17 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			if(!strncmp(xml_node->name,"sink\0",5)) {
 				GST_INFO("  new sink_machine(\"%s\") -----------------",id);
 				// create new sink machine
-				machine=BT_MACHINE(bt_sink_machine_new(song,id));
+				machine=BT_MACHINE(bt_sink_machine_new(song,name));
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
 				GST_INFO("  new source_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new source machine
-				machine=BT_MACHINE(bt_source_machine_new(song,id,plugin_name,voices));
+				machine=BT_MACHINE(bt_source_machine_new(song,name,plugin_name,voices));
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
 				GST_INFO("  new processor_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new processor machine
-				machine=BT_MACHINE(bt_processor_machine_new(song,id,plugin_name,voices));
+				machine=BT_MACHINE(bt_processor_machine_new(song,name,plugin_name,voices));
 			}
 			if(machine) { // add machine to setup
         bt_song_io_native_load_properties(self,song,xml_node->children,G_OBJECT(machine));
@@ -230,6 +232,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
         g_object_unref(machine);
 			}
 			xmlFree(id);xmlFree(plugin_name);xmlFree(voices_str);
+			g_free(name);
 		}
 		xml_node=xml_node->next;
 	}

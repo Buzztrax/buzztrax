@@ -1,6 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
-
-/* $Id: main-page-sequence.c,v 1.52 2005-02-02 16:35:57 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.53 2005-02-03 16:13:51 ensonic Exp $
  * class for the editor main sequence page
  */
 

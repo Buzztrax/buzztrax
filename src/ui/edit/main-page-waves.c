@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.12 2005-02-02 16:35:57 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.13 2005-02-03 16:13:51 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -21,6 +21,9 @@ struct _BtMainPageWavesPrivate {
 	
   /* the waves list */
   GtkTreeView *waves_list;
+	
+	/* the sample chooser */
+	GtkWidget *file_chooser;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -199,8 +202,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Load current sample into wave table"),NULL);
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 	//       listview
-	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no sample browser yet"));
-
+	self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
+	gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
 
 	//   vbox (sample view)
 	box=gtk_vbox_new(FALSE,0);

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.82 2005-02-02 16:35:45 ensonic Exp $
+/* $Id: machine.c,v 1.83 2005-02-03 16:13:39 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -227,7 +227,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	return(res);
 }
 
-GstElement *bt_machine_get_sink_peer(GstElement *elem) {
+static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
 	GstElement *peer;
 	GstPad *pad,*peer_pad;
 		
@@ -241,7 +241,7 @@ GstElement *bt_machine_get_sink_peer(GstElement *elem) {
 	return(NULL);
 }
 
-gboolean bt_machine_insert_element(BtMachine *self,BtMachinePart part_position) {
+static gboolean bt_machine_insert_element(BtMachine *self,BtMachinePart part_position) {
 	gboolean res=FALSE;
 	
 	//seek elements before and after part_position
@@ -250,6 +250,13 @@ gboolean bt_machine_insert_element(BtMachine *self,BtMachinePart part_position) 
 	// link new connection
 	 
 	return(res);
+}
+
+static gchar *bt_machine_make_name(BtMachine *self) {
+	gchar *name;
+	
+	name=g_strdup_printf("%s_%p",self->priv->id,self->priv->song);
+	return(name);
 }
 
 //-- constructor methods
@@ -264,14 +271,19 @@ gboolean bt_machine_insert_element(BtMachine *self,BtMachinePart part_position) 
  * Returns: %TRUE for succes, %FALSE otherwise
  */
 gboolean bt_machine_new(BtMachine *self) {
+	gchar *name; 
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(self->priv->machines[PART_MACHINE]==NULL);
   g_assert(self->priv->id);
   g_assert(self->priv->plugin_name);
+	g_assert(self->priv->song);
   GST_INFO("initializing machine");
 
-  self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,self->priv->id);
+	name=bt_machine_make_name(self);
+  self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
+	g_free(name);
+
   if(!self->priv->machines[PART_MACHINE]) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
@@ -859,6 +871,11 @@ static void bt_machine_set_property(GObject      *object,
       g_free(self->priv->id);
       self->priv->id = g_value_dup_string(value);
       GST_DEBUG("set the id for machine: %s",self->priv->id);
+			if(self->priv->machines[PART_MACHINE]) {
+				gchar *name=bt_machine_make_name(self);
+				gst_element_set_name(self,name);
+				g_free(name);
+			}
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->priv->plugin_name);

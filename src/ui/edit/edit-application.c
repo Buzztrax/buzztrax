@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.54 2005-02-02 16:35:45 ensonic Exp $
+/* $Id: edit-application.c,v 1.55 2005-02-03 16:13:51 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -119,8 +119,6 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 	
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
-	// kick old song from up, to free element namespace
-	g_object_set(G_OBJECT(self),"song",NULL,NULL);
 	// create new song
 	if((song=bt_song_new(BT_APPLICATION(self)))) {
 		BtSetup *setup;
@@ -197,8 +195,6 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     g_signal_connect(G_OBJECT(loader),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
 		
-		// kick old song from up, to free element namespace
-		g_object_set(G_OBJECT(self),"song",NULL,NULL);
 		// create new song
 		if((song=bt_song_new(BT_APPLICATION(self)))) {
 			if(bt_song_io_load(loader,song)) {

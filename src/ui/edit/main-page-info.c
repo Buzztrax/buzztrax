@@ -1,7 +1,12 @@
-/* $Id: main-page-info.c,v 1.23 2005-02-02 16:35:56 ensonic Exp $
+/* $Id: main-page-info.c,v 1.24 2005-02-03 16:13:51 ensonic Exp $
  * class for the editor main info page
  */
 
+/* @todo
+ * - add time-stamps
+ *   song created, song last changed
+ */
+ 
 #define BT_EDIT
 #define BT_MAIN_PAGE_INFO_C
 
@@ -259,9 +264,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   //gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),1);
 	GST_DEBUG("  text view: %p",self->priv->info);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
-	GST_DEBUG("   tuck");
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
-	GST_DEBUG("   tuck");
 	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", (GCallback)on_info_changed, (gpointer)self);
 
   // register event handlers

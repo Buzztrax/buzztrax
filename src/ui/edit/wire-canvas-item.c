@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.19 2005-02-02 16:35:59 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.20 2005-02-03 16:13:51 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -47,10 +47,6 @@ struct _BtWireCanvasItemPrivate {
   /* interaction state */
   gboolean dragging,moved;
   gdouble offx,offy,dragx,dragy;
-	
-	/* signal handler ids */
-	gulong src_on_position_changed,dst_on_position_changed;
-
 };
 
 static GnomeCanvasGroupClass *parent_class=NULL;
@@ -337,7 +333,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->src);
       self->priv->src=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->src) {
-        self->priv->src_on_position_changed=g_signal_connect(G_OBJECT(self->priv->src),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
+        g_signal_connect(G_OBJECT(self->priv->src),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
         GST_DEBUG("set the src for wire_canvas_item: %p",self->priv->src);
       }
     } break;
@@ -345,7 +341,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->dst);
       self->priv->dst=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->dst) {
-        self->priv->dst_on_position_changed=g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
+        g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
         GST_DEBUG("set the dst for wire_canvas_item: %p",self->priv->dst);
       }
     } break;
@@ -361,11 +357,11 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
 	GST_DEBUG("!!!! self=%p",self);
-	if(self->priv->src_on_position_changed) {
-		g_signal_handler_disconnect(G_OBJECT(self->priv->src),self->priv->src_on_position_changed);
+	if(self->priv->src) {
+		g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->src),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
 	}
-	if(self->priv->dst_on_position_changed) {
-		g_signal_handler_disconnect(G_OBJECT(self->priv->dst),self->priv->dst_on_position_changed);
+	if(self->priv->dst) {
+		g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
 	}
 
   g_object_try_unref(self->priv->app);
