@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.47 2005-03-07 16:30:10 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.48 2005-03-21 08:02:04 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -25,6 +25,9 @@ struct _BtMainPagePatternsPrivate {
 
 	/* the pattern table */
   GtkTreeView *pattern_table;
+
+  /* pattern context_menu */
+  GtkMenu *context_menu;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -97,7 +100,7 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
 		}
 	}
 	else if(event->button==3) {
-		//gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+		gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
 		res=TRUE;
 	}
 	return(res);
@@ -412,6 +415,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkWidget *toolbar,*scrolled_window;
   GtkWidget *box,*menu,*button;
+	GtkWidget *menu_item,*image;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *tree_sel;
 	
@@ -486,6 +490,15 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_container_add(GTK_CONTAINER(self),scrolled_window);
+
+  // generate the context menu  
+  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+	menu_item=gtk_image_menu_item_new_with_label(_("New pattern"));
+	image=gtk_image_new_from_stock(GTK_STOCK_NEW,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_pattern_new_activated),(gpointer)self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
@@ -637,6 +650,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 	
   g_object_try_weak_unref(self->priv->app);
+	
+	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
