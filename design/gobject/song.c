@@ -10,7 +10,11 @@ enum {
 };
 
 static void bt_song_real_start_play(BtSong *self) {
-  g_print("starting play\n");
+  /* emitting signal if we start play */
+  g_signal_emit(self, 
+                BT_SONG_GET_CLASS(self)->play_signal_id,
+                0,
+                NULL);
 }
 
 /* play method from song */
@@ -58,13 +62,11 @@ static void song_dispose(GObject *object) {
     return;
   }
   self->private->dispose_has_run = TRUE;
-  puts(__FUNCTION__);
 }
 
 static void song_finalize(GObject *object) {
   BtSong *self = (BtSong *)object;
   g_free(self->private);
-  puts(__FUNCTION__);
 }
 
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
@@ -85,6 +87,18 @@ static void bt_song_class_init(BtSongClass *klass) {
   gobject_class->finalize = song_finalize;
   
   klass->start_play = bt_song_real_start_play;
+  
+  /* adding simple signal */
+  klass->play_signal_id = g_signal_newv("play",
+                                       G_TYPE_FROM_CLASS (gobject_class),
+                                       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                       NULL, // class closure
+                                       NULL, // accumulator
+                                       NULL, // acc data
+                                       g_cclosure_marshal_VOID__VOID,
+                                       G_TYPE_NONE, // return type
+                                       0, // n_params
+                                       NULL /* param data */ );
   
   bt_song_param_spec = g_param_spec_string("name",
                                            "name contruct prop",

@@ -1,6 +1,13 @@
 
 #include "song.h"
 
+/**
+* signal callback funktion
+*/
+void static play_event(void) {
+  g_print("start play invoked per signal\n");
+}
+
 int main(void) {
   BtSong *song1, *song2;
   
@@ -17,8 +24,14 @@ int main(void) {
   g_object_get_property(G_OBJECT(song2),"name", &val);
   g_print("song2 has name: %s\n", g_value_get_string(&val));
   
+  /* connection play signal and invoking the play_event function */
+  g_signal_connect(G_OBJECT(song2), "play",
+                   (GCallback)play_event,
+                   NULL);
+  
   bt_song_start_play(song2);
   
+  /* destroy classes */
   g_object_unref(G_OBJECT(song1));
   g_object_unref(G_OBJECT(song2));
   return (0);

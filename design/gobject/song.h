@@ -28,6 +28,9 @@ struct _BtSong {
 struct _BtSongClass {
   GObjectClass parent;
   
+  /* id for the play signal */
+  guint play_signal_id;
+  /* class method start_play */
   void (*start_play) (BtSong *self);
 };
 
