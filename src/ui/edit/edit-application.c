@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.6 2004-08-09 16:42:50 ensonic Exp $
+/* $Id: edit-application.c,v 1.7 2004-08-10 14:35:18 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -75,6 +75,34 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   return(res);
 }
 
+/**
+ * bt_edit_application_load_song:
+ * @self: the application instance to load a new song in
+  *@file_name: the sonf filename to load
+ *
+ * Loads a new song. If there is a previous song instance it will be freed.
+ *
+ * Returns: true for success
+ */
+gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name) {
+  gboolean res=FALSE;
+  
+  if(bt_edit_application_new_song(self)) {
+    BtSongIO *loader=bt_song_io_new(file_name);
+
+    if(loader) {    
+      if(bt_song_io_load(loader,self->private->song,file_name)) {
+        res=TRUE;
+      }
+      else {
+        GST_ERROR("could not load song \"%s\"",file_name);
+      }
+      g_object_unref(loader);
+    }
+  }
+  return(res);
+}
+
 
 /**
  * bt_edit_application_run:
@@ -90,7 +118,6 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 	GST_INFO("application.play launched");
 
 	if(bt_edit_application_new_song(self)) {
-		GST_INFO("objects initialized");
     res=bt_edit_application_ui(self);
   }
 	return(res);
@@ -107,21 +134,11 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
  */
 gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name) {
 	gboolean res=FALSE;
-	BtSong *song;
-	BtSongIO *loader;
 
 	GST_INFO("application.info launched");
 
-  if(bt_edit_application_new_song(self)) {
-		loader=bt_song_io_new(input_file_name);
-		GST_INFO("objects initialized");
-    
-    if(bt_song_io_load(loader,self->private->song,input_file_name)) {
-      res=bt_edit_application_ui(self);
-    }
-    else {
-      GST_ERROR("could not load song \"%s\"",input_file_name);
-    }
+  if(bt_edit_application_load_song(self,input_file_name)) {
+    res=bt_edit_application_ui(self);
   }
 	return(res);
 }

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.6 2004-08-09 16:42:50 ensonic Exp $
+/* $Id: main-window.c,v 1.7 2004-08-10 14:35:18 ensonic Exp $
  * class for the editor main window
  */
 
@@ -26,7 +26,7 @@ struct _BtMainWindowPrivate {
 
 //-- helper
 
-static void bt_mainwindow_set_title(const BtMainWindow *self) {
+static void bt_mainwindow_refresh_ui(const BtMainWindow *self) {
   static gchar *title;
   BtSong *song;
 
@@ -80,7 +80,7 @@ static gboolean bt_main_check_quit(const BtMainWindow *self)  {
 static void bt_main_new_song(const BtMainWindow *self)  {
   // @todo if unsaved ask the use, if we should save the song
   if(bt_edit_application_new_song(self->private->app)) {
-    bt_mainwindow_set_title(self);
+    bt_mainwindow_refresh_ui(self);
   }
 }
 
@@ -96,11 +96,9 @@ static void bt_main_open_song(const BtMainWindow *self) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
       GST_INFO("new song name = %s\n",gtk_file_selection_get_filename(dialog));
-      /*
       if(bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(dialog))) {
-        bt_mainwindow_set_title(self);
+        bt_mainwindow_refresh_ui(self);
       }
-      */
       break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
@@ -323,6 +321,14 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   label=gtk_label_new(_("song information"));
   gtk_widget_set_name(label,_("song information"));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),3),label);
+  // first row of hbox
+  //  GtkFrame
+  //    GtkTable
+  //      label | textfield
+  //      label | textfield
+  // second row of hbox
+  //  GtkFrame
+  //    textfield
   
   return(notebook);
 }
@@ -347,7 +353,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   
   // create the window
   self->private->window=GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-  bt_mainwindow_set_title(self);
+  bt_mainwindow_refresh_ui(self);
   
   g_signal_connect(G_OBJECT(self->private->window),"delete_event",G_CALLBACK(delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self->private->window),"destroy",     G_CALLBACK(destroy),(gpointer)self);
