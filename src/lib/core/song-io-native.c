@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.22 2004-08-13 18:58:10 ensonic Exp $
+/* $Id: song-io-native.c,v 1.23 2004-08-26 16:44:11 ensonic Exp $
  * class for native song input and output
  */
  
@@ -378,12 +378,13 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
   g_value_init(&pattern_type,BT_TYPE_TIMELINETRACK_TYPE);
   g_value_set_enum(&pattern_type,BT_TIMELINETRACK_TYPE_PATTERN);
   
+  bt_sequence_set_machine_by_track(sequence,index,machine);
   while(xml_node) {
 		if(!xmlNodeIsText(xml_node)) {
       time_str=xmlGetProp(xml_node,"time");
       pattern_id=xmlGetProp(xml_node,"pattern");
       // @todo comand=xmlGetProp(xml_node,"comand");
-      GST_DEBUG("  at %s pattern \"%s\"",time_str,pattern_id);
+      GST_DEBUG("  at %s, pattern \"%s\"",time_str,pattern_id);
       // get pattern by name from machine
       if((pattern=bt_machine_get_pattern_by_id(machine,pattern_id))) {
         // get timeline from sequence

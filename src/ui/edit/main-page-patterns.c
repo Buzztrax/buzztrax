@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.6 2004-08-25 16:25:22 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.7 2004-08-26 16:44:11 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -74,10 +74,8 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
   }
-  GST_INFO("  done");
   gtk_option_menu_set_menu(self->private->pattern_menu,menu);
   gtk_option_menu_set_history(self->private->pattern_menu,0);
-  GST_INFO("  return");
 }
 
 //-- event handler

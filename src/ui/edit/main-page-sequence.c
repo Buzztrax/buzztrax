@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.6 2004-08-25 16:25:22 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.7 2004-08-26 16:44:11 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -34,65 +34,86 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
   GList *columns,*node;
   
-  columns=gtk_tree_view_get_columns(self->private->sequence_list);
-  node=g_list_first(columns);
-	while(node) {
-    gtk_tree_view_remove_column(self->private->sequence_list,GTK_TREE_VIEW_COLUMN(node->data));
-    node=g_list_next(node);
+  if((columns=gtk_tree_view_get_columns(self->private->sequence_list))) {
+    node=g_list_first(columns);
+    while(node) {
+      gtk_tree_view_remove_column(self->private->sequence_list,GTK_TREE_VIEW_COLUMN(node->data));
+      node=g_list_next(node);
+    }
+    g_list_free(columns);
   }
-  g_list_free(columns);
-  
   renderer=gtk_cell_renderer_text_new();
+  g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,NULL);
   gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,_("Labels"),renderer,"text",0,NULL);
- 
 }
 
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSetup *setup,const BtSequence *sequence) {
   BtMachine *machine;
   BtTimeLine *timeline;
+  BtTimeLineTrack *timelinetrack;
+  BtPattern *pattern;
   GtkCellRenderer *renderer;
-  gpointer *iter;
   gchar *str;
-  gulong i,j,col_ct=1,timeline_ct;
+  gulong i,j,col_ct,timeline_ct,track_ct;
   GtkListStore *store;
   GType *store_types;
   GtkTreeIter tree_iter;
+  GValue pattern_type={0,};
 
   GST_INFO("refresh sequence table");
   
   // reset columns
   sequence_table_init(self);
+  timeline_ct=bt_g_object_get_long_property(G_OBJECT(sequence),"length");
+  track_ct=bt_g_object_get_long_property(G_OBJECT(sequence),"tracks");
+  GST_INFO("  size is %2d,%2d",timeline_ct,track_ct);
   // add column for each machine
-  iter=bt_setup_machine_iterator_new(setup);
-  while(iter) {
-    machine=bt_setup_machine_iterator_get_machine(iter);
+  for(j=0;j<track_ct;j++) {
+    machine=bt_sequence_get_machine_by_track(sequence,j);
     str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
     renderer=gtk_cell_renderer_text_new();
-    gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,str,renderer,"text",0,NULL);
-    iter=bt_setup_machine_iterator_next(iter);col_ct++;
+    g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
+    gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,str,renderer,"text",j+1,NULL);
   }
-  store_types=g_new(GType *,col_ct++);
+  col_ct=(1+track_ct);
+  store_types=(GType *)g_new(GType *,col_ct);
   for(i=0;i<col_ct;i++) store_types[i]=G_TYPE_STRING;
   store=gtk_list_store_newv(col_ct,store_types);
-  // @todo add patterns
-  timeline_ct=bt_g_object_get_long_property(G_OBJECT(sequence),"length");
+  // add patterns
+  g_value_init(&pattern_type,BT_TYPE_TIMELINETRACK_TYPE);
   for(i=0;i<timeline_ct;i++) {
     timeline=bt_sequence_get_timeline_by_time(sequence,i);
     gtk_list_store_append(store, &tree_iter);
-
     if((str=bt_g_object_get_string_property(G_OBJECT(timeline),"label"))) {
       gtk_list_store_set(store,&tree_iter,0,str,-1);
     }
-    j=1;
-    // foreach(timelinetrack) {
-    //    switch(timelinetrack->type) {
-    //      ...
-    //      gtk_list_store_set(store,&tree_iter,j,str,-1);
-    //    }
-    //    j++;
-    // }
+    for(j=0;j<track_ct;j++) {
+      timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,j);
+      g_object_get_property(G_OBJECT(timelinetrack),"type", &pattern_type);
+      switch(g_value_get_enum(&pattern_type)) {
+        case BT_TIMELINETRACK_TYPE_EMPTY:
+          str=" ";
+          break;
+        case BT_TIMELINETRACK_TYPE_PATTERN:
+          pattern=BT_PATTERN(bt_g_object_get_object_property(G_OBJECT(timelinetrack),"pattern"));
+          str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+          break;
+        case BT_TIMELINETRACK_TYPE_MUTE:
+          str="---";
+          break;
+        case BT_TIMELINETRACK_TYPE_STOP:
+          str="===";
+          break;
+        default:
+          str="???";
+          GST_ERROR("implement me");
+      }
+      GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
+      gtk_list_store_set(store,&tree_iter,1+j,str,-1);
+    }
   }
   gtk_tree_view_set_model(self->private->sequence_list,GTK_TREE_MODEL(store));
+  g_object_unref(store); // drop with treeview
 }
 
 static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine *machine) {
@@ -124,6 +145,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
     }
   }
   gtk_tree_view_set_model(self->private->pattern_list,GTK_TREE_MODEL(store));
+  g_object_unref(store); // drop with treeview
 }
 
 //-- event handler

@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.11 2004-08-25 16:25:22 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.12 2004-08-26 16:44:11 ensonic Exp $
  * defines all public methods of the sequence class
  */
 
@@ -11,6 +11,9 @@
 extern BtSequence *bt_sequence_new(const BtSong *song);
 
 extern BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time);
+extern BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong track);
+extern void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,const BtMachine *machine);
+
 extern gulong bt_sequence_get_bar_time(const BtSequence *self);
 extern gulong bt_sequence_get_loop_time(const BtSequence *self);
 

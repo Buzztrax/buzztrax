@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.22 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: sequence.c,v 1.23 2004-08-26 16:44:11 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -26,7 +26,10 @@ struct _BtSequencePrivate {
   /* the number of tracks */
   glong tracks;
 
-  /* the timelines that form the sequence */
+  /* <tracks> machine entries that are the heading of the sequence */
+  BtMachine **machines;
+  
+  /* <length> timeline entries that form the sequence */
   BtTimeLine **timelines;
 
   /* flag to externally abort playing */
@@ -66,7 +69,7 @@ static void bt_sequence_free_timelines(const BtSequence *self) {
 static void bt_sequence_init_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_init_timelines");
   if(self->private->length) {
-    self->private->timelines=g_new0(BtTimeLine*,self->private->length);
+    self->private->timelines=g_new(BtTimeLine*,self->private->length);
     if(self->private->timelines) {
       glong i;
       for(i=0;i<self->private->length;i++) {
@@ -92,6 +95,19 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
         bt_g_object_set_long_property(G_OBJECT(self->private->timelines[i]),"tracks",self->private->tracks);
       }
     }
+  }
+}
+
+/**
+ * bt_sequence_init_machines:
+ * @self: the sequence that holds the machines-list
+ *
+ * Initialize the machines-list when we create/load a new song
+ */
+static void bt_sequence_init_machines(const BtSequence *self) {
+  GST_DEBUG("bt_sequence_init_machines");
+  if(self->private->tracks) {
+    self->private->machines=g_new0(BtMachine*,self->private->tracks);
   }
 }
 
@@ -133,6 +149,55 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
     GST_ERROR("index out of bounds, %d should be < %d",time,self->private->length);
   }
   return(NULL);
+}
+
+/**
+ * bt_sequence_get_machine_by_track:
+ * @self: the #BtSequence that holds the tracks
+ * @track: the requested track index
+ *
+ * fetches the required #BtMachine.
+ *
+ * Returns: the #BtMachine pointer or NULL in case of an error
+ */
+BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong track) {
+  if(track<self->private->tracks) {
+    return(self->private->machines[track]);
+  }
+  else {
+    GST_ERROR("index out of bounds, %d should be < %d",time,self->private->tracks);
+  }
+  return(NULL);
+}
+
+/**
+ * bt_sequence_set_machine_by_track:
+ * @self: the #BtSequence that holds the tracks
+ * @track: the requested track index
+ * @machine: the machine
+ *
+ * fetches the required #BtMachine.
+ *
+ * Returns: the #BtMachine pointer or NULL in case of an error
+ */
+void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,const BtMachine *machine) {
+
+  g_assert(machine);
+
+  // @todo shouldn't we better make self->private->tracks a readonly property and offer methods to insert/remove tracks
+  // as it should not be allowed to change the machine later on
+  
+  if(track<self->private->tracks) {
+    if(!self->private->machines[track]) {
+      self->private->machines[track]=machine;
+    }
+    else {
+      GST_ERROR("machine has already be set!");
+    }
+  }
+  else {
+    GST_ERROR("index out of bounds, %d should be < %d",time,self->private->tracks);
+  }
 }
 
 /**
@@ -319,6 +384,7 @@ static void bt_sequence_set_property(GObject      *object,
     case SEQUENCE_TRACKS: {
       self->private->tracks = g_value_get_long(value);
       GST_DEBUG("set the tracks for sequence: %d",self->private->tracks);
+      bt_sequence_init_machines(self);
       bt_sequence_init_timelinetracks(self);
     } break;
     default: {
@@ -339,6 +405,7 @@ static void bt_sequence_finalize(GObject *object) {
 
 	g_object_unref(G_OBJECT(self->private->song));
   bt_sequence_free_timelines(self);
+  g_free(self->private->machines);
   g_free(self->private);
 }
 
