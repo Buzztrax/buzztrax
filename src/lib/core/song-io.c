@@ -1,4 +1,4 @@
-/** $Id: song-io.c,v 1.3 2004-05-07 16:29:25 ensonic Exp $
+/** $Id: song-io.c,v 1.4 2004-05-10 20:46:36 ensonic Exp $
  * base class for song input and output
  */
  
@@ -15,9 +15,18 @@ struct _BtSongIOPrivate {
 //-- helper methods
 
 static void bt_song_io_register_all() {
-	/** @todo implement bt_song_io_register_all() */
+  /* @todo implement bt_song_io_register_all() */
 }
 
+/**
+ * bt_song_io_detect:
+ * @filename: the full filename of the song
+ * 
+ * factory method that returns the GType of the class that is able to handle
+ * the supplied file
+ *
+ * Returns: the type of the #SongIO sub-class that can handle the supplied file
+ */
 GType bt_song_io_detect(const gchar *filename) {
 	return(bt_song_io_native_get_type());
 }
@@ -31,6 +40,16 @@ gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song, const gc
 
 //-- wrapper
 
+/**
+ * bt_song_io_load:
+ * @self: the #SongIO instance to use
+ * @song: the #Song instance that should initialized
+ * @filename: the path of the file that contains the song to load
+ *
+ * load the song from a file
+ *
+ * Returns: true for success
+ */
 gboolean bt_song_io_load(const gpointer self, const BtSong *song, const gchar *filename) {
 	return(BT_SONG_IO_GET_CLASS(self)->load(self,song,filename));
 }

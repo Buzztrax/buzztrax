@@ -65,7 +65,7 @@ DOC_OVERRIDES =
 # Everything below here is generic and you shouldn't need to change it.
 ###########################################################################
 
-TARGET_DIR=$(HTML_DIR)/$(DOC_MODULE)
+TARGET_DIR=$(HTML_DIR)/$(DOC_MODULE)-@BT_MAJORMINOR@
 
 EXTRA_DIST = 				\
 	$(content_files)		\
@@ -159,9 +159,44 @@ install-data-local:
 	    echo '-- Installing '$$i ; \
 	    $(INSTALL_DATA) $$i $(DESTDIR)$(TARGET_DIR); \
 	  done; \
+	  pngfiles=`echo ./html/*.png`; \
+	  if test "$$pngfiles" != './html/*.png'; then \
+	    for i in $$pngfiles; do \
+	      echo '-- Installing '$$i ; \
+	      $(INSTALL_DATA) $$i $(DESTDIR)$(TARGET_DIR); \
+	    done; \
+	  fi; \
+	  echo '-- Installing $(srcdir)/html/$(DOC_MODULE).devhelp' ; \
+	  $(INSTALL_DATA) $(srcdir)/html/$(DOC_MODULE).devhelp \
+	    $(DESTDIR)$(TARGET_DIR)/$(DOC_MODULE)-@BT_MAJORMINOR@.devhelp; \
 	  echo '-- Installing $(srcdir)/html/index.sgml' ; \
 	  $(INSTALL_DATA) $(srcdir)/html/index.sgml $(DESTDIR)$(TARGET_DIR); \
 	fi)
+
+uninstall-local:
+	(installfiles=`echo ./html/*.html`; \
+	if test "$$installfiles" = './html/*.html'; \
+	then echo '-- Nothing to uninstall' ; \
+	else \
+	  for i in $$installfiles; do \
+	    rmfile=`basename $$i` ; \
+	    echo '-- Uninstalling $(DESTDIR)$(TARGET_DIR)/'$$rmfile ; \
+	    rm -f $(DESTDIR)$(TARGET_DIR)/$$rmfile; \
+	  done; \
+	  pngfiles=`echo ./html/*.png`; \
+	  if test "$$pngfiles" != './html/*.png'; then \
+	    for i in $$pngfiles; do \
+	      rmfile=`basename $$i` ; \
+	      echo '-- Uninstalling $(DESTDIR)$(TARGET_DIR)/'$$rmfile ; \
+	      rm -f $(DESTDIR)$(TARGET_DIR)/$$rmfile; \
+	    done; \
+	  fi; \
+	  echo '-- Uninstalling $(DESTDIR)$(TARGET_DIR)/$(DOC_MODULE).devhelp' ; \
+	  rm -f $(DESTDIR)$(TARGET_DIR)/$(DOC_MODULE)-@BT_MAJORMINOR@.devhelp; \
+	  echo '-- Uninstalling $(DESTDIR)$(TARGET_DIR)/index.sgml' ; \
+	  rm -f $(DESTDIR)$(TARGET_DIR)/index.sgml; \
+	fi) 
+	if test -d $(DESTDIR)$(TARGET_DIR); then rmdir -p --ignore-fail-on-non-empty $(DESTDIR)$(TARGET_DIR); fi
 
 #
 # Require gtk-doc when making dist

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.7 2004-05-09 12:59:16 ensonic Exp $
+# $Id: configure.ac,v 1.8 2004-05-10 20:46:26 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -22,12 +22,18 @@ BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
 BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + $BT_MICRO_VERSION`
 
+dnl our libraries and install dirs use major.minor as a version
+BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
+dnl we override it here for release candidates
+#BT_MAJORMINOR=0.8
+
 AC_SUBST(BT_MAJOR_VERSION)
 AC_SUBST(BT_MINOR_VERSION)
 AC_SUBST(BT_MICRO_VERSION)
 AC_SUBST(BT_VERSION)
 AC_SUBST(BT_VERSION_INFO)
 AC_SUBST(BT_VERSION_NUMBER)
+AC_SUBST(BT_MAJORMINOR)
 
 VERSION=${BT_VERSION}
 
@@ -182,7 +188,8 @@ AC_SUBST(BASE_DEPS_CFLAGS)
 
 AC_CONFIG_FILES(Makefile \
   docs/Makefile
-    docs/reference/Makefile
+    docs/version.entities \
+    docs/reference/Makefile \
   src/Makefile \
 	src/lib/Makefile \
 	src/lib/core/Makefile \
