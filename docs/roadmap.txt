@@ -1,29 +1,30 @@
-* $Id: roadmap.txt,v 1.1 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: roadmap.txt,v 1.2 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
-** roadmap
+* 1.) finalize decission on player
+	- gstreamer
 
-1.) isolate the player stuff from alsaplayer
+* 2.) run player with static sound generation
+	- sinesrc->esdsink
 
-2.) run player with static sawtooth generation
+* 3.) make two (internal) machines
+	- sine-generator and clipping-amplifier
+	- plugin network
+	- connect both with a static song
 
-3.) make two (internal) machines
-- sawtooth-generator and clipping-amplifier
-- plugin network
-- connect both with a static song
+* 4.) song fileformat and i/o
+	- design directory structure
+	- design fileformat
+	- implement zipping
 
-4.) song fileformat and i/o
-- design directory structure
-- design fileformat
-- implement zipping
+* 6.) wrap buzz machines
+	- libtool based wrapping
 
-6.) wrap buzz machines
+* 7.) song converters
+	- from buzz, amiga tracker, ...
 
-7.) song converters
-- from buzz, amiga tracker, ...
-
-8.) basic gui
-- loading songs
-- viewing song data
-- start, stop playing
+* 8.) basic gui
+	- loading songs
+	- viewing song data
+	- start, stop playing
 

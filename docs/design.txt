@@ -1,48 +1,70 @@
-* $Id: design.txt,v 1.7 2004-02-10 14:30:20 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: design.txt,v 1.8 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
-** architecture
-	- two main modules
-	*** gui
-	*** worker
-	- player
-	- file i/o
-	- sample processing
-	- song edit operations
+* architecture (two main modules)
+	** gui
+	** worker
+		- put all player code into buzztard-player.so
+				- so that this can be used in players like xmms
+				- lib should contain no UI code
+		- sub-modules
+			- player
+			- file i/o
+			- sample processing
+			- song edit operations
 
-** gstreamer how-to
-*** get list of generators, effect, outputs
-  - see gst-player sources
-*** find out how to feed parameters into elements
-  - synchonous (from the GUI)
-			GstElement *sinesrc;
-			GstDParamManager *dpman;
-			GstDParam *volume;
-			gfloat set_to_value = 0.5; /* or value from slider */
-			GValue *set_val = g_new0(GValue,1);
-			g_value_init(set_val, G_TYPE_FLOAT);
-			...
-			sinesrc = gst_element_factory_make("sinesrc","sine-source");
-			...
-			dpman = gst_dpman_get_manager (sinesrc);
-			gst_dpman_set_mode(dpman, "synchronous");
-			...
-			volume = gst_dparam_new(G_TYPE_FLOAT);
-			if (gst_dpman_attach_dparam (dpman, "volume", volume)){
-				/* the dparam was successfully attached */
-				...
-				g_value_set_float(set_val, set_to_value);
-				g_object_set_property(G_OBJECT(volume), "value_float", set_val);
-				...
-			}
-	- asynchronous (from the sequence data, when playing)
-		like above, but
-		gst_dpman_set_mode(dpman, "asynchronous");
-		...
-		
-	- find out how to implement timelined parameters
 
-** timing
+* general
+	** machine-index.xml
+		- we will deliver a machine-index.xml with the buzztard distribution
+			- it will list only useful elements
+			- it will hide tool elements (e.g. float2int)
+		- support online-updates (machines via machine-index.xml)
+
+
+* gstreamer usage
+	** for general playing
+	** for loading wavetable samples
+		- add internal sink at the end of the bin
+	** for bouncing
+		- exchange audio_sink with encoder chain to render song as { riff-wav, mp3, ogg, ... }
+
+
+* gstreamer how-to
+	** get list of generators, effect, outputs
+		- see gst-player sources
+	** find out how to feed parameters into elements
+		- synchonous (from the GUI)
+				GstElement *sinesrc;
+				GstDParamManager *dpman;
+				GstDParam *volume;
+				gfloat set_to_value = 0.5; /* or value from slider */
+				GValue *set_val = g_new0(GValue,1);
+				g_value_init(set_val, G_TYPE_FLOAT);
+				...
+				sinesrc = gst_element_factory_make("sinesrc","sine-source");
+				...
+				dpman = gst_dpman_get_manager (sinesrc);
+				gst_dpman_set_mode(dpman, "synchronous");
+				...
+				volume = gst_dparam_new(G_TYPE_FLOAT);
+				if (gst_dpman_attach_dparam (dpman, "volume", volume)){
+					/* the dparam was successfully attached */
+					...
+					g_value_set_float(set_val, set_to_value);
+					g_object_set_property(G_OBJECT(volume), "value_float", set_val);
+					...
+				}
+		- asynchronous (from the sequence data, when playing)
+			like above, but
+			gst_dpman_set_mode(dpman, "asynchronous");
+			...
+			
+		- find out how to implement timelined parameters
+	** find out how mixing works (route two source into into one sink)
+		- mixing element is called 'adder'
+	
+* timing
 	- we have two clock rates:
 		audio-rate: sampling-rate/audio-buffer size
 		controldata-rate: determined from BPM, clock (e.g. 4/4) and TPB (ticks per beat)
@@ -60,8 +82,8 @@
 	- controldata callback
 			- set new machine parameters from patterndata
 
-** network
-	*** user plugins
+* plugin network
+	** user plugins
 	= ladspa plugins
 	
 	0 input, 1 output : sources    : generators
@@ -71,21 +93,57 @@
 	= original buzz machines 
 	wrap original buzz dll like e.g. mplayer does with windows codecs
 
-	*** internal plugins
+	** internal plugins
 	= ladspa plugins
 	hide the input mixing
 	hide channel conversion
 
-** controller ids
+* controller ids
+	- define a few standart controler ids to aid cut/copy/paste of pattern data
 
-** recording
-	own jack-driver wav-record
-	when telling buzztard to record wav-out instead of playing it, we attach a new
-	wav-record driver to jack and supplying filename and jack-driver name. Then we
-	diconnect our wave-out from the current playback driver and connect it to the
-	newly created wav-record driver and start playback. The driver will then start
-	recording and stop, when the clients have benn detached again.
-	Recording will be done as fast as possible, as the jack-driver will have
-	0-waits.
-	QUESTION: can we attach drivers to running jackd?
+* recording
+  ** we record via gstreamer
+	** own jack-driver wav-record (deprecated)
+		when telling buzztard to record wav-out instead of playing it, we attach a new
+		wav-record driver to jack and supplying filename and jack-driver name. Then we
+		diconnect our wave-out from the current playback driver and connect it to the
+		newly created wav-record driver and start playback. The driver will then start
+		recording and stop, when the clients have benn detached again.
+		Recording will be done as fast as possible, as the jack-driver will have
+		0-waits.
+		QUESTION: can we attach drivers to running jackd?
+
+
+* open questions --------------------------------------------------------------
+	** can we have multiple sinks (visualisation, statistics) ?
+		- should the audio_sink be the master?
+		- can we synchronize audio and video?
+	** midi - no concept yet at all in gst
+		- midi input (for playing machines, recording notes)
+		- midi output (tick timing!)
+	** timelined dparams
+		- add dparam changes with timestamp to a queue, that is attached to the element
+		- the one that drives the process_loop of the element needs to check,
+		  if there are elements in the head of the queue which will need to be aplied during the next loop
+		- if yes, the loop must be splitted, and invoked several times
+		- example:
+			loop_len = 500
+			event_wating @ 200
+			=> loop_len1 = 200, set_dparam, loop_len2=300
+	** pass through note_on and note_off events
+		- when entering a note in a source this generates a note_on event
+		- the note_length determines when the note_off gets generated
+		- now it would be useful if effect-plugins could react on note_on/off as well
+			- starting an envelope, reseting an LFO
+		- Problem 1: how to pass this data
+		- Problem 2: when more than 1 source is routed into one effect, what to do with these events
+	** find out how auto-plugging works (automatically inserting converters)
+		- audioformat (float2int)
+		- channels (channel merger, channel spreader)
+		- gain control
+		- mixer (multiple sources to one sink)
+	** how do we do the multi-track feature of buzz
+		(useful for keeping a few things static for multiple voices)
+		- sources: play multiple notes
+		- effects: delay=multi-tap-delay, pitchshift=make-chords
 

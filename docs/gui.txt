@@ -1,17 +1,30 @@
-* $Id: gui.txt,v 1.1 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: gui.txt,v 1.2 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * mimic the apperance and behaviour of buzz
-- page order : machines, sequence, patterns
+	- page order : machines, sequence, patterns
+
+* meta-page (blabla)
+  - author, title,... form fields + freeform text field
+  - save as rdf with dc-schema
+  - info can e.g. be used for id-3 tags when encoding
 
 * machine view
-- add grid and snap-to-grid for machines
-- make view zoomable
+	- add grid and snap-to-grid for machines
+	- make view zoomable
+	- machines
+		- machines have level-meters (sources at right side, effects at both sides,
+			sinks at the left side)
 
 * sequence view
-- colorize track-columns like machines (generator, effect, player/analyser)
+	- colorize track-columns like machines (generator, effect, player/analyser)
 
 * pattern view
-- allow folding tracks
-- number view (like buzz) or gui view (have embedded sliders, drop-downs and check-boxes)
+	- allow folding tracks
+	- number view (like buzz) or gui view (have embedded sliders, drop-downs and check-boxes)
 
+* menu
+	- menu/new load/default song, which could contain e.g.
+		- initial blabla page
+		- some initial machines
+		? does it make sense to provide "new from..."

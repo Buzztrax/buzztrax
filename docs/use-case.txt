@@ -1,33 +1,35 @@
-* $Id: use-case.txt,v 1.2 2002-06-07 10:11:38 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: use-case.txt,v 1.3 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
-** purpose
-collection of various networks with the possible wrapper configurations
+* purpose
+	collection of various networks with the possible wrapper configurations
 
-** notation
-*** plugins
-G : generator (source)
-E : effect
-P : player (sink)
-*** channels
-m : mono
-s : stereo
-q : quadro
-*** wrappers
-WS : input channel *s*plicing (duplicating) wrapper
-WP : input channel *p*anning wrapper
-WM : input source *m*ixing wrapper
-WD : instance doubling wrapper
+* notation
+	** plugins
+		G : generator (source)
+		E : effect
+		P : player (sink)
+	** channels
+		m : mono
+		s : stereo
+		q : quadro
+	** wrappers
+		WS : input channel *s*plicing (duplicating) wrapper
+		WP : input channel *p*anning wrapper
+		WM : input source *m*ixing wrapper
+		WD : instance doubling wrapper
 
-** cases
-*** connect something with less channels to something with more channels
-Sm -> WS(sEs) -> sP
-*** connect something with more channels to something with less channels
-Ss -> WD(mEm) -> sP
+* cases
+	** connect something with less channels to something with more channels
+		Sm -> WS(sEs) -> sP
 
-    /-> mEm -\
-Ss -          -> sP
-    \-> mEm -/
+	** connect something with more channels to something with less channels
+		Ss -> WD(mEm) -> sP
+		
+				/-> mEm -\
+		Ss -          -> sP
+				\-> mEm -/
+	
+	**
+		Sm -> mEq -> ?  sP
 
-***
-Sm -> mEq -> ?  sP

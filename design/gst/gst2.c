@@ -1,4 +1,4 @@
-/** $Id: gst2.c,v 1.3 2004-02-12 18:01:30 ensonic Exp $
+/** $Id: gst2.c,v 1.4 2004-02-17 14:27:00 ensonic Exp $
  */
  
 #include <stdio.h>
@@ -79,11 +79,11 @@ int main(int argc, char **argv) {
   if (gst_element_provides_clock (audiosink)) {
     gst_bin_use_clock(GST_BIN (thread), gst_element_get_clock (audiosink));
     clock = gst_element_get_clock (audiosink);
-    g_print("using %s clock\n",argv[2]);
+    g_print("using %s clock which is instance_of(%s)\n",argv[2],GST_OBJECT_NAME(clock));
   } else {
     gst_bin_use_clock(GST_BIN (thread), gst_system_clock_obtain());
     clock = gst_bin_get_clock(GST_BIN (thread));
-		g_print("using system clock\n");
+		g_print("using system clock which is instance_of(%s)\n",GST_OBJECT_NAME(clock));
   }
   
   g_print("clock::speed: %f\n",gst_clock_get_speed (clock));
