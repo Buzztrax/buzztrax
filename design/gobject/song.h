@@ -32,9 +32,11 @@ struct _BtSongClass {
 
 struct _BtSongPrivate {
   gchar *name;
+  gpointer data;
 };
 
 /* used by SONG_TYPE */
 GType bt_song_get_type(void);
+
 
 #endif //SONG_H
