@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.50 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: song.c,v 1.51 2004-10-22 16:15:58 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -20,7 +20,8 @@ enum {
 //-- property ids
 
 enum {
-	SONG_BIN=1,
+  SONG_APP=1,
+	SONG_BIN,
   SONG_MASTER,
   SONG_SONG_INFO,
   SONG_SEQUENCE,
@@ -35,6 +36,8 @@ struct _BtSongPrivate {
 	BtSequence* sequence;
 	BtSetup*    setup;
 
+  /* the application that currently uses the song */
+  BtApplication *app;
 	/* the main gstreamer container element */
 	GstBin *bin;
   /* the element that has the clock */
@@ -47,22 +50,24 @@ static guint signals[LAST_SIGNAL]={0,};
 
 /**
  * bt_song_new:
- * @bin: the gst root element to hold the song. 
+ * @app: the application object the songs belongs to.
  *
- * Create a new instance. The bin object can be retrieved from the bin property
- * of an #BtApplication instance.
+ * Create a new instance.
  * The new song instance automatically has one instance of #BtSetup, #BtSequence
  * and #BtSongInfo. These instances can be retrieved via the respecting
  * properties.
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtSong *bt_song_new(const GstBin *bin) {
+BtSong *bt_song_new(const BtApplication *app) {
   BtSong *self=NULL;
+  GstBin *bin;
 	
-  g_assert(GST_IS_BIN(bin));
+  g_assert(BT_IS_APPLICATION(app));
   
-  self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
+  g_object_get(app,"bin",&bin,NULL);
+  self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL));
+  g_object_try_unref(bin);
   return(self);
 }
 
@@ -152,6 +157,9 @@ static void bt_song_get_property(GObject      *object,
   BtSong *self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
+    case SONG_APP: {
+      g_value_set_object(value, self->priv->app);
+    } break;
     case SONG_BIN: {
       g_value_set_object(value, self->priv->bin);
     } break;
@@ -182,6 +190,11 @@ static void bt_song_set_property(GObject      *object,
   BtSong *self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
+    case SONG_APP: {
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for the song: %p",self->priv->app);
+    } break;
 		case SONG_BIN: {
       g_object_try_unref(self->priv->bin);
 			self->priv->bin = GST_BIN(g_object_try_ref(g_value_get_object(value)));
@@ -212,6 +225,7 @@ static void bt_song_dispose(GObject *object) {
 	g_object_try_unref(self->priv->sequence);
 	g_object_try_unref(self->priv->setup);
 	g_object_try_unref(self->priv->bin);
+	g_object_try_unref(self->priv->app);
 }
 
 static void bt_song_finalize(GObject *object) {
@@ -276,6 +290,13 @@ static void bt_song_class_init(BtSongClass *klass) {
                                         G_TYPE_NONE, // return type
                                         0, // n_params
                                         NULL /* param data */ );
+
+  g_object_class_install_property(gobject_class,SONG_APP,
+                                  g_param_spec_object("app",
+                                     "app contruct prop",
+                                     "set application object, the song belongs to",
+                                     BT_TYPE_APPLICATION, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,SONG_BIN,
 																	g_param_spec_object("bin",

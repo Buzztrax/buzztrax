@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.13 2004-09-03 17:17:18 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.14 2004-10-22 16:15:52 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
@@ -122,26 +122,5 @@ BtGtkApplication extends BtApplication {
 }
 
 //------------------------------------------------------------------------------
-/* 
-do we store the patterns in the machines (GList) und ref() them from the sequence?
 
-*/
-//------------------------------------------------------------------------------
-
-
-BtSong *mysong=g_object_new(BT_SONG,NULL);
-//-- loading in the new style
-BtSongIO *song_io=g_object_new(bt_song_io_detect(fname),NULL);
-bt_song_io_load(song_io,mysong,fname);
-//-- for saving we need to iterate over the list to get available types
-
-// creating a new wire between two machines
-wire=g_object_new(BT_WIRE,"song",mysong,"src",machine1,"dst",machine2);
-// the constructor of Bt_WIRE adds the new instance to mysong->setup->wires
-//  -> this is not working as we can't rely upon the construction parameters (src,dst)
-wire=g_object_new(BT_WIRE,"song",mysong);
-// the constructor remembers the ref to the song
-bt_wire_connect(wire,machine1,machine2);
-// this methods initializes the wire and adds it to wire->song->setup->wires
-// -> it needs to g_assert(wire->song);
-
+we have two big roots to start the app and the song

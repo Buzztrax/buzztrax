@@ -1,4 +1,4 @@
-/** $Id: t-wire.c,v 1.2 2004-10-08 13:50:04 ensonic Exp $
+/** $Id: t-wire.c,v 1.3 2004-10-22 16:15:58 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -25,7 +25,7 @@ static void test_teardown(void) {
 * try to create a wire with the same machine as source and dest 
 */
 START_TEST(test_btwire_obj1){
-	GstElement *bin=NULL;
+	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtWire *wire=NULL;
 	// machine
@@ -33,9 +33,12 @@ START_TEST(test_btwire_obj1){
 	
 	GST_INFO("--------------------------------------------------------------------------------");
 	
-	bin=gst_thread_new("thread");
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
   /* create a new song */
-  song=bt_song_new(GST_BIN(bin));
+	song=bt_song_new(app);
 	
 	/* try to create a source machine */
 	machine=bt_source_machine_new(song,"genrator1","sinesource",1);

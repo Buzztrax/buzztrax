@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.33 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: wire.c,v 1.34 2004-10-22 16:15:58 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -194,7 +194,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 			src->spreader=gst_element_factory_make("oneton",g_strdup_printf("oneton_%p",src));
 			g_assert(src->spreader!=NULL);
 			gst_bin_add(self->priv->bin, src->spreader);
-			if(!gst_element_link(src->machine, src->spreader)) {
+			if(!gst_element_link(src->src_elem, src->spreader)) {
 				GST_ERROR("failed to link the machines internal spreader");goto Error;
 			}
 		}
@@ -217,7 +217,6 @@ static gboolean bt_wire_connect(BtWire *self) {
 		GST_DEBUG("  other wire to dst found");
 		// unlink the elements from the other wire
 		bt_wire_unlink_machines(other_wire);
-		//gst_element_unlink(other_wire->src_elem, other_wire->dst->dst_elem);
 		// create adder (if needed)
 		if(!dst->adder) {
 			GstElement *convert;
@@ -229,7 +228,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 			convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",dst));
 			g_assert(convert!=NULL);
 			gst_bin_add(self->priv->bin, convert);
-			if(!gst_element_link_many(dst->adder, convert, dst->machine, NULL)) {
+			if(!gst_element_link_many(dst->dst_elem, convert, dst->machine, NULL)) {
 				GST_ERROR("failed to link the machines internal adder");goto Error;
 			}
 		}

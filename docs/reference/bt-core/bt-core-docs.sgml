@@ -56,6 +56,8 @@
 		<para>
       All datastructures are encapsulated in objects based on <link linkend="GObject">GObject</link>.
       Central starting points are <link linkend="BtApplication">BtApplication</link> and <link linkend="BtSong">BtSong</link>.
+      All the objects that belong to a song have their song-instance as their member.
+      Likewise all objects that belong to the applications have their application instance as a member.
 		</para>
     &libcore;
     &BtApplication;

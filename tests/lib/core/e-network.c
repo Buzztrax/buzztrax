@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.6 2004-10-22 12:01:16 ensonic Exp $
+/** $Id: e-network.c,v 1.7 2004-10-22 16:15:58 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -25,13 +25,13 @@ static void test_teardown(void) {
 * play.
 */
 START_TEST(test_btcore_net_example1) {
+	BtApplication *app=NULL;
   // the song
 	BtSong *song=NULL;
 	// machines
 	BtSourceMachine *gen1=NULL;
 	BtSinkMachine *sink=NULL;
   BtMachine *machine;
-	GstElement *bin=NULL;
 	// wires
   BtWire *wire, *wire1=NULL;
 	// song setup 
@@ -39,9 +39,13 @@ START_TEST(test_btcore_net_example1) {
 
   GST_INFO("--------------------------------------------------------------------------------");
 
-	bin=gst_thread_new("thread");
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
   /* create a new song */
-  song=bt_song_new(GST_BIN(bin));
+	song=bt_song_new(app);
+  
 	/* get the song setup */
 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -89,6 +93,7 @@ START_TEST(test_btcore_net_example1) {
   
   g_object_checked_unref(setup);
 	g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 
@@ -98,12 +103,12 @@ END_TEST
 * play
 */
 START_TEST(test_btcore_net_example2) {
+  BtApplication *app=NULL;
   // the song
 	BtSong *song=NULL;
 	// machines
 	BtSourceMachine *gen1=NULL,*gen2=NULL;
 	BtSinkMachine *sink=NULL;
-	GstElement *bin=NULL;
 	// wires
 	BtWire *wire, *wire1=NULL, *wire2=NULL;
 	// setup
@@ -111,9 +116,13 @@ START_TEST(test_btcore_net_example2) {
   
   GST_INFO("--------------------------------------------------------------------------------");
 
-	bin=gst_thread_new("thread");
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
   /* create a new song */
-  song=bt_song_new(GST_BIN(bin));  
+	song=bt_song_new(app);
+  
 	/* get the song setup */
 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -159,6 +168,7 @@ START_TEST(test_btcore_net_example2) {
   
   g_object_checked_unref(setup);
 	g_object_checked_unref(song);
+	g_object_checked_unref(app);
 }
 END_TEST
 

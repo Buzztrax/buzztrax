@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.41 2004-10-13 16:05:14 ensonic Exp $
+/* $Id: machine.c,v 1.42 2004-10-22 16:15:57 ensonic Exp $
  * base class for a machine
  */
  
@@ -134,6 +134,34 @@ gboolean bt_machine_new(BtMachine *self) {
 }
 
 //-- methods
+
+/**
+ * bt_machine_add_input_level:
+ * @self: the machine to add the input-level analyser to
+ *
+ * Add an input-level analyser to the machine and activate it.
+ */
+gboolean bt_machine_add_input_level(BtMachine *self) {
+  gboolean res=FALSE;
+  
+  /*  
+  // add input-level meter
+  if(!(self->priv->input_level=gst_element_factory_make("level","level"))) {
+    GST_ERROR("failed to create machines input level analyser");goto Error;
+  }
+  g_object_set(G_OBJECT(self->priv->input_level),"interval",0.1, "signal",TRUE, NULL);
+  gst_bin_add(self->priv->bin,self->priv->input_level);
+  if(!gst_element_link(self->machine, self->priv->input_level)) {
+		GST_ERROR("failed to link the machines input level analyser");goto Error;
+	}
+  self->dst_elem=self->priv->input_level;
+  //g_signal_connect(sd->pe->level, "level", G_CALLBACK (level_callback), sd->gsgui);
+  */
+  res=TRUE;
+Error:
+  return(res);
+}
+
 
 /**
  * bt_machine_add_pattern:

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.37 2004-10-13 16:05:14 ensonic Exp $
+/* $Id: cmd-application.c,v 1.38 2004-10-22 16:15:58 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -73,7 +73,6 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   gboolean res=FALSE;
 	BtSong *song=NULL;
 	BtSongIO *loader=NULL;
-  GstBin *bin=NULL;
 
   g_assert(BT_IS_CMD_APPLICATION(self));
   
@@ -83,8 +82,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
     goto Error;
   }
   // prepare song and song-io
-  g_object_get(G_OBJECT(self),"bin",&bin,NULL);
-  if(!(song=bt_song_new(bin))) {
+  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
   }
 	if(!(loader=bt_song_io_new(input_file_name))) {
@@ -105,7 +103,6 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
     goto Error;
 	}
 Error:
-  g_object_try_unref(bin);
   g_object_try_unref(song);
   g_object_try_unref(loader);
   return(res);
@@ -126,7 +123,6 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   gboolean res=FALSE;
 	BtSong *song=NULL;
 	BtSongIO *loader=NULL;
-  GstBin *bin=NULL;
 	FILE *output_file=NULL;
 
   g_assert(BT_IS_CMD_APPLICATION(self));
@@ -143,8 +139,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 		output_file = fopen(output_file_name,"wb");
 	}
   // prepare song and song-io
-  g_object_get(G_OBJECT(self),"bin",&bin,NULL);
-  if(!(song=bt_song_new(bin))) {
+  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
   }
 	if(!(loader=bt_song_io_new(input_file_name))) {
@@ -189,7 +184,6 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 		goto Error;
 	}
 Error:
-  g_object_try_unref(bin);
   g_object_try_unref(song);
   g_object_try_unref(loader);
 	if (is_string(output_file_name)) {

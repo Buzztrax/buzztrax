@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.9 2004-08-24 14:10:03 ensonic Exp $
+/* $Id: machine-methods.h,v 1.10 2004-10-22 16:15:58 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -7,6 +7,8 @@
 
 #include "machine.h"
 #include "pattern.h"
+
+extern gboolean bt_machine_add_input_level(BtMachine *self);
 
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id);

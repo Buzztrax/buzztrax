@@ -1,4 +1,4 @@
-/** $Id: t-network.c,v 1.8 2004-10-08 13:50:04 ensonic Exp $
+/** $Id: t-network.c,v 1.9 2004-10-22 16:15:58 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -25,16 +25,19 @@ static void test_teardown(void) {
 */
 
 START_TEST(test_btcore_net1) {
-	GstElement *bin=NULL;
+	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	gboolean song_ret;
 	
   GST_INFO("--------------------------------------------------------------------------------");
 
-	bin=gst_thread_new("thread");
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
   /* create a new song */
-  song=bt_song_new(GST_BIN(bin));
+	song=bt_song_new(app);
 	
 	/* get the setup for the song */
 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -57,6 +60,7 @@ START_TEST(test_btcore_net1) {
 	
   g_object_checked_unref(setup);  
 	g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 

@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.5 2004-10-22 12:01:16 ensonic Exp $
+/** $Id: t-setup.c,v 1.6 2004-10-22 16:15:58 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -25,16 +25,19 @@ static void test_teardown(void) {
 * Try to add the same machine twice to the setup
 */
 START_TEST(test_btsetup_obj1){
+  BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
-	GstElement *bin=NULL;
 	BtSourceMachine *machine=NULL;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
-	
-	bin = gst_thread_new("thread");
-
-	song=bt_song_new(GST_BIN(bin));
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 	
 	/* try to create the machine */
@@ -48,7 +51,8 @@ START_TEST(test_btsetup_obj1){
   
   /* try to free the ressources */
   g_object_unref(setup);
-  g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 
@@ -56,18 +60,21 @@ END_TEST
 * try to add the same wire twice
 */
 START_TEST(test_btsetup_obj2){
+  BtApplication *app=NULL;
   BtSong *song=NULL;
 	BtSetup *setup=NULL;
-	GstElement *bin=NULL;
 	BtSourceMachine *source=NULL;
 	BtSinkMachine *sink=NULL;
 	BtWire *wire=NULL;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
-	
-	bin = gst_thread_new("thread");
 
-	song=bt_song_new(GST_BIN(bin));
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 	
 	/* try to create the source machine */
@@ -91,7 +98,8 @@ START_TEST(test_btsetup_obj2){
 
   /* try to free the ressources */
   g_object_unref(setup);
-  g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 

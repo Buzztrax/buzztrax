@@ -1,6 +1,11 @@
-/* $Id: setup.c,v 1.34 2004-10-15 15:39:32 ensonic Exp $
+/* $Id: setup.c,v 1.35 2004-10-22 16:15:58 ensonic Exp $
  * class for machine and wire setup
  */
+ 
+/* @todo add a methods for dumping the setup as a dot-graph
+ * machines and wires should be dumped with details !
+ */
+ 
  
 #define BT_CORE
 #define BT_SETUP_C

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.32 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: edit-application.c,v 1.33 2004-10-22 16:15:58 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -69,18 +69,19 @@ static gboolean on_loader_status_changed(BtSongIO *loader, gpointer user_data) {
 
 gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
   gboolean res=FALSE;
-  GstBin *bin=NULL;
 
   g_assert(BT_IS_EDIT_APPLICATION(self));
   
+  // DEBUG
   if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+  // DEBUG
   g_object_try_unref(self->priv->song);
-  g_object_get(G_OBJECT(self),"bin",&bin,NULL);
-  if((self->priv->song=bt_song_new(bin))) {
+  if((self->priv->song=bt_song_new(BT_APPLICATION(self)))) {
     res=TRUE;
+    // DEBUG
     GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+    // DEBUG
   }
-  g_object_try_unref(bin);
   return(res);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.20 2004-10-22 12:01:06 ensonic Exp $
+/* $Id: sink-machine.c,v 1.21 2004-10-22 16:15:58 ensonic Exp $
  * class for a sink machine
  */
  
@@ -32,11 +32,14 @@ static BtMachineClass *parent_class=NULL;
  */
 BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   BtSinkMachine *self;
+  BtApplication *app;
   BtSettings *settings;
   gchar *audiosink_name,*system_audiosink_name;
-  gchar *plugin_name;
+  gchar *plugin_name=NULL;
   
-  // @todo get plugin_name from settings
+  // get plugin_name from song->app->settings
+  g_object_get(song,"app",&app,NULL);
+  g_object_get(app,"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
   if(is_string(audiosink_name)) plugin_name=audiosink_name;
   else if(is_string(system_audiosink_name)) plugin_name=system_audiosink_name;
@@ -54,13 +57,19 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
+  if(!bt_machine_add_input_level(BT_MACHINE(self))) {
+    goto Error;
+  }
+  
   g_free(system_audiosink_name);
   g_free(audiosink_name);
   g_object_try_unref(settings);
+  g_object_try_unref(app);
   return(self);
 Error:
   g_free(system_audiosink_name);
   g_object_try_unref(settings);
+  g_object_try_unref(app);
   g_object_try_unref(self);
   return(NULL);
 }

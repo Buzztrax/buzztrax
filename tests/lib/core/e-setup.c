@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.4 2004-10-22 12:01:16 ensonic Exp $
+/** $Id: e-setup.c,v 1.5 2004-10-22 16:15:58 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -29,9 +29,9 @@ static void test_teardown(void) {
 *
 */
 START_TEST(test_btsetup_obj1){
+  BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
-	GstElement *bin=NULL;
 	// machine
 	BtSourceMachine *gen1=NULL;
 	BtMachine *ref_machine=NULL;
@@ -39,12 +39,14 @@ START_TEST(test_btsetup_obj1){
 	gpointer *iter_ptr;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
-	
-	bin = gst_thread_new("thread");
 
-	song=bt_song_new(GST_BIN(bin));
-	setup=bt_setup_new(song);
-	fail_unless(setup!=NULL, NULL);
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+	/* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
 	
 	/* try to craete generator1 with sinesrc */
   gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
@@ -74,9 +76,9 @@ END_TEST
 * we give the source or dest machine.
 */
 START_TEST(test_btsetup_obj2) {
+  BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
-	GstElement *bin=NULL;
 	// machines
 	BtSourceMachine *source=NULL;
 	BtSinkMachine *sink=NULL;
@@ -88,10 +90,13 @@ START_TEST(test_btsetup_obj2) {
 	
 	GST_INFO("--------------------------------------------------------------------------------");
 	
-	bin = gst_thread_new("thread");
-
-	song=bt_song_new(GST_BIN(bin));
-	setup=bt_setup_new(song);
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
 	/* try to craete generator1 with sinesrc */
