@@ -45,7 +45,7 @@
   </preface>
 
   <chapter id="conventions">
-    During the API docs some convetions are used to avoid duplication and
+    During the API docs some conventions are used to avoid duplication and
     improve precission.
     <orderedlist>
       <listitem>

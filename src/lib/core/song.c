@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.53 2004-10-26 11:09:47 ensonic Exp $
+/* $Id: song.c,v 1.54 2004-10-29 13:12:19 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -81,7 +81,6 @@ BtSong *bt_song_new(const BtApplication *app) {
  * This methods emits the "play" signal.
  *
  * Returns: TRUE for success
- *
  */
 gboolean bt_song_play(const BtSong *self) {
   gboolean res;
@@ -103,7 +102,6 @@ gboolean bt_song_play(const BtSong *self) {
  * Stops the playback of the specified song instance.
  *
  * Returns: TRUE for success
- *
  */
 gboolean bt_song_stop(const BtSong *self) {
   gboolean res;
@@ -121,11 +119,11 @@ gboolean bt_song_stop(const BtSong *self) {
  * Pauses the playback of the specified song instance
  *
  * Returns: TRUE for success
- *
  */
 gboolean bt_song_pause(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
   // @todo remember play position
+  // @todo sequence playing stuff needs to be updated to support pause/continue
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
 }
 
@@ -136,12 +134,30 @@ gboolean bt_song_pause(const BtSong *self) {
  * Continues the playback of the specified song instance
  *
  * Returns: TRUE for success
- *
  */
 gboolean bt_song_continue(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
   // @todo reuse play position
+  // @todo sequence playing stuff needs to be updated to support pause/continue
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
+}
+
+/**
+ * bt_song_write_to_xml_file:
+ * @self: the song that should be written
+ *
+ * To aid debugging applications one can use this method to write out the whole
+ * network of gstreamer elements that form the song into an XML file.
+ * This XML file can be loaded into gst-editor.
+ */
+void bt_song_write_to_xml_file(const BtSong *self) {
+  FILE *out;
+  g_assert(BT_IS_SONG(self));
+  
+  if((out=fopen("/tmp/buzztard-song.xml","wb"))) {
+    gst_xml_write_file(self->priv->bin,out);
+    fclose(out);
+  }
 }
 
 //-- wrapper

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.39 2004-10-22 12:01:07 ensonic Exp $
+/* $Id: song-io-native.c,v 1.40 2004-10-29 13:12:19 ensonic Exp $
  * class for native song input and output
  */
  
@@ -628,6 +628,9 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 				bt_song_io_native_load_setup(    self,song,song_doc);
 				bt_song_io_native_load_patterns( self,song,song_doc);
 				bt_song_io_native_load_sequence( self,song,song_doc);
+        //DEBUG
+        bt_song_write_to_xml_file(song);
+        //DEBUG
 				result=TRUE;
 			}
 		}		

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.44 2004-10-28 11:16:29 ensonic Exp $
+/* $Id: machine.c,v 1.45 2004-10-29 13:12:18 ensonic Exp $
  * base class for a machine
  */
  
@@ -14,7 +14,8 @@ enum {
 	MACHINE_PLUGIN_NAME,
   MACHINE_VOICES,
   MACHINE_GLOBAL_PARAMS,
-  MACHINE_VOICE_PARAMS
+  MACHINE_VOICE_PARAMS,
+  MACHINE_INPUT_LEVEL
 };
 
 struct _BtMachinePrivate {
@@ -498,13 +499,15 @@ static void bt_machine_get_property(GObject      *object,
     } break;
     case MACHINE_VOICES: {
       g_value_set_ulong(value, self->priv->voices);
-      // @todo reallocate self->priv->patterns->priv->data
     } break;
     case MACHINE_GLOBAL_PARAMS: {
       g_value_set_ulong(value, self->priv->global_params);
     } break;
     case MACHINE_VOICE_PARAMS: {
       g_value_set_ulong(value, self->priv->voice_params);
+    } break;
+    case MACHINE_INPUT_LEVEL: {
+      g_value_set_object(value, self->priv->input_level);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -540,6 +543,7 @@ static void bt_machine_set_property(GObject      *object,
     } break;
     case MACHINE_VOICES: {
       self->priv->voices = g_value_get_ulong(value);
+      // @todo reallocate self->priv->patterns->priv->data
     } break;
     case MACHINE_GLOBAL_PARAMS: {
       self->priv->global_params = g_value_get_ulong(value);
@@ -709,6 +713,13 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      G_MAXLONG,
                                      0,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MACHINE_INPUT_LEVEL,
+                                  g_param_spec_object("input-level",
+                                     "input-lelve prop",
+                                     "the input-level element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_machine_get_type(void) {
