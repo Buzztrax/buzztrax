@@ -1,8 +1,10 @@
-$Id: TODO,v 1.1 2004-07-02 13:44:48 ensonic Exp $
+$Id: TODO,v 1.2 2004-07-02 15:00:59 ensonic Exp $
 
 * unit-tests
   * in the unit tests package, we have nasty, complex LDADD lines
-  * how can we add --g-fatal-warnings when running the unit tests
+  * how can we add --g-fatal-warnings when running the unit tests, check
+    g_log_set_always_fatal()
+    g_log_set_fatal_mask()
 
 * gobject private members
   * we need guidelines for use of ->private, 

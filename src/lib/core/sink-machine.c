@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.4 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: sink-machine.c,v 1.5 2004-07-02 15:01:06 ensonic Exp $
  * class for a sink machine
  */
  
@@ -28,12 +28,8 @@ static void bt_sink_machine_get_property(GObject      *object,
   BtSinkMachine *self = BT_SINK_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
-    default: { // call super method
-			BtSinkMachineClass *klass=BT_SINK_MACHINE_GET_CLASS(object);
-			BtMachineClass *base_klass=BT_MACHINE_CLASS(klass);
-			GObjectClass *base_gobject_class = G_OBJECT_CLASS(base_klass);
-			
-			base_gobject_class->get_property(object,property_id,value,pspec);
+    default: {
+      g_assert(FALSE);
       break;
     }
   }
@@ -48,12 +44,8 @@ static void bt_sink_machine_set_property(GObject      *object,
   BtSinkMachine *self = BT_SINK_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
-    default: { // call super method
-			BtSinkMachineClass *klass=BT_SINK_MACHINE_GET_CLASS(object);
-			BtMachineClass *base_klass=BT_MACHINE_CLASS(klass);
-			GObjectClass *base_gobject_class = G_OBJECT_CLASS(base_klass);
-			
-			base_gobject_class->set_property(object,property_id,value,pspec);
+    default: {
+			g_assert(FALSE);
       break;
     }
   }
