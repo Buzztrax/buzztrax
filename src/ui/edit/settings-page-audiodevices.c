@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.3 2004-10-22 12:01:16 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.4 2004-11-26 18:53:27 waffel Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -247,9 +247,9 @@ GType bt_settings_page_audiodevices_get_type(void) {
       sizeof (BtSettingsPageAudiodevices),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_settings_page_audiodevices_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_TABLE,"BtSettingsPageAudiodevices",&info,0);
   }
   return type;
 }
-

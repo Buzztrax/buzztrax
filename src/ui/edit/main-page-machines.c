@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.28 2004-11-26 17:55:34 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.29 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main machines page
  */
 
@@ -609,6 +609,7 @@ GType bt_main_page_machines_get_type(void) {
       sizeof (BtMainPageMachines),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_page_machines_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageMachines",&info,0);
   }

@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.19 2004-11-02 13:18:16 ensonic Exp $
+/* $Id: source-machine.c,v 1.20 2004-11-26 18:53:26 waffel Exp $
  * class for a source machine
  */
  
@@ -140,9 +140,9 @@ GType bt_source_machine_get_type(void) {
       sizeof (BtSourceMachine),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_source_machine_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(BT_TYPE_MACHINE,"BtSourceMachine",&info,0);
   }
   return type;
 }
-

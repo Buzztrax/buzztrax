@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.5 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.6 2004-11-26 18:53:26 waffel Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -149,9 +149,9 @@ GType bt_plainfile_settings_get_type(void) {
       sizeof (BtPlainfileSettings),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_plainfile_settings_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(BT_TYPE_SETTINGS,"BtPlainfileSettings",&info,0);
   }
   return type;
 }
-

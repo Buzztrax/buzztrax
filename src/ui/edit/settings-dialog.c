@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.9 2004-11-15 15:06:55 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.10 2004-11-26 18:53:27 waffel Exp $
  * class for the editor settings dialog
  */
 
@@ -276,6 +276,7 @@ GType bt_settings_dialog_get_type(void) {
       sizeof (BtSettingsDialog),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_settings_dialog_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_DIALOG,"BtSettingsDialog",&info,0);
   }

@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.27 2004-11-18 17:58:16 ensonic Exp $
+/* $Id: song-info.c,v 1.28 2004-11-26 18:53:26 waffel Exp $
  * class for a machine to machine connection
  */
  
@@ -290,6 +290,7 @@ GType bt_song_info_get_type(void) {
       sizeof (BtSongInfo),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_info_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(G_TYPE_OBJECT,"BtSongInfo",&info,0);
   }

@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.10 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: main-pages.c,v 1.11 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main pages
  */
 
@@ -223,9 +223,9 @@ GType bt_main_pages_get_type(void) {
       sizeof (BtMainPages),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_pages_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_NOTEBOOK,"BtMainPages",&info,0);
   }
   return type;
 }
-

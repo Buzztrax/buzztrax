@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.15 2004-11-25 21:09:45 ensonic Exp $
+/* $Id: main-page-info.c,v 1.16 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main info page
  */
 
@@ -296,6 +296,7 @@ GType bt_main_page_info_get_type(void) {
       sizeof (BtMainPageInfo),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_page_info_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageInfo",&info,0);
   }

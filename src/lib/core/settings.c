@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.9 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: settings.c,v 1.10 2004-11-26 18:53:26 waffel Exp $
  * base class for buzztard settings handling
  */
 
@@ -122,9 +122,9 @@ GType bt_settings_get_type(void) {
       sizeof (BtSettings),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_settings_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(G_TYPE_OBJECT,"BtSettings",&info,0);
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.17 2004-10-21 15:23:04 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.18 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main pattern page
  */
 
@@ -330,9 +330,9 @@ GType bt_main_page_patterns_get_type(void) {
       sizeof (BtMainPagePatterns),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_page_patterns_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPagePatterns",&info,0);
   }
   return type;
 }
-

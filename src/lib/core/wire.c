@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.38 2004-11-25 21:09:44 ensonic Exp $
+/* $Id: wire.c,v 1.39 2004-11-26 18:53:26 waffel Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -435,6 +435,7 @@ GType bt_wire_get_type(void) {
       sizeof (BtWire),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_wire_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(G_TYPE_OBJECT,"BtWire",&info,0);
   }

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.31 2004-11-18 17:58:16 ensonic Exp $
+/* $Id: main-window.c,v 1.32 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main window
  */
 
@@ -477,6 +477,7 @@ GType bt_main_window_get_type(void) {
       sizeof (BtMainWindow),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_window_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_WINDOW,"BtMainWindow",&info,0);
   }

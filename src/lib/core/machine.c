@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.50 2004-11-25 21:09:44 ensonic Exp $
+/* $Id: machine.c,v 1.51 2004-11-26 18:53:26 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -785,6 +785,7 @@ GType bt_machine_get_type(void) {
       sizeof (BtMachine),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,0);
   }

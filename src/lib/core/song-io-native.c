@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.43 2004-11-19 18:28:38 ensonic Exp $
+/* $Id: song-io-native.c,v 1.44 2004-11-26 18:53:26 waffel Exp $
  * class for native song input and output
  */
  
@@ -833,6 +833,7 @@ GType bt_song_io_native_get_type(void) {
       sizeof (BtSongIONative),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_io_native_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(BT_TYPE_SONG_IO,"BtSongIONative",&info,0);
   }

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.22 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.23 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main sequence page
  */
 
@@ -584,9 +584,9 @@ GType bt_main_page_sequence_get_type(void) {
       sizeof (BtMainPageSequence),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_page_sequence_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_VBOX,"BtMainPageSequence",&info,0);
   }
   return type;
 }
-

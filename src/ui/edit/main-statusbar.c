@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.18 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.19 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main statusbar
  */
 
@@ -294,9 +294,9 @@ GType bt_main_statusbar_get_type(void) {
       sizeof (BtMainStatusbar),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_statusbar_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_HBOX,"BtMainStatusbar",&info,0);
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.42 2004-11-19 18:32:10 waffel Exp $
+/* $Id: sequence.c,v 1.43 2004-11-26 18:53:26 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -623,6 +623,7 @@ GType bt_sequence_get_type(void) {
       sizeof (BtSequence),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_sequence_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(G_TYPE_OBJECT,"BtSequence",&info,0);
   }

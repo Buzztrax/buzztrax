@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.21 2004-11-18 17:58:16 ensonic Exp $
+/* $Id: main-menu.c,v 1.22 2004-11-26 18:53:27 waffel Exp $
  * class for the editor main menu
  */
 
@@ -399,6 +399,7 @@ GType bt_main_menu_get_type(void) {
       sizeof (BtMainMenu),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_menu_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GTK_TYPE_MENU_BAR,"BtMainMenu",&info,0);
   }

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.24 2004-11-08 12:05:44 ensonic Exp $
+/* $Id: sink-machine.c,v 1.25 2004-11-26 18:53:26 waffel Exp $
  * class for a sink machine
  */
  
@@ -172,9 +172,9 @@ GType bt_sink_machine_get_type(void) {
       sizeof (BtSinkMachine),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_sink_machine_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(BT_TYPE_MACHINE,"BtSinkMachine",&info,0);
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.6 2004-11-15 15:06:55 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.7 2004-11-26 18:53:27 waffel Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -463,6 +463,7 @@ GType bt_wire_canvas_item_get_type(void) {
       sizeof (BtWireCanvasItem),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_wire_canvas_item_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GNOME_TYPE_CANVAS_GROUP,"BtWireCanvasItem",&info,0);
   }

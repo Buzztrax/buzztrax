@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.11 2004-11-26 17:55:34 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.12 2004-11-26 18:53:27 waffel Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -514,6 +514,7 @@ GType bt_machine_canvas_item_get_type(void) {
       sizeof (BtMachineCanvasItem),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_canvas_item_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(GNOME_TYPE_CANVAS_GROUP,"BtMachineCanvasItem",&info,0);
   }

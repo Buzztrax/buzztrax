@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.18 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: application.c,v 1.19 2004-11-26 18:53:25 waffel Exp $
  * base class for a buzztard based application
  */
  
@@ -180,9 +180,9 @@ GType bt_application_get_type(void) {
       sizeof (BtApplication),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_application_init, // instance_init
+			NULL // value_table
     };
 		type = g_type_register_static(G_TYPE_OBJECT,"BtApplication",&info,0);
   }
   return type;
 }
-
