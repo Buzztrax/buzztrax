@@ -1,4 +1,4 @@
-/** $Id: gst2.c,v 1.2 2004-02-12 15:24:09 waffel Exp $
+/** $Id: gst2.c,v 1.3 2004-02-12 18:01:30 ensonic Exp $
  */
  
 #include <stdio.h>
@@ -10,15 +10,16 @@ GValue *set_val;
 GstDParam *volume;
   
 gboolean clockFunc(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data) {
-    g_print("clock \n");
-    set_to_value=set_to_value-0.1;
+    g_print("tick : volume=%f\n",set_to_value);
+    set_to_value-=0.1;
     g_value_set_float(set_val, set_to_value);
     g_object_set_property(G_OBJECT(volume), "value_float", set_val);
     if (set_to_value < 0.1) {
       g_print("clock end\n");
       gst_main_quit ();
     }
-    g_print("is active: %d\n",gst_clock_is_active (clock));
+    g_print("clock::is_active: %d\n",gst_clock_is_active (clock));
+		g_print("entry::status: %d (ok=0,early,restart)\n",GST_CLOCK_ENTRY_STATUS((GstClockEntry *)id));
     
     return TRUE;
 }
@@ -33,7 +34,8 @@ int main(int argc, char **argv) {
   gst_control_init(&argc,&argv);
   
   if (argc < 3) {
-    printf("use: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
+    g_print("usage: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
+		g_print("example: %s sinesrc esdsink 100\n",argv[0]);
     exit(-1);
   }
   
@@ -77,24 +79,26 @@ int main(int argc, char **argv) {
   if (gst_element_provides_clock (audiosink)) {
     gst_bin_use_clock(GST_BIN (thread), gst_element_get_clock (audiosink));
     clock = gst_element_get_clock (audiosink);
-    g_print("using %s clock",argv[2]);
+    g_print("using %s clock\n",argv[2]);
   } else {
     gst_bin_use_clock(GST_BIN (thread), gst_system_clock_obtain());
     clock = gst_bin_get_clock(GST_BIN (thread));
+		g_print("using system clock\n");
   }
   
-  g_print("speed: %f\n",gst_clock_get_speed (clock));
-  g_print("resolution: %d\n",gst_clock_get_resolution (clock));
-  g_print("is active: %d\n",gst_clock_is_active (clock));
-  g_print("Flags: %d\n",GST_CLOCK_FLAGS(clock));
-  clockId = gst_clock_new_periodic_id(clock, GST_SECOND*1, GST_SECOND*1 );
-  g_print("clock result: %d \n",gst_clock_id_wait_async(clockId, &clockFunc, NULL));
+  g_print("clock::speed: %f\n",gst_clock_get_speed (clock));
+  g_print("clock::resolution: %llu\n",gst_clock_get_resolution (clock));
+  g_print("clock::is active: %d\n",gst_clock_is_active (clock));
+  g_print("clock::flags: %d (single_sync=1,single_asych=2,peri_sync=4,peri_asych=8,resolution=16,speed=32)\n",GST_CLOCK_FLAGS(clock));
+  clockId = gst_clock_new_periodic_id(clock, GST_SECOND*2, GST_SECOND*1 );
+  g_print("entry result: %d (error=0,timeout,early,error,unsupported)\n",gst_clock_id_wait_async(clockId, &clockFunc, NULL));
+	g_print("entry::status: %d (ok=0,early,restart)\n",GST_CLOCK_ENTRY_STATUS((GstClockEntry *)clockId));
   
   /* start playing */
   gst_element_set_state (thread, GST_STATE_PLAYING);
   
   /* do whatever you want here, the thread will be playing */
-  g_print ("thread is playing\n");
+  g_print("thread is playing\n");
 
   gst_main ();
 
