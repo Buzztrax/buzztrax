@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.57 2004-12-14 19:16:57 waffel Exp $
+/* $Id: machine.c,v 1.58 2004-12-15 18:30:17 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -317,7 +317,7 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
  * @self: the machine to search for the pattern
  * @id: the identifier of the pattern
  *
- * search the machine for a pattern by the supplied id.
+ * Search the machine for a pattern by the supplied id.
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  *
  * Returns: #BtPattern instance or NULL if not found
@@ -343,6 +343,23 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
 	}
   GST_DEBUG("no pattern found for id \"%s\"",id);
   return(NULL);
+}
+
+/**
+ * bt_machine_get_pattern_by_index:
+ * @self: the machine to search for the pattern
+ * @index: the index of the pattern in the machines pattern list
+ *
+ * Fetches the machine from the given position of the machines pattern list.
+ * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
+ *
+ * Returns: #BtPattern instance or NULL if not found
+ */
+BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
+	
+	g_assert(BT_IS_MACHINE(self));
+	
+	return(BT_PATTERN(g_list_nth_data(self->priv->patterns,index)));
 }
 
 /**

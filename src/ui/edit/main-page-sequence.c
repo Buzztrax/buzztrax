@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.31 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.32 2004-12-15 18:30:17 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -253,6 +253,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 	// create a filterd model to realize step filtering
 	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
 	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,(gpointer)self,NULL);
+	GST_INFO("  filter = %p",filtered_store);
 	
 	// should we use the filtered_store here?
   //gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
@@ -310,11 +311,12 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	GtkTreeModel *store;
+	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
 
   g_assert(user_data);
 
-  //GST_INFO("bars_menu has changed : page=%p",user_data);
+  GST_INFO("bars_menu has changed : page=%p",user_data);
 	store=gtk_combo_box_get_model(self->priv->bars_menu);
 	if(gtk_combo_box_get_active_iter(self->priv->bars_menu,&iter)) {
 		gchar *str;
@@ -323,7 +325,10 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
 		self->priv->bars=atoi(str);
 		g_free(str);
 		//GST_INFO("  bars = %d",self->priv->bars);
-		gtk_tree_model_filter_refilter(GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)));
+		if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
+			GST_INFO("  filter = %p",filtered_store);
+			gtk_tree_model_filter_refilter(filtered_store);
+		}
 	}
 }
 
@@ -360,6 +365,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update page
+  // update sequence and pattern list
+  sequence_table_refresh(self,song);
+  pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   // find out to which entry it belongs and set the index
@@ -372,9 +380,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   }
   //GST_INFO("  bars=%d, index=%d",bars,index);
   gtk_combo_box_set_active(self->priv->bars_menu,index);
-  // update sequence and pattern list
-  sequence_table_refresh(self,song);
-  pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
   //-- release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);

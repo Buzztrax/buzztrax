@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.14 2004-12-07 20:18:47 waffel Exp $
+/* $Id: machine-methods.h,v 1.15 2004-12-15 18:30:17 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -17,6 +17,7 @@ extern gboolean bt_machine_has_active_spreader(BtMachine *self);
 
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id);
+extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index);
 
 extern gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name, GError **error);
 extern gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name, GError **error);

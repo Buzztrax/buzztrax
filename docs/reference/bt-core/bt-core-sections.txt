@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.11 2004-12-10 19:14:37 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.12 2004-12-15 18:30:15 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -58,6 +58,7 @@ bt_machine_activate_spreader
 bt_machine_has_active_spreader
 bt_machine_add_pattern
 bt_machine_get_pattern_by_id
+bt_machine_get_pattern_by_index
 bt_machine_get_global_dparam_index
 bt_machine_get_voice_dparam_index
 bt_machine_get_global_dparam_type

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.41 2004-12-15 09:07:35 ensonic Exp $
+/* $Id: main-window.c,v 1.42 2004-12-15 18:30:18 ensonic Exp $
  * class for the editor main window
  */
 
@@ -398,6 +398,7 @@ static void bt_main_window_dispose(GObject *object) {
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_main_window_finalize(GObject *object) {
@@ -409,6 +410,7 @@ static void bt_main_window_finalize(GObject *object) {
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
