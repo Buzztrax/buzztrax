@@ -1,4 +1,4 @@
-/** $Id: song.h,v 1.1 2004-04-19 18:30:42 ensonic Exp $
+/** $Id: song.h,v 1.2 2004-04-21 14:39:02 ensonic Exp $
  * song
  *
  */
@@ -9,17 +9,15 @@
 typedef struct _BtSong BtSong;
 typedef BtSong *BtSongPtr;
 struct _BtSong {
-	// the main bin
+	// the main bin that holds all children elements
 	GstElement *thread;
+	// the element that has the clock
+	GstElement *master;
 	// all used machines
 	GList *machines;
 	// add used connections
 	GList *connections;
 };
-
-#ifndef BT_SONG_C
-	extern BtSongPtr bt_song_new(void);
-#endif
 
 #endif /* BT_SONG_H */
 
