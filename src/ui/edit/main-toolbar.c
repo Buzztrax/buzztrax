@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.22 2004-11-03 09:35:20 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.23 2004-11-12 09:30:59 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -143,32 +143,34 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
   
-  // get the audio_sink (song->master is a bt_sink_machine)
+  // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"master",&master,NULL);
-  // get the input_level property from audio_sink
-  g_object_get(G_OBJECT(master),"input-level",&level,NULL);
-  // connect to the level signal
-  g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
-  // DEBUG
-  {
-    GstPad *pad;
-    GstCaps *caps;
-    GstStructure *structure;
-    gint channels_i,channels_o;
+	if(master) {
+		// get the input_level property from audio_sink
+		g_object_get(G_OBJECT(master),"input-level",&level,NULL);
+		// connect to the level signal
+		g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
+		// DEBUG
+		{
+			GstPad *pad;
+			GstCaps *caps;
+			GstStructure *structure;
+			gint channels_i,channels_o;
     
-    pad=gst_element_get_pad(level,"sink");
-    caps=gst_pad_get_caps(pad);
-    structure = gst_caps_get_structure(caps, 0);
-    gst_structure_get_int (structure, "channels", &channels_i);
-    pad=gst_element_get_pad(level,"src");
-    caps=gst_pad_get_caps(pad);
-    structure = gst_caps_get_structure(caps, 0);
-    gst_structure_get_int (structure, "channels", &channels_o);
-    GST_INFO("  input level analyser will process %d,%d channels",channels_i,channels_o);
-  }
-  // DEBUG  // release the reference
-  g_object_try_unref(level);
+			pad=gst_element_get_pad(level,"sink");
+			caps=gst_pad_get_caps(pad);
+			structure = gst_caps_get_structure(caps, 0);
+			gst_structure_get_int (structure, "channels", &channels_i);
+			pad=gst_element_get_pad(level,"src");
+			caps=gst_pad_get_caps(pad);
+			structure = gst_caps_get_structure(caps, 0);
+			gst_structure_get_int (structure, "channels", &channels_o);
+			GST_INFO("  input level analyser will process %d,%d channels",channels_i,channels_o);
+		}
+		// DEBUG  // release the reference
+		g_object_try_unref(level);
+	}
   g_object_try_unref(master);
   g_object_try_unref(song);
 
@@ -439,4 +441,3 @@ GType bt_main_toolbar_get_type(void) {
   }
   return type;
 }
-

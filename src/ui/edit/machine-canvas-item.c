@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.6 2004-11-10 11:58:30 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.7 2004-11-12 09:30:59 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -360,6 +360,12 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         res=TRUE;
       }
       break;
+    case GDK_KEY_PRESS:
+      GST_DEBUG("GDK_KEY_PRESS: %d,%d",event->key.keyval,event->key.state);
+			break;
+    case GDK_KEY_RELEASE:
+      GST_DEBUG("GDK_KEY_RELEASE: %d,%d",event->key.keyval,event->key.state);
+			break;
     default:
       break;
   }
@@ -377,7 +383,7 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
   self->priv->dispose_has_run = FALSE;
 
   // generate the context menu  
-  self->priv->context_menu=gtk_menu_new();
+  self->priv->context_menu=GTK_MENU(gtk_menu_new());
   // the menu is generated in bt_machine_canvas_item_init_context_menu()
 }
 
@@ -453,4 +459,3 @@ GType bt_machine_canvas_item_get_type(void) {
   }
   return type;
 }
-
