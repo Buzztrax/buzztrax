@@ -54,7 +54,7 @@ VALSUPP = @VALGRIND@/lib/valgrind
 VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
 VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp
 VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
-VALOPTIONS = --tool=memcheck -q --show-reachable=yes --leak-check=yes --num-callers=20
+VALOPTIONS = --tool=memcheck -q --trace-children=yes --show-reachable=yes --leak-check=yes --num-callers=20
 VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 
 valgrind:: $(TESTS_BIN)

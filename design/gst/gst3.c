@@ -1,4 +1,5 @@
-/** $Id: gst3.c,v 1.6 2004-04-01 15:29:49 ensonic Exp $
+/** $Id: gst3.c,v 1.7 2005-03-18 17:18:57 ensonic Exp $
+ * example that tries using a bin for the machine
  */
  
 #include <stdio.h>
@@ -43,7 +44,7 @@ int main(int argc, char **argv) {
 	gst_init(&argc, &argv);
   gst_control_init(&argc,&argv);
   
-  if (argc < 3) {
+  if (argc < 4) {
     g_print("usage: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
 		g_print("example: %s sinesrc esdsink 100\n",argv[0]);
     exit(-1);
@@ -139,6 +140,7 @@ int main(int argc, char **argv) {
   audiosrcParam = gst_dpman_get_manager(audiosrc);
   /* setting param mode. Only synchronized is currently supported */
   gst_dpman_set_mode(audiosrcParam, "synchronous");
+	g_print("dparam manager initialized\n");
 	/* preparing volume parameter */
   vol = gst_dparam_new(G_TYPE_DOUBLE);
   if (gst_dpman_attach_dparam(audiosrcParam, "volume", vol)){

@@ -1,6 +1,6 @@
-/** $Id: gst2.c,v 1.6 2004-07-02 13:44:49 ensonic Exp $
-* small example on how to use clocks
-*/
+/** $Id: gst2.c,v 1.7 2005-03-18 17:18:57 ensonic Exp $
+ * small example on how to use clocks
+ */
  
 #include <stdio.h>
 #include <gst/gst.h>

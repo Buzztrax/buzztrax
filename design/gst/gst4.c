@@ -1,8 +1,8 @@
-/** $Id: gst4.c,v 1.1 2004-11-01 11:38:42 ensonic Exp $
-* try to reproduce what I belive is a bug in gst
-*
-* gcc -Wall -g `pkg-config gstreamer-0.8 --cflags --libs` gst4.c -o gst4
-*/
+/** $Id: gst4.c,v 1.2 2005-03-18 17:18:57 ensonic Exp $
+ * try to reproduce what I belive is a bug in gst
+ *
+ * gcc -Wall -g `pkg-config gstreamer-0.8 --cflags --libs` gst4.c -o gst4
+ */
  
 #include <stdio.h>
 #include <gst/gst.h>
