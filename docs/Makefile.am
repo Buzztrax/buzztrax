@@ -1,1 +1,1 @@
-SUBDIRS = reference
+SUBDIRS = help reference

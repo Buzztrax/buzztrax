@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.19 2004-09-26 01:50:06 ensonic Exp $
+# $Id: configure.ac,v 1.20 2004-09-30 14:50:04 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -27,6 +27,10 @@ BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates
 #BT_MAJORMINOR=0.8
 
+dnl update this for each release
+BT_RELEASE_YEAR=2004
+BT_RELEASE_DATE=$BT_RELEASE_YEAR-09-30
+
 AC_SUBST(BT_MAJOR_VERSION)
 AC_SUBST(BT_MINOR_VERSION)
 AC_SUBST(BT_MICRO_VERSION)
@@ -34,6 +38,8 @@ AC_SUBST(BT_VERSION)
 AC_SUBST(BT_VERSION_INFO)
 AC_SUBST(BT_VERSION_NUMBER)
 AC_SUBST(BT_MAJORMINOR)
+AC_SUBST(BT_RELEASE_YEAR)
+AC_SUBST(BT_RELEASE_DATE)
 
 VERSION=${BT_VERSION}
 
@@ -115,6 +121,10 @@ PKG_CHECK_MODULES(CUSTOM_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, false)
     AC_DEFINE(USE_GCONF, [0], [Define to 1 if we can use GConf])
   ])
+  
+# GConf schema install stuff
+#AC_PATH_PROG(GCONFTOOL, gconftool-2)
+#AM_GCONF_SOURCE_2
 
 # Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
@@ -162,6 +172,15 @@ fi
 
 AM_CONDITIONAL(ENABLE_GTK_DOC, test x$enable_gtk_doc = xyes)
 
+# Check for ScrollKeeper
+AC_PATH_PROG(scrollkeeper_config, scrollkeeper-config, no)
+if test x$scrollkeeper_config = xno; then
+  AC_MSG_WARN([Couldn't find scrollkeeper-config, please install the scrollkeeper package])
+fi
+AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
+SCROLLKEEPER_BUILD_REQUIRED=0.3.5
+AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(X11/Xlocale.h)
@@ -192,6 +211,11 @@ AC_SUBST(BASE_DEPS_CFLAGS)
 AC_CONFIG_FILES(Makefile \
   docs/Makefile \
   docs/version.entities \
+    docs/help/Makefile \
+      docs/help/bt-edit/Makefile \
+        docs/help/bt-edit/C/Makefile \
+        docs/help/bt-edit/C/bt-edit-C.omf \
+        docs/help/bt-edit/C/bt-edit.xml \
     docs/reference/Makefile \
       docs/reference/bt-cmd/Makefile \
       docs/reference/bt-core/Makefile \

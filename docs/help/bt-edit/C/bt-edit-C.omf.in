@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+written according to
+http://scrollkeeper.sourceforge.net/documentation/writing_scrollkeeper_omf_files/index.html
+-->
+<omf>
+  <resource>
+    <creator>
+      buzztard-devel@lists.sourceforge.net (buzztard developer team)
+    </creator>
+
+    <title>
+      Buzztard Music Production Environment - Editor
+    </title>
+    <date>
+      @BT_RELEASEDATE@
+    </date>
+    <version identifier="@BT_MAJORMINOR@" date="@BT_RELEASEDATE@" description="buzztard editor manual"/>
+    <subject category="GNOME|Applications|Multimedia|Sound|Editing"/>
+    <description>
+      User manual for the buzztard music editor
+    </description>
+    <type>
+      user's guide
+    </type>
+    <format mime="text/xml" dtd="-//OASIS//DTD DocBook XML V4.1.2//EN"/>
+    <identifier url="bt-edit.xml"/>
+    <language code="C"/>
+    <!-- generated via scrollkeeper-gen-seriesid -->
+    <relation seriesid="106bc53e-12d9-11d9-8d41-8e1628322787"/>
+    <rights type="GNU FDL" license.version="1.1" holder="Stefan Kost"/>
+  </resource>
+</omf>

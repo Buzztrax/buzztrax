@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.16 2004-09-29 14:38:35 ensonic Exp $
+## $Id: Makefile.am,v 1.17 2004-09-30 14:50:04 ensonic Exp $
 
 SUBDIRS = src po tests docs
 
@@ -36,7 +36,10 @@ EXTRA_DIST = \
 	$(pixmapdata_DATA)
 	intltool-extract.in \
 	intltool-merge.in \
-	intltool-update.in
+	intltool-update.in \
+	COPYING-DOCS \
+	omf.make \
+	xmldocs.make 
 
 DISTCLEANFILES = \
 	intltool-merge \
