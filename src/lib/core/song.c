@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.17 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: song.c,v 1.18 2004-05-11 20:01:23 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -201,7 +201,7 @@ GType bt_song_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_init, // instance_init
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSongType",&info,0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtSong",&info,0);
   }
   return type;
 }

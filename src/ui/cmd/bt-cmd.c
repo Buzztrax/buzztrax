@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.4 2004-05-06 18:26:58 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.5 2004-05-11 20:01:24 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd <filename>
  * to enable debugging add e.g. --gst-debug="*:2,bt-*:3"
@@ -19,8 +19,9 @@ static void print_usage(void) {
 }
 
 /**
-* signal callback funktion
-*/
+ * play_event:
+ * signal callback funktion
+ */
 static void play_event(void) {
   GST_INFO("start play invoked per signal\n");
 }

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.10 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: wire.c,v 1.11 2004-05-11 20:01:23 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -142,7 +142,7 @@ GType bt_wire_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_wire_init, // instance_init
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtWireType",&info,0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtWire",&info,0);
   }
   return type;
 }

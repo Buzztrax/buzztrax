@@ -1,4 +1,4 @@
-$Id: README,v 1.1 2004-05-11 06:19:19 ensonic Exp $
+$Id: README,v 1.2 2004-05-11 20:01:18 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | uniq | sort
@@ -9,7 +9,11 @@ files to look into
   buzztard-sections.txt
     group symbols to sections
   templ/*.sgml
-    add extra documentation to sections
+    - add extra documentation to sections
+	- if file is related to an object (e.g. BtSongInfo),
+	  it needs to be of the same name as the object,
+      but all lowercase: BtSongInfo -> btsonginfo.sgml
+	  and the type of the object must be named "BtSongInfo" and not e.g. "BtSongInfoType"
 
 to make devhelp find local books
   export DEVHELP_SEARCH_PATH="/home/ensonic/buzztard/share/gtk-doc/html/"

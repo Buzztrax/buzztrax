@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.2 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: sink-machine.c,v 1.3 2004-05-11 20:01:23 ensonic Exp $
  * class for a sink machine
  */
  
@@ -100,7 +100,7 @@ GType bt_sink_machine_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_sink_machine_init, // instance_init
     };
-		type = g_type_register_static(BT_MACHINE_TYPE,"BtSinkMachineType",&info,0);
+		type = g_type_register_static(BT_MACHINE_TYPE,"BtSinkMachine",&info,0);
   }
   return type;
 }

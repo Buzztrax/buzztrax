@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.6 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: setup.c,v 1.7 2004-05-11 20:01:23 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -161,7 +161,7 @@ GType bt_setup_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_setup_init, // instance_init
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSetupType",&info,0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtSetup",&info,0);
   }
   return type;
 }

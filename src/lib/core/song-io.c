@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.5 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: song-io.c,v 1.6 2004-05-11 20:01:23 ensonic Exp $
  * base class for song input and output
  */
  
@@ -130,7 +130,7 @@ GType bt_song_io_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_io_init, // instance_init
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSongIOType",&info,0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtSongIO",&info,0);
   }
   return type;
 }

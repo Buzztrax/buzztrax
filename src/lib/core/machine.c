@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.8 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: machine.c,v 1.9 2004-05-11 20:01:22 ensonic Exp $
  * base class for a machine
  */
  
@@ -197,7 +197,7 @@ GType bt_machine_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_init, // instance_init
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtMachineType",&info,0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,0);
   }
   return type;
 }
