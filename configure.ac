@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.27 2004-12-13 10:31:30 ensonic Exp $
+# $Id: configure.ac,v 1.28 2004-12-28 14:23:12 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -83,21 +83,38 @@ AM_GNU_GETTEXT_VERSION(0.12.1)
 # AM_ACLOCAL_INCLUDE(./m4)
 
 # enable runtime debugging code
-AC_MSG_CHECKING(whether to use runtime debugging code)
+AC_MSG_CHECKING(whether to enable runtime debugging code)
 AC_ARG_ENABLE(
 	debug,
-	AC_HELP_STRING([--enable-debug],[use runtime debugging code (default=no)]),
+	AC_HELP_STRING([--enable-debug],[enable runtime debugging code (default=no)]),
 	,
 	[enable_debug="no"])
 AC_MSG_RESULT($enable_debug)
 if test "$enable_debug" = "yes"; then
 	AC_DEFINE(APP_DEBUG, [1], [enable runtime debugging code])
-	AM_CONDITIONAL(DEBUG, true)
+	DEBUG_CFLAGS="-O0 -Werror -g"
 else
 	AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
 	AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
 	AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
-	AM_CONDITIONAL(DEBUG, false)
+	DEBUG_CFLAGS=""
+fi
+
+# enable coverage analysis
+AC_MSG_CHECKING(whether to enable coverage analysis)
+AC_ARG_ENABLE(
+	coverage,
+	AC_HELP_STRING([--enable-coverage],[enable coverage analysis (default=no)]),
+	,
+	[enable_coverage="no"])
+AC_MSG_RESULT($enable_coverage)
+if test "$enable_coverage" = "yes"; then
+	#AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
+	AM_CONDITIONAL(COVERGAE, true)
+	COVERGA_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
+else
+	AM_CONDITIONAL(COVERGAE, false)
+	COVERGA_CFLAGS=""
 fi
 
 # define custom path for desktop files
@@ -224,7 +241,7 @@ AC_C_CONST
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
-BT_CFLAGS=""
+BT_CFLAGS="$DEBUG_CFLAGS $COVERGA_CFLAGS"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS="-lbtcore -lm $LIBS"
 

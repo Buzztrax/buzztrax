@@ -1,13 +1,7 @@
-## $Id: Makefile.am,v 1.26 2004-12-09 18:34:11 ensonic Exp $
+## $Id: Makefile.am,v 1.27 2004-12-28 14:23:11 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
-
-if DEBUG
-AM_CFLAGS = -pipe -O0 -Werror -g
-else
-AM_CFLAGS = -pipe -O3
-endif
 
 songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \

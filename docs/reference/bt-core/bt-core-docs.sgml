@@ -24,7 +24,7 @@
 <!ENTITY BtTimeLineTrack SYSTEM "xml/bttimelinetrack.xml">
 <!ENTITY BtWave SYSTEM "xml/btwave.xml">
 <!ENTITY BtWavelevel SYSTEM "xml/btwavelevel.xml">
-<!ENTITY BtWavetabel SYSTEM "xml/btwavetable.xml">
+<!ENTITY BtWavetable SYSTEM "xml/btwavetable.xml">
 <!ENTITY BtWire SYSTEM "xml/btwire.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
