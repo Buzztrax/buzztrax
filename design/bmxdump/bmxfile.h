@@ -42,6 +42,14 @@ typedef unsigned char byte;
 //////////////////////////////////////////////////////////////////////////////
 // bmx file data structures
 
+struct BmxSectionEntry
+{
+    std::string name;
+    dword offset;
+    dword size;
+};
+
+
 struct BmxWavData
 {
     BmxWavData();
@@ -80,12 +88,58 @@ inline BmxCwavSection::~BmxCwavSection()  {
     DELARR(format);
 }
 
-struct BmxSectionEntry
-{
-    std::string name;
-    dword offset;
-    dword size;
+
+struct BmxWavtableEnvelopePoints {
+		word x,y;
+		byte flags;
 };
+
+struct BmxWavtableEnvelope {
+		word attack;
+		word decay;
+		word sustain;
+		word release;
+		byte subdiv;
+		byte flags;
+		word numberOfPoints;
+		BmxWavtableEnvelopePoints *points;
+};
+
+struct BmxWavtableLevel {
+		dword numberOfSamples;
+		dword loopBegin;
+		dword loopEnd;
+		dword samplesPerSec;
+		byte rootNote;
+};
+
+struct BmxWavtSection
+{
+    BmxWavtSection();
+    ~BmxWavtSection();
+		word index;
+		std::string filename;
+		std::string name;
+		float volume;
+		byte flags;
+		
+		word	numberOfEnvelopes;
+		BmxWavtableEnvelope *envleopes;
+		
+		word	numberOfLevels;
+		BmxWavtableLevel *levels;
+};
+
+inline BmxWavtSection::BmxWavtSection() {
+		envelopes = 0x0;
+		levels = 0x0;
+}
+
+inline BmxWavtSection::~BmxWavtSection() {
+		DELARR(envelopes);
+		DELARR(levels);
+}
+
 
 struct BmxMachineAttributes
 {
@@ -146,6 +200,7 @@ inline BmxMachSection::~BmxMachSection() {
     DELARR(tracks);
 }
 
+
 struct BmxParameter
 {
     byte type;
@@ -181,6 +236,7 @@ inline BmxParaSection::~BmxParaSection() {
     DELARR(trackpara);
 }
 
+
 struct BmxPattSection
 {
     word numberOfPatterns;
@@ -189,7 +245,8 @@ struct BmxPattSection
     word length;
     // FIXME: missing pattern data!
 };
-   
+
+
 struct BmxMachineConnection
 {
     word sourceIndex;
@@ -197,6 +254,7 @@ struct BmxMachineConnection
     word amp;
     word pan;
 };
+
 
 struct BmxSequence
 {
@@ -220,17 +278,21 @@ class BmxFile
     dword numberOfSections;
     BmxSectionEntry *entries;
     
+    // BVER
+    std::string buzzversion;
+		
     // PARA
     dword numberOfMachines;
     BmxParaSection *para;
     bool parasection; // PARA Section present
-  
-    // BVER
-    std::string buzzversion;
     
     // MACH
     BmxMachSection *mach;
     
+		// WAVT
+		dword numberOfWaves;
+		BmxWavtSection *wavt;
+		
     // CWAV / WAVE
     BmxCwavSection *cwav;
     bool compressedWaveTable;
@@ -267,6 +329,7 @@ class BmxFile
     void readMachSection();
     void readParaSection();
     void readBverSection();
+    void readWavtSection();
     void readCwavSection();
     void readConnSection();
     void readSequSection();
@@ -294,6 +357,7 @@ class BmxFile
     void printSectionEntries();
     void printParaSection();
     void printMachSection();
+    void printWavtSection();
     void dumpCwavSection();
     void printConnSection();
     void printSequSection();

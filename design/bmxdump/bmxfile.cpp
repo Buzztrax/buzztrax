@@ -56,11 +56,13 @@ bool BmxFile::setupSections()
     readMachSection();
     readConnSection();
     readSequSection();
+    readWavtSection();
     readCwavSection();
     readBlahSection();
         
     return true; 
 }
+
 
 void BmxFile::readSectionName(string &str)
 {
@@ -69,10 +71,10 @@ void BmxFile::readSectionName(string &str)
         return;
     str.assign(tmp, 4);
 }
-    
+
+
 int BmxFile::getNumberOfSection(const char* sectionName)
 {
-    
     for (unsigned int i = 0; i< numberOfSections; i++) {
         BmxSectionEntry *entry = &entries[i];
         if (strcmp(entry->name.c_str(), sectionName) == 0)
@@ -80,6 +82,7 @@ int BmxFile::getNumberOfSection(const char* sectionName)
     }
     return -1;            
 }
+
 
 void BmxFile::readBverSection()
 {
@@ -144,11 +147,10 @@ void BmxFile::readParaSection()
     }
 }
 
-  
+
 void BmxFile::readMachSection()
 {
     BmxSectionEntry *entry = &entries[getNumberOfSection("MACH")];
-    
     int offset = entry->offset;
 
     if (parasection == true) {
@@ -231,6 +233,48 @@ void BmxFile::readMachSection()
     }
 }
 
+
+void BmxFile::readWavtSection()
+{
+		BmxSectionEntry *entry = &entries[getNumberOfSection("WAVT")];
+		
+		fseek(file, entry->offset, SEEK_SET);
+		numberOfWaves = static_cast<dword>(read_word());
+		
+		wavt = new BmxWavtSection[numberOfWaves];
+    for (unsigned int i = 0; i < numberOfMachines; i++) {
+       BmxWavtSection *wavtable = &wavt[i];
+       
+			 // reader header
+       wavtable->index = read_word();
+       read_asciiz(wavtable->filename);
+       read_asciiz(wavtable->name);
+       wavtable->volume = read_float();
+       wavtable->flags = read_byte();
+			 if(wavtable->flags&0x80) {
+				 // read envelopes
+				 wavtable->numberOfEnvelopes = read_word();
+				 wavtable->envelopes = new BmxWavtableEnvelope[wavtable->numberOfEnvelopes];
+
+				 for (unsigned int j = 0; j < wavtable->numberOfEnvelopes; j++) {
+					 	BmxWavtableEnvelope *envelope = &wavtable->envelopes[j];
+						
+						envelope->attack = read_word();
+						envelope->decay = read_word();
+						envelope->sustain = read_word();
+						envelope->release = read_word();
+						envelope->subdiv = read_byte();
+						envelope->flags = read_byte();
+						envelope->numberOfPoints = read_word();
+				 }
+			 }
+			 // read levels
+			 //wavtable->numberOfLevels = read_word();
+			 //wavtable->levels = new BmxWavtableLevel[wavtable->numberOfLevels];
+		}
+}
+
+
 void BmxFile::readCwavSection()
 {
     int section = getNumberOfSection("CWAV");
@@ -277,7 +321,6 @@ void BmxFile::readCwavSection()
 
 void BmxFile::readConnSection()
 {
-    
     int section = getNumberOfSection("CONN");
     fseek(file, entries[section].offset, SEEK_SET);
 
@@ -292,6 +335,7 @@ void BmxFile::readConnSection()
         conn[i].pan = read_word();
     }
 }
+
 
 void BmxFile::readSequSection()
 {
@@ -346,6 +390,7 @@ void BmxFile::readSequSection()
     }
 }
 
+
 void BmxFile::readBlahSection()
 {
     int section = getNumberOfSection("BLAH");
@@ -360,7 +405,7 @@ void BmxFile::readBlahSection()
     
     blahText[lengthOfBlahSection +1] = '\0';
 }
-    
+
 
 //////////////////////////////////////////////////////////////////////////////
 // printing bmx file sections to stdout
@@ -381,6 +426,7 @@ void BmxFile::printSectionEntries()
         cout << endl;
     }
 }
+
 
 void BmxFile::printParaSection()
 {
@@ -429,6 +475,7 @@ void BmxFile::printParaSection()
         }
     }
 }
+
 
 void BmxFile::printMachSection()
 {
@@ -488,9 +535,53 @@ void BmxFile::printMachSection()
         cout << endl;
     }
 }
- 
 
- 
+
+void BmxFile::printWavtSection()
+{
+    cout << " -- WAVT Section\n";
+    cout << endl;
+		
+    if (wavt == 0x0) {
+        cerr << "WAVT Section has not been read yet!\n";
+        return;
+    } 
+
+    for (unsigned int i = 0; i < numberOfWaves; i++) {
+        BmxWavtSection *wavetable = &wavt[i];
+
+        cout << " Wave " << i << endl;
+				cout << " Index: " << wavetable->index << endl;
+				cout << " FileName: " << wavetable->filename << endl;
+				cout << " Name: " << wavetable->name << endl;
+				cout << " Volume: " << wavetable->volume << endl;
+				cout << " Flags: " << static_cast<int>(wavetable->flags) << endl;
+				cout << " Envelopes: " << wavetable->numberOfEnvelopes << endl;
+				cout << " Levels: " << wavetable->numberOfLevels << endl;
+				cout << endl;
+
+				for (unsigned int j = 0; j < wavetable->numberOfEnvelopes; j++) {
+					BmxWavtableEnvelope *envelope=&wavetable->envelope[j];
+					
+					cout << " \tEnvelope " << j << endl;
+					cout << " \tADSR: " << envelope->attack
+					     << ","  << envelope->decay
+					     << ","  << envelope->sustain
+					     << ","  << envelope->release
+							 << endl;
+					cout << endl;
+				}
+
+				for (unsigned int j = 0; j < wavetable->numberOfLevels; j++) {
+					BmxWavtableLevel *level=&wavetable->level[j];
+					
+					cout << " \tLevel " << j << endl;
+					cout << endl;
+				}
+		}
+}
+
+
 void BmxFile::dumpCwavSection()
 {
     cout << " -- CWAV Section\n";
@@ -557,7 +648,7 @@ void BmxFile::printConnSection()
     }
     cout << endl;
 }
-    
+
 
 void BmxFile::printSequSection()
 {
@@ -599,6 +690,8 @@ void BmxFile::printSequSection()
     }
     cout << endl;
 }
+
+
 //////////////////////////////////////////////////////////////////////////////
 // initialisation
 
@@ -606,6 +699,7 @@ BmxFile::BmxFile()
 {
     initvars();
 }
+
 
 BmxFile::~BmxFile()
 {
@@ -620,9 +714,11 @@ BmxFile::~BmxFile()
     DELARR(entries);
     DELARR(para);
     DELARR(conn);
+		DELPTR(wavt);
     DELPTR(cwav);
     DELARR(blahText);
 }
+
 
 inline void BmxFile::initvars()
 {
@@ -632,10 +728,12 @@ inline void BmxFile::initvars()
     para = 0x0;
     parasection = false;
     conn = 0x0;
+		wavt = 0x0;
     cwav = 0x0;
     compressedWaveTable = true;
     blahText = 0x0;
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 // file handling
@@ -664,6 +762,7 @@ bool BmxFile::open(const char* path)
     return true;
 }      
 
+
 int BmxFile::close()
 {
     if (file != 0x0) {
@@ -678,6 +777,7 @@ int BmxFile::close()
         return -1;
 }
 
+
 dword BmxFile::read_dword()
 {
     dword buffer;
@@ -687,6 +787,7 @@ dword BmxFile::read_dword()
             cerr << "Error reading from " << filepath << endl;
     return buffer;
 }
+
 
 word BmxFile::read_word()
 {
@@ -698,6 +799,7 @@ word BmxFile::read_word()
     return buffer;
 }
 
+
 int BmxFile::read_int()
 {
     int buffer;
@@ -707,6 +809,7 @@ int BmxFile::read_int()
             cerr << "Error reading from " << filepath << endl;
     return buffer;
 }
+
 
 byte BmxFile::read_byte()
 {
@@ -718,6 +821,7 @@ byte BmxFile::read_byte()
     return buffer;
 }
 
+
 float BmxFile::read_float()
 {
     float buffer;
@@ -727,7 +831,8 @@ float BmxFile::read_float()
             cerr << "Error reading from " << filepath << endl;
     return buffer;
 }
-      
+
+
 void BmxFile::read_asciiz(string &str)
 {
    char tmp;
@@ -745,4 +850,3 @@ void BmxFile::read_asciiz(string &str)
    }
 }
 
-  
