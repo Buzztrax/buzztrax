@@ -1,4 +1,4 @@
-/** $Id: version.h.in,v 1.1 2004-04-16 14:23:27 ensonic Exp $ */
+/** $Id: version.h.in,v 1.2 2004-04-19 13:43:37 ensonic Exp $ */
 
 #ifndef BT_VERSION_H
 #define BT_VERSION_H
@@ -13,7 +13,7 @@
  */
 #define BT_MICRO_VERSION @BT_MICRO_VERSION@
 
-#ifndef BT_INIT_C
+#ifndef BT_CORE_C
 extern const unsigned int bt_major_version;
 extern const unsigned int bt_minor_version;
 extern const unsigned int bt_micro_version;
