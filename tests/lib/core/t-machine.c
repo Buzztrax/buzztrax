@@ -1,4 +1,4 @@
-/** $Id: t-machine.c,v 1.1 2005-01-31 19:05:11 waffel Exp $ **/
+/** $Id: t-machine.c,v 1.2 2005-02-07 21:15:10 waffel Exp $ **/
 
 #include "t-core.h"
 
@@ -78,7 +78,64 @@ START_TEST(test_btmachine_state1) {
 	g_object_set(source,"state",BT_MACHINE_STATE_NORMAL,NULL);
 	g_object_get(volume,"state",&state_ref,NULL);
 	fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
+}
+END_TEST
+
+/**
+* sinesrc1, sinesrc2 | audio_sink
+* 1) solo sinesrc1
+* 2) solo sinesrc2
+* 3) test that sinesrc1 is not solo
+*/
+START_TEST(test_btmachine_state2) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	// machines
+	BtSourceMachine *sine1=NULL;
+	BtSourceMachine *sine2=NULL;
+	BtSinkMachine *sink=NULL;
+	// wires
+	BtWire *wire_sine1_sink=NULL;
+	BtWire *wire_sine2_sink=NULL;
+	// machine states
+	BtMachineState state_ref;
 	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	
+	/* create a new sine source machine */
+	sine1=bt_source_machine_new(song,"sine1","sinesrc",0);
+	bt_setup_add_machine(setup,BT_MACHINE(sine1));
+	
+	/* create a new sine source machine */
+	sine2=bt_source_machine_new(song,"sine2","sinesrc",0);
+	bt_setup_add_machine(setup,BT_MACHINE(sine2));
+	
+	/* create a new sink machine */
+	sink=bt_sink_machine_new(song,"alsasink");
+	bt_setup_add_machine(setup,BT_MACHINE(sink));
+	
+	/* create wire (sine1,src) */
+	wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink));
+	bt_setup_add_wire(setup, wire_sine1_sink);
+	
+	/* create wire (sine2,src) */
+	wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink));
+	bt_setup_add_wire(setup, wire_sine2_sink);
+	
+	/* start setting the states */
+	g_object_set(sine1,"state",BT_MACHINE_STATE_SOLO,NULL);
+	g_object_set(sine2,"state",BT_MACHINE_STATE_SOLO,NULL);
+	g_object_get(sine1,"state",&state_ref,NULL);
+	fail_unless(state_ref!=BT_MACHINE_STATE_SOLO,NULL);
 }
 END_TEST
 
@@ -86,6 +143,7 @@ TCase *bt_machine_obj_tcase(void) {
   TCase *tc = tcase_create("bt_machine case");
 	
 	tcase_add_test(tc, test_btmachine_state1);
+	tcase_add_test(tc, test_btmachine_state2);
   return(tc);
 }
 
