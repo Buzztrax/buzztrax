@@ -1,0 +1,22 @@
+/** $Id: version.h.in,v 1.1 2004-04-16 14:23:27 ensonic Exp $ */
+
+#ifndef BT_VERSION_H
+#define BT_VERSION_H
+
+/** @brief version stamp, major part
+ */
+#define BT_MAJOR_VERSION @BT_MAJOR_VERSION@
+/** @brief version stamp, minor part
+ */
+#define BT_MINOR_VERSION @BT_MINOR_VERSION@
+/** @brief version stamp, micro part
+ */
+#define BT_MICRO_VERSION @BT_MICRO_VERSION@
+
+#ifndef BT_INIT_C
+extern const unsigned int bt_major_version;
+extern const unsigned int bt_minor_version;
+extern const unsigned int bt_micro_version;
+#endif
+
+#endif /* BT_VERSION */
