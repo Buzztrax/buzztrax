@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.15 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.16 2005-01-16 14:20:42 waffel Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -579,13 +579,13 @@ GType bt_wire_canvas_item_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtWireCanvasItemClass),
+      G_STRUCT_SIZE(BtWireCanvasItemClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_wire_canvas_item_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtWireCanvasItem),
+      G_STRUCT_SIZE(BtWireCanvasItem),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_wire_canvas_item_init, // instance_init
 			NULL // value_table

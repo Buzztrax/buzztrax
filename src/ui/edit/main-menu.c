@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.28 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: main-menu.c,v 1.29 2005-01-16 14:20:41 waffel Exp $
  * class for the editor main menu
  */
 
@@ -397,13 +397,13 @@ GType bt_main_menu_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMainMenuClass),
+      G_STRUCT_SIZE(BtMainMenuClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_menu_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMainMenu),
+      G_STRUCT_SIZE(BtMainMenu),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_menu_init, // instance_init
 			NULL // value_table

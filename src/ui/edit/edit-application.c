@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.44 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: edit-application.c,v 1.45 2005-01-16 14:20:41 waffel Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -403,13 +403,13 @@ GType bt_edit_application_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtEditApplicationClass),
+      G_STRUCT_SIZE(BtEditApplicationClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_edit_application_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtEditApplication),
+      G_STRUCT_SIZE(BtEditApplication),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_edit_application_init, // instance_init
 			NULL // value_table

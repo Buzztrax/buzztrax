@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.45 2005-01-16 13:17:36 ensonic Exp $
+/* $Id: cmd-application.c,v 1.46 2005-01-16 14:20:41 waffel Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -303,13 +303,13 @@ GType bt_cmd_application_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtCmdApplicationClass),
+      G_STRUCT_SIZE(BtCmdApplicationClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_cmd_application_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtCmdApplication),
+      G_STRUCT_SIZE(BtCmdApplication),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_cmd_application_init, // instance_init
 			NULL // value_table

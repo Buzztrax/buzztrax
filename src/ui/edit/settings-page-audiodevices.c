@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.7 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.8 2005-01-16 14:20:42 waffel Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -230,13 +230,13 @@ GType bt_settings_page_audiodevices_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSettingsPageAudiodevicesClass),
+      G_STRUCT_SIZE(BtSettingsPageAudiodevicesClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_settings_page_audiodevices_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSettingsPageAudiodevices),
+      G_STRUCT_SIZE(BtSettingsPageAudiodevices),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_settings_page_audiodevices_init, // instance_init
 			NULL // value_table

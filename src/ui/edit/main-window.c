@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.46 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: main-window.c,v 1.47 2005-01-16 14:20:42 waffel Exp $
  * class for the editor main window
  */
 
@@ -455,13 +455,13 @@ GType bt_main_window_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMainWindowClass),
+      G_STRUCT_SIZE(BtMainWindowClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_window_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMainWindow),
+      G_STRUCT_SIZE(BtMainWindow),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_window_init, // instance_init
 			NULL // value_table

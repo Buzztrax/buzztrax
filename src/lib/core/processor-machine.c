@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.24 2005-01-15 22:02:51 ensonic Exp $
+/* $Id: processor-machine.c,v 1.25 2005-01-16 14:20:40 waffel Exp $
  * class for a processor machine
  */
 
@@ -131,13 +131,13 @@ GType bt_processor_machine_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      (guint16)(sizeof (BtProcessorMachineClass)),
+      G_STRUCT_SIZE(BtProcessorMachineClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_processor_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      (guint16)(sizeof (BtProcessorMachine)),
+      G_STRUCT_SIZE(BtProcessorMachine),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_processor_machine_init, // instance_init
 			NULL // value_table

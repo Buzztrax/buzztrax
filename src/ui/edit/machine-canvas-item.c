@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.31 2005-01-16 10:04:32 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.32 2005-01-16 14:20:41 waffel Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -693,13 +693,13 @@ GType bt_machine_canvas_item_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMachineCanvasItemClass),
+      G_STRUCT_SIZE(BtMachineCanvasItemClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_machine_canvas_item_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMachineCanvasItem),
+      G_STRUCT_SIZE(BtMachineCanvasItem),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_canvas_item_init, // instance_init
 			NULL // value_table

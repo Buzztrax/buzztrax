@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.16 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: main-pages.c,v 1.17 2005-01-16 14:20:41 waffel Exp $
  * class for the editor main pages
  */
 
@@ -217,13 +217,13 @@ GType bt_main_pages_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMainPagesClass),
+      G_STRUCT_SIZE(BtMainPagesClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_pages_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMainPages),
+      G_STRUCT_SIZE(BtMainPages),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_pages_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.54 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: song-io-native.c,v 1.55 2005-01-16 14:20:40 waffel Exp $
  * class for native song input and output
  */
  
@@ -914,14 +914,14 @@ GType bt_song_io_native_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSongIONativeClass),
+      G_STRUCT_SIZE(BtSongIONativeClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_song_io_native_class_init, // class_init
 			NULL, // class_finalize
       //(GClassFinalizeFunc)bt_song_io_native_class_finalize,
       NULL, // class_data
-      sizeof (BtSongIONative),
+      G_STRUCT_SIZE(BtSongIONative),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_io_native_init, // instance_init
 			NULL // value_table

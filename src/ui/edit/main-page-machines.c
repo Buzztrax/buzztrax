@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.46 2005-01-16 10:04:32 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.47 2005-01-16 14:20:41 waffel Exp $
  * class for the editor main machines page
  */
 
@@ -935,13 +935,13 @@ GType bt_main_page_machines_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMainPageMachinesClass),
+      G_STRUCT_SIZE(BtMainPageMachinesClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_page_machines_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMainPageMachines),
+      G_STRUCT_SIZE(BtMainPageMachines),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_page_machines_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.26 2005-01-16 10:04:32 ensonic Exp $
+/* $Id: pattern.c,v 1.27 2005-01-16 14:20:40 waffel Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -547,13 +547,13 @@ GType bt_pattern_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      (guint16)(sizeof (BtPatternClass)),
+      G_STRUCT_SIZE(BtPatternClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_pattern_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      (guint16)(sizeof (BtPattern)),
+      G_STRUCT_SIZE(BtPattern),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_pattern_init, // instance_init
 			NULL // value_table

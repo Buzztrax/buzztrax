@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.11 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.12 2005-01-16 14:20:42 waffel Exp $
  * class for the editor settings dialog
  */
 
@@ -267,13 +267,13 @@ GType bt_settings_dialog_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSettingsDialogClass),
+      G_STRUCT_SIZE(BtSettingsDialogClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_settings_dialog_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSettingsDialog),
+      G_STRUCT_SIZE(BtSettingsDialog),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_settings_dialog_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.39 2005-01-16 13:17:36 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.40 2005-01-16 14:20:41 waffel Exp $
  * class for the editor main pattern page
  */
 
@@ -636,13 +636,13 @@ GType bt_main_page_patterns_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMainPagePatternsClass),
+      G_STRUCT_SIZE(BtMainPagePatternsClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_page_patterns_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMainPagePatterns),
+      G_STRUCT_SIZE(BtMainPagePatterns),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_page_patterns_init, // instance_init
 			NULL // value_table
