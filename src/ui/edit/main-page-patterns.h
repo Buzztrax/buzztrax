@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.h,v 1.1 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-patterns.h,v 1.2 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_PAGE_PATTERNS:
- *
- * #GType for BtMainPagePatterns instances
- */
 #define BT_TYPE_MAIN_PAGE_PATTERNS		        (bt_main_page_patterns_get_type ())
 #define BT_MAIN_PAGE_PATTERNS(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_PATTERNS, BtMainPagePatterns))
 #define BT_MAIN_PAGE_PATTERNS_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_PATTERNS, BtMainPagePatternsClass))

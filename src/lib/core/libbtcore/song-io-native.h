@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.10 2004-07-28 13:54:43 ensonic Exp $
+/* $Id: song-io-native.h,v 1.11 2004-09-02 17:43:30 ensonic Exp $
  * class for native song input and output
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_SONG_IO_NATIVE:
- *
- * #GType for BtSongIONative instances
- */
 #define BT_TYPE_SONG_IO_NATIVE		        (bt_song_io_native_get_type ())
 #define BT_SONG_IO_NATIVE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO_NATIVE, BtSongIONative))
 #define BT_SONG_IO_NATIVE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO_NATIVE, BtSongIONativeClass))

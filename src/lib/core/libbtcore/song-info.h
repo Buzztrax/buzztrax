@@ -1,4 +1,4 @@
-/* $Id: song-info.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: song-info.h,v 1.9 2004-09-02 17:43:30 ensonic Exp $
  * class for a song metadata
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_SONG_INFO:
- *
- * #GType for BtSongInfo instances
- */
 #define BT_TYPE_SONG_INFO		         (bt_song_info_get_type ())
 #define BT_SONG_INFO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_INFO, BtSongInfo))
 #define BT_SONG_INFO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_INFO, BtSongInfoClass))

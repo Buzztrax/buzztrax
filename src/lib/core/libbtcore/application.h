@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.4 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: application.h,v 1.5 2004-09-02 17:43:30 ensonic Exp $
  * base class for a buzztard based application
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_APPLICATION:
- *
- * #GType for BtApplication instances
- */
 #define BT_TYPE_APPLICATION		         (bt_application_get_type ())
 #define BT_APPLICATION(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_APPLICATION, BtApplication))
 #define BT_APPLICATION_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_APPLICATION, BtApplicationClass))

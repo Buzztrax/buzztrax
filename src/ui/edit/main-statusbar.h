@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.2 2004-08-18 16:55:09 ensonic Exp $
+/* $Id: main-statusbar.h,v 1.3 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_STATUSBAR:
- *
- * #GType for BtMainStatusbar instances
- */
 #define BT_TYPE_MAIN_STATUSBAR		        (bt_main_statusbar_get_type ())
 #define BT_MAIN_STATUSBAR(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_STATUSBAR, BtMainStatusbar))
 #define BT_MAIN_STATUSBAR_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarClass))

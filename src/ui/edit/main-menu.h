@@ -1,4 +1,4 @@
-/* $Id: main-menu.h,v 1.1 2004-08-11 15:50:04 ensonic Exp $
+/* $Id: main-menu.h,v 1.2 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_MENU:
- *
- * #GType for BtMainMenu instances
- */
 #define BT_TYPE_MAIN_MENU		         (bt_main_menu_get_type ())
 #define BT_MAIN_MENU(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_MENU, BtMainMenu))
 #define BT_MAIN_MENU_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_MENU, BtMainMenuClass))

@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.9 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: pattern.h,v 1.10 2004-09-02 17:43:30 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -9,11 +9,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_PATTERN:
- *
- * #GType for BtPattern instances
- */
 #define BT_TYPE_PATTERN		         (bt_pattern_get_type ())
 #define BT_PATTERN(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PATTERN, BtPattern))
 #define BT_PATTERN_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PATTERN, BtPatternClass))

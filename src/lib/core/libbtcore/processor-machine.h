@@ -1,4 +1,4 @@
-/* $Id: processor-machine.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: processor-machine.h,v 1.9 2004-09-02 17:43:30 ensonic Exp $
  * class for a processor machine
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_PROCESSOR_MACHINE:
- *
- * #GType for BtProcessorMachine instances
- */
 #define BT_TYPE_PROCESSOR_MACHINE		         (bt_processor_machine_get_type ())
 #define BT_PROCESSOR_MACHINE(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachine))
 #define BT_PROCESSOR_MACHINE_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachineClass))

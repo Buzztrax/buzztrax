@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.h,v 1.1 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-sequence.h,v 1.2 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_PAGE_SEQUENCE:
- *
- * #GType for BtMainPageSequence instances
- */
 #define BT_TYPE_MAIN_PAGE_SEQUENCE		        (bt_main_page_sequence_get_type ())
 #define BT_MAIN_PAGE_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequence))
 #define BT_MAIN_PAGE_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.1 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.2 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_PAGE_MACHINES:
- *
- * #GType for BtMainPageMachines instances
- */
 #define BT_TYPE_MAIN_PAGE_MACHINES		        (bt_main_page_machines_get_type ())
 #define BT_MAIN_PAGE_MACHINES(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachines))
 #define BT_MAIN_PAGE_MACHINES_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesClass))

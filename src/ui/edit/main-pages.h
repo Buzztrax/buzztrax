@@ -1,4 +1,4 @@
-/* $Id: main-pages.h,v 1.1 2004-08-12 14:34:20 ensonic Exp $
+/* $Id: main-pages.h,v 1.2 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_PAGES:
- *
- * #GType for BtMainPages instances
- */
 #define BT_TYPE_MAIN_PAGES		         (bt_main_pages_get_type ())
 #define BT_MAIN_PAGES(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGES, BtMainPages))
 #define BT_MAIN_PAGES_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGES, BtMainPagesClass))

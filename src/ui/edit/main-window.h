@@ -1,4 +1,4 @@
-/* $Id: main-window.h,v 1.2 2004-08-11 15:50:04 ensonic Exp $
+/* $Id: main-window.h,v 1.3 2004-09-02 17:43:30 ensonic Exp $
  * class for the editor main window
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_MAIN_WINDOW:
- *
- * #GType for BtMainWindow instances
- */
 #define BT_TYPE_MAIN_WINDOW		         (bt_main_window_get_type ())
 #define BT_MAIN_WINDOW(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_WINDOW, BtMainWindow))
 #define BT_MAIN_WINDOW_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_WINDOW, BtMainWindowClass))

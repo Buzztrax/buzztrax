@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.8 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: sequence.h,v 1.9 2004-09-02 17:43:30 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_SEQUENCE:
- *
- * #GType for BtSequence instances
- */
 #define BT_TYPE_SEQUENCE		        (bt_sequence_get_type ())
 #define BT_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE, BtSequence))
 #define BT_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE, BtSequenceClass))
@@ -29,7 +24,7 @@ typedef struct _BtSequencePrivate BtSequencePrivate;
 /**
  * BtSequence:
  *
- * Startingpoint for the #BtSong timeline data-structures.
+ * Starting point for the #BtSong timeline data-structures.
  * Holds a series of #BtTimeLine objects, which define the events that are
  * sent to a #BtMachine at a time.
  */

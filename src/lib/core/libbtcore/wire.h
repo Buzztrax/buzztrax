@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.7 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: wire.h,v 1.8 2004-09-02 17:43:30 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_WIRE:
- *
- * #GType for BtWire instances
- */
 #define BT_TYPE_WIRE		        (bt_wire_get_type ())
 #define BT_WIRE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WIRE, BtWire))
 #define BT_WIRE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_WIRE, BtWireClass))

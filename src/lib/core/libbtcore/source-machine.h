@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: source-machine.h,v 1.9 2004-09-02 17:43:30 ensonic Exp $
  * class for a source machine
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_SOURCE_MACHINE:
- *
- * #GType for BtSourceMachine instances
- */
 #define BT_TYPE_SOURCE_MACHINE		        (bt_source_machine_get_type ())
 #define BT_SOURCE_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SOURCE_MACHINE, BtSourceMachine))
 #define BT_SOURCE_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SOURCE_MACHINE, BtSourceMachineClass))

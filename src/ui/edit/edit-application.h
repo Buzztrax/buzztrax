@@ -1,4 +1,4 @@
-/* $Id: edit-application.h,v 1.3 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: edit-application.h,v 1.4 2004-09-02 17:43:30 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_EDIT_APPLICATION:
- *
- * #GType for BtEditApplication instances
- */
 #define BT_TYPE_EDIT_APPLICATION		        (bt_edit_application_get_type ())
 #define BT_EDIT_APPLICATION(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_EDIT_APPLICATION, BtEditApplication))
 #define BT_EDIT_APPLICATION_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_EDIT_APPLICATION, BtEditApplicationClass))

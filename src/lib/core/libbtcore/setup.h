@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.5 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: setup.h,v 1.6 2004-09-02 17:43:30 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_SETUP:
- *
- * #GType for BtSetup instances
- */
 #define BT_TYPE_SETUP		         (bt_setup_get_type ())
 #define BT_SETUP(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SETUP, BtSetup))
 #define BT_SETUP_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SETUP, BtSetupClass))

@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.7 2004-08-12 13:53:30 waffel Exp $
+/* $Id: song-io.h,v 1.8 2004-09-02 17:43:30 ensonic Exp $
  * base class for song input and output
  */
 
@@ -8,11 +8,6 @@
 #include <glib.h>
 #include <glib-object.h>
 
-/**
- * BT_TYPE_SONG_IO:
- *
- * #GType for BtSongIO instances
- */
 #define BT_TYPE_SONG_IO		         (bt_song_io_get_type ())
 #define BT_SONG_IO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO, BtSongIO))
 #define BT_SONG_IO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO, BtSongIOClass))
