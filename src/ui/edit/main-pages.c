@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.12 2004-12-02 10:45:33 ensonic Exp $
+/* $Id: main-pages.c,v 1.13 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -70,27 +70,27 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
-	bt_main_pages_init_tab(self,tips,0,_("machine view"),"stock_media-play.png",_("machines used in the song and their wires"));
+	bt_main_pages_init_tab(self,tips,0,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
 
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
-	bt_main_pages_init_tab(self,tips,1,_("pattern view"),"stock_media-play.png",_("event pattern editor"));
+	bt_main_pages_init_tab(self,tips,1,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
 
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
-	bt_main_pages_init_tab(self,tips,2,_("sequence view"),"stock_media-play.png",_("song sequence editor"));
+	bt_main_pages_init_tab(self,tips,2,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
   self->priv->waves_page=bt_main_page_waves_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
-	bt_main_pages_init_tab(self,tips,3,_("wave table view"),"stock_media-play.png",_("sample wave table editor"));
+	bt_main_pages_init_tab(self,tips,3,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
   self->priv->info_page=bt_main_page_info_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
-	bt_main_pages_init_tab(self,tips,4,_("song information"),"stock_media-play.png",_("song meta data editor"));
+	bt_main_pages_init_tab(self,tips,4,_("song information"),"tab_info.png",_("song meta data editor"));
 
   return(TRUE);
 }

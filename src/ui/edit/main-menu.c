@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.22 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-menu.c,v 1.23 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -103,6 +103,28 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
   g_object_try_unref(main_window);
+}
+
+static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+	BtMainWindow *main_window;
+	BtMainToolbar *toolbar;
+
+  g_assert(user_data);
+
+  GST_INFO("menu view toolbar event occurred");
+	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	g_object_get(G_OBJECT(main_window),"toolbar",&toolbar,NULL);
+	
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+		gtk_widget_show(GTK_WIDGET(toolbar));
+}
+	else {
+		gtk_widget_hide(GTK_WIDGET(toolbar));
+	}
+	
+	g_object_try_unref(toolbar);
+	g_object_try_unref(main_window);
 }
 
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -243,7 +265,10 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
   gtk_widget_set_name(subitem,_("Toolbar"));
+	// @todo save with gconf settings
+	gtk_check_menu_item_set_active(subitem,TRUE);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+	g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
 
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));

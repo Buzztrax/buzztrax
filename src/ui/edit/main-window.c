@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.32 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-window.c,v 1.33 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main window
  */
 
@@ -9,6 +9,7 @@
 
 enum {
   MAIN_WINDOW_APP=1,
+	MAIN_WINDOW_TOOLBAR,
   MAIN_WINDOW_STATUSBAR
 };
 
@@ -379,6 +380,9 @@ static void bt_main_window_get_property(GObject      *object,
     case MAIN_WINDOW_APP: {
       g_value_set_object(value, self->priv->app);
     } break;
+    case MAIN_WINDOW_TOOLBAR: {
+      g_value_set_object(value, self->priv->toolbar);
+    } break;
     case MAIN_WINDOW_STATUSBAR: {
       g_value_set_object(value, self->priv->statusbar);
     } break;
@@ -455,6 +459,13 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MAIN_WINDOW_TOOLBAR,
+                                  g_param_spec_object("toolbar",
+                                     "toolbar prop",
+                                     "Get the tool bar",
+                                     BT_TYPE_MAIN_TOOLBAR, /* object type */
+                                     G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_STATUSBAR,
                                   g_param_spec_object("statusbar",

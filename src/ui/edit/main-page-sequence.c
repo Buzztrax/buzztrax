@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.23 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-page-sequence.c,v 1.24 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -384,7 +384,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   self->priv->sink_bg2.blue= (guint16)(1.0*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);
   
-  // add a hbox
+  // add a hpaned
   box=gtk_hpaned_new();
   gtk_container_add(GTK_CONTAINER(self),box);
   // add sequence list-view

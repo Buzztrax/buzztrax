@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.13 2004-12-01 20:44:28 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.14 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -6,6 +6,8 @@
 #define BT_MACHINE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
+
+#define BASE_FONT_SIZE 8.0
 
 //-- signal ids
 
@@ -146,6 +148,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
+	// @todo how to make this menu item bold (default)
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PROPERTIES,NULL);  // dynamic part
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
@@ -237,7 +240,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       self->priv->zoom=g_value_get_double(value);
       //GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
 			if(self->priv->label) {
-				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",10.0*self->priv->zoom,NULL);
+				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",BASE_FONT_SIZE*self->priv->zoom,NULL);
 			}
     } break;
     default: {
@@ -286,7 +289,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
   
-  GST_DEBUG("realize for machine occured, machine=%p",self->priv->machine);
+  //GST_DEBUG("realize for machine occured, machine=%p",self->priv->machine);
 
   // @todo that should be handled by subclassing
   if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
@@ -316,10 +319,13 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x", +0.0,
                            "y", -3.0,
                            "justification", GTK_JUSTIFY_CENTER,
-                           "size-points", 10.0*self->priv->zoom,
+                           "size-points", BASE_FONT_SIZE*self->priv->zoom,
                            "size-set", TRUE,
                            "text", id,
                            "fill-color", "black",
+													 "clip", TRUE,
+													 "clip-width",w+w,
+													 "clip-height",h+h,
                            NULL);
   g_free(id);
   //item->realized = TRUE;

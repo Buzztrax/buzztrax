@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.26 2004-12-02 10:45:33 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.27 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -168,17 +168,22 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 			GstPad *pad;
 			GstCaps *caps;
 			GstStructure *structure;
-			gint channels_i,channels_o;
+			gint channels_i=0,channels_o=0;
     
 			pad=gst_element_get_pad(level,"sink");
 			caps=gst_pad_get_caps(pad);
-			// @todo check if it is simple caps (only one element)
-			structure = gst_caps_get_structure(caps, 0);
-			gst_structure_get_int (structure, "channels", &channels_i);
+			// check if it is simple caps (only one element)
+			if(GST_CAPS_IS_SIMPLE(caps)) {
+				structure = gst_caps_get_structure(caps, 0);
+				gst_structure_get_int (structure, "channels", &channels_i);
+			}
 			pad=gst_element_get_pad(level,"src");
 			caps=gst_pad_get_caps(pad);
-			structure = gst_caps_get_structure(caps, 0);
-			gst_structure_get_int (structure, "channels", &channels_o);
+			// check if it is simple caps (only one element)
+			if(GST_CAPS_IS_SIMPLE(caps)) {
+				structure = gst_caps_get_structure(caps, 0);
+				gst_structure_get_int (structure, "channels", &channels_o);
+			}
 			GST_INFO("  input level analyser will process %d,%d channels",channels_i,channels_o);
 		}
 		// DEBUG  // release the reference

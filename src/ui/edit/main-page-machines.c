@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.30 2004-12-01 14:06:07 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.31 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -330,7 +330,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image,*scrolled_window;
-  GtkWidget *menu_item;
+  GtkWidget *menu_item,*menu;
   GtkTooltips *tips;
 
   // add toolbar
@@ -451,7 +451,20 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	// add sub-menu	
+	menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("add menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
 
+  menu_item=gtk_menu_item_new_with_label(_("Generators"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+  gtk_widget_show(menu_item);
+	
+  menu_item=gtk_menu_item_new_with_label(_("Effects"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+  gtk_widget_show(menu_item);
+
+	// continue with main menu
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_set_sensitive(menu_item,FALSE);

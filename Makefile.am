@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.23 2004-11-26 18:30:54 waffel Exp $
+## $Id: Makefile.am,v 1.24 2004-12-02 17:22:32 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -32,7 +32,12 @@ pixmapdata_DATA = \
 	pixmaps/stock_media-rec.png \
 	pixmaps/stock_media-rew.png \
 	pixmaps/stock_media-stop.png \
-	pixmaps/stock_repeat.png
+	pixmaps/stock_repeat.png \
+	pixmaps/tab_machines.png \
+	pixmaps/tab_patterns.png \
+	pixmaps/tab_sequence.png \
+	pixmaps/tab_waves.png \
+	pixmaps/tab_info.png
 
 schemasdir = $(GCONF_SCHEMA_FILE_DIR)
 schemas_in_files = buzztard.schemas.in

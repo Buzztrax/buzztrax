@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.1 2004-12-02 10:45:33 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.2 2004-12-02 17:22:43 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -45,25 +45,55 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const BtEditApplication *app) {
-  //GtkWidget *toolbar;
-  //GtkWidget *box,*menu,*button;
+  GtkWidget *toolbar;
+  GtkWidget *vpaned,*hpaned,*box,*box2;
  
   // @todo add ui
 	// vpane
+	vpaned=gtk_vpaned_new();
+  gtk_container_add(GTK_CONTAINER(self),vpaned);
+	
 	//   hpane
+	hpaned=gtk_hpaned_new();
+	gtk_paned_pack1(GTK_PANED(vpaned),GTK_WIDGET(hpaned),FALSE,FALSE);
 	//     vbox (loaded sample list)
+	box=gtk_vbox_new(FALSE,0);
+	gtk_paned_pack1(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
 	//       toolbar
+	toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,_("sample list tool bar"));
+  gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+	// @todo add buttons (play,stop,clear)
 	//       listview
+	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no loaded sample list yet"));
 	//     vbox (file browser)
+	box=gtk_vbox_new(FALSE,0);
+	gtk_paned_pack2(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
 	//       toolbar
+	toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,_("sample browser tool bar"));
+  gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+	// @todo add buttons (play,stop,load)
 	//       listview
+	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no sample browser yet"));
 	//   vbox (sample view)
+	box=gtk_vbox_new(FALSE,0);
+	gtk_paned_pack2(GTK_PANED(vpaned),GTK_WIDGET(box),FALSE,FALSE);
 	//     toolbar
+	toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,_("sample edit tool bar"));
+  gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+	// @todo add buttons (...)
 	//     hbox
+	box2=gtk_hbox_new(FALSE,0);
+	gtk_container_add(GTK_CONTAINER(box),box2);
 	//       properties (root key, sample rate, ...)
-	//       sampleview
-	//
-  gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no waves view yet"));
+	gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample properties yet"));
+	//       sampleview (which widget do we use?)
+	gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample waveform view yet"));
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
