@@ -4,7 +4,7 @@ m4_define(`__NODE',m4___file__)
 m4_define(`__META_DESCRIPTION',`overview about the buzztard project (replacement of the buzz music composer)')
 m4_define(`__META_KEYWORDS',`goals, vision')
 m4_define(`__DATE_CREATED',`Thu Jun 21 17:31:23 MET 2001')
-m4_define(`__DATE_CHANGED',`Tue Apr 27 20:09:11 CEST 2004')
+m4_define(`__DATE_CHANGED',`Mon May 17 13:56:42 CEST 2004')
 m4_define(`__HEADER_EXTRA',`')
 m4_include(`global.m4')
 m4_divert`'m4_dnl
@@ -23,6 +23,11 @@ m4_divert`'m4_dnl
 				to allow many people to get involved. We hope that our software will have a better usabillity that buzz has.<br><br>
 				Buzztard is <font color="#00CC33">free software</font> and distributed under
 				the <a href="http://www.gnu.org/licenses/gpl.html" taget="_new">GPL</a>.<br>
+			</p>
+			<h3>The vision</h3>
+			<p align="justify">
+				The main goal is to get as far as buzz now is. Beyond that we already have thousand of ideas,
+				to make using such a software more productive.
 			</p>
 		</div>
 		__FOOTER
