@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.8 2004-05-04 15:37:39 ensonic Exp $
+/** $Id: song.c,v 1.9 2004-05-05 12:46:03 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -20,8 +20,8 @@ struct _BtSongPrivate {
   /* the name for the song */
   gchar *name;
 	
+	BtSongInfo* song_info; 
 	/*
-	BTSongInfo* song_info; 
 	BtSetup*    setup;
 	BtSequence* sequence;
 	*/
@@ -55,9 +55,9 @@ static gboolean bt_song_real_load(const BtSong *self, const gchar *filename) {
 			if((cur=xmlDocGetRootElement(song_doc))==NULL) {
 				GST_WARNING("xmlDoc is empty");
 			}
-			//else if((ns=xmlSearchNsByHref(song_doc,cur,(const xmlChar *)GITK_NS_URL))==NULL) {
-			//	GST_WARNING("no namespace found in xmlDoc");
-			//}
+			else if((ns=xmlSearchNsByHref(song_doc,cur,(const xmlChar *)BUZZTARD_NS_URL))==NULL) {
+				GST_WARNING("no or incorrect namespace found in xmlDoc");
+			}
 			else if(xmlStrcmp(cur->name,(const xmlChar *)"buzztard")) {
 				GST_WARNING("wrong document type root node in xmlDoc src");
 			}
@@ -101,8 +101,8 @@ void bt_song_start_play(const BtSong *self) {
 
 //-- class internals
 
-/* returns a property for the given property_id for this song */
-static void song_get_property (GObject      *object,
+/* returns a property for the given property_id for this object */
+static void bt_song_get_property (GObject      *object,
                                guint         property_id,
                                GValue       *value,
                                GParamSpec   *pspec)
@@ -121,7 +121,7 @@ static void song_get_property (GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void song_set_property(GObject      *object,
+static void bt_song_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
                               GParamSpec   *pspec)
@@ -132,7 +132,7 @@ static void song_set_property(GObject      *object,
     case SONG_NAME: {
       g_free(self->private->name);
       self->private->name = g_value_dup_string(value);
-      //g_print("set the name for song: %s\n",self->private->name);
+      g_print("set the name for song: %s\n",self->private->name);
     } break;
     default: {
       g_assert(FALSE);
@@ -141,32 +141,36 @@ static void song_set_property(GObject      *object,
   }
 }
 
-static void song_dispose(GObject *object) {
+static void bt_song_dispose(GObject *object) {
   BtSong *self = (BtSong *)object;
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 }
 
-static void song_finalize(GObject *object) {
+static void bt_song_finalize(GObject *object) {
   BtSong *self = (BtSong *)object;
+	g_object_unref(G_OBJECT(self->private->song_info));
 	g_free(self->private->name);
   g_free(self->private);
 }
 
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = (BtSong*)instance;
+	
+	//g_print("song_init self=%p\n",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
+	self->private->song_info = (BtSongInfo *)g_object_new(BT_SONG_INFO_TYPE,"song",self,NULL);
 }
 
 static void bt_song_class_init(BtSongClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
   
-  gobject_class->set_property = song_set_property;
-  gobject_class->get_property = song_get_property;
-  gobject_class->dispose      = song_dispose;
-  gobject_class->finalize     = song_finalize;
+  gobject_class->set_property = bt_song_set_property;
+  gobject_class->get_property = bt_song_get_property;
+  gobject_class->dispose      = bt_song_dispose;
+  gobject_class->finalize     = bt_song_finalize;
   
   klass->load       = bt_song_real_load;
   klass->start_play = bt_song_real_start_play;

@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.10 2004-05-04 15:24:59 ensonic Exp $
+/** $Id: core.h,v 1.11 2004-05-05 12:46:03 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -19,15 +19,24 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+//-- libbtcore
 //#include "song.h"
-// contains only method prototypes and should be included AFTER song.h,
+// contain only method prototypes and should be included AFTER e.g. song.h,
 // the same for all other classes
-
 #include "song-methods.h"
+#include "song-info-methods.h"
 #include "machine-methods.h"
 #include "wire-methods.h"
 #include "version.h"
 
+//-- global defines ------------------------------------------------------------
+
+/** @brief default buzztard xml namespace prefix */
+#define BUZZTARD_NS_PREFIX "bt"
+/** @brief default buzztard xml namespace url */
+#define BUZZTARD_NS_URL    "http://buzztard.sourceforge.net/"
+
+//-- misc
 #ifdef BT_CORE
 	#define GST_CAT_DEFAULT bt_core_debug
 	#ifndef BT_CORE_C

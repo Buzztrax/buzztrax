@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.3 2004-05-04 15:37:39 ensonic Exp $
+/** $Id: wire.c,v 1.4 2004-05-05 12:46:03 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -28,8 +28,8 @@ struct _BtWirePrivate {
 
 //-- class internals
 
-/* returns a property for the given property_id for this wire */
-static void wire_get_property (GObject      *object,
+/* returns a property for the given property_id for this object */
+static void bt_wire_get_property(GObject      *object,
                                guint         property_id,
                                GValue       *value,
                                GParamSpec   *pspec)
@@ -48,7 +48,7 @@ static void wire_get_property (GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void wire_set_property(GObject      *object,
+static void bt_wire_set_property(GObject      *object,
                               guint         property_id,
                               const GValue *value,
                               GParamSpec   *pspec)
@@ -57,8 +57,7 @@ static void wire_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
-			g_object_unref(G_OBJECT(self->private->song));
-      self->private->song = g_object_ref(G_OBJECT(value));
+      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //g_print("set the song for wire: %p\n",self->private->song);
     } break;
     default: {
@@ -68,13 +67,13 @@ static void wire_set_property(GObject      *object,
   }
 }
 
-static void wire_dispose(GObject *object) {
+static void bt_wire_dispose(GObject *object) {
   BtWire *self = (BtWire *)object;
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 }
 
-static void wire_finalize(GObject *object) {
+static void bt_wire_finalize(GObject *object) {
   BtWire *self = (BtWire *)object;
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
@@ -90,15 +89,15 @@ static void bt_wire_class_init(BtWireClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
   
-  gobject_class->set_property = wire_set_property;
-  gobject_class->get_property = wire_get_property;
-  gobject_class->dispose      = wire_dispose;
-  gobject_class->finalize     = wire_finalize;
+  gobject_class->set_property = bt_wire_set_property;
+  gobject_class->get_property = bt_wire_get_property;
+  gobject_class->dispose      = bt_wire_dispose;
+  gobject_class->finalize     = bt_wire_finalize;
 
-  g_param_spec = g_param_spec_string("song",
+  g_param_spec = g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the wire belongs to",
-                                     NULL, /* default value */
+                                     BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
                                            
   g_object_class_install_property(gobject_class,
