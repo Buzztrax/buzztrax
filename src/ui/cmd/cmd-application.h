@@ -1,5 +1,5 @@
-/* $Id: cmd-application.h,v 1.3 2004-07-02 13:44:50 ensonic Exp $
- * class for a commandline buzztard based application
+/* $Id: cmd-application.h,v 1.4 2004-07-29 15:51:31 ensonic Exp $
+ * class for a commandline based buzztard tool application
  */
 
 #ifndef BT_CMD_APPLICATION_H

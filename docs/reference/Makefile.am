@@ -54,7 +54,8 @@ GTKDOC_CFLAGS = \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
 							$(top_builddir)/src/lib/core/libbtcore.la \
-							$(top_builddir)/src/ui/cmd/cmd-application.o
+							$(top_builddir)/src/ui/cmd/cmd-application.o \
+							$(top_builddir)/src/ui/edit/edit-application.o
 
 GTKDOC_CC=$(LIBTOOL) --mode=compile $(CC)
 GTKDOC_LD=$(LIBTOOL) --mode=link $(CC)

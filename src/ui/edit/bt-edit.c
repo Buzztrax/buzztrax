@@ -1,11 +1,14 @@
-/* $Id: bt-edit.c,v 1.2 2004-07-28 15:33:45 ensonic Exp $
+/* $Id: bt-edit.c,v 1.3 2004-07-29 15:51:31 ensonic Exp $
+ * You can try to run the uninstalled program via
+ *   libtool --mode=execute bt-edit
+ * to enable debug output add:
+ *  --gst-debug="*:2,bt-*:3" for not-so-much-logdata or
+ *  --gst-debug="*:2,bt-*:4" for a-lot-logdata
  */
 
 #define BT_EDIT_C
 
 #include "bt-edit.h"
-
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 static void usage(int argc, char **argv, const struct poptOption *options) {
   const poptContext context=poptGetContext(argv[0], argc, (const char **)argv, options, 0);
@@ -18,18 +21,19 @@ int main(int argc, char **argv) {
 	gboolean res=FALSE;
   gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
-	/*BtEditApplication *app;*/
+	BtEditApplication *app;
 
 	struct poptOption options[] = {
-		{"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP, &arg_version, 0, "version", NULL },
-		{"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, "command name", "{load}" },
-		{"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name, 	0, "input file name", "SONGFILE" },
+		{"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
+		{"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &command,     0, "command name", "{load}" },
+		{"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &input_file_name, 	0, "input file name", "SONGFILE" },
 		POPT_TABLEEND
 	};
   
+  // init gtk (before or after bt_init ?)
+  gtk_init(&argc,&argv);
 	// init buzztard core with own popt options
 	bt_init(&argc,&argv,options);
-  // init gtk (here or before bt_init ?)
 
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / gtk ui");
 
@@ -37,15 +41,15 @@ int main(int argc, char **argv) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
     exit(0);
   }
-  if(!command) usage(argc, argv, options);
-  g_printf("command=\"%s\" input=\"%s\"\n",command, input_file_name);
 
-  /*
 	app=(BtEditApplication *)g_object_new(BT_TYPE_EDIT_APPLICATION,NULL);
-  // depending on the popt options call the correct method
-  if(!strncmp(command,"load",4)) {
-    if(!input_file_name) usage(argc, argv, options);
-    res=bt_edit_application_load(app,input_file_name);
+  if(command) {
+    // depending on the popt options call the correct method
+    if(!strncmp(command,"load",4)) {
+      if(!input_file_name) usage(argc, argv, options);
+      res=bt_edit_application_load_and_run(app,input_file_name);
+    }
+    else usage(argc, argv, options);
   }
   else {
     res=bt_edit_application_run(app);
@@ -53,7 +57,6 @@ int main(int argc, char **argv) {
 	
 	// free application
 	g_object_unref(G_OBJECT(app));
-	*/
 	return(!res);
 }
 

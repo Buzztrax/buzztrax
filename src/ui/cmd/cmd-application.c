@@ -1,11 +1,14 @@
-/* $Id: cmd-application.c,v 1.13 2004-07-28 15:33:45 ensonic Exp $
- * class for a commandline buzztard based application
+/* $Id: cmd-application.c,v 1.14 2004-07-29 15:51:31 ensonic Exp $
+ * class for a commandline based buzztard tool application
  */
  
 //#define BT_CORE -> BT_CMD ?
 #define BT_CMD_APPLICATION_C
 
 #include "bt-cmd.h"
+
+// this needs to be here because of gtk-doc and unit-tests
+GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */
@@ -27,21 +30,21 @@ static void play_event(void) {
 
 /**
  * bt_cmd_application_play:
- * @app: the application instance to run
+ * @self: the application instance to run
  * @input_file_name: the file to play
  *
  * load and play the file of the supplied name
  *
  * Returns: true for success
  */
-gboolean bt_cmd_application_play(const BtCmdApplication *app, const gchar *input_file_name) {
+gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
 	gboolean res;
 	BtSong *song;
 	BtSongIO *loader;
 
 	GST_INFO("application.play launched");
 
-	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(app),"bin"),"name","first buzztard song", NULL);
+	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(self),"bin"),"name","first buzztard song", NULL);
 	loader = (BtSongIO *)g_object_new(bt_song_io_detect(input_file_name),NULL);
 	
 	GST_INFO("objects initialized");
@@ -62,21 +65,21 @@ gboolean bt_cmd_application_play(const BtCmdApplication *app, const gchar *input
 
 /**
  * bt_cmd_application_info:
- * @app: the application instance to run
+ * @self: the application instance to run
  * @input_file_name: the file to print information about
  *
  * load the file of the supplied name and print information about it to stdout.
  *
  * Returns: true for success
  */
-gboolean bt_cmd_application_info(const BtCmdApplication *app, const gchar *input_file_name) {
+gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name) {
 	gboolean res;
 	BtSong *song;
 	BtSongIO *loader;
 
 	GST_INFO("application.info launched");
 
-	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(app),"bin"),"name","first buzztard song", NULL);
+	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(self),"bin"),NULL);
 	loader = (BtSongIO *)g_object_new(bt_song_io_detect(input_file_name),NULL);
 	
 	GST_INFO("objects initialized");

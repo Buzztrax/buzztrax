@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.11 2004-07-28 15:33:44 ensonic Exp $
+# $Id: configure.ac,v 1.12 2004-07-29 15:51:30 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -111,7 +111,9 @@ fi
 #	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 
 # Checks for libraries.
-PKG_CHECK_MODULES(BASE_DEPS, glib-2.0 >= 2.2.0 gthread-2.0 >= 2.2.0 gmodule-2.0 >= 2.2.0 \
+PKG_CHECK_MODULES(BASE_DEPS, \
+  glib-2.0 >= 2.2.0 gthread-2.0 >= 2.2.0 gmodule-2.0 >= 2.2.0 \
+  gtk+-2.0 \
 	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
   gstreamer-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 	)

@@ -1,1239 +1,401 @@
-<?xml version="1.0"?>
-<GTK-Interface>
+<?xml version="1.0" standalone="no"?> <!--*- mode: xml -*-->
+<!DOCTYPE glade-interface SYSTEM "http://glade.gnome.org/glade-2.0.dtd">
 
-<project>
-  <name>buzztard</name>
-  <program_name>buzztard</program_name>
-  <directory></directory>
-  <source_directory>src</source_directory>
-  <pixmaps_directory>pixmaps</pixmaps_directory>
-  <language>C</language>
-  <gnome_support>False</gnome_support>
-  <gettext_support>True</gettext_support>
-</project>
+<glade-interface>
 
-<widget>
-  <class>GtkWindow</class>
-  <name>window1</name>
-  <title>Buzztard</title>
-  <type>GTK_WINDOW_TOPLEVEL</type>
-  <position>GTK_WIN_POS_NONE</position>
-  <modal>False</modal>
-  <allow_shrink>False</allow_shrink>
-  <allow_grow>True</allow_grow>
-  <auto_shrink>False</auto_shrink>
+<widget class="GtkWindow" id="window1">
+  <property name="visible">True</property>
+  <property name="title" translatable="yes">Buzztard</property>
+  <property name="type">GTK_WINDOW_TOPLEVEL</property>
+  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="modal">False</property>
+  <property name="resizable">True</property>
+  <property name="destroy_with_parent">False</property>
 
-  <widget>
-    <class>GtkVBox</class>
-    <name>vbox1</name>
-    <homogeneous>False</homogeneous>
-    <spacing>0</spacing>
+  <child>
+    <widget class="GtkVBox" id="vbox1">
+      <property name="visible">True</property>
+      <property name="homogeneous">False</property>
+      <property name="spacing">0</property>
 
-    <widget>
-      <class>GtkMenuBar</class>
-      <name>menubar1</name>
-      <shadow_type>GTK_SHADOW_OUT</shadow_type>
       <child>
-	<padding>0</padding>
-	<expand>False</expand>
-	<fill>False</fill>
-      </child>
+	<widget class="GtkMenuBar" id="menubar1">
+	  <property name="visible">True</property>
 
-      <widget>
-	<class>GtkMenuItem</class>
-	<name>file1</name>
-	<stock_item>GNOMEUIINFO_MENU_FILE_TREE</stock_item>
-
-	<widget>
-	  <class>GtkMenu</class>
-	  <name>file1_menu</name>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>new1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_new1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_NEW_ITEM</stock_item>
-	    <label>_New</label>
-	  </widget>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>open1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_open1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_OPEN_ITEM</stock_item>
-	  </widget>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>save1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_save1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_SAVE_ITEM</stock_item>
-	  </widget>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>save_as1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_save_as1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_SAVE_AS_ITEM</stock_item>
-	  </widget>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>close1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_close1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_CLOSE_ITEM</stock_item>
-	  </widget>
-
-	  <widget>
-	    <class>GtkMenuItem</class>
-	    <name>separator2</name>
-	    <right_justify>False</right_justify>
-	  </widget>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>exit1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_exit1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_EXIT_ITEM</stock_item>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkMenuItem</class>
-	<name>settings1</name>
-	<stock_item>GNOMEUIINFO_MENU_SETTINGS_TREE</stock_item>
-
-	<widget>
-	  <class>GtkMenu</class>
-	  <name>settings1_menu</name>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>preferences1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_preferences1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_PREFERENCES_ITEM</stock_item>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkMenuItem</class>
-	<name>help1</name>
-	<stock_item>GNOMEUIINFO_MENU_HELP_TREE</stock_item>
-
-	<widget>
-	  <class>GtkMenu</class>
-	  <name>help1_menu</name>
-
-	  <widget>
-	    <class>GtkPixmapMenuItem</class>
-	    <name>about1</name>
-	    <signal>
-	      <name>activate</name>
-	      <handler>on_about1_activate</handler>
-	      <last_modification_time>Thu, 06 Jun 2002 14:30:59 GMT</last_modification_time>
-	    </signal>
-	    <stock_item>GNOMEUIINFO_MENU_ABOUT_ITEM</stock_item>
-	  </widget>
-	</widget>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkHandleBox</class>
-      <name>handlebox1</name>
-      <shadow_type>GTK_SHADOW_OUT</shadow_type>
-      <handle_position>GTK_POS_LEFT</handle_position>
-      <snap_edge>GTK_POS_TOP</snap_edge>
-      <child>
-	<padding>0</padding>
-	<expand>False</expand>
-	<fill>True</fill>
-      </child>
-
-      <widget>
-	<class>GtkHBox</class>
-	<name>hbox10</name>
-	<homogeneous>False</homogeneous>
-	<spacing>8</spacing>
-
-	<widget>
-	  <class>GtkToolbar</class>
-	  <name>toolbar1</name>
-	  <border_width>2</border_width>
-	  <orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
-	  <type>GTK_TOOLBAR_ICONS</type>
-	  <space_size>5</space_size>
-	  <space_style>GTK_TOOLBAR_SPACE_LINE</space_style>
-	  <relief>GTK_RELIEF_NONE</relief>
-	  <tooltips>True</tooltips>
 	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
+	    <widget class="GtkMenuItem" id="menuitem1">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">_Datei</property>
+	      <property name="use_underline">True</property>
 
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button3</name>
-	    <tooltip>New</tooltip>
-	    <label>New</label>
-	    <icon>stock_new.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button4</name>
-	    <tooltip>Open</tooltip>
-	    <label>Open</label>
-	    <icon>stock_open.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button5</name>
-	    <tooltip>Save</tooltip>
-	    <label>Save</label>
-	    <icon>stock_save.xpm</icon>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkToolbar</class>
-	  <name>toolbar2</name>
-	  <border_width>2</border_width>
-	  <orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
-	  <type>GTK_TOOLBAR_ICONS</type>
-	  <space_size>5</space_size>
-	  <space_style>GTK_TOOLBAR_SPACE_EMPTY</space_style>
-	  <relief>GTK_RELIEF_NONE</relief>
-	  <tooltips>True</tooltips>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button6</name>
-	    <width>30</width>
-	    <height>30</height>
-	    <label>Play</label>
-	    <icon>stock_media-prev.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button7</name>
-	    <width>30</width>
-	    <height>30</height>
-	    <label>button7</label>
-	    <icon>stock_media-rew.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button8</name>
-	    <width>30</width>
-	    <height>30</height>
-	    <label>button8</label>
-	    <icon>stock_media-play.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button12</name>
-	    <label>button12</label>
-	    <icon>stock_media-rec.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button13</name>
-	    <width>30</width>
-	    <height>30</height>
-	    <label>button13</label>
-	    <icon>stock_media-fwd.xpm</icon>
-	  </widget>
-
-	  <widget>
-	    <class>GtkButton</class>
-	    <child_name>Toolbar:button</child_name>
-	    <name>button14</name>
-	    <width>30</width>
-	    <height>30</height>
-	    <label>button14</label>
-	    <icon>stock_media-next.xpm</icon>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkToolbar</class>
-	  <name>toolbar3</name>
-	  <border_width>2</border_width>
-	  <orientation>GTK_ORIENTATION_HORIZONTAL</orientation>
-	  <type>GTK_TOOLBAR_ICONS</type>
-	  <space_size>5</space_size>
-	  <space_style>GTK_TOOLBAR_SPACE_EMPTY</space_style>
-	  <relief>GTK_RELIEF_NORMAL</relief>
-	  <tooltips>True</tooltips>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-
-	  <widget>
-	    <class>Placeholder</class>
-	  </widget>
-
-	  <widget>
-	    <class>Placeholder</class>
-	  </widget>
-
-	  <widget>
-	    <class>Placeholder</class>
-	  </widget>
-	</widget>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkNotebook</class>
-      <name>notebook1</name>
-      <can_focus>True</can_focus>
-      <show_tabs>True</show_tabs>
-      <show_border>True</show_border>
-      <tab_pos>GTK_POS_TOP</tab_pos>
-      <scrollable>False</scrollable>
-      <tab_hborder>2</tab_hborder>
-      <tab_vborder>2</tab_vborder>
-      <popup_enable>False</popup_enable>
-      <child>
-	<padding>0</padding>
-	<expand>True</expand>
-	<fill>True</fill>
-      </child>
-
-      <widget>
-	<class>GtkNotebook</class>
-	<name>notebook2</name>
-	<can_focus>True</can_focus>
-	<show_tabs>True</show_tabs>
-	<show_border>True</show_border>
-	<tab_pos>GTK_POS_TOP</tab_pos>
-	<scrollable>False</scrollable>
-	<tab_hborder>2</tab_hborder>
-	<tab_vborder>2</tab_vborder>
-	<popup_enable>False</popup_enable>
-
-	<widget>
-	  <class>GtkVBox</class>
-	  <name>meta-vbox</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>0</spacing>
-
-	  <widget>
-	    <class>GtkTable</class>
-	    <name>table1</name>
-	    <border_width>2</border_width>
-	    <rows>2</rows>
-	    <columns>4</columns>
-	    <homogeneous>False</homogeneous>
-	    <row_spacing>2</row_spacing>
-	    <column_spacing>4</column_spacing>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>True</fill>
-	    </child>
-
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label17</name>
-	      <label>Author</label>
-	      <justify>GTK_JUSTIFY_RIGHT</justify>
-	      <wrap>False</wrap>
-	      <xalign>1</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
 	      <child>
-		<left_attach>0</left_attach>
-		<right_attach>1</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
+		<widget class="GtkMenu" id="menu1">
 
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label18</name>
-	      <label>Band</label>
-	      <justify>GTK_JUSTIFY_RIGHT</justify>
-	      <wrap>False</wrap>
-	      <xalign>1</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<left_attach>0</left_attach>
-		<right_attach>1</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
+		  <child>
+		    <widget class="GtkImageMenuItem" id="neu1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-new</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_neu1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
 
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label19</name>
-	      <label>Title</label>
-	      <justify>GTK_JUSTIFY_RIGHT</justify>
-	      <wrap>False</wrap>
-	      <xalign>1</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<left_attach>2</left_attach>
-		<right_attach>3</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
+		  <child>
+		    <widget class="GtkImageMenuItem" id="Öffnen1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-open</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_Öffnen1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
 
-	    <widget>
-	      <class>GtkLabel</class>
-	      <name>label20</name>
-	      <label>Album</label>
-	      <justify>GTK_JUSTIFY_RIGHT</justify>
-	      <wrap>False</wrap>
-	      <xalign>1</xalign>
-	      <yalign>0.5</yalign>
-	      <xpad>0</xpad>
-	      <ypad>0</ypad>
-	      <child>
-		<left_attach>2</left_attach>
-		<right_attach>3</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>False</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
+		  <child>
+		    <widget class="GtkImageMenuItem" id="speichern1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-save</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_speichern1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
 
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>entry1</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text>Stefan 'ensonic' Kost</text>
-	      <child>
-		<left_attach>1</left_attach>
-		<right_attach>2</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>True</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
+		  <child>
+		    <widget class="GtkImageMenuItem" id="speichern_unter1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-save-as</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_speichern_unter1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
 
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>entry2</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text>eksor</text>
-	      <child>
-		<left_attach>1</left_attach>
-		<right_attach>2</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>True</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
+		  <child>
+		    <widget class="GtkSeparatorMenuItem" id="separatormenuitem1">
+		      <property name="visible">True</property>
+		    </widget>
+		  </child>
 
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>entry3</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text>Dummy Song</text>
-	      <child>
-		<left_attach>3</left_attach>
-		<right_attach>4</right_attach>
-		<top_attach>0</top_attach>
-		<bottom_attach>1</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>True</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkEntry</class>
-	      <name>entry4</name>
-	      <can_focus>True</can_focus>
-	      <editable>True</editable>
-	      <text_visible>True</text_visible>
-	      <text_max_length>0</text_max_length>
-	      <text>best of eksor</text>
-	      <child>
-		<left_attach>3</left_attach>
-		<right_attach>4</right_attach>
-		<top_attach>1</top_attach>
-		<bottom_attach>2</bottom_attach>
-		<xpad>0</xpad>
-		<ypad>0</ypad>
-		<xexpand>True</xexpand>
-		<yexpand>False</yexpand>
-		<xshrink>False</xshrink>
-		<yshrink>False</yshrink>
-		<xfill>True</xfill>
-		<yfill>False</yfill>
-	      </child>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GtkScrolledWindow</class>
-	    <name>scrolledwindow1</name>
-	    <hscrollbar_policy>GTK_POLICY_NEVER</hscrollbar_policy>
-	    <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-
-	    <widget>
-	      <class>GtkText</class>
-	      <name>text1</name>
-	      <can_focus>True</can_focus>
-	      <editable>False</editable>
-	      <text>I wrote this song in memory of ...</text>
-	    </widget>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHBox</class>
-	  <child_name>Notebook:tab</child_name>
-	  <name>lbl-meta-hbox</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>3</spacing>
-
-	  <widget>
-	    <class>GtkPixmap</class>
-	    <name>pixmap2</name>
-	    <filename>stock_edit.xpm</filename>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <build_insensitive>True</build_insensitive>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>label9</name>
-	    <label>Meta</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHPaned</class>
-	  <name>machines-hpaned</name>
-	  <border_width>1</border_width>
-	  <handle_size>10</handle_size>
-	  <gutter_size>12</gutter_size>
-	  <position>359</position>
-
-	  <widget>
-	    <class>GtkScrolledWindow</class>
-	    <name>scrolledwindow4</name>
-	    <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-	    <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>False</resize>
-	    </child>
-
-	    <widget>
-	      <class>GtkViewport</class>
-	      <name>viewport2</name>
-	      <shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	      <widget>
-		<class>GtkDrawingArea</class>
-		<name>drawingarea9</name>
-	      </widget>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GtkTree</class>
-	    <name>tree3</name>
-	    <border_width>1</border_width>
-	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	    <view_mode>GTK_TREE_VIEW_LINE</view_mode>
-	    <view_line>True</view_line>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>True</resize>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHBox</class>
-	  <child_name>Notebook:tab</child_name>
-	  <name>lbl-machines-hbox</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>3</spacing>
-
-	  <widget>
-	    <class>GtkPixmap</class>
-	    <name>pixmap5</name>
-	    <filename>stock_properties.xpm</filename>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <build_insensitive>True</build_insensitive>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>label13</name>
-	    <label>Machines</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHPaned</class>
-	  <name>seq-hpaned</name>
-	  <border_width>1</border_width>
-	  <handle_size>10</handle_size>
-	  <gutter_size>12</gutter_size>
-	  <position>359</position>
-
-	  <widget>
-	    <class>GtkScrolledWindow</class>
-	    <name>scrolledwindow3</name>
-	    <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-	    <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-	    <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	    <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>False</resize>
-	    </child>
-
-	    <widget>
-	      <class>GtkViewport</class>
-	      <name>viewport1</name>
-	      <shadow_type>GTK_SHADOW_IN</shadow_type>
-
-	      <widget>
-		<class>GtkDrawingArea</class>
-		<name>drawingarea8</name>
-	      </widget>
-	    </widget>
-	  </widget>
-
-	  <widget>
-	    <class>GtkTree</class>
-	    <name>tree2</name>
-	    <border_width>1</border_width>
-	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	    <view_mode>GTK_TREE_VIEW_LINE</view_mode>
-	    <view_line>True</view_line>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>True</resize>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHBox</class>
-	  <child_name>Notebook:tab</child_name>
-	  <name>lbl-seq-hbox</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>3</spacing>
-
-	  <widget>
-	    <class>GtkPixmap</class>
-	    <name>pixmap6</name>
-	    <filename>stock_sequence.xpm</filename>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <build_insensitive>True</build_insensitive>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>label14</name>
-	    <label>Sequences</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHPaned</class>
-	  <name>patterns-hpaned</name>
-	  <border_width>1</border_width>
-	  <handle_size>10</handle_size>
-	  <gutter_size>12</gutter_size>
-	  <position>359</position>
-
-	  <widget>
-	    <class>GtkDrawingArea</class>
-	    <name>drawingarea7</name>
-	    <child>
-	      <shrink>False</shrink>
-	      <resize>True</resize>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkTree</class>
-	    <name>tree4</name>
-	    <border_width>1</border_width>
-	    <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	    <view_mode>GTK_TREE_VIEW_LINE</view_mode>
-	    <view_line>True</view_line>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>True</resize>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHBox</class>
-	  <child_name>Notebook:tab</child_name>
-	  <name>lbl-pattern-hbox</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>3</spacing>
-
-	  <widget>
-	    <class>GtkPixmap</class>
-	    <name>pixmap7</name>
-	    <filename>stock_insert-object.xpm</filename>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <build_insensitive>True</build_insensitive>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>label15</name>
-	    <label>Patterns</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkVPaned</class>
-	  <name>vpaned1</name>
-	  <handle_size>10</handle_size>
-	  <gutter_size>12</gutter_size>
-	  <position>171</position>
-
-	  <widget>
-	    <class>GtkHBox</class>
-	    <name>hbox11</name>
-	    <homogeneous>False</homogeneous>
-	    <spacing>0</spacing>
-	    <child>
-	      <shrink>True</shrink>
-	      <resize>False</resize>
-	    </child>
-
-	    <widget>
-	      <class>GtkList</class>
-	      <name>list1</name>
-	      <selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-	      <child>
-		<padding>0</padding>
-		<expand>True</expand>
-		<fill>True</fill>
-	      </child>
-	    </widget>
-
-	    <widget>
-	      <class>GtkVBox</class>
-	      <name>vbox3</name>
-	      <homogeneous>False</homogeneous>
-	      <spacing>0</spacing>
-	      <child>
-		<padding>0</padding>
-		<expand>False</expand>
-		<fill>True</fill>
-	      </child>
-
-	      <widget>
-		<class>GtkButton</class>
-		<name>button9</name>
-		<can_focus>True</can_focus>
-		<stock_button>GNOME_STOCK_BUTTON_PREV</stock_button>
-		<relief>GTK_RELIEF_NORMAL</relief>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkButton</class>
-		<name>button10</name>
-		<can_focus>True</can_focus>
-		<stock_button>GNOME_STOCK_BUTTON_CLOSE</stock_button>
-		<relief>GTK_RELIEF_NORMAL</relief>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>GtkButton</class>
-		<name>button11</name>
-		<can_focus>True</can_focus>
-		<stock_button>GNOME_STOCK_BUTTON_APPLY</stock_button>
-		<relief>GTK_RELIEF_NORMAL</relief>
-		<child>
-		  <padding>0</padding>
-		  <expand>False</expand>
-		  <fill>False</fill>
-		</child>
-	      </widget>
-
-	      <widget>
-		<class>Placeholder</class>
-	      </widget>
-	    </widget>
-
-	    <widget>
-	      <class>GtkScrolledWindow</class>
-	      <name>scrolledwindow5</name>
-	      <hscrollbar_policy>GTK_POLICY_ALWAYS</hscrollbar_policy>
-	      <vscrollbar_policy>GTK_POLICY_ALWAYS</vscrollbar_policy>
-	      <hupdate_policy>GTK_UPDATE_CONTINUOUS</hupdate_policy>
-	      <vupdate_policy>GTK_UPDATE_CONTINUOUS</vupdate_policy>
-	      <child>
-		<padding>0</padding>
-		<expand>True</expand>
-		<fill>True</fill>
-	      </child>
-
-	      <widget>
-		<class>GtkCTree</class>
-		<name>ctree1</name>
-		<can_focus>True</can_focus>
-		<columns>3</columns>
-		<column_widths>70,65,80</column_widths>
-		<selection_mode>GTK_SELECTION_SINGLE</selection_mode>
-		<show_titles>True</show_titles>
-		<shadow_type>GTK_SHADOW_IN</shadow_type>
-
-		<widget>
-		  <class>GtkLabel</class>
-		  <child_name>CTree:title</child_name>
-		  <name>label25</name>
-		  <label>files and dirs</label>
-		  <justify>GTK_JUSTIFY_CENTER</justify>
-		  <wrap>False</wrap>
-		  <xalign>0.5</xalign>
-		  <yalign>0.5</yalign>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
+		  <child>
+		    <widget class="GtkImageMenuItem" id="beenden1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-quit</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_beenden1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
 		</widget>
-
-		<widget>
-		  <class>GtkLabel</class>
-		  <child_name>CTree:title</child_name>
-		  <name>label26</name>
-		  <label>channels</label>
-		  <justify>GTK_JUSTIFY_CENTER</justify>
-		  <wrap>False</wrap>
-		  <xalign>0.5</xalign>
-		  <yalign>0.5</yalign>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		</widget>
-
-		<widget>
-		  <class>GtkLabel</class>
-		  <child_name>CTree:title</child_name>
-		  <name>label27</name>
-		  <label>length</label>
-		  <justify>GTK_JUSTIFY_CENTER</justify>
-		  <wrap>False</wrap>
-		  <xalign>0.5</xalign>
-		  <yalign>0.5</yalign>
-		  <xpad>0</xpad>
-		  <ypad>0</ypad>
-		</widget>
-	      </widget>
+	      </child>
 	    </widget>
-	  </widget>
+	  </child>
 
-	  <widget>
-	    <class>Placeholder</class>
-	  </widget>
-	</widget>
-
-	<widget>
-	  <class>GtkHBox</class>
-	  <child_name>Notebook:tab</child_name>
-	  <name>lbl-samples-hbox</name>
-	  <homogeneous>False</homogeneous>
-	  <spacing>3</spacing>
-
-	  <widget>
-	    <class>GtkPixmap</class>
-	    <name>pixmap8</name>
-	    <filename>stock_insert_wave.xpm</filename>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <build_insensitive>True</build_insensitive>
-	    <child>
-	      <padding>0</padding>
-	      <expand>True</expand>
-	      <fill>True</fill>
-	    </child>
-	  </widget>
-
-	  <widget>
-	    <class>GtkLabel</class>
-	    <name>label16</name>
-	    <label>Samples</label>
-	    <justify>GTK_JUSTIFY_CENTER</justify>
-	    <wrap>False</wrap>
-	    <xalign>0.5</xalign>
-	    <yalign>0.5</yalign>
-	    <xpad>0</xpad>
-	    <ypad>0</ypad>
-	    <child>
-	      <padding>0</padding>
-	      <expand>False</expand>
-	      <fill>False</fill>
-	    </child>
-	  </widget>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>GtkHBox</class>
-	<child_name>Notebook:tab</child_name>
-	<name>song-hbox1</name>
-	<homogeneous>False</homogeneous>
-	<spacing>3</spacing>
-
-	<widget>
-	  <class>GtkPixmap</class>
-	  <name>pixmap1</name>
-	  <filename>stock_media-play.xpm</filename>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <build_insensitive>True</build_insensitive>
 	  <child>
-	    <padding>0</padding>
-	    <expand>True</expand>
-	    <fill>True</fill>
+	    <widget class="GtkMenuItem" id="menuitem2">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">_Bearbeiten</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="menu2">
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="ausschneiden1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-cut</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_ausschneiden1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="kopieren1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-copy</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_kopieren1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="einfügen1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-paste</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_einfügen1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
+
+		  <child>
+		    <widget class="GtkImageMenuItem" id="löschen1">
+		      <property name="visible">True</property>
+		      <property name="label">gtk-delete</property>
+		      <property name="use_stock">True</property>
+		      <signal name="activate" handler="on_löschen1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="menuitem3">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">_Ansicht</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="menu3">
+		</widget>
+	      </child>
+	    </widget>
+	  </child>
+
+	  <child>
+	    <widget class="GtkMenuItem" id="menuitem4">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">_Hilfe</property>
+	      <property name="use_underline">True</property>
+
+	      <child>
+		<widget class="GtkMenu" id="menu4">
+
+		  <child>
+		    <widget class="GtkMenuItem" id="info1">
+		      <property name="visible">True</property>
+		      <property name="label" translatable="yes">_Info</property>
+		      <property name="use_underline">True</property>
+		      <signal name="activate" handler="on_info1_activate" last_modification_time="Thu, 29 Jul 2004 15:44:06 GMT"/>
+		    </widget>
+		  </child>
+		</widget>
+	      </child>
+	    </widget>
 	  </child>
 	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
 
-	<widget>
-	  <class>GtkLabel</class>
-	  <name>label10</name>
-	  <label>DummySong</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>Placeholder</class>
-      </widget>
-
-      <widget>
-	<class>GtkHBox</class>
-	<child_name>Notebook:tab</child_name>
-	<name>song-hbox2</name>
-	<homogeneous>False</homogeneous>
-	<spacing>3</spacing>
-
-	<widget>
-	  <class>GtkPixmap</class>
-	  <name>pixmap3</name>
-	  <filename>stock_media-pause.xpm</filename>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <build_insensitive>True</build_insensitive>
-	  <child>
-	    <padding>0</padding>
-	    <expand>True</expand>
-	    <fill>True</fill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <name>label11</name>
-	  <label>Trallala</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-      </widget>
-
-      <widget>
-	<class>Placeholder</class>
-      </widget>
-
-      <widget>
-	<class>GtkHBox</class>
-	<child_name>Notebook:tab</child_name>
-	<name>song-hbox3</name>
-	<homogeneous>False</homogeneous>
-	<spacing>3</spacing>
-
-	<widget>
-	  <class>GtkPixmap</class>
-	  <name>pixmap4</name>
-	  <filename>stock_media-stop.xpm</filename>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <build_insensitive>True</build_insensitive>
-	  <child>
-	    <padding>0</padding>
-	    <expand>True</expand>
-	    <fill>True</fill>
-	  </child>
-	</widget>
-
-	<widget>
-	  <class>GtkLabel</class>
-	  <name>label12</name>
-	  <label>Beep-Meep</label>
-	  <justify>GTK_JUSTIFY_CENTER</justify>
-	  <wrap>False</wrap>
-	  <xalign>0.5</xalign>
-	  <yalign>0.5</yalign>
-	  <xpad>0</xpad>
-	  <ypad>0</ypad>
-	  <child>
-	    <padding>0</padding>
-	    <expand>False</expand>
-	    <fill>False</fill>
-	  </child>
-	</widget>
-      </widget>
-    </widget>
-
-    <widget>
-      <class>GtkStatusbar</class>
-      <name>statusbar1</name>
       <child>
-	<padding>0</padding>
-	<expand>False</expand>
-	<fill>False</fill>
+	<widget class="GtkHandleBox" id="handlebox1">
+	  <property name="visible">True</property>
+	  <property name="shadow_type">GTK_SHADOW_OUT</property>
+	  <property name="handle_position">GTK_POS_LEFT</property>
+	  <property name="snap_edge">GTK_POS_TOP</property>
+
+	  <child>
+	    <widget class="GtkToolbar" id="toolbar1">
+	      <property name="visible">True</property>
+	      <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
+	      <property name="toolbar_style">GTK_TOOLBAR_BOTH</property>
+	      <property name="tooltips">True</property>
+
+	      <child>
+		<widget class="button" id="button1">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Neu</property>
+		  <property name="use_underline">True</property>
+		  <property name="stock_pixmap">gtk-new</property>
+		</widget>
+	      </child>
+
+	      <child>
+		<widget class="button" id="button2">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Laden</property>
+		  <property name="use_underline">True</property>
+		  <property name="stock_pixmap">gtk-open</property>
+		</widget>
+	      </child>
+
+	      <child>
+		<widget class="button" id="button3">
+		  <property name="visible">True</property>
+		  <property name="label" translatable="yes">Speichern</property>
+		  <property name="use_underline">True</property>
+		  <property name="stock_pixmap">gtk-save</property>
+		</widget>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+
+	      <child>
+		<placeholder/>
+	      </child>
+	    </widget>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkNotebook" id="notebook1">
+	  <property name="visible">True</property>
+	  <property name="can_focus">True</property>
+	  <property name="show_tabs">True</property>
+	  <property name="show_border">True</property>
+	  <property name="tab_pos">GTK_POS_TOP</property>
+	  <property name="scrollable">False</property>
+	  <property name="enable_popup">False</property>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label1">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">label1</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="type">tab</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label2">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">label2</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="type">tab</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label3">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">label3</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="type">tab</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label4">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">label4</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="type">tab</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <placeholder/>
+	  </child>
+
+	  <child>
+	    <widget class="GtkLabel" id="label5">
+	      <property name="visible">True</property>
+	      <property name="label" translatable="yes">label5</property>
+	      <property name="use_underline">False</property>
+	      <property name="use_markup">False</property>
+	      <property name="justify">GTK_JUSTIFY_LEFT</property>
+	      <property name="wrap">False</property>
+	      <property name="selectable">False</property>
+	      <property name="xalign">0.5</property>
+	      <property name="yalign">0.5</property>
+	      <property name="xpad">0</property>
+	      <property name="ypad">0</property>
+	    </widget>
+	    <packing>
+	      <property name="type">tab</property>
+	    </packing>
+	  </child>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">True</property>
+	  <property name="fill">True</property>
+	</packing>
+      </child>
+
+      <child>
+	<widget class="GtkStatusbar" id="statusbar1">
+	  <property name="visible">True</property>
+	  <property name="has_resize_grip">True</property>
+	</widget>
+	<packing>
+	  <property name="padding">0</property>
+	  <property name="expand">False</property>
+	  <property name="fill">False</property>
+	</packing>
       </child>
     </widget>
-  </widget>
+  </child>
 </widget>
 
-</GTK-Interface>
+</glade-interface>
