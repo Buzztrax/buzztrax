@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.79 2005-01-31 10:05:49 ensonic Exp $
+/* $Id: machine.c,v 1.80 2005-01-31 16:20:46 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -68,6 +68,7 @@ struct _BtMachinePrivate {
   
   /* utillity elements to allow multiple inputs/outputs */
   GstElement *adder,*spreader;
+	GstElement *adder_convert;
   
   /* the elements to control and analyse the current input signal */
   GstElement *input_gain,*input_level;
@@ -108,6 +109,7 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
 	BtMachineState state;
 	
 	// we need to pause all elements downstream until we hit a loop-based element :(
+	// @todo we need to do the same upstream too
 	if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
 		for(node=wires;node;node=g_list_next(node)) {
 			wire=BT_WIRE(node->data);
@@ -144,6 +146,7 @@ static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
 	BtMachineState state;
 	
 	// we need to unpause all elements downstream until we hit a loop-based element :(
+	// @todo we need to do the same upstream too
 	if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
 		for(node=wires;node;node=g_list_next(node)) {
 			wire=BT_WIRE(node->data);
@@ -401,7 +404,9 @@ gboolean bt_machine_add_input_gain(BtMachine *self) {
   	GST_INFO("sucessfully added input  gain element %p",self->priv->input_gain);
 	}
 	else {
-		// @todo add before input-level = after dst_elem (source peer of dst_elem)
+		/* @todo add before input-level = after dst_elem (source peer of dst_elem)
+		 * problem: dst_elem is an adder that is followed by an audio-convert
+		 */		
 	}
   res=TRUE;
 Error:
@@ -422,17 +427,15 @@ gboolean bt_machine_activate_adder(BtMachine *self) {
   gboolean res=TRUE;
   
   if(!self->priv->adder) {
-    GstElement *convert;
-    
     self->priv->adder=gst_element_factory_make("adder",g_strdup_printf("adder_%p",self));
     g_assert(self->priv->adder!=NULL);
     gst_bin_add(self->priv->bin, self->priv->adder);
-    // @todo this is a workaround for gst not making full caps-nego
-    convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",self));
-    g_assert(convert!=NULL);
-    gst_bin_add(self->priv->bin, convert);
+    // adder not links directly to some elements
+    self->priv->adder_convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",self));
+    g_assert(self->priv->adder_convert!=NULL);
+    gst_bin_add(self->priv->bin, self->priv->adder_convert);
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
-    if(!gst_element_link_many(self->priv->adder, convert, self->dst_elem, NULL)) {
+    if(!gst_element_link_many(self->priv->adder, self->priv->adder_convert, self->dst_elem, NULL)) {
       GST_ERROR("failed to link the machines internal adder");res=FALSE;
     }
     else {
@@ -880,6 +883,13 @@ static void bt_machine_dispose(GObject *object) {
       g_assert(GST_IS_ELEMENT(self->priv->adder));
       GST_DEBUG("  removing adder from bin, obj->ref_count=%d",(G_OBJECT(self->priv->adder))->ref_count);
       gst_bin_remove(self->priv->bin,self->priv->adder);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    }
+    if(self->priv->adder_convert) {
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->priv->adder_convert));
+      GST_DEBUG("  removing adder from bin, obj->ref_count=%d",(G_OBJECT(self->priv->adder_convert))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->adder_convert);
       GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
     if(self->priv->spreader) {
