@@ -1,4 +1,4 @@
-/** $Id: song.h,v 1.3 2004-04-27 15:41:50 ensonic Exp $
+/** $Id: song.h,v 1.4 2004-04-30 15:19:00 ensonic Exp $
  * song
  *
  */
@@ -21,8 +21,8 @@ struct _BtSong {
 	GList *connections;
 	
 	// sequence data
-	/** @todo the song-sequence needs to be here */
-	/** @todo the size data (sequence-length, number of tracks( needs to be here */
+	// @todo the song-sequence needs to be here
+	// @todo the size data (sequence-length, number of tracks( needs to be here
 };
 
 #endif /* BT_SONG_H */

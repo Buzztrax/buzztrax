@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.6 2004-04-23 12:38:18 ensonic Exp $
+/** $Id: core.h,v 1.7 2004-04-30 15:19:00 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -7,6 +7,7 @@
 #undef GST_DISABLE_GST_DEBUG
 
 #include <glib.h>
+#include <glib-object.h>
 #include <gst/gst.h>
 #include <gst/control/control.h>
 
