@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.9 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: song-info.c,v 1.10 2004-07-06 15:44:57 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -62,12 +62,12 @@ static void bt_song_info_set_property(GObject      *object,
   switch (property_id) {
     case SONG_INFO_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      GST_INFO("set the song for song-info: %p",self->private->song);
+      GST_DEBUG("set the song for song-info: %p",self->private->song);
     } break;
     case SONG_INFO_INFO: {
       g_free(self->private->info);
       self->private->info = g_value_dup_string(value);
-      GST_INFO("set the info for song_info: %s",self->private->info);
+      GST_DEBUG("set the info for song_info: %s",self->private->info);
     } break;
     default: {
       g_assert(FALSE);
@@ -92,7 +92,7 @@ static void bt_song_info_finalize(GObject *object) {
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   BtSongInfo *self = BT_SONG_INFO(instance);
 	
-	//GST_INFO("song_info_init self=%p",self);
+	//GST_DEBUG("song_info_init self=%p",self);
   self->private = g_new0(BtSongInfoPrivate,1);
   self->private->dispose_has_run = FALSE;
 }

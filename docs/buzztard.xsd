@@ -196,11 +196,19 @@
     </xsd:complexType>
   </xsd:element>
   
+  <xsd:element name="tracks">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="track" minOccurse="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
   <xsd:element name="sequence">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="labels" minOccurse="1" maxOccurs="1"/>
-        <xsd:element ref="track" minOccurse="1" maxOccurs="unbounded"/>
+        <xsd:element ref="tracks" minOccurse="1" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

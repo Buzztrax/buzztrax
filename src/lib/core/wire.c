@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.16 2004-07-05 12:22:45 ensonic Exp $
+/* $Id: wire.c,v 1.17 2004-07-06 15:44:57 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -51,7 +51,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   g_object_get_property(G_OBJECT(song),"bin", &val);
   bin=GST_BIN(g_value_get_object(&val));
 
-	GST_INFO("trying to link machines directly : %p -> %p",src->src_elem,dst->dst_elem);
+	GST_DEBUG("trying to link machines directly : %p -> %p",src->src_elem,dst->dst_elem);
 	// try link src to dst {directly, with convert, with scale, with ...}
 	if(!gst_element_link(src->src_elem, dst->dst_elem)) {
 		if(!self->private->convert) {
@@ -59,16 +59,16 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 			g_assert(self->private->convert!=NULL);
 		}
 		gst_bin_add(bin, self->private->convert);
-    GST_INFO("trying to link machines with convert");
+    GST_DEBUG("trying to link machines with convert");
 		if(!gst_element_link_many(src->src_elem, self->private->convert, dst->dst_elem, NULL)) {
 			if(!self->private->scale) {
 				self->private->scale=gst_element_factory_make("audioscale",g_strdup_printf("audioscale_%p",self));
 				g_assert(self->private->scale!=NULL);
 			}
 			gst_bin_add(bin, self->private->scale);
-      GST_INFO("trying to link machines with scale");
+      GST_DEBUG("trying to link machines with scale");
 			if(!gst_element_link_many(src->src_elem, self->private->scale, dst->dst_elem, NULL)) {
-        GST_INFO("trying to link machines with convert and scale");
+        GST_DEBUG("trying to link machines with convert and scale");
 				if(!gst_element_link_many(src->src_elem, self->private->convert, self->private->scale, dst->dst_elem, NULL)) {
 					// try harder (scale, convert)
 					GST_DEBUG("failed to link the machines");return(FALSE);
@@ -76,25 +76,25 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 				else {
 					self->private->src_elem=self->private->scale;
 					self->private->dst_elem=self->private->convert;
-					GST_INFO("  wire okay with convert and scale");
+					GST_DEBUG("  wire okay with convert and scale");
 				}
 			}
 			else {
 				self->private->src_elem=self->private->scale;
 				self->private->dst_elem=self->private->scale;
-        GST_INFO("  wire okay with scale");
+        GST_DEBUG("  wire okay with scale");
 			}
 		}
 		else {
 			self->private->src_elem=self->private->convert;
 			self->private->dst_elem=self->private->convert;
-			GST_INFO("  wire okay with convert");
+			GST_DEBUG("  wire okay with convert");
 		}
 	}
 	else {
 		self->private->src_elem=src->src_elem;
 		self->private->dst_elem=dst->dst_elem;
-		GST_INFO("  wire okay");
+		GST_DEBUG("  wire okay");
 	}
 	return(TRUE);
 }
@@ -117,7 +117,7 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
   g_object_get_property(G_OBJECT(song),"bin", &val);
   bin=GST_BIN(g_value_get_object(&val));
 
-	GST_INFO("trying to unlink machines");
+	GST_DEBUG("trying to unlink machines");
 	gst_element_unlink(self->private->src->src_elem, self->private->dst->dst_elem);
 	if(self->private->convert) {
 		gst_element_unlink_many(self->private->src->src_elem, self->private->convert, self->private->dst->dst_elem, NULL);
@@ -164,11 +164,11 @@ static gboolean bt_wire_connect(BtWire *self) {
   g_object_get_property(G_OBJECT(song),"bin", &val);
   bin=GST_BIN(g_value_get_object(&val));
 
-	GST_INFO("trying to link machines : %p (%p) -> %p (%p)",src,src->src_elem,dst,dst->dst_elem);
+	GST_DEBUG("trying to link machines : %p (%p) -> %p (%p)",src,src->src_elem,dst,dst->dst_elem);
 
 	// if there is already a connection from src && src has not yet an spreader (in use)
 	if((other_wire=bt_setup_get_wire_by_src_machine(setup,src)) && (src->src_elem!=src->spreader)) {
-		GST_INFO("  other wire from src found");
+		GST_DEBUG("  other wire from src found");
 		// unlink the elements from the other wire
 		bt_wire_unlink_machines(other_wire);
 		// create spreader (if needed)
@@ -186,7 +186,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		}
 		// activate spreader
 		src->src_elem=src->spreader;
-		GST_INFO("  spreader activated for \"%s\"",gst_element_get_name(src->machine));
+		GST_DEBUG("  spreader activated for \"%s\"",gst_element_get_name(src->machine));
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src->src_elem, other_wire->dst_elem)) {
@@ -196,7 +196,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 	
 	// if there is already a wire to dst and dst has not yet an adder (in use)
 	if((other_wire=bt_setup_get_wire_by_src_machine(setup,dst)) && (dst->dst_elem!=dst->adder)) {
-		GST_INFO("  other wire to dst found");
+		GST_DEBUG("  other wire to dst found");
 		// unlink the elements from the other wire
 		bt_wire_unlink_machines(other_wire);
 		//gst_element_unlink(other_wire->src_elem, other_wire->dst->dst_elem);
@@ -221,7 +221,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		}
 		// activate adder
 		dst->dst_elem=dst->adder;
-		GST_INFO("  adder activated for \"%s\"",gst_element_get_name(dst->machine)); 
+		GST_DEBUG("  adder activated for \"%s\"",gst_element_get_name(dst->machine)); 
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src_elem, other_wire->dst->dst_elem)) {
@@ -234,7 +234,7 @@ static gboolean bt_wire_connect(BtWire *self) {
     GST_ERROR("linking machines failed");return(FALSE);
 	}
   bt_setup_add_wire(setup,self);
-  GST_INFO("linking machines succeded");
+  GST_DEBUG("linking machines succeded");
 	return(TRUE);
 }
 
@@ -278,16 +278,16 @@ static void bt_wire_set_property(GObject      *object,
   switch (property_id) {
     case WIRE_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //GST_INFO("set the song for wire: %p",self->private->song);
+      //GST_DEBUG("set the song for wire: %p",self->private->song);
     } break;
 		case WIRE_SRC: {
 			self->private->src = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      GST_INFO("set the source element for the wire: %p",self->private->src);
+      GST_DEBUG("set the source element for the wire: %p",self->private->src);
       bt_wire_connect(self);
 		} break;
 		case WIRE_DST: {
 			self->private->dst = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      GST_INFO("set the target element for the wire: %p",self->private->dst);
+      GST_DEBUG("set the target element for the wire: %p",self->private->dst);
       bt_wire_connect(self);
 		} break;
     default: {

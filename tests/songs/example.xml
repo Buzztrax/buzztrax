@@ -56,12 +56,14 @@
   <sequence>
     <labels>
       <label time="0" name="start"/>
-      <label time="100" name="end"/>
+      <label time="9" name="end"/>
     </labels>
-    <track id="0" machine="sine1">
-			<position time="0" pattern="sine1_beep"/>
-			<position time="4" pattern="sine1_beep"/>
-		</track>
+    <tracks>
+      <track id="0" machine="sine1">
+        <position time="0" pattern="sine1_beep"/>
+        <position time="3" pattern="sine1_beep"/>
+      </track>
+    </tracks>
   </sequence>
   
   <wavetable>

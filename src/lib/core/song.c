@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.22 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: song.c,v 1.23 2004-07-06 15:44:57 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -44,7 +44,26 @@ void bt_song_start_play(const BtSong *self) {
   g_signal_emit(G_OBJECT(self), 
                 BT_SONG_GET_CLASS(self)->play_signal_id,
                 0);
-  /* @todo call bt_song_play_sequence */
+  /* @todo call bt_sequence_play(); */
+  /* how should the player work:
+  bt_sequence_play() {
+    BTPlayLine *pl;
+    foreach(timeline in sequence.rows) {
+      //enter new patterns into the playline
+      //and stop or mute patterns
+      bt_playline_play();
+    }
+  }
+  // see net2.c::play_timeline
+  bt_playline_play() {
+    for(tick=0...ticks) {
+      for(track=0...tracks) {
+        // set dparams for pattern 
+      }
+    }
+  }
+    
+  */
 }
 
 //-- wrapper
@@ -121,11 +140,11 @@ static void bt_song_set_property(GObject      *object,
     case SONG_NAME: {
       g_free(self->private->name);
       self->private->name = g_value_dup_string(value);
-      GST_INFO("set the name for song: %s",self->private->name);
+      GST_DEBUG("set the name for song: %s",self->private->name);
     } break;
 		case SONG_BIN: {
 			self->private->bin = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      GST_INFO("set the master bin for song: %p",self->private->bin);
+      GST_DEBUG("set the master bin for song: %p",self->private->bin);
 		} break;
     default: {
       g_assert(FALSE);
@@ -150,7 +169,7 @@ static void bt_song_finalize(GObject *object) {
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
 	
-  //GST_INFO("song_init self=%p",self);
+  //GST_DEBUG("song_init self=%p",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
   self->private->song_info = BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",self,NULL));

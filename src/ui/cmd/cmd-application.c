@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.7 2004-07-05 13:46:27 ensonic Exp $
+/* $Id: cmd-application.c,v 1.8 2004-07-06 15:44:57 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -48,7 +48,7 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 	gboolean res;
 	BtSong *song;
 	BtSongIO *loader;
-	GValue *sval,*oval;
+	GValue *sval,*oval,*lval;
 	gchar *filename;
 
 	if(argc==1) {
@@ -61,6 +61,7 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 
 	sval=g_new0(GValue,1);g_value_init(sval,G_TYPE_STRING);
 	oval=g_new0(GValue,1);g_value_init(oval,G_TYPE_OBJECT);
+	lval=g_new0(GValue,1);g_value_init(lval,G_TYPE_LONG);
 
 	g_object_get_property(G_OBJECT(app),"bin",oval);
 	
@@ -76,6 +77,10 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 		g_print("song.name: \"%s\"\n", g_value_get_string(sval));
 		g_object_get_property(G_OBJECT(bt_song_get_song_info(song)),"info", sval);
 		g_print("song.song_info.info: \"%s\"\n", g_value_get_string(sval));
+		g_object_get_property(G_OBJECT(bt_song_get_sequence(song)),"length", lval);
+		g_print("song.sequence.length: %d\n", g_value_get_long(lval));
+		g_object_get_property(G_OBJECT(bt_song_get_sequence(song)),"tracks", lval);
+		g_print("song.sequence.tracks: %d\n", g_value_get_long(lval));
     /* lookup a machine and print some info about it */
     {
       BtSetup *setup=bt_song_get_setup(song);
@@ -98,6 +103,7 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 	}
 	g_free(sval);
 	g_free(oval);
+	g_free(lval);
 	return(res);
 }
 

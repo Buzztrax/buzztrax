@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.9 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: song-io-native.c,v 1.10 2004-07-06 15:44:57 ensonic Exp $
  * class for native song input and output
  */
  
@@ -86,12 +86,12 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 		for(i=0;i<items_len;i++) {
 			xml_node=xmlXPathNodeSetItem(items,i);
 			if(!xmlNodeIsText(xml_node)) {
-				//GST_INFO("  %2d : \"%s\"",i,xml_node->name);
+				//GST_DEBUG("  %2d : \"%s\"",i,xml_node->name);
 				xml_child_node=xml_node->children;
 				if(xml_child_node && xmlNodeIsText(xml_child_node)) {
 					if(!xmlIsBlankNode(xml_child_node)) {
 						if((elem=xmlNodeGetContent(xml_child_node))) {
-							GST_INFO("  %2d : \"%s\"=\"%s\"",i,xml_node->name,elem);
+							GST_DEBUG("  %2d : \"%s\"=\"%s\"",i,xml_node->name,elem);
 							// maybe we need a hashmap based mapping from xml-tag names to class properties
 							g_value_set_string(&val,elem);
 							g_object_set_property(G_OBJECT(song_info),xml_node->name, &val);
@@ -118,20 +118,20 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			id=xmlGetProp(xml_node,"id");
 			plugin_name=xmlGetProp(xml_node,"pluginname");
 			if(!strncmp(xml_node->name,"sink\0",5)) {
-				GST_INFO("  new sink_machine(\"%s\",\"%s\")",id,plugin_name);
+				GST_INFO("  new sink_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
 				// parse additional params
 				// create new sink machine
 				machine=g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 				// ...
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
-				GST_INFO("  new source_machine(\"%s\",\"%s\")",id,plugin_name);
+				GST_INFO("  new source_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
 				// parse additional params
 				// create new source machine
 				machine=g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
-				GST_INFO("  new processor_machine(\"%s\",\"%s\")",id,plugin_name);
+				GST_INFO("  new processor_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
 				// parse additional params
 				// create new processor machine
 				machine=g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
@@ -213,7 +213,8 @@ static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, cons
 	const BtSetup *setup=bt_song_get_setup(song);
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
-	xmlChar *elem;
+	xmlChar *id,*machine_name,*pattern_name,*length_str;
+  guint length;
 
 	GST_INFO("loading the pattern-data from the song");
 	// get top xml-node
@@ -229,7 +230,14 @@ static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, cons
 		for(i=0;i<items_len;i++) {
 			xml_node=xmlXPathNodeSetItem(items,i);
 			if(!xmlNodeIsText(xml_node)) {
-				// todo
+        id=xmlGetProp(xml_node,"id");
+        machine_name=xmlGetProp(xml_node,"machine");
+        pattern_name=xmlGetProp(xml_node,"name");
+        length_str=xmlGetProp(xml_node,"length");
+        length=atol(length_str);
+        GST_INFO("  new pattern(\"%s\",%d) --------------------",id,length);
+				// @todo load tick data
+        xmlFree(id);xmlFree(machine_name);xmlFree(pattern_name);xmlFree(length_str);
 			}
 		}
 		xmlXPathFreeObject(items_xpoptr);
@@ -237,30 +245,130 @@ static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, cons
 	return(TRUE);
 }
 
+static gboolean bt_song_io_native_get_sequence_length(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr root_node) {
+	const BtSequence *sequence=bt_song_get_sequence(song);
+	xmlXPathObjectPtr items_xpoptr;
+	xmlNodePtr xml_node,xml_child_node;
+
+  if((items_xpoptr=xpath_type_filter(
+    cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence_length,root_node),
+    XPATH_NODESET)))
+  {
+		gint i;
+		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
+		gint items_len=xmlXPathNodeSetGetLength(items);
+    glong maxtime=0,curtime;
+    GValue lval={0,};
+
+    for(i=0;i<items_len;i++) {
+      curtime=atol(xmlNodeGetContent(xmlXPathNodeSetItem(items,i)));
+      if(curtime>maxtime) maxtime=curtime;
+		}
+    GST_INFO(" got %d sequence.length with a max time of %d",items_len,maxtime);
+    g_value_init(&lval,G_TYPE_LONG);
+    g_value_set_long(&lval, maxtime);
+    g_object_set_property(G_OBJECT(sequence),"length", &lval);
+    xmlXPathFreeObject(items_xpoptr);
+	}
+  return(TRUE);
+}
+
+static gboolean bt_song_io_native_get_sequence_tracks(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr root_node) {
+
+  return(TRUE);
+}
+
+static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr root_node) {
+	const BtSequence *sequence=bt_song_get_sequence(song);
+	xmlXPathObjectPtr items_xpoptr;
+	xmlNodePtr xml_node,xml_child_node;
+
+  if((items_xpoptr=xpath_type_filter(
+    cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence_labels,root_node),
+    XPATH_NODESET)))
+  {
+		gint i;
+		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
+		gint items_len=xmlXPathNodeSetGetLength(items);
+    
+    GST_INFO(" got sequence.labels root node with %d items",items_len);
+    for(i=0;i<items_len;i++) {
+      xml_node=xmlXPathNodeSetItem(items,i);
+      if(!xmlNodeIsText(xml_node)) {
+        // @todo implement label loading
+      }
+		}
+    xmlXPathFreeObject(items_xpoptr);
+	}
+  return(TRUE);
+}
+
+static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr root_node) {
+  const BtSequence *sequence=bt_song_get_sequence(song);
+	xmlXPathObjectPtr items_xpoptr;
+	xmlNodePtr xml_node,xml_child_node;
+  xmlChar *machine_name;
+  const BtSetup *setup=bt_song_get_setup(song);
+  BtMachine *machine;
+
+  if((items_xpoptr=xpath_type_filter(
+    cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence_tracks,root_node),
+    XPATH_NODESET)))
+  {
+		gint i;
+		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
+		gint items_len=xmlXPathNodeSetGetLength(items);
+    GValue lval={0,};
+    
+    g_value_init(&lval,G_TYPE_LONG);
+    g_value_set_long(&lval, (glong)items_len);
+    g_object_set_property(G_OBJECT(sequence),"tracks", &lval);
+
+    GST_INFO(" got sequence.tracks root node with %d items",items_len);
+    for(i=0;i<items_len;i++) {
+      xml_node=xmlXPathNodeSetItem(items,i);
+      if(!xmlNodeIsText(xml_node)) {
+        machine_name=xmlGetProp(xml_node,"machine");
+        if((machine=bt_setup_get_machine_by_id(setup, machine_name))) {
+          // @todo load tracks
+        }
+        else {
+          GST_ERROR("invalid machine referenced");
+        }
+        xmlFree(machine_name);
+      }
+		}
+    xmlXPathFreeObject(items_xpoptr);
+	}
+  return(TRUE);
+}
+
 static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
 	const BtSequence *sequence=bt_song_get_sequence(song);
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
-	xmlChar *elem;
-	
+	xmlChar *id;
+
 	GST_INFO("loading the sequence-data from the song");
 
 	// get top xml-node
 	if((items_xpoptr=xpath_type_filter(
-				cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence,NULL),
-				XPATH_NODESET)))
+		cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence,NULL),
+		XPATH_NODESET)))
 	{
 		gint i;
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
 
 		GST_INFO(" got sequence root node with %d items",items_len);
-		for(i=0;i<items_len;i++) {
-			xml_node=xmlXPathNodeSetItem(items,i);
-			if(!xmlNodeIsText(xml_node)) {
-				// todo
-			}
-		}
+    if(items_len==1) {
+      xml_node=xmlXPathNodeSetItem(items,0);
+      bt_song_io_native_get_sequence_length(self,song,song_doc,xml_node);
+      bt_song_io_native_get_sequence_tracks(self,song,song_doc,xml_node);
+            
+      bt_song_io_native_load_sequence_labels(self,song,song_doc,xml_node);
+      bt_song_io_native_load_sequence_tracks(self,song,song_doc,xml_node);
+    }
 		xmlXPathFreeObject(items_xpoptr);
 	}
 	return(TRUE);
@@ -388,11 +496,19 @@ static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
 	g_assert(klass->xpath_get_setup);
 	klass->xpath_get_patterns = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":patterns/"BT_NS_PREFIX":*");
 	g_assert(klass->xpath_get_patterns);
-	klass->xpath_get_sequence = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":sequence/"BT_NS_PREFIX":*");
+	klass->xpath_get_sequence = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":sequence");
 	g_assert(klass->xpath_get_sequence);
+	klass->xpath_get_sequence_labels = xmlXPathCompile("./"BT_NS_PREFIX":labels/"BT_NS_PREFIX":*");
+	g_assert(klass->xpath_get_sequence);
+	klass->xpath_get_sequence_tracks = xmlXPathCompile("./"BT_NS_PREFIX":tracks/"BT_NS_PREFIX":*");
+	g_assert(klass->xpath_get_sequence);
+  klass->xpath_get_sequence_length = xmlXPathCompile("./"BT_NS_PREFIX":labels/"BT_NS_PREFIX":label/@time|./"BT_NS_PREFIX":tracks/"BT_NS_PREFIX":track/"BT_NS_PREFIX":position/@time");
+	g_assert(klass->xpath_get_sequence_length);
+  //klass->xpath_count_sequence_tracks = xmlXPathCompile("count(./"BT_NS_PREFIX":tracks/"BT_NS_PREFIX":track)");
+	//g_assert(klass->xpath_count_sequence_tracks);
 }
 
-/* as ob gobject documentation static types are keept alive untile the program ends.
+/* as of gobject documentation, static types are keept alive until the program ends.
    therefore we do not free shared class-data
 static void bt_song_io_native_class_finalize(BtSongIOClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);

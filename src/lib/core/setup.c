@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.11 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: setup.c,v 1.12 2004-07-06 15:44:57 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -166,7 +166,7 @@ static void bt_setup_set_property(GObject      *object,
   switch (property_id) {
     case SETUP_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //GST_INFO("set the song for setup: %p",self->private->song);
+      //GST_DEBUG("set the song for setup: %p",self->private->song);
     } break;
     default: {
       g_assert(FALSE);
