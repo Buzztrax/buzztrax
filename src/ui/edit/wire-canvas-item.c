@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.12 2004-12-15 11:22:56 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.13 2004-12-15 14:29:35 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -6,6 +6,8 @@
 #define BT_WIRE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
+
+//-- property ids
 
 enum {
   WIRE_CANVAS_ITEM_APP=1,
@@ -45,6 +47,9 @@ struct _BtWireCanvasItemPrivate {
   /* interaction state */
   gboolean dragging,moved;
   gdouble offx,offy,dragx,dragy;
+	
+	/* signal handler ids */
+	gulong src_on_position_changed,dst_on_position_changed;
 
 };
 
@@ -330,7 +335,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->src);
       self->priv->src=g_object_try_ref(g_value_get_object(value));
       if(self->priv->src) {
-        g_signal_connect(G_OBJECT(self->priv->src),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
+        self->priv->src_on_position_changed=g_signal_connect(G_OBJECT(self->priv->src),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
         GST_DEBUG("set the src for wire_canvas_item: %p",self->priv->src);
       }
     } break;
@@ -338,7 +343,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->dst);
       self->priv->dst=g_object_try_ref(g_value_get_object(value));
       if(self->priv->dst) {
-        g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
+        self->priv->dst_on_position_changed=g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
         GST_DEBUG("set the dst for wire_canvas_item: %p",self->priv->dst);
       }
     } break;
@@ -360,6 +365,13 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
+	
+	if(self->priv->src_on_position_changed) {
+		g_signal_handler_disconnect(G_OBJECT(self->priv->src),self->priv->src_on_position_changed);
+	}
+	if(self->priv->dst_on_position_changed) {
+		g_signal_handler_disconnect(G_OBJECT(self->priv->dst),self->priv->dst_on_position_changed);
+	}
   
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   
