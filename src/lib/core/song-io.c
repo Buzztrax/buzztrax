@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.17 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: song-io.c,v 1.18 2004-09-24 11:48:46 waffel Exp $
  * base class for song input and output
  */
  
@@ -121,7 +121,7 @@ static GType bt_song_io_detect(const gchar *file_name) {
  */
 BtSongIO *bt_song_io_new(const gchar *file_name) {
   BtSongIO *self=NULL;
-  GType type=NULL;
+	GType type = 0;
 	
 	if(!is_string(file_name)) {
 		return NULL;
