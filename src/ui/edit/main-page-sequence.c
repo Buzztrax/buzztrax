@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.66 2005-03-07 16:30:19 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.67 2005-03-18 08:50:06 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -256,12 +256,13 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 		"width",40-4,
 		*/
 		// workaround to make focus visible
-		"height",SEQUENCE_CELL_HEIGHT-4,
+		//"height",SEQUENCE_CELL_HEIGHT-4,
 		/*
 	  "xpad",SEQUENCE_CELL_XPAD,
 		"ypad",SEQUENCE_CELL_YPAD,
 		*/
 		NULL);
+	gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
 	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
@@ -288,6 +289,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 		"ypad",SEQUENCE_CELL_YPAD,
 		*/
 		NULL);
+	gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
 	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
@@ -430,6 +432,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 			"ypad",SEQUENCE_CELL_YPAD,
 			*/
 			NULL);
+		gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
 
     // set machine name as column header
 		if(machine) {

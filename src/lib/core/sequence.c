@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.58 2005-03-12 12:11:41 ensonic Exp $
+/* $Id: sequence.c,v 1.59 2005-03-18 08:50:06 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -522,7 +522,7 @@ static void bt_sequence_set_property(GObject      *object,
 			if(self->priv->is_playing) bt_sequence_stop(self);
 			// prepare new data			
       self->priv->tracks = g_value_get_ulong(value);
-      GST_DEBUG("set the tracks for sequence: %d",self->priv->tracks);
+      GST_DEBUG("set the tracks for sequence: %lu",self->priv->tracks);
       bt_sequence_init_machines(self,old_tracks);
       bt_sequence_init_timelinetracks(self);
     } break;
@@ -532,20 +532,20 @@ static void bt_sequence_set_property(GObject      *object,
     } break;
     case SEQUENCE_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
-      GST_DEBUG("set the loop-start for sequence: %d",self->priv->loop_start);
+      GST_DEBUG("set the loop-start for sequence: %ld",self->priv->loop_start);
 			self->priv->play_start=(self->priv->loop_start!=-1)?self->priv->loop_start:0;
 			bt_sequence_limit_play_pos(self);
     } break;
     case SEQUENCE_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
-      GST_DEBUG("set the loop-end for sequence: %d",self->priv->loop_end);
+      GST_DEBUG("set the loop-end for sequence: %ld",self->priv->loop_end);
 			self->priv->play_end=(self->priv->loop_end!=-1)?self->priv->loop_end:self->priv->length;
 			bt_sequence_limit_play_pos(self);
     } break;
     case SEQUENCE_PLAY_POS: {
       self->priv->play_pos = g_value_get_ulong(value);
 			bt_sequence_limit_play_pos(self);
-      GST_DEBUG("set the play-pos for sequence: %d",self->priv->play_pos);
+      GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -618,9 +618,9 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
 																	g_param_spec_ulong("length",
                                      "length prop",
                                      "length of the sequence in timeline bars",
-                                     1,
-                                     G_MAXULONG,
-                                     1,
+                                     0,
+                                     G_MAXLONG,	// loop-pos are LONG as well
+                                     0,
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SEQUENCE_TRACKS,
@@ -662,7 +662,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      "play-pos prop",
                                      "position of the play cursor of the sequence in timeline bars",
                                      0,
-                                     G_MAXULONG,
+                                     G_MAXLONG,	// loop-pos are LONG as well
                                      0,
                                      G_PARAM_READWRITE));
 }

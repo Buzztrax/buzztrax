@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.38 2005-03-15 14:43:54 ensonic Exp $
+# $Id: configure.ac,v 1.39 2005-03-18 08:49:56 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -110,10 +110,10 @@ AC_ARG_ENABLE(
 AC_MSG_RESULT($enable_coverage)
 if test "$enable_coverage" = "yes"; then
 	#AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
-	AM_CONDITIONAL(COVERAGE, true)
+	AM_CONDITIONAL(USE_COVERAGE, true)
 	COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
 else
-	AM_CONDITIONAL(COVERAGE, false)
+	AM_CONDITIONAL(USE_COVERAGE, false)
 	COVERAGE_CFLAGS=""
 fi
 

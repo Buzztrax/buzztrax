@@ -1,8 +1,9 @@
-/* $Id: machine.c,v 1.93 2005-03-08 12:19:07 ensonic Exp $
+/* $Id: machine.c,v 1.94 2005-03-18 08:50:05 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
+ *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
  */
  
 #define BT_CORE

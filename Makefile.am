@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.34 2005-03-15 14:43:54 ensonic Exp $
+## $Id: Makefile.am,v 1.35 2005-03-18 08:49:55 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -80,7 +80,23 @@ install-data-local:
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)
 
-.PHONY: todo splint valgrind
+.PHONY: coverage splint todo valgrind
+
+if USE_COVERAGE
+coverage::
+	mkdir -p ./coverage
+	lcov --directory . --zerocounters
+	$(MAKE) check
+	## workaround for lcov not liking libtool
+	for file in `find . -name "*.da" | grep ".libs" ` ;do \
+		mv $$file `echo $$file | sed -e 's/\/\.libs//'`; \
+	done
+	lcov --directory . --capture --output-file ./coverage/$(PACKAGE).info
+	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
+endif
+
+splint::
+	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
 
 todo::
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
@@ -90,6 +106,3 @@ if USE_VALGRIND
 valgrind::
 	$(MAKE) -C tests valgrind
 endif
-
-splint::
-	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
