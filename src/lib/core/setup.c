@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.8 2004-05-13 09:35:29 ensonic Exp $
+/* $Id: setup.c,v 1.9 2004-05-13 18:43:29 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -71,7 +71,18 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 	}
 	return(NULL);
 }
-
+/* should we better use
+ * GList* g_list_find_custom(GList *list, gconstpointer data, GCompareFunc func);
+ * what we basically need is
+ GObject *g_list_find_object_by_property(GList *list, const gchar *property_name, const GValue *value) {
+   GValue val={0,};
+	 g_value_init(&val,G_VALUE_TYPE(value));
+	 //foreach(item in list)
+	   g_object_get_property(G_OBJECT(item),property_name, &val);
+	   //now how to compare the contents of value and &val ?
+		 //use g_strdup_value_contents() with strcmp ?
+		 //use gst_value_compare()
+ */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
 	BtWire *wire;
 	GList *node=g_list_first(self->private->wires);

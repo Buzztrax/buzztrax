@@ -71,7 +71,15 @@ m4_define(`__NAVBAR',`
 				<tr>
 					<td valign="bottom">
 						<!--img align="left" src="buzztard.gif"-->
-						<h1>Buzztard - <br>Music Production Environment</h1>
+						<div style="position:absolute; left:22px; top:17px; z-index:1;">
+							<h1 style="color:#aaaaaa;">Buzztard - <br>Music Production Environment</h1>
+						</div>
+						<div style="position:absolute; left:21px; top:16px; z-index:2;"> 
+							<h1 style="color:#555555;">Buzztard - <br>Music Production Environment</h1>
+						</div>
+						<div style="position:absolute; left:20px; top:15px; z-index:3;"> 
+							<h1>Buzztard - <br>Music Production Environment</h1>
+						</div>
 					</td>
 					<td valign="top" align="right">
 						<div id="navi">
@@ -106,6 +114,8 @@ m4_define(`__FOOTER',`
 						</font>
 					</td>
 					<td align="right">
+						<a href="http://validator.w3.org/check/referer"><img border="0"	src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+						<a href="http://jigsaw.w3.org/css-validator/"><img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"></a>
 						<a href="http://sourceforge.net"><img src="http://sourceforge.net/sflogo.php?group_id=55124" width="88" height="31" border="0" alt="SourceForge Logo"></a>
 					</td>
 				</tr>
