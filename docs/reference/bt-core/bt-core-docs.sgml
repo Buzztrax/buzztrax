@@ -44,6 +44,17 @@
     </para>
   </preface>
 
+  <chapter id="conventions">
+    During the API docs some convetions are used to avoid duplication and
+    improve precission.
+    <orderedlist>
+      <listitem>
+        <para>It is never valid to supply <symbol>NULL</symbol> for an object
+        reference,unless it is explicitly said so.</para>
+      </listitem>
+    </orderedlist>
+  </chapter>
+  
   <chapter id="libbtcore">
     <title>Core Library Reference</title>
     <para>
@@ -52,6 +63,8 @@
       machines, patterns, wires and so on.
       It further defines bases classes for common operations such as
       song input/output.
+      Please make sure you have read section <link linkend="conventions">conventions</link>
+      before reading further.
     </para>
 		<para>
       All datastructures are encapsulated in objects based on <link linkend="GObject">GObject</link>.

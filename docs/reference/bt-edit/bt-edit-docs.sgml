@@ -40,7 +40,10 @@
   <chapter id="uibtedit">
     <title>User Application Reference</title>
     <para>
-      The classes described in this chapter are all part of end user application code.
+      The classes described in this chapter are all part of end user application
+      code.
+      Please make sure you have read section <link linkend="conventions">conventions</link>
+      before reading further.
     </para>
     &BtEditApplication;
     &BtMachineCanvasItem;

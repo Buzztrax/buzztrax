@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.35 2004-10-26 07:52:16 ensonic Exp $
+/* $Id: wire.c,v 1.36 2004-10-28 11:16:29 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -177,6 +177,7 @@ static gboolean bt_wire_connect(BtWire *self) {
   BtSetup *setup=NULL;
   BtWire *other_wire;
   BtMachine *src, *dst;
+  GstElement *old_peer;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -188,26 +189,20 @@ static gboolean bt_wire_connect(BtWire *self) {
 	GST_DEBUG("trying to link machines : %p (%p) -> %p (%p)",src,src->src_elem,dst,dst->dst_elem);
 
 	// if there is already a connection from src && src has not yet an spreader (in use)
-	if((other_wire=bt_setup_get_wire_by_src_machine(setup,src)) && (src->src_elem!=src->spreader)) {
+	if((other_wire=bt_setup_get_wire_by_src_machine(setup,src))
+    && !bt_machine_has_active_spreader(src)) {
 		GST_DEBUG("  other wire from src found");
-		// unlink the elements from the other wire
 		bt_wire_unlink_machines(other_wire);
 		// create spreader (if needed)
-		if(!src->spreader) {
-			src->spreader=gst_element_factory_make("oneton",g_strdup_printf("oneton_%p",src));
-			g_assert(src->spreader!=NULL);
-			gst_bin_add(self->priv->bin, src->spreader);
-			if(!gst_element_link(src->src_elem, src->spreader)) {
-				GST_ERROR("failed to link the machines internal spreader");goto Error;
-			}
-		}
-		if(other_wire->priv->src_elem==src->src_elem) {
+    old_peer=src->src_elem;
+    if(!bt_machine_activate_spreader(src)) {
+      goto Error;
+    }
+    // if there is no converion element on the wire ..
+		if(other_wire->priv->src_elem==old_peer) {
 			// we need to fix the src_elem of the other connect, as we have inserted the spreader
-			other_wire->priv->src_elem=src->spreader;
+			other_wire->priv->src_elem=src->src_elem;
 		}
-		// activate spreader
-		src->src_elem=src->spreader;
-		GST_DEBUG("  spreader activated for \"%s\"",gst_element_get_name(src->machine));
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src->src_elem, other_wire->dst_elem)) {
@@ -216,33 +211,20 @@ static gboolean bt_wire_connect(BtWire *self) {
 	}
 	
 	// if there is already a wire to dst and dst has not yet an adder (in use)
-	if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst)) && (dst->dst_elem!=dst->adder)) {
+	if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst))
+    && !bt_machine_has_active_adder(dst)) {
 		GST_DEBUG("  other wire to dst found");
-		// unlink the elements from the other wire
 		bt_wire_unlink_machines(other_wire);
 		// create adder (if needed)
-		if(!dst->adder) {
-			GstElement *convert;
-			
-			dst->adder=gst_element_factory_make("adder",g_strdup_printf("adder_%p",dst));
-			g_assert(dst->adder!=NULL);
-			gst_bin_add(self->priv->bin, dst->adder);
-			// @todo this is a workaround for gst not making full caps-nego
-			convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",dst));
-			g_assert(convert!=NULL);
-			gst_bin_add(self->priv->bin, convert);
-      GST_DEBUG("  about to link adder -> convert -> dst_elem");
-			if(!gst_element_link_many(dst->adder, convert, dst->dst_elem, NULL)) {
-				GST_ERROR("failed to link the machines internal adder");goto Error;
-			}
-		}
-		if(other_wire->priv->dst_elem==dst->dst_elem) {
+    old_peer=dst->dst_elem;
+    if(!bt_machine_activate_adder(dst)) {
+      goto Error;
+    }
+    // if there is no converion element on the wire ..
+		if(other_wire->priv->dst_elem==old_peer) {
 			// we need to fix the dst_elem of the other connect, as we have inserted the adder
-			other_wire->priv->dst_elem=dst->adder;
+			other_wire->priv->dst_elem=dst->dst_elem;
 		}
-		// activate adder
-		dst->dst_elem=dst->adder;
-		GST_DEBUG("  adder activated for \"%s\"",gst_element_get_name(dst->machine));
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src_elem, other_wire->dst->dst_elem)) {

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.21 2004-10-22 16:15:58 ensonic Exp $
+/* $Id: sink-machine.c,v 1.22 2004-10-28 11:16:29 ensonic Exp $
  * class for a sink machine
  */
  
@@ -44,8 +44,16 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(is_string(audiosink_name)) plugin_name=audiosink_name;
   else if(is_string(system_audiosink_name)) plugin_name=system_audiosink_name;
   else {
-     GST_ERROR("no audiosink configured");
-     goto Error;
+    // try first entry of gstreamer-audiosink list
+    GList *audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
+    if(audiosink_names) {
+      plugin_name=audiosink_names->data;
+    }
+    g_list_free(audiosink_names);
+  }
+  if(!plugin_name) {
+    GST_ERROR("no audiosink configured/register");
+    goto Error;
   }
 
   g_assert(BT_IS_SONG(song));

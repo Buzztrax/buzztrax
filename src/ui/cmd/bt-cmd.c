@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.20 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.21 2004-10-28 11:16:30 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
   
 	// init buzztard core with own popt options
 	bt_init(&argc,&argv,options);
+  
+  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
 

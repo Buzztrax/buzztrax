@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.43 2004-10-26 07:52:16 ensonic Exp $
+/* $Id: machine.c,v 1.44 2004-10-28 11:16:29 ensonic Exp $
  * base class for a machine
  */
  
@@ -50,6 +50,12 @@ struct _BtMachinePrivate {
 
   GList *patterns;	// each entry points to BtPattern
   
+  /* the gstreamer element that is used */
+  GstElement *machine;
+  
+  /* utillity elements to allow multiple inputs/outputs */
+  GstElement *adder,*spreader;
+  
   /* the element to analyse the current input
    * could be placed right behind the internal adder
    * (see wire.c)
@@ -81,20 +87,20 @@ struct _BtMachinePrivate {
 gboolean bt_machine_new(BtMachine *self) {
 
   g_assert(BT_IS_MACHINE(self));
-  g_assert(self->machine==NULL);
+  g_assert(self->priv->machine==NULL);
   g_assert(self->priv->id);
   g_assert(self->priv->plugin_name);
   GST_INFO("initializing machine");
 
-  self->machine=gst_element_factory_make(self->priv->plugin_name,self->priv->id);
-  if(!self->machine) {
+  self->priv->machine=gst_element_factory_make(self->priv->plugin_name,self->priv->id);
+  if(!self->priv->machine) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
   }
   // there is no adder or spreader in use by default
-  self->dst_elem=self->src_elem=self->machine;
-  GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->machine)->ref_count);
-  if((self->priv->dparam_manager=gst_dpman_get_manager(self->machine))) {
+  self->dst_elem=self->src_elem=self->priv->machine;
+  GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machine)->ref_count);
+  if((self->priv->dparam_manager=gst_dpman_get_manager(self->priv->machine))) {
     GParamSpec **specs;
     GstDParam **dparam;
     guint i;
@@ -120,15 +126,15 @@ gboolean bt_machine_new(BtMachine *self) {
     }
   }
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
-  gst_bin_add(self->priv->bin,self->machine);
-  GST_INFO("  added machine to bin, obj->ref_count=%d",G_OBJECT(self->machine)->ref_count);
-  g_assert(self->machine!=NULL);
+  gst_bin_add(self->priv->bin,self->priv->machine);
+  GST_INFO("  added machine to bin, obj->ref_count=%d",G_OBJECT(self->priv->machine)->ref_count);
+  g_assert(self->priv->machine!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
 
   if(BT_IS_SINK_MACHINE(self)) {
     GST_DEBUG("this will be the master for the song");
-    g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self->machine),NULL);
+    g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self->priv->machine),NULL);
   }
   return(TRUE);
 }
@@ -150,7 +156,7 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
   }
   g_object_set(G_OBJECT(self->priv->input_level),"interval",0.1, "signal",TRUE, NULL);
   gst_bin_add(self->priv->bin,self->priv->input_level);
-  if(!gst_element_link(self->priv->input_level,self->machine)) {
+  if(!gst_element_link(self->priv->input_level,self->priv->machine)) {
 		GST_ERROR("failed to link the machines input level analyser");goto Error;
 	}
   self->dst_elem=self->priv->input_level;
@@ -161,6 +167,92 @@ Error:
   return(res);
 }
 
+/**
+ * bt_machine_activate_adder:
+ * @self: the machine to activate the adder in
+ *
+ * Machines use an adder to allow multiple incoming wires.
+ * This method is used by the #BtWire class to activate the adder when needed.
+ *
+ * Returns: TRUE for success
+ */
+gboolean bt_machine_activate_adder(BtMachine *self) {
+  gboolean res=TRUE;
+  
+  if(!self->priv->adder) {
+    GstElement *convert;
+    
+    self->priv->adder=gst_element_factory_make("adder",g_strdup_printf("adder_%p",self));
+    g_assert(self->priv->adder!=NULL);
+    gst_bin_add(self->priv->bin, self->priv->adder);
+    // @todo this is a workaround for gst not making full caps-nego
+    convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",self));
+    g_assert(convert!=NULL);
+    gst_bin_add(self->priv->bin, convert);
+    GST_DEBUG("  about to link adder -> convert -> dst_elem");
+    if(!gst_element_link_many(self->priv->adder, convert, self->dst_elem, NULL)) {
+      GST_ERROR("failed to link the machines internal adder");res=FALSE;
+    }
+    else {
+      GST_DEBUG("  adder activated for \"%s\"",gst_element_get_name(self->priv->machine));
+      self->dst_elem=self->priv->adder;
+    }
+  }
+  return(res);
+}
+
+/**
+ * bt_machine_has_active_adder:
+ * @self: the machine to check
+ *
+ * Checks if the machine currently uses an adder.
+ * This method is used by the #BtWire class to activate the adder when needed.
+ *
+ * Returns: TRUE for success
+ */
+gboolean bt_machine_has_active_adder(BtMachine *self) {
+  return(self->dst_elem==self->priv->adder);
+}
+
+/**
+ * bt_machine_activate_spreader:
+ * @self: the machine to activate the spreader in
+ *
+ * Machines use a spreader to allow multiple outgoing wires.
+ * This method is used by the #BtWire class to activate the spreader when needed.
+ *
+ * Returns: TRUE for success
+ */
+gboolean bt_machine_activate_spreader(BtMachine *self) {
+  gboolean res=TRUE;
+  
+  if(!self->priv->spreader) {
+    self->priv->spreader=gst_element_factory_make("oneton",g_strdup_printf("oneton_%p",self));
+    g_assert(self->priv->spreader!=NULL);
+    gst_bin_add(self->priv->bin, self->priv->spreader);
+    if(!gst_element_link(self->src_elem, self->priv->spreader)) {
+      GST_ERROR("failed to link the machines internal spreader");res=FALSE;
+    }
+    else {
+      GST_DEBUG("  spreader activated for \"%s\"",gst_element_get_name(self->priv->machine));
+      self->src_elem=self->priv->spreader;
+    }
+  }
+  return(res);
+}
+
+/**
+ * bt_machine_has_active_spreader:
+ * @self: the machine to check
+ *
+ * Checks if the machine currently uses an spreader.
+ * This method is used by the #BtWire class to activate the spreader when needed.
+ *
+ * Returns: TRUE for success
+ */
+gboolean bt_machine_has_active_spreader(BtMachine *self) {
+  return(self->src_elem==self->priv->spreader);
+}
 
 /**
  * bt_machine_add_pattern:
@@ -439,7 +531,7 @@ static void bt_machine_set_property(GObject      *object,
       g_free(self->priv->id);
       self->priv->id = g_value_dup_string(value);
       GST_DEBUG("set the id for machine: %s",self->priv->id);
-      //if(self->machine)	bt_machine_rename(self);
+      //if(self->priv->machine)	bt_machine_rename(self);
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->priv->plugin_name);
@@ -472,25 +564,25 @@ static void bt_machine_dispose(GObject *object) {
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
   if(self->priv->bin) {
-    if(self->machine) {
+    if(self->priv->machine) {
       g_assert(GST_IS_BIN(self->priv->bin));
-      g_assert(GST_IS_ELEMENT(self->machine));
-      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->machine),(G_OBJECT(self->machine))->ref_count);
-      gst_bin_remove(self->priv->bin,self->machine);
+      g_assert(GST_IS_ELEMENT(self->priv->machine));
+      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machine),(G_OBJECT(self->priv->machine))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->machine);
       GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
-    if(self->adder) {
+    if(self->priv->adder) {
       g_assert(GST_IS_BIN(self->priv->bin));
-      g_assert(GST_IS_ELEMENT(self->adder));
-      GST_DEBUG("  removing adder from bin, obj->ref_count=%d",(G_OBJECT(self->adder))->ref_count);
-      gst_bin_remove(self->priv->bin,self->adder);
+      g_assert(GST_IS_ELEMENT(self->priv->adder));
+      GST_DEBUG("  removing adder from bin, obj->ref_count=%d",(G_OBJECT(self->priv->adder))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->adder);
       GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
-    if(self->spreader) {
+    if(self->priv->spreader) {
       g_assert(GST_IS_BIN(self->priv->bin));
-      g_assert(GST_IS_ELEMENT(self->spreader));
-      GST_DEBUG("  removing spreader from bin, obj->ref_count=%d",(G_OBJECT(self->spreader))->ref_count);
-      gst_bin_remove(self->priv->bin,self->spreader);
+      g_assert(GST_IS_ELEMENT(self->priv->spreader));
+      GST_DEBUG("  removing spreader from bin, obj->ref_count=%d",(G_OBJECT(self->priv->spreader))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->spreader);
       GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
     if(self->priv->input_level) {
@@ -553,7 +645,7 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->voices=-1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
   
-  GST_DEBUG("!!!! self=%p, self->machine=%p",self,self->machine);
+  GST_DEBUG("!!!! self=%p, self->priv->machine=%p",self,self->priv->machine);
 }
 
 static void bt_machine_class_init(BtMachineClass *klass) {

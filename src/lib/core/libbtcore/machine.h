@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.11 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: machine.h,v 1.12 2004-10-28 11:16:29 ensonic Exp $
  * base class for a machine
  */
 
@@ -34,8 +34,6 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 struct _BtMachine {
   GObject parent;
 
-	/* gstreamer related (accessed alot by the wire object) */
-	GstElement *machine,*adder,*spreader;
 	/* convinience pointers (accessed alot by the wire object) */
 	GstElement *dst_elem,*src_elem;
 
