@@ -1,16 +1,8 @@
-/* $Id: machine-canvas-item.c,v 1.35 2005-01-19 12:18:27 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.36 2005-01-19 17:44:26 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
-/* @todo:
- * - add mute/solo/bypass buttons or a quad state:
- *   cycle through or use modifiers (shift, ctrl, alt)
- *   - normal: square        (         klick)
- *   - mute  : square with x (ctrl    +klick)
- *   - solo  : square with o (alt     +klick)
- *   - bypass: square with - (ctrl+alt+klick)
- * - add level meter widgets
- */
+/* @todo add level meter widgets */
 
 #define BT_EDIT
 #define BT_MACHINE_CANVAS_ITEM_C
@@ -60,7 +52,7 @@ struct _BtMachineCanvasItemPrivate {
 	/* the graphical components */
 	GnomeCanvasItem *label;
 	GnomeCanvasItem *box;
-	GnomeCanvasItem *mode;
+	GnomeCanvasItem *state_switch,*state_mute,*state_solo,*state_bypass;
 
   /* the zoomration in pixels/per unit */
   double zoom;
@@ -75,6 +67,51 @@ static guint signals[LAST_SIGNAL]={0,};
 static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- event handler
+
+static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
+	BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+	
+	g_assert(user_data);
+	
+	if(self->priv->label) {
+		gchar *id;
+
+		g_object_get(self->priv->machine,"id",&id,NULL);
+		gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"text",id,NULL);
+		g_free(id);
+	}	
+}
+
+static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
+	BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+	BtMachineState state;
+	
+	g_assert(user_data);
+	g_object_get(self->priv->machine,"state",&state,NULL);
+	GST_INFO(" new state is %d",state);
+	switch(state) {
+		case BT_MACHINE_STATE_NORMAL:
+			gnome_canvas_item_hide(self->priv->state_mute);
+			gnome_canvas_item_hide(self->priv->state_solo);
+			gnome_canvas_item_hide(self->priv->state_bypass);
+			break;
+		case BT_MACHINE_STATE_MUTE:
+			gnome_canvas_item_show(self->priv->state_mute);
+			gnome_canvas_item_hide(self->priv->state_solo);
+			gnome_canvas_item_hide(self->priv->state_bypass);
+			break;
+		case BT_MACHINE_STATE_SOLO:
+			gnome_canvas_item_hide(self->priv->state_mute);
+			gnome_canvas_item_show(self->priv->state_solo);
+			gnome_canvas_item_hide(self->priv->state_bypass);
+			break;
+		case BT_MACHINE_STATE_BYPASS:
+			gnome_canvas_item_hide(self->priv->state_mute);
+			gnome_canvas_item_hide(self->priv->state_solo);
+			gnome_canvas_item_show(self->priv->state_bypass);
+			break;
+	}
+}
 
 static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
@@ -166,9 +203,6 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 			id=(gchar *)gtk_entry_get_text(GTK_ENTRY(entry));
       GST_INFO("set new name : \"%s\"",id);
 			g_object_set(self->priv->machine,"id",g_strdup(id),NULL);
-			if(self->priv->label) {
-				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"text",id,NULL);
-			}
       break;
     case GTK_RESPONSE_REJECT:
       GST_INFO("do nothing");
@@ -240,17 +274,22 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 
 //-- helper methods
 
-static gboolean bt_machine_canvas_item_is_over_mode(const BtMachineCanvasItem *self,GdkEvent *event) {
+static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanvasItem *self,GdkEvent *event) {
 	GnomeCanvas *canvas;
-	//GnomeCanvasItem *ci;
+	GnomeCanvasItem *ci,*pci;
 	gboolean res=FALSE;
 				
 	g_object_get(G_OBJECT(self->priv->main_page_machines),"canvas",&canvas,NULL);
-	//ci=gnome_canvas_get_item_at(canvas,event->button.x,event->button.y);
-	//GST_DEBUG("ci=%p : self=%p, self->box=%p, self->mode=%p",ci,self,self->priv->box,self->priv->mode);
-	//if(ci==self->priv->mode) {
-	if(gnome_canvas_get_item_at(canvas,event->button.x,event->button.y)==self->priv->mode) {
-		res=TRUE;
+	if((ci=gnome_canvas_get_item_at(canvas,event->button.x,event->button.y))) {
+		g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
+		//GST_DEBUG("ci=%p : self=%p, self->box=%p, self->state_switch=%p",ci,self,self->priv->box,self->priv->state_switch);
+		if((ci==self->priv->state_switch)
+			|| (ci==self->priv->state_mute) || (pci==self->priv->state_mute)
+			|| (ci==self->priv->state_solo)
+			|| (ci==self->priv->state_bypass) || (pci==self->priv->state_bypass)) {
+			res=TRUE;
+		}
+		g_object_try_unref(pci);
 	}
 	g_object_unref(canvas);
 	return(res);
@@ -418,6 +457,8 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
+				g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", (GCallback)on_machine_id_changed, (gpointer)self);
+				g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", (GCallback)on_machine_state_changed, (gpointer)self);
       }
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
@@ -481,9 +522,10 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
 static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
-	gdouble mx1,mx2,my1,my2;
+	gdouble mx1,mx2,my1,my2,mw,mh;
   guint bg_color=0xFFFFFFFF,bg_color2=0x99999999;
   gchar *id;
+	GnomeCanvasPoints *points;
   
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
@@ -502,7 +544,8 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   }
   g_object_get(self->priv->machine,"id",&id,NULL);
 
-  // add machine visualisation components
+  // add machine components
+	// the body
   self->priv->box=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_RECT,
                            "x1", -w,
@@ -513,6 +556,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "outline_color", "black",
                            "width-pixels", 1,
                            NULL);
+	// the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
                            "x", +0.0,
@@ -527,9 +571,14 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 													 "clip-width",w+w,
 													 "clip-height",h+h,
                            NULL);
-	mx1=-w*0.90;mx2=-w*0.70;
-	my1=-h*0.85;my2=-h*0.55;
-  self->priv->mode=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+	g_free(id);
+	
+	// the state switch button
+	mw=0.20;mh=0.30;
+	mx1=-w*0.90;mx2=-w*(0.90-mw);
+	my1=-h*0.85;my2=-h*(0.85-mh);
+	points=gnome_canvas_points_new(2);
+  self->priv->state_switch=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_RECT,
                            "x1", mx1,
                            "y1", my1,
@@ -539,8 +588,66 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "outline_color", "black",
                            "width-pixels", 1,
                            NULL);
-	gnome_canvas_item_raise(self->priv->mode,1);
-  g_free(id);
+	// the mute-state
+	self->priv->state_mute=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_GROUP,
+                           "x", mx1,
+                           "y", my1,
+                           NULL);
+	points->coords[0]=0.0;points->coords[1]=0.0;points->coords[2]=(mx2-mx1);points->coords[3]=(my2-my1);
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_mute),
+                           GNOME_TYPE_CANVAS_LINE,
+                           "points", points,
+                           "fill-color", "black",
+                           "width-pixels", 1,
+                           NULL);
+	points->coords[0]=(mx2-mx1);points->coords[1]=0.0;points->coords[2]=0.0;points->coords[3]=(my2-my1);
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_mute),
+                           GNOME_TYPE_CANVAS_LINE,
+                           "points", points,
+                           "fill-color", "black",
+                           "width-pixels", 1,
+                           NULL);
+	gnome_canvas_item_raise_to_top(self->priv->state_mute);
+	gnome_canvas_item_hide(self->priv->state_mute);
+	
+	// the solo-state
+	self->priv->state_solo=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_ELLIPSE,
+                           "x1", mx1,
+                           "y1", my1,
+                           "x2", mx2,
+                           "y2", my2,
+                           "outline_color", "black",
+                           "width-pixels", 1,
+                           NULL);
+	gnome_canvas_item_raise_to_top(self->priv->state_solo);
+	gnome_canvas_item_hide(self->priv->state_solo);
+
+	// the bypass-state
+	self->priv->state_bypass=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_GROUP,
+                           "x", mx1,
+                           "y", my1,
+                           NULL);
+	points->coords[0]=0.0;points->coords[1]=0.0;points->coords[2]=0.3*(mx2-mx1);points->coords[3]=0.3*(my2-my1);
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_bypass),
+                           GNOME_TYPE_CANVAS_LINE,
+                           "points", points,
+                           "fill-color", "black",
+                           "width-pixels", 1,
+                           NULL);
+	points->coords[0]=0.0;points->coords[1]=0.0;points->coords[2]=0.7*(mx2-mx1);points->coords[3]=0.7*(my2-my1);
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_bypass),
+                           GNOME_TYPE_CANVAS_LINE,
+                           "points", points,
+                           "fill-color", "black",
+                           "width-pixels", 1,
+                           NULL);
+	gnome_canvas_item_raise_to_top(self->priv->state_bypass);
+	gnome_canvas_item_hide(self->priv->state_bypass);
+
+	gnome_canvas_points_free(points);
   //item->realized = TRUE;
 }
 
@@ -567,7 +674,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d, 0x%x",event->button.button,event->button.state);
       if(event->button.button==1) {
-				if(!bt_machine_canvas_item_is_over_mode(self,event)) {
+				if(!bt_machine_canvas_item_is_over_state_switch(self,event)) {
 					// dragx/y coords are world coords of button press
 					self->priv->dragx=event->button.x;
 					self->priv->dragy=event->button.y;
@@ -633,14 +740,23 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 			else if(self->priv->switching) {
 				self->priv->switching=FALSE;
 				// still over mode switch
-				if(bt_machine_canvas_item_is_over_mode(self,event)) {
-					GST_DEBUG("  mode quad state switch, key_modifier is : %d",event->button.state);
-					/* @todo do mode quad state switching
-					 * get old state
-					 * hide the old state canvas item
-					 * go to new state
-					 * show the new state canvas item
-					 */
+				if(bt_machine_canvas_item_is_over_state_switch(self,event)) {
+					GdkModifierType modifier=event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
+					GST_DEBUG("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",event->button.state,(GDK_CONTROL_MASK|GDK_MOD4_MASK),modifier);
+					switch(modifier) {
+						case 0:
+							g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+							break;
+						case GDK_CONTROL_MASK:
+							g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_MUTE,NULL);
+							break;
+						case GDK_MOD4_MASK:
+							g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_SOLO,NULL);
+							break;
+						case GDK_CONTROL_MASK|GDK_MOD1_MASK:
+							g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_BYPASS,NULL);
+							break;
+					}
 				}	
 			}
       break;

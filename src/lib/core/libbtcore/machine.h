@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.14 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: machine.h,v 1.15 2005-01-19 17:44:25 ensonic Exp $
  * base class for a machine
  */
 
@@ -42,9 +42,28 @@ struct _BtMachineClass {
   
 };
 
+#define BT_TYPE_MACHINE_STATE       (bt_machine_state_get_type())
+
+/**
+ * BtMachineState:
+ * @BT_MACHINE_STATE_NORMAL: just working
+ * @BT_MACHINE_STATE_MUTE: be quiet
+ * @BT_MACHINE_STATE_SOLO: be the only one playing
+ * @BT_MACHINE_STATE_BYPASS: be uneffective (pass through)
+ *
+ * A machine is always in one of the 4 states.
+ * Use the "state" property of the #BtMachine to change or query the current state.
+ */
+typedef enum {
+  BT_MACHINE_STATE_NORMAL=0,
+  BT_MACHINE_STATE_MUTE,
+  BT_MACHINE_STATE_SOLO,
+  BT_MACHINE_STATE_BYPASS
+} BtMachineState;
+
+
 /* used by MACHINE_TYPE */
 GType bt_machine_get_type(void);
 
 
 #endif // BT_MACHINE_H
-

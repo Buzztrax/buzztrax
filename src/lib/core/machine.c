@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.70 2005-01-15 22:02:51 ensonic Exp $
+/* $Id: machine.c,v 1.71 2005-01-19 17:44:00 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -20,7 +20,8 @@ enum {
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
   MACHINE_INPUT_LEVEL,
-	MACHINE_PATTERNS
+	MACHINE_PATTERNS,
+	MACHINE_STATE
 };
 
 struct _BtMachinePrivate {
@@ -46,6 +47,9 @@ struct _BtMachinePrivate {
   gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
   gulong voice_params;
+	
+	/* the current state of the machine */
+	BtMachineState state;
 
   /* gstreamer dparams */
   GstDParamManager *dparam_manager;
@@ -79,6 +83,62 @@ struct _BtMachinePrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+
+//-- enums
+
+GType bt_machine_state_get_type(void) {
+  static GType type = 0;
+  if(type==0) {
+    static GEnumValue values[] = {
+      { BT_MACHINE_STATE_NORMAL,"BT_MACHINE_STATE_NORMAL","just working" },
+      { BT_MACHINE_STATE_MUTE,	"BT_MACHINE_STATE_MUTE", 	"be quiet" },
+      { BT_MACHINE_STATE_SOLO,  "BT_MACHINE_STATE_SOLO",  "be the only one playing" },
+      { BT_MACHINE_STATE_BYPASS,"BT_MACHINE_STATE_BYPASS","be uneffective (pass through)" },
+      { 0, NULL, NULL},
+    };
+    type = g_enum_register_static("BtMachineStateType", values);
+  }
+  return type;
+}
+
+//-- helper methods
+
+static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_state) {
+	// reject a few nonsense changes
+	if((new_state==BT_MACHINE_STATE_BYPASS) && (!BT_IS_PROCESSOR_MACHINE(self))) return(FALSE);
+	if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
+		
+	// return to normal state
+	switch(self->priv->state) {
+		case BT_MACHINE_STATE_MUTE:
+			if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+				GST_WARNING("setting element '%s' to playing state failed",self->priv->id);
+			}
+			break;
+		case BT_MACHINE_STATE_SOLO:
+			// @todo set all but this machine to playing again
+			break;
+		case BT_MACHINE_STATE_BYPASS:
+			// @todo disconnect its source and sink + set this machine to playing
+			break;
+	}
+	// set to new state
+	switch(new_state) {
+		case BT_MACHINE_STATE_MUTE:
+			if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+				GST_WARNING("setting element '%s' to paused state failed",self->priv->id);
+			}
+			break;
+		case BT_MACHINE_STATE_SOLO:
+			// @todo set all but this machine to paused
+			break;
+		case BT_MACHINE_STATE_BYPASS:
+			// @todo set this machine to paused + connect its source and sink
+			break;
+	}
+	self->priv->state=new_state;
+	return(TRUE);
+}
 
 //-- constructor methods
 
@@ -593,6 +653,9 @@ static void bt_machine_get_property(GObject      *object,
 		case MACHINE_PATTERNS: {
 			g_value_set_pointer(value,g_list_copy(self->priv->patterns));
 		} break;
+    case MACHINE_STATE: {
+      g_value_set_enum(value, self->priv->state);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -618,7 +681,6 @@ static void bt_machine_set_property(GObject      *object,
       g_free(self->priv->id);
       self->priv->id = g_value_dup_string(value);
       GST_DEBUG("set the id for machine: %s",self->priv->id);
-      //if(self->priv->machine)	bt_machine_rename(self);
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->priv->plugin_name);
@@ -634,6 +696,10 @@ static void bt_machine_set_property(GObject      *object,
     } break;
     case MACHINE_VOICE_PARAMS: {
       self->priv->voice_params = g_value_get_ulong(value);
+    } break;
+    case MACHINE_STATE: {
+			bt_machine_change_state(self,g_value_get_enum(value));
+      GST_DEBUG("set the state for machine: %d",self->priv->state);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -833,6 +899,14 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "pattern list prop",
                                      "A copy of the list of patterns",
                                      G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MACHINE_STATE,
+                                  g_param_spec_enum("state",
+                                     "state prop",
+                                     "the current state of this machine",
+                                     BT_TYPE_MACHINE_STATE,  /* enum type */
+                                     BT_MACHINE_STATE_NORMAL, /* default value */
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_machine_get_type(void) {
