@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.36 2005-02-05 16:28:20 ensonic Exp $
+# $Id: configure.ac,v 1.37 2005-03-05 19:12:52 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -165,15 +165,15 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
 #AC_PATH_PROG(GCONFTOOL, gconftool-2)
 #AM_GCONF_SOURCE_2
 
-PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
-	AM_CONDITIONAL(USE_GTKGRID, true)
-    AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
- ],[
-    AM_CONDITIONAL(USE_GTKGRID,false)
- ]
-)
+#PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
+#	AM_CONDITIONAL(USE_GTKGRID, true)
+#    AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
+#    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
+#    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
+# ],[
+#    AM_CONDITIONAL(USE_GTKGRID,false)
+# ]
+#)
 
 AC_MSG_CHECKING([glib version >= 2.6])
 if pkg-config --atleast-version=2.6 glib-2.0; then

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.45 2005-02-22 07:31:09 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.46 2005-03-05 19:12:56 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -24,9 +24,7 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *pattern_menu;
 
 	/* the pattern table */
-#ifdef USE_GTKGRID
-  GtkGrid *pattern_table;
-#endif
+  GtkTreeView *pattern_table;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -41,6 +39,9 @@ enum {
   PATTERN_TABLE_POS=0,
   PATTERN_TABLE_PRE_CT
 };
+
+#define PATTERN_CELL_WIDTH 80
+#define PATTERN_CELL_HEIGHT 28
 
 //-- tree model helper
 
@@ -153,17 +154,15 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
   GList *columns,*node;
 		
   // remove columns
-#ifdef USE_GTKGRID
 	g_assert(self->priv->pattern_table);
 	GST_INFO("clearing pattern table");
-  if((columns=gtk_grid_get_columns(self->priv->pattern_table))) {
+  if((columns=gtk_tree_view_get_columns(self->priv->pattern_table))) {
 		GST_DEBUG("is not empty");
 		for(node=g_list_first(columns);node;node=g_list_next(node)) {
-      gtk_grid_remove_column(self->priv->pattern_table,GTK_GRID_COLUMN(node->data));
+      gtk_tree_view_remove_column(self->priv->pattern_table,GTK_TREE_VIEW_COLUMN(node->data));
     }
     g_list_free(columns);
   }
-#endif
 	GST_INFO("done");
 }
 
@@ -178,6 +177,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 	BtMachine *machine;
 	gulong i,j,number_of_ticks,pos=0;
 	gulong col_ct,number_of_global_params;
+	gint col_index;
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GType *store_types;
@@ -186,14 +186,10 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 	gchar *str;
 	GstDParam *dparam;
 	GParamSpec *pspec;
-#ifdef USE_GTKGRID
-  GtkGridColumn *grid_col;
-#endif
+  GtkTreeViewColumn *tree_col;
 
 	GST_INFO("refresh pattern table");
-#ifdef USE_GTKGRID
-	g_assert(GTK_IS_GRID(self->priv->pattern_table));
-#endif
+	g_assert(GTK_IS_TREE_VIEW	(self->priv->pattern_table));
 	
   // reset columns
 	pattern_table_clear(self);
@@ -236,42 +232,73 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 			}
 			pos++;
 		}
-#ifdef USE_GTKGRID
 		GST_DEBUG("    activating store: %p",store);
-		gtk_grid_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
-#endif
+		gtk_tree_view_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
 
   	// build view
 		GST_DEBUG("  build view");
 		// add initial columns
-#ifdef USE_GTKGRID
   	renderer=gtk_cell_renderer_text_new();
-  	g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
-  	grid_col=gtk_grid_column_new_with_attributes(_("Pos."),renderer,
+  	g_object_set(G_OBJECT(renderer),
+			"mode",GTK_CELL_RENDERER_MODE_INERT,
+			"xalign",1.0,
+			// workaround to make focus visible
+			"height",PATTERN_CELL_HEIGHT-4,
+			NULL);
+  	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
     	"text",PATTERN_TABLE_POS,
-    	NULL);
-		gtk_grid_append_column(self->priv->pattern_table,grid_col);
+    	NULL))
+		) {
+			g_object_set(tree_col,
+				"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+				"fixed-width",40,
+					NULL);
+			gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
+		}
+		else GST_WARNING("can't create treeview column");
 		for(j=0;j<number_of_global_params;j++) {
 			dparam=bt_machine_get_global_dparam(machine,j);
 			pspec=GST_DPARAM_PARAM_SPEC(dparam);
 	  	renderer=gtk_cell_renderer_text_new();
-	  	grid_col=gtk_grid_column_new_with_attributes(GST_DPARAM_NAME(dparam),renderer,
+			g_object_set(G_OBJECT(renderer),
+				"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+				"xalign",1.0,
+				NULL);
+	  	if((tree_col=gtk_tree_view_column_new_with_attributes(GST_DPARAM_NAME(dparam),renderer,
   	  	"text",PATTERN_TABLE_PRE_CT+j,
-    		NULL);
-			gtk_grid_append_column(self->priv->pattern_table,grid_col);
+    		NULL))
+			) {
+				g_object_set(tree_col,
+					"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+					"fixed-width",PATTERN_CELL_WIDTH,
+					NULL);
+				gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
+			}
+			else GST_WARNING("can't create treeview column");
 		}
+		// add a final column that eats remaining space
+		renderer=gtk_cell_renderer_text_new();
+		g_object_set(G_OBJECT(renderer),
+			"mode",GTK_CELL_RENDERER_MODE_INERT,
+			NULL);
+		if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
+			g_object_set(tree_col,
+				"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+				NULL);
+			col_index=gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
+			GST_DEBUG("    number of columns : %d",col_index);
+		}
+		else GST_WARNING("can't create treeview column");
+
 		GST_DEBUG("    created columns");
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),TRUE);
-#endif
 
 		GST_DEBUG("  done");
 		// release the references
 		g_object_unref(store); // drop with gridview
 	}
 	else {
-#ifdef USE_GTKGRID
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),FALSE);
-#endif
 	}
 }
 
@@ -359,6 +386,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkWidget *toolbar,*scrolled_window;
   GtkWidget *box,*menu,*button;
 	GtkCellRenderer *renderer;
+	GtkTreeSelection *tree_sel;
 	
 	GST_DEBUG("!!!! self=%p",self);
 	
@@ -419,17 +447,17 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   
 	
 	// @todo what about adding one control for global params and one for each voice, then these controls can be folded
-  // add list-view / grid-view for pattern
+  // add list-view for pattern
 	scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-#ifdef USE_GTKGRID
-  self->priv->pattern_table=GTK_GRID(gtk_grid_new());
-	//gtk_grid_set_rules_hint(self->priv->pattern_table,TRUE);
+  self->priv->pattern_table=GTK_TREE_VIEW(gtk_tree_view_new());
+	tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
+	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column
+	// we can set a gtk_tree_selection_set_select_function() to select ranges
+	gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
+	g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
-#else
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),gtk_label_new("pattern view use GtkGrid"));
-#endif
   gtk_container_add(GTK_CONTAINER(self),scrolled_window);
 
   // register event handlers

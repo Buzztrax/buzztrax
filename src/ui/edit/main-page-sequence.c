@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.64 2005-02-22 07:31:09 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.65 2005-03-05 19:12:56 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -212,7 +212,15 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 }
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
 	// @todo resize the tree-model
+	// get the machine by the menuitems name
+	// add a new track to the sequence (new method ?)
+	// g_object_set(sequence,"tracks",(glong)items_len+1,NULL);
+	// set the machinefor the new track
+	// reinit the view
+	// sequence_table_refresh(self,song);
 }
 
 //-- event handler helper
@@ -257,6 +265,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 		/*
 		"width",40-4,
 		*/
+		// workaround to make focus visible
 		"height",SEQUENCE_CELL_HEIGHT-4,
 		/*
 	  "xpad",SEQUENCE_CELL_XPAD,
@@ -272,7 +281,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
 			"fixed-width",40,
 			NULL);
-		gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+		gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
 	}
 	else GST_WARNING("can't create treeview column");
 		
@@ -298,7 +307,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
 			"fixed-width",80,
 			NULL);
-		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+		col_index=gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
 	}
 	else GST_WARNING("can't create treeview column");
 	
@@ -454,7 +463,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 				"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
 				"fixed-width",SEQUENCE_CELL_WIDTH,
 				NULL);
-			gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+			gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
     			
 			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
 		
@@ -481,7 +490,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 		g_object_set(tree_col,
 			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
 			NULL);
-		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+		col_index=gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
 		GST_DEBUG("    number of columns : %d",col_index);
 	}
 	else GST_WARNING("can't create treeview column");
