@@ -1,10 +1,7 @@
-## Makefile.am for src/lib/core
-
-#SUBDIRS = . libbtcore
+## Makefile.am for tests/lib/core
 
 lib_LTLIBRARIES = libbtcore.la
-libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS)
-libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
+libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS) $(top_builddir)/src/lib/core/libbtcore.la
 libbtcore_la_SOURCES = \
 	core.c \
 	network.c

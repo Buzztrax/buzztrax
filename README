@@ -1,4 +1,8 @@
-$Id: README,v 1.1 2004-04-15 16:02:50 ensonic Exp $
+$Id: README,v 1.2 2004-04-19 16:00:33 ensonic Exp $
+
+quickinfo
+  Please turn you browser to http://buzztard.sourceforge.net to learn what this
+	is all about.
 
 requirements
 	libxml2

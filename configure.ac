@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.3 2004-04-19 13:43:35 ensonic Exp $
+# $Id: configure.ac,v 1.4 2004-04-19 16:00:33 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -102,7 +102,7 @@ fi
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, glib-2.0 >= 2.2.0 gthread-2.0 >= 2.2.0 gmodule-2.0 >= 2.2.0 \
 	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
-	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 \
+	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 	)
 
 # Add additional libraries
@@ -132,7 +132,7 @@ AC_C_CONST
 BT_CFLAGS=""
 BT_LIBDIR='-L${libdir}'
 BT_LIBS="-lgitk -lm $LIBS"
-BT_INCLUDEDIR='-I${includedir}/libgitk -I${includedir}'
+BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
 
 # Substitutes
 
@@ -148,5 +148,10 @@ AC_CONFIG_FILES(Makefile \
 	src/lib/Makefile \
 	src/lib/core/Makefile \
 	src/lib/core/libbtcore/version.h \
+	src/ui/Makefile \
+	src/ui/cmd/Makefile \
+  tests/Makefile \
+	tests/lib/Makefile \
+	tests/lib/core/Makefile \
 )
 AC_OUTPUT
