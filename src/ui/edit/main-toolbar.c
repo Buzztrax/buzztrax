@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.35 2005-01-17 18:02:40 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.36 2005-01-19 18:22:34 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -200,6 +200,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		// determine number of channels    
 		pad=gst_element_get_pad(level,"sink");
 		caps=gst_pad_get_caps(pad);
+		// @todo add complex caps parsing
 		// check if it is simple caps (only one element)
 		if(GST_CAPS_IS_SIMPLE(caps)) {
 			structure=gst_caps_get_structure(caps,0);

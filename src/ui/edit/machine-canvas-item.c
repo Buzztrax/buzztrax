@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.36 2005-01-19 17:44:26 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.37 2005-01-19 18:22:24 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -630,14 +630,14 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x", mx1,
                            "y", my1,
                            NULL);
-	points->coords[0]=0.0;points->coords[1]=0.0;points->coords[2]=0.3*(mx2-mx1);points->coords[3]=0.3*(my2-my1);
+	points->coords[0]=0.0;points->coords[1]=0.3*(my2-my1);points->coords[2]=(mx2-mx1);points->coords[3]=0.3*(my2-my1);
 	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_bypass),
                            GNOME_TYPE_CANVAS_LINE,
                            "points", points,
                            "fill-color", "black",
                            "width-pixels", 1,
                            NULL);
-	points->coords[0]=0.0;points->coords[1]=0.0;points->coords[2]=0.7*(mx2-mx1);points->coords[3]=0.7*(my2-my1);
+	points->coords[0]=0.0;points->coords[1]=0.7*(my2-my1);points->coords[2]=(mx2-mx1);points->coords[3]=0.7*(my2-my1);
 	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->state_bypass),
                            GNOME_TYPE_CANVAS_LINE,
                            "points", points,
@@ -753,7 +753,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 						case GDK_MOD4_MASK:
 							g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_SOLO,NULL);
 							break;
-						case GDK_CONTROL_MASK|GDK_MOD1_MASK:
+						case GDK_CONTROL_MASK|GDK_MOD4_MASK:
 							g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_BYPASS,NULL);
 							break;
 					}
