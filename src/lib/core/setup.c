@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.57 2005-01-16 13:17:36 ensonic Exp $
+/* $Id: setup.c,v 1.58 2005-01-16 14:08:17 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -134,8 +134,8 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 		
 		// check for wires with equal src and dst machines 
 		g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
-		other_wire1=bt_setup_get_wire_by_machines(setup,src,dst);
-		other_wire2=bt_setup_get_wire_by_machines(setup,dst,src);
+		other_wire1=bt_setup_get_wire_by_machines(self,src,dst);
+		other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
 		if((!other_wire1) && (!other_wire2)) {
 	    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
 			g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
