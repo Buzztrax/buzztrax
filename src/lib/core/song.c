@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.52 2004-10-26 06:48:54 ensonic Exp $
+/* $Id: song.c,v 1.53 2004-10-26 11:09:47 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -63,7 +63,7 @@ BtSong *bt_song_new(const BtApplication *app) {
   BtSong *self=NULL;
   GstBin *bin;
 	
-  g_return_val_if_fail(!BT_IS_APPLICATION(app),NULL);
+  g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
   g_object_get(app,"bin",&bin,NULL);
   self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL));

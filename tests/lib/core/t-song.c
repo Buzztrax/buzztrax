@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.11 2004-10-26 07:55:57 ensonic Exp $
+/** $Id: t-song.c,v 1.12 2004-10-26 11:10:08 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -34,11 +34,10 @@ START_TEST(test_btsong_obj1) {
   GST_INFO("--------------------------------------------------------------------------------");
  
   /* create a new song */
-  __check_method="bt_song_new";//__check_test="BT_IS_APPLICATION(app)";
-  mark_point();
+  check_init_error_trapp("bt_song_new",NULL);
   song=bt_song_new(NULL);
   fail_unless(song == NULL, NULL);
-  fail_unless(__check_error_trapped == TRUE, NULL);
+  fail_unless(check_has_error_trapped(), NULL);
 }
 END_TEST
 
