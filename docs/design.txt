@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.4 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: design.txt,v 1.5 2004-01-29 17:28:26 ensonic Exp $ (-*- mode:outline -*-)
 ================================================================================
 
 ** architecture
@@ -23,10 +23,10 @@
 - QUESTION: is it sufficient to run the control-data callback after a full series
   of audio-cycles, or do we have to check inside the audio loop and trigger it
 	there (which would make it slow)
-	
-** playback
-- have a lock at alsaplayer to 'steal' its player code
-- instead of pushing decoded mp3 data into it, we run our plugin graph
+- audio callback
+	- run our machine-plugin graph
+- controldata callback
+		- set new machine parameters from patterndata
 
 ** network
 *** user plugins
