@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.6 2004-05-04 15:24:59 ensonic Exp $
+/** $Id: song.c,v 1.7 2004-05-04 15:27:17 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -21,8 +21,9 @@ struct _BtSongPrivate {
   gchar *name;
 	
 	/*
-	BtSetup *setup;
-	BtSequence *sequence;
+	BTSongInfo* song_info; 
+	BtSetup*    setup;
+	BtSequence* sequence;
 	*/
 };
 
