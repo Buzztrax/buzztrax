@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.16 2004-09-20 16:44:29 ensonic Exp $
+/* $Id: edit-application.c,v 1.17 2004-09-20 17:42:23 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -7,10 +7,21 @@
 
 #include "bt-edit.h"
 
+//-- signal ids
+
+enum {
+  SONG_CHANGED,
+  LAST_SIGNAL
+};
+
+//-- property ids
+
 enum {
   EDIT_APPLICATION_SONG=1,
   EDIT_APPLICATION_MAIN_WINDOW
 };
+
+static guint signals[LAST_SIGNAL]={0,};
 
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
@@ -85,7 +96,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   
   if(bt_edit_application_prepare_song(self)) {
     // emit signal that song has been changed
-    g_signal_emit(G_OBJECT(self),BT_EDIT_APPLICATION_GET_CLASS(self)->song_changed_signal_id,0);
+    g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);
     res=TRUE;
   }
   return(res);
@@ -122,7 +133,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->private->song)) {
         // emit signal that song has been changed
-        g_signal_emit(G_OBJECT(self),BT_EDIT_APPLICATION_GET_CLASS(self)->song_changed_signal_id,0);
+        g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);
         res=TRUE;
       }
       else {
@@ -269,6 +280,8 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   gobject_class->dispose      = bt_edit_application_dispose;
   gobject_class->finalize     = bt_edit_application_finalize;
 
+  klass->song_changed = NULL;
+
   /** 
 	 * BtEditApplication::song-changed:
    * @self: the application object that emitted the signal
@@ -276,10 +289,10 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
 	 * the song of the application has changed.
    * This happens after a load or new action
 	 */
-  klass->song_changed_signal_id = g_signal_newv("song-changed",
+  signals[SONG_CHANGED] = g_signal_newv("song-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0, // class offset
+                                        G_STRUCT_OFFSET(BtEditApplicationClass,song_changed),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.28 2004-09-20 16:51:41 ensonic Exp $
+/* $Id: sequence.c,v 1.29 2004-09-20 17:42:21 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -6,6 +6,15 @@
 #define BT_SEQUENCE_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  TICK,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
   SEQUENCE_SONG=1,
@@ -36,6 +45,8 @@ struct _BtSequencePrivate {
   GMutex *is_playing_mutex;
   gboolean is_playing;
 };
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- helper methods
 
@@ -309,7 +320,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
       GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
       // }
       // emit a tick signal
-      g_signal_emit(G_OBJECT(self), BT_SEQUENCE_GET_CLASS(self)->tick_signal_id, 0, i);
+      g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
       // enter new patterns into the playline and stop or mute patterns
       bt_timeline_update_playline(*timeline,playline);
       // play the patterns in the cursor
@@ -319,7 +330,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
     g_timer_destroy(timer);
     // }
     // emit a tick signal
-    g_signal_emit(G_OBJECT(self), BT_SEQUENCE_GET_CLASS(self)->tick_signal_id, 0, i);
+    g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
     if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
       GST_ERROR("can't stop playing");res=FALSE;
     }
@@ -452,6 +463,8 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
   gobject_class->dispose      = bt_sequence_dispose;
   gobject_class->finalize     = bt_sequence_finalize;
 
+  klass->tick = NULL;
+  
   /** 
 	 * BtSequence::tick:
    * @self: the sequence object that emitted the signal
@@ -460,10 +473,10 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
 	 * This sequence has reached a new play position (with the number of ticks
    * determined by the bars-property) during playback
 	 */
-  klass->tick_signal_id = g_signal_new("tick",
+  signals[TICK] = g_signal_new("tick",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0, // class offset
+                                        G_STRUCT_OFFSET(BtSequenceClass,tick),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__LONG,
