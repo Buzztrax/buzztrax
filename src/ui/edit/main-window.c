@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.43 2004-12-18 13:31:43 ensonic Exp $
+/* $Id: main-window.c,v 1.44 2005-01-06 22:12:03 ensonic Exp $
  * class for the editor main window
  */
 
@@ -85,13 +85,13 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
-  GdkPixbuf *main_icon;
+  GdkPixbuf *window_icon;
   
   self->priv->accel_group=gtk_accel_group_new();
   
   // create and set window icon
-  if((main_icon=gdk_pixbuf_new_from_filename("buzztard.png"))) {
-    gtk_window_set_icon(GTK_WINDOW(self),main_icon);
+  if((window_icon=gdk_pixbuf_new_from_filename("buzztard.png"))) {
+    gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   

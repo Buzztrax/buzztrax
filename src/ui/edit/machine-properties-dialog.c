@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.2 2004-12-29 12:08:04 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.3 2005-01-06 22:12:03 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -34,11 +34,25 @@ static GtkDialogClass *parent_class=NULL;
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   GtkWidget *box,*table,*scrolled_window;
 	gchar *id;
-	
+	GdkPixbuf *window_icon=NULL;
+
+  // create and set window icon
+	if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
+		window_icon=gdk_pixbuf_new_from_filename("menu_source_machine.png");
+	}
+	else if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
+		window_icon=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
+  }
+  else if(BT_IS_SINK_MACHINE(self->priv->machine)) {
+		window_icon=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
+  }
+  if(window_icon) {
+    gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+  }
   
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 	g_object_get(self->priv->machine,"id",&id,NULL);
-  gtk_window_set_title(GTK_WINDOW(self),g_strdup_printf(_("%s settings"),id));
+  gtk_window_set_title(GTK_WINDOW(self),g_strdup_printf(_("%s properties"),id));
 	g_free(id);
   
   // add dialog commision widgets (okay, cancel)

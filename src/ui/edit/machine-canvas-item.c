@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.26 2005-01-06 20:00:13 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.27 2005-01-06 22:12:03 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -48,8 +48,9 @@ struct _BtMachineCanvasItemPrivate {
   /* machine context_menu */
   GtkMenu *context_menu;
 
-	/* the parameter dialog */
+	/* the properties and preferences dialogs */
 	GtkWidget *properties_dialog;
+	GtkWidget *preferences_dialog;
 
 	/* the label element */
 	GnomeCanvasItem *label;
@@ -77,6 +78,15 @@ static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer use
   self->priv->properties_dialog=NULL;
 }
 
+static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("machine preferences dialog destroy occurred");
+  self->priv->preferences_dialog=NULL;
+}
+
 static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   
@@ -93,7 +103,12 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   
   g_assert(user_data);
-	//if(!self->priv->attributes_dialog) { }
+
+	if(!self->priv->preferences_dialog) {
+		self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->app,self->priv->machine));
+		gtk_widget_show_all(self->priv->preferences_dialog);
+		g_signal_connect(G_OBJECT(self->priv->preferences_dialog),"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+	}
 }
 
 static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {

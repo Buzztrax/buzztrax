@@ -1,5 +1,5 @@
-/* $Id: machine-properties-dialog.h,v 1.1 2004-12-18 14:44:27 ensonic Exp $
- * class for the machine settings dialog
+/* $Id: machine-properties-dialog.h,v 1.2 2005-01-06 22:12:03 ensonic Exp $
+ * class for the machine properties dialog
  */
 
 #ifndef BT_MACHINE_PROPERTIES_DIALOG_H
