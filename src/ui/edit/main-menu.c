@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.3 2004-08-12 14:34:20 ensonic Exp $
+/* $Id: main-menu.c,v 1.4 2004-08-13 18:58:11 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -25,7 +25,7 @@ struct _BtMainMenuPrivate {
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
   BtMainMenu *self=BT_MAIN_MENU(data);
   GST_INFO("menu quit event occurred\n");
-  if(bt_main_window_check_quit(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main window")))) {
+  if(bt_main_window_check_quit(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")))) {
     gtk_main_quit();
   }
 }
@@ -33,13 +33,13 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
 static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer data) {
   BtMainMenu *self=BT_MAIN_MENU(data);
   GST_INFO("menu new event occurred\n");
-  bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main window")));
+  bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
 static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer data) {
   BtMainMenu *self=BT_MAIN_MENU(data);
   GST_INFO("menu open event occurred\n");
-  bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main window")));
+  bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
 //-- helper methods

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.10 2004-08-12 14:34:20 ensonic Exp $
+/* $Id: main-window.c,v 1.11 2004-08-13 18:58:11 ensonic Exp $
  * class for the editor main window
  */
 
@@ -57,12 +57,26 @@ static void destroy(GtkWidget *widget, gpointer data) {
   gtk_main_quit();
 }
 
+static void song_changed_event(const BtEditApplication *app, gpointer user_data) {
+  BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+  static gchar *title;
+  BtSong *song;
+
+  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+
+  //main_window_refresh_ui(main_window);
+
+  // get song from app
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(app),"song"));
+  // compose title
+  title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
+  gtk_window_set_title(GTK_WINDOW(self), title);
+}
+
 //-- helper methods
 
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
-  GtkWidget *notebook;
-  GtkWidget *statusbar;
   
   self->private->accel_group=gtk_accel_group_new();
   
@@ -73,6 +87,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self),box);
 
+ 
   // add the menu-bar
   self->private->menu=bt_main_menu_new(self->private->app,self->private->accel_group);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->menu),FALSE,FALSE,0);
@@ -86,18 +101,11 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   self->private->statusbar=bt_main_statusbar_new(self->private->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->statusbar),FALSE,FALSE,0);
 
-  bt_main_window_refresh_ui(self);
+  g_signal_connect(G_OBJECT(self->private->app), "song-changed", (GCallback)song_changed_event, (gpointer)self);
+  
+  //bt_main_window_refresh_ui(self);
 
   return(TRUE);
-}
-
-static void bt_main_window_run_ui(const BtMainWindow *self) {
-  GST_INFO("show UI and start main-loop\n");
-  gtk_widget_show_all(GTK_WIDGET(self));
-  gtk_main();
-}
-
-static void bt_main_window_run_done(const BtMainWindow *self) {
 }
 
 //-- constructor methods
@@ -120,6 +128,7 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   if(!bt_main_window_init_ui(self)) {
     goto Error;
   }
+  gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
   if(self) g_object_unref(self);
@@ -129,20 +138,17 @@ Error:
 //-- methods
 
 /**
- * bt_main_window_show_and_run:
+ * bt_main_window_run:
  * @self: the window instance to setup and run
  *
  * build, show and run the main window
  *
  * Returns: true for success
  */
-gboolean bt_main_window_show_and_run(const BtMainWindow *self) {
+gboolean bt_main_window_run(const BtMainWindow *self) {
   gboolean res=TRUE;
   GST_INFO("before running the UI\n");
-  // run UI loop
-  bt_main_window_run_ui(self);
-  // shut down UI
-  bt_main_window_run_done(self);
+  gtk_main();
   GST_INFO("after running the UI\n");
   return(res);
 }
@@ -201,7 +207,10 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
 void bt_main_window_new_song(const BtMainWindow *self) {
   // @todo if unsaved ask the use, if we should save the song
   if(bt_edit_application_new_song(self->private->app)) {
-    bt_main_window_refresh_ui(self);
+    //bt_main_window_refresh_ui(self);
+  }
+  else {
+    // @todo show error message
   }
 }
 
@@ -225,7 +234,10 @@ void bt_main_window_open_song(const BtMainWindow *self) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
       if(bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)))) {
-        bt_main_window_refresh_ui(self);
+        //bt_main_window_refresh_ui(self);
+      }
+      else {
+        // @todo show error message
       }
       break;
     case GTK_RESPONSE_REJECT:

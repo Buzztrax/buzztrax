@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.21 2004-08-12 13:53:30 waffel Exp $
+/* $Id: cmd-application.c,v 1.22 2004-08-13 18:58:10 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -22,8 +22,8 @@ struct _BtCmdApplicationPrivate {
  *
  * signal callback funktion
  */
-static void play_event(void) {
-  GST_INFO("start play invoked per signal\n");
+static void play_event(const BtSong *song, gpointer user_data) {
+  GST_INFO("start play invoked per signal : song=%p, user_data=%p\n",song,user_data);
 }
 
 //-- constructor methods
@@ -75,7 +75,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 	
 	if(bt_song_io_load(loader,song)) {
     /* connection play signal and invoking the play_event function */
-		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);
+		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, (gpointer)self);
 		bt_song_play(song);
 	}
 	else {

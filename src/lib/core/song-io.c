@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.9 2004-08-12 13:53:29 waffel Exp $
+/* $Id: song-io.c,v 1.10 2004-08-13 18:58:10 ensonic Exp $
  * base class for song input and output
  */
  
@@ -148,7 +148,7 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
 	klass->load       = bt_song_io_real_load;
 	
 	g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
-                                  g_param_spec_string("file name",
+                                  g_param_spec_string("file-name",
                                      "filename prop",
                                      "filename for load save actions",
                                      NULL, /* default value */

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.7 2004-08-07 23:29:02 ensonic Exp $
+/* $Id: sink-machine.c,v 1.8 2004-08-13 18:58:10 ensonic Exp $
  * class for a sink machine
  */
  
@@ -30,7 +30,7 @@ extern gboolean bt_machine_init_gst_element(BtMachine *self);
  */
 BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name) {
   BtSinkMachine *self;
-  self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL));
+  self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL));
   
   bt_machine_init_gst_element(BT_MACHINE(self));
   return(self);

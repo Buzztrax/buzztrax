@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.2 2004-08-12 14:34:20 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.3 2004-08-13 18:58:11 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -25,21 +25,20 @@ struct _BtMainToolbarPrivate {
 static void on_toolbar_new_clicked(GtkButton *button, gpointer data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(data);
   GST_INFO("toolbar new event occurred\n");
-  bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main window")));
+  bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
 static void on_toolbar_open_clicked(GtkButton *button, gpointer data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(data);
   GST_INFO("toolbar open event occurred\n");
-  bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main window")));
+  bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
 //-- helper methods
 
 static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *toolbar;
-  GtkWidget *icon;
-  GtkWidget *button;
+  GtkWidget *icon,*button,*vseparator;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("handlebox for toolbar"));
 
@@ -79,6 +78,10 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Save"));
+
+  vseparator=gtk_vseparator_new();
+  gtk_widget_set_name(vseparator, "vseparator");
+  gtk_toolbar_append_widget(GTK_TOOLBAR(toolbar),vseparator,NULL,NULL);
 
   return(TRUE);
 }

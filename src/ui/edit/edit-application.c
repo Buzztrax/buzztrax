@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.9 2004-08-12 13:53:30 waffel Exp $
+/* $Id: edit-application.c,v 1.10 2004-08-13 18:58:11 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -27,14 +27,22 @@ struct _BtEditApplicationPrivate {
 
 //-- helper methods
 
-static gboolean bt_edit_application_ui(const BtEditApplication *self) {
+gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
   gboolean res=FALSE;
-  self->private->main_window=bt_main_window_new(self);
   
-  if(self->private->main_window) {
-    res=bt_main_window_show_and_run(self->private->main_window);
+  if(self->private->song) {
+    g_object_unref(G_OBJECT(self->private->song));
+  }
+  if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
+    res=TRUE;
   }
   return(res);
+}
+
+static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
+  g_assert(self->private->main_window);
+  
+  return(bt_main_window_run(self->private->main_window));
 }
 
 //-- constructor methods
@@ -50,6 +58,7 @@ BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
   self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL));
   
+  self->private->main_window=bt_main_window_new(self);
   return(self);
 }
 
@@ -67,10 +76,9 @@ BtEditApplication *bt_edit_application_new(void) {
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   
-  if(self->private->song) {
-    g_object_unref(G_OBJECT(self->private->song));
-  }
-  if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
+  if(bt_edit_application_prepare_song(self)) {
+    // emit signal that song has been changed
+    g_signal_emit(G_OBJECT(self),BT_EDIT_APPLICATION_GET_CLASS(self)->song_changed_signal_id,0);
     res=TRUE;
   }
   return(res);
@@ -90,12 +98,14 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 
   GST_INFO("new song name = %s\n",file_name);
 
-  if(bt_edit_application_new_song(self)) {
+  if(bt_edit_application_prepare_song(self)) {
     BtSongIO *loader=bt_song_io_new(file_name);
 
     if(loader) {    
       if(bt_song_io_load(loader,self->private->song)) {
-        res=TRUE;
+        // emit signal that song has been changed
+        g_signal_emit(G_OBJECT(self),BT_EDIT_APPLICATION_GET_CLASS(self)->song_changed_signal_id,0);
+         res=TRUE;
       }
       else {
         GST_ERROR("could not load song \"%s\"",file_name);
@@ -120,8 +130,8 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 
 	GST_INFO("application.play launched");
 
-	if(bt_edit_application_new_song(self)) {
-    res=bt_edit_application_ui(self);
+  if(bt_edit_application_new_song(self)) {
+    res=bt_edit_application_run_ui(self);
   }
 	return(res);
 }
@@ -141,7 +151,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 	GST_INFO("application.info launched");
 
   if(bt_edit_application_load_song(self,input_file_name)) {
-    res=bt_edit_application_ui(self);
+    res=bt_edit_application_run_ui(self);
   }
 	return(res);
 }
@@ -220,6 +230,24 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   gobject_class->dispose      = bt_edit_application_dispose;
   gobject_class->finalize     = bt_edit_application_finalize;
 
+  /** 
+	 * BtEditApplication::song-changed:
+   * @self: the application object that emitted the signal
+	 *
+	 * the song of the application has changed.
+   * This happens after a load or new action
+	 */
+  klass->song_changed_signal_id = g_signal_newv("song-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        NULL, // class closure
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0, // n_params
+                                        NULL /* param data */ );
+
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_SONG,
 																	g_param_spec_object("song",
                                      "song construct prop",
@@ -228,7 +256,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_MAIN_WINDOW,
-																	g_param_spec_object("main window",
+																	g_param_spec_object("main-window",
                                      "main window prop",
                                      "the main window of this application",
                                      BT_TYPE_MAIN_WINDOW, /* object type */

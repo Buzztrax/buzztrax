@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.14 2004-08-09 16:42:50 ensonic Exp $
+/* $Id: song-info.c,v 1.15 2004-08-13 18:58:10 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -11,6 +11,7 @@ enum {
   SONG_INFO_SONG=1,
 	SONG_INFO_INFO,
 	SONG_INFO_NAME,
+	SONG_INFO_GENRE,
   SONG_INFO_BPM,
   SONG_INFO_TPB,
   SONG_INFO_BARS
@@ -27,6 +28,8 @@ struct _BtSongInfoPrivate {
   gchar *info;
   /* the name of the tune */
   gchar *name;
+  /* the genre of the tune */
+  gchar *genre;
   /* how many beats should be played in a minute */
   glong beats_per_minute;
   /* how many event fire in one fraction of a beat */
@@ -76,6 +79,9 @@ static void bt_song_info_get_property(GObject      *object,
     case SONG_INFO_NAME: {
       g_value_set_string(value, self->private->name);
     } break;
+    case SONG_INFO_GENRE: {
+      g_value_set_string(value, self->private->genre);
+    } break;
     case SONG_INFO_BPM: {
       g_value_set_long(value, self->private->beats_per_minute);
     } break;
@@ -115,6 +121,11 @@ static void bt_song_info_set_property(GObject      *object,
       self->private->name = g_value_dup_string(value);
       GST_DEBUG("set the name for song_info: %s",self->private->name);
     } break;
+    case SONG_INFO_GENRE: {
+      g_free(self->private->genre);
+      self->private->genre = g_value_dup_string(value);
+      GST_DEBUG("set the genre for song_info: %s",self->private->genre);
+    } break;
     case SONG_INFO_BPM: {
       self->private->beats_per_minute = g_value_get_long(value);
       GST_DEBUG("set the bpm for song_info: %d",self->private->beats_per_minute);
@@ -146,6 +157,7 @@ static void bt_song_info_finalize(GObject *object) {
 	g_object_unref(G_OBJECT(self->private->song));
 	g_free(self->private->info);
 	g_free(self->private->name);
+	g_free(self->private->genre);
   g_free(self->private);
 }
 
@@ -189,6 +201,13 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      "name prop",
                                      "songs name",
                                      "unnamed", /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_INFO_GENRE,
+                                  g_param_spec_string("genre",
+                                     "genre prop",
+                                     "songs genre",
+                                     NULL, /* default value */
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SONG_INFO_BPM,

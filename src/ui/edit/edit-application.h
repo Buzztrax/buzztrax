@@ -1,4 +1,4 @@
-/* $Id: edit-application.h,v 1.2 2004-08-06 19:42:45 ensonic Exp $
+/* $Id: edit-application.h,v 1.3 2004-08-13 18:58:11 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
 
@@ -40,7 +40,8 @@ struct _BtEditApplication {
 /* structure of the edit-application class */
 struct _BtEditApplicationClass {
   BtApplicationClass parent;
-  
+
+   guint song_changed_signal_id; 
 };
 
 /* used by EDIT_APPLICATION_TYPE */

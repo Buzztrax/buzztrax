@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.7 2004-08-12 14:34:20 ensonic Exp $
+/* $Id: bt-edit.h,v 1.8 2004-08-13 18:58:11 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -13,6 +13,7 @@
 #include "main-menu-methods.h"
 #include "main-toolbar-methods.h"
 #include "main-pages-methods.h"
+#include "main-page-info-methods.h"
 #include "main-statusbar-methods.h"
 #include "main-window-methods.h"
 #include "edit-application-methods.h"

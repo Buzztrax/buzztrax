@@ -1,4 +1,4 @@
-/* $Id: main-window-methods.h,v 1.3 2004-08-11 15:50:04 ensonic Exp $
+/* $Id: main-window-methods.h,v 1.4 2004-08-13 18:58:11 ensonic Exp $
  * defines all public methods of the main window class
  */
 
@@ -10,7 +10,7 @@
 
 extern BtMainWindow *bt_main_window_new(const BtEditApplication *app);
 
-extern gboolean bt_main_window_show_and_run(const BtMainWindow *self);
+extern gboolean bt_main_window_run(const BtMainWindow *self);
 
 extern gboolean bt_main_window_check_quit(const BtMainWindow *self);
 extern void bt_main_window_new_song(const BtMainWindow *self);

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.35 2004-08-12 14:47:40 waffel Exp $
+/* $Id: song.c,v 1.36 2004-08-13 18:58:10 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -60,7 +60,7 @@ BtSong *bt_song_new(const GstBin *bin) {
  *
  */
 gboolean bt_song_play(const BtSong *self) {
-  // emitting signal if we start play
+  // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), 
                 BT_SONG_GET_CLASS(self)->play_signal_id,
                 0);
@@ -232,12 +232,12 @@ static void bt_song_class_init(BtSongClass *klass) {
   
   /** 
 	 * BtSong::play:
+   * @self: the song object that emitted the signal
 	 *
 	 * signals that this song has started to play
-	 * @todo give the play signal the self pointer, thus the user can find out, which song has start play
 	 */
   klass->play_signal_id = g_signal_newv("play",
-                                        G_TYPE_FROM_CLASS (gobject_class),
+                                        G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
                                         NULL, // class closure
                                         NULL, // accumulator

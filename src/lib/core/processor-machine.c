@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.8 2004-08-07 23:29:02 ensonic Exp $
+/* $Id: processor-machine.c,v 1.9 2004-08-13 18:58:10 ensonic Exp $
  * class for a processor machine
  */
 
@@ -31,7 +31,7 @@ extern gboolean bt_machine_init_gst_element(BtMachine *self);
  */
 BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
   BtProcessorMachine *self;
-  self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL));
+  self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
   
   bt_machine_init_gst_element(BT_MACHINE(self));
   return(self);
