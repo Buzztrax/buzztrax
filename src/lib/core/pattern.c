@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.16 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: pattern.c,v 1.17 2004-10-13 16:05:14 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -449,7 +449,6 @@ static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_pattern_class_init(BtPatternClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_pattern_set_property;
   gobject_class->get_property = bt_pattern_get_property;

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.31 2004-10-12 17:41:02 ensonic Exp $
+/* $Id: edit-application.c,v 1.32 2004-10-13 16:05:15 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -314,7 +314,6 @@ static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) 
 
 static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(BT_TYPE_APPLICATION);
 

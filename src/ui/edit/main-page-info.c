@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.12 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-page-info.c,v 1.13 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -203,7 +203,6 @@ static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
   

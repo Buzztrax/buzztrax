@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.29 2004-10-12 17:41:02 ensonic Exp $
+/* $Id: main-window.c,v 1.30 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main window
  */
 
@@ -346,7 +346,6 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_window_class_init(BtMainWindowClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_WINDOW);
   

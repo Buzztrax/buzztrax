@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.36 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: sequence.c,v 1.37 2004-10-13 16:05:14 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -478,7 +478,6 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_sequence_class_init(BtSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;

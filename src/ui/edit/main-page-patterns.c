@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.14 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.15 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -301,7 +301,6 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
     

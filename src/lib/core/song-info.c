@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.24 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: song-info.c,v 1.25 2004-10-13 16:05:14 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -183,8 +183,7 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
-  
+
   gobject_class->set_property = bt_song_info_set_property;
   gobject_class->get_property = bt_song_info_get_property;
   gobject_class->dispose      = bt_song_info_dispose;

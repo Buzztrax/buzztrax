@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.12 2004-10-11 16:19:15 ensonic Exp $
+/* $Id: bt-edit.h,v 1.13 2004-10-13 16:05:15 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -12,18 +12,19 @@
 //-- libgnomecanvas
 #include <libgnomecanvas/libgnomecanvas.h>
 
-#include "tools.h"
-#include "settings-dialog.h"
+#include "edit-application-methods.h"
+#include "machine-canvas-item.h"
 #include "main-menu-methods.h"
-#include "main-toolbar-methods.h"
 #include "main-pages-methods.h"
 #include "main-page-machines-methods.h"
 #include "main-page-patterns-methods.h"
 #include "main-page-sequence-methods.h"
 #include "main-page-info-methods.h"
 #include "main-statusbar-methods.h"
+#include "main-toolbar-methods.h"
 #include "main-window-methods.h"
-#include "edit-application-methods.h"
+#include "settings-dialog-methods.h"
+#include "tools.h"
 
 //-- misc
 #ifndef GST_CAT_DEFAULT

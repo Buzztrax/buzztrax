@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.9 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-pages.c,v 1.10 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -194,7 +194,6 @@ static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_pages_class_init(BtMainPagesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_NOTEBOOK);
 

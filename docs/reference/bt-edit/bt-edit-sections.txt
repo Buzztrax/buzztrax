@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.1 2004-09-25 13:40:07 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.2 2004-10-13 16:05:07 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -29,6 +29,22 @@ BT_TYPE_EDIT_APPLICATION
 <SUBSECTION Private>
 bt_edit_application_get_type
 BtEditApplicationPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmachinecanvasitem</FILE>
+<TITLE>BtMachineCanvasItem</TITLE>
+BtMachineCanvasItem
+<SUBSECTION Standard>
+BtMachineCanvasItemClass
+BT_MACHINE_CANVAS_ITEM
+BT_IS_MACHINE_CANVAS_ITEM
+BT_MACHINE_CANVAS_ITEM_CLASS
+BT_IS_MACHINE_CANVAS_ITEM_CLASS
+BT_TYPE_MACHINE_CANVAS_ITEM
+<SUBSECTION Private>
+bt_machine_canvas_item_get_type
+BtMachineCanvasItemPrivate
 </SECTION>
 
 <SECTION>
@@ -197,5 +213,22 @@ BT_TYPE_MAIN_STATUSBAR
 <SUBSECTION Private>
 bt_main_statusbar_get_type
 BtMainStatusbarPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsettingsdialog</FILE>
+<TITLE>BtSettingsDialog</TITLE>
+BtSettingsDialog
+bt_settings_dialog_new
+<SUBSECTION Standard>
+BtSettingsDialogClass
+BT_SETTINGS_DIALOG
+BT_IS_SETTINGS_DIALOG
+BT_SETTINGS_DIALOG_CLASS
+BT_IS_SETTINGS_DIALOG_CLASS
+BT_TYPE_SETTINGS_DIALOG
+<SUBSECTION Private>
+bt_settings_dialog_get_type
+BtSettingsDialogPrivate
 </SECTION>
 

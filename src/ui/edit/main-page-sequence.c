@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.20 2004-10-11 16:19:15 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.21 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -555,7 +555,6 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.40 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: machine.c,v 1.41 2004-10-13 16:05:14 ensonic Exp $
  * base class for a machine
  */
  
@@ -510,7 +510,6 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_machine_class_init(BtMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_machine_set_property;
   gobject_class->get_property = bt_machine_get_property;

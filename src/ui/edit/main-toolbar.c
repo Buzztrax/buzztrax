@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.17 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.18 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -298,7 +298,6 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_HANDLE_BOX);
   

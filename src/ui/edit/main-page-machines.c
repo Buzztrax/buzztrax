@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.18 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.19 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -35,52 +35,7 @@ static GtkVBoxClass *parent_class=NULL;
 
 //-- graphics helpers
 
-// @todo this needs more parameters
-/**
- * bt_main_page_machines_draw_machine:
- * @self: the machine-view page to draw
- *
- * draw something that looks a bit like a buzz-machine
- */
-static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self, gdouble pos_x, gdouble pos_y, guint bg_color, gchar *name) {
-  GnomeCanvasItem *item;
-  GnomeCanvasGroup *group;
-  gdouble w=25.0,h=15.0;
-
-  GST_INFO("  draw machine \"%s\" at %lf,%lf",name,pos_x,pos_y);
-  
-  group=GNOME_CANVAS_GROUP(gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           GNOME_TYPE_CANVAS_GROUP,
-                           "x", pos_x-(w/2.0),
-                           "y", pos_y-(h/2.0),
-                           NULL));
-
-  // add machine visualisation components
-  item=gnome_canvas_item_new(group,
-                           GNOME_TYPE_CANVAS_RECT,
-                           "x1", 0.0,
-                           "y1", 0.0,
-                           "x2", w,
-                           "y2", h,
-                           "fill-color-rgba", bg_color,
-                           /*"fill-color", "gray",*/
-                           "outline_color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  item=gnome_canvas_item_new(group,
-                           GNOME_TYPE_CANVAS_TEXT,
-                           "x", (w/2.0),
-                           "y", 4.0,
-                           "justification", GTK_JUSTIFY_CENTER,
-                           "size-points", 10.0,
-                           "size-set", TRUE,
-                           "text", name,
-                           "fill-color", "black",
-                           NULL);
-                           
-  // @todo connect the event signal to on_machine_event()
-}
-
+// @todo make another canvas item
 static void bt_main_page_machines_draw_wire(const BtMainPageMachines *self, gdouble pos_xs, gdouble pos_ys,gdouble pos_xe, gdouble pos_ye) {
   GnomeCanvasItem *item;
   GnomeCanvasPoints *points;
@@ -137,10 +92,9 @@ static void machine_view_get_machine_position(GHashTable *properties, gdouble *p
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   gpointer iter;
   GHashTable *properties;
+  GnomeCanvasItem *item;
   BtMachine *machine;
   BtWire *wire;
-  char *id,*prop;
-  guint bg_color=0xFFFFFFFF;
   gdouble pos_x,pos_y;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GList *items;
@@ -187,21 +141,16 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   while(iter) {
     machine=bt_setup_machine_iterator_get_machine(iter);
     // get position, name and machine type
-    g_object_get(machine,"properties",&properties,"id",&id,NULL);
+    g_object_get(machine,"properties",&properties,NULL);
     GST_DEBUG("machine is %p",machine);
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
-    if(BT_IS_SOURCE_MACHINE(machine)) {
-      bg_color=0xFFAFAFFF;
-    }
-    if(BT_IS_PROCESSOR_MACHINE(machine)) {
-      bg_color=0xAFFFAFFF;
-    }
-    if(BT_IS_SINK_MACHINE(machine)) {
-      bg_color=0xAFAFFFFF;
-    }
     // draw machine
-    bt_main_page_machines_draw_machine(self,pos_x,pos_y,bg_color,id);
-    g_free(id);
+    item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           BT_TYPE_MACHINE_CANVAS_ITEM,
+                           "machine", machine,
+                           "x", pos_x,
+                           "y", pos_y,
+                           NULL);
     iter=bt_setup_machine_iterator_next(iter);
   }
 }
@@ -243,64 +192,6 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   self->priv->zoom/=1.75;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-}
-
-static gboolean on_machine_event(GnomeCanvasItem *citem, GdkEvent *event) {
-  gdouble dx, dy;
-  GdkCursor *fleur;
-
-  switch (event->type) {
-    case GDK_BUTTON_PRESS:
-      if(event->button.button == 1) {
-        /*
-        g_object_set (citem->canvas, "selection", element, NULL);
-
-        if(element->moveable) {
-          // dragxy coords are world coords of button press
-          element->dragx = event->button.x;
-          element->dragy = event->button.y;
-          // set some flags
-          element->dragging = TRUE;
-          element->moved = FALSE;
-          fleur=gdk_cursor_new(GDK_FLEUR);
-          gnome_canvas_item_grab (citem, GDK_POINTER_MOTION_MASK |
-//                             GDK_ENTER_NOTIFY_MASK |
-//                             GDK_LEAVE_NOTIFY_MASK |
-              GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
-        }
-*/
-        return TRUE;
-      }
-      break;
-    case GDK_MOTION_NOTIFY:
-      /*
-      if(element->dragging) {
-        dx = event->button.x - element->dragx;
-        dy = event->button.y - element->dragy;
-        gst_editor_element_move (element, dx, dy);
-        element->dragx = event->button.x;
-        element->dragy = event->button.y;
-        element->moved = TRUE;
-      }
-      */
-      return TRUE;
-    case GDK_BUTTON_RELEASE:
-      /*
-      if(element->dragging) {
-        element->dragging = FALSE;
-        gnome_canvas_item_ungrab(citem, event->button.time);
-        return TRUE;
-      }
-      */
-      break;
-    default:
-      break;
-  }
-  /*
-  if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) 
-    return GNOME_CANVAS_ITEM_CLASS(parent_class)->event(citem, event);
-  */
-  return FALSE;
 }
 
 //-- helper methods
@@ -477,7 +368,6 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
   

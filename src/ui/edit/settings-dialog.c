@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.3 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.4 2004-10-13 16:05:15 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -273,7 +273,6 @@ static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
   

@@ -4,6 +4,7 @@
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
+<!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtMainMenu SYSTEM "xml/btmainmenu.xml">
 <!ENTITY BtMainToolbar SYSTEM "xml/btmaintoolbar.xml">
@@ -13,6 +14,7 @@
 <!ENTITY BtMainPageSequence SYSTEM "xml/btmainpagesequence.xml">
 <!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
 <!ENTITY BtMainStatusbar SYSTEM "xml/btmainstatusbar.xml">
+<!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
 ]>
@@ -40,6 +42,7 @@
       The classes described in this chapter are all part of end user application code.
     </para>
     &BtEditApplication;
+    &BtMachineCanvasItem;
     &BtMainWindow;
     &BtMainMenu;
     &BtMainToolbar;
@@ -49,6 +52,7 @@
     &BtMainPageSequence;
     &BtMainPageInfo;
     &BtMainStatusbar;
+    &BtSettingsDialog;
   </chapter>
 
 	<chapter id="objecttree">
