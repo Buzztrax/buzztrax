@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.13 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: song.c,v 1.14 2004-05-07 11:46:57 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -45,6 +45,14 @@ void bt_song_start_play(const BtSong *self) {
 
 BtSongInfo *bt_song_get_song_info(const BtSong *self) {
 	return(self->private->song_info);
+}
+
+BtSetup *bt_song_get_setup(const BtSong *self) {
+	return(self->private->setup);
+}
+
+BtSequence *bt_song_get_sequence(const BtSong *self) {
+	return(self->private->sequence);
 }
 
 //-- class internals

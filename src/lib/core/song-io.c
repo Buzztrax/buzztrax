@@ -1,4 +1,4 @@
-/** $Id: song-io.c,v 1.1 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: song-io.c,v 1.2 2004-05-07 11:46:57 ensonic Exp $
  * base class for song input and output
  */
  
@@ -25,14 +25,14 @@ GType bt_song_io_detect(const gchar *filename) {
 
 //-- methods
 
-gboolean bt_song_io_real_load(const BtSongIO *self, const BtSong *song, const gchar *filename) {
+gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song, const gchar *filename) {
 	GST_ERROR("virtual method bt_song_io_real_load(self,song,\"%s\") called",filename);
 	return(FALSE);	// this is a base class that can't load anything
 }
 
 //-- wrapper
 
-gboolean bt_song_io_load(const BtSongIO *self, const BtSong *song, const gchar *filename) {
+gboolean bt_song_io_load(const gpointer self, const BtSong *song, const gchar *filename) {
 	return(BT_SONG_IO_GET_CLASS(self)->load(self,song,filename));
 }
 

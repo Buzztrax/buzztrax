@@ -1,4 +1,4 @@
-/** $Id: song-io.h,v 1.1 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: song-io.h,v 1.2 2004-05-07 11:46:57 ensonic Exp $
  * base class for song input and output
  */
 
@@ -32,7 +32,8 @@ struct _BtSongIOClass {
   GObjectClass parent;
   
   /* class methods */
-	gboolean (*load)(const BtSongIO *self, const BtSong *song, const gchar *filename);
+	gboolean (*load)(const gpointer self, const BtSong *song, const gchar *filename);
+	
 };
 
 /* used by SONG_IO_TYPE */

@@ -1,4 +1,4 @@
-/* $Id: song-io-methods.h,v 1.1 2004-05-06 18:26:58 ensonic Exp $
+/* $Id: song-io-methods.h,v 1.2 2004-05-07 11:46:57 ensonic Exp $
 * defines all public methods of the song-io base class
 */
 
@@ -14,6 +14,6 @@ GType bt_song_io_detect(const gchar *filename);
 
 /** load the song from a file
  */
-gboolean bt_song_io_load(const BtSongIO *self, const BtSong *song, const gchar *filename);
+gboolean bt_song_io_load(const gpointer self, const BtSong *song, const gchar *filename);
 
 #endif // BT_SONG_IO_METHDOS_H

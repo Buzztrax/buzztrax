@@ -1,4 +1,4 @@
-/** $Id: song-io-native.h,v 1.1 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: song-io-native.h,v 1.2 2004-05-07 11:46:57 ensonic Exp $
  * class for native song input and output
  */
 
@@ -30,7 +30,12 @@ struct _BtSongIONative {
 /* structure of the song_io class */
 struct _BtSongIONativeClass {
   BtSongIOClass parent;
-  
+
+	/* class data */
+	xmlXPathCompExprPtr xpath_get_meta;
+	xmlXPathCompExprPtr xpath_get_setup;
+	xmlXPathCompExprPtr xpath_get_patterns;
+	xmlXPathCompExprPtr xpath_get_sequence;
 };
 
 /* used by SONG_IO_NATIVE_TYPE */

@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.13 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: core.h,v 1.14 2004-05-07 11:46:57 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -33,9 +33,9 @@
 //-- global defines ------------------------------------------------------------
 
 /** @brief default buzztard xml namespace prefix */
-#define BUZZTARD_NS_PREFIX "bt"
+#define BT_NS_PREFIX "bt"
 /** @brief default buzztard xml namespace url */
-#define BUZZTARD_NS_URL    "http://buzztard.sourceforge.net/"
+#define BT_NS_URL    "http://buzztard.sourceforge.net/"
 
 //-- misc
 #ifdef BT_CORE

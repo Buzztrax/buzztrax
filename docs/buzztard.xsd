@@ -22,11 +22,13 @@
   <xsd:attribute name="url" type="xsd:string"/>
   
   <xsd:element name="info" type="xsd:string"/>
+  <xsd:element name="genre" type="xsd:string"/>
 
   <xsd:element name="meta">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="info" minOccurse="0" maxOccurs="1"/>
+        <xsd:element ref="genre" minOccurse="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
