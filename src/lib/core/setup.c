@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.36 2004-10-27 17:23:00 waffel Exp $
+/* $Id: setup.c,v 1.37 2004-10-28 05:44:29 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -70,7 +70,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
 	node=self->priv->wires;
 	while(node) {
 		wire=BT_WIRE(node->data);
-    g_object_get(G_OBJECT(wire),"dst",&search_machine,NULL);
+    g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
 		if(search_machine==machine) found=TRUE;
     g_object_try_unref(search_machine);
     // @todo return(g_object_ref(wire));
@@ -139,6 +139,29 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
 	g_return_val_if_fail(is_string(id),NULL);
+	
+	/*
+    find_by_property(gpointer item,gpointer data) {
+      GValue value;
+	    g_object_get_property(item,data.key,&value);
+	    //a) compare via strcmp(find_by_property(value),find_by_property(data.compare_value));
+	    //b) switch(g_value_get_type(value)) {
+	    //     G_TYPE_STRING: strcmp(value,data.compare_value);
+	    //     default: value==data.compare_value;
+	    //   }
+    }	
+	 
+	  struct {
+	   gchar *key;
+	   GValue compare_value;
+	  } data;
+	  g_value_init(data.compare_value, G_TYPE_STRING);
+	  g_value_set_string(data.compare_value,id);
+	  data.key="id";
+	 
+	  node = g_list_find_custom(self->priv->machines, data, find_by_property);
+	  if(node) return(BT_MACHINE(node->data);
+	*/
 	
   node=self->priv->machines;
 	while(node) {
