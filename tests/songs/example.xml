@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard xmlns="http://buzztard.sourceforge.net/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="buzztard.xsd"
+	name="example Song">
+
+	<meta>
+		<info>what a lovely tune</info>
+		<genre>dark-wave</genre>
+	</meta>
+	
+  <setup zoom="1.0">    
+    <machines>
+      <sink id="audio_sink" pluginname="esdsink">
+        <machineui xpos="20" ypos="10"/>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="145"/>
+      </sink>
+      
+      <processor id="echo1" pluginname="ladspa_echo">
+        <machineui xpos="50" ypos="30"/>
+      </processor>
+      
+      <source id="sine1" pluginname="sinesrc" voice="2">
+        <machineui xpos="20" ypos="80"/>
+        <globaldata name="volume" value="80"/>
+        <globaldata name="bpm" value="4"/>
+        <voicedata name="height" value="80" voice="1"/>
+        <voicedata name="height" value="10" voice="2"/>
+      </source>
+    </machines>
+    
+    <wires>
+      <wire src="sine1" dst="echo1" gain="1.5"/>
+      <wire src="echo1" dst="audio_sink" gain="1.0" pan="-50"/>
+    </wires>    
+  </setup>
+  
+  <patterns>
+    <pattern id="sine1_beep" machine="sine1" name="beep" length="16">
+      <tick time="0">
+        <tickdata voice="0" name="note" value="C-3"/>
+				<tickdata voice="0" name="volume" value="1.0"/>
+				<tickdata voice="1" name="note" value="E-3"/>
+				<tickdata voice="1" name="volume" value="1.0"/>
+      </tick>
+      <tick time="1">
+        <tickdata voice="0" name="note" value="D-3"/>
+				<tickdata voice="0" name="volume" value="1.0"/>
+				<tickdata voice="1" name="note" value="F-3"/>
+				<tickdata voice="1" name="volume" value="0.8"/>
+      </tick>
+    </pattern>
+  </patterns>
+  
+  <sequence>
+    <labels>
+      <label time="0" name="start"/>
+      <label time="100" name="end"/>
+    </labels>
+    <track id="0" machine="sine1">
+			<position time="0" pattern="sine1_beep"/>
+			<position time="4" pattern="sine1_beep"/>
+		</track>
+  </sequence>
+  
+  <wavetable>
+	  <!-- loading file from harddisk -->
+		<wave id="00" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
+		<!-- loading file from song archive -->
+		<wave id="01" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
+	</wavetable>
+  
+</buzztard>
+
