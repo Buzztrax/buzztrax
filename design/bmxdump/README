@@ -1,0 +1,25 @@
+This was an attempt to write a reader for bmw and bmx files,
+the native Jeskola Buzz file formats, in C++.
+It dates back to July 2003.
+
+I didn't get very far. I stopped when I realised that the audio
+data in bmx files written by buzz 1.2 is compressed in some unknown
+format, and I did not have the brains to crack the compression.
+
+Also, the code has been hacked together quite badly, so do not
+expect a great design. It has been written as a "sketchpad" and
+I originally intended to rewrite it anyway at some stage, but 
+never got actually there. It is also not 'pure' C++. Lots of
+stuff (eg file I/O, some string handling) is done through the standard
+C api. This needs adaption if you care about 100% clean C++ code.
+
+Also note that there is a perl script somewhere at sourceforge
+that reads bmxfiles as well. It is far more complete than my
+code, but it cannot handle compressed audio data either.
+
+I hand this code on to the buzztard project (http://buzztard.org)
+in good will. I hope you guys manage to crack this fscking compression!
+
+This code is licensed under the GPL. See the file COPYING for details.
+
+Stefan Sperling <stsp@binarchy.net> (2004)

@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.11 2004-09-03 17:17:19 ensonic Exp $
+/* $Id: song-io.c,v 1.12 2004-09-06 16:26:21 ensonic Exp $
  * base class for song input and output
  */
  
@@ -26,6 +26,21 @@ static GList *plugins=NULL;
 //-- helper methods
 
 /**
+ * bt_song_io_register_plugins:
+ * Registers all song-io plugins for later use by bt_song_io_detect().
+ */
+static void bt_song_io_register_plugins(void) {
+  GST_INFO("register song-io plugins ...");
+  // register internal song-io plugin
+  plugins=g_list_append(plugins,&bt_song_io_native_detect);
+  // @todo implement registering external song-io plugins
+	//   1.) scan plugin-folder
+	//   2.) open each g_modules
+	//   3.) gets the address of GType bt_song_io_detect(const gchar *);
+	//   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
+}
+
+/**
  * bt_song_io_detect:
  * @filename: the full filename of the song
  * 
@@ -35,11 +50,27 @@ static GList *plugins=NULL;
  * Returns: the type of the #SongIO sub-class that can handle the supplied file
  */
 static GType bt_song_io_detect(const gchar *file_name) {
-  // @todo check registered types
-  // iterate over plugins list
-  //   try klass->bt_song_io_detect(filename)
-  // if none matches return NULL;
-	return(BT_TYPE_SONG_IO_NATIVE);
+  GType type=NULL;
+  GList *node=g_list_first(plugins);
+  BtSongIODetect detect;
+  
+  GST_INFO("detecting loader for file \"%s\"",file_name);
+  
+  if(!plugins) bt_song_io_register_plugins();
+  
+  // try all registered plugins
+  node=g_list_first(plugins);
+  while(node) {
+    detect=(BtSongIODetect)node->data;
+    // the detect function return a GType if the file matches to the plugin or NULL otheriwse
+    if((type=detect(file_name))) {
+      GST_INFO("  found one!");
+      break;
+    }
+    node=g_list_next(node);
+  }
+	//return(BT_TYPE_SONG_IO_NATIVE);
+  return(type);
 }
 
 //-- constructor methods
@@ -159,23 +190,12 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
                                      G_PARAM_READABLE));
 }
 
-static void bt_song_io_base_init(BtSongIOClass *klass) {
-  GST_INFO("register song-io plugins ...");
-  // @todo implement registering internal song-io plugins
-  //   song-io native
-  // @todo implement registering external song-io plugins
-	//   1.) scan plugin-folder
-	//   2.) open each g_modules
-	//   3.) gets the address of GType bt_song_io_custom_detect(const gchar *);
-	//   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-}
-
 GType bt_song_io_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
       sizeof (BtSongIOClass),
-      (GBaseInitFunc)bt_song_io_base_init, // base_init
+      NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_song_io_class_init, // class_init
       NULL, // class_finalize

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.23 2004-08-26 16:44:11 ensonic Exp $
+/* $Id: sequence.c,v 1.24 2004-09-06 16:26:21 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -174,11 +174,9 @@ BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong t
  * bt_sequence_set_machine_by_track:
  * @self: the #BtSequence that holds the tracks
  * @track: the requested track index
- * @machine: the machine
+ * @machine: the #BtMachine
  *
- * fetches the required #BtMachine.
- *
- * Returns: the #BtMachine pointer or NULL in case of an error
+ * sets #BtMachine for the respective track.
  */
 void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,const BtMachine *machine) {
 

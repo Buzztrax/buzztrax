@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.23 2004-08-26 16:44:11 ensonic Exp $
+/* $Id: song-io-native.c,v 1.24 2004-09-06 16:26:21 ensonic Exp $
  * class for native song input and output
  */
  
@@ -11,6 +11,19 @@ struct _BtSongIONativePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+//
+
+GType bt_song_io_native_detect(const gchar *file_name) {
+  GType type=NULL;
+
+  GST_INFO("file_name=\"%s\"",file_name);
+  
+  if(file_name && (strstr(file_name,".xml"))) {
+    type=BT_TYPE_SONG_IO_NATIVE;
+  }
+  return(type);
+}
 
 //-- xml helper methods
 
