@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.32 2004-12-15 18:30:17 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.33 2004-12-16 13:41:32 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -76,15 +76,15 @@ static gboolean step_visible_filter(GtkTreeModel *model,GtkTreeIter *iter,gpoint
 //-- event handler helper
 
 /**
- * sequence_table_init:
+ * sequence_table_clear:
  * @self: the sequence page
  *
- * removes old columns and re-inserts the Pos and Label columns.
+ * removes old columns
  */
-static void sequence_table_init(const BtMainPageSequence *self) {
-  GtkCellRenderer *renderer;
+static void sequence_table_clear(const BtMainPageSequence *self) {
   GList *columns,*node;
-  
+  gint col_index;
+	
   // remove columns
   if((columns=gtk_tree_view_get_columns(self->priv->sequence_table))) {
     node=g_list_first(columns);
@@ -94,6 +94,18 @@ static void sequence_table_init(const BtMainPageSequence *self) {
     }
     g_list_free(columns);
   }
+}
+
+/**
+ * sequence_table_init:
+ * @self: the sequence page
+ *
+ * inserts the Pos and Label columns.
+ */
+static void sequence_table_init(const BtMainPageSequence *self) {
+  GtkCellRenderer *renderer;
+	gint col_index;
+	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"editable",FALSE,"xalign",1.0,NULL);
@@ -102,9 +114,11 @@ static void sequence_table_init(const BtMainPageSequence *self) {
     NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
+  col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
     NULL);
+	
+	GST_DEBUG("    number of columns : %d",col_index);
 }
 
 /**
@@ -117,7 +131,6 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song) {
   BtSetup *setup;
   BtSequence *sequence;
-  BtSongInfo *song_info;
   BtMachine *machine;
   BtTimeLine *timeline;
   BtTimeLineTrack *timelinetrack;
@@ -125,7 +138,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   GtkCellRenderer *renderer;
 	GtkWidget *label;
   gchar *str;
-  gulong i,j,col_ct,timeline_ct,track_ct,bars,pos=0;
+  gulong i,j,col_ct,timeline_ct,track_ct,pos=0;
+	gint col_index;
   GtkListStore *store;
 	GtkTreeModel *filtered_store;
   GType *store_types;
@@ -136,46 +150,15 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   GST_INFO("refresh sequence table");
   
-  g_object_get(G_OBJECT(song),"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
-  // reset columns
-  sequence_table_init(self);
+  g_object_get(G_OBJECT(song),"setup",&setup,"sequence",&sequence,NULL);
   g_object_get(G_OBJECT(sequence),"length",&timeline_ct,"tracks",&track_ct,NULL);
-  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   GST_INFO("  size is %2d,%2d",timeline_ct,track_ct);
-  // add column for each machine
-  for(j=0;j<track_ct;j++) {
-    machine=bt_sequence_get_machine_by_track(sequence,j);
-    renderer=gtk_cell_renderer_text_new();
-    g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
+	
+  // reset columns
+	sequence_table_clear(self);
 
-    // set machine name as column header
-    g_object_get(G_OBJECT(machine),"id",&str,NULL);
-		// @todo here we can add hbox that containts Mute, Solo, Bypass buttons as well
-		// or popup button that shows the whole context menu like that in the machine_view
-		label=gtk_label_new(str);
-		gtk_widget_show(label);
-    i=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,NULL,renderer,
-      "text",SEQUENCE_TABLE_PRE_CT+j,
-			"widget",label,
-      NULL);
-    g_free(str);
-    
-    tree_col=gtk_tree_view_get_column(self->priv->sequence_table,i-1);
-		gtk_tree_view_column_set_widget(tree_col,label);
-		g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
-		
-		// color code columns
-    if(BT_IS_SOURCE_MACHINE(machine)) {
-      gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
-    }
-    else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-      gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_PROCESSOR_BG);
-    }
-    else if(BT_IS_SINK_MACHINE(machine)) {
-      gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SINK_BG);
-    }
-  }
-  GST_DEBUG("  build model");
+	// build model
+	GST_DEBUG("  build model");
   col_ct=(SEQUENCE_TABLE_PRE_CT+track_ct);
   store_types=(GType *)g_new(GType *,col_ct);
   // for background color columns
@@ -211,8 +194,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     }
     // set position
     gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_POS,pos,-1);
-		// @todo !! remove bars usage (while be handled by filter)
-    //pos+=bars;
 		pos++;
     // set label
     g_object_get(G_OBJECT(timeline),"label",&str,NULL);
@@ -254,14 +235,55 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
 	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,(gpointer)self,NULL);
 	GST_INFO("  filter = %p",filtered_store);
-	
 	// should we use the filtered_store here?
   //gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
 	gtk_tree_view_set_model(self->priv->sequence_table,filtered_store);
+
+  // build view
+	GST_DEBUG("  build model");
+	// add initial columns
+  sequence_table_init(self);
+  // add column for each machine
+  for(j=0;j<track_ct;j++) {
+    machine=bt_sequence_get_machine_by_track(sequence,j);
+    renderer=gtk_cell_renderer_text_new();
+    g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
+
+    // set machine name as column header
+    g_object_get(G_OBJECT(machine),"id",&str,NULL);
+		// @todo here we can add hbox that containts Mute, Solo, Bypass buttons as well
+		// or popup button that shows the whole context menu like that in the machine_view
+		label=gtk_label_new(str);
+		gtk_widget_show(label);
+    col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,NULL,renderer,
+      "text",SEQUENCE_TABLE_PRE_CT+j,
+			"widget",label,
+      NULL);
+    g_free(str);
+    
+    if((tree_col=gtk_tree_view_get_column(self->priv->sequence_table,col_index-1))) {
+			//gtk_tree_view_column_set_widget(tree_col,label);
+			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
+		
+			// color code columns
+	    if(BT_IS_SOURCE_MACHINE(machine)) {
+  	    gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
+    	}
+    	else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+      	gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_PROCESSOR_BG);
+    	}
+    	else if(BT_IS_SINK_MACHINE(machine)) {
+      	gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SINK_BG);
+    	}
+		}
+		else GST_WARNING("can't get treeview column");
+  }
+  GST_DEBUG("    number of columns : %d",col_index);
+
   // release the references
-  g_object_try_unref(song_info);
   g_object_try_unref(sequence);
   g_object_try_unref(setup);    
+	//g_object_unref(store); // drop with treeview
   g_object_unref(filtered_store); // drop with treeview
 }
 
