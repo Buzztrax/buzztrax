@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.33 2004-10-22 16:15:58 ensonic Exp $
+/* $Id: edit-application.c,v 1.34 2004-11-18 17:58:16 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -41,27 +41,25 @@ static BtApplicationClass *parent_class=NULL;
 
 //-- event handler
 
-static gboolean on_loader_status_changed(BtSongIO *loader, gpointer user_data) {
+static gboolean on_songio_status_changed(BtSongIO *songio, gpointer user_data) {
   BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
   BtMainStatusbar *statusbar;
   gchar *str;
 
-  g_assert(BT_IS_SONG_IO(loader));
+  g_assert(BT_IS_SONG_IO(songio));
   g_assert(user_data);
 
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
   
   /* @todo push loader status changes into the statusbar
-   * - how to read the status bar from here
-   *   - add read-only property to main-window
    * - how to handle to push and pop stuff, first_acces=push_only, last_access=pop_only
    *   - str!=NULL old.pop & new.push
    *   - str==NULL old.pop & default.push
    */
-  
-  g_object_get(loader,"status",&str,NULL);
-  GST_INFO("loader_status has changed : \"%s\"",safe_string(str));
+  g_object_get(songio,"status",&str,NULL);
+  GST_INFO("songio_status has changed : \"%s\"",safe_string(str));
   g_object_set(statusbar,"status",str,NULL);
+	g_object_try_unref(statusbar);
   g_free(str);
 }
 
@@ -151,12 +149,12 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
-  GST_INFO("new song name = %s",file_name);
+  GST_INFO("song name = %s",file_name);
 
   if(bt_edit_application_prepare_song(self)) {
-    BtSongIO *loader=bt_song_io_new(file_name);
+    BtSongIO *loader;
 
-    if(loader) {
+    if((loader=bt_song_io_new(file_name))) {
       GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
       GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
       
@@ -165,7 +163,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       gdk_cursor_unref(cursor);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
       
-      g_signal_connect(G_OBJECT(loader),"status-changed",(GCallback)on_loader_status_changed,(gpointer)self);
+      g_signal_connect(G_OBJECT(loader),"status-changed",(GCallback)on_songio_status_changed,(gpointer)self);
       while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->priv->song)) {
         // emit signal that song has been changed
@@ -181,6 +179,50 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       gdk_window_set_cursor(window,NULL);
       g_object_unref(loader);
     }
+  }
+  return(res);
+}
+
+/**
+ * bt_edit_application_save_song:
+ * @self: the application instance to save a song from
+  *@file_name: the song filename to save
+ *
+ * Saves a song.
+ *
+ * Returns: true for success
+ */
+gboolean bt_edit_application_save_song(const BtEditApplication *self,const char *file_name) {
+  gboolean res=FALSE;
+  BtSongIO *saver;
+
+  g_assert(BT_IS_EDIT_APPLICATION(self));
+
+  GST_INFO("song name = %s",file_name);
+
+
+  if((saver=bt_song_io_new(file_name))) {
+    GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
+    GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
+      
+    cursor=gdk_cursor_new(GDK_WATCH);
+    gdk_window_set_cursor(window,cursor);
+    gdk_cursor_unref(cursor);
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
+      
+    g_signal_connect(G_OBJECT(saver),"status-changed",(GCallback)on_songio_status_changed,(gpointer)self);
+    while(gtk_events_pending()) gtk_main_iteration();
+    if(bt_song_io_save(saver,self->priv->song)) {
+      res=TRUE;
+    }
+    else {
+      GST_ERROR("could not save song \"%s\"",file_name);
+    }
+    GST_INFO("saving done");
+      
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
+    gdk_window_set_cursor(window,NULL);
+    g_object_unref(saver);
   }
   return(res);
 }
@@ -376,4 +418,3 @@ GType bt_edit_application_get_type(void) {
   }
   return type;
 }
-

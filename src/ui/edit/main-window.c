@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.30 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: main-window.c,v 1.31 2004-11-18 17:58:16 ensonic Exp $
  * class for the editor main window
  */
 
@@ -238,18 +238,17 @@ void bt_main_window_new_song(const BtMainWindow *self) {
  * be loaded and the ui will be refreshed upon success.
  */
 void bt_main_window_open_song(const BtMainWindow *self) {
-  GtkWidget *dialog=gtk_file_selection_new(_("Choose a song"));
+  GtkWidget *dialog=gtk_file_selection_new(_("Open a song"));
   gint result;
-  char *filename=NULL;
+  char *file_name=NULL;
     
-  /* lets set the filename, as if this were a save dialog, and we are giving
-   a default filename */
+  // set a default file_name
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
-      filename=g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
+      file_name=g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
       break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
@@ -260,12 +259,108 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   } 
   gtk_widget_destroy(dialog);
   // load after destoying the dialog, otherwise it stays open all time
-  if(filename) {
-    if(!bt_edit_application_load_song(self->priv->app,filename)) {
+  if(file_name) {
+    if(!bt_edit_application_load_song(self->priv->app,file_name)) {
       // @todo show error message
     }
-    g_free(filename);
+    g_free(file_name);
   }
+}
+
+/**
+ * bt_main_window_save_song:
+ * @self: the main window instance
+ *
+ * Save the song to disk.
+ * If it is a new song it will ask for a file_name and location.
+ */
+void bt_main_window_save_song(const BtMainWindow *self) {
+	BtSong *song;
+	BtSongInfo *song_info;
+  char *file_name=NULL;
+
+  // get songs file-name
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+	g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+
+	// check the file_name of the song
+	if(file_name) {
+    if(!bt_edit_application_save_song(self->priv->app,file_name)) {
+      // @todo show error message
+    }
+	}
+	else {
+		// it is a new song
+		bt_main_window_save_song_as(self);
+	}
+	g_free(file_name);
+	g_object_try_unref(song_info);
+	g_object_try_unref(song);
+}
+
+/**
+ * bt_main_window_save_song_as:
+ * @self: the main window instance
+ *
+ * Opens a dialog box, where the user can choose a file_name and location to save
+ * the song under.
+ */
+void bt_main_window_save_song_as(const BtMainWindow *self) {
+	BtSong *song;
+	BtSongInfo *song_info;
+  GtkWidget *dialog=gtk_file_selection_new(_("Save a song"));
+  gint result;
+  char *file_name=NULL,*file_path;
+    
+  // get songs file-name
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+	g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+  // set a default file_name
+	file_path=g_strconcat(DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S,file_name,NULL);
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),file_path);
+	GST_INFO("generated default path is %s",file_path);
+	g_free(file_name);file_name=NULL;
+	g_free(file_path);
+  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(result) {
+    case GTK_RESPONSE_ACCEPT:
+    case GTK_RESPONSE_OK:
+      file_name=g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
+      break;
+    case GTK_RESPONSE_REJECT:
+    case GTK_RESPONSE_CANCEL:
+    case GTK_RESPONSE_CLOSE:
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d",result);
+  }
+  gtk_widget_destroy(dialog);
+  // load after destoying the dialog, otherwise it stays open all time
+  if(file_name) {
+		FILE *file;
+		
+		if((file=fopen(file_name,"rb"))) {
+			GST_INFO("file already exists");
+			// @todo it already exists, ask the user what to do (do not save, choose new name, overwrite song)
+			fclose(file);
+		}
+		else {
+			GST_INFO("file can not be opened : %d : %s",errno,strerror(errno));
+			// @todo check errno
+			// ENOENT A component of the path file_name does not exist, or the path is an empty string.
+			// -> just save
+			// EACCES Permission denied.
+			// -> ask user
+		}
+    if(!bt_edit_application_save_song(self->priv->app,file_name)) {
+      // @todo show error message
+    }
+    g_free(file_name);
+  }
+	g_object_try_unref(song_info);
+	g_object_try_unref(song);
 }
 
 //-- wrapper
@@ -387,4 +482,3 @@ GType bt_main_window_get_type(void) {
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.3 2004-10-15 15:39:32 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.4 2004-11-18 17:58:14 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -16,6 +16,7 @@ BtEditApplication
 bt_edit_application_new
 bt_edit_application_new_song
 bt_edit_application_load_song
+bt_edit_application_save_song
 bt_edit_application_run
 bt_edit_application_load_and_run
 <SUBSECTION Standard>
@@ -48,25 +49,20 @@ BtMachineCanvasItemPrivate
 </SECTION>
 
 <SECTION>
-<FILE>btmainwindow</FILE>
-<TITLE>BtMainWindow</TITLE>
-BtMainWindow
-bt_main_window_new
-bt_main_window_run
-bt_main_window_check_quit
-bt_main_window_new_song
-bt_main_window_open_song
+<FILE>btmachinedialog</FILE>
+<TITLE>BtMachineDialog</TITLE>
+BtMachineDialog
+bt_machine_dialog_new
 <SUBSECTION Standard>
-BtMainWindowClass
-BT_MAIN_WINDOW
-BT_IS_MAIN_WINDOW
-BT_MAIN_WINDOW_CLASS
-BT_IS_MAIN_WINDOW_CLASS
-BT_MAIN_WINDOW_GET_CLASS
-BT_TYPE_MAIN_WINDOW
+BtMachineDialogClass
+BT_MACHINE_DIALOG
+BT_IS_MACHINE_DIALOG
+BT_MACHINE_DIALOG_CLASS
+BT_IS_MACHINE_DIALOG_CLASS
+BT_TYPE_MACHINE_DIALOG
 <SUBSECTION Private>
-bt_main_window_get_type
-BtMainWindowPrivate
+bt_machine_dialog_get_type
+BtMachineDialogPrivate
 </SECTION>
 
 <SECTION>
@@ -216,6 +212,30 @@ BtMainStatusbarPrivate
 </SECTION>
 
 <SECTION>
+<FILE>btmainwindow</FILE>
+<TITLE>BtMainWindow</TITLE>
+BtMainWindow
+bt_main_window_new
+bt_main_window_run
+bt_main_window_check_quit
+bt_main_window_new_song
+bt_main_window_open_song
+bt_main_window_save_song
+bt_main_window_save_song_as
+<SUBSECTION Standard>
+BtMainWindowClass
+BT_MAIN_WINDOW
+BT_IS_MAIN_WINDOW
+BT_MAIN_WINDOW_CLASS
+BT_IS_MAIN_WINDOW_CLASS
+BT_MAIN_WINDOW_GET_CLASS
+BT_TYPE_MAIN_WINDOW
+<SUBSECTION Private>
+bt_main_window_get_type
+BtMainWindowPrivate
+</SECTION>
+
+<SECTION>
 <FILE>btsettingsdialog</FILE>
 <TITLE>BtSettingsDialog</TITLE>
 BtSettingsDialog
@@ -247,4 +267,3 @@ BT_TYPE_WIRE_CANVAS_ITEM
 bt_wire_canvas_item_get_type
 BtWireCanvasItemPrivate
 </SECTION>
-

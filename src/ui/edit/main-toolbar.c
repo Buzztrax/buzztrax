@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.23 2004-11-12 09:30:59 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.24 2004-11-18 17:58:16 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -63,6 +63,18 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
+  g_object_try_unref(main_window);
+}
+
+static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  BtMainWindow *main_window;
+
+  g_assert(user_data);
+  
+  GST_INFO("toolbar open event occurred");
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  bt_main_window_save_song(main_window);
   g_object_try_unref(main_window);
 }
 
@@ -230,6 +242,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Save"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Save this song"),NULL);
+	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_save_clicked),(gpointer)self);
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 

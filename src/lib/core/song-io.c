@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.26 2004-11-15 15:06:54 ensonic Exp $
+/* $Id: song-io.c,v 1.27 2004-11-18 17:58:16 ensonic Exp $
  * base class for song input and output
  */
  
@@ -121,6 +121,25 @@ static GType bt_song_io_detect(const gchar *file_name) {
   return(type);
 }
 
+static void bt_song_io_update_filename(const BtSongIO *self, const BtSong *song) {
+	BtSongInfo *song_info;
+	gchar *file_path,*file_name;
+
+	g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
+	// file_name is last part from file_path
+	if(file_name=g_strrstr(file_path,G_DIR_SEPARATOR_S)) {
+		file_name++;
+	}
+	else {
+		file_name=file_path;
+	}
+	//GST_INFO("file name is : %s",file_name);
+	g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+	g_object_set(song_info,"file-name",file_name,NULL);
+	g_free(file_path);
+	g_object_try_unref(song_info);
+}
+
 //-- constructor methods
 
 /**
@@ -174,7 +193,12 @@ static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
  * Returns: true for success
  */
 gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
-	return(BT_SONG_IO_GET_CLASS(self)->load(self,song));
+	gboolean result;
+	
+	if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
+		bt_song_io_update_filename(BT_SONG_IO(self),song);
+	}
+	return(result);
 }
 
 /**
@@ -187,7 +211,12 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
  * Returns: true for success
  */
 gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
-	return(BT_SONG_IO_GET_CLASS(self)->save(self,song));
+	gboolean result;
+
+	if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
+		bt_song_io_update_filename(BT_SONG_IO(self),song);
+	}
+	return(result);
 }
 
 //-- class internals

@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.20 2004-10-22 12:01:16 ensonic Exp $
+/* $Id: main-menu.c,v 1.21 2004-11-18 17:58:16 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -59,6 +59,30 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
+  g_object_try_unref(main_window);
+}
+
+static void on_menu_save_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+
+  g_assert(user_data);
+
+  GST_INFO("menu save event occurred");
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  bt_main_window_save_song(main_window);
+  g_object_try_unref(main_window);
+}
+
+static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+
+  g_assert(user_data);
+
+  GST_INFO("menu saveas event occurred");
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  bt_main_window_save_song_as(main_window);
   g_object_try_unref(main_window);
 }
 
@@ -156,10 +180,12 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
   gtk_widget_set_name(subitem,_("Save"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+	g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_save_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE_AS,accel_group);
   gtk_widget_set_name(subitem,_("Save as"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+	g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
 
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));
@@ -378,4 +404,3 @@ GType bt_main_menu_get_type(void) {
   }
   return type;
 }
-

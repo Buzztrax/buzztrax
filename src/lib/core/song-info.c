@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.26 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: song-info.c,v 1.27 2004-11-18 17:58:16 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -9,6 +9,7 @@
 
 enum {
   SONG_INFO_SONG=1,
+	SONG_INFO_FILE_NAME,
 	SONG_INFO_INFO,
 	SONG_INFO_NAME,
 	SONG_INFO_GENRE,
@@ -23,6 +24,9 @@ struct _BtSongInfoPrivate {
 	
 	/* the song the song-info belongs to */
 	BtSong *song;
+
+  /* the file name of the song */
+  gchar *file_name;
 	
   /* freeform info about the song */
   gchar *info;
@@ -77,6 +81,9 @@ static void bt_song_info_get_property(GObject      *object,
     case SONG_INFO_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
+    case SONG_INFO_FILE_NAME: {
+      g_value_set_string(value, self->priv->file_name);
+    } break;
     case SONG_INFO_INFO: {
       g_value_set_string(value, self->priv->info);
     } break;
@@ -115,6 +122,11 @@ static void bt_song_info_set_property(GObject      *object,
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for song-info: %p",self->priv->song);
+    } break;
+    case SONG_INFO_FILE_NAME: {
+      g_free(self->priv->file_name);
+      self->priv->file_name = g_value_dup_string(value);
+      GST_DEBUG("set the file-name for song_info: %s",self->priv->file_name);
     } break;
     case SONG_INFO_INFO: {
       g_free(self->priv->info);
@@ -168,6 +180,7 @@ static void bt_song_info_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+	g_free(self->priv->file_name);
 	g_free(self->priv->info);
 	g_free(self->priv->name);
 	g_free(self->priv->genre);
@@ -207,6 +220,13 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      "song object, the song-info belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_INFO_FILE_NAME,
+                                  g_param_spec_string("file-name",
+                                     "file name prop",
+                                     "songs file name",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,SONG_INFO_INFO,
                                   g_param_spec_string("info",
@@ -275,4 +295,3 @@ GType bt_song_info_get_type(void) {
   }
   return type;
 }
-

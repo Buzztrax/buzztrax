@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.40 2004-10-29 13:12:19 ensonic Exp $
+/* $Id: song-io-native.c,v 1.41 2004-11-18 17:58:16 ensonic Exp $
  * class for native song input and output
  */
  
@@ -460,7 +460,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
   BtTimeLineTrack *timelinetrack;
   xmlChar *time_str,*pattern_id;
 
-  g_object_get((gpointer)song,"sequence",&sequence,NULL);
+  g_object_get(BT_SONG(song),"sequence",&sequence,NULL);
 
   bt_sequence_set_machine_by_track(sequence,index,machine);
   while(xml_node) {
@@ -575,13 +575,13 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	xmlParserCtxtPtr ctxt=NULL;
 	xmlDocPtr song_doc=NULL;
 	xmlNsPtr ns=NULL;
-  gchar *filename,*status;
+  gchar *file_name,*status;
   
-	g_object_get((gpointer)self,"file name",&filename,NULL);
-	GST_INFO("native loader will now load song from \"%s\"",filename);
+	g_object_get(BT_SONG(self),"file-name",&file_name,NULL);
+	GST_INFO("native io will now load song from \"%s\"",file_name);
 
-  status=g_strdup_printf(_("Loading file \"%s\""),filename);
-  g_object_set((gpointer)self,"status",status,NULL);
+  status=g_strdup_printf(_("Loading file \"%s\""),file_name);
+  g_object_set(BT_SONG(self),"status",status,NULL);
   g_free(status);
   
   //DEBUG
@@ -595,13 +595,13 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	
   // @todo add zip file processing
   /*
-   * zip_file=bt_zip_file_new(filename,BT_ZIP_FILE_MODE_READ);
+   * zip_file=bt_zip_file_new(file_name,BT_ZIP_FILE_MODE_READ);
    * xml_doc=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
    */
   
   // @todo read from zip_file
   /* ctxt=xmlCreateMemoryParserCtxt(xml_doc,xml_doc_size) */
-	if((ctxt=xmlCreateFileParserCtxt(filename))) {
+	if((ctxt=xmlCreateFileParserCtxt(file_name))) {
 		ctxt->validate=FALSE;
 		xmlParseDocument(ctxt);
 		if(!ctxt->valid) {
@@ -635,13 +635,45 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 			}
 		}		
 	}
-	else GST_ERROR("failed to create file-parser context for \"%s\"",filename);
+	else GST_ERROR("failed to create file-parser context for \"%s\"",file_name);
 	if(ctxt) xmlFreeParserCtxt(ctxt);
 	if(song_doc) xmlFreeDoc(song_doc);
-  g_free(filename);
+  g_free(file_name);
   //DEBUG
   //sleep(1);
   //DEBUG
+  g_object_set((gpointer)self,"status",NULL,NULL);
+	return(result);
+}
+
+gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
+	const BtSongIONative *self=BT_SONG_IO_NATIVE(_self);
+	gboolean result=FALSE;
+	xmlDocPtr song_doc=NULL;
+	xmlNodePtr root_node=NULL;
+
+  gchar *file_name,*status;
+  
+	g_object_get((gpointer)self,"file-name",&file_name,NULL);
+	GST_INFO("native io will now save song to \"%s\"",file_name);
+
+  status=g_strdup_printf(_("Saving file \"%s\""),file_name);
+  g_object_set((gpointer)self,"status",status,NULL);
+  g_free(status);
+
+	if((song_doc=xmlNewDoc("1.0"))) {
+		// create the root-node
+    root_node = xmlNewNode(NULL,"buzztard");
+    xmlDocSetRootElement(song_doc, root_node);
+		// @todo build the xml document tree
+		
+		if(xmlSaveFile(file_name,song_doc)!=-1) {
+			result=TRUE;
+		}
+	}
+	
+	g_free(file_name);
+
   g_object_set((gpointer)self,"status",NULL,NULL);
 	return(result);
 }
@@ -722,6 +754,7 @@ static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
 	
   /* implement virtual class function. */
 	base_class->load       = bt_song_io_native_real_load;
+	base_class->save       = bt_song_io_native_real_save;
 	
 	/* compile xpath-expressions */
 	klass->xpath_get_meta = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":meta/"BT_NS_PREFIX":*");
@@ -771,4 +804,3 @@ GType bt_song_io_native_get_type(void) {
   }
   return type;
 }
-
