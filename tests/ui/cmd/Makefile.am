@@ -4,7 +4,7 @@ noinst_LTLIBRARIES = libbt-cmd-check.la
 libbt_cmd_check_la_LIBADD = -lm $(BASE_DEPS_LIBS) \
 	$(top_builddir)/src/ui/cmd/libbtcmd.la
 libbt_cmd_check_la_SOURCES = \
-	bt-cmd.c bt-cmd.h
+	t-bt-cmd.c t-bt-cmd.h
 
 
 INCLUDES = \

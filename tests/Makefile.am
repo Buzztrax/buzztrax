@@ -12,13 +12,13 @@ buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la
 buzztard_SOURCES= \
-	buzztard.c buzztard.h tools.h tools.c
+	t-buzztard.c t-buzztard.h t-tools.h t-tools.c
 	
 bt_cmd_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la
 bt_cmd_SOURCES= \
-	bt-cmd.c tools.h tools.c
+	t-bt-cmd.c t-tools.h t-tools.c
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \
