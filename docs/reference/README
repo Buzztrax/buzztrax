@@ -1,4 +1,4 @@
-$Id: README,v 1.6 2004-07-02 13:44:50 ensonic Exp $
+$Id: README,v 1.7 2004-07-28 13:25:20 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
@@ -18,7 +18,10 @@ files to look into
     defines the overall structure
   buzztard-sections.txt
     group symbols to sections
-		for gobject classes, put standard gobject entries into <SUBSECTION Standard>
+    add sections in alpahbetical order
+		for gobject classes,
+      put standard gobject entries into <SUBSECTION Standard>
+      put private  gobject entries into <SUBSECTION Private>
   templ/*.sgml
     - add extra documentation to sections
 		

@@ -1,6 +1,6 @@
-/* $Id: bt-cmd.c,v 1.12 2004-07-26 18:00:10 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.13 2004-07-28 13:25:21 ensonic Exp $
  * You can try to run the uninstalled program via
- *   libtool --mode=execute bt-cmd <filename>
+ *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
  *  --gst-debug="*:2,bt-*:3" for not-so-much-logdata or
  *  --gst-debug="*:2,bt-*:4" for a-lot-logdata
@@ -12,37 +12,54 @@
 
 #include "bt-cmd.h"
 
-enum {
-	ARG_SONG_FILE
-};
-
-static void init_popt_callback (poptContext context,
-    enum poptCallbackReason reason,
-    const GstPoptOption * option, const char *arg, void *data);
+static void usage(int argc, char **argv, const struct poptOption *options) {
+  const poptContext context=poptGetContext(argv[0], argc, argv, options, 0);
+  poptPrintUsage(context,stdout,0);
+  poptFreeContext(context);
+  exit(0);
+}
 
 int main(int argc, char **argv) {
-	gboolean res;
+	gboolean res=FALSE;
+  gboolean arg_version=FALSE;
+  gchar *command=NULL,*input_file_name=NULL,*output_file_name=NULL;
 	BtCmdApplication *app;
-  
-	static struct poptOption poptTable[] = {
-		 {NULL, '\0', POPT_ARG_CALLBACK | POPT_CBFLAG_PRE | POPT_CBFLAG_POST,
-        (void *) &init_popt_callback, 0, NULL, NULL},
-		{"bt-song-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, NULL,
-			ARG_SONG_FILE, "Buzztard song file", "SONGFILE" },
+
+	struct poptOption options[] = {
+		{"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP, &arg_version, 0, "version", NULL },
+		{"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, "command name", "{info, play, convert}" },
+		{"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name, 	0, "input file name", "SONGFILE" },
+		{"output-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &output_file_name,	0, "output file name", "SONGFILE" },
 		POPT_TABLEEND
 	};
-	
+  
 	// init buzztard core with own popt options
-	bt_init(&argc,&argv,poptTable);
+	bt_init(&argc,&argv,options);
 
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
-	
+
+  if(arg_version) {
+    g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
+    exit(0);
+  }
+  if(!command) usage(argc, argv, options);
+  g_printf("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
+
 	app=(BtCmdApplication *)g_object_new(BT_TYPE_CMD_APPLICATION,NULL);
-  // @todo depending on the popt options call the correct method
-  // @todo or just set the params and call run
-  // commands={play, convert, info},
-  // below is a mix of 'play' and 'info'
-	res=bt_cmd_application_run(app,argc,argv);
+  // depending on the popt options call the correct method
+  if(!strncmp(command,"play",4)) {
+    if(!input_file_name) usage(argc, argv, options);
+    res=bt_cmd_application_play(app,input_file_name);
+  }
+  else if(!strncmp(command,"info",4)) {
+    if(!input_file_name) usage(argc, argv, options);
+    res=bt_cmd_application_info(app,input_file_name);
+  }
+  else if(!strncmp(command,"convert",7)) {
+    if(!input_file_name || !output_file_name) usage(argc, argv, options);
+    // @todo implement bt_cmd_application_convert
+    //res=bt_cmd_application_convert(app,input_file_name,output_file_name);
+  }
 	
 	/* free application */
 	g_object_unref(G_OBJECT(app));
@@ -50,22 +67,3 @@ int main(int argc, char **argv) {
 	return(!res);
 }
 
-static void
-init_popt_callback (poptContext context, enum poptCallbackReason reason,
-    const GstPoptOption * option, const char *arg, void *data)
-{
-	switch (reason) {
-		case POPT_CALLBACK_REASON_OPTION:
-			switch (option->val) {
-				case ARG_SONG_FILE:
-				{
-					g_printf("the path option is called with %s\n",arg);
-					break;
-				}
-				default: {
-					g_printf("unknown option\n");
-				}
-			}
-			break;
-	}
-}

@@ -1,10 +1,12 @@
-/* $Id: core.h,v 1.24 2004-07-26 17:03:46 waffel Exp $
+/* $Id: core.h,v 1.25 2004-07-28 13:25:21 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
 #define BT_CORE_H
 
 #undef GST_DISABLE_GST_DEBUG
+
+#include "config.h"
 
 //-- glib/gobject
 #include <glib.h>
