@@ -6,9 +6,10 @@ lib_LTLIBRARIES = libbtcore.la
 libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
-	libbtcore/version.h \
 	core.c libbtcore/core.h \
-	song.c libbtcore/song.h
+	song.c libbtcore/song.h libbtcore/song-methods.h \
+	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
+	libbtcore/version.h
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

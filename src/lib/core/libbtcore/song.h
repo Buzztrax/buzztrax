@@ -1,4 +1,4 @@
-/** $Id: song.h,v 1.5 2004-05-03 16:52:20 waffel Exp $
+/** $Id: song.h,v 1.6 2004-05-04 13:47:25 ensonic Exp $
  * Class for a basic buzztard song
  *
  */
@@ -61,5 +61,5 @@ struct _BtSong {
 	// @todo the size data (sequence-length, number of tracks( needs to be here
 };
 */
-#endif /* BT_SONG_H */
+#endif // BT_SONG_H
 

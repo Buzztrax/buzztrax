@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.8 2004-05-03 16:52:20 waffel Exp $
+/** $Id: core.h,v 1.9 2004-05-04 13:47:25 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -16,12 +16,14 @@
 // the same for all other classes
 
 #include "song-methods.h"
+#include "wire-methods.h"
 #include "version.h"
 
 #ifdef BT_CORE
 	#define GST_CAT_DEFAULT bt_core_debug
 	#ifndef BT_CORE_C
 		GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
+		#define return_if_disposed(a) if(self->private->dispose_has_run) return a
 	#endif
 #endif
 
@@ -29,5 +31,5 @@
 	extern void bt_init(int *argc, char ***argv);
 #endif
 
-#endif /* BT_CORE_H */
+#endif // BT_CORE_H
 

@@ -3,8 +3,8 @@
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = \
-	core.c core.h \
-	network.c
+	core.c core.h
+
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.3 2004-05-03 16:52:20 waffel Exp $
+/** $Id: song.c,v 1.4 2004-05-04 13:47:25 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -8,8 +8,6 @@
 #define BT_SONG_C
 
 #include <libbtcore/core.h>
-
-#define return_if_disposed(a) if(self->private->dispose_has_run) return a
 
 enum {
   SONG_NAME=1
@@ -69,6 +67,10 @@ static void song_set_property(GObject      *object,
       self->private->name = g_value_dup_string(value);
       //g_print("set the name for song: %s\n",self->private->name);
     } break;
+    default: {
+      g_assert(FALSE);
+      break;
+    }
   }
 }
 
@@ -80,6 +82,7 @@ static void song_dispose(GObject *object) {
 
 static void song_finalize(GObject *object) {
   BtSong *self = (BtSong *)object;
+	g_free(self->private->name);
   g_free(self->private);
 }
 
@@ -90,9 +93,8 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
 }
 
 static void bt_song_class_init(BtSongClass *klass) {
-  
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *bt_song_param_spec;
+  GParamSpec *g_param_spec;
   
   gobject_class->set_property = song_set_property;
   gobject_class->get_property = song_get_property;
@@ -113,15 +115,15 @@ static void bt_song_class_init(BtSongClass *klass) {
                                        0, // n_params
                                        NULL /* param data */ );
   
-  bt_song_param_spec = g_param_spec_string("name",
-                                           "name contruct prop",
-                                           "Set songs name",
-                                           "unnamed song", /* default value */
-                                           G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
+  g_param_spec = g_param_spec_string("name",
+                                     "name contruct prop",
+                                     "Set songs name",
+                                     "unnamed song", /* default value */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
                                            
   g_object_class_install_property(gobject_class,
                                  SONG_NAME,
-                                 bt_song_param_spec);
+                                 g_param_spec);
 }
 
 GType bt_song_get_type(void) {
