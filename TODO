@@ -1,4 +1,4 @@
-$Id: TODO,v 1.7 2004-07-21 13:21:13 ensonic Exp $
+$Id: TODO,v 1.8 2004-07-21 15:17:16 ensonic Exp $
 
 * run 'make todo' to get a list of todo comments from source
 
@@ -17,7 +17,6 @@ $Id: TODO,v 1.7 2004-07-21 13:21:13 ensonic Exp $
       (one global and one for each voice)
     * gst-elemnts need caps to tell wheter they support multiple voices
     * if they do they need function to add/remove voices
-
 
 * unit-tests
   * in the unit tests package, we have nasty, complex LDADD lines

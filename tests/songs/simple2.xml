@@ -8,6 +8,9 @@
 		<info>what a lovely tune</info>
     <name>simple 2</name>
 		<genre>dark-wave</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>4</bars>
 	</meta>
 	
   <setup zoom="1.0">
@@ -35,52 +38,43 @@
   </setup>
   
   <patterns>
-    <pattern id="sine1_beep" machine="sine1" name="beeps" length="8">
+    <pattern id="sine1_beep" machine="sine1" name="beeps" length="16">
       <tick time="0">
         <globaldata name="freq" value="440,0"/>
 				<globaldata name="volume" value="1,0"/>
       </tick>
-      <tick time="2">
+      <tick time="4">
         <globaldata name="freq" value="880,0"/>
 				<globaldata name="volume" value="1,0"/>
       </tick>
-      <tick time="4">
+      <tick time="8">
         <globaldata name="freq" value="1760,0"/>
 				<globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
-    <pattern id="amp1_fade" machine="amp1" name="fade" length="8">
-      <tick time="0">
-				<globaldata name="volume" value="1,0"/>
-      </tick>
-      <tick time="1">
-				<globaldata name="volume" value="0,5"/>
-      </tick>
-      <tick time="2">
-				<globaldata name="volume" value="1,0"/>
-      </tick>
-      <tick time="3">
-				<globaldata name="volume" value="0,5"/>
-      </tick>
-      <tick time="4">
-				<globaldata name="volume" value="1,0"/>
-      </tick>
-      <tick time="5">
-				<globaldata name="volume" value="0,5"/>
-      </tick>
-      <tick time="6">
-				<globaldata name="volume" value="0,25"/>
-      </tick>
-      <tick time="7">
-				<globaldata name="volume" value="0,0"/>
-      </tick>
+    <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
+      <tick time= "0"><globaldata name="volume" value="1,0"/></tick>
+      <tick time= "1"><globaldata name="volume" value="0,75"/></tick>
+      <tick time= "2"><globaldata name="volume" value="0,5"/></tick>
+      <tick time= "3"><globaldata name="volume" value="0,25"/></tick>
+      <tick time= "4"><globaldata name="volume" value="1,0"/></tick>
+      <tick time= "5"><globaldata name="volume" value="0,75"/></tick>
+      <tick time= "6"><globaldata name="volume" value="0,5"/></tick>
+      <tick time= "7"><globaldata name="volume" value="0,25"/></tick>
+      <tick time= "8"><globaldata name="volume" value="1,0"/></tick>
+      <tick time= "9"><globaldata name="volume" value="0,75"/></tick>
+      <tick time="10"><globaldata name="volume" value="0,5"/></tick>
+      <tick time="11"><globaldata name="volume" value="0,375"/></tick>
+      <tick time="12"><globaldata name="volume" value="0,25"/></tick>
+      <tick time="11"><globaldata name="volume" value="0,125"/></tick>
+      <tick time="14"><globaldata name="volume" value="0,0"/></tick>
     </pattern>
   </patterns>
   
   <sequence>
     <labels>
       <label time="0" name="start"/>
-      <label time="4" name="end"/>
+      <label time="3" name="end"/>
     </labels>
     <tracks>
       <track index="0" machine="sine1">

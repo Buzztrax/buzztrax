@@ -8,6 +8,9 @@
 		<info>what a lovely tune</info>
     <name>example</name>
 		<genre>dark-wave</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>4</bars>
 	</meta>
 	
   <setup zoom="1.0">    

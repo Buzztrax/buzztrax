@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.13 2004-05-07 18:04:12 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.14 2004-07-21 15:17:18 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture [modular ofcourse ;-)]
@@ -79,12 +79,11 @@
 			(buzz only does 4/4)
 		with 160 BPM and 4/4: 160/4 => 40 clock cycles = loops_per_minute
 		with 16 TPB, 40 loops_per_min: 40*16 => 640 ticks_per_minute
+                                  640/60 => 10.6667 ticks_per_second
+                                  60/640 =>  0.8..  seconds_per_tick
 		at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
 		2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
 		SPT=(SRAT*60*4)/(BPM*TPB)
-	- QUESTION: is it sufficient to run the control-data callback after a full series
-		of audio-cycles, or do we have to check inside the audio loop and trigger it
-		there (which would make it slow)
 	- audio callback
 		- run our machine-plugin graph
 	- controldata callback

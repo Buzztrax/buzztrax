@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.20 2004-07-21 13:21:18 ensonic Exp $
+/* $Id: machine.c,v 1.21 2004-07-21 15:17:18 ensonic Exp $
  * base class for a machine
  */
  
@@ -228,10 +228,10 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GVal
   // @todo use a function pointer here, like e.g. self->private->global_param_set(dparam,event)
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE: {
-      gchar *str=g_strdup_value_contents(event);
-      GST_INFO("events for %s at track %d : \"%s\"",self->private->id,index,str);
+      //gchar *str=g_strdup_value_contents(event);
+      //GST_INFO("events for %s at track %d : \"%s\"",self->private->id,index,str);
       g_object_set_property(G_OBJECT(dparam),"value_double",event);
-      g_free(str);
+      //g_free(str);
     }  break;
     default:
       GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));

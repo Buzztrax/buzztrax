@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.14 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: sequence.c,v 1.15 2004-07-21 15:17:18 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -123,12 +123,28 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  */
 gboolean bt_sequence_play(const BtSequence *self) {
   glong i;
+  BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
   BtTimeLine **timeline=self->private->timelines;
   GstElement *master=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
   GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
-  // @todo where get the length from (the song?)
-  BtPlayLine *playline=g_object_new(BT_TYPE_PLAYLINE,"song",self->private->song,"master",master,"tracks",self->private->tracks,"length",16,NULL);
+  BtPlayLine *playline;
+  glong playline_length, wait_per_position,bars;
+  glong beats_per_minute, ticks_per_beat;
+  gdouble ticks_per_minute;
   gboolean res=TRUE;
+  
+  ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
+  beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
+  bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
+  /* the number of pattern-events for one playline-step,
+   * when using 4 ticks_per_beat then
+   * for 4/4 bars it is 16 (standart dance rhythm)
+   * for 3/4 bars it is 12 (walz)
+   */
+  playline_length=ticks_per_beat*bars;
+  ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
+  wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+  playline=g_object_new(BT_TYPE_PLAYLINE,"song",self->private->song,"master",master,"tracks",self->private->tracks,"length",playline_length,"wpp",wait_per_position,NULL);
 
   if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
     for(i=0;i<self->private->length;i++,timeline++) {

@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.11 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: song-info.c,v 1.12 2004-07-21 15:17:18 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -9,7 +9,11 @@
 
 enum {
   SONG_INFO_SONG=1,
-	SONG_INFO_INFO
+	SONG_INFO_INFO,
+	SONG_INFO_NAME,
+  SONG_INFO_BPM,
+  SONG_INFO_TPB,
+  SONG_INFO_BARS
 };
 
 struct _BtSongInfoPrivate {
@@ -21,6 +25,14 @@ struct _BtSongInfoPrivate {
 	
   /* freeform info about the song */
   gchar *info;
+  /* the name of the tune */
+  gchar *name;
+  /* how many beats should be played in a minute */
+  glong beats_per_minute;
+  /* how many event fire in one fraction of a beat */
+  glong ticks_per_beat;
+  /* how many bars per beat */
+  glong bars;
 };
 
 //-- methods
@@ -43,6 +55,18 @@ static void bt_song_info_get_property(GObject      *object,
     } break;
     case SONG_INFO_INFO: {
       g_value_set_string(value, self->private->info);
+    } break;
+    case SONG_INFO_NAME: {
+      g_value_set_string(value, self->private->name);
+    } break;
+    case SONG_INFO_BPM: {
+      g_value_set_long(value, self->private->beats_per_minute);
+    } break;
+    case SONG_INFO_TPB: {
+      g_value_set_long(value, self->private->ticks_per_beat);
+    } break;
+    case SONG_INFO_BARS: {
+      g_value_set_long(value, self->private->bars);
     } break;
     default: {
       g_assert(FALSE);
@@ -69,6 +93,23 @@ static void bt_song_info_set_property(GObject      *object,
       self->private->info = g_value_dup_string(value);
       GST_DEBUG("set the info for song_info: %s",self->private->info);
     } break;
+    case SONG_INFO_NAME: {
+      g_free(self->private->name);
+      self->private->name = g_value_dup_string(value);
+      GST_DEBUG("set the name for song_info: %s",self->private->name);
+    } break;
+    case SONG_INFO_BPM: {
+      self->private->beats_per_minute = g_value_get_long(value);
+      GST_DEBUG("set the bpm for song_info: %d",self->private->beats_per_minute);
+    } break;
+    case SONG_INFO_TPB: {
+      self->private->ticks_per_beat = g_value_get_long(value);
+      GST_DEBUG("set the tpb for song_info: %d",self->private->ticks_per_beat);
+    } break;
+    case SONG_INFO_BARS: {
+      self->private->bars = g_value_get_long(value);
+      GST_DEBUG("set the bars for song_info: %d",self->private->bars);
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -87,6 +128,7 @@ static void bt_song_info_finalize(GObject *object) {
 
 	g_object_unref(G_OBJECT(self->private->song));
 	g_free(self->private->info);
+	g_free(self->private->name);
   g_free(self->private);
 }
 
@@ -96,6 +138,9 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
 	//GST_DEBUG("song_info_init self=%p",self);
   self->private = g_new0(BtSongInfoPrivate,1);
   self->private->dispose_has_run = FALSE;
+  // @idea alternate that all a little at new_song
+  self->private->beats_per_minute=125;
+  self->private->ticks_per_beat=4;
 }
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
@@ -107,19 +152,53 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   gobject_class->dispose      = bt_song_info_dispose;
   gobject_class->finalize     = bt_song_info_finalize;
 	
-  g_param_spec = g_param_spec_object("song",
+  g_object_class_install_property(gobject_class,SONG_INFO_SONG,
+                                  g_param_spec_object("song",
                                      "song contruct prop",
-                                     "Set song object, the song-info belongs to",
+                                     "song object, the song-info belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-  g_object_class_install_property(gobject_class,SONG_INFO_SONG,g_param_spec);
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
-  g_param_spec = g_param_spec_string("info",
-                                     "freeform song info",
-                                     "Set songs freeform info",
+  g_object_class_install_property(gobject_class,SONG_INFO_INFO,
+                                  g_param_spec_string("info",
+                                     "info prop",
+                                     "songs freeform info",
                                      "comment me!", /* default value */
-                                     G_PARAM_READWRITE);
-  g_object_class_install_property(gobject_class,SONG_INFO_INFO,g_param_spec);
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_INFO_NAME,
+                                  g_param_spec_string("name",
+                                     "name prop",
+                                     "songs name",
+                                     "unnamed", /* default value */
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SONG_INFO_BPM,
+																	g_param_spec_long("bpm",
+                                     "bpm prop",
+                                     "how many beats should be played in a minute",
+                                     1,
+                                     1000,
+                                     125,
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SONG_INFO_TPB,
+																	g_param_spec_long("tpb",
+                                     "tpb prop",
+                                     "how many event fire in one fraction of a beat",
+                                     1,
+                                     128,
+                                     4,
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SONG_INFO_BARS,
+																	g_param_spec_long("bars",
+                                     "bars prop",
+                                     "how many bars per beat",
+                                     1,
+                                     16,
+                                     4,
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_song_info_get_type(void) {

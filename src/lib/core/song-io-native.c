@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.16 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: song-io-native.c,v 1.17 2004-07-21 15:17:18 ensonic Exp $
  * class for native song input and output
  */
  
@@ -78,6 +78,7 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 		gint i;
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
+    gchar *property_name;
 
 		GST_INFO(" got meta root node with %d items",items_len);
 		for(i=0;i<items_len;i++) {
@@ -88,9 +89,18 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 				if(xml_child_node && xmlNodeIsText(xml_child_node)) {
 					if(!xmlIsBlankNode(xml_child_node)) {
 						if((elem=xmlNodeGetContent(xml_child_node))) {
-							GST_DEBUG("  %2d : \"%s\"=\"%s\"",i,xml_node->name,elem);
-							// maybe we need a hashmap based mapping from xml-tag names to class properties
-              bt_g_object_set_string_property(G_OBJECT(song_info),xml_node->name,elem);
+              property_name=xml_node->name;
+							GST_DEBUG("  %2d : \"%s\"=\"%s\"",i,property_name,elem);
+              // depending on th name of the property, treat it's type
+              if(!strncmp(property_name,"info",4) ||
+                !strncmp(property_name,"name",4)) {
+                bt_g_object_set_string_property(G_OBJECT(song_info),property_name,elem);
+              }
+              else if(!strncmp(property_name,"bpm",3) ||
+                !strncmp(property_name,"tpb",3) ||
+                !strncmp(property_name,"bars",4)) {
+                bt_g_object_set_long_property(G_OBJECT(song_info),property_name,atol(elem));
+              }
 							xmlFree(elem);
 						}
 					}
