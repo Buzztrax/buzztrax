@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.28 2004-12-28 14:23:12 ensonic Exp $
+# $Id: configure.ac,v 1.29 2005-01-04 18:01:38 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -110,11 +110,11 @@ AC_ARG_ENABLE(
 AC_MSG_RESULT($enable_coverage)
 if test "$enable_coverage" = "yes"; then
 	#AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
-	AM_CONDITIONAL(COVERGAE, true)
-	COVERGA_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
+	AM_CONDITIONAL(COVERAGE, true)
+	COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
 else
-	AM_CONDITIONAL(COVERGAE, false)
-	COVERGA_CFLAGS=""
+	AM_CONDITIONAL(COVERAGE, false)
+	COVERAGE_CFLAGS=""
 fi
 
 # define custom path for desktop files
@@ -241,9 +241,9 @@ AC_C_CONST
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
-BT_CFLAGS="$DEBUG_CFLAGS $COVERGA_CFLAGS"
+BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS"
 BT_LIBDIR='-L${libdir}'
-BT_LIBS="-lbtcore -lm $LIBS"
+BT_LIBS='-lbtcore -lm'
 
 # Substitutes
 

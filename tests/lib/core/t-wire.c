@@ -1,4 +1,4 @@
-/** $Id: t-wire.c,v 1.4 2004-12-29 12:08:04 ensonic Exp $
+/** $Id: t-wire.c,v 1.5 2005-01-04 18:02:17 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -56,11 +56,12 @@ END_TEST
 START_TEST(test_btwire_obj2){
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
+	BtSetup *setup=NULL;
 	BtWire *wire1=NULL;
   BtWire *wire2=NULL;
-  BtSourceMachine *sinesrc=NULL;
-  BtProcessorMachine *volume1=NULL;
-  BtProcessorMachine *volume2=NULL;
+  BtSourceMachine *source=NULL;
+  BtProcessorMachine *sink1=NULL;
+  BtProcessorMachine *sink2=NULL;
   
   GST_INFO("--------------------------------------------------------------------------------");
   
@@ -71,29 +72,41 @@ START_TEST(test_btwire_obj2){
   /* create a new song */
 	song=bt_song_new(app);
 	fail_unless(song!=NULL,NULL);
-  
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL, NULL);
+ 
   /* try to create a source machine */
-	sinesrc=bt_source_machine_new(song,"id","sinesrc",1);
-  fail_unless(sinesrc!=NULL,NULL);
+	source=bt_source_machine_new(song,"id","sinesrc",1);
+  fail_unless(source!=NULL,NULL);
   
   /* try to create a volume machine */
-  volume1=bt_processor_machine_new(song,"volume1","volume",1);
-  fail_unless(volume1!=NULL,NULL);
+  sink1=bt_processor_machine_new(song,"volume1","volume",1);
+  fail_unless(sink1!=NULL,NULL);
   
   /* try to create a volume machine */
-  volume2=bt_processor_machine_new(song,"volume2","volume",1);
-  fail_unless(volume2!=NULL,NULL);
-  
+  sink2=bt_processor_machine_new(song,"volume2","volume",1);
+  fail_unless(sink2!=NULL,NULL);
+
+	/* try to add the machines to the setup. We must do this. */
+	bt_setup_add_machine(setup, BT_MACHINE(source));
+	bt_setup_add_machine(setup, BT_MACHINE(sink1));
+	bt_setup_add_machine(setup, BT_MACHINE(sink2));
+
   /* try to connect processor machine to volume1 */
-  wire1=bt_wire_new(song,BT_MACHINE(sinesrc),BT_MACHINE(volume1));
+  wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink1));
   mark_point();
   fail_unless(wire1!=NULL,NULL);
+	
+	/* try to add the wire to the setup */
+	bt_setup_add_wire(setup, wire1);
   
   /* try to connect processor machine to volume2 */
-  wire2=bt_wire_new(song,BT_MACHINE(sinesrc),BT_MACHINE(volume2));
+  wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink2));
   mark_point();
   fail_unless(wire2!=NULL,NULL);
-  
+
+	/* try to add the wire to the setup */
+	bt_setup_add_wire(setup, wire2);
 }
 END_TEST
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.60 2004-12-29 12:07:51 ensonic Exp $
+/* $Id: machine.c,v 1.61 2005-01-04 18:02:16 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -138,28 +138,31 @@ gboolean bt_machine_new(BtMachine *self) {
 		gboolean setModeOK=FALSE;
 
     // setting param mode. Only synchronized is currently supported
-    setModeOK=gst_dpman_set_mode(self->priv->dparam_manager, "synchronous");
-    GST_DEBUG("  machine \"%s\" supports dparams",self->priv->plugin_name);
-		g_return_val_if_fail(setModeOK==TRUE,FALSE);
+    if(gst_dpman_set_mode(self->priv->dparam_manager, "synchronous")) {
+    	GST_DEBUG("  machine \"%s\" supports synchronous dparams",self->priv->plugin_name);
     
-    // manage dparams
-    specs=gst_dpman_list_dparam_specs(self->priv->dparam_manager);
-    // count the specs
-    for(i=0;specs[i];i++);
-    // right now, we have no voice params
-    self->priv->global_params=i;
-    self->priv->global_dparams=(GstDParam **)g_new0(gpointer,self->priv->global_params);
-    self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
-    // iterate over all dparam
-    for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
-			gboolean attach_ret=FALSE;
+	    // manage dparams
+  	  specs=gst_dpman_list_dparam_specs(self->priv->dparam_manager);
+    	// count the specs
+    	for(i=0;specs[i];i++);
+    	// right now, we have no voice params
+    	self->priv->global_params=i;
+    	self->priv->global_dparams=(GstDParam **)g_new0(gpointer,self->priv->global_params);
+    	self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
+    	// iterate over all dparam
+    	for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
+				gboolean attach_ret=FALSE;
 			
-      self->priv->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
-      self->priv->global_dparams[i]=gst_dparam_new(self->priv->global_types[i]);
-      attach_ret=gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
-      GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
-			g_return_val_if_fail(attach_ret == TRUE,FALSE);
-    }
+      	self->priv->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
+      	self->priv->global_dparams[i]=gst_dparam_new(self->priv->global_types[i]);
+      	attach_ret=gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
+      	GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
+				g_return_val_if_fail(attach_ret == TRUE,FALSE);
+    	}
+		}
+		else {
+			GST_DEBUG("  machine \"%s\" does not support syncronous mode",self->priv->plugin_name);
+		}
   }
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
   gst_bin_add(self->priv->bin,self->priv->machine);
@@ -265,7 +268,7 @@ gboolean bt_machine_activate_spreader(BtMachine *self) {
   gboolean res=TRUE;
   
   if(!self->priv->spreader) {
-    self->priv->spreader=gst_element_factory_make("oneton",g_strdup_printf("oneton_%p",self));
+    self->priv->spreader=gst_element_factory_make("tee",g_strdup_printf("tee%p",self));
     g_assert(self->priv->spreader!=NULL);
     gst_bin_add(self->priv->bin, self->priv->spreader);
     if(!gst_element_link(self->src_elem, self->priv->spreader)) {
@@ -366,39 +369,52 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
  * bt_machine_get_global_dparam_index:
  * @self: the machine to search for the global dparam
  * @name: the name of the global dparam
- * @error: the error to fill with error message, if an error occurse
+ * @error: the location of an error instance to fill with a message, if an error occures
  *
  * Searches the list of registered dparam of a machine for a global dparam of
  * the given name and returns the index if found.
  *
- * Returns: the index or sets g_error if it not found and the returned index is 0.
- * You should always check g_error if you use this function!
+ * Returns: the index or sets error if it is not found and returns -1.
  */
-gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
+glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
   GstDParam *dparam=NULL;
-  gulong i;
-	gulong ret=0;
+	glong ret=-1;
 	gboolean found=FALSE;
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
-  
-  dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
-  
-  for(i=0;i<self->priv->global_params;i++) {
-    if(self->priv->global_dparams[i]==dparam) {
-			ret=i;
-			found=TRUE;
-			break;
+	
+	if(self->priv->dparam_manager) {
+		/** @todo if we call this with a non-existing name, then gst_dpman_get_dparam fires a CRITICAL via g_return_if_fail();
+		 * CRITICAL **: file dparammanager.c: line 409 (gst_dpman_get_dparam): assertion `dpwrap != NULL' failed
+		 */
+	  if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
+			gulong i;
+	  	for(i=0;i<self->priv->global_params;i++) {
+  	  	if(self->priv->global_dparams[i]==dparam) {
+					ret=i;
+					found=TRUE;
+					break;
+				}
+  		}
 		}
-  }
-	if ((dparam==NULL) || !found) {
-		// set g_error
-		g_set_error (error,
-							 	g_quark_from_static_string("BtMachine"), 	/* error domain */
-								0,																				/* error code */
-								"global dparam for name %s not found",		/* error message format string */
-								name);
+		if(!found && error) {
+			// set error reason
+			g_set_error (error,
+								 	g_quark_from_static_string("BtMachine"), 	/* error domain */
+									0,																				/* error code */
+									"global dparam for name %s not found",		/* error message format string */
+									name);
+		}
+	}
+	else {
+		if(error) {
+			// set error reason
+			g_set_error (error,
+								 	g_quark_from_static_string("BtMachine"), 	/* error domain */
+									0,																				/* error code */
+									"machine does not support dparams");			/* error message format string */
+		}
 	}
   return(ret);
 }
@@ -407,41 +423,51 @@ gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *na
  * bt_machine_get_voice_dparam_index:
  * @self: the machine to search for the voice dparam
  * @name: the name of the voice dparam
- * @error: the error to fill with error message, if an error occurse
+ * @error: the location of an error instance to fill with a message, if an error occures
  *
  * Searches the list of registered dparam of a machine for a voice dparam of
  * the given name and returns the index if found.
  *
- * Returns: the index or sets error if it is not found and returns 0. You should
- * alway check for error if you use this function.
+ * Returns: the index or sets error if it is not found and returns -1.
  */
-gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
+glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
   GstDParam *dparam=NULL;
-  gulong i;
-	gulong ret=0;
+	gulong ret=-1;
 	gboolean found=FALSE;
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
   
-  dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
- 
-  // @todo we need to support multiple voices
-  for(i=0;i<self->priv->voice_params;i++) {
-    if(self->priv->voice_dparams[i]==dparam) {
-			ret=i;
-			found=TRUE;
-			break;
+	if(self->priv->dparam_manager) {
+	  if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
+			gulong i;
+	  	// @todo we need to support multiple voices
+  		for(i=0;i<self->priv->voice_params;i++) {
+    		if(self->priv->voice_dparams[i]==dparam) {
+					ret=i;
+					found=TRUE;
+					break;
+				}
+  		}
 		}
-  }
-		if ((dparam==NULL) || !found) {
-		// set g_error
-		g_set_error (error,
-							 	g_quark_from_static_string("BtMachine"), 	/* error domain */
-								0,																				/* error code */
-								"voice dparam for name %s not found",		/* error message format string */
-								name);
+		if(!found && error) {
+			// set g_error
+			g_set_error (error,
+								 	g_quark_from_static_string("BtMachine"), 	/* error domain */
+									0,																				/* error code */
+									"voice dparam for name %s not found",		/* error message format string */
+									name);
+		}
 	}
+	else {
+		if(error) {
+			// set error reason
+			g_set_error (error,
+								 	g_quark_from_static_string("BtMachine"), 	/* error domain */
+									0,																				/* error code */
+									"machine does not support dparams");			/* error message format string */
+		}
+	}		
   return(ret);
 }
 
