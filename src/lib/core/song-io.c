@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.12 2004-09-06 16:26:21 ensonic Exp $
+/* $Id: song-io.c,v 1.13 2004-09-10 17:10:40 ensonic Exp $
  * base class for song input and output
  */
  
@@ -28,16 +28,37 @@ static GList *plugins=NULL;
 /**
  * bt_song_io_register_plugins:
  * Registers all song-io plugins for later use by bt_song_io_detect().
+ * @todo shoudn't the contents of the plugin list be structures 
+ * (so that apart from the detect ptr, we could keep the modules handle. we need this to close the plugins at sometime ... )
  */
 static void bt_song_io_register_plugins(void) {
+  DIR *dirp=opendir(LIBDIR"/songio");
+  
   GST_INFO("register song-io plugins ...");
   // register internal song-io plugin
   plugins=g_list_append(plugins,&bt_song_io_native_detect);
-  // @todo implement registering external song-io plugins
-	//   1.) scan plugin-folder
-	//   2.) open each g_modules
-	//   3.) gets the address of GType bt_song_io_detect(const gchar *);
-	//   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
+  // registering external song-io plugins
+  GST_INFO("  scanning external song-io plugins in "LIBDIR"/songio/ ...");
+  if(dirp) {
+    struct dirent *dire;
+    GModule *plugin;
+    BtSongIODetect bt_song_io_plugin_detect;
+    //   1.) scan plugin-folder (LIBDIR/songio)
+    while((dire=readdir(dirp))!=NULL) {
+      GST_INFO("    found file \"%s\"",dire->d_name);
+      //   2.) open each g_modules
+ 			if((plugin=g_module_open(dire->d_name,G_MODULE_BIND_LAZY))!=NULL) {
+        GST_INFO("    that is a shared object");
+        //   3.) gets the address of GType bt_song_io_detect(const gchar *);
+        if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer *)&bt_song_io_plugin_detect)) {
+          GST_INFO("    and implements a songio subclass");
+          //   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
+          plugins=g_list_append(plugins,bt_song_io_plugin_detect);
+        }
+        else g_module_close(plugin);
+      }
+    }
+  }
 }
 
 /**

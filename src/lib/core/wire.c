@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.21 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: wire.c,v 1.22 2004-09-10 17:10:40 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -21,10 +21,23 @@ struct _BtWirePrivate {
 	BtSong *song;
 	/* which machines are linked */
 	BtMachine *src,*dst;
-	// wire type adapter elements
+	/* wire type adapter elements */
 	GstElement *convert,*scale;
-	// convinience pointer
+	/* convinience pointer */
 	GstElement *dst_elem,*src_elem;
+  
+  /* the element to control the gain of a connection */
+  GstElement *gain;
+  
+  /* the element to analyse the output level of the wire (Filter/Analyzer/Audio/Level)
+   * \@todo which volume does one wants to know about? (see machine.c)
+   *   a.) the machine output (before the volume control on the wire)
+   *   b.) the machine input (after the volume control on the wire)
+   */
+  GstElement *level;
+  /* the element to analyse the frequence spectrum of the wire (Filter/Analyzer/Audio/Spectrum) */
+  GstElement *spectrum;
+  
 };
 
 //-- helper methods

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.9 2004-09-09 12:00:26 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.10 2004-09-10 17:10:43 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -76,6 +76,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 }
 
 /**
+ * sequence_table_refresh:
  * rebuild the sequence table after a structural change
  */
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song) {
@@ -198,6 +199,12 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   g_object_unref(store); // drop with treeview
 }
 
+/**
+ * pattern_list_refresh:
+ * When the user moves the cursor in the sequence, update the list of patterns
+ * so that it shows the patterns that belong to the machine in the current
+ * sequence row
+ */
 static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine *machine) {
   BtPattern *pattern=NULL;
   GtkListStore *store;

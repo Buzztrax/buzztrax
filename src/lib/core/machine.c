@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.24 2004-08-24 14:10:03 ensonic Exp $
+/* $Id: machine.c,v 1.25 2004-09-10 17:10:40 ensonic Exp $
  * base class for a machine
  */
  
@@ -42,6 +42,22 @@ struct _BtMachinePrivate {
 	GstDParam **voice_dparams;  // @todo we need these for every voice
 
   GList *patterns;	// each entry points to BtPattern
+  
+  /* the element to analyse the current input
+   * could be placed right behind the internal adder
+   * (see wire.c)
+   */
+  GstElement *input_level;
+  /* the element to analyse the current output
+   * could be placed right before the internal spreader
+   * (see wire.c)
+   */
+  GstElement *output_level;
+  
+  /* public fields are
+	GstElement *machine,*adder,*spreader;
+	GstElement *dst_elem,*src_elem;
+  */
 };
 
 //-- helper methods

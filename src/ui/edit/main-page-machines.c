@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.5 2004-08-27 15:32:46 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.6 2004-09-10 17:10:43 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -21,6 +21,8 @@ struct _BtMainPageMachinesPrivate {
 
   /* canvas for machine view */
   GnomeCanvas *canvas;
+  /* the zoomration in pixels/per unit */
+  double zoom;
 };
 
 //-- event handler
@@ -35,26 +37,58 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // update page
 }
 
+static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  GST_INFO("toolbar zoom_in event occurred");
+  self->private->zoom*=1.75;
+  gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);
+}
+
+static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  GST_INFO("toolbar zoom_out event occurred");
+  self->private->zoom/=1.75;
+  gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);
+}
+
+
 //-- helper methods
 
-// @todo this needs parameters
+/**
+ * bt_main_page_machines_draw_machine:
+ * draw something that looks a bit like a buzz-machine
+ * @todo this needs parameters
+ */
 static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
-  GnomeCanvasItem *item;
+  GnomeCanvasItem *item,*group;
+  float x=30.0,y=30.0,w=25.0,h=15.0;
 
-  item = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+  group = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+                           GNOME_TYPE_CANVAS_GROUP,
+                           "x", x,
+                           "y", y,
+                           NULL);
+
+  // add machine visualisation components
+  item = gnome_canvas_item_new(group,
                            GNOME_TYPE_CANVAS_RECT,
-                           "x1", 1.0,
-                           "y1", 1.0,
-                           "x2", 26.0,
-                           "y2", 16.0,
+                           "x1", 0.0,
+                           "y1", 0.0,
+                           "x2", w,
+                           "y2", h,
                            "fill_color", "gray",
                            "outline_color", "black",
                            "width_pixels", 1,
                            NULL);
-  item = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+  item = gnome_canvas_item_new(group,
                            GNOME_TYPE_CANVAS_TEXT,
-                           "x", 12.0,
-                           "y", 5.0,
+                           "x", (w/2.0),
+                           "y", 4.0,
+                           "justification", GTK_JUSTIFY_CENTER,
+                           "size-points", 10.0,
+                           "size-set", TRUE,
                            "text", "sine1",
                            "fill_color", "black",
                            NULL);
@@ -62,13 +96,16 @@ static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
-  GtkWidget *icon,*button,*image;
+  GtkWidget *icon,*button,*image,*scrolled_window;
+  GtkTooltips *tips;
 
   // add toolbar
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("machine view tool bar"));
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(toolbar),FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+
+  tips=gtk_tooltips_new();
   
   icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_FIT, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -79,7 +116,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Zoom Fit"));
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom in/out so that everything is visible"),NULL);
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
 
   icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_IN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -90,6 +128,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Zoom In"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom in so more details are visible"),NULL);
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
   
   icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_OUT, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -100,18 +140,25 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Zoom Out"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom out for better overview"),NULL);
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
   
   // add canvas
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   gtk_widget_push_visual(gdk_imlib_get_visual());
   // @todo try gtk_widget_push_colormap(gdk_colormap_get_system());
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
   self->private->canvas = gnome_canvas_new_aa();
-  gnome_canvas_set_pixels_per_unit(self->private->canvas,10);
+  gnome_canvas_set_center_scroll_region(self->private->canvas,TRUE);
   gnome_canvas_set_scroll_region(self->private->canvas,0.0,0.0,100.0,100.0);
+  gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);
   //gtk_widget_pop_colormap();
   gtk_widget_pop_visual();
-  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->canvas),TRUE,TRUE,0);
-  // add an example item
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->private->canvas));
+  gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
+  // add an example item (just so that we see something)
   bt_main_page_machines_draw_machine(self);
 
   // register event handlers
@@ -207,6 +254,8 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(instance);
   self->private = g_new0(BtMainPageMachinesPrivate,1);
   self->private->dispose_has_run = FALSE;
+
+  self->private->zoom=10.0;
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
