@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.2 2004-04-21 14:38:59 ensonic Exp $
+/** $Id: song.c,v 1.3 2004-05-03 16:52:20 waffel Exp $
  * song 
  *   holds all song related globals
  *
@@ -9,49 +9,139 @@
 
 #include <libbtcore/core.h>
 
-/** @brief creates new song instance */
-BtSongPtr bt_song_new(void) {
-	BtSongPtr song=g_new0(BtSong,1);
+#define return_if_disposed(a) if(self->private->dispose_has_run) return a
 
-  /* create a new thread to hold the elements */
-  song->thread = gst_thread_new("thread");
-  g_assert(song->thread != NULL);
+enum {
+  SONG_NAME=1
+};
 
-	return(song);
+struct _BtSongPrivate {
+  /* used to validate if dispose has run */
+  gboolean dispose_has_run;
+  
+  /* the name for the song */
+  gchar *name;
+};
+
+static void bt_song_real_start_play(BtSong *self) {
+  /* emitting signal if we start play */
+  g_signal_emit(self, 
+                BT_SONG_GET_CLASS(self)->play_signal_id,
+                0,
+                NULL);
 }
 
-void bt_song_destroy(BtSongPtr song) {
-	/* we don't need a reference to these objects anymore */
-	gst_object_unref(GST_OBJECT(song->thread));
-	/** @todo iterate over song->connections, song->machines and free the memory */
+/* play method from song */
+void bt_song_start_play(BtSong *self) {
+  BT_SONG_GET_CLASS(self)->start_play(self);
 }
 
-GstBin *bt_song_get_bin(BtSongPtr song) {
-	return(GST_BIN(song->thread));
+/* returns a property for the given property_id for this song */
+static void song_get_property (GObject      *object,
+                               guint         property_id,
+                               GValue       *value,
+                               GParamSpec   *pspec)
+{
+  BtSong *self = (BtSong *)object;
+  return_if_disposed();
+  switch (property_id) {
+    case SONG_NAME: {
+      g_value_set_string(value, self->private->name);
+    } break;
+    default: {
+      g_assert(FALSE);
+      break;
+    }
+  }
 }
 
-void bt_song_set_master(BtSongPtr song, BtMachinePtr master) {
-	song->master=master->machine;
+/* sets the given properties for this object */
+static void song_set_property(GObject      *object,
+                              guint         property_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+  BtSong *self = (BtSong *)object;
+  return_if_disposed();
+  switch (property_id) {
+    case SONG_NAME: {
+      g_free(self->private->name);
+      self->private->name = g_value_dup_string(value);
+      //g_print("set the name for song: %s\n",self->private->name);
+    } break;
+  }
 }
 
-gboolean bt_song_play(BtSongPtr song) {
-	return(gst_element_set_state(song->thread,GST_STATE_PLAYING)!=GST_STATE_FAILURE);
+static void song_dispose(GObject *object) {
+  BtSong *self = (BtSong *)object;
+	return_if_disposed();
+  self->private->dispose_has_run = TRUE;
 }
 
-gboolean bt_song_stop(BtSongPtr song) {
-	return(gst_element_set_state(song->thread,GST_STATE_NULL)!=GST_STATE_FAILURE);
+static void song_finalize(GObject *object) {
+  BtSong *self = (BtSong *)object;
+  g_free(self->private);
 }
 
-gboolean bt_song_pause(BtSongPtr song) {
-	return(gst_element_set_state(song->thread,GST_STATE_PAUSED)!=GST_STATE_FAILURE);
+static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
+  BtSong *self = (BtSong*)instance;
+  self->private = g_new0(BtSongPrivate,1);
+  self->private->dispose_has_run = FALSE;
 }
 
-// debugging
-void bt_song_store_as_xml(BtSongPtr song, gchar *file_name) {
-	FILE *tmp=fopen(file_name,"wb");
-	if(tmp) {
-		gst_xml_write_file(song->thread,tmp);
-		fclose(tmp);
-	}
+static void bt_song_class_init(BtSongClass *klass) {
+  
+  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GParamSpec *bt_song_param_spec;
+  
+  gobject_class->set_property = song_set_property;
+  gobject_class->get_property = song_get_property;
+  gobject_class->dispose = song_dispose;
+  gobject_class->finalize = song_finalize;
+  
+  klass->start_play = bt_song_real_start_play;
+  
+  /* adding simple signal */
+  klass->play_signal_id = g_signal_newv("play",
+                                       G_TYPE_FROM_CLASS (gobject_class),
+                                       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                       NULL, // class closure
+                                       NULL, // accumulator
+                                       NULL, // acc data
+                                       g_cclosure_marshal_VOID__VOID,
+                                       G_TYPE_NONE, // return type
+                                       0, // n_params
+                                       NULL /* param data */ );
+  
+  bt_song_param_spec = g_param_spec_string("name",
+                                           "name contruct prop",
+                                           "Set songs name",
+                                           "unnamed song", /* default value */
+                                           G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
+                                           
+  g_object_class_install_property(gobject_class,
+                                 SONG_NAME,
+                                 bt_song_param_spec);
+}
+
+GType bt_song_get_type(void) {
+  static GType type = 0;
+  if (type == 0) {
+    static const GTypeInfo info = {
+      sizeof (BtSongClass),
+      NULL, // base_init
+      NULL, // base_finalize
+      (GClassInitFunc)bt_song_class_init, // class_init
+      NULL, // class_finalize
+      NULL, // class_data
+      sizeof (BtSong),
+      0,   // n_preallocs
+	    (GInstanceInitFunc)bt_song_init, // instance_init
+    };
+  type = g_type_register_static(G_TYPE_OBJECT,
+                                "BtSongType",
+                                &info, 0);
+  }
+  return type;
 }
 

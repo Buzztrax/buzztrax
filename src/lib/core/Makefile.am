@@ -8,8 +8,6 @@ libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
 	libbtcore/version.h \
 	core.c libbtcore/core.h \
-	network.c libbtcore/network.h \
-	libbtcore/pattern.h \
 	song.c libbtcore/song.h
 
 INCLUDES = \
