@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.7 2004-08-18 16:55:09 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.8 2004-08-23 15:45:38 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -123,7 +123,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Save"));
 
-  gtk_toolbar_append_space(GTK_TOOLBAR (toolbar));
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
   //-- media controls
   
@@ -159,7 +159,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Loop"));
 
-  gtk_toolbar_append_space(GTK_TOOLBAR (toolbar));
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
   return(TRUE);
 }

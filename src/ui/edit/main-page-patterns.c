@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.2 2004-08-20 16:35:52 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.3 2004-08-23 15:45:38 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -19,12 +19,10 @@ struct _BtMainPagePatternsPrivate {
   /* the application */
   BtEditApplication *app;
   
-  /* name of the song */
-  GtkEntry *name;
-  /* genre of the song  */
-  GtkEntry *genre;
-  /* freeform info anout the song */
-  GtkTextView *info;
+  /* machine selection menu */
+  GtkOptionMenu *machine_menu;
+  /* pattern selection menu */
+  GtkOptionMenu *pattern_menu;
 };
 
 //-- event handler
@@ -32,18 +30,52 @@ struct _BtMainPagePatternsPrivate {
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+  GtkWidget *menu,*menu_item,*old_menu;
+  gpointer *iter;
+  gchar *str;
 
   GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
-  // get song from app
+  // get song from app and then setup
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  setup=bt_song_get_setup(song);
   // update page
+  // update machine menu
+  old_menu=gtk_option_menu_get_menu(self->private->machine_menu);
+  menu=gtk_menu_new();
+  iter=bt_setup_machine_iterator_new(setup);
+  while(iter) {
+    machine=bt_setup_machine_iterator_get_machine(iter);
+    str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
+    GST_INFO("  adding \"%s\"\n",str);
+    menu_item=gtk_menu_item_new_with_label(str);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+    gtk_widget_show(menu_item);
+    iter=bt_setup_machine_iterator_next(iter);
+  }
+  gtk_option_menu_set_menu(self->private->machine_menu,menu);
+  gtk_option_menu_set_history(self->private->machine_menu,0);
+  if(old_menu) gtk_widget_destroy(old_menu);
+  // update pattern menu (for widget id=0)
+  old_menu=gtk_option_menu_get_menu(self->private->pattern_menu);
+  menu=gtk_menu_new();
+  // @todo get patterns forcurrently slected machine
+  // foreach(pattnern) {
+    menu_item=gtk_menu_item_new_with_label("patern");
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+    gtk_widget_show(menu_item);
+  //}
+  gtk_option_menu_set_menu(self->private->pattern_menu,menu);
+  gtk_option_menu_set_history(self->private->pattern_menu,0);
+  if(old_menu) gtk_widget_destroy(old_menu);
 }
 
 //-- helper methods
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
-  GtkWidget *label;
+  GtkWidget *box,*menu,*button;
 
   // add toolbar
   toolbar=gtk_toolbar_new();
@@ -53,13 +85,41 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   
   // @todo add toolbar widgets
   // machine select
-  label=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+  box=gtk_hbox_new(FALSE,2);
+  gtk_container_set_border_width(GTK_CONTAINER(box),4);
+  self->private->machine_menu=gtk_option_menu_new();
+  // @todo do we really have to add the label by our self
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->machine_menu),TRUE,TRUE,2);
+
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,
-                                gtk_label_new(_("Machine")),
+                                box,
                                 NULL,
                                 NULL,NULL,
                                 NULL,NULL,NULL);
+  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Machine"));
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
   // pattern select
+  box=gtk_hbox_new(FALSE,2);
+  gtk_container_set_border_width(GTK_CONTAINER(box),4);
+  self->private->pattern_menu=gtk_option_menu_new();
+  // @todo do we really have to add the label by our self
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->pattern_menu),TRUE,TRUE,2);
+
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                box,
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Pattern"));
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
   // wavetable entry select
   // base octave
   // play notes ?

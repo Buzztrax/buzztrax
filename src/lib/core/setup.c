@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.16 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: setup.c,v 1.17 2004-08-23 15:45:37 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -140,6 +140,52 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
 	return(NULL);
 }
 
+/**
+ * bt_setup_machine_iterator_new:
+ * @self: the setup to generate the machine iterator from
+ *
+ * Builds a iterator handle, one can use to traverse the #BtMachine list of the setup.
+ * The new iterator already points to the first element in the list.
+ * Advance the iterator with bt_setup_machine_iterator_next() and
+ * read from the iterator with bt_setup_machine_iterator_get_machine().
+ *
+ * Returns: the iterator or NULL
+ */
+gpointer bt_setup_machine_iterator_new(const BtSetup *self) {
+  gpointer res=NULL;
+
+  if(self->private->machines) {
+    res=g_list_first(self->private->machines);
+  }
+  return(res);
+}
+
+/**
+ * bt_setup_machine_iterator_next:
+ * @iter: the iterator handle as returned by bt_setup_machine_iterator_new()
+ *
+ * Advances the iterator for one element. Read data with bt_setup_machine_iterator_get_machine().
+ * 
+ * Returns: the new iterator or NULL for end-of-list
+ */
+gpointer bt_setup_machine_iterator_next(gpointer iter) {
+  g_assert(iter);
+	return(g_list_next((GList *)iter));
+}
+
+/**
+ * bt_setup_machine_iterator_get_machine:
+ * @iter: the iterator handle as returned by bt_setup_machine_iterator_new()
+ *
+ * Retrieves the #BtMachine from the current list position determined by the iterator.
+ * Advance the iterator with bt_setup_machine_iterator_next().
+ *
+ * Returns: the machine instance
+ */
+BtMachine *bt_setup_machine_iterator_get_machine(gpointer iter) {
+  g_assert(iter);
+	return(BT_MACHINE(((GList *)iter)->data));
+}
 //-- wrapper
 
 //-- class internals

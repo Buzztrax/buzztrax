@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.3 2004-08-23 11:33:48 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.4 2004-08-23 15:45:38 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -19,7 +19,7 @@ struct _BtMainPageSequencePrivate {
   /* the application */
   BtEditApplication *app;
   
-  /* bar selection menu */
+  /* bars selection menu */
   GtkOptionMenu *bars_menu;
 };
 
@@ -51,9 +51,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
-  GtkWidget *menu;
-  GtkWidget *button,*label;
-  BtSong *song;
+  GtkWidget *box,*menu,*menu_item,*button;
   glong i;
   gchar str[4];
 
@@ -62,29 +60,30 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   gtk_widget_set_name(toolbar,_("machine view tool bar"));
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
-  //gtk_container_set_border_width(GTK_CONTAINER(toolbar),2);
   // add toolbar widgets
+  // steps
+  box=gtk_hbox_new(FALSE,2);
+  gtk_container_set_border_width(GTK_CONTAINER(box),4);
+  // build list of values for the menu
   menu=gtk_menu_new();
-  //-- build list of values
   sprintf(str,"1");gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
   sprintf(str,"2");gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
   for(i=4;i<=64;i+=4) {
     sprintf(str,"%d",i);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
+    menu_item=gtk_menu_item_new_with_label(str);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+    gtk_widget_show(menu_item);
   }
   self->private->bars_menu=gtk_option_menu_new();
-  gtk_option_menu_set_menu(GTK_OPTION_MENU(self->private->bars_menu),menu);
-  // @todo how can we add some padding around the buttons in the toolbar?
+  gtk_option_menu_set_menu(self->private->bars_menu,menu);
+  
   // @todo do we really have to add the label by our self
-  label=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_WIDGET,
-                                gtk_label_new(_("Steps")),
-                                NULL,
-                                NULL,NULL,
-                                NULL,NULL,NULL);
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->bars_menu),TRUE,TRUE,2);
+  
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,
-                                GTK_WIDGET(self->private->bars_menu),
+                                box,
                                 NULL,
                                 NULL,NULL,
                                 NULL,NULL,NULL);
@@ -93,7 +92,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
 
   
   // @todo add list-view
-
   gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no sequence view yet"));
 
   // register event handlers

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.2 2004-08-20 16:35:52 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.3 2004-08-23 15:45:38 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -20,6 +20,7 @@ struct _BtMainPageMachinesPrivate {
   BtEditApplication *app;
 
   /* canvas for machine view */
+  GnomeCanvas *canvas;
 };
 
 //-- event handler
@@ -43,7 +44,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   // add toolbar
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("machine view tool bar"));
-  gtk_box_pack_start(GTK_CONTAINER(self),toolbar,FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(toolbar),FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   
   icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_FIT, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
@@ -77,8 +78,27 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Zoom Out"));
   
-  // @todo add canvas
-  gtk_box_pack_start(GTK_CONTAINER(self),gtk_label_new("no machine view yet"),TRUE,TRUE,0);
+  // add canvas
+  gtk_widget_push_visual(gdk_imlib_get_visual());
+  //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
+  self->private->canvas = gnome_canvas_new_aa();
+  gnome_canvas_set_pixels_per_unit(self->private->canvas,10);
+  gnome_canvas_set_scroll_region(self->private->canvas,0.0,0.0,100.0,100.0);
+  //gtk_widget_pop_colormap();
+  gtk_widget_pop_visual();
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->canvas),TRUE,TRUE,0);
+  // add an example item
+  {
+    GnomeCanvasItem *item;
+    item = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+                             GNOME_TYPE_CANVAS_RECT,
+                             "x1", 1.0,
+                             "y1", 1.0,
+                             "x2", 23.0,
+                             "y2", 20.0,
+                             "fill_color", "black",
+                             NULL);
+  }
   
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
