@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.87 2005-02-11 20:37:19 ensonic Exp $
+/* $Id: machine.c,v 1.88 2005-02-12 12:56:50 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -753,7 +753,7 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
   		}
 		}
 		if(!found && error) {
-			// set g_error
+			// error reason
 			g_set_error (error,
 								 	g_quark_from_static_string("BtMachine"), 	/* error domain */
 									0,																				/* error code */
@@ -848,10 +848,34 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GVa
       //g_free(str);
       g_object_set_property(G_OBJECT(dparam),"value-double",event);
 			//g_object_set(G_OBJECT(dparam),"value-double",g_value_get_double(event),NULL);
-    }  break;
+    } break;
+    case G_TYPE_INT: {
+			g_object_set_property(G_OBJECT(dparam),"value-int",event);
+		} break;
     default:
-      GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));
+			GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
   }
+}
+
+/**
+ * bt_machine_set_voice_dparam_value:
+ * @self: the machine to set the global dparam value
+ * @voice: the voice to change
+ * @index: the offset in the list of global dparams
+ * @event: the new value
+ *
+ * Sets a the specified voice dparam to the give data value.
+ */
+void bt_machine_set_voice_dparam_value(const BtMachine *self, gulong voice, gulong index, GValue *event) {
+  GstDParam *dparam;
+  
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(G_IS_VALUE(event));
+	g_assert(voice<self->priv->voices);
+  g_assert(index<self->priv->voice_params);
+
+	// @todo set voice events
+	// dparam=self->priv->voice_dparams[voice][index];
 }
 
 //-- wrapper

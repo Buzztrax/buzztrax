@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.27 2005-02-11 20:37:33 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.28 2005-02-12 12:56:50 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -75,10 +75,10 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
 	str=g_strdup_printf("%02d:%02d.%03d",min,sec,msec);
   // update statusbar fields
-	gdk_threads_enter();
+	gdk_threads_try_enter();
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id);
 	gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
-	gdk_threads_leave();
+	gdk_threads_try_leave();
  	g_free(str);
 }
 

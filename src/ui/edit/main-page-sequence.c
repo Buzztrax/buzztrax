@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.59 2005-02-11 20:37:33 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.60 2005-02-12 12:56:50 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -490,14 +490,14 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
 	// do nothing for invisible rows
 	if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) return;
 	// scroll  to make play pos visible
-	gdk_threads_enter();
+	gdk_threads_try_enter();
 	if((path=gtk_tree_path_new_from_indices(pos,-1))) {
 		// that would try to keep the cursor in the middle (means it will scroll more)
 		gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
 		//gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
 		gtk_tree_path_free(path);
 	}
-	gdk_threads_leave();
+	gdk_threads_try_leave();
 
 	/*
 	// reset old tick pos
@@ -507,7 +507,7 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
 		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
 	{
 	  // update sequence table highlight
-		//gdk_threads_enter();
+		//gdk_threads_try_enter();
 		// set color for new pos
 		if(sequence_model_get_iter_by_position(store,&iter,pos)) {
 			gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,TRUE,-1);
@@ -519,7 +519,7 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
 			}
 		}
 		self->priv->tick_pos=pos;
-		//gdk_threads_leave();
+		//gdk_threads_try_leave();
 	}
 	else {
 		GST_WARNING("can't get tree model");
@@ -689,11 +689,13 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 						BtSequence *song;
 						BtSequence *sequence;
 
-						// adjust play pointer
 						g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 						g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-						// @hack setting the playpos triggers notify:: to which we listen too, this avoid gdk_locks
-						gdk_threads_leave();g_object_set(sequence,"play-pos",row,NULL);gdk_threads_enter();
+						gdk_threads_try_enter();
+						// @idea use qualifier to set loop_start and end?
+						// adjust play pointer
+						g_object_set(sequence,"play-pos",row,NULL);
+						gdk_threads_try_leave();
 						g_object_unref(sequence);
 						g_object_unref(song);
 					}

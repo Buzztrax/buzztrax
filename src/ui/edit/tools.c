@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.6 2005-01-18 16:38:37 ensonic Exp $
+/* $Id: tools.c,v 1.7 2005-02-12 12:56:50 ensonic Exp $
  * gui helper
  */
 
@@ -195,4 +195,50 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   gtk_widget_destroy(dialog);
   GST_INFO("bt_dialog_question(\"%s\") = %d",title,result);
   return(result);
+}
+
+// gdk thread locking helpers
+// idea is from rythmbox sources
+
+static GThread *main_thread = NULL;
+
+/**
+ * bt_threads_init:
+ *
+ * Initialises gdk thread locking helpers. Do call this together like in:
+ * <informalexample><programlisting language="c">
+ * if(!g_thread_supported()) {	// are g_threads() already initialized
+ *		g_thread_init(NULL);
+ *		gdk_threads_init();
+ *		bt_threads_init();
+ *	}</programlisting>
+ * </informalexample>
+ */
+void bt_threads_init(void) {
+	main_thread=g_thread_self();
+}
+
+static gboolean bt_threads_in_main_thread(void) {
+	return(main_thread==g_thread_self());
+}
+
+/**
+ * gdk_threads_try_enter:
+ *
+ * Use this instead of gdk_threads_enter(). This methods avoids lockups that
+ * happen when calling gdk_threads_enter() twice from the same thread.
+ * To unlock use that matching gdk_threads_try_leave().
+ */
+void gdk_threads_try_enter(void) {
+	if(!bt_threads_in_main_thread())	gdk_threads_enter();
+}
+
+/**
+ * gdk_threads_try_leave:
+ *
+ * Use this instead of gdk_threads_leave(). This methods matches
+ * gdk_threads_try_enter().
+ */
+void gdk_threads_try_leave(void) {
+	if (!bt_threads_in_main_thread()) gdk_threads_leave();
 }

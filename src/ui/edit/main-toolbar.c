@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.44 2005-02-11 20:37:33 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.45 2005-02-12 12:56:50 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -73,7 +73,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   g_assert(user_data);
   
   GST_INFO("song stop event occured");
-	gdk_threads_enter();
+	gdk_threads_try_enter();
   gtk_toggle_button_set_active(self->priv->play_button,FALSE);
 	// reset level meters
 	for(i=0;i<MAX_VUMETER;i++) {
@@ -81,7 +81,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 	}
 	// disable stop button
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
-	gdk_threads_leave();
+	gdk_threads_try_leave();
 	GST_INFO("song stop event handled");
 }
 
@@ -186,9 +186,9 @@ static void on_song_level_change(GstElement *element, gdouble time, gint channel
   g_assert(user_data);
 
   //GST_INFO("%d  %.3f  %.3f %.3f %.3f", channel,time,rms,peak,decay);
-	gdk_threads_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
+	gdk_threads_try_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
 	gtk_vumeter_set_levels(self->priv->vumeter[channel], (gint)(rms*10.0), (gint)(peak*10.0));
-	gdk_threads_leave();
+	gdk_threads_try_leave();
 }
 
 static void on_song_volume_change(GtkRange *range,gpointer user_data) {
@@ -211,14 +211,14 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
 		channels=gst_caps_get_channels(caps);
 		GST_INFO("!!!  input level src has %d output channels",channels);
 
-		gdk_threads_enter();
+		gdk_threads_try_enter();
 		for(i=0;i<channels;i++) {
 			gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
 		}
 		for(i=channels;i<MAX_VUMETER;i++) {
 			gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
 		}
-		gdk_threads_leave();
+		gdk_threads_try_leave();
 	}
 }
 

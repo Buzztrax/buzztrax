@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.29 2005-01-20 16:18:27 ensonic Exp $
+/* $Id: pattern.c,v 1.30 2005-02-12 12:56:50 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -321,8 +321,13 @@ gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar 
       g_value_set_double(event,val);
       GST_DEBUG("store double event %s",value);
     } break;
+    case G_TYPE_INT: {
+			gint val=atoi(value);
+      g_value_set_int(event,val);
+      GST_DEBUG("store int event %s",value);
+    } break;
     default:
-      GST_ERROR("unsupported GType=%d for value=\"%s\"",G_VALUE_TYPE(event),value);
+      GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
       return(FALSE);
   }
   return(TRUE);
@@ -351,7 +356,9 @@ void bt_pattern_play_tick(const BtPattern *self, gulong index) {
   }
   for(j=0;j<self->priv->voices;j++) {
     for(k=0;k<self->priv->voice_params;k++) {
-      // @set voice events
+			if(G_IS_VALUE(data)) {
+				bt_machine_set_voice_dparam_value(self->priv->machine,j,k,data);
+			}
       data++;
     }
   }

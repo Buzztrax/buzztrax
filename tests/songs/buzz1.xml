@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard
+	xmlns="http://www.buzztard.org/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+
+	<meta>
+		<info>a sine followed by an amp, both playing patterns</info>
+    <name>simple 2</name>
+		<genre>dark-wave</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
+	</meta>
+	
+  <setup zoom="1.0">
+    <machines>
+      <sink id="audio_sink">
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="145"/>
+      </sink>
+      
+      <source id="guru2" pluginname="bml-Gur--2" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+    </machines>
+    
+    <wires>
+      <wire src="guru2" dst="audio_sink" gain="1.0" pan="-50"/>
+    </wires>    
+  </setup>
+  
+  <patterns>
+    <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
+      <tick time="0">
+        <globaldata name="Note" value="24"/>
+      </tick>
+      <tick time="4">
+        <globaldata name="Note" value="28"/>
+      </tick>
+      <tick time="8">
+        <globaldata name="Note" value="31"/>
+      </tick>
+    </pattern>
+  </patterns>
+  
+  <sequence>
+    <labels>
+      <label time="0" name="start"/>
+      <label time="63" name="end"/>
+    </labels>
+    <tracks>
+      <track index="0" machine="guru2">
+        <position time="0" pattern="guru2_beeps"/>
+        <position time="32" pattern="guru2_beeps"/>
+      </track>
+    </tracks>
+  </sequence>
+  
+  <wavetable/>
+
+</buzztard>

@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.7 2005-02-11 20:37:34 ensonic Exp $
+/* $Id: sequence-view.c,v 1.8 2005-02-12 12:56:50 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -128,7 +128,6 @@ static void bt_sequence_view_unrealize (GtkWidget *widget) {
 	
 }
 
-// @todo when scrolling the lines leave garbage on screen
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
 	BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
@@ -146,10 +145,10 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
   if(self->priv->window==event->window) {
 		gint w,y;
 		gdouble h;
-		//GdkRectangle vr,br;
+		GdkRectangle vr/*,br*/;
 		//GtkTreePath *path;
 		
-		//gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
+		gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
 		// path should point to the last row (of course there is no way the API will tell us ...)
 		//path=gtk_tree_path_new_from_indices(0,-1);
 		//gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
@@ -165,12 +164,18 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
 		h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
 
 		y=(gint)(self->priv->play_pos*h);
-  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+		if((y>=vr.y) && (y<(vr.y+vr.height))) {
+  		gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+		}
 
 		y=(gint)(self->priv->loop_start*h);
-  	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
+		if((y>=vr.y) && (y<(vr.y+vr.height))) {
+	  	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
+		}
 		y=(gint)(self->priv->loop_end*h)-2;
-  	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
+		if((y>=vr.y) && (y<(vr.y+vr.height))) {
+	  	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
+		}
 	}
 	return(FALSE);
 }

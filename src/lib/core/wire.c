@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.48 2005-01-28 18:47:49 ensonic Exp $
+/* $Id: wire.c,v 1.49 2005-02-12 12:56:50 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -240,7 +240,6 @@ static gboolean bt_wire_connect(BtWire *self) {
   GST_DEBUG("linking machines succeded");
 Error:
   g_object_try_unref(setup);
-  if(!res) g_object_unref(self);
 	return(res);
 }
 
