@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.7 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: song-io-native.h,v 1.8 2004-07-07 11:39:05 ensonic Exp $
  * class for native song input and output
  */
 
@@ -47,7 +47,7 @@ struct _BtSongIONative {
  * class for song input and output in native zip/xml format
  */
 struct _BtSongIONativeClass {
-  BtSongIOClass parent;
+  BtSongIOClass parent_class;
 
 	/* class data */
 	xmlXPathCompExprPtr xpath_get_meta;

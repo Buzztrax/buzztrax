@@ -18,6 +18,7 @@ libbtcore_la_SOURCES = \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
 	song-io-native.c libbtcore/song-io-native.h \
 	source-machine.c libbtcore/source-machine.h \
+	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
 	libbtcore/version.h
 

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.8 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: cmd-application.c,v 1.9 2004-07-07 11:39:05 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -43,6 +43,8 @@ static void play_event(void) {
  * @argv: commandline arguments
  *
  * starts the application with the supplied arguments
+ *
+ * Returns: true for success
  */
 gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **argv) {
 	gboolean res;

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: processor-machine.h,v 1.5 2004-07-07 11:39:05 ensonic Exp $
  * class for a processor machine
  */
 
@@ -34,7 +34,7 @@ struct _BtProcessorMachine {
 };
 /* structure of the processor_machine class */
 struct _BtProcessorMachineClass {
-  BtMachineClass parent;
+  BtMachineClass parent_class;
 };
 
 /* used by PROCESSOR_MACHINE_TYPE */

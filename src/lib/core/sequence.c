@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.7 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: sequence.c,v 1.8 2004-07-07 11:39:04 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -25,7 +25,8 @@ struct _BtSequencePrivate {
   /* the number of tracks */
   glong tracks;
 
-  //BtTimeLine **timelines;	// each entry points to a BtTimeLine;
+  /** the timelines that form the sequence */
+  BtTimeLine **timelines;
 };
 
 //-- methods

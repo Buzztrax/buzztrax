@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: source-machine.h,v 1.5 2004-07-07 11:39:05 ensonic Exp $
  * class for a source machine
  */
 
@@ -34,7 +34,7 @@ struct _BtSourceMachine {
 };
 /* structure of the source_machine class */
 struct _BtSourceMachineClass {
-  BtMachineClass parent;
+  BtMachineClass parent_class;
 };
 
 /* used by SOURCE_MACHINE_TYPE */
