@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
 
-/* $Id: main-page-sequence.c,v 1.50 2005-01-29 14:18:38 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.51 2005-01-30 10:37:33 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -352,6 +352,10 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 		else GST_WARNING("can't get treeview column");
     g_object_unref(machine);
   }
+	// add a final column that eats remaining space
+	renderer=gtk_cell_renderer_text_new();
+	g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,NULL);
+	gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,/*title=*/NULL,renderer,NULL);
   GST_INFO("    number of columns : %d",col_index);
 
   // release the references
