@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.1 2004-10-01 13:25:03 waffel Exp $
+/** $Id: e-setup.c,v 1.2 2004-10-01 13:36:09 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -31,6 +31,10 @@ START_TEST(test_btsetup_obj1){
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	GstElement *bin=NULL;
+	// machine
+	BtSourceMachine *gen1=NULL;
+	BtMachine *ref_machine=NULL;
+	
 	gpointer *iter_ptr;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
@@ -40,10 +44,24 @@ START_TEST(test_btsetup_obj1){
 	song=bt_song_new(GST_BIN(bin));
 	setup=bt_setup_new(song);
 	fail_unless(setup!=NULL, NULL);
+	
+	/* try to craete generator1 with sinesrc */
+  gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(gen1!=NULL, NULL);
+	
+	/* try to add the machine to the setup (and therewith to the song) */
+	bt_setup_add_machine(setup,BT_MACHINE(gen1));
+	
 	iter_ptr=bt_setup_machine_iterator_new(setup);
-	// the iterator should not be null
+	/* the iterator should not be null */
 	fail_unless(iter_ptr!=NULL, NULL);
-	// the next element of the pointer should be null
+	
+	/* the pointer should be point to the gen1 machine */
+	ref_machine=bt_setup_machine_iterator_get_machine(iter_ptr);
+	fail_unless(ref_machine!=NULL, NULL);
+	fail_unless(BT_IS_SOURCE_MACHINE(ref_machine)==TRUE, NULL);
+	
+	/* the next element of the pointer should be null */
 	fail_unless(bt_setup_machine_iterator_next(iter_ptr)==NULL, NULL);
 }
 END_TEST
