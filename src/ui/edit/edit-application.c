@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.11 2004-08-18 17:57:07 ensonic Exp $
+/* $Id: edit-application.c,v 1.12 2004-08-24 14:10:04 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -52,7 +52,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;

@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: machine-methods.h,v 1.9 2004-08-24 14:10:03 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -18,5 +18,9 @@ extern GType bt_machine_get_global_dparam_type(const BtMachine *self, glong inde
 extern GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index);
 
 extern void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event);
+
+extern gpointer bt_machine_pattern_iterator_new(const BtMachine *self);
+extern gpointer bt_machine_pattern_iterator_next(gpointer iter);
+extern BtPattern *bt_machine_pattern_iterator_get_pattern(gpointer iter);
 
 #endif // BT_MACHINE_METHDOS_H

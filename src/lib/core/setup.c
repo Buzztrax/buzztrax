@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.17 2004-08-23 15:45:37 ensonic Exp $
+/* $Id: setup.c,v 1.18 2004-08-24 14:10:03 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -70,7 +70,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
  * @id: the identifier of the machine
  *
  * search the setup for a machine by the supplied id.
- * The machine must have been added previously to this setup with #bt_setup_add_machine().
+ * The machine must have been added previously to this setup with bt_setup_add_machine().
  *
  * Returns: BtMachine instance or NULL if not found
  */
@@ -97,6 +97,21 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 		 //use g_strdup_value_contents() with strcmp ?
 		 //use gst_value_compare()
  */
+
+/**
+ * bt_setup_get_machine_by_index:
+ * @self: the setup to search for the machine
+ * @index: the list-position of the machine
+ *
+ * search the setup for a machine by the supplied index position.
+ * The machine must have been added previously to this setup with bt_setup_add_machine().
+ *
+ * Returns: BtMachine instance or NULL if not found
+ */
+BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, glong index) {
+	return(g_list_nth_data(self->private->machines,index));
+}
+
  
 /**
  * bt_setup_get_wire_by_src_machine:
@@ -144,7 +159,8 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
  * bt_setup_machine_iterator_new:
  * @self: the setup to generate the machine iterator from
  *
- * Builds a iterator handle, one can use to traverse the #BtMachine list of the setup.
+ * Builds an iterator handle, one can use to traverse the #BtMachine list of the
+ * setup.
  * The new iterator already points to the first element in the list.
  * Advance the iterator with bt_setup_machine_iterator_next() and
  * read from the iterator with bt_setup_machine_iterator_get_machine().
@@ -180,12 +196,13 @@ gpointer bt_setup_machine_iterator_next(gpointer iter) {
  * Retrieves the #BtMachine from the current list position determined by the iterator.
  * Advance the iterator with bt_setup_machine_iterator_next().
  *
- * Returns: the machine instance
+ * Returns: the #BtMachine instance
  */
 BtMachine *bt_setup_machine_iterator_get_machine(gpointer iter) {
   g_assert(iter);
 	return(BT_MACHINE(((GList *)iter)->data));
 }
+
 //-- wrapper
 
 //-- class internals

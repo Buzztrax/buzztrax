@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.3 2004-08-23 15:45:38 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.4 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -29,13 +29,36 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
 
-  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update page
 }
 
 //-- helper methods
+
+// @todo this needs parameters
+static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
+  GnomeCanvasItem *item;
+
+  item = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", 1.0,
+                           "y1", 1.0,
+                           "x2", 26.0,
+                           "y2", 16.0,
+                           "fill_color", "gray",
+                           "outline_color", "black",
+                           "width_pixels", 1,
+                           NULL);
+  item = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+                           GNOME_TYPE_CANVAS_TEXT,
+                           "x", 12.0,
+                           "y", 5.0,
+                           "text", "sine1",
+                           "fill_color", "black",
+                           NULL);
+}
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
@@ -88,18 +111,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_pop_visual();
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->canvas),TRUE,TRUE,0);
   // add an example item
-  {
-    GnomeCanvasItem *item;
-    item = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
-                             GNOME_TYPE_CANVAS_RECT,
-                             "x1", 1.0,
-                             "y1", 1.0,
-                             "x2", 23.0,
-                             "y2", 20.0,
-                             "fill_color", "black",
-                             NULL);
-  }
-  
+  bt_main_page_machines_draw_machine(self);
+
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
@@ -113,7 +126,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app) {
   BtMainPageMachines *self;

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.18 2004-08-23 11:33:48 ensonic Exp $
+/* $Id: main-window.c,v 1.19 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main window
  */
 
@@ -40,7 +40,7 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gboolean res=TRUE;
   
-  GST_INFO("delete event occurred\n");
+  GST_INFO("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(self)) {
     BtMainWindowClass *klass=BT_MAIN_WINDOW_GET_CLASS(self);
@@ -52,7 +52,7 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
 }
 
 static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
-  GST_INFO("destroy occurred\n");
+  GST_INFO("destroy occurred");
   gtk_main_quit();
 }
 
@@ -61,7 +61,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   static gchar *title;
   BtSong *song;
 
-  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
 
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(app),"song"));
@@ -119,7 +119,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
@@ -150,9 +150,9 @@ Error:
  */
 gboolean bt_main_window_run(const BtMainWindow *self) {
   gboolean res=TRUE;
-  GST_INFO("before running the UI\n");
+  GST_INFO("before running the UI");
   gtk_main();
-  GST_INFO("after running the UI\n");
+  GST_INFO("after running the UI");
   return(res);
 }
 
@@ -162,7 +162,7 @@ gboolean bt_main_window_run(const BtMainWindow *self) {
  *
  * Displays a dialog box, that asks the user to confirm exiting the application.
  *
- * Return: TRUE if the user has confirmed to exit
+ * Returns: TRUE if the user has confirmed to exit
  */
 gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean quit=FALSE;
@@ -194,10 +194,10 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
       quit=FALSE;
       break;
     default:
-      GST_WARNING("unhandled response code = %d\n",result);
+      GST_WARNING("unhandled response code = %d",result);
   }
   gtk_widget_destroy(dialog);
-  GST_INFO("menu quit result = %d\n",quit);
+  GST_INFO("menu quit result = %d",quit);
   return(quit);
 }
 
@@ -242,7 +242,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
     case GTK_RESPONSE_CLOSE:
       break;
     default:
-      GST_WARNING("unhandled response code = %d\n",result);
+      GST_WARNING("unhandled response code = %d",result);
   } 
   gtk_widget_destroy(dialog);
 }

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.6 2004-08-20 16:35:52 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.7 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -48,7 +48,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   gchar *str;
   gulong msec,sec,min;
 
-  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // get new song length
@@ -110,7 +110,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
   BtMainStatusbar *self;

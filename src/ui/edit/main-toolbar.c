@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.8 2004-08-23 15:45:38 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.9 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -29,7 +29,7 @@ GThread* player_thread=NULL;
 static void on_song_stop(const BtSong *song, gpointer user_data) {
   GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
 
-  GST_INFO("song stop event occured\n");
+  GST_INFO("song stop event occured");
   g_signal_handler_disconnect(G_OBJECT(song),on_song_stop_handler_id);
   gtk_toggle_button_set_active(button,FALSE);
 }
@@ -37,14 +37,14 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   
-  GST_INFO("toolbar new event occurred\n");
+  GST_INFO("toolbar new event occurred");
   bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
 static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   
-  GST_INFO("toolbar open event occurred\n");
+  GST_INFO("toolbar open event occurred");
   bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
@@ -55,7 +55,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     BtSong *song;
     GError *error;
 
-    GST_INFO("toolbar play event occurred\n");
+    GST_INFO("toolbar play event occurred");
     song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
 
     on_song_stop_handler_id=g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)button);
@@ -71,7 +71,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
 
-  GST_INFO("toolbar stop event occurred\n");
+  GST_INFO("toolbar stop event occurred");
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   bt_song_stop(song);
 }
@@ -172,7 +172,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
   BtMainToolbar *self;

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.24 2004-08-18 16:55:08 ensonic Exp $
+/* $Id: cmd-application.c,v 1.25 2004-08-24 14:10:04 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -42,7 +42,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtCmdApplication *bt_cmd_application_new(void) {
   BtCmdApplication *self;

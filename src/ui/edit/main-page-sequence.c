@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.4 2004-08-23 15:45:38 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.5 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -30,7 +30,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSong *song;
   glong index,bars;
 
-  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update page
@@ -43,7 +43,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   else {
     index=1+(bars>>2);
   }
-  //GST_INFO("  bars=%d, index=%d\n",bars,index);
+  //GST_INFO("  bars=%d, index=%d",bars,index);
   gtk_option_menu_set_history(GTK_OPTION_MENU(self->private->bars_menu),index);
 }
 
@@ -74,7 +74,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
   }
-  self->private->bars_menu=gtk_option_menu_new();
+  self->private->bars_menu=GTK_OPTION_MENU(gtk_option_menu_new());
   gtk_option_menu_set_menu(self->private->bars_menu,menu);
   
   // @todo do we really have to add the label by our self
@@ -107,7 +107,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app) {
   BtMainPageSequence *self;

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.23 2004-08-13 18:58:10 ensonic Exp $
+/* $Id: machine.c,v 1.24 2004-08-24 14:10:03 ensonic Exp $
  * base class for a machine
  */
  
@@ -234,6 +234,54 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GVal
     default:
       GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));
   }
+}
+
+/**
+ * bt_machine_pattern_iterator_new:
+ * @self: the machine to generate the pattern iterator from
+ *
+ * Builds an iterator handle, one can use to traverse the #BtPattern list of the
+ * machine.
+ * The new iterator already points to the first element in the list.
+ * Advance the iterator with bt_machine_pattern_iterator_next() and
+ * read from the iterator with bt_machine_pattern_iterator_get_pattern().
+ *
+ * Returns: the iterator or NULL
+ */
+gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
+  gpointer res=NULL;
+
+  if(self->private->patterns) {
+    res=g_list_first(self->private->patterns);
+  }
+  return(res);
+}
+
+/**
+ * bt_machine_pattern_iterator_next:
+ * @iter: the iterator handle as returned by bt_machine_pattern_iterator_new()
+ *
+ * Advances the iterator for one element. Read data with bt_machine_pattern_iterator_get_pattern().
+ * 
+ * Returns: the new iterator or NULL for end-of-list
+ */
+gpointer bt_machine_pattern_iterator_next(gpointer iter) {
+  g_assert(iter);
+	return(g_list_next((GList *)iter));
+}
+
+/**
+ * bt_machine_pattern_iterator_get_pattern:
+ * @iter: the iterator handle as returned by bt_machine_pattern_iterator_new()
+ *
+ * Retrieves the #BtPattern from the current list position determined by the iterator.
+ * Advance the iterator with bt_machine_pattern_iterator_next().
+ *
+ * Returns: the #BtPattern instance
+ */
+BtPattern *bt_machine_pattern_iterator_get_pattern(gpointer iter) {
+  g_assert(iter);
+	return(BT_PATTERN(((GList *)iter)->data));
 }
 
 //-- wrapper

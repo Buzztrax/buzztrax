@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.3 2004-08-23 15:45:38 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.4 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -25,30 +25,21 @@ struct _BtMainPagePatternsPrivate {
   GtkOptionMenu *pattern_menu;
 };
 
-//-- event handler
+//-- event handler helper
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtSong *song;
-  BtSetup *setup;
+static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
   BtMachine *machine;
-  GtkWidget *menu,*menu_item,*old_menu;
+  GtkWidget *menu,*menu_item;
   gpointer *iter;
   gchar *str;
 
-  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
-  // get song from app and then setup
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
-  setup=bt_song_get_setup(song);
-  // update page
   // update machine menu
-  old_menu=gtk_option_menu_get_menu(self->private->machine_menu);
   menu=gtk_menu_new();
   iter=bt_setup_machine_iterator_new(setup);
   while(iter) {
     machine=bt_setup_machine_iterator_get_machine(iter);
     str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
-    GST_INFO("  adding \"%s\"\n",str);
+    GST_INFO("  adding \"%s\"",str);
     menu_item=gtk_menu_item_new_with_label(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
@@ -56,19 +47,60 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   }
   gtk_option_menu_set_menu(self->private->machine_menu,menu);
   gtk_option_menu_set_history(self->private->machine_menu,0);
-  if(old_menu) gtk_widget_destroy(old_menu);
-  // update pattern menu (for widget id=0)
-  old_menu=gtk_option_menu_get_menu(self->private->pattern_menu);
+}
+
+static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine *machine) {
+  BtPattern *pattern=NULL;
+  GtkWidget *menu,*menu_item;
+  gpointer *iter;
+  gchar *str;
+
+  g_assert(machine);
+
+  // update pattern menu
   menu=gtk_menu_new();
-  // @todo get patterns forcurrently slected machine
-  // foreach(pattnern) {
-    menu_item=gtk_menu_item_new_with_label("patern");
+  iter=bt_machine_pattern_iterator_new(machine);
+  while(iter) {
+    pattern=bt_machine_pattern_iterator_get_pattern(iter);
+    str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+    GST_INFO("  adding \"%s\"",str);
+    menu_item=gtk_menu_item_new_with_label(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
-  //}
+    iter=bt_machine_pattern_iterator_next(iter);
+  }
+  if(!pattern) { // generate an empty item
+    menu_item=gtk_menu_item_new_with_label("---");
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+    gtk_widget_show(menu_item);
+  }
+  GST_INFO("  done");
   gtk_option_menu_set_menu(self->private->pattern_menu,menu);
   gtk_option_menu_set_history(self->private->pattern_menu,0);
-  if(old_menu) gtk_widget_destroy(old_menu);
+  GST_INFO("  return");
+}
+
+//-- event handler
+
+static void on_machine_menu_changed(GtkOptionMenu *optionmenu, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
+}
+
+static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+
+  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
+  // get song from app and then setup
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  setup=bt_song_get_setup(song);
+  // update page
+  machine_menu_refresh(self,setup);
+  pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
 }
 
 //-- helper methods
@@ -87,7 +119,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // machine select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  self->private->machine_menu=gtk_option_menu_new();
+  self->private->machine_menu=GTK_OPTION_MENU(gtk_option_menu_new());
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->machine_menu),TRUE,TRUE,2);
@@ -105,7 +137,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // pattern select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  self->private->pattern_menu=gtk_option_menu_new();
+  self->private->pattern_menu=GTK_OPTION_MENU(gtk_option_menu_new());
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->pattern_menu),TRUE,TRUE,2);
@@ -129,6 +161,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->private->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
   return(TRUE);
 }
 
@@ -140,7 +173,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app) {
   BtMainPagePatterns *self;
@@ -159,6 +192,27 @@ Error:
 }
 
 //-- methods
+
+/**
+ * bt_main_page_patterns_get_current_machine:
+ * @self: the pattern subpage
+ *
+ * Get the currently active #BtMachine.
+ *
+ * Returns: the #BtMachine instance or NULL in case of an error
+ */
+BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
+  glong index;
+  BtSong *song;
+  BtSetup *setup;
+
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  setup=bt_song_get_setup(song);
+
+  index=gtk_option_menu_get_history(self->private->machine_menu);
+
+  return(bt_setup_get_machine_by_index(setup,index));
+}
 
 //-- wrapper
 

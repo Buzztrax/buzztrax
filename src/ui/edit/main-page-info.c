@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.4 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-info.c,v 1.5 2004-08-24 14:10:04 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -34,7 +34,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSong *song;
   gchar *str;
 
-  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update info fields
@@ -104,7 +104,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
  *
  * Create a new instance
  *
- * Return: the new instance or NULL in case of an error
+ * Returns: the new instance or NULL in case of an error
  */
 BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app) {
   BtMainPageInfo *self;
