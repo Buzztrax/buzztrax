@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.27 2005-01-16 14:20:40 waffel Exp $
+/* $Id: pattern.c,v 1.28 2005-01-17 18:02:12 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -316,7 +316,8 @@ gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar 
   // depending on the type, set the GValue
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE: {
-      gdouble val=atof(value);
+      //gdouble val=atof(value); // this is dependend on the locale
+			gdouble val=g_ascii_strtod(value,NULL);
       g_value_set_double(event,val);
       GST_INFO("store double event %s",value);
     } break;

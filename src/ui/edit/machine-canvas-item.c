@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.32 2005-01-16 14:20:41 waffel Exp $
+/* $Id: machine-canvas-item.c,v 1.33 2005-01-17 18:02:39 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -163,7 +163,6 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 			if(self->priv->label) {
 				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"text",id,NULL);
 			}
-			// @todo machine needs to be redrawn, pattern and sequence page needs update
       break;
     case GTK_RESPONSE_REJECT:
       GST_INFO("do nothing");

@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.4 2005-01-14 15:15:00 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.5 2005-01-17 18:02:40 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -28,6 +28,28 @@ struct _BtMachinePreferencesDialogPrivate {
 static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
+
+static void on_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+	GtkWidget *widget=GTK_WIDGET(user_data);
+	gdouble value;
+	
+	g_assert(user_data);
+
+	GST_INFO("preferences value notify received for: '%s'",property->name);
+	
+	g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+	gtk_range_set_value(GTK_RANGE(widget),value);
+}
+
+static void on_range_property_changed(GtkRange *range,gpointer user_data) {
+	GstElement *machine=GST_ELEMENT(user_data);
+	const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
+	
+	g_assert(user_data);
+
+	GST_INFO("preferences value change received for: '%s'",name);
+	g_object_set(machine,name,gtk_range_get_value(range),NULL);
+}
 
 //-- helper methods
 
@@ -68,6 +90,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   
 	// get machine properties
 	if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
+		gchar *signal_name;
+		
 		GST_INFO("machine has %d properties",number_of_properties);
 		// machine preferences inside a scrolled window
 		scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -78,7 +102,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 		gtk_container_set_border_width(GTK_CONTAINER(table),6);
 		for(i=0;i<number_of_properties;i++) {
 			property=properties[i];
-			GST_INFO("property %p has name %s",property,property->name);
+			GST_INFO("property %p has name '%s'",property,property->name);
 			// get name
 			label=gtk_label_new(property->name);
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -106,9 +130,20 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				gtk_entry_set_text(GTK_ENTRY(widget),"int");
 			}
 			else if(param_type==G_TYPE_PARAM_DOUBLE) {
-				// @add slider + entry
-				widget=gtk_entry_new();
-				gtk_entry_set_text(GTK_ENTRY(widget),"double");
+				GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+				gdouble step,value;
+
+				g_object_get(machine,property->name,&value,NULL);
+				step=(double_property->maximum-double_property->minimum)/1024.0;
+				widget=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+				gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+				gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
+				gtk_range_set_value(GTK_RANGE(widget),value);
+				// @todo add numerical entry as well ?
+				signal_name=g_strdup_printf("notify::%s",property->name);
+				g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget);
+				g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
+				g_free(signal_name);
 			}
 			else {
 				gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));

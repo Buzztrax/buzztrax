@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.5 2005-01-14 15:15:00 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.6 2005-01-17 18:02:40 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -29,11 +29,24 @@ static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
 
+static void on_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+	GtkWidget *widget=GTK_WIDGET(user_data);
+	gdouble value;
+	
+	g_assert(user_data);
+
+	GST_INFO("property value notify received");
+	
+	g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+	gtk_range_set_value(GTK_RANGE(widget),value);
+}
+
 //-- helper methods
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
 	BtMainWindow *main_window;
   GtkWidget *box,*label,*widget,*table,*scrolled_window;
+	GtkTooltips *tips=gtk_tooltips_new();
 	gchar *id;
 	GdkPixbuf *window_icon=NULL;
 	gulong i,global_params;
@@ -70,10 +83,10 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   //gtk_container_set_border_width(GTK_CONTAINER(box),6);
 	
 	// @todo add preset controls (combobox, edit button, copy, random, help)
-	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no preset selection here yet"));
+	gtk_box_pack_start(GTK_BOX(box),gtk_label_new("no preset selection here yet"),FALSE,FALSE,0);
 
 	// add separator
-  gtk_container_add(GTK_CONTAINER(box),gtk_hseparator_new());
+  gtk_box_pack_start(GTK_BOX(box),gtk_hseparator_new(),FALSE,FALSE,0);
 	
 	if(global_params/*+voices*voice_params*/) {
 		GST_INFO("machine has %d properties",global_params);
@@ -86,25 +99,38 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 		for(i=0;i<global_params;i++) {
 			dparam=bt_machine_get_global_dparam(self->priv->machine,i);
 			property=GST_DPARAM_PARAM_SPEC(dparam);
+			GST_INFO("property %p has name '%s','%s'",property,property->name,GST_DPARAM_NAME(dparam));
 			// get name
 			label=gtk_label_new(GST_DPARAM_NAME(dparam));
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
 			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 			// @todo choose proper widgets
 			param_type=bt_machine_get_global_dparam_type(self->priv->machine,i);
-			if(param_type==G_TYPE_PARAM_STRING) {
+			if(param_type==G_TYPE_STRING) {
 				widget=gtk_label_new("string");
+			}
+			else if(param_type==G_TYPE_DOUBLE) {
+				GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+				gdouble step,value;
+
+				g_object_get(G_OBJECT(dparam),"value_double",&value,NULL);
+				step=(double_property->maximum-double_property->minimum)/1024.0;
+				widget=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+				gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
+				gtk_range_set_value(GTK_RANGE(widget),value);
+				// @todo add numerical entry as well ?
+				g_signal_connect(G_OBJECT(dparam), "notify::value_double", (GCallback)on_range_property_notify, (gpointer)widget);
 			}
 			else {
 				gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
 				widget=gtk_label_new(str);g_free(str);
 			}
-			//gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
+			gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
 			gtk_table_attach(GTK_TABLE(table),widget, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 		}
 		gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
-		gtk_container_add(GTK_CONTAINER(box),scrolled_window);
+		gtk_box_pack_start(GTK_BOX(box),scrolled_window,TRUE,TRUE,0);
 	}
 	else {
 		gtk_container_add(GTK_CONTAINER(box),gtk_label_new(_("machine has no params")));

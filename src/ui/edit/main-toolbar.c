@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.34 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-toolbar.c,v 1.35 2005-01-17 18:02:40 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -353,7 +353,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   }
   gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
   // add gain-control
-	self->priv->volume=GTK_SCALE(gtk_hscale_new_with_range(0.0,1.0,0.01));
+	self->priv->volume=GTK_SCALE(gtk_hscale_new_with_range(/*min=*/0.0,/*max=*/1.0,/*step=*/0.01));
 	gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,1);
 	gtk_scale_set_draw_value(self->priv->volume,FALSE);
 	gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
