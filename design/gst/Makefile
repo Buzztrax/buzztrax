@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.5 2004-04-01 14:49:08 waffel Exp $
+# $Id: Makefile,v 1.6 2004-04-01 15:29:49 ensonic Exp $
 
 .PHONY: clean
 
-TARGETS = gst1 gst2 gst3 browser
+TARGETS = gst1 gst2 gst3 net1 browser
 
 # targets
 
@@ -15,5 +15,5 @@ clean:
 # generic rules
 
 %: %.c
-	gcc -Wall `pkg-config gstreamer-control-0.7 --cflags --libs` `pkg-config gstreamer-0.7 --cflags --libs` $< -o $@
+	gcc -Wall `pkg-config gstreamer-control-0.8 --cflags --libs` `pkg-config gstreamer-0.8 --cflags --libs` $< -o $@
 
