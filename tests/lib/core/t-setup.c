@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.13 2005-02-16 19:10:27 waffel Exp $
+/** $Id: t-setup.c,v 1.14 2005-03-04 19:31:24 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -317,7 +317,7 @@ END_TEST
 /**
 * try to call bt_setup_get_wire_by_src_machine with NULL for setup parameter 
 */
-START_TEST(test_btsetup_obj11) {
+START_TEST(test_btsetup_get_wire_by_src_machine1) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -344,7 +344,7 @@ END_TEST
 /**
 * try to call bt_setup_get_wire_by_src_machine with NULL for machine parameter 
 */
-START_TEST(test_btsetup_obj12) {
+START_TEST(test_btsetup_get_wire_by_src_machine2) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -365,6 +365,103 @@ START_TEST(test_btsetup_obj12) {
 	check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_MACHINE(src)");
 	bt_setup_get_wire_by_src_machine(setup,NULL);
 	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to get wires by source machine with NULL for setup
+*/
+START_TEST(test_btsetup_get_wires_by_src_machine1) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	BtSourceMachine *src_machine=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	/* create source machine */
+	src_machine=bt_source_machine_new(song,"src","sinesrc",0);
+	
+	/* try to get the wires */
+	check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_SETUP(self)");
+	bt_setup_get_wires_by_src_machine(NULL,BT_MACHINE(src_machine));
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+
+/**
+* try to get wires by source machine with NULL for machine
+*/
+START_TEST(test_btsetup_get_wires_by_src_machine2) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	/* try to get the wires */
+	check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_MACHINE(src)");
+	bt_setup_get_wires_by_src_machine(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+
+/**
+* try to get wires by source machine with never added machine
+*/
+START_TEST(test_btsetup_get_wires_by_src_machine3) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	GList *wire_list=NULL;
+	BtSourceMachine *src_machine=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	/* create source machine */
+	src_machine=bt_source_machine_new(song,"src","sinesrc",0);
+	
+	/* remove machine from setup */
+	bt_setup_remove_machine(setup, BT_MACHINE(src_machine));
+	
+	/* try to get the wires */
+	wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(src_machine));
+	fail_unless(wire_list==NULL,NULL);
 }
 END_TEST
 
@@ -743,8 +840,11 @@ TCase *bt_setup_obj_tcase(void) {
 	tcase_add_test(tc,test_btsetup_obj8);
 	tcase_add_test(tc,test_btsetup_obj9);
 	tcase_add_test(tc,test_btsetup_obj10);
-	tcase_add_test(tc,test_btsetup_obj11);
-	tcase_add_test(tc,test_btsetup_obj12);
+	tcase_add_test(tc,test_btsetup_get_wire_by_src_machine1);
+	tcase_add_test(tc,test_btsetup_get_wire_by_src_machine2);
+	tcase_add_test(tc,test_btsetup_get_wires_by_src_machine1);
+	tcase_add_test(tc,test_btsetup_get_wires_by_src_machine2);
+	tcase_add_test(tc,test_btsetup_get_wires_by_src_machine3);
 	tcase_add_test(tc,test_btsetup_obj13);
 	tcase_add_test(tc,test_btsetup_obj14);
 	tcase_add_test(tc,test_btsetup_obj15);
