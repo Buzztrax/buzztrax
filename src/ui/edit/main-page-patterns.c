@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.32 2005-01-10 17:25:50 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.33 2005-01-11 12:31:59 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -157,11 +157,10 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
  */
 static void pattern_table_clear(const BtMainPagePatterns *self) {
   GList *columns,*node;
-	
-	g_assert(self->priv->pattern_table);
-	
+		
   // remove columns
 #ifdef USE_GTKGRID
+	g_assert(self->priv->pattern_table);
 	GST_INFO("clearing pattern table");
   if((columns=gtk_grid_get_columns(self->priv->pattern_table))) {
 		GST_INFO("is not empty");
