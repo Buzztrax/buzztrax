@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.37 2005-01-19 18:22:24 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.38 2005-01-20 12:06:05 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -44,6 +44,7 @@ struct _BtMachineCanvasItemPrivate {
   
   /* machine context_menu */
   GtkMenu *context_menu;
+	GtkWidget *menu_item_mute,*menu_item_solo,*menu_item_bypass;
 
 	/* the properties and preferences dialogs */
 	GtkWidget *properties_dialog;
@@ -85,6 +86,8 @@ static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer 
 static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
 	BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 	BtMachineState state;
+
+	// @todo block signal handler when calling _set_active
 	
 	g_assert(user_data);
 	g_object_get(self->priv->machine,"state",&state,NULL);
@@ -94,21 +97,57 @@ static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpoint
 			gnome_canvas_item_hide(self->priv->state_mute);
 			gnome_canvas_item_hide(self->priv->state_solo);
 			gnome_canvas_item_hide(self->priv->state_bypass);
+			if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),FALSE);
+			}
+			if(self->priv->menu_item_solo && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo),FALSE);
+			}
+			if(self->priv->menu_item_bypass && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass),FALSE);
+			}
 			break;
 		case BT_MACHINE_STATE_MUTE:
 			gnome_canvas_item_show(self->priv->state_mute);
 			gnome_canvas_item_hide(self->priv->state_solo);
 			gnome_canvas_item_hide(self->priv->state_bypass);
+			if(self->priv->menu_item_mute && !gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),TRUE);
+			}
+			if(self->priv->menu_item_solo && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo),FALSE);
+			}
+			if(self->priv->menu_item_bypass && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass),FALSE);
+			}
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			gnome_canvas_item_hide(self->priv->state_mute);
 			gnome_canvas_item_show(self->priv->state_solo);
 			gnome_canvas_item_hide(self->priv->state_bypass);
+			if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),FALSE);
+			}
+			if(self->priv->menu_item_solo && !gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo),TRUE);
+			}
+			if(self->priv->menu_item_bypass && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass),FALSE);
+			}
 			break;
 		case BT_MACHINE_STATE_BYPASS:
 			gnome_canvas_item_hide(self->priv->state_mute);
 			gnome_canvas_item_hide(self->priv->state_solo);
 			gnome_canvas_item_show(self->priv->state_bypass);
+			if(self->priv->menu_item_mute && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_mute),FALSE);
+			}
+			if(self->priv->menu_item_solo && gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_solo),FALSE);
+			}
+			if(self->priv->menu_item_bypass && !gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass))) {
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(self->priv->menu_item_bypass),TRUE);
+			}
 			break;
 	}
 }
@@ -129,6 +168,45 @@ static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer us
 
   GST_INFO("machine preferences dialog destroy occurred");
   self->priv->preferences_dialog=NULL;
+}
+
+static void on_context_menu_mute_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+		g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_MUTE,NULL);
+	}
+	else {
+		g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+	}
+}
+
+static void on_context_menu_solo_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+		g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_SOLO,NULL);
+	}
+	else {
+		g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+	}
+}
+
+static void on_context_menu_bypass_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+		g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_BYPASS,NULL);
+	}
+	else {
+		g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+	}
 }
 
 static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -298,18 +376,21 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
   GtkWidget *menu_item,*image,*label;
 
-  menu_item=gtk_menu_item_new_with_label(_("Mute"));
+  self->priv->menu_item_mute=menu_item=gtk_check_menu_item_new_with_label(_("Mute"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_mute_toggled),(gpointer)self);
   if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
-    menu_item=gtk_menu_item_new_with_label(_("Solo"));
+    self->priv->menu_item_solo=menu_item=gtk_check_menu_item_new_with_label(_("Solo"));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
+		g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_solo_toggled),(gpointer)self);
   }
   if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-    menu_item=gtk_menu_item_new_with_label(_("Bypass"));
+    self->priv->menu_item_bypass=menu_item=gtk_check_menu_item_new_with_label(_("Bypass"));
     gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
     gtk_widget_show(menu_item);
+		g_signal_connect(G_OBJECT(menu_item),"toggled",G_CALLBACK(on_context_menu_bypass_toggled),(gpointer)self);
   }
 
   menu_item=gtk_separator_menu_item_new();
