@@ -1,50 +1,51 @@
-$Id: README,v 1.8 2004-10-26 07:52:11 ensonic Exp $
+$Id: README,v 1.9 2005-01-13 18:42:08 ensonic Exp $
 
-quickinfo
-  Please turn you browser to http://www.buzztard.org to learn what this project
-	is about.
+= quickinfo =
+Please turn you browser to http://www.buzztard.org to learn what this project
+is about. Buzztard is free software and distributed under the LGPL.
 
-requirements
-	libxml2
-	glib2
-	gtk+2
-	gstreamer(head cvs)
-	libz
+= requirements =
+libxml2
+glib2
+gtk+2
+gstreamer(head cvs)
 
-supported packages
-	check (http://check.sf.net - for unit tests)
+= supported packages =
+check (http://check.sf.net - for unit tests)
+gtkdrid
+gconf
 
-directories
-  design : little test sources, not needed for releases
-  docs : design ideas and API reference
-  po : gettext i18n catalogs
-  src : the project sources
-		ui
-			cmd : buzztard tool for the commandline
-			edit : buzztard editor (gtk based ui)
-		lib
-			core : logic, e.g. connections framework, file i/o, ...
+= directories =
+design : little test sources, not needed for releases
+docs : design ideas and API reference
+po : gettext i18n catalogs
+src : the project sources
+  ui
+    cmd : buzztard tool for the commandline
+    edit : buzztard editor (gtk based ui)
+  lib
+    core : logic, e.g. connections framework, file i/o, ...
   tests : unit tests (same directory structure as src)
 
-installing localy
-  use following options for ./autogen.sh or ./configure
-    --prefix=/home/ensonic/buzztard
-    --with-gconf-source=xml::/home/ensonic/.gconf/
-    --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
-  when installing the package to e.g. $HOME/buzztard remeber to set these
-  environemnt options:
-  online help: (as root)
-    export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
-    scrollkeeper-update
-  devhelp:
-    export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztard/share/gtk-doc/html"
-  pkg-config:
-    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig:
+= installing localy =
+use following options for ./autogen.sh or ./configure
+  --prefix=/home/ensonic/buzztard
+  --with-gconf-source=xml::/home/ensonic/.gconf/
+  --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
+when installing the package to e.g. $HOME/buzztard remeber to set these
+environemnt options:
+online help: (as root)
+  export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
+  scrollkeeper-update
+devhelp:
+  export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztard/share/gtk-doc/html"
+pkg-config:
+  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig:
     
-running unit tests
-  in one console enter
-    eval {rm\ ,\;touch\ ,\;tail\ -f\ }/tmp/buzztard.log
-  in another
-    make check
+= running unit tests =
+in one console enter
+  eval {rm\ ,\;touch\ ,\;tail\ -f\ }/tmp/buzztard.log
+in another
+  make check
 
 

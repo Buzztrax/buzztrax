@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.21 2004-10-28 11:16:30 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.22 2005-01-13 18:42:19 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -61,13 +61,13 @@ int main(int argc, char **argv) {
   else if(!strncmp(command,"convert",7)) {
     if(!input_file_name || !output_file_name) usage(argc, argv, options);
     g_printf("sorry this is not yet implemented\n");
-    // @todo implement bt_cmd_application_convert()
+    // @todo implement bt_cmd_application_convert(), (determine output format by filename?)
     //res=bt_cmd_application_convert(app,input_file_name,output_file_name);
   }
   else if(!strncmp(command,"encode",6)) {
     if(!input_file_name || !output_file_name) usage(argc, argv, options);
     g_printf("sorry this is not yet implemented\n");
-    // @todo implement bt_cmd_application_encode() like play, with a different sink
+    // @todo implement bt_cmd_application_encode() like play, with a different sink (determine by output file name ?)
     //res=bt_cmd_application_encode(app,input_file_name,output_file_name);
   }
   else usage(argc, argv, options);
@@ -77,4 +77,3 @@ int main(int argc, char **argv) {
 	
 	return(!res);
 }
-

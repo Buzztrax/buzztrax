@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.34 2005-01-11 16:50:49 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.35 2005-01-13 18:42:19 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -241,7 +241,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
 		GST_DEBUG("  done");
 		// release the references -> @todo fix bug in gtkgrid
-		//g_object_unref(store); // drop with gridview
+		g_object_unref(store); // drop with gridview
 	}
 	else {
 #ifdef USE_GTKGRID
@@ -391,6 +391,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
 #ifdef USE_GTKGRID
   self->priv->pattern_table=GTK_GRID(gtk_grid_new());
+	//gtk_grid_set_rules_hint(self->priv->pattern_table,TRUE);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
 #else
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),gtk_label_new("pattern view use GtkGrid"));
