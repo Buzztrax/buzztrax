@@ -1,8 +1,8 @@
-/* $Id: cmd-application.c,v 1.15 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: cmd-application.c,v 1.16 2004-08-06 19:42:45 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
-//#define BT_CORE -> BT_CMD ?
+#define BT_CMD
 #define BT_CMD_APPLICATION_C
 
 #include "bt-cmd.h"
@@ -60,7 +60,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 
 	GST_INFO("application.play launched");
 
-  song=bt_song_new(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+  song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")));
 	loader=bt_song_io_new(input_file_name);
 	
 	GST_INFO("objects initialized");
@@ -95,7 +95,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 
 	GST_INFO("application.info launched");
 
-	song=bt_song_new(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+	song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")));
 	loader=bt_song_io_new(input_file_name);
 	
 	GST_INFO("objects initialized");

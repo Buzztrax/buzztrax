@@ -1,8 +1,8 @@
-/* $Id: edit-application.c,v 1.3 2004-07-30 15:58:46 ensonic Exp $
+/* $Id: edit-application.c,v 1.4 2004-08-06 19:42:45 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
-//#define BT_CORE -> BT_EDIT ?
+#define BT_EDIT
 #define BT_EDIT_APPLICATION_C
 
 #include "bt-edit.h"
@@ -17,154 +17,18 @@ struct _BtEditApplicationPrivate {
   /* the currently loaded song */
   BtSong *song;
   /* the top-level window of our app */
-  GtkWidget *window;
+  BtMainWindow *main_window;
 };
-
-//-- event handler
-
-static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
-  /* If you return FALSE in the "delete_event" signal handler, GTK will emit the
-   * "destroy" signal. Returning TRUE means you don't want the window to be
-   * destroyed.
-   * This is useful for popping up 'are you sure to quit?' type dialogs.
-   */
-
-  GST_INFO("delete event occurred\n");
- return(FALSE);
-}
-
-/* Another callback */
-static void destroy(GtkWidget *widget, gpointer data) {
-  gtk_main_quit();
-}
 
 //-- helper methods
 
-GtkWidget *bt_edit_application_init_menubar(const BtEditApplication *self, GtkWidget *box) {
-  GtkWidget *menubar,*item;
-  
-  // @todo make this a sub-class of menu-bar
-  menubar=gtk_menu_bar_new();
-  gtk_widget_set_name(menubar,"main menu");
-  gtk_box_pack_start(GTK_BOX(box),menubar,FALSE,FALSE,0);
-
-  item=gtk_menu_item_new_with_mnemonic("_File");
-  gtk_widget_set_name(item, "file menu");
-  gtk_container_add(GTK_CONTAINER(menubar),item);
-
-  return(menubar);
-}
-
-GtkWidget *bt_edit_application_init_toolbar(const BtEditApplication *self, GtkWidget *box) {
-  GtkWidget *handlebox,*toolbar;
-  GtkWidget *tmp_toolbar_icon;
-  GtkWidget *button;
-
-  // @todo make this a sub-class of  tool-bar
-  handlebox=gtk_handle_box_new();
-  gtk_widget_set_name(handlebox,"handlebox for toolbar");
-  gtk_box_pack_start(GTK_BOX(box),handlebox,FALSE,FALSE,0);
-
-  toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,"toolbar");
-  gtk_container_add(GTK_CONTAINER(handlebox),toolbar);
-  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
-
-  tmp_toolbar_icon=gtk_image_new_from_stock("gtk-new", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                "New",
-                                NULL,NULL,
-                                tmp_toolbar_icon,NULL,NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,"new");
-  
-  return(handlebox);
-}
-
-GtkWidget *bt_edit_application_init_notebook(const BtEditApplication *self, GtkWidget *box) {
-  GtkWidget *notebook;
-  GtkWidget *empty_notebook_page,*label;
-
-  // @todo make this a sub-class of notebook widget
-  notebook=gtk_notebook_new();
-  gtk_widget_set_name(notebook, "song views");
-  gtk_box_pack_start(GTK_BOX(box),notebook,TRUE,TRUE,0);
-
-  empty_notebook_page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(notebook),empty_notebook_page);
-
-  label=gtk_label_new("Machine View");
-  gtk_widget_set_name(label,"Machine View");
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),0),label);
-
-  return(notebook);
-}
-
-GtkWidget *bt_edit_application_init_statusbar(const BtEditApplication *self, GtkWidget *box) {
-  GtkWidget *statusbar;
-  
-  // @todo make this a sub-class of status bar
-  statusbar=gtk_statusbar_new();
-  gtk_widget_set_name(statusbar, "statusbar");
-  gtk_box_pack_start(GTK_BOX(box),statusbar,FALSE,FALSE,0);
-
-  return(statusbar);
-}
-
-static gboolean bt_edit_application_init_ui(const BtEditApplication *self) {
-  GtkWidget *box;
-  GtkWidget *menubar;
-  GtkWidget *handlebox;
-  GtkWidget *notebook;
-  GtkWidget *statusbar;
-  
-  // create the window
-  self->private->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  // @todo make the title: PACKAGE_NAME": %s",song->name 
-  gtk_window_set_title(GTK_WINDOW(self->private->window), PACKAGE_NAME);
-  g_signal_connect(G_OBJECT(self->private->window), "delete_event", G_CALLBACK(delete_event), NULL);
-  g_signal_connect(G_OBJECT(self->private->window), "destroy",      G_CALLBACK(destroy), NULL);
-  
-  // create main layout container
-  box=gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(self->private->window),box);
-
-  // add the menu-bar
-  menubar=bt_edit_application_init_menubar(self, box);
-  // add the tool-bar
-  handlebox=bt_edit_application_init_toolbar(self, box);
-  // add the notebook widget
-  notebook=bt_edit_application_init_notebook(self, box);
-  // add the status bar
-  statusbar=bt_edit_application_init_statusbar(self, box);
-
-  return(TRUE);
-}
-
-static void bt_edit_application_run_ui(const BtEditApplication *self) {
-  GST_INFO("show UI and start main-loop\n");
-  gtk_widget_show_all(self->private->window);
-  gtk_main();
-}
-
-static void bt_edit_application_run_done(const BtEditApplication *self) {
-  self->private->window=NULL;
-}
-
 static gboolean bt_edit_application_ui(const BtEditApplication *self) {
   gboolean res=FALSE;
-  GST_INFO("before running the UI\n");
-  // generate UI
-  if(bt_edit_application_init_ui(self)) {
-    // run UI loop
-    bt_edit_application_run_ui(self);
-    // shut down UI
-    bt_edit_application_run_done(self);
-    res=TRUE;
+  self->private->main_window=bt_main_window_new(self);
+  
+  if(self->private->main_window) {
+    res=bt_main_window_show_and_run(self->private->main_window);
   }
-  GST_INFO("after running the UI\n");
   return(res);
 }
 
@@ -199,7 +63,7 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 
 	GST_INFO("application.play launched");
 
-	self->private->song=bt_song_new_with_name(bt_g_object_get_object_property(G_OBJECT(self),"bin"),"empty song");
+	self->private->song=bt_song_new_with_name(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")),"empty song");
 	
 	GST_INFO("objects initialized");
   
@@ -223,7 +87,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 
 	GST_INFO("application.info launched");
 
-	self->private->song=bt_song_new(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+	self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")));
 	loader=bt_song_io_new(input_file_name);
 	
 	GST_INFO("objects initialized");

@@ -5,15 +5,16 @@ m4_define(`__META_DESCRIPTION',`index homepage for the buzztard project (replace
 m4_define(`__META_KEYWORDS',`')
 m4_define(`__DATE_CREATED',`Fri Dec 05 07:58:49 MET 2003')
 m4_define(`__DATE_CHANGED',`Mon May 17 13:56:42 CEST 2004')
-m4_define(`__HEADER_EXTRA',`<meta http-equiv="refresh" content="0;URL=/phpwiki/index.php">')
+m4_dnl m4_define(`__HEADER_EXTRA',`<meta http-equiv="refresh" content="0;URL=/phpwiki/index.php">')
+m4_define(`__HEADER_EXTRA',`<meta http-equiv="refresh" content="0;URL=http://www.buzztard.org">')
 m4_include(`global.m4')
 m4_divert`'m4_dnl
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html lang="en">
 	__HEADER
   <body bgcolor="#FFFFFF">
-		__NAVBAR
-		<div id="main">
+		<!--__NAVBAR-->
+		<!--div id="main">
 	    <h3>Overview</h3>
 			<p align="justify">
 				Here you can find out about the reasons to start this project and some general background.
@@ -31,7 +32,7 @@ m4_divert`'m4_dnl
 				It gives all important information one need to get started.
 			</p>
 			<p align="right">go to <a href="/phpwiki/index.php/Welcome%20Developers%21">development page</a></p>
-		</div>
-		__FOOTER
+		</div-->
+		<!--__FOOTER-->
   </body>
 </html>

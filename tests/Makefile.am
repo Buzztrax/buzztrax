@@ -9,7 +9,7 @@ if BUILD_CHECK_TESTS
 noinst_PROGRAMS=buzztard
 buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
-	$(top_builddir)/src/ui/cmd/cmd-application.o \
+	\
 	$(top_builddir)/tests/lib/core/libbtcore-check.la \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la
 

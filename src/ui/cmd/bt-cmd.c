@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.17 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.18 2004-08-06 19:42:45 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -8,6 +8,7 @@
  * example songs can be found in ./test/songs/
  */
 
+#define BT_CMD
 #define BT_CMD_C
 
 #include "bt-cmd.h"

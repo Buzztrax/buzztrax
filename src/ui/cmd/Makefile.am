@@ -2,9 +2,14 @@
 
 bin_PROGRAMS=bt-cmd
 
-bt_cmd_LDADD = $(BASE_DEPS_LIBS) $(top_builddir)/src/lib/core/libbtcore.la
+bt_cmd_LDADD = $(BASE_DEPS_LIBS) \
+	$(top_builddir)/src/lib/core/libbtcore.la \
+	libbtcmd.la
 bt_cmd_SOURCES= \
-	bt-cmd.c bt-cmd.h \
+	bt-cmd.c bt-cmd.h
+
+noinst_LTLIBRARIES      = libbtcmd.la
+libbtcmd_la_SOURCES   =	\
 	cmd-application.c cmd-application.h cmd-application-methods.h
 
 INCLUDES = \

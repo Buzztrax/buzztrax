@@ -1,4 +1,4 @@
-$Id: TODO,v 1.9 2004-07-28 13:54:41 ensonic Exp $
+$Id: TODO,v 1.10 2004-08-06 19:42:44 ensonic Exp $
 
 * run 'make todo' to get a list of todo comments from source
 
@@ -37,4 +37,8 @@ $Id: TODO,v 1.9 2004-07-28 13:54:41 ensonic Exp $
   * we need some convention how to shorten all the
     object->private->member statements
     * do once object_p=object->private; ?
+
+* split gtk-doc
+  * into docs for: bt-core, bt-cmd bt-edit
+  * this is neccesary that e.g. bt-mix can have a BT_MAIN_WINDOW class
 

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.4 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: bt-edit.c,v 1.5 2004-08-06 19:42:45 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -6,6 +6,7 @@
  *  --gst-debug="*:2,bt-*:4" for a-lot-logdata
  */
 
+#define BT_EDIT
 #define BT_EDIT_C
 
 #include "bt-edit.h"

@@ -1,4 +1,4 @@
-/* $Id: edit-application.h,v 1.1 2004-07-29 15:51:31 ensonic Exp $
+/* $Id: edit-application.h,v 1.2 2004-08-06 19:42:45 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
 
@@ -11,7 +11,7 @@
 /**
  * BT_TYPE_EDIT_APPLICATION:
  *
- * #GType for BtCmdApplication instances
+ * #GType for BtEditApplication instances
  */
 #define BT_TYPE_EDIT_APPLICATION		        (bt_edit_application_get_type ())
 #define BT_EDIT_APPLICATION(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_EDIT_APPLICATION, BtEditApplication))

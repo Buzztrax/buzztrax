@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.3 2004-07-29 15:51:31 ensonic Exp $
+/* $Id: bt-edit.h,v 1.4 2004-08-06 19:42:45 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -10,11 +10,14 @@
 //-- gtk+
 #include <gtk/gtk.h>
 
+#include "main-window-methods.h"
 #include "edit-application-methods.h"
 
 //-- misc
-#define GST_CAT_DEFAULT bt_edit_debug
-#ifndef BT_EDIT_APPLICATION_C
+#ifndef GST_CAT_DEFAULT
+  #define GST_CAT_DEFAULT bt_edit_debug
+#endif
+#if defined(BT_EDIT) && !defined(BT_EDIT_APPLICATION_C)
 	GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
