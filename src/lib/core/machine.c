@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.90 2005-02-22 07:31:09 ensonic Exp $
+/* $Id: machine.c,v 1.91 2005-03-02 16:14:39 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -120,20 +120,18 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
 	BtMachine *dst_machine;
 	BtMachineState state;
 	
-	// we need to pause all elements downstream until we hit a loop-based element :(
-	// @todo we need to do the same upstream too
+	// we need to pause all elements downstream until we hit a loop-based element  (has an adder) :(
+	// @todo we need to do the same upstream too until we hit one with a spreader
 	if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
 		for(node=wires;node;node=g_list_next(node)) {
 			wire=BT_WIRE(node->data);
     	g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
-	    if(bt_machine_has_active_adder(dst_machine)) {	// or is paused
-				GST_INFO("  setting element '%s' to paused",self->priv->id);
-				if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_FAILURE) {
-					GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
-					res=FALSE;
-				}
-	    }
-	    else {
+			GST_INFO("  setting element '%s' to paused",self->priv->id);
+			if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+				GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
+				res=FALSE;
+			}
+	    if(!bt_machine_has_active_adder(dst_machine)) {
 	      bt_machine_set_mute(dst_machine,setup);
 	    }
 			g_object_unref(dst_machine);
@@ -157,20 +155,18 @@ static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
 	BtMachine *dst_machine;
 	BtMachineState state;
 	
-	// we need to unpause all elements downstream until we hit a loop-based element :(
-	// @todo we need to do the same upstream too
+	// we need to unpause all elements downstream until we hit a loop-based element (has an adder) :(
+	// @todo we need to do the same upstream too until we hit one with a spreader
 	if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
 		for(node=wires;node;node=g_list_next(node)) {
 			wire=BT_WIRE(node->data);
     	g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
-	    if(bt_machine_has_active_adder(dst_machine)) {	// or is paused
-				GST_INFO("  setting element '%s' to playing",self->priv->id);
-				if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_FAILURE) {
-					GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
-					res=FALSE;
-				}
-	    }
-	    else {
+			GST_INFO("  setting element '%s' to playing",self->priv->id);
+			if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+				GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
+				res=FALSE;
+			}
+			if(!bt_machine_has_active_adder(dst_machine)) {
 	      bt_machine_unset_mute(dst_machine,setup);
 	    }
 			g_object_unref(dst_machine);
@@ -201,28 +197,48 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	
 	// return to normal state
 	switch(self->priv->state) {
-		case BT_MACHINE_STATE_MUTE:
+		case BT_MACHINE_STATE_MUTE:	{ // source, processor, sink
 			if(!bt_machine_unset_mute(self,setup)) res=FALSE;
-			break;
-		case BT_MACHINE_STATE_SOLO:
-			// @todo set all but this machine to playing again
-			break;
-		case BT_MACHINE_STATE_BYPASS:
+		} break;
+		case BT_MACHINE_STATE_SOLO:	{ // source
+			GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
+			BtMachine *machine;
+			// set all but this machine to playing again
+			for(node=machines;node;node=g_list_next(node)) {
+				machine=BT_MACHINE(node->data);
+				if(machine!=self) {
+					if(!bt_machine_unset_mute(machine,setup)) res=FALSE;
+				}
+				g_object_unref(machine);
+			}
+			g_list_free(machines);
+		} break;
+		case BT_MACHINE_STATE_BYPASS:	{ // processor
 			// @todo disconnect its source and sink + set this machine to playing
-			break;
+		} break;
 	}
 	// set to new state
 	switch(new_state) {
-		case BT_MACHINE_STATE_MUTE:
+		case BT_MACHINE_STATE_MUTE:	{ // source, processor, sink
 			if(!bt_machine_set_mute(self,setup)) res=FALSE;
 			// alternatively just disconnect
-			break;
-		case BT_MACHINE_STATE_SOLO:
-			// @todo set all but this machine to paused
-			break;
-		case BT_MACHINE_STATE_BYPASS:
+		} break;
+		case BT_MACHINE_STATE_SOLO:	{ // source
+			GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
+			BtMachine *machine;
+			// set all but this machine to paused
+			for(node=machines;node;node=g_list_next(node)) {
+				machine=BT_MACHINE(node->data);
+				if(machine!=self) {
+					if(!bt_machine_set_mute(machine,setup)) res=FALSE;
+				}
+				g_object_unref(machine);
+			}
+			g_list_free(machines);
+		} break;
+		case BT_MACHINE_STATE_BYPASS:	{ // processor
 			// @todo set this machine to paused + connect its source and sink
-			break;
+		} break;
 	}
 	self->priv->state=new_state;
 

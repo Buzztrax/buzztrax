@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.63 2005-02-16 19:10:03 waffel Exp $
+/* $Id: setup.c,v 1.64 2005-03-02 16:14:39 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -115,7 +115,7 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMac
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
 		if(search_machine==machine) {
-			wires=g_list_append(wires,g_object_ref(wire));
+			wires=g_list_prepend(wires,g_object_ref(wire));
 		}
     g_object_try_unref(search_machine);
 	}
@@ -327,7 +327,7 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
  */
 BtMachine *bt_setup_get_machine_by_type(const BtSetup *self, GType type) {
 	BtMachine *machine;
-	GList* node;
+	GList *node;
 
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
 
@@ -339,6 +339,31 @@ BtMachine *bt_setup_get_machine_by_type(const BtSetup *self, GType type) {
 	}
 	GST_DEBUG("no machine found for this type");
 	return(NULL);
+}
+
+/**
+ * bt_setup_get_machines_by_type:
+ * @self: the setup to search for the machine
+ * @type: the gobject type (sink,processor,source)
+ *
+ * Gathers all machines of the given type from the setup.
+ * Free the list (and unref the machine), when done with it.
+ *
+ * Returns: the list instance or %NULL if not found
+ */
+GList *bt_setup_get_machines_by_type(const BtSetup *self, GType type) {
+	BtMachine *machine;
+	GList *machines=NULL,*node;
+
+	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+
+	for(node=self->priv->machines;node;node=g_list_next(node)) {
+		machine=BT_MACHINE(node->data);
+		if(G_OBJECT_TYPE(machine)==type) {
+			machines=g_list_prepend(machines,g_object_ref(machine));
+		}
+	}
+	return(machines);
 }
 
  
