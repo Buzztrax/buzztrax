@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.10 2004-08-13 18:58:10 ensonic Exp $
+/* $Id: song-io.c,v 1.11 2004-09-03 17:17:19 ensonic Exp $
  * base class for song input and output
  */
  
@@ -14,15 +14,16 @@ enum {
 struct _BtSongIOPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+  
 	/* used to load or save the song file */
 	gchar *file_name;
 };
 
-//-- helper methods
+/* list of registered io-classes */
+static GList *plugins=NULL;
 
-static void bt_song_io_register_all() {
-  // @todo implement bt_song_io_register_all()
-}
+
+//-- helper methods
 
 /**
  * bt_song_io_detect:
@@ -35,6 +36,9 @@ static void bt_song_io_register_all() {
  */
 static GType bt_song_io_detect(const gchar *file_name) {
   // @todo check registered types
+  // iterate over plugins list
+  //   try klass->bt_song_io_detect(filename)
+  // if none matches return NULL;
 	return(BT_TYPE_SONG_IO_NATIVE);
 }
 
@@ -155,12 +159,23 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
                                      G_PARAM_READABLE));
 }
 
+static void bt_song_io_base_init(BtSongIOClass *klass) {
+  GST_INFO("register song-io plugins ...");
+  // @todo implement registering internal song-io plugins
+  //   song-io native
+  // @todo implement registering external song-io plugins
+	//   1.) scan plugin-folder
+	//   2.) open each g_modules
+	//   3.) gets the address of GType bt_song_io_custom_detect(const gchar *);
+	//   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
+}
+
 GType bt_song_io_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
       sizeof (BtSongIOClass),
-      NULL, // base_init
+      (GBaseInitFunc)bt_song_io_base_init, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_song_io_class_init, // class_init
       NULL, // class_finalize

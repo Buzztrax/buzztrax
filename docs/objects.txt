@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.12 2004-07-06 15:44:43 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.13 2004-09-03 17:17:18 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
@@ -83,7 +83,7 @@ BtSongIO { // base class (because of factory for import) and virtaul methods
 	// do we just try them, one after the other until one groks the file
 	//
 	// we need a factory function in the base-class GType bt_song_io_detect(const gchar *)
-  // * when it is called for the first time (static GList *modules is NULL)
+  // * when it is initialized (base_init : static GList *modules is NULL)
 	//   it calls bt_song_io_register_all() which 
 	//   1.) scans plugin-folder
 	//   2.) opens each g_modules
@@ -115,10 +115,10 @@ BtApplication {
    gboolean bt_application_stop_song(BtApplicationPtr app,BtSongPtr song);
 }
 
-BtCmdApplication extebds BtApplication {
+BtCmdApplication extends BtApplication {
 }
 
-BtGtkApplication extebds BtApplication {
+BtGtkApplication extends BtApplication {
 }
 
 //------------------------------------------------------------------------------
