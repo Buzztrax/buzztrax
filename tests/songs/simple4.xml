@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard
+	xmlns="http://www.buzztard.org/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+
+	<meta>
+		<info>what a lovely tune</info>
+    <name>simple 4</name>
+		<genre>dark-wave</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
+	</meta>
+	
+  <setup zoom="1.0">
+    <machines>
+      <sink id="audio_sink">
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="145"/>
+      </sink>
+      
+      <processor id="amp1" pluginname="volume">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="-0.3"/>
+        </properties>
+      </processor>
+
+      <processor id="amp2" pluginname="volume">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="+0.3"/>
+        </properties>
+      </processor>
+
+      <source id="sine1" pluginname="sinesrc" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+
+      <source id="sine2" pluginname="sinesrc" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+    
+    <wires>
+      <wire src="sine1" dst="amp1" gain="1.5"/>
+      <wire src="sine2" dst="amp2" gain="1.0"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="amp2" dst="audio_sink" gain="1.0" pan="+50"/>
+    </wires>    
+  </setup>
+  
+  <patterns>
+    <pattern id="sine1_beeps_up" machine="sine1" name="beeps_up" length="16">
+      <tick time="0">
+        <globaldata name="freq" value="440,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="4">
+        <globaldata name="freq" value="880,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="8">
+        <globaldata name="freq" value="1760,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+    </pattern>
+    <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
+      <tick time="0">
+        <globaldata name="freq" value="1760.0"/>
+				<globaldata name="volume" value="1.0"/>
+      </tick>
+      <tick time="4">
+        <globaldata name="freq" value="880.0"/>
+				<globaldata name="volume" value="1.0"/>
+      </tick>
+      <tick time="8">
+        <globaldata name="freq" value="440.0"/>
+				<globaldata name="volume" value="1.0"/>
+      </tick>
+    </pattern>
+    <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
+      <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
+      <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
+      <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
+      <tick time= "3"><globaldata name="volume" value="0.25"/></tick>
+      <tick time= "4"><globaldata name="volume" value="1.0"/></tick>
+      <tick time= "5"><globaldata name="volume" value="0.75"/></tick>
+      <tick time= "6"><globaldata name="volume" value="0.5"/></tick>
+      <tick time= "7"><globaldata name="volume" value="0.25"/></tick>
+      <tick time= "8"><globaldata name="volume" value="1.0"/></tick>
+      <tick time= "9"><globaldata name="volume" value="0.75"/></tick>
+      <tick time="10"><globaldata name="volume" value="0.5"/></tick>
+      <tick time="11"><globaldata name="volume" value="0.375"/></tick>
+      <tick time="12"><globaldata name="volume" value="0.25"/></tick>
+      <tick time="13"><globaldata name="volume" value="0.125"/></tick>
+      <tick time="14"><globaldata name="volume" value="0.0"/></tick>
+    </pattern>
+  </patterns>
+  
+  <sequence>
+    <labels>
+      <label time="0" name="start"/>
+      <label time="63" name="end"/>
+    </labels>
+    <tracks>
+      <track index="0" machine="sine1">
+        <position time="0" pattern="sine1_beeps_up"/>
+        <position time="16" pattern="sine1_beeps_down"/>
+        <position time="32" pattern="sine1_beeps_up"/>
+        <position time="48" pattern="sine1_beeps_down"/>
+      </track>
+      <track index="1" machine="amp1">
+        <position time="0" pattern="amp1_fade"/>
+        <position time="16" pattern="amp1_fade"/>
+        <position time="32" pattern="amp1_fade"/>
+        <position time="48" pattern="amp1_fade"/>
+      </track>
+    </tracks>
+  </sequence>
+  
+  <wavetable/>
+
+</buzztard>
