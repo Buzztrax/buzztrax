@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.22 2004-12-15 09:07:34 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.23 2004-12-18 14:44:27 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -44,7 +44,7 @@ struct _BtMachineCanvasItemPrivate {
   GtkMenu *context_menu;
 
 	/* the parameter dialog */
-	GtkWidget *parameter_dialog;
+	GtkWidget *properties_dialog;
 
 	/* the label element */
 	GnomeCanvasItem *label;
@@ -64,13 +64,13 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- event handler
 
-static void on_machine_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
 
   g_assert(user_data);
 
-  GST_INFO("machine dialog destroy occurred");
-  self->priv->parameter_dialog=NULL;
+  GST_INFO("machine properties dialog destroy occurred");
+  self->priv->properties_dialog=NULL;
 }
 
 static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -78,10 +78,10 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
   
   g_assert(user_data);
 
-	if(!self->priv->parameter_dialog) {
-		self->priv->parameter_dialog=GTK_WIDGET(bt_machine_dialog_new(self->priv->app,self->priv->machine));
-		gtk_widget_show_all(self->priv->parameter_dialog);
-		g_signal_connect(G_OBJECT(self->priv->parameter_dialog),"destroy",G_CALLBACK(on_machine_dialog_destroy),(gpointer)self);
+	if(!self->priv->properties_dialog) {
+		self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
+		gtk_widget_show_all(self->priv->properties_dialog);
+		g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
 	}
 }
 
@@ -402,8 +402,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	g_object_try_unref(self->priv->main_page_machines);
   g_object_try_unref(self->priv->machine);
 	
-	if(self->priv->parameter_dialog) {
-		gtk_widget_destroy(self->priv->parameter_dialog);
+	if(self->priv->properties_dialog) {
+		gtk_widget_destroy(self->priv->properties_dialog);
 	}
   
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
@@ -494,10 +494,10 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   switch (event->type) {
 		case GDK_2BUTTON_PRESS:
 			GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
-			if(!self->priv->parameter_dialog) {
-				self->priv->parameter_dialog=GTK_WIDGET(bt_machine_dialog_new(self->priv->app,self->priv->machine));
-  		  gtk_widget_show_all(self->priv->parameter_dialog);
-				g_signal_connect(G_OBJECT(self->priv->parameter_dialog),"destroy",G_CALLBACK(on_machine_dialog_destroy),(gpointer)self);
+			if(!self->priv->properties_dialog) {
+				self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
+  		  gtk_widget_show_all(self->priv->properties_dialog);
+				g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
 			}
 			res=TRUE;
 			break;

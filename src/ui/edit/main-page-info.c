@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.17 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-page-info.c,v 1.18 2004-12-18 14:44:27 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -23,6 +23,8 @@ struct _BtMainPageInfoPrivate {
   GtkEntry *name;
   /* genre of the song  */
   GtkEntry *genre;
+  /* author of the song */
+  GtkEntry *author;
   /* freeform info anout the song */
   GtkTextView *info;
 };
@@ -35,7 +37,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   BtSongInfo *song_info;
-  gchar *name,*genre,*info;
+  gchar *name,*genre,*author,*info;
 
   g_assert(user_data);
 
@@ -44,9 +46,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"info",&info,NULL);
+  g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"author",&author,"info",&info,NULL);
   gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
   gtk_entry_set_text(self->priv->genre,safe_string(genre));g_free(genre);
+  gtk_entry_set_text(self->priv->author,safe_string(author));g_free(author);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->priv->info),safe_string(info),-1);g_free(info);
   // release the references
   g_object_try_unref(song_info);
@@ -84,6 +87,24 @@ void on_genre_changed(GtkEditable *editable,gpointer user_data) {
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
 	g_object_set(G_OBJECT(song_info),"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
+void on_author_changed(GtkEditable *editable,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+
+  g_assert(user_data);
+
+  GST_INFO("author changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+	g_object_set(G_OBJECT(song_info),"author",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
   // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);
@@ -140,10 +161,17 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
 
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0,0, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->genre=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->genre), "changed", (GCallback)on_genre_changed, (gpointer)self);
+
+  label=gtk_label_new(_("author"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  self->priv->author=GTK_ENTRY(gtk_entry_new());
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	g_signal_connect(G_OBJECT(self->priv->genre), "changed", (GCallback)on_author_changed, (gpointer)self);
 
   // second row of hbox
   frame=gtk_frame_new(_("free text info"));
