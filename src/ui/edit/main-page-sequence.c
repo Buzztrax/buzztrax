@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.7 2004-08-26 16:44:11 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.8 2004-08-27 15:32:46 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -23,9 +23,22 @@ struct _BtMainPageSequencePrivate {
   GtkOptionMenu *bars_menu;
   
   /* the pattern list */
-  GtkTreeView *sequence_list;
+  GtkTreeView *sequence_table;
   /* the pattern list */
   GtkTreeView *pattern_list;
+  
+  /* colors */
+  GdkColor source_bg1,source_bg2;
+  GdkColor processor_bg1,processor_bg2;
+  GdkColor sink_bg1,sink_bg2;
+};
+
+enum {
+  SEQUENCE_TABLE_SOURCE_BG=0,
+  SEQUENCE_TABLE_PROCESSOR_BG,
+  SEQUENCE_TABLE_SINK_BG,
+  SEQUENCE_TABLE_LABEL,
+  SEQUENCE_TABLE_PRE_CT
 };
 
 //-- event handler helper
@@ -34,17 +47,19 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
   GList *columns,*node;
   
-  if((columns=gtk_tree_view_get_columns(self->private->sequence_list))) {
+  if((columns=gtk_tree_view_get_columns(self->private->sequence_table))) {
     node=g_list_first(columns);
     while(node) {
-      gtk_tree_view_remove_column(self->private->sequence_list,GTK_TREE_VIEW_COLUMN(node->data));
+      gtk_tree_view_remove_column(self->private->sequence_table,GTK_TREE_VIEW_COLUMN(node->data));
       node=g_list_next(node);
     }
     g_list_free(columns);
   }
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,_("Labels"),renderer,"text",0,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->private->sequence_table,-1,_("Labels"),renderer,
+    "text",SEQUENCE_TABLE_LABEL,
+    NULL);
 }
 
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSetup *setup,const BtSequence *sequence) {
@@ -58,6 +73,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSetup 
   GtkListStore *store;
   GType *store_types;
   GtkTreeIter tree_iter;
+  GtkTreeViewColumn *tree_col;
   GValue pattern_type={0,};
 
   GST_INFO("refresh sequence table");
@@ -73,20 +89,56 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSetup 
     str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
     renderer=gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
-    gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,str,renderer,"text",j+1,NULL);
+    i=gtk_tree_view_insert_column_with_attributes(self->private->sequence_table,-1,str,renderer,
+      "text",SEQUENCE_TABLE_PRE_CT+j,
+      NULL);
+    tree_col=gtk_tree_view_get_column(self->private->sequence_table,i-1);
+    if(BT_IS_SOURCE_MACHINE(machine)) {
+      gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
+    }
+    else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+      gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_PROCESSOR_BG);
+    }
+    else if(BT_IS_SINK_MACHINE(machine)) {
+      gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SINK_BG);
+    }
   }
-  col_ct=(1+track_ct);
+  GST_DEBUG("  build model");
+  col_ct=(SEQUENCE_TABLE_PRE_CT+track_ct);
   store_types=(GType *)g_new(GType *,col_ct);
-  for(i=0;i<col_ct;i++) store_types[i]=G_TYPE_STRING;
+  // for background color columns
+  store_types[SEQUENCE_TABLE_SOURCE_BG   ]=GDK_TYPE_COLOR;
+  store_types[SEQUENCE_TABLE_PROCESSOR_BG]=GDK_TYPE_COLOR;
+  store_types[SEQUENCE_TABLE_SINK_BG     ]=GDK_TYPE_COLOR;
+  for(i=SEQUENCE_TABLE_LABEL;i<col_ct;i++) {
+    store_types[i]=G_TYPE_STRING;
+  }
   store=gtk_list_store_newv(col_ct,store_types);
   // add patterns
   g_value_init(&pattern_type,BT_TYPE_TIMELINETRACK_TYPE);
   for(i=0;i<timeline_ct;i++) {
     timeline=bt_sequence_get_timeline_by_time(sequence,i);
     gtk_list_store_append(store, &tree_iter);
-    if((str=bt_g_object_get_string_property(G_OBJECT(timeline),"label"))) {
-      gtk_list_store_set(store,&tree_iter,0,str,-1);
+    // set colors
+    if(i&1) {
+      gtk_list_store_set(store,&tree_iter,
+        SEQUENCE_TABLE_SOURCE_BG   ,&self->private->source_bg2,
+        SEQUENCE_TABLE_PROCESSOR_BG,&self->private->processor_bg2,
+        SEQUENCE_TABLE_SINK_BG     ,&self->private->sink_bg2,
+          -1);
     }
+    else {
+      gtk_list_store_set(store,&tree_iter,
+        SEQUENCE_TABLE_SOURCE_BG   ,&self->private->source_bg1,
+        SEQUENCE_TABLE_PROCESSOR_BG,&self->private->processor_bg1,
+        SEQUENCE_TABLE_SINK_BG     ,&self->private->sink_bg1,
+          -1);
+    }
+    // set label
+    if((str=bt_g_object_get_string_property(G_OBJECT(timeline),"label"))) {
+      gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
+    }
+    // set patterns
     for(j=0;j<track_ct;j++) {
       timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,j);
       g_object_get_property(G_OBJECT(timelinetrack),"type", &pattern_type);
@@ -109,10 +161,10 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSetup 
           GST_ERROR("implement me");
       }
       GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
-      gtk_list_store_set(store,&tree_iter,1+j,str,-1);
+      gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
     }
   }
-  gtk_tree_view_set_model(self->private->sequence_list,GTK_TREE_MODEL(store));
+  gtk_tree_view_set_model(self->private->sequence_table,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
 }
 
@@ -124,6 +176,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
   gchar *str;
 
   GST_INFO("refresh pattern list");
+  // @todo if machine is NULL add label columns
   
   store=gtk_list_store_new(1,G_TYPE_STRING);
 
@@ -150,6 +203,22 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 
 //-- event handler
 
+void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  GST_INFO("sequence_table cursor has changed : treeview=%p, page=%p",treeview,user_data);
+  pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
+}
+
+gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  GST_INFO("sequence_table cursor has moved : treeview=%p, page=%p, arg1=%d, arg2=%d",treeview,user_data,arg1,arg2);
+  if(arg1==GTK_MOVEMENT_VISUAL_POSITIONS) {
+    pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
+  }
+}
+
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
@@ -157,7 +226,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSequence *sequence;
   glong index,bars;
 
-  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
+  GST_INFO("song has changed : song=%p, page=%p",song,user_data);
   // get song from app and then setup from song
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   setup=bt_song_get_setup(song);
@@ -186,6 +255,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   GtkWidget *toolbar;
   GtkWidget *box,*menu,*menu_item,*button,*scrolled_window;
   GtkCellRenderer *renderer;
+  GdkColormap *colormap;
   glong i;
   gchar str[4];
 
@@ -224,6 +294,32 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Steps"));
 
+  // allocate out colors
+  colormap=gdk_colormap_get_system();
+  self->private->source_bg1.red=  (guint16)(1.0*65535);
+  self->private->source_bg1.green=(guint16)(0.9*65535);
+  self->private->source_bg1.blue= (guint16)(0.9*65535);
+  gdk_colormap_alloc_color(colormap,&self->private->source_bg1,FALSE,TRUE);
+  self->private->source_bg2.red=  (guint16)(1.0*65535);
+  self->private->source_bg2.green=(guint16)(0.8*65535);
+  self->private->source_bg2.blue= (guint16)(0.8*65535);
+  gdk_colormap_alloc_color(colormap,&self->private->source_bg2,FALSE,TRUE);
+  self->private->processor_bg1.red=  (guint16)(0.9*65535);
+  self->private->processor_bg1.green=(guint16)(1.0*65535);
+  self->private->processor_bg1.blue= (guint16)(0.9*65535);
+  gdk_colormap_alloc_color(colormap,&self->private->processor_bg1,FALSE,TRUE);
+  self->private->processor_bg2.red=  (guint16)(0.8*65535);
+  self->private->processor_bg2.green=(guint16)(1.0*65535);
+  self->private->processor_bg2.blue= (guint16)(0.8*65535);
+  gdk_colormap_alloc_color(colormap,&self->private->processor_bg2,FALSE,TRUE);
+  self->private->sink_bg1.red=  (guint16)(0.9*65535);
+  self->private->sink_bg1.green=(guint16)(0.9*65535);
+  self->private->sink_bg1.blue= (guint16)(1.0*65535);
+  gdk_colormap_alloc_color(colormap,&self->private->sink_bg1,FALSE,TRUE);
+  self->private->sink_bg2.red=  (guint16)(0.8*65535);
+  self->private->sink_bg2.green=(guint16)(0.8*65535);
+  self->private->sink_bg2.blue= (guint16)(1.0*65535);
+  gdk_colormap_alloc_color(colormap,&self->private->sink_bg2,FALSE,TRUE);
   
   // add a hbox
   box=gtk_hbox_new(FALSE,2);
@@ -232,10 +328,11 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-  self->private->sequence_list=GTK_TREE_VIEW(gtk_tree_view_new());
-  gtk_tree_view_set_rules_hint(self->private->sequence_list,TRUE);
+  self->private->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
+  gtk_tree_view_set_rules_hint(self->private->sequence_table,TRUE);
+  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->private->sequence_table),GTK_SELECTION_BROWSE);
   sequence_table_init(self);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->private->sequence_list));
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->private->sequence_table));
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),TRUE,TRUE,0);
   // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -248,6 +345,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),FALSE,FALSE,0);
 
   // register event handlers
+  g_signal_connect(G_OBJECT(self->private->sequence_table), "move-cursor", (GCallback)on_sequence_table_cursor_moved, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->private->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
@@ -290,19 +389,31 @@ Error:
  * Returns: the #BtMachine instance or NULL in case of an error
  */
 BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
-  //glong index;
+  BtMachine *machine=NULL;
   BtSong *song;
-  BtSetup *setup;
+  BtSequence *sequence;
+  //GtkTreeSelection *selection;
+  GtkTreePath *path;
+  GtkTreeViewColumn *column;
 
   GST_INFO("get active machine");
   
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
-  setup=bt_song_get_setup(song);
+  sequence=bt_song_get_sequence(song);
 
-  //@todo index= get table column
-  // column 0 is for labels
+  // get table column number (column 0 is for labels)
+  gtk_tree_view_get_cursor(self->private->sequence_table,&path,&column);
+  if(column) {
+    GList *columns=gtk_tree_view_get_columns(self->private->sequence_table);
+    glong track=g_list_index(columns,(gpointer)column);
 
-  return(bt_setup_get_machine_by_index(setup,0));
+    g_list_free(columns);
+    GST_INFO("  active track is %d",track);
+    if(track) {
+      machine=bt_sequence_get_machine_by_track(sequence,track-1);
+    }
+  }
+  return(machine);
 }
 
 //-- wrapper

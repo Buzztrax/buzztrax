@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.4 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.5 2004-08-27 15:32:46 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -103,6 +103,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   
   // add canvas
   gtk_widget_push_visual(gdk_imlib_get_visual());
+  // @todo try gtk_widget_push_colormap(gdk_colormap_get_system());
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
   self->private->canvas = gnome_canvas_new_aa();
   gnome_canvas_set_pixels_per_unit(self->private->canvas,10);
