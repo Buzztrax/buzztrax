@@ -1,4 +1,4 @@
-* $Id: file-format.txt,v 1.5 2004-02-20 15:57:02 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: file-format.txt,v 1.6 2004-04-16 17:38:13 waffel Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * multi-file archive (like zip/tat/lha/lzx/jar)
@@ -61,25 +61,28 @@
 					<!-- which plugins to use -->
 					<machines>
 						<!-- player will always have only one voice -->
-						<machine id="audio_sink" type="sink" plugin="esdsink" voices="1" xpos="0.5" ypos="0.0">
+						<sink id="audio_sink" plugin="esdsink" voices="1" xpos="0.5" ypos="0.0">
 							<!-- set inital params -->
-							<data voice="0" name="volume" value="1.0"/>
-							<data voice="0" name="bpm" value="145"/>
-						</machine>
+							<globaldata name="volume" value="1.0"/>
+							<globaldata name="bpm" value="145"/>
+						</sink>
 						<!-- effect -->
-						<machine id="echo1" type="processor" plugin="ladspa_echo" voices="1" xpos="0.3" ypos="0.0">
-						</machine>
-						<machine id="sine1" type="source" plugin="sinesrc" voices="2" xpos="0.1" ypos="0.0">
+						<processor id="echo1" plugin="ladspa_echo" voices="1" xpos="0.3" ypos="0.0">
+						</processor>
+						<source id="sine1" plugin="osci" voices="2" xpos="0.1" ypos="0.0">
 							<!-- set inital params -->
-							<data voice="0" name="note" value="C-3"/>
-							<data voice="0" name="volume" value="1.0"/>
+              <globaldata name="wave" value="sine"/>
+							<voicedata voice="0" name="note" value="C-3"/>
+							<voicedata voice="0" name="volume" value="1.0"/>
+              <voicedata voice="1" name="note" value="F-3"/>
+							<voicedata voice="1" name="volume" value="0.8"/>
 							...
-						</machine>
+						</source>
 					</machines>
 					<!-- how to connect them -->
 					<wires>
-						<wire from="sine1" to="echo1" gain="150%" pan="-50%" />
-						<wire from="sine1" to="audio_sink" gain="100%"/>
+						<wire from="sine1" to="echo1" gain="1.5" pan="-5" />
+						<wire from="sine1" to="audio_sink" gain="1.0"/>
 					</wire>
 				</setup>
 				<!-- control events -->
