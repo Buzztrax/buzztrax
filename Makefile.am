@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.35 2005-03-18 08:49:55 ensonic Exp $
+## $Id: Makefile.am,v 1.36 2005-03-19 11:36:51 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -91,7 +91,7 @@ coverage::
 	for file in `find . -name "*.da" | grep ".libs" ` ;do \
 		mv $$file `echo $$file | sed -e 's/\/\.libs//'`; \
 	done
-	lcov --directory . --capture --output-file ./coverage/$(PACKAGE).info
+	lcov --directory ./src --capture --output-file ./coverage/$(PACKAGE).info
 	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
 endif
 
