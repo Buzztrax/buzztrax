@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.4 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: main-menu.c,v 1.5 2004-08-13 20:44:07 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -42,10 +42,35 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer data) {
   bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
+static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer data) {
+  BtMainMenu *self=BT_MAIN_MENU(data);
+  GtkWidget *label,*icon,*box;
+  GtkWidget *dialog = gtk_dialog_new_with_buttons(_("About ..."),
+                                                  GTK_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")),
+                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                  GTK_STOCK_OK,
+                                                  GTK_RESPONSE_ACCEPT,
+                                                  NULL);
+
+  GST_INFO("menu about event occurred\n");
+
+  box=gtk_hbox_new(FALSE,0);
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+  label=gtk_label_new(g_strdup_printf(PACKAGE_STRING"\n\n%s",_("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")));
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
+  gtk_widget_show_all(dialog);
+                                                  
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+}
+
+
 //-- helper methods
 
 static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel_group) {
-  GtkWidget *item,*menu,*subitem;
+  GtkWidget *item,*menu,*subitem,*image;
   
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
 
@@ -98,11 +123,13 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_name(subitem,_("Inhalt"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
-  // gtk stock defines no std icon for about, only gnome does
-  //subitem=gtk_image_menu_item_new_from_stock("",accel_group);
-  subitem=gtk_menu_item_new_with_mnemonic(_("About"));
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("About"));
   gtk_widget_set_name(subitem,_("About"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  image=create_pixmap("stock_about.png");
+  gtk_widget_set_name(image,_("About"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),image);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_about_activate),(gpointer)self);
 
   return(TRUE);
 }

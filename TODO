@@ -1,6 +1,6 @@
-$Id: TODO,v 1.13 2004-08-11 15:50:03 ensonic Exp $
+$Id: TODO,v 1.14 2004-08-13 20:44:06 ensonic Exp $
 
-* run 'make todo' to get a list of todo comments from source
+run 'make todo' to get a list of todo comments from source
 
 * next tasks
   * get a list of GstElements from GStremaer registry that are

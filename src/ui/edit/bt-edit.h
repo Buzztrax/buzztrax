@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.8 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: bt-edit.h,v 1.9 2004-08-13 20:44:07 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -10,6 +10,7 @@
 //-- gtk+
 #include <gtk/gtk.h>
 
+#include "tools.h"
 #include "main-menu-methods.h"
 #include "main-toolbar-methods.h"
 #include "main-pages-methods.h"

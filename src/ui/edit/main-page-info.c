@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.1 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: main-page-info.c,v 1.2 2004-08-13 20:44:07 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -24,7 +24,7 @@ struct _BtMainPageInfoPrivate {
   /* genre of the song  */
   GtkEntry *genre;
   /* freeform info anout the song */
-  GtkTextView *info
+  GtkTextView *info;
 };
 
 //-- event handler
@@ -38,11 +38,11 @@ static void song_changed_event(const BtEditApplication *app, gpointer user_data)
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update info fields
-  if(!(str=bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"))) str="";
+  if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"))) str="";
   gtk_entry_set_text(self->private->name,str);
-  if(!(str=bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"genre"))) str="";
+  if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"genre"))) str="";
   gtk_entry_set_text(self->private->genre,str);
-  if(!(str=bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"))) str="";
+  if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"))) str="";
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->private->info),str,-1);
 }
 
@@ -72,7 +72,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0,0, 2,1);
-  self->private->genre=gtk_entry_new();
+  self->private->genre=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->private->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second row of hbox
@@ -85,7 +85,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),GTK_SHADOW_IN);
   gtk_container_add(GTK_CONTAINER(frame),scrolledwindow);
 
-  self->private->info=gtk_text_view_new();
+  self->private->info=GTK_TEXT_VIEW(gtk_text_view_new());
   gtk_widget_set_name(GTK_WIDGET(self->private->info),_("free text info"));
   //gtk_container_set_border_width(GTK_CONTAINER(self->private->info),1);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->private->info),GTK_WRAP_WORD);

@@ -6,7 +6,8 @@ bt_edit_LDADD = $(BASE_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	libbtedit.la
 bt_edit_SOURCES= \
-	bt-edit.c bt-edit.h 
+	bt-edit.c bt-edit.h \
+	tools.c tools.h
 
 noinst_LTLIBRARIES      = libbtedit.la
 libbtedit_la_SOURCES   = \

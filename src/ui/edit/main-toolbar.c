@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.3 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.4 2004-08-13 20:44:07 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -38,7 +38,7 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer data) {
 
 static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *toolbar;
-  GtkWidget *icon,*button,*vseparator;
+  GtkWidget *icon,*button,*image;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("handlebox for toolbar"));
 
@@ -46,6 +46,8 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_name(toolbar,_("tool bar"));
   gtk_container_add(GTK_CONTAINER(self),toolbar);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+
+  //-- file controls
 
   icon=gtk_image_new_from_stock(GTK_STOCK_NEW, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -79,9 +81,29 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Save"));
 
-  vseparator=gtk_vseparator_new();
-  gtk_widget_set_name(vseparator, "vseparator");
-  gtk_toolbar_append_widget(GTK_TOOLBAR(toolbar),vseparator,NULL,NULL);
+  gtk_toolbar_append_space(GTK_TOOLBAR (toolbar));
+
+  //-- media controls
+  
+  image=create_pixmap("stock_media-play.xpm");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Play"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Play"));
+
+  image=create_pixmap("stock_media-stop.xpm");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Stop"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Stop"));
 
   return(TRUE);
 }

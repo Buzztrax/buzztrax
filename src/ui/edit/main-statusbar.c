@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.2 2004-08-12 14:34:20 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.3 2004-08-13 20:44:07 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -18,6 +18,8 @@ struct _BtMainStatusbarPrivate {
 
   /* the application */
   BtEditApplication *app;
+  /* identifier of the status message group */
+  gint status_context_id;
 };
 
 //-- event handler
@@ -27,6 +29,11 @@ struct _BtMainStatusbarPrivate {
 
 static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
   gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
+
+  self->private->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self),_("default"));
+
+  gtk_statusbar_push(GTK_STATUSBAR(self),self->private->status_context_id,_("Ready to rock!"));
+ 
   return(TRUE);
 }
 

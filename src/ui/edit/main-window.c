@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.11 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: main-window.c,v 1.12 2004-08-13 20:44:07 ensonic Exp $
  * class for the editor main window
  */
 
@@ -77,16 +77,21 @@ static void song_changed_event(const BtEditApplication *app, gpointer user_data)
 
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
+  GdkPixbuf *main_icon;
   
   self->private->accel_group=gtk_accel_group_new();
   
   g_signal_connect(G_OBJECT(self),"delete_event",G_CALLBACK(delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",     G_CALLBACK(destroy),(gpointer)self);
   
+  // create and set window icon
+  if((main_icon=create_pixbuf("buzztard.png"))) {
+    gtk_window_set_icon(GTK_WINDOW(self),main_icon);
+  }
+  
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self),box);
-
  
   // add the menu-bar
   self->private->menu=bt_main_menu_new(self->private->app,self->private->accel_group);
@@ -165,7 +170,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean quit=FALSE;
   gint result;
   GtkWidget *label,*icon,*box;
-  GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Really quit ?"),
+  GtkWidget *dialog = gtk_dialog_new_with_buttons(_("Really quit ?"),
                                                   GTK_WINDOW(self),
                                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_STOCK_OK,
@@ -228,7 +233,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
     
   /* Lets set the filename, as if this were a save dialog, and we are giving
    a default filename */
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR"/songs/");
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
