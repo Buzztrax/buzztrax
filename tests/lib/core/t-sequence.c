@@ -1,4 +1,4 @@
-/** $Id: t-sequence.c,v 1.2 2004-11-19 18:59:49 waffel Exp $ 
+/** $Id: t-sequence.c,v 1.3 2005-01-24 18:48:49 waffel Exp $ 
 **/
 
 #include "t-core.h"
@@ -18,6 +18,27 @@ static void test_setup(void) {
 static void test_teardown(void) {
   //puts(__FILE__":teardown");
 }
+
+START_TEST(test_btsequence_properties) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSequence *sequence=NULL;
+	gboolean check_prop_ret=FALSE;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+	song=bt_song_new(app);
+	fail_unless(song != NULL, NULL);
+	
+	g_object_get(song,"sequence",&sequence,NULL);
+	fail_unless(sequence!=NULL,NULL);
+	
+	check_prop_ret=check_gobject_properties(G_OBJECT(sequence));
+	fail_unless(check_prop_ret==TRUE,NULL);
+}
+END_TEST
 
 
 /* try to create a new sequence with NULL for song object */
@@ -121,6 +142,7 @@ END_TEST
 TCase *bt_sequence_obj_tcase(void) {
   TCase *tc = tcase_create("bt_song case");
 
+	tcase_add_test(tc,test_btsequence_properties);
   tcase_add_test(tc,test_btsequence_obj1);
 	tcase_add_test(tc,test_btsequence_obj2);
 	tcase_add_test(tc,test_btsequence_obj3);

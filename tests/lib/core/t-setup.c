@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.10 2005-01-16 15:35:15 waffel Exp $
+/** $Id: t-setup.c,v 1.11 2005-01-24 18:48:49 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -20,6 +20,27 @@ static void test_teardown(void) {
 }
 
 //-- tests
+
+START_TEST(test_btsetup_properties) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	gboolean check_prop_ret=FALSE;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	
+	check_prop_ret=check_gobject_properties(G_OBJECT(setup));
+	fail_unless(check_prop_ret==TRUE,NULL);
+}
+END_TEST
 
 /**
 * Try to add the same machine twice to the setup
@@ -602,6 +623,7 @@ END_TEST
 TCase *bt_setup_obj_tcase(void) {
   TCase *tc = tcase_create("bt_setup case");
 
+	tcase_add_test(tc,test_btsetup_properties);
   tcase_add_test(tc,test_btsetup_obj1);
 	tcase_add_test(tc,test_btsetup_obj2);
 	tcase_add_test(tc,test_btsetup_obj3);

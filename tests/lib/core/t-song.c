@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.15 2005-01-18 20:35:35 waffel Exp $
+/** $Id: t-song.c,v 1.16 2005-01-24 18:48:49 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -30,6 +30,7 @@ static void play_event_test(void) {
 START_TEST(test_btsong_properties) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
+	gboolean check_prop_ret=FALSE;
 	
   GST_INFO("--------------------------------------------------------------------------------");
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -37,7 +38,8 @@ START_TEST(test_btsong_properties) {
 
 	song=bt_song_new(app);
 	fail_unless(song != NULL, NULL);
-	check_gobject_properties(G_OBJECT(song));
+	check_prop_ret=check_gobject_properties(G_OBJECT(song));
+	fail_unless(check_prop_ret==TRUE,NULL);
 }
 END_TEST
 
