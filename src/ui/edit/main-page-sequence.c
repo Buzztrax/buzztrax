@@ -1,12 +1,19 @@
-/* $Id: main-page-sequence.c,v 1.56 2005-02-08 15:36:08 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.57 2005-02-09 18:35:42 ensonic Exp $
  * class for the editor main sequence page
  */
 
 /* @todo:
  *  - moving cursor around
  *  - disallowing to move to position column
+ *  - sequence header
+ *    - add table to separate scrollable window
+ *      (no own adjustments, share x-adjustment with sequence-view, show full height)
+ *      - add mute/solo/bypass buttons
+ *      - add level meters
+ *      - add the same context menu as the machines have in machine view
+ *    - sequence view will have no visible column headers
  *  - adding/removing columns
- *  - add mute/solo/bypass buttons to column headers
+ *  - left clicking in the pos or label columns, sets play pointer
  */
 
 #define BT_EDIT
@@ -644,6 +651,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSongInfo *song_info;
 	BtSequence *sequence;
   glong index,bars;
+	glong loop_start_pos,loop_end_pos;
+	gulong sequence_length;
+	gdouble loop_start,loop_end;
 
   g_assert(user_data);
 
@@ -674,6 +684,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 	else {
 		sequence_model_recolorize(self);
 	}
+	// update sequence view
+	g_object_get(G_OBJECT(sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
+	loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
+	loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
+	g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
 	// connect to the tick signal
 	g_signal_connect(G_OBJECT(sequence), "tick", (GCallback)on_sequence_tick, (gpointer)self);
   //-- release the references

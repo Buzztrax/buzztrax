@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.84 2005-02-08 19:58:05 ensonic Exp $
+/* $Id: machine.c,v 1.85 2005-02-09 18:35:21 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -429,7 +429,10 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
   if(!(self->priv->machines[PART_INPUT_LEVEL]=gst_element_factory_make("level",g_strdup_printf("input_level_%p",self)))) {
     GST_ERROR("failed to create input level analyser for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
   }
-  g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),"interval",0.1, "signal",TRUE, NULL);
+  g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
+		"interval",0.1,"signal",TRUE,
+		"peak-ttl",0.2,"peak-falloff", 20,
+		NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_INPUT_LEVEL]);
 	// is the machine unconnected towards the input side (its sink)?
 	if(!(peer=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]))) {

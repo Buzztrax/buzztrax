@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.4 2005-02-08 15:36:08 ensonic Exp $
+/* $Id: sequence-view.c,v 1.5 2005-02-09 18:35:43 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -10,6 +10,8 @@
 enum {
   SEQUENCE_VIEW_APP=1,
 	SEQUENCE_VIEW_PLAY_POSITION,
+	SEQUENCE_VIEW_LOOP_START,
+	SEQUENCE_VIEW_LOOP_END,
 	SEQUENCE_VIEW_VISIBLE_ROWS
 };
 
@@ -23,13 +25,16 @@ struct _BtSequenceViewPrivate {
 	
 	/* position of playing pointer from 0.0 ... 1.0 */
 	gdouble play_pos;
+	
+	/* position of loop range from 0.0 ... 1.0 */
+	gdouble loop_start,loop_end;
 
 	/* number of visible rows, the height of one row */
 	gulong visible_rows,row_height;
 	
 	/* cache some ressources */
 	GdkWindow *window;
-	GdkGC *play_pos_gc;
+	GdkGC *play_pos_gc,*loop_pos_gc;
 };
 
 static GtkTreeViewClass *parent_class=NULL;
@@ -88,6 +93,12 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
 	self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
 	gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
 
+	color.red = 0;
+	color.green = (gint)(0.5*65535.0);
+	color.blue = (gint)(0.75*65535.0);
+	self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);
+	gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,&color);
+
 	path=gtk_tree_path_new_from_indices(0,-1);
 	gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
 	self->priv->row_height=br.height;
@@ -109,7 +120,8 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
    * row zero spanners can be drawn on top of the column headers.
  	 */
   if(self->priv->window==event->window) {
-		gint w,h;
+		gint w,y;
+		gdouble h;
 		//GdkRectangle vr,br;
 		//GtkTreePath *path;
 		
@@ -121,12 +133,20 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
 		//GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
 		//GST_INFO(" tree view allocation: %d x %d",widget->allocation.width,widget->allocation.height);
 
-		w=widget->allocation.width;
 		//h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
 		//w=vr.width;
 		//h=(gint)(self->priv->play_pos*(double)vr.height);
-		h=(gint)(self->priv->play_pos*(double)(self->priv->visible_rows*self->priv->row_height));
-  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,h,w,h);
+
+		w=widget->allocation.width;
+		h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
+
+		y=(gint)(self->priv->play_pos*h);
+  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+
+		y=(gint)(self->priv->loop_start*h);
+  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+		y=(gint)(self->priv->loop_end*h);
+  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
 	}
 	return(FALSE);
 }
@@ -166,6 +186,14 @@ static void bt_sequence_view_set_property(GObject      *object,
     } break;
     case SEQUENCE_VIEW_PLAY_POSITION: {
       self->priv->play_pos = g_value_get_double(value);
+			gtk_widget_queue_draw(GTK_WIDGET(self));
+    } break;
+    case SEQUENCE_VIEW_LOOP_START: {
+      self->priv->loop_start = g_value_get_double(value);
+			gtk_widget_queue_draw(GTK_WIDGET(self));
+    } break;
+    case SEQUENCE_VIEW_LOOP_END: {
+      self->priv->loop_end = g_value_get_double(value);
 			gtk_widget_queue_draw(GTK_WIDGET(self));
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {
@@ -243,7 +271,25 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
 																		 0.0,
                                      G_PARAM_WRITABLE));
 
-  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_VISIBLE_ROWS,
+  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_LOOP_START,
+                                  g_param_spec_double("loop-start",
+                                     "loop start position prop.",
+                                     "The start position of the loop range as a fraction",
+                                     0.0,
+																		 1.0,
+																		 0.0,
+                                     G_PARAM_WRITABLE));
+
+  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_LOOP_END,
+                                  g_param_spec_double("loop-end",
+                                     "loop end position prop.",
+                                     "The end position of the loop range as a fraction",
+                                     0.0,
+																		 1.0,
+																		 1.0,
+                                     G_PARAM_WRITABLE));
+
+g_object_class_install_property(gobject_class,SEQUENCE_VIEW_VISIBLE_ROWS,
                                   g_param_spec_ulong("visible-rows",
                                      "visible rows prop.",
                                      "The number of currntly visible sequence rows",
