@@ -32,6 +32,8 @@
 	<xsd:element name="bpm" type="xsd:integer"/>
 	<xsd:element name="tpb" type="xsd:integer"/>
 	<xsd:element name="bars" type="xsd:integer"/>
+	<xsd:element name="createdate" type="xsd:date"/>
+	<xsd:element name="changedate" type="xsd:date"/>
 
   <xsd:element name="meta">
     <xsd:complexType>
@@ -42,6 +44,8 @@
 				<xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
 				<xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
 				<xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="createdate" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="changedate" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
