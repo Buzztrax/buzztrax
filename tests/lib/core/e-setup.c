@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.11 2005-01-14 15:15:01 ensonic Exp $
+/** $Id: e-setup.c,v 1.12 2005-01-25 19:58:58 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -253,6 +253,62 @@ START_TEST(test_btsetup_obj4) {
 }
 END_TEST
 
+START_TEST(test_btsetup_wire1) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	// machines
+	BtSourceMachine *source1=NULL;
+	BtSourceMachine *ref_machine=NULL;
+	BtSinkMachine *sink=NULL;
+	// wire
+	BtWire *wire=NULL;
+	BtWire *ref_wire=NULL;
+	/* wire list */
+	GList* wireList=NULL;
+	
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL, NULL);
+	
+	/* try to craete generator1 with sinesrc */
+  source1 = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(source1!=NULL, NULL);
+	
+	/* try to create sink machine with esd sink */
+	sink = bt_sink_machine_new(song,"sink1");
+	fail_unless(sink!=NULL, NULL);
+	
+	/* try to create the wire */
+	wire = bt_wire_new(song, BT_MACHINE(source1), BT_MACHINE(sink));
+	fail_unless(wire!=NULL, NULL);
+	
+	/* try to add the machines to the setup. We must do this. */
+	bt_setup_add_machine(setup, BT_MACHINE(source1));
+	bt_setup_add_machine(setup, BT_MACHINE(sink));
+	
+	/* try to add the wire to the setup */
+	bt_setup_add_wire(setup, wire);
+	
+	/* try to get the list of wires */
+	wireList=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(source1));
+	fail_unless(wireList!=NULL,NULL);
+	ref_machine=g_list_first(wireList)->data;
+	fail_unless(ref_machine!=NULL,NULL);
+	fail_unless(ref_machine==source1,NULL);
+	g_list_free(wireList);
+	
+}
+END_TEST
+
 TCase *bt_setup_example_tcase(void) {
   TCase *tc = tcase_create("bt_setup example case");
 
@@ -260,6 +316,7 @@ TCase *bt_setup_example_tcase(void) {
 	tcase_add_test(tc,test_btsetup_obj2);
 	tcase_add_test(tc,test_btsetup_obj3);
 	tcase_add_test(tc,test_btsetup_obj4);
+	tcase_add_test(tc,test_btsetup_wire1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
