@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.53 2005-02-03 16:13:51 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.54 2005-02-05 16:28:31 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -756,7 +756,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-  self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
+  //self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
+	self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
 	g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,NULL);
   //gtk_tree_view_set_rules_hint(self->priv->sequence_table,TRUE);
 	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column 

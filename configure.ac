@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.35 2005-01-28 09:31:39 ensonic Exp $
+# $Id: configure.ac,v 1.36 2005-02-05 16:28:20 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -28,8 +28,8 @@ dnl we override it here for release candidates
 #BT_MAJORMINOR=0.1
 
 dnl update this for each release (year-month-day)
-BT_RELEASE_YEAR=2004
-BT_RELEASE_DATE=$BT_RELEASE_YEAR-09-30
+BT_RELEASE_YEAR=2005
+BT_RELEASE_DATE=$BT_RELEASE_YEAR-02-10
 
 AC_SUBST(BT_MAJOR_VERSION)
 AC_SUBST(BT_MINOR_VERSION)

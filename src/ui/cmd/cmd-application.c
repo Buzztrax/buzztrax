@@ -1,8 +1,7 @@
-// $Id: cmd-application.c,v 1.50 2005-02-01 20:02:22 ensonic Exp $
+// $Id: cmd-application.c,v 1.51 2005-02-05 16:28:31 ensonic Exp $
 /**
  * SECTION:btcmdapplication
- * @summary: class for a commandline based buzztard tool application
- * @see: nothing
+ * @short_description: class for a commandline based buzztard tool application
  *
  * This class implements the body of the buzztard commandline tool.
  */ 

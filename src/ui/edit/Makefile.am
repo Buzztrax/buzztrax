@@ -24,6 +24,7 @@ libbtedit_la_SOURCES   = \
 	main-page-waves.c main-page-waves.h main-page-patterns-waves.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
+	sequence-view.c sequence-view.h sequence-view-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	tools.c tools.h \
