@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.7 2004-08-10 14:35:18 ensonic Exp $
+/* $Id: edit-application.c,v 1.8 2004-08-11 15:50:04 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -9,6 +9,7 @@
 
 enum {
   EDIT_APPLICATION_SONG=1,
+  EDIT_APPLICATION_MAIN_WINDOW
 };
 
 // this needs to be here because of gtk-doc and unit-tests
@@ -86,7 +87,9 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
  */
 gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name) {
   gboolean res=FALSE;
-  
+
+  GST_INFO("new song name = %s\n",file_name);
+
   if(bt_edit_application_new_song(self)) {
     BtSongIO *loader=bt_song_io_new(file_name);
 
@@ -159,6 +162,9 @@ static void bt_edit_application_get_property(GObject      *object,
     case EDIT_APPLICATION_SONG: {
       g_value_set_object(value, G_OBJECT(self->private->song));
     } break;
+    case EDIT_APPLICATION_MAIN_WINDOW: {
+      g_value_set_object(value, G_OBJECT(self->private->main_window));
+    } break;
     default: {
  			g_assert(FALSE);
       break;
@@ -221,6 +227,12 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
 
+  g_object_class_install_property(gobject_class,EDIT_APPLICATION_MAIN_WINDOW,
+																	g_param_spec_object("main window",
+                                     "main window prop",
+                                     "the main window of this application",
+                                     BT_TYPE_MAIN_WINDOW, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_edit_application_get_type(void) {

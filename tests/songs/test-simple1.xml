@@ -8,7 +8,7 @@
 		<info>what a lovely tune</info>
     <name>simple 1</name>
 		<genre>dark-wave</genre>
-    <bpm>120</bpm>
+    <bpm>100</bpm>
     <tpb>4</tpb>
     <bars>4</bars>
 	</meta>
@@ -51,7 +51,7 @@
   <sequence>
     <labels>
       <label time="0" name="start"/>
-      <label time="3" name="end"/>
+      <!--label time="1" name="end"/-->
     </labels>
     <tracks>
       <track index="0" machine="sine1">

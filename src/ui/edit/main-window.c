@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.7 2004-08-10 14:35:18 ensonic Exp $
+/* $Id: main-window.c,v 1.8 2004-08-11 15:50:04 ensonic Exp $
  * class for the editor main window
  */
 
@@ -19,14 +19,16 @@ struct _BtMainWindowPrivate {
   /* the application */
   BtEditApplication *app;
 
-  /* the top-level window of our app */
-  GtkWindow *window;
+  /* the menu of the window */
+  BtMainMenu *menu;
+  
+  /* the keyboard shortcut table for the window */
+  GtkAccelGroup *accel_group;
 };
-
 
 //-- helper
 
-static void bt_mainwindow_refresh_ui(const BtMainWindow *self) {
+static void bt_main_window_refresh_ui(const BtMainWindow *self) {
   static gchar *title;
   BtSong *song;
 
@@ -34,87 +36,14 @@ static void bt_mainwindow_refresh_ui(const BtMainWindow *self) {
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // compose title
   title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
-  gtk_window_set_title(GTK_WINDOW(self->private->window), title);
-}
-
-
-//-- event handler helper
-
-static gboolean bt_main_check_quit(const BtMainWindow *self)  {
-  gboolean quit=FALSE;
-  gint result;
-  GtkWidget *label,*icon,*box;
-  GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Really quit ?"),
-                                                  self->private->window,
-                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                  GTK_STOCK_OK,
-                                                  GTK_RESPONSE_ACCEPT,
-                                                  GTK_STOCK_CANCEL,
-                                                  GTK_RESPONSE_REJECT,
-                                                  NULL);
-
-  box=gtk_hbox_new(FALSE,0);
-  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
-  gtk_container_add(GTK_CONTAINER(box),icon);
-  label=gtk_label_new(_("Really quit ?"));
-  gtk_container_add(GTK_CONTAINER(box),label);
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
-  gtk_widget_show_all(dialog);
-                                                  
-  result=gtk_dialog_run(GTK_DIALOG(dialog));
-  switch(result) {
-    case GTK_RESPONSE_ACCEPT:
-      quit=TRUE;
-      break;
-    case GTK_RESPONSE_REJECT:
-      quit=FALSE;
-      break;
-    default:
-      GST_WARNING("unhandled response code = %d\n",result);
-  }
-  gtk_widget_destroy(dialog);
-  GST_INFO("menu quit result = %d\n",quit);
-  return(quit);
-}
-
-static void bt_main_new_song(const BtMainWindow *self)  {
-  // @todo if unsaved ask the use, if we should save the song
-  if(bt_edit_application_new_song(self->private->app)) {
-    bt_mainwindow_refresh_ui(self);
-  }
-}
-
-static void bt_main_open_song(const BtMainWindow *self) {
-  GtkWidget *dialog=gtk_file_selection_new(_("Choose a song"));
-  gint result;
-    
-  /* Lets set the filename, as if this were a save dialog, and we are giving
-   a default filename */
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR"/songs/");
-  result=gtk_dialog_run(GTK_DIALOG(dialog));
-  switch(result) {
-    case GTK_RESPONSE_ACCEPT:
-    case GTK_RESPONSE_OK:
-      GST_INFO("new song name = %s\n",gtk_file_selection_get_filename(dialog));
-      if(bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(dialog))) {
-        bt_mainwindow_refresh_ui(self);
-      }
-      break;
-    case GTK_RESPONSE_REJECT:
-    case GTK_RESPONSE_CANCEL:
-    case GTK_RESPONSE_CLOSE:
-      break;
-    default:
-      GST_WARNING("unhandled response code = %d\n",result);
-  } 
-  gtk_widget_destroy(dialog);
+  gtk_window_set_title(GTK_WINDOW(self), title);
 }
 
 //-- event handler
 
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
   GST_INFO("delete event occurred\n");
-  return(!bt_main_check_quit(BT_MAIN_WINDOW(data)));
+  return(!bt_main_window_check_quit(BT_MAIN_WINDOW(data)));
 }
 
 static void destroy(GtkWidget *widget, gpointer data) {
@@ -124,108 +53,17 @@ static void destroy(GtkWidget *widget, gpointer data) {
 }
 
 
-static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
-  GST_INFO("menu quit event occurred\n");
-  if(bt_main_check_quit(BT_MAIN_WINDOW(data))) {
-    gtk_main_quit();
-  }
-}
-
-static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer data) {
-  GST_INFO("menu new event occurred\n");
-  bt_main_new_song(BT_MAIN_WINDOW(data));
-}
-
-static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer data) {
-  GST_INFO("menu open event occurred\n");
-  bt_main_open_song(BT_MAIN_WINDOW(data));
-}
-
-
 static void on_toolbar_new_clicked(GtkButton *button, gpointer data) {
   GST_INFO("toolbar new event occurred\n");
-  bt_main_new_song(BT_MAIN_WINDOW(data));
+  bt_main_window_new_song(BT_MAIN_WINDOW(data));
 }
 
 static void on_toolbar_open_clicked(GtkButton *button, gpointer data) {
   GST_INFO("toolbar open event occurred\n");
-  bt_main_open_song(BT_MAIN_WINDOW(data));
+  bt_main_window_open_song(BT_MAIN_WINDOW(data));
 }
 
 //-- helper methods
-
-static GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box) {
-  GtkWidget *menubar,*item,*menu,*subitem;
-  GtkAccelGroup *accel_group;
-  
-  accel_group=gtk_accel_group_new();
-  
-  // @todo make this a sub-class of menu-bar
-  menubar=gtk_menu_bar_new();
-  gtk_widget_set_name(menubar,_("main menu"));
-  gtk_box_pack_start(GTK_BOX(box),menubar,FALSE,FALSE,0);
-
-
-  item=gtk_menu_item_new_with_mnemonic(_("_File"));
-  gtk_widget_set_name(item,_("file menu"));
-  gtk_container_add(GTK_CONTAINER(menubar),item);
-
-  menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("file menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
-
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,accel_group);
-  gtk_widget_set_name(subitem,_("New"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_new_activate),(gpointer)self);
-
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN,accel_group);
-  gtk_widget_set_name(subitem,_("Open"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
-
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
-  gtk_widget_set_name(subitem,_("Save"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE_AS,accel_group);
-  gtk_widget_set_name(subitem,_("Save as"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-
-  subitem=gtk_separator_menu_item_new();
-  gtk_widget_set_name(subitem,_("separator"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  gtk_widget_set_sensitive(subitem,FALSE);
-
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT,accel_group);
-  gtk_widget_set_name(subitem,_("Quit"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),(gpointer)self);
-
-
-  item=gtk_menu_item_new_with_mnemonic(_("_Help"));
-  gtk_widget_set_name(item,_("help menu"));
-  gtk_container_add(GTK_CONTAINER(menubar),item);
-
-  menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("help menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
-
-  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
-  gtk_widget_set_name(subitem,_("Inhalt"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-
-  // gtk stock defines no std icon for about, only gnome does
-  //subitem=gtk_image_menu_item_new_from_stock("",accel_group);
-  subitem=gtk_menu_item_new_with_mnemonic(_("About"));
-  gtk_widget_set_name(subitem,_("About"));
-  gtk_container_add(GTK_CONTAINER(menu),subitem);
-
-
-  gtk_window_add_accel_group(GTK_WINDOW(self->private->window),accel_group);
- 
-  return(menubar);
-}
 
 static GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *handlebox,*toolbar;
@@ -278,7 +116,9 @@ static GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidge
 
 static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *notebook;
-  GtkWidget *page,*label;
+  GtkWidget *page,*label,*frame;
+  GtkWidget *table,*entry;
+  GtkWidget *scrolledwindow,*textfield;
 
   // @todo make this a sub-class of notebook widget
   notebook=gtk_notebook_new();
@@ -321,15 +161,43 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   label=gtk_label_new(_("song information"));
   gtk_widget_set_name(label,_("song information"));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),3),label);
+
   // first row of hbox
-  //  GtkFrame
-  //    GtkTable
-  //      label | textfield
-  //      label | textfield
+  frame=gtk_frame_new(_("song meta data"));
+  gtk_widget_set_name(label,_("song meta data"));
+  gtk_box_pack_start(GTK_BOX(page),frame,FALSE,TRUE,0);
+
+  table=gtk_table_new(2,2,FALSE);
+  gtk_container_add(GTK_CONTAINER(frame),table);
+
+  label=gtk_label_new(_("name"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  entry=gtk_entry_new();
+  gtk_table_attach(GTK_TABLE(table),entry, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+
+  label=gtk_label_new(_("genre"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0,0, 2,1);
+  entry=gtk_entry_new();
+  gtk_table_attach(GTK_TABLE(table),entry, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+
   // second row of hbox
-  //  GtkFrame
-  //    textfield
-  
+  frame=gtk_frame_new(_("free text info"));
+  gtk_widget_set_name(label,_("free text info"));
+  gtk_box_pack_start(GTK_BOX(page),frame,TRUE,TRUE,0);
+
+  scrolledwindow=gtk_scrolled_window_new(NULL, NULL);
+  gtk_widget_set_name(scrolledwindow,"scrolledwindow");
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),GTK_SHADOW_IN);
+  gtk_container_add(GTK_CONTAINER(frame),scrolledwindow);
+
+  textfield=gtk_text_view_new();
+  gtk_widget_set_name(textfield,_("free text info"));
+  //gtk_container_set_border_width(GTK_CONTAINER(textfield),1);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textfield),GTK_WRAP_WORD);
+  gtk_container_add(GTK_CONTAINER(scrolledwindow),textfield);
+
   return(notebook);
 }
 
@@ -346,24 +214,23 @@ static GtkWidget *bt_main_window_init_statusbar(const BtMainWindow *self, GtkWid
 
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
-  GtkWidget *menubar;
   GtkWidget *handlebox;
   GtkWidget *notebook;
   GtkWidget *statusbar;
   
-  // create the window
-  self->private->window=GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
-  bt_mainwindow_refresh_ui(self);
+  self->private->accel_group=gtk_accel_group_new();
   
-  g_signal_connect(G_OBJECT(self->private->window),"delete_event",G_CALLBACK(delete_event),(gpointer)self);
-  g_signal_connect(G_OBJECT(self->private->window),"destroy",     G_CALLBACK(destroy),(gpointer)self);
+  g_signal_connect(G_OBJECT(self),"delete_event",G_CALLBACK(delete_event),(gpointer)self);
+  g_signal_connect(G_OBJECT(self),"destroy",     G_CALLBACK(destroy),(gpointer)self);
   
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
-  gtk_container_add(GTK_CONTAINER(self->private->window),box);
+  gtk_container_add(GTK_CONTAINER(self),box);
 
   // add the menu-bar
-  menubar=bt_main_window_init_menubar(self, box);
+  self->private->menu=bt_main_menu_new(self->private->app,self->private->accel_group);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->menu),FALSE,FALSE,0);
+
   // add the tool-bar
   handlebox=bt_main_window_init_toolbar(self, box);
   // add the notebook widget
@@ -371,24 +238,25 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   // add the status bar
   statusbar=bt_main_window_init_statusbar(self, box);
 
+  bt_main_window_refresh_ui(self);
+
   return(TRUE);
 }
 
 static void bt_main_window_run_ui(const BtMainWindow *self) {
   GST_INFO("show UI and start main-loop\n");
-  gtk_widget_show_all(self->private->window);
+  gtk_widget_show_all(GTK_WIDGET(self));
   gtk_main();
 }
 
 static void bt_main_window_run_done(const BtMainWindow *self) {
-  self->private->window=NULL;
 }
 
 //-- constructor methods
 
 /**
  * bt_main_window_new:
- * @app: the application the winodw belongs to
+ * @app: the application the window belongs to
  *
  * Create a new instance
  *
@@ -396,9 +264,18 @@ static void bt_main_window_run_done(const BtMainWindow *self) {
  */
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
-  self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,NULL));
-  
+
+  if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
+    goto Error;
+  }
+  // generate UI
+  if(!bt_main_window_init_ui(self)) {
+    goto Error;
+  }
   return(self);
+Error:
+  if(self) g_object_unref(self);
+  return(NULL);
 }
 
 //-- methods
@@ -412,18 +289,83 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
  * Returns: true for success
  */
 gboolean bt_main_window_show_and_run(const BtMainWindow *self) {
-  gboolean res=FALSE;
+  gboolean res=TRUE;
   GST_INFO("before running the UI\n");
-  // generate UI
-  if(bt_main_window_init_ui(self)) {
-    // run UI loop
-    bt_main_window_run_ui(self);
-    // shut down UI
-    bt_main_window_run_done(self);
-    res=TRUE;
-  }
+  // run UI loop
+  bt_main_window_run_ui(self);
+  // shut down UI
+  bt_main_window_run_done(self);
   GST_INFO("after running the UI\n");
   return(res);
+}
+
+gboolean bt_main_window_check_quit(const BtMainWindow *self) {
+  gboolean quit=FALSE;
+  gint result;
+  GtkWidget *label,*icon,*box;
+  GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Really quit ?"),
+                                                  GTK_WINDOW(self),
+                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                  GTK_STOCK_OK,
+                                                  GTK_RESPONSE_ACCEPT,
+                                                  GTK_STOCK_CANCEL,
+                                                  GTK_RESPONSE_REJECT,
+                                                  NULL);
+
+  box=gtk_hbox_new(FALSE,0);
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+  label=gtk_label_new(_("Really quit ?"));
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
+  gtk_widget_show_all(dialog);
+                                                  
+  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(result) {
+    case GTK_RESPONSE_ACCEPT:
+      quit=TRUE;
+      break;
+    case GTK_RESPONSE_REJECT:
+      quit=FALSE;
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d\n",result);
+  }
+  gtk_widget_destroy(dialog);
+  GST_INFO("menu quit result = %d\n",quit);
+  return(quit);
+}
+
+void bt_main_window_new_song(const BtMainWindow *self) {
+  // @todo if unsaved ask the use, if we should save the song
+  if(bt_edit_application_new_song(self->private->app)) {
+    bt_main_window_refresh_ui(self);
+  }
+}
+
+void bt_main_window_open_song(const BtMainWindow *self) {
+  GtkWidget *dialog=gtk_file_selection_new(_("Choose a song"));
+  gint result;
+    
+  /* Lets set the filename, as if this were a save dialog, and we are giving
+   a default filename */
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR"/songs/");
+  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(result) {
+    case GTK_RESPONSE_ACCEPT:
+    case GTK_RESPONSE_OK:
+      if(bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)))) {
+        bt_main_window_refresh_ui(self);
+      }
+      break;
+    case GTK_RESPONSE_REJECT:
+    case GTK_RESPONSE_CANCEL:
+    case GTK_RESPONSE_CLOSE:
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d\n",result);
+  } 
+  gtk_widget_destroy(dialog);
 }
 
 //-- wrapper
@@ -519,7 +461,7 @@ GType bt_main_window_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_window_init, // instance_init
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtMainWindow",&info,0);
+		type = g_type_register_static(GTK_TYPE_WINDOW,"BtMainWindow",&info,0);
   }
   return type;
 }
