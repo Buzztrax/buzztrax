@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.4 2004-05-05 12:46:03 ensonic Exp $
+/** $Id: wire.c,v 1.5 2004-05-06 15:08:45 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -34,7 +34,7 @@ static void bt_wire_get_property(GObject      *object,
                                GValue       *value,
                                GParamSpec   *pspec)
 {
-  BtWire *self = (BtWire *)object;
+  BtWire *self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
@@ -53,7 +53,7 @@ static void bt_wire_set_property(GObject      *object,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
-  BtWire *self = (BtWire *)object;
+  BtWire *self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
@@ -68,19 +68,19 @@ static void bt_wire_set_property(GObject      *object,
 }
 
 static void bt_wire_dispose(GObject *object) {
-  BtWire *self = (BtWire *)object;
+  BtWire *self = BT_WIRE(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 }
 
 static void bt_wire_finalize(GObject *object) {
-  BtWire *self = (BtWire *)object;
+  BtWire *self = BT_WIRE(object);
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
 
 static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
-  BtWire *self = (BtWire*)instance;
+  BtWire *self = BT_WIRE(instance);
   self->private = g_new0(BtWirePrivate,1);
   self->private->dispose_has_run = FALSE;
 }

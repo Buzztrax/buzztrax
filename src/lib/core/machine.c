@@ -1,4 +1,4 @@
-/** $Id: machine.c,v 1.2 2004-05-05 12:46:03 ensonic Exp $
+/** $Id: machine.c,v 1.3 2004-05-06 15:08:45 ensonic Exp $
  * cbase class for a machine
  */
  
@@ -31,7 +31,7 @@ static void bt_machine_get_property(GObject      *object,
                                GValue       *value,
                                GParamSpec   *pspec)
 {
-  BtMachine *self = (BtMachine *)object;
+  BtMachine *self = BT_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
@@ -50,7 +50,7 @@ static void bt_machine_set_property(GObject      *object,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
-  BtMachine *self = (BtMachine *)object;
+  BtMachine *self = BT_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
@@ -65,19 +65,19 @@ static void bt_machine_set_property(GObject      *object,
 }
 
 static void bt_machine_dispose(GObject *object) {
-  BtMachine *self = (BtMachine *)object;
+  BtMachine *self = BT_MACHINE(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 }
 
 static void bt_machine_finalize(GObject *object) {
-  BtMachine *self = (BtMachine *)object;
+  BtMachine *self = BT_MACHINE(object);
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
-  BtMachine *self = (BtMachine*)instance;
+  BtMachine *self = BT_MACHINE(instance);
   self->private = g_new0(BtMachinePrivate,1);
   self->private->dispose_has_run = FALSE;
 }

@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.11 2004-05-05 12:46:03 ensonic Exp $
+/** $Id: core.h,v 1.12 2004-05-06 15:08:45 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -20,13 +20,13 @@
 #include <libxml/xpathInternals.h>
 
 //-- libbtcore
-//#include "song.h"
-// contain only method prototypes and should be included AFTER e.g. song.h,
-// the same for all other classes
+// contain only method prototypes (will include the data defs themself)
 #include "song-methods.h"
 #include "song-info-methods.h"
 #include "machine-methods.h"
 #include "wire-methods.h"
+#include "setup-methods.h"
+#include "sequence-methods.h"
 #include "version.h"
 
 //-- global defines ------------------------------------------------------------

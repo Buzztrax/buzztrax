@@ -1,4 +1,4 @@
-/** $Id: song-info.c,v 1.3 2004-05-05 19:49:57 ensonic Exp $
+/** $Id: song-info.c,v 1.4 2004-05-06 15:08:45 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -43,7 +43,7 @@ static void bt_song_info_get_property(GObject      *object,
                                GValue       *value,
                                GParamSpec   *pspec)
 {
-  BtSongInfo *self = (BtSongInfo *)object;
+  BtSongInfo *self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {
@@ -62,7 +62,7 @@ static void bt_song_info_set_property(GObject      *object,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
-  BtSongInfo *self = (BtSongInfo *)object;
+  BtSongInfo *self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {
@@ -77,19 +77,19 @@ static void bt_song_info_set_property(GObject      *object,
 }
 
 static void bt_song_info_dispose(GObject *object) {
-  BtSongInfo *self = (BtSongInfo *)object;
+  BtSongInfo *self = BT_SONG_INFO(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 }
 
 static void bt_song_info_finalize(GObject *object) {
-  BtSongInfo *self = (BtSongInfo *)object;
+  BtSongInfo *self = BT_SONG_INFO(object);
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
 
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
-  BtSongInfo *self = (BtSongInfo*)instance;
+  BtSongInfo *self = BT_SONG_INFO(instance);
 	
 	//g_print("song_info_init self=%p\n",self);
   self->private = g_new0(BtSongInfoPrivate,1);
