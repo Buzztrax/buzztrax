@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.41 2004-12-16 13:41:32 ensonic Exp $
+/* $Id: edit-application.c,v 1.42 2004-12-18 13:31:43 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -64,6 +64,8 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   g_assert(self);
   g_assert(self->priv->main_window);
   
+	GST_INFO("application.run_ui launched");
+	
 	res=bt_main_window_run(self->priv->main_window);	
   return(res);
 }
