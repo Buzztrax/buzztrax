@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.45 2004-12-03 16:29:36 ensonic Exp $
+/* $Id: song-io-native.c,v 1.46 2004-12-07 20:18:42 waffel Exp $
  * class for native song input and output
  */
  
@@ -286,11 +286,12 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node) {
+static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node, GError **err) {
   xmlNodePtr xml_subnode;
   xmlChar *tick_str,*name,*value,*voice_str;
   glong tick,voice,param;
   GValue *event;
+	GError *tmp_error;
 
   while(xml_node) {
 		if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"tick\0",5))) {
@@ -303,7 +304,8 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
           name=xmlGetProp(xml_subnode,"name");
           value=xmlGetProp(xml_subnode,"value");
           if(!strncmp(xml_subnode->name,"globaldata\0",11)) {
-            param=bt_pattern_get_global_dparam_index(pattern,name);
+						// @todo check error!
+            param=bt_pattern_get_global_dparam_index(pattern,name,NULL);
             if((event=bt_pattern_get_global_event_data(pattern,tick,param))) {
               bt_pattern_init_global_event(pattern,event,param);
               bt_pattern_set_event(pattern,event,value);
@@ -312,7 +314,8 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
           if(!strncmp(xml_subnode->name,"voicedata\0",10)) {
             voice_str=xmlGetProp(xml_subnode,"voice");
             voice=atol(voice_str);
-            param=bt_pattern_get_voice_dparam_index(pattern,name);
+						// @todo check error
+            param=bt_pattern_get_voice_dparam_index(pattern,name,NULL);
             if((event=bt_pattern_get_voice_event_data(pattern,tick,voice,param))) {
               bt_pattern_init_voice_event(pattern,event,param);
               bt_pattern_set_event(pattern,event,value);
@@ -350,7 +353,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
     pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine);
     //bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
-    bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
+    bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children,NULL);
     g_object_unref(pattern);
   }
   else {

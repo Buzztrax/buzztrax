@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.22 2004-12-06 20:18:46 waffel Exp $
+/* $Id: pattern.c,v 1.23 2004-12-07 20:18:42 waffel Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -204,13 +204,23 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
  * Searches the list of registered dparam of the machine the pattern belongs to
  * for a global dparam of the given name and returns the index if found.
  *
- * Returns: the index or -1 when it has not be found
+ * Returns: the index. If an error occurse the function returns 0 and sets the 
+ * err variable. You should always check for err if you use this function.
  */
-gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name) {
+gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
+	gulong ret=0;
+	GError *tmp_error;
+	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
-
-  return(bt_machine_get_global_dparam_index(self->priv->machine,name));
+	
+	tmp_error=NULL;
+	ret=bt_machine_get_global_dparam_index(self->priv->machine,name,&tmp_error);
+	
+	if (tmp_error!=NULL) {
+		g_propagate_error(error, tmp_error);
+	}
+  return(ret);
 }
 
 /**
@@ -221,13 +231,23 @@ gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *na
  * Searches the list of registered dparam of the machine the pattern belongs to
  * for a voice dparam of the given name and returns the index if found.
  *
- * Returns: the index or -1 when it has not be found
+ * Returns: the index. If an error occurse the function returns 0 and sets the 
+ * err variable. You should always check for err if you use this function.
  */
-gulong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name) {
+gulong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
+	gulong ret=0;
+	GError *tmp_error;
+	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
-
-  return(bt_machine_get_voice_dparam_index(self->priv->machine,name));
+	
+	tmp_error=NULL;
+	ret=bt_machine_get_voice_dparam_index(self->priv->machine,name,&tmp_error);
+	
+	if (tmp_error!=NULL) {
+		g_propagate_error(error, tmp_error);
+	}
+  return(ret);
 }
 
 
