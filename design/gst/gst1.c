@@ -1,4 +1,4 @@
-/** $Id: gst1.c,v 1.6 2004-04-08 13:33:16 waffel Exp $
+/** $Id: gst1.c,v 1.7 2004-04-08 16:05:04 waffel Exp $
 * small example, how to create a pipeline with one source and one sink and how to
 * use dparams to control the volume. The volume in this example is decrementes from
 * the given volume to silence. After silence is reached, the example stpped.
@@ -42,9 +42,9 @@ int main(int argc, char **argv) {
   }
   
   /* try to craete an audoiconvert */
-  audioconvert = gst_element_factory_make ("float2int", "convert");
+  audioconvert = gst_element_factory_make ("audioconvert", "convert");
   if (audioconvert == NULL) {
-    fprintf(stderr,"Can't create element \"float2int\"\n");exit (-1);
+    fprintf(stderr,"Can't create element \"audioconvert\"\n");exit (-1);
   }
   
   /* try to create an audio source */
@@ -57,10 +57,12 @@ int main(int argc, char **argv) {
   set_to_value = set_to_value/100.0;
   /* getting param manager */
   audiosrcParam = gst_dpman_get_manager (audiosrc);
+  
   /* setting param mode. Only synchronized currently supported */
   gst_dpman_set_mode(audiosrcParam, "synchronous");
-  volume = gst_dparam_new(G_TYPE_FLOAT);
-  if (gst_dpman_attach_dparam (audiosrcParam, "Amplitude", volume)){
+  volume = gst_dparam_new(G_TYPE_DOUBLE);
+  
+  if (gst_dpman_attach_dparam (audiosrcParam, "volume", volume)){
     /* the dparam was successfully attached */
     set_val = g_new0(GValue,1);
     g_value_init(set_val, G_TYPE_FLOAT);
@@ -84,7 +86,7 @@ int main(int argc, char **argv) {
       /* decrement the volume */
       set_to_value=set_to_value-0.01;
       g_value_set_float(set_val, set_to_value);
-      g_object_set_property(G_OBJECT(volume), "value_float", set_val);
+      g_object_set_property(G_OBJECT(volume), "value_double", set_val);
       /* if silence reached, break the loop */
       if (set_to_value < 0.1) {
         break;
