@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % version-entities SYSTEM "../../version.entities">
+%version-entities;
+<!ENTITY libcore SYSTEM "xml/libcore.xml">
+<!ENTITY BtApplication SYSTEM "xml/btapplication.xml">
+<!ENTITY BtMachine SYSTEM "xml/btmachine.xml">
+<!ENTITY BtPattern SYSTEM "xml/btpattern.xml">
+<!ENTITY BtPlayLine SYSTEM "xml/btplayline.xml">
+<!ENTITY BtProcessorMachine SYSTEM "xml/btprocessormachine.xml">
+<!ENTITY BtSequence SYSTEM "xml/btsequence.xml">
+<!ENTITY BtSettings SYSTEM "xml/btsettings.xml">
+<!ENTITY BtSetup SYSTEM "xml/btsetup.xml">
+<!ENTITY BtSinkMachine SYSTEM "xml/btsinkmachine.xml">
+<!ENTITY BtSong SYSTEM "xml/btsong.xml">
+<!ENTITY BtSongInfo SYSTEM "xml/btsonginfo.xml">
+<!ENTITY BtSongIO SYSTEM "xml/btsongio.xml">
+<!ENTITY BtSongIONative SYSTEM "xml/btsongionative.xml">
+<!ENTITY BtSourceMachine SYSTEM "xml/btsourcemachine.xml">
+<!ENTITY BtTimeLine SYSTEM "xml/bttimeline.xml">
+<!ENTITY BtTimeLineTrack SYSTEM "xml/bttimelinetrack.xml">
+<!ENTITY BtWire SYSTEM "xml/btwire.xml">
+
+<!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Buzztard Bt-Core Reference Manual</title>
+    <releaseinfo>for Buzztard &BT_VERSION;</releaseinfo>
+  </bookinfo>
+
+  <preface>
+    <title>Introduction</title>
+    <para>
+      Buzztard aims to be a succesor of the freeware music tracker calld Buzz.
+      The development of Buzz has been discontinued as the author lost all his source-codes.
+    </para>
+    <para>
+      The homepage of the buzztard project can be found at <ulink href="http://www.buzztard.org">www.buzztard.org</ulink>.
+      It is based on a wiki and used to draft further development.
+    </para>
+  </preface>
+
+  <chapter id="libbtcore">
+    <title>Core Library Reference</title>
+    <para>
+      libbtcore is the main library for the buzztard software system.
+      This library contains all classes needed for songs like
+      machines, patterns, wires and so on.
+      It further defines bases classes for common operations such as
+      song input/output.
+    </para>
+		<para>
+      All datastructures are encapsulated in objects based on <link linkend="GObject">GObject</link>.
+      Central starting points are <link linkend="BtApplication">BtApplication</link> and <link linkend="BtSong">BtSong</link>.
+		</para>
+    &libcore;
+    &BtApplication;
+    &BtMachine;
+    &BtPattern;
+    &BtPlayLine;
+    &BtProcessorMachine;
+    &BtSequence;
+    &BtSettings;
+    &BtSetup;
+    &BtSinkMachine;
+    &BtSong;
+    &BtSongInfo;
+    &BtSongIO;
+    &BtSongIONative;
+    &BtSourceMachine;
+    &BtTimeLine;
+    &BtTimeLineTrack;
+    &BtWire;
+  </chapter>
+
+	<chapter id="objecttree">
+		<title>Object Hierarchy</title>
+		&object-tree-index;
+	</chapter>
+
+  <index id="api-index">
+    <title>API Index</title>
+  </index>
+
+</book>

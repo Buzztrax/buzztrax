@@ -1,0 +1,31 @@
+# $Id: bt-cmd-sections.txt,v 1.1 2004-09-25 13:40:07 ensonic Exp $
+# :mode=html:
+
+# please add section in the alpahbetical order using the following template
+# <SECTION>
+# <FILE>btxxx</FILE>
+# <TITLE>BtXxx</TITLE>
+# <SUBSECTION Standard>
+# <SUBSECTION Private>
+# </SECTION>
+
+<SECTION>
+<FILE>btcmdapplication</FILE>
+<TITLE>BtCmdApplication</TITLE>
+BtCmdApplication
+bt_cmd_application_new
+bt_cmd_application_play
+bt_cmd_application_info
+<SUBSECTION Standard>
+BtCmdApplicationClass
+BT_CMD_APPLICATION
+BT_IS_CMD_APPLICATION
+BT_CMD_APPLICATION_CLASS
+BT_IS_CMD_APPLICATION_CLASS
+BT_CMD_APPLICATION_GET_CLASS
+BT_TYPE_CMD_APPLICATION
+<SUBSECTION Private>
+bt_cmd_application_get_type
+BtCmdApplicationPrivate
+</SECTION>
+

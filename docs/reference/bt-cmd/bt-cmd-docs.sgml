@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % version-entities SYSTEM "../../version.entities">
+%version-entities;
+<!ENTITY BtCmdApplication SYSTEM "xml/btcmdapplication.xml">
+
+<!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Buzztard Bt-Cmd Reference Manual</title>
+    <releaseinfo>for Buzztard &BT_VERSION;</releaseinfo>
+  </bookinfo>
+
+  <preface>
+    <title>Introduction</title>
+    <para>
+      Buzztard aims to be a succesor of the freeware music tracker calld Buzz.
+      The development of Buzz has been discontinued as the author lost all his source-codes.
+    </para>
+    <para>
+      The homepage of the buzztard project can be found at <ulink href="http://www.buzztard.org">www.buzztard.org</ulink>.
+      It is based on a wiki and used to draft further development.
+    </para>
+  </preface>
+
+  <chapter id="uibtcmd">
+    <title>User Application Reference</title>
+    <para>
+      The classes described in this chapter are all part of end user application code.
+    </para>
+    &BtCmdApplication;
+  </chapter>
+
+	<chapter id="objecttree">
+		<title>Object Hierarchy</title>
+		&object-tree-index;
+	</chapter>
+
+  <index id="api-index">
+    <title>API Index</title>
+  </index>
+
+</book>

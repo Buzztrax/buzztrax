@@ -1,0 +1,201 @@
+# $Id: bt-edit-sections.txt,v 1.1 2004-09-25 13:40:07 ensonic Exp $
+# :mode=html:
+
+# please add section in the alpahbetical order using the following template
+# <SECTION>
+# <FILE>btxxx</FILE>
+# <TITLE>BtXxx</TITLE>
+# <SUBSECTION Standard>
+# <SUBSECTION Private>
+# </SECTION>
+
+<SECTION>
+<FILE>bteditapplication</FILE>
+<TITLE>BtEditApplication</TITLE>
+BtEditApplication
+bt_edit_application_new
+bt_edit_application_new_song
+bt_edit_application_load_song
+bt_edit_application_run
+bt_edit_application_load_and_run
+<SUBSECTION Standard>
+BtEditApplicationClass
+BT_EDIT_APPLICATION
+BT_IS_EDIT_APPLICATION
+BT_EDIT_APPLICATION_CLASS
+BT_IS_EDIT_APPLICATION_CLASS
+BT_EDIT_APPLICATION_GET_CLASS
+BT_TYPE_EDIT_APPLICATION
+<SUBSECTION Private>
+bt_edit_application_get_type
+BtEditApplicationPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainwindow</FILE>
+<TITLE>BtMainWindow</TITLE>
+BtMainWindow
+bt_main_window_new
+bt_main_window_run
+bt_main_window_check_quit
+bt_main_window_new_song
+bt_main_window_open_song
+<SUBSECTION Standard>
+BtMainWindowClass
+BT_MAIN_WINDOW
+BT_IS_MAIN_WINDOW
+BT_MAIN_WINDOW_CLASS
+BT_IS_MAIN_WINDOW_CLASS
+BT_MAIN_WINDOW_GET_CLASS
+BT_TYPE_MAIN_WINDOW
+<SUBSECTION Private>
+bt_main_window_get_type
+BtMainWindowPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainmenu</FILE>
+<TITLE>BtMainMenu</TITLE>
+BtMainMenu
+bt_main_menu_new
+<SUBSECTION Standard>
+BtMainMenuClass
+BT_MAIN_MENU
+BT_IS_MAIN_MENU
+BT_MAIN_MENU_CLASS
+BT_IS_MAIN_MENU_CLASS
+BT_MAIN_MENU_GET_CLASS
+BT_TYPE_MAIN_MENU
+<SUBSECTION Private>
+bt_main_menu_get_type
+BtMainMenuPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmaintoolbar</FILE>
+<TITLE>BtMainToolbar</TITLE>
+BtMainToolbar
+bt_main_toolbar_new
+<SUBSECTION Standard>
+BtMainToolbarClass
+BT_MAIN_TOOLBAR
+BT_IS_MAIN_TOOLBAR
+BT_MAIN_TOOLBAR_CLASS
+BT_IS_MAIN_TOOLBAR_CLASS
+BT_MAIN_TOOLBAR_GET_CLASS
+BT_TYPE_MAIN_TOOLBAR
+<SUBSECTION Private>
+bt_main_toolbar_get_type
+BtMainToolbarPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainpages</FILE>
+<TITLE>BtMainPages</TITLE>
+BtMainPages
+bt_main_pages_new
+<SUBSECTION Standard>
+BtMainPagesClass
+BT_MAIN_PAGES
+BT_IS_MAIN_PAGES
+BT_MAIN_PAGES_CLASS
+BT_IS_MAIN_PAGES_CLASS
+BT_MAIN_PAGES_GET_CLASS
+BT_TYPE_MAIN_PAGES
+<SUBSECTION Private>
+bt_main_pages_get_type
+BtMainPagesPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainpageinfo</FILE>
+<TITLE>BtMainPageInfo</TITLE>
+BtMainPageInfo
+bt_main_page_info_new
+<SUBSECTION Standard>
+BtMainPageInfoClass
+BT_MAIN_PAGE_INFO
+BT_IS_MAIN_PAGE_INFO
+BT_MAIN_PAGE_INFO_CLASS
+BT_IS_MAIN_PAGE_INFO_CLASS
+BT_MAIN_PAGE_INFO_GET_CLASS
+BT_TYPE_MAIN_PAGE_INFO
+<SUBSECTION Private>
+bt_main_page_info_get_type
+BtMainPageInfoPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainpagemachines</FILE>
+<TITLE>BtMainPageMachines</TITLE>
+BtMainPageMachines
+bt_main_page_machines_new
+<SUBSECTION Standard>
+BtMainPageMachinesClass
+BT_MAIN_PAGE_MACHINES
+BT_IS_MAIN_PAGE_MACHINES
+BT_MAIN_PAGE_MACHINES_CLASS
+BT_IS_MAIN_PAGE_MACHINES_CLASS
+BT_MAIN_PAGE_MACHINES_GET_CLASS
+BT_TYPE_MAIN_PAGE_MACHINES
+<SUBSECTION Private>
+bt_main_page_machines_get_type
+BtMainPageMachinesPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainpagepatterns</FILE>
+<TITLE>BtMainPagePatterns</TITLE>
+BtMainPagePatterns
+bt_main_page_patterns_new
+bt_main_page_patterns_get_current_machine
+<SUBSECTION Standard>
+BtMainPagePatternsClass
+BT_MAIN_PAGE_PATTERNS
+BT_IS_MAIN_PAGE_PATTERNS
+BT_MAIN_PAGE_PATTERNS_CLASS
+BT_IS_MAIN_PAGE_PATTERNS_CLASS
+BT_MAIN_PAGE_PATTERNS_GET_CLASS
+BT_TYPE_MAIN_PAGE_PATTERNS
+<SUBSECTION Private>
+bt_main_page_patterns_get_type
+BtMainPagePatternsPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainpagesequence</FILE>
+<TITLE>BtMainPageSequence</TITLE>
+BtMainPageSequence
+bt_main_page_sequence_new
+bt_main_page_sequence_get_current_machine
+<SUBSECTION Standard>
+BtMainPageSequenceClass
+BT_MAIN_PAGE_SEQUENCE
+BT_IS_MAIN_PAGE_SEQUENCE
+BT_MAIN_PAGE_SEQUENCE_CLASS
+BT_IS_MAIN_PAGE_SEQUENCE_CLASS
+BT_MAIN_PAGE_SEQUENCE_GET_CLASS
+BT_TYPE_MAIN_PAGE_SEQUENCE
+<SUBSECTION Private>
+bt_main_page_sequence_get_type
+BtMainPageSequencePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmainstatusbar</FILE>
+<TITLE>BtMainStatusbar</TITLE>
+BtMainStatusbar
+bt_main_statusbar_new
+<SUBSECTION Standard>
+BtMainStatusbarClass
+BT_MAIN_STATUSBAR
+BT_IS_MAIN_STATUSBAR
+BT_MAIN_STATUSBAR_CLASS
+BT_IS_MAIN_STATUSBAR_CLASS
+BT_MAIN_STATUSBAR_GET_CLASS
+BT_TYPE_MAIN_STATUSBAR
+<SUBSECTION Private>
+bt_main_statusbar_get_type
+BtMainStatusbarPrivate
+</SECTION>
+

@@ -1,0 +1,382 @@
+# $Id: bt-core-sections.txt,v 1.1 2004-09-25 13:40:07 ensonic Exp $
+# :mode=html:
+
+# please add section in the alpahbetical order using the following template
+# <SECTION>
+# <FILE>btxxx</FILE>
+# <TITLE>BtXxx</TITLE>
+# <SUBSECTION Standard>
+# <SUBSECTION Private>
+# </SECTION>
+
+<SECTION>
+<FILE>btapplication</FILE>
+<TITLE>BtApplication</TITLE>
+BtApplication
+<SUBSECTION Standard>
+BtApplicationClass
+BT_APPLICATION
+BT_IS_APPLICATION
+BT_APPLICATION_CLASS
+BT_IS_APPLICATION_CLASS
+BT_TYPE_APPLICATION
+BT_APPLICATION_GET_CLASS
+<SUBSECTION Private>
+bt_application_get_type
+BtApplicationPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmachine</FILE>
+<TITLE>BtMachine</TITLE>
+BtMachine
+bt_machine_add_pattern
+bt_machine_get_pattern_by_id
+bt_machine_get_global_dparam_index
+bt_machine_get_voice_dparam_index
+bt_machine_get_global_dparam_type
+bt_machine_get_voice_dparam_type
+bt_machine_set_global_dparam_value
+bt_machine_pattern_iterator_new
+bt_machine_pattern_iterator_next
+bt_machine_pattern_iterator_get_pattern
+<SUBSECTION Standard>
+BtMachineClass
+BT_MACHINE
+BT_IS_MACHINE
+BT_MACHINE_CLASS
+BT_IS_MACHINE_CLASS
+BT_MACHINE_GET_CLASS
+BT_TYPE_MACHINE
+<SUBSECTION Private>
+bt_machine_get_type
+BtMachinePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btpattern</FILE>
+<TITLE>BtPattern</TITLE>
+BtPattern
+bt_pattern_new
+bt_pattern_get_global_event_data
+bt_pattern_get_voice_event_data
+bt_pattern_get_global_dparam_index
+bt_pattern_get_voice_dparam_index
+bt_pattern_init_global_event
+bt_pattern_init_voice_event
+bt_pattern_set_event
+bt_pattern_play_tick
+<SUBSECTION Standard>
+BtPatternClass
+BT_PATTERN
+BT_IS_PATTERN
+BT_PATTERN_CLASS
+BT_IS_PATTERN_CLASS
+BT_PATTERN_GET_CLASS
+BT_TYPE_PATTERN
+<SUBSECTION Private>
+bt_pattern_get_type
+BtPatternPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btplayline</FILE>
+<TITLE>BtPlayLine</TITLE>
+BtPlayLine
+bt_playline_new
+bt_playline_set_pattern
+bt_playline_play
+<SUBSECTION Standard>
+BtPlayLineClass
+BT_PLAYLINE
+BT_IS_PLAYLINE
+BT_PLAYLINE_CLASS
+BT_IS_PLAYLINE_CLASS
+BT_PLAYLINE_GET_CLASS
+BT_TYPE_PLAYLINE
+<SUBSECTION Private>
+bt_playline_get_type
+BtPlayLinePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btprocessormachine</FILE>
+<TITLE>BtProcessorMachine</TITLE>
+BtProcessorMachine
+bt_processor_machine_new
+<SUBSECTION Standard>
+BtProcessorMachineClass
+BT_PROCESSOR_MACHINE
+BT_IS_PROCESSOR_MACHINE
+BT_PROCESSOR_MACHINE_CLASS
+BT_IS_PROCESSOR_MACHINE_CLASS
+BT_PROCESSOR_MACHINE_GET_CLASS
+BT_TYPE_PROCESSOR_MACHINE
+<SUBSECTION Private>
+bt_processor_machine_get_type
+BtProcessorMachinePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsequence</FILE>
+<TITLE>BtSequence</TITLE>
+BtSequence
+bt_sequence_new
+bt_sequence_get_timeline_by_time
+bt_sequence_get_machine_by_track
+bt_sequence_set_machine_by_track
+bt_sequence_get_bar_time
+bt_sequence_get_loop_time
+bt_sequence_play
+bt_sequence_stop
+<SUBSECTION Standard>
+BtSequenceClass
+BT_SEQUENCE
+BT_IS_SEQUENCE
+BT_SEQUENCE_CLASS
+BT_IS_SEQUENCE_CLASS
+BT_SEQUENCE_GET_CLASS
+BT_TYPE_SEQUENCE
+<SUBSECTION Private>
+bt_sequence_get_type
+BtSequencePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsettings</FILE>
+<TITLE>BtSettings</TITLE>
+BtSettings
+<SUBSECTION Standard>
+BtSettingsClass
+BT_SETTINGS
+BT_IS_SETTINGS
+BT_SETTINGS_CLASS
+BT_IS_SETTINGS_CLASS
+BT_TYPE_SETTINGS
+BT_SETTINGS_GET_CLASS
+<SUBSECTION Private>
+bt_settings_get_type
+BtSettingsPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsetup</FILE>
+<TITLE>BtSetup</TITLE>
+BtSetup
+bt_setup_new
+bt_setup_add_machine
+bt_setup_add_wire
+bt_setup_get_machine_by_id
+bt_setup_get_machine_by_index
+bt_setup_get_wire_by_src_machine
+bt_setup_get_wire_by_dst_machine
+bt_setup_machine_iterator_new
+bt_setup_machine_iterator_next
+bt_setup_machine_iterator_get_machine
+<SUBSECTION Standard>
+BtSetupClass
+BT_SETUP
+BT_IS_SETUP
+BT_SETUP_CLASS
+BT_IS_SETUP_CLASS
+BT_SETUP_GET_CLASS
+BT_TYPE_SETUP
+<SUBSECTION Private>
+bt_setup_get_type
+BtSetupPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsinkmachine</FILE>
+<TITLE>BtSinkMachine</TITLE>
+BtSinkMachine
+bt_sink_machine_new
+<SUBSECTION Standard>
+BtSinkMachineClass
+BT_SINK_MACHINE
+BT_IS_SINK_MACHINE
+BT_SINK_MACHINE_CLASS
+BT_IS_SINK_MACHINE_CLASS
+BT_SINK_MACHINE_GET_CLASS
+BT_TYPE_SINK_MACHINE
+<SUBSECTION Private>
+bt_sink_machine_get_type
+BtSinkMachinePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsong</FILE>
+<TITLE>BtSong</TITLE>
+BtSong
+BtSongClass
+bt_song_new
+bt_song_play
+bt_song_stop
+bt_song_pause
+bt_song_continue
+<SUBSECTION Standard>
+BT_SONG
+BT_IS_SONG
+BT_SONG_CLASS
+BT_IS_SONG_CLASS
+BT_SONG_GET_CLASS
+BT_TYPE_SONG
+<SUBSECTION Private>
+bt_song_get_type
+BtSongPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsonginfo</FILE>
+<TITLE>BtSongInfo</TITLE>
+BtSongInfo
+bt_song_info_new
+<SUBSECTION Standard>
+BtSongInfoClass
+BT_SONG_INFO
+BT_IS_SONG_INFO
+BT_SONG_INFO_CLASS
+BT_IS_SONG_INFO_CLASS
+BT_SONG_INFO_GET_CLASS
+BT_TYPE_SONG_INFO
+<SUBSECTION Private>
+bt_song_info_get_type
+BtSongInfoPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsongio</FILE>
+<TITLE>BtSongIO</TITLE>
+BtSongIO
+BtSongIOClass
+bt_song_io_new
+bt_song_io_load
+BtSongIODetect
+<SUBSECTION Standard>
+BT_SONG_IO
+BT_IS_SONG_IO
+BT_SONG_IO_CLASS
+BT_IS_SONG_IO_CLASS
+BT_SONG_IO_GET_CLASS
+BT_TYPE_SONG_IO
+<SUBSECTION Private>
+bt_song_io_get_type
+BtSongIOPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsongionative</FILE>
+<TITLE>BtSongIONative</TITLE>
+BtSongIONative
+BtSongIONativeClass
+<SUBSECTION Standard>
+BT_SONG_IO_NATIVE
+BT_IS_SONG_IO_NATIVE
+BT_SONG_IO_NATIVE_CLASS
+BT_IS_SONG_IO_NATIVE_CLASS
+BT_SONG_IO_NATIVE_GET_CLASS
+BT_TYPE_SONG_IO_NATIVE
+<SUBSECTION Private>
+bt_song_io_native_get_type
+BtSongIONativePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsourcemachine</FILE>
+<TITLE>BtSourceMachine</TITLE>
+BtSourceMachine
+bt_source_machine_new
+<SUBSECTION Standard>
+BtSourceMachineClass
+BT_SOURCE_MACHINE
+BT_IS_SOURCE_MACHINE
+BT_SOURCE_MACHINE_CLASS
+BT_IS_SOURCE_MACHINE_CLASS
+BT_SOURCE_MACHINE_GET_CLASS
+BT_TYPE_SOURCE_MACHINE
+<SUBSECTION Private>
+bt_source_machine_get_type
+BtSourceMachinePrivate
+</SECTION>
+
+<SECTION>
+<FILE>bttimeline</FILE>
+<TITLE>BtTimeLine</TITLE>
+BtTimeLine
+bt_timeline_new
+bt_timeline_get_timelinetrack_by_index
+bt_timeline_update_playline
+<SUBSECTION Standard>
+BtTimeLineClass
+BT_TIMELINE
+BT_IS_TIMELINE
+BT_TIMELINE_CLASS
+BT_IS_TIMELINE_CLASS
+BT_TIMELINE_GET_CLASS
+BT_TYPE_TIMELINE
+<SUBSECTION Private>
+bt_timeline_get_type
+BtTimeLinePrivate
+</SECTION>
+
+<SECTION>
+<FILE>bttimelinetrack</FILE>
+<TITLE>BtTimeLineTrack</TITLE>
+BtTimeLineTrack
+BtTimeLineTrackType
+bt_timelinetrack_new
+<SUBSECTION Standard>
+BtTimeLineTrackClass
+BT_TIMELINETRACK
+BT_IS_TIMELINETRACK
+BT_TIMELINETRACK_CLASS
+BT_IS_TIMELINETRACK_CLASS
+BT_TIMELINETRACK_GET_CLASS
+BT_TYPE_TIMELINETRACK
+BT_TYPE_TIMELINETRACK_TYPE
+<SUBSECTION Private>
+bt_timelinetrack_get_type
+BtTimeLineTrackPrivate
+bt_timelinetrack_type_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btwire</FILE>
+<TITLE>BtWire</TITLE>
+BtWire
+bt_wire_new
+<SUBSECTION Standard>
+BtWireClass
+BT_WIRE
+BT_IS_WIRE
+BT_WIRE_CLASS
+BT_IS_WIRE_CLASS
+BT_WIRE_GET_CLASS
+BT_TYPE_WIRE
+<SUBSECTION Private>
+bt_wire_get_type
+BtWirePrivate
+</SECTION>
+
+<SECTION>
+<FILE>libcore</FILE>
+<TITLE>libcore</TITLE>
+BT_NS_PREFIX
+BT_NS_URL
+GST_CAT_DEFAULT
+is_string
+safe_string
+return_if_disposed
+g_object_try_ref
+g_object_try_unref
+g_object_try_weak_ref
+g_object_try_weak_unref
+bt_init
+BT_MAJOR_VERSION
+BT_MINOR_VERSION
+BT_MICRO_VERSION
+bt_major_version
+bt_minor_version
+bt_micro_version
+</SECTION>
+
