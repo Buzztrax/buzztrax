@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.14 2004-11-19 18:28:46 ensonic Exp $
+/* $Id: main-page-info.c,v 1.15 2004-11-25 21:09:45 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -94,6 +94,7 @@ void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
   BtSong *song;
   BtSongInfo *song_info;
 	gchar *str;
+	GtkTextIter beg_iter,end_iter;
 
   g_assert(user_data);
 
@@ -102,9 +103,12 @@ void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
-	// @todo get begin and end textiters :(
-	str=gtk_text_buffer_get_text(textbuffer,NULL,NULL,FALSE);
+	// get begin and end textiters :(, then get text
+	gtk_text_buffer_get_iter_at_offset(textbuffer,&beg_iter,0);
+	gtk_text_buffer_get_iter_at_offset(textbuffer,&end_iter,-1);
+	str=gtk_text_buffer_get_text(textbuffer,&beg_iter,&end_iter,FALSE);
 	g_object_set(G_OBJECT(song_info),"info",str,NULL);
+	g_free(str);
   // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);

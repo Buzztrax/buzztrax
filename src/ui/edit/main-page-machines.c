@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.25 2004-11-19 18:28:46 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.26 2004-11-25 21:09:45 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -28,6 +28,12 @@ struct _BtMainPageMachinesPrivate {
   
   /* canvas context_menu */
   GtkMenu *context_menu;
+	
+  /* grid density menu */
+  GtkMenu *grid_density_menu;
+	GSList *grid_density_group;
+	/* grid density */
+	gulong grid_density;
   
   /* we probably need a list of canvas items that we have drawn, so that we can
    * easily clear them later
@@ -141,6 +147,49 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
 	gnome_canvas_item_lower_to_bottom(self->priv->grid);
 }
 
+static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
+	GnomeCanvasPoints *points;
+	gdouble s,step;
+	
+	GST_INFO("redrawing grid : density=%d  canvas=%p",self->priv->grid_density,self->priv->canvas);
+	
+	// delete old grid-item and generate a new one (pushing it to bottom)
+	if(self->priv->grid) gtk_object_destroy(GTK_OBJECT(self->priv->grid));
+	self->priv->grid=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           GNOME_TYPE_CANVAS_GROUP,"x",0,0,"y",0,0,NULL);
+	gnome_canvas_item_lower_to_bottom(self->priv->grid);
+	
+	if(!self->priv->grid_density) return;
+	
+	points=gnome_canvas_points_new(2);
+	
+  // low=1->2, mid=2->4, high=3->8
+  step=(MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X)/(gdouble)(1<<self->priv->grid_density);
+  for(s=-MACHINE_VIEW_ZOOM_X;s<=MACHINE_VIEW_ZOOM_X;s+=step) {
+	  points->coords[0]=s;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
+  	points->coords[2]=s;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
+		gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+    	                      GNOME_TYPE_CANVAS_LINE,
+      	                    "points", points,
+        	                  "fill-color", "gray",
+          	                "width-pixels", 1,
+            	              NULL);
+	}
+  step=(MACHINE_VIEW_ZOOM_Y+MACHINE_VIEW_ZOOM_Y)/(gdouble)(1<<self->priv->grid_density);
+  for(s=-MACHINE_VIEW_ZOOM_Y;s<=MACHINE_VIEW_ZOOM_Y;s+=step) {
+	  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=s;
+  	points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]=s;
+		gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+    	                      GNOME_TYPE_CANVAS_LINE,
+      	                    "points", points,
+        	                  "fill-color", "gray",
+          	                "width-pixels", 1,
+            	              NULL);
+	}
+
+	gnome_canvas_points_free(points);
+}
+
 //-- event handler
 
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
@@ -180,6 +229,55 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
+static void on_toolbar_grid_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("toolbar grid clicked event occurred");
+  gtk_menu_popup(self->priv->grid_density_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
+}
+
+static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
+
+  g_assert(user_data);
+	self->priv->grid_density=0;
+	bt_main_page_machine_draw_grid(self);
+}
+
+static void on_toolbar_grid_density_low_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
+
+  g_assert(user_data);
+	self->priv->grid_density=1;
+	bt_main_page_machine_draw_grid(self);
+}
+
+static void on_toolbar_grid_density_mid_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
+
+  g_assert(user_data);
+	self->priv->grid_density=2;
+	bt_main_page_machine_draw_grid(self);
+}
+
+static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
+
+  g_assert(user_data);
+	self->priv->grid_density=3;
+	bt_main_page_machine_draw_grid(self);
+}
+
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
@@ -212,65 +310,6 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 }
 
 //-- helper methods
-
-static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
-	GnomeCanvasPoints *points;
-	
-	points=gnome_canvas_points_new(2);
-	
-	// @todo support grid-density={off,low,mid,high}
-		
-  points->coords[0]=0.0;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
-  points->coords[2]=0.0;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
-	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
-                          GNOME_TYPE_CANVAS_LINE,
-                          "points", points,
-                          "fill-color", "gray",
-                          "width-pixels", 1,
-                          NULL);
-  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=0.0;
-	points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]=0.0;
-	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
-                          GNOME_TYPE_CANVAS_LINE,
-                          "points", points,
-                          "fill-color", "gray",
-                          "width-pixels", 1,
-                          NULL);
-  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
-  points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]=-MACHINE_VIEW_ZOOM_Y;
-	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
-                          GNOME_TYPE_CANVAS_LINE,
-                          "points", points,
-                          "fill-color", "gray",
-                          "width-pixels", 1,
-                          NULL);
-  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]= MACHINE_VIEW_ZOOM_Y;
-  points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
-	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
-                          GNOME_TYPE_CANVAS_LINE,
-                          "points", points,
-                          "fill-color", "gray",
-                          "width-pixels", 1,
-                          NULL);
-  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
-  points->coords[2]=-MACHINE_VIEW_ZOOM_X;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
-	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
-                          GNOME_TYPE_CANVAS_LINE,
-                          "points", points,
-                          "fill-color", "gray",
-                          "width-pixels", 1,
-                          NULL);
-  points->coords[0]= MACHINE_VIEW_ZOOM_X;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
-  points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
-	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
-                          GNOME_TYPE_CANVAS_LINE,
-                          "points", points,
-                          "fill-color", "gray",
-                          "width-pixels", 1,
-                          NULL);
-	gnome_canvas_points_free(points);
-}
-
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
@@ -321,9 +360,22 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_set_name(button,_("Zoom Out"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom out for better overview"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
+
+	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
+	// grid density toolbar icon
+  image=create_pixmap("grid.png");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Grid"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Grid"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Show background grid"),NULL);
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 	
-	// @todo add a toolbar icon, where on click we open a popup-menu with grid-density={off,low,mid,high}
-  
   // add canvas
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
@@ -341,14 +393,53 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   //gtk_widget_pop_colormap();
   gtk_widget_pop_visual();
-	self->priv->grid=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           GNOME_TYPE_CANVAS_GROUP,"x",0,0,"y",0,0,NULL);
-	bt_main_page_machine_draw_grid(self);
 	
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
+	bt_main_page_machine_draw_grid(self);
 
-  // generate the context menu
+	// create grid-density menu with grid-density={off,low,mid,high}
+  self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
+
+	GST_INFO("creating density menu items ##### : %d",self->priv->grid_density);
+
+  menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
+	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	if(self->priv->grid_density==0) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_off_activated),(gpointer)self);
+
+	GST_INFO("check #####");
+
+  menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Low"));
+	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	if(self->priv->grid_density==1) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_low_activated),(gpointer)self);
+
+	GST_INFO("check #####");
+
+  menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Medium"));
+	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	if(self->priv->grid_density==2) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_mid_activated),(gpointer)self);
+
+	GST_INFO("check #####");
+
+  menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("High"));
+	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	if(self->priv->grid_density==3) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
+
+	GST_INFO("menu created #####");
+	
+  // create the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
@@ -449,6 +540,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_object_try_unref(self->priv->app);
   
+	g_object_unref(self->priv->grid_density_menu);
   g_object_unref(self->priv->context_menu);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -474,9 +566,12 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   self->priv->dispose_has_run = FALSE;
 
   self->priv->zoom=MACHINE_VIEW_ZOOM_FC;
+	self->priv->grid_density=1;
   
   self->priv->machines=g_hash_table_new(g_direct_hash,g_direct_equal);
   self->priv->wires=g_hash_table_new(g_direct_hash,g_direct_equal);
+	
+	GST_INFO("initialized #####");
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

@@ -1,5 +1,8 @@
-/* $Id: machine.c,v 1.49 2004-11-04 10:38:14 ensonic Exp $
+/* $Id: machine.c,v 1.50 2004-11-25 21:09:44 ensonic Exp $
  * base class for a machine
+ * @todo try to derive this from GstThread!
+ *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
+ *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  */
  
 #define BT_CORE
@@ -787,4 +790,3 @@ GType bt_machine_get_type(void) {
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.21 2004-10-21 15:22:59 ensonic Exp $
+## $Id: Makefile.am,v 1.22 2004-11-25 21:09:28 ensonic Exp $
 
 SUBDIRS = src po tests docs
 
@@ -22,6 +22,7 @@ songdata_DATA = \
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
 	pixmaps/buzztard.png \
+	pixmaps/grid.png \
 	pixmaps/stock_about.png \
 	pixmaps/stock_media-fwd.png \
 	pixmaps/stock_media-pause.png \
@@ -75,4 +76,3 @@ uninstall-local:
 todo::
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
-

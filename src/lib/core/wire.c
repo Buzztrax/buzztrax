@@ -1,5 +1,8 @@
-/* $Id: wire.c,v 1.37 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: wire.c,v 1.38 2004-11-25 21:09:44 ensonic Exp $
  * class for a machine to machine connection
+ * @todo try to derive this from GstThread!
+ *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
+ *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  */
  
 #define BT_CORE
@@ -437,4 +440,3 @@ GType bt_wire_get_type(void) {
   }
   return type;
 }
-
