@@ -6,7 +6,7 @@
 	xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
 	<meta>
-		<info>what a lovely tune</info>
+		<info>one sine amp combi is playing a pattern, the other is free for realtime control</info>
     <name>simple 4</name>
 		<genre>dark-wave</genre>
     <bpm>120</bpm>
