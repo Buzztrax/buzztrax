@@ -1,4 +1,4 @@
-/* $Id: setup-methods.h,v 1.15 2005-01-11 09:26:39 ensonic Exp $
+/* $Id: setup-methods.h,v 1.16 2005-01-16 15:36:42 waffel Exp $
  * defines all public methods of the setup class
  */
 
@@ -11,8 +11,8 @@
 
 extern BtSetup *bt_setup_new(const BtSong *song);
 
-extern void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine);
-extern void bt_setup_add_wire(const BtSetup *self, const BtWire *wire);
+extern gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine);
+extern gboolean bt_setup_add_wire(const BtSetup *self, const BtWire *wire);
 
 extern void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine);
 extern void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire);

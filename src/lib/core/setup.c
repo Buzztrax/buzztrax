@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.58 2005-01-16 14:08:17 ensonic Exp $
+/* $Id: setup.c,v 1.59 2005-01-16 15:36:42 waffel Exp $
  * class for machine and wire setup
  */
  
@@ -102,31 +102,51 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
  * @self: the setup to add the machine to
  * @machine: the new machine instance
  *
+ * @todo: adding g_error stuff, to give the programmer more information, whats
+ * going wrong.
+ *
  * Let the setup know that the suplied machine is now part of the song.
+ *
+ * Returns: return true, if the machine can be added. Returns false if the
+ * machine is currently added to the setup.
  */
-void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
-	g_return_if_fail(BT_IS_SETUP(self));
-	g_return_if_fail(BT_IS_MACHINE(machine));
+gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
+	gboolean ret=FALSE;
+	
+	g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
+	g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
   if(!g_list_find(self->priv->machines,machine)) {
+		ret=TRUE;
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
 		g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
   }
   else {
     GST_WARNING("trying to add machine again"); 
   }
+	return ret;
 }
 
 /**
  * bt_setup_add_wire:
  * @self: the setup to add the wire to
  * @wire: the new wire instance
+ * 
+ * @todo: adding g_error stuff, to give the programmer more information, whats
+ * going wrong.
  *
  * Let the setup know that the suplied wire is now part of the song.
+ *
+ * Returns: returns true, if the wire is added. Returns false, if the setup
+ * contains a wire witch is link between the same src and dst machines (cycle
+ * check).
+
  */
-void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
-	g_return_if_fail(BT_IS_SETUP(self));
-	g_return_if_fail(BT_IS_WIRE(wire));
+gboolean bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
+	gboolean ret=FALSE;
+	
+	g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
+	g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
 
   if(!g_list_find(self->priv->wires,wire)) {
 		BtMachine *src,*dst;
@@ -137,6 +157,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 		other_wire1=bt_setup_get_wire_by_machines(self,src,dst);
 		other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
 		if((!other_wire1) && (!other_wire2)) {
+			ret=TRUE;
 	    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
 			g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
 		}
@@ -148,6 +169,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
   else {
     GST_WARNING("trying to add wire again"); 
   }
+	return ret;
 }
 
 /**
