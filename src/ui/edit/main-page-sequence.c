@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.54 2005-02-05 16:28:31 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.55 2005-02-07 14:57:54 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -418,9 +418,16 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
 	GtkTreeModel *store;
 	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
+	gdouble play_pos;
+	gulong sequence_length;
   
   g_assert(user_data);
 
+	// calculate fractional pos and set into sequence-viewer
+	g_object_get(G_OBJECT(sequence),"length",&sequence_length,NULL);
+	play_pos=(gdouble)pos/(gdouble)sequence_length;
+	g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
+	
 	// reset old tick pos
 	if(!pos) self->priv->tick_pos=-1;
 	// do nothing for invisible rows

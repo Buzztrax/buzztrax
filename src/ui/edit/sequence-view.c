@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.1 2005-02-05 16:28:31 ensonic Exp $
+/* $Id: sequence-view.c,v 1.2 2005-02-07 14:57:55 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -9,6 +9,7 @@
 
 enum {
   SEQUENCE_VIEW_APP=1,
+	SEQUENCE_VIEW_PLAY_POSITION
 };
 
 
@@ -18,6 +19,9 @@ struct _BtSequenceViewPrivate {
   
   /* the application */
   BtEditApplication *app;
+	
+	/* position of playing pointer from 0.0 ... 1.0 */
+	gdouble play_pos;
 };
 
 static GtkTreeViewClass *parent_class=NULL;
@@ -89,10 +93,8 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
 		gdk_gc_set_rgb_fg_color(gc,&color);
 	
 		w=widget->allocation.width;
-		h=widget->allocation.height;
-  	gdk_draw_line(window,gc,0,0,w,h);
-  	gdk_draw_line(window,gc,0,h,w,0);
-	
+		h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
+  	gdk_draw_line(window,gc,0,h,w,h);
 		g_object_unref(gc);
 	}
 	return(FALSE);
@@ -109,6 +111,7 @@ static void bt_sequence_view_get_property(GObject      *object,
   switch (property_id) {
     case SEQUENCE_VIEW_APP: {
       g_value_set_object(value, self->priv->app);
+			gtk_widget_queue_draw(GTK_WIDGET(self));
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -129,7 +132,11 @@ static void bt_sequence_view_set_property(GObject      *object,
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
 			g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for main_pages: %p",self->priv->app);
+      //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
+    } break;
+    case SEQUENCE_VIEW_PLAY_POSITION: {
+      self->priv->play_pos = g_value_get_double(value);
+      //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -187,6 +194,15 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_PLAY_POSITION,
+                                  g_param_spec_double("play-position",
+                                     "play position prop.",
+                                     "The current playing position as a fraction",
+                                     0.0,
+																		 1.0,
+																		 0.0,
+                                     G_PARAM_WRITABLE));
 }
 
 GType bt_sequence_view_get_type(void) {
