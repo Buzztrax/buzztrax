@@ -87,7 +87,7 @@ word		number of tracks
 (first pattern)
 asciiz		name 
 word		length of pattern in number of ticks (rows)
-x		pattern data
+x		pattern data (like in PARA section?)
 
 (second pattern)
 ...

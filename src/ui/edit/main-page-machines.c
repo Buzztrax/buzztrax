@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.31 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.32 2004-12-02 18:37:14 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -25,6 +25,8 @@ struct _BtMainPageMachinesPrivate {
 	
   /* the zoomration in pixels/per unit */
   double zoom;
+	/* zomm in/out widgets */
+	GtkWidget *zoom_in,*zoom_out;
   
   /* canvas context_menu */
   GtkMenu *context_menu;
@@ -86,6 +88,8 @@ static void update_machine_zoom(gpointer key,gpointer value,gpointer user_data) 
 
 static void update_machines_zoom(const BtMainPageMachines *self) {
 	g_hash_table_foreach(self->priv->machines,update_machine_zoom,&self->priv->zoom);
+	gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
+	gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
 }
 
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
@@ -228,7 +232,7 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  self->priv->zoom*=1.75;
+  self->priv->zoom*=1.5;
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 	update_machines_zoom(self);
@@ -239,7 +243,7 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  self->priv->zoom/=1.75;
+  self->priv->zoom/=1.5;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 	update_machines_zoom(self);
@@ -354,28 +358,30 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
 
   icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_IN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+  self->priv->zoom_in=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
                                 _("Zoom In"),
                                 NULL,NULL,
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Zoom In"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom in so more details are visible"),NULL);
-  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
-  
+  gtk_widget_set_name(self->priv->zoom_in,_("Zoom In"));
+	gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),self->priv->zoom_in,_("Zoom in so more details are visible"),NULL);
+  g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
+
   icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_OUT, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+  self->priv->zoom_out=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
                                 _("Zoom Out"),
                                 NULL,NULL,
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Zoom Out"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom out for better overview"),NULL);
-  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
+  gtk_widget_set_name(self->priv->zoom_out,_("Zoom Out"));
+	gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),self->priv->zoom_out,_("Zoom out for better overview"),NULL);
+  g_signal_connect(G_OBJECT(self->priv->zoom_out),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
 
 	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
