@@ -1,0 +1,29 @@
+* $Id: roadmap.txt,v 1.1 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
+================================================================================
+
+** roadmap
+
+1.) isolate the player stuff from alsaplayer
+
+2.) run player with static sawtooth generation
+
+3.) make two (internal) machines
+- sawtooth-generator and clipping-amplifier
+- plugin network
+- connect both with a static song
+
+4.) song fileformat and i/o
+- design directory structure
+- design fileformat
+- implement zipping
+
+6.) wrap buzz machines
+
+7.) song converters
+- from buzz, amiga tracker, ...
+
+8.) basic gui
+- loading songs
+- viewing song data
+- start, stop playing
+

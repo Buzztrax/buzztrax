@@ -1,14 +1,14 @@
-* $Id: technology.txt,v 1.1 2002-06-07 10:11:38 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: technology.txt,v 1.2 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
 ================================================================================
 
 ** libraries
 
-glib-2
+glib-2: portabillity
 
-gtk+-2 : user interface
+gtk+-2: user interface
 
-libxml2 : file format (songs,presets)
+libxml2: file format (songs,presets)
 
-jack-audio-connection-kit : audio-io
-
+jack-audio-connection-kit: audio-io
+alsa: audio-io, midi
 

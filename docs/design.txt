@@ -1,5 +1,32 @@
-* $Id: design.txt,v 1.3 2002-06-14 10:27:00 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: design.txt,v 1.4 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
 ================================================================================
+
+** architecture
+- two main modules
+*** gui
+*** worker
+- player
+- file i/o
+- sample processing
+- song edit operations
+
+** timing
+- we have two clock rates:
+  audio-rate: sampling-rate/audio-buffer size
+	controldata-rate: determined from BPM, clock (e.g. 4/4) and TPB (ticks per beat)
+		(buzz only does 4/4)
+	with 160 BPM and 4/4: 160/4 => 40 clock cycles = loops_per_minute
+	with 16 TPB, 40 loops_per_min: 40*16 => 640 ticks_per_minute
+	at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
+	2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
+	SPT=(SRAT*60*4)/(BPM*TPB)
+- QUESTION: is it sufficient to run the control-data callback after a full series
+  of audio-cycles, or do we have to check inside the audio loop and trigger it
+	there (which would make it slow)
+	
+** playback
+- have a lock at alsaplayer to 'steal' its player code
+- instead of pushing decoded mp3 data into it, we run our plugin graph
 
 ** network
 *** user plugins
@@ -8,6 +35,9 @@
 0 input, 1 output : sources    : generators
 1 input, 1 output : processors : effects
 1 input, 0 output : sinks      : player, analyser
+
+= original buzz machines 
+wrapp original buzz dll like e.g. mplayer does with windows codecs
 
 *** internal plugins
 = ladspa plugins
@@ -26,3 +56,4 @@ recording and stop, when the clients have benn detached again.
 Recording will be done as fast as possible, as the jack-driver will have
 0-waits.
 QUESTION: can we attach drivers to running jackd?
+

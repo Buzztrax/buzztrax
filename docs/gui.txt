@@ -1,0 +1,17 @@
+* $Id: gui.txt,v 1.1 2004-01-29 14:07:21 ensonic Exp $ (-*- mode:outline -*-)
+================================================================================
+
+* mimic the apperance and behaviour of buzz
+- page order : machines, sequence, patterns
+
+* machine view
+- add grid and snap-to-grid for machines
+- make view zoomable
+
+* sequence view
+- colorize track-columns like machines (generator, effect, player/analyser)
+
+* pattern view
+- allow folding tracks
+- number view (like buzz) or gui view (have embedded sliders, drop-downs and check-boxes)
+
