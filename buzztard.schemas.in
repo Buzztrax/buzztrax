@@ -1,0 +1,15 @@
+<gconfschemafile>
+    <schemalist>
+        <schema>
+            <key>/schmemas/apps/buzztard/audiosink</key>
+            <apply-to>/apps/buzztard/audiosink</apply-to>
+            <owner>buzztard</owner>
+            <type>string</type>
+            <locale name="C">
+                <default>system</default>
+                <short>Which audiosink to use.</short>
+                <long>Which audiosink should buzztard applications use. The default 'system' means to use the settings from the gnome multimedia framework.</long>
+            </locale>
+        </schema>
+    </schemalist>
+</gconfschemafile>

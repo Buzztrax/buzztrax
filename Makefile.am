@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.18 2004-10-12 17:40:58 ensonic Exp $
+## $Id: Makefile.am,v 1.19 2004-10-18 07:16:33 ensonic Exp $
 
 SUBDIRS = src po tests docs
 
@@ -40,7 +40,10 @@ EXTRA_DIST = \
 	intltool-update.in \
 	COPYING-DOCS \
 	omf.make \
-	xmldocs.make 
+	xmldocs.make \
+	buzztard.schemas.in
+
+@INTLTOOL_SCHEMAS_RULE@
 
 DISTCLEANFILES = \
 	intltool-merge \
@@ -52,6 +55,7 @@ clean-local:
 install-data-local:
 	-$(mkinstalldirs) $(songdatadir)
 	-$(mkinstalldirs) $(pixmapdatadir)
+	GCONF_CONFIG_SOURCE=$(GCONF_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $(top_srcdir)/buzztard.schemas.in
 
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)
