@@ -21,12 +21,9 @@
         <machineui xpos="50" ypos="30"/>
       </processor>
       
-      <source id="sine1" pluginname="sinesrc" voices="2">
+      <source id="sine1" pluginname="sinesrc" voices="0">
         <machineui xpos="20" ypos="80"/>
-        <globaldata name="volume" value="80"/>
-        <globaldata name="bpm" value="4"/>
-        <voicedata name="height" value="80" voice="0"/>
-        <voicedata name="height" value="10" voice="1"/>
+        <globaldata name="volume" value="1.0"/>
       </source>
     </machines>
     
@@ -37,19 +34,18 @@
   </setup>
   
   <patterns>
-    <pattern id="sine1_beep" machine="sine1" name="beep" length="16">
+    <pattern id="sine1_beep" machine="sine1" name="beeps" length="8">
       <tick time="0">
-        <globaldata name="waveform" value="sine"/>
-        <voicedata voice="0" name="note" value="C-3"/>
-				<voicedata voice="0" name="volume" value="1.0"/>
-				<voicedata voice="1" name="note" value="E-3"/>
-				<voicedata voice="1" name="volume" value="1.0"/>
+        <globaldata name="freq" value="440"/>
+				<globaldata name="volume" value="1.0"/>
       </tick>
-      <tick time="1">
-        <voicedata voice="0" name="note" value="D-3"/>
-				<voicedata voice="0" name="volume" value="1.0"/>
-				<voicedata voice="1" name="note" value="F-3"/>
-				<voicedata voice="1" name="volume" value="0.8"/>
+      <tick time="2">
+        <globaldata name="freq" value="880"/>
+				<globaldata name="volume" value="1.0"/>
+      </tick>
+      <tick time="4">
+        <globaldata name="freq" value="1760"/>
+				<globaldata name="volume" value="1.0"/>
       </tick>
     </pattern>
   </patterns>
@@ -67,12 +63,7 @@
     </tracks>
   </sequence>
   
-  <wavetable>
-	  <!-- loading file from harddisk -->
-		<wave index="0" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
-		<!-- loading file from song archive -->
-		<wave index="1" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
-	</wavetable>
-  
+  <wavetable/>
+
 </buzztard>
 

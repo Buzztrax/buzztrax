@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.7 2004-07-13 16:52:11 ensonic Exp $
+/* $Id: pattern.h,v 1.8 2004-07-15 16:56:07 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -30,8 +30,8 @@ typedef struct _BtPatternPrivate BtPatternPrivate;
 /**
  * BtPattern:
  *
- * Class that holds a sequence of events for a BtMachine.
- * A BtTimeLineTrack denotes which pattern will be played at which time..
+ * Class that holds a sequence of events for a #BtMachine.
+ * A #BtTimeLineTrack denotes which pattern will be played at which time..
  */
 struct _BtPattern {
   GObject parent;

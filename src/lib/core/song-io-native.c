@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.13 2004-07-12 17:28:20 ensonic Exp $
+/* $Id: song-io-native.c,v 1.14 2004-07-15 16:56:07 ensonic Exp $
  * class for native song input and output
  */
  
@@ -205,14 +205,42 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node ) {
+static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node) {
+  xmlNodePtr xml_subnode;
+  xmlChar *tick_str,*name,*value,*voice_str;
+  glong tick,voice,param;
+  GValue *event;
 
   while(xml_node) {
 		if(!xmlNodeIsText(xml_node)) {
-      // get time index
+      tick_str=xmlGetProp(xml_node,"time");
+      tick=atoi(tick_str);
       // iterate over children
-        // get voice
-      // @todo load data
+      xml_subnode=xml_node->children;
+      while(xml_subnode) {
+        if(!xmlNodeIsText(xml_subnode)) {
+          name=xmlGetProp(xml_subnode,"name");
+          value=xmlGetProp(xml_subnode,"value");
+          if(!strncmp(xml_subnode->name,"globaldata\0",11)) {
+            param=bt_pattern_get_global_dparam_index(pattern,name);
+            if((event=bt_pattern_get_global_event_data(pattern,tick,param))) {
+              bt_pattern_set_event(pattern,event,value);
+            }
+          }
+          if(!strncmp(xml_subnode->name,"voicedata\0",10)) {
+            voice_str=xmlGetProp(xml_subnode,"voice");
+            voice=atol(voice_str);
+            param=bt_pattern_get_voice_dparam_index(pattern,name);
+            if((event=bt_pattern_get_voice_event_data(pattern,tick,voice,param))) {
+              bt_pattern_set_event(pattern,event,value);
+            }
+            xmlFree(voice_str);
+          }
+          xmlFree(name);xmlFree(value);
+        }
+        xml_subnode=xml_subnode->next;
+      }
+      xmlFree(tick_str);
 		}
 		xml_node=xml_node->next;
 	}
@@ -339,11 +367,28 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
   return(TRUE);
 }
 
+static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative *self, const BtMachine *machine, glong index, xmlNodePtr xml_node) {
+  xmlChar *time_str,*pattern_name;
+  
+  while(xml_node) {
+		if(!xmlNodeIsText(xml_node)) {
+      pattern_name=xmlGetProp(xml_node,"pattern");
+      time_str=xmlGetProp(xml_node,"time");
+      GST_DEBUG("  at %s pattern \"%s\"",time_str,pattern_name);
+      // @todo get pattern by name from machine
+      // @todo store in timelinetrack
+      xmlFree(pattern_name);xmlFree(time_str);
+		}
+		xml_node=xml_node->next;
+	}
+	return(TRUE);
+}
+
 static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr root_node) {
   const BtSequence *sequence=bt_song_get_sequence(song);
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
-  xmlChar *machine_name;
+  xmlChar *index_str,*machine_name;
   const BtSetup *setup=bt_song_get_setup(song);
   BtMachine *machine;
 
@@ -365,13 +410,15 @@ static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *sel
       xml_node=xmlXPathNodeSetItem(items,i);
       if(!xmlNodeIsText(xml_node)) {
         machine_name=xmlGetProp(xml_node,"machine");
+        index_str=xmlGetProp(xml_node,"index");
         if((machine=bt_setup_get_machine_by_id(setup, machine_name))) {
-          // @todo load tracks
+          GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_name);
+          bt_song_io_native_load_sequence_track_data(self,machine,atol(index_str),xml_node->children);
         }
         else {
           GST_ERROR("invalid machine referenced");
         }
-        xmlFree(machine_name);
+        xmlFree(index_str);xmlFree(machine_name);
       }
 		}
     xmlXPathFreeObject(items_xpoptr);

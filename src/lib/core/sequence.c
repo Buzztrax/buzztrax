@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.11 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: sequence.c,v 1.12 2004-07-15 16:56:07 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -118,6 +118,29 @@ BtTimeLine *bt_sequence_get_timeline(const BtSequence *self,const glong time) {
   return(tl);
 }
 
+/**
+ * bt_sequence_play:
+ * @self: the #BtSequence that should be played
+ *
+ * starts playback for the sequence
+ *
+ */
+void bt_sequence_play(const BtSequence *self) {
+  // @todo where get the length from (the song?)
+  BtPlayLine *playline=g_object_new(BT_TYPE_PLAYLINE,"song",self->private->song,"tracks",self->private->tracks,"length",16,NULL);
+  glong i;
+  BtTimeLine **timeline=self->private->timelines;
+
+  for(i=0;i<self->private->length;i++,timeline++) {
+    GST_INFO("Playing sequence position : %d",i);
+    // enter new patterns into the playline and stop or mute patterns
+    bt_timeline_update_playline(*timeline,playline);
+    // play the patterns in the cursor
+    bt_playline_play(playline);
+  }
+  g_object_unref(G_OBJECT(playline));
+}
+
 //-- wrapper
 
 //-- class internals
@@ -186,6 +209,7 @@ static void bt_sequence_dispose(GObject *object) {
 
 static void bt_sequence_finalize(GObject *object) {
   BtSequence *self = BT_SEQUENCE(object);
+
 	g_object_unref(G_OBJECT(self->private->song));
   bt_sequence_free_timelines(self);
   g_free(self->private);

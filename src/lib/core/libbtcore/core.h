@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.22 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: core.h,v 1.23 2004-07-15 16:56:07 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -32,6 +32,7 @@
 #include "pattern-methods.h"
 #include "timelinetrack-methods.h"
 #include "timeline-methods.h"
+#include "playline-methods.h"
 #include "sequence-methods.h"
 #include "song-io-methods.h"
 #include "song-io-native.h"

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.3 2004-05-13 09:35:29 ensonic Exp $
+/* $Id: application.c,v 1.4 2004-07-15 16:56:07 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -68,6 +68,7 @@ static void bt_application_dispose(GObject *object) {
 
 static void bt_application_finalize(GObject *object) {
   BtApplication *self = BT_APPLICATION(object);
+
 	gst_object_unref(GST_OBJECT(self->private->bin));
 	//g_object_unref(G_OBJECT(self->private->bin));
   g_free(self->private);

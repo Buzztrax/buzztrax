@@ -9,6 +9,7 @@
   <xsd:attribute name="voices" type="xsd:integer"/>
   <xsd:attribute name="zoom" type="xsd:float"/>
   <xsd:attribute name="id" type="xsd:string"/>
+  <xsd:attribute name="index" type="xsd:integer"/>
   <xsd:attribute name="pluginname" type="xsd:string"/>
   <xsd:attribute name="xpos" type="xsd:integer"/>
   <xsd:attribute name="ypos" type="xsd:integer"/>
@@ -193,7 +194,7 @@
       <xsd:sequence>
         <xsd:element ref="position" minOccurse="1" maxOccurs="unbounded"/>
       </xsd:sequence>
-    <xsd:attribute ref="id" use="required"/>
+    <xsd:attribute ref="index" use="required"/>
     <xsd:attribute ref="machine" use="required"/>
     </xsd:complexType>
   </xsd:element>

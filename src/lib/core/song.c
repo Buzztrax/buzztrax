@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.24 2004-07-07 15:39:03 ensonic Exp $
+/* $Id: song.c,v 1.25 2004-07-15 16:56:07 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -38,32 +38,14 @@ struct _BtSongPrivate {
  * @self: the song that should be played
  *
  * Starts to play the specified song instance from beginning.
+ * This methods emits the "play" signal.
  */
 void bt_song_start_play(const BtSong *self) {
-  /* emitting signal if we start play */
+  // emitting signal if we start play
   g_signal_emit(G_OBJECT(self), 
                 BT_SONG_GET_CLASS(self)->play_signal_id,
                 0);
-  /* @todo call bt_sequence_play(); */
-  /* how should the player work:
-  bt_sequence_play() {
-    BTPlayLine *pl;
-    foreach(timeline in sequence.rows) {
-      //enter new patterns into the playline
-      //and stop or mute patterns
-      bt_playline_play();
-    }
-  }
-  // see net2.c::play_timeline
-  bt_playline_play() {
-    for(tick=0...ticks) {
-      for(track=0...tracks) {
-        // set dparams for pattern 
-      }
-    }
-  }
-    
-  */
+  bt_sequence_play(self->private->sequence);
 }
 
 //-- wrapper
@@ -161,6 +143,7 @@ static void bt_song_dispose(GObject *object) {
 
 static void bt_song_finalize(GObject *object) {
   BtSong *self = BT_SONG(object);
+
 	g_object_unref(G_OBJECT(self->private->song_info));
 	g_free(self->private->name);
   g_free(self->private);

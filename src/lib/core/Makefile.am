@@ -13,6 +13,7 @@ libbtcore_la_SOURCES = \
 	application.c libbtcore/application.h libbtcore/application-methods.h \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
+	playline.c libbtcore/playline.h libbtcore/playline-methods.h \
 	processor-machine.c libbtcore/processor-machine.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.18 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: wire.c,v 1.19 2004-07-15 16:56:07 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -290,9 +290,10 @@ static void bt_wire_dispose(GObject *object) {
 
 static void bt_wire_finalize(GObject *object) {
   BtWire *self = BT_WIRE(object);
+
+	g_object_unref(G_OBJECT(self->private->song));
 	g_object_unref(G_OBJECT(self->private->dst));
 	g_object_unref(G_OBJECT(self->private->src));
-	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
 

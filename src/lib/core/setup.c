@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.14 2004-07-13 16:52:11 ensonic Exp $
+/* $Id: setup.c,v 1.15 2004-07-15 16:56:07 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -176,6 +176,7 @@ static void bt_setup_finalize(GObject *object) {
   BtSetup *self = BT_SETUP(object);
 	GList* node;
 
+	g_object_unref(G_OBJECT(self->private->song));
 	// free list of wires
 	if(self->private->wires) {
 		node=g_list_first(self->private->wires);
@@ -196,7 +197,6 @@ static void bt_setup_finalize(GObject *object) {
 		g_list_free(self->private->machines);
 		self->private->wires=NULL;
 	}
-	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.6 2004-07-13 16:52:11 ensonic Exp $
+/* $Id: source-machine.h,v 1.7 2004-07-15 16:56:07 ensonic Exp $
  * class for a source machine
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtSourceMachinePrivate BtSourceMachinePrivate;
 /**
  * BtSourceMachine:
  *
- * Sub-class of a BtMachine that implements a signal generator
+ * Sub-class of a #BtMachine that implements a signal generator
  * (a machine with outputs only).
  */
 struct _BtSourceMachine {

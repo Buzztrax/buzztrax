@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.2 2004-07-13 16:52:11 ensonic Exp $
+/* $Id: tools.c,v 1.3 2004-07-15 16:56:07 ensonic Exp $
  */
  
 #define BT_CORE
@@ -27,7 +27,7 @@ GObject* bt_g_object_get_object_property(GObject *object,gchar *property_name) {
 
 /**
  * bt_g_object_get_string_property:
- * @obj: the object instance
+ * @object: the object instance
  * @property_name: the property name
  *
  * Fetches the names property from the given object and returns it as a gchar*.
@@ -47,7 +47,7 @@ const gchar* bt_g_object_get_string_property(GObject *object,gchar *property_nam
 
 /**
  * bt_g_object_get_long_property:
- * @obj: the object instance
+ * @object: the object instance
  * @property_name: the property name
  *
  * Fetches the names property from the given object and returns it as a glong.

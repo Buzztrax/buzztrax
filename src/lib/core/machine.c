@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.16 2004-07-13 16:52:11 ensonic Exp $
+/* $Id: machine.c,v 1.17 2004-07-15 16:56:07 ensonic Exp $
  * base class for a machine
  */
  
@@ -107,6 +107,79 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
 	self->private->patterns=g_list_append(self->private->patterns,g_object_ref(G_OBJECT(pattern)));
 }
 
+/**
+ * bt_machine_get_global_dparam_index:
+ * @self: the machine to search for the global dparam
+ * @name: the name of the global dparam
+ *
+ * Searches the list of registered dparam of a machine for a global dparam of
+ * the given name and returns the index if found.
+ *
+ * Returns: the index or -1 when it has not be found
+ */
+glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name) {
+  GstDParam *dparam=gst_dpman_get_dparam(self->private->dparam_manager,name);
+  glong i;
+
+  if((dparam==NULL)) { GST_ERROR("no dparam named \"%s\" found",name);return(-1); }
+  
+  for(i=0;i<self->private->global_params;i++) {
+    if(self->private->global_dparams[i]==dparam) return(i);
+  }
+  return(-1);
+}
+
+/**
+ * bt_machine_get_voice_dparam_index:
+ * @self: the machine to search for the voice dparam
+ * @name: the name of the voice dparam
+ *
+ * Searches the list of registered dparam of a machine for a voice dparam of
+ * the given name and returns the index if found.
+ *
+ * Returns: the index or -1 when it has not be found
+ */
+glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name) {
+  GstDParam *dparam=gst_dpman_get_dparam(self->private->dparam_manager,name);
+  glong i;
+
+  if((dparam==NULL)) { GST_ERROR("no dparam named \"%s\" found",name);return(-1); }
+  
+  // @todo we need to support multiple voices
+  for(i=0;i<self->private->voice_params;i++) {
+    if(self->private->voice_dparams[i]==dparam) return(i);
+  }
+  return(-1);
+}
+
+/**
+ * bt_machine_get_global_dparam_type:
+ * @self: the machine to search for the global dparam type
+ * @index: the offset in the list of global dparams
+ *
+ * Retrieves the GType of a global dparam 
+ *
+ * Returns: the requested GType
+ */
+GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index) {
+  g_assert(index<self->private->global_params);
+  return(self->private->global_types[index]);
+}
+
+/**
+ * bt_machine_get_voice_dparam_type:
+ * @self: the machine to search for the voice dparam type
+ * @index: the offset in the list of voice dparams
+ *
+ * Retrieves the GType of a voice dparam 
+ *
+ * Returns: the requested GType
+ */
+GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
+  g_assert(index<self->private->voice_params);
+  return(self->private->voice_types[index]);
+}
+
 //-- wrapper
 
 //-- class internals
@@ -197,9 +270,9 @@ static void bt_machine_finalize(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
   GList* node;
 
+  g_object_unref(G_OBJECT(self->private->song));
 	g_free(self->private->plugin_name);
 	g_free(self->private->id);
-	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private->voice_types);
   g_free(self->private->voice_dparams);
   g_free(self->private->global_types);
@@ -221,7 +294,7 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtMachine *self = BT_MACHINE(instance);
   self->private = g_new0(BtMachinePrivate,1);
   self->private->dispose_has_run = FALSE;
-  self->private->voices=1;
+  self->private->voices=-1;
 }
 
 static void bt_machine_class_init(BtMachineClass *klass) {
@@ -258,27 +331,27 @@ static void bt_machine_class_init(BtMachineClass *klass) {
 																	g_param_spec_long("voices",
                                      "voices prop",
                                      "number of voices in the machine",
-                                     1,
+                                     0,
                                      G_MAXLONG,
-                                     1,
+                                     0,
                                      G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_GLOBAL_PARAMS,
 																	g_param_spec_long("global_params",
                                      "global_params prop",
                                      "number of params for the machine",
-                                     1,
+                                     0,
                                      G_MAXLONG,
-                                     1,
+                                     0,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
 																	g_param_spec_long("voice_params",
                                      "voice_params prop",
                                      "number of params for each machine voice",
-                                     1,
+                                     0,
                                      G_MAXLONG,
-                                     1,
+                                     0,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 }
 

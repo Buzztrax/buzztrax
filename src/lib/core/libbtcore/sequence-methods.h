@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.4 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.5 2004-07-15 16:56:07 ensonic Exp $
  * defines all public methods of the sequence class
  */
 
@@ -8,5 +8,7 @@
 #include "sequence.h"
 
 extern BtTimeLine *bt_sequence_get_timeline(const BtSequence *self,const glong time);
+
+extern void bt_sequence_play(const BtSequence *self);
 
 #endif // BT_SEQUENCE_METHDOS_H
