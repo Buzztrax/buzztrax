@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.36 2005-01-06 20:00:13 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.37 2005-01-06 20:02:28 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -576,7 +576,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
 	g_signal_connect(G_OBJECT(self->priv->bars_menu),"changed",(GCallback)on_bars_menu_changed, (gpointer)self);
-  // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);
   

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.27 2004-12-15 09:07:35 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.28 2005-01-06 20:02:27 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -219,7 +219,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   
-  // @todo add toolbar widgets
+  // add toolbar widgets
   // machine select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
@@ -231,7 +231,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
 
-  // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
 
@@ -252,7 +251,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
 	renderer=gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,TRUE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,"text", 0,NULL);
-  // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
 
@@ -266,9 +264,9 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   gtk_widget_set_name(button,_("Pattern"));
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
-  // wavetable entry select
-  // base octave
-  // play notes ?
+  // @todo add wavetable entry select
+  // @todo add base octave (0-8)
+  // @todo add play notes ?
   
   // @todo add list-view / grid-view
   gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no pattern view yet"));
