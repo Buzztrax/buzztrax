@@ -1,10 +1,13 @@
-/* $Id: main-page-info.c,v 1.24 2005-02-03 16:13:51 ensonic Exp $
+/* $Id: main-page-info.c,v 1.25 2005-02-12 19:57:10 ensonic Exp $
  * class for the editor main info page
  */
 
 /* @todo
+ * - use this tab as the first one?
  * - add time-stamps
  *   song created, song last changed
+ * - add choice for metre (in german -> takt)
+ *   bars (or measures) per beat, e.g. 3/4 3 bars per beat using a quarter grid
  */
  
 #define BT_EDIT

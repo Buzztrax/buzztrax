@@ -25,7 +25,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <source id="guru2" pluginname="bml-Gur--2" voices="0">
+      <source id="gen" pluginname="bml-Noise" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -35,20 +35,20 @@
     </machines>
     
     <wires>
-      <wire src="guru2" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="gen" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
   
   <patterns>
-    <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
+    <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
       <tick time="0">
-        <globaldata name="Note" value="24"/>
+        <globaldata name="Color" value="1024"/>
       </tick>
       <tick time="4">
-        <globaldata name="Note" value="28"/>
+        <globaldata name="Color" value="2048"/>
       </tick>
       <tick time="8">
-        <globaldata name="Note" value="31"/>
+        <globaldata name="Color" value="4096"/>
       </tick>
     </pattern>
   </patterns>
@@ -59,9 +59,9 @@
       <label time="63" name="end"/>
     </labels>
     <tracks>
-      <track index="0" machine="guru2">
-        <position time="0" pattern="guru2_beeps"/>
-        <position time="32" pattern="guru2_beeps"/>
+      <track index="0" machine="gen">
+        <position time="0" pattern="gen_beeps"/>
+        <position time="32" pattern="gen_beeps"/>
       </track>
     </tracks>
   </sequence>

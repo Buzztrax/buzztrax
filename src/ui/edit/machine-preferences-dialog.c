@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.9 2005-01-26 17:29:51 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.10 2005-02-12 19:57:10 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -150,7 +150,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 			// get name
 			label=gtk_label_new(property->name);
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_SHRINK,GTK_SHRINK, 2,1);
+			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
 			// @todo choose proper widgets
 			param_type=G_PARAM_SPEC_TYPE(property);
 			if(param_type==G_TYPE_PARAM_STRING) {
@@ -200,7 +200,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				step=(double_property->maximum-double_property->minimum)/1024.0;
 				widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
 				gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-				gtk_scale_set_draw_value(GTK_SCALE(widget1),TRUE);
+				gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
 				gtk_range_set_value(GTK_RANGE(widget1),value);
 				widget2=gtk_entry_new();
 				gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
@@ -226,7 +226,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 			else {
 				gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
 				gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-				gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_SHRINK,GTK_SHRINK, 2,1);
+				gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
 			}
 		}
 		// eat remaning space
