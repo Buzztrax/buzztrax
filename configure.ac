@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.25 2004-10-21 15:22:59 ensonic Exp $
+# $Id: configure.ac,v 1.26 2004-12-10 19:14:14 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -265,5 +265,6 @@ AC_CONFIG_FILES(Makefile \
 			tests/lib/core/Makefile \
 		tests/ui/Makefile \
 			tests/ui/cmd/Makefile \
+			tests/ui/edit/Makefile \
 )
 AC_OUTPUT

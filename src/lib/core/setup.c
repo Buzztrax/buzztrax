@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.45 2004-12-09 18:34:13 ensonic Exp $
+/* $Id: setup.c,v 1.46 2004-12-10 19:14:37 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -19,9 +19,9 @@
 
 enum {
   MACHINE_ADDED_EVENT,
-  MACHINE_DELETED_EVENT,
+  MACHINE_REMOVED_EVENT,
   WIRE_ADDED_EVENT,
-  WIRE_DELETED_EVENT,
+  WIRE_REMOVED_EVENT,
   LAST_SIGNAL
 };
 
@@ -139,6 +139,48 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
   }
   else {
     GST_WARNING("trying to add wire again"); 
+  }
+}
+
+/**
+ * bt_setup_remove_machine:
+ * @self: the setup to remove the machine from
+ * @machine: the machine instance to remove
+ *
+ * let the setup know that the suplied machine is removed from the song.
+ */
+void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
+	g_return_if_fail(BT_IS_SETUP(self));
+	g_return_if_fail(BT_IS_MACHINE(machine));
+
+  if(g_list_find(self->priv->machines,machine)) {
+    self->priv->machines=g_list_remove(self->priv->machines,machine);
+		g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
+		g_object_unref(G_OBJECT(machine));
+  }
+  else {
+    GST_WARNING("trying to remove machine that is not in setup"); 
+  }
+}
+
+/**
+ * bt_setup_remove_wire:
+ * @self: the setup to remove the wire from
+ * @wire: the wire instance to remove
+ *
+ * let the setup know that the suplied wire is removed from the song.
+ */
+void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
+	g_return_if_fail(BT_IS_SETUP(self));
+	g_return_if_fail(BT_IS_WIRE(wire));
+
+  if(g_list_find(self->priv->wires,wire)) {
+    self->priv->wires=g_list_remove(self->priv->wires,wire);
+		g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
+		g_object_unref(G_OBJECT(wire));
+  }
+  else {
+    GST_WARNING("trying to remove wire that is not in setup"); 
   }
 }
 
@@ -504,6 +546,8 @@ static void bt_setup_class_init(BtSetupClass *klass) {
 
   klass->machine_added_event = NULL;
   klass->wire_added_event = NULL;
+  klass->machine_removed_event = NULL;
+  klass->wire_removed_event = NULL;
 	
   /** 
 	 * BtSetup::machine-added:
@@ -543,8 +587,45 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                         BT_TYPE_WIRE // param data
                                         );
 
+  /** 
+	 * BtSetup::machine-removed:
+   * @self: the setup object that emitted the signal
+   * @machine: the old machine
+	 *
+	 * A machine item has been removed from the setup
+	 */
+  signals[MACHINE_REMOVED_EVENT] = g_signal_new("machine-removed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_STRUCT_OFFSET(BtSetupClass,machine_removed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__POINTER,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_MACHINE // param data
+                                        );
 	
-  g_object_class_install_property(gobject_class,SETUP_SONG,
+  /** 
+	 * BtSetup::wire-removed:
+   * @self: the setup object that emitted the signal
+   * @wire: the old wire
+	 *
+	 * A wire item has been removed from the setup
+	 */
+  signals[WIRE_REMOVED_EVENT] = g_signal_new("wire-removed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_STRUCT_OFFSET(BtSetupClass,wire_removed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__POINTER,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_WIRE // param data
+                                        );
+
+	g_object_class_install_property(gobject_class,SETUP_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the setup belongs to",

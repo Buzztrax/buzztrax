@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.18 2004-12-09 18:34:13 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.19 2004-12-10 19:14:38 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -162,7 +162,22 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 	
 	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 	if(bt_dialog_question(main_window,_("Delete machine..."),_("Delete machine..."),_("There is no undo for this."))) {
-		GST_INFO("  confirmed");
+		BtSong *song;
+		BtSetup *setup;
+		
+  	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+
+		/* @todo care about connected wires
+		  iterate over wires, remove all wires that have this machine as src or dst
+		  problem: we have to remove the *visual wires*
+		*/
+		
+		bt_setup_remove_machine(setup,self->priv->machine);
+		gtk_object_destroy(GTK_OBJECT(self));
+		
+		g_object_try_unref(setup);
+		g_object_try_unref(song);
 	}
 	g_object_try_unref(main_window);
 }
@@ -229,8 +244,8 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 	// make this menu item bold (default)
 	label=gtk_bin_get_child(GTK_BIN(menu_item));
 	if(GTK_IS_LABEL(label)) {
-		char *str=g_strdup_printf("<b>%s</b>",gtk_label_get_text(label));
-		gtk_label_set_markup(label,str);
+		gchar *str=g_strdup_printf("<b>%s</b>",gtk_label_get_text(GTK_LABEL(label)));
+		gtk_label_set_markup(GTK_LABEL(label),str);
 		g_free(str);
 	}
   gtk_widget_show(menu_item);
@@ -340,10 +355,16 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+	GST_DEBUG("disposing ...");
+	
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
+	
+	if(self->priv->parameter_dialog) {
+		gtk_widget_destroy(self->priv->parameter_dialog);
+	}
   
-  g_object_unref(self->priv->context_menu);
+	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -352,6 +373,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
 static void bt_machine_canvas_item_finalize(GObject *object) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
+
+	GST_DEBUG("finilizing ...");
   
   g_free(self->priv);
 

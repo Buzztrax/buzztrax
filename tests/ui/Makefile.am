@@ -1,4 +1,4 @@
-SUBDIRS = cmd
+SUBDIRS = cmd edit
 
 .PHONY: splint 
 

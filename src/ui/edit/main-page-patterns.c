@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.22 2004-12-09 18:34:13 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.23 2004-12-10 19:14:38 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -146,6 +146,15 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 	}
 }
 
+static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
+	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	
+  g_assert(user_data);
+	
+	GST_INFO("new machine has been removed");
+	// @todo remove from model
+}
+
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
@@ -170,6 +179,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   machine_menu_refresh(self,setup);
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
 	g_signal_connect(G_OBJECT(setup),"machine-added",(GCallback)on_machine_added,(gpointer)self);
+	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
   // release the references
   g_object_try_unref(setup);
   g_object_try_unref(song);

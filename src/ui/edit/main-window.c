@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.35 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-window.c,v 1.36 2004-12-10 19:14:38 ensonic Exp $
  * class for the editor main window
  */
 
@@ -140,6 +140,7 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   if(!bt_main_window_init_ui(self)) {
     goto Error;
   }
+	GST_INFO("new main_window created");
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:

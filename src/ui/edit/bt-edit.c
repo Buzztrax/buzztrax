@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.10 2004-11-18 14:05:33 ensonic Exp $
+/* $Id: bt-edit.c,v 1.11 2004-12-10 19:14:37 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 	// init buzztard core with own popt options
 	bt_init(&argc,&argv,options);
 
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / gtk ui");
+	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
   

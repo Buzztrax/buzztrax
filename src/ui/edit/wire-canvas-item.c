@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.7 2004-11-26 18:53:27 waffel Exp $
+/* $Id: wire-canvas-item.c,v 1.8 2004-12-10 19:14:38 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -162,6 +162,24 @@ void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_d
   gnome_canvas_points_free(points);
 }
 
+static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+	BtSong *song;
+	BtSetup *setup;
+	
+  g_assert(user_data);
+	GST_INFO("context_menu disconnect event occurred");
+		
+ 	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+ 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+
+	bt_setup_remove_wire(setup,self->priv->wire);
+	gtk_object_destroy(GTK_OBJECT(self));
+		
+	g_object_try_unref(setup);
+	g_object_try_unref(song);
+}
+
 //-- helper methods
 
 //-- constructor methods
@@ -257,12 +275,14 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+	GST_DEBUG("disposing ...");
+
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
   
-  g_object_unref(self->priv->context_menu);
+	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -271,7 +291,9 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 
 static void bt_wire_canvas_item_finalize(GObject *object) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
-  
+
+	GST_DEBUG("finilizing ...");
+
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -360,11 +382,12 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   self->priv->dispose_has_run = FALSE;
 
   // generate the context menu
-  self->priv->context_menu=gtk_menu_new();
+  self->priv->context_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_menu_item_new_with_label(_("Disconnect"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_disconnect_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.8 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: setup.h,v 1.9 2004-12-10 19:14:37 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -41,6 +41,8 @@ struct _BtSetupClass {
 
   void (*machine_added_event)(const BtSetup *setup, const BtMachine *machine, gpointer user_data);
   void (*wire_added_event)(const BtSetup *setup, const BtWire *wire, gpointer user_data);
+  void (*machine_removed_event)(const BtSetup *setup, const BtMachine *machine, gpointer user_data);
+  void (*wire_removed_event)(const BtSetup *setup, const BtWire *wire, gpointer user_data);
 };
 
 /* used by SETUP_TYPE */

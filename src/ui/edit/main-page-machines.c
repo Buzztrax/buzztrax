@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.35 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.36 2004-12-10 19:14:38 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -190,7 +190,7 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 	
 	points=gnome_canvas_points_new(2);
 	
-	// @todo check zoom and widnow sizes to draw a wider range ?
+	// @todo check zoom and window sizes to draw a wider range ?
 	
   // low=1->2, mid=2->4, high=3->8
   step=(MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X)/(gdouble)(1<<self->priv->grid_density);
@@ -706,8 +706,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_object_try_unref(self->priv->app);
   
-	g_object_unref(self->priv->grid_density_menu);
-  g_object_unref(self->priv->context_menu);
+	gtk_object_destroy(GTK_OBJECT(self->priv->grid_density_menu));
+	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
