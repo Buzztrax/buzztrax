@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.20 2004-11-29 19:21:49 waffel Exp $
+/* $Id: pattern.c,v 1.21 2004-11-30 20:15:49 waffel Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -50,13 +50,12 @@ static GObjectClass *parent_class=NULL;
 
 static gboolean bt_pattern_init_data(const BtPattern *self) {
   gboolean ret=FALSE;
-  glong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  gulong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
   GValue *data;
 
   if(self->priv->machine==NULL) return(TRUE);
   if(self->priv->length==0) return(TRUE);
-  if(self->priv->voices==-1) return(TRUE);
-
+		
   if(self->priv->data) {
     GST_ERROR("data has already been initialized");
     return(TRUE);

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.19 2004-11-26 18:53:25 waffel Exp $
+/* $Id: application.c,v 1.20 2004-11-30 20:15:49 waffel Exp $
  * base class for a buzztard based application
  */
  
@@ -171,13 +171,13 @@ GType bt_application_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtApplicationClass),
+      (guint)(sizeof(BtApplicationClass)),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_application_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtApplication),
+      (guint)(sizeof(BtApplication)),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_application_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.52 2004-11-29 19:21:46 waffel Exp $
+/* $Id: machine.c,v 1.53 2004-11-30 20:15:49 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -150,9 +150,12 @@ gboolean bt_machine_new(BtMachine *self) {
     self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
     // iterate over all dparam
     for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
+			gboolean attach_ret=FALSE;
+			
       self->priv->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
       self->priv->global_dparams[i]=gst_dparam_new(self->priv->global_types[i]);
-      gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
+      attach_ret=gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
+			g_assert(attach_ret!=FALSE);
       GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
     }
   }
@@ -350,7 +353,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
  */
 glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name) {
   GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
-  glong i;
+  gulong i;
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
@@ -398,7 +401,7 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
  *
  * Returns: the requested GType
  */
-GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index) {
+GType bt_machine_get_global_dparam_type(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
   
@@ -776,13 +779,13 @@ GType bt_machine_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtMachineClass),
+      (guint)(sizeof(BtMachineClass)),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtMachine),
+      (guint)(sizeof(BtMachine)),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.11 2004-10-28 11:16:29 ensonic Exp $
+/* $Id: machine-methods.h,v 1.12 2004-11-30 20:15:51 waffel Exp $
  * defines all public methods of the machine base class
  */
 
@@ -21,7 +21,7 @@ extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar
 extern glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name);
 extern glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name);
 
-extern GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index);
+extern GType bt_machine_get_global_dparam_type(const BtMachine *self, gulong index);
 extern GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index);
 
 extern void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event);

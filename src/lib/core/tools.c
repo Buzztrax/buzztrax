@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.11 2004-11-08 12:05:47 ensonic Exp $
+/* $Id: tools.c,v 1.12 2004-11-30 20:15:49 waffel Exp $
  */
  
 #define BT_CORE
@@ -18,7 +18,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   GList *elements,*node;
   GList *res=NULL;
   GstElementFactory *element;
-  guint sl;
+  gsize sl;
 
   g_assert(class_filter);
   
@@ -38,5 +38,3 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   g_list_free(elements);
   return(res);
 }
-
-
