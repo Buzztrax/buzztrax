@@ -1,9 +1,14 @@
-/* $Id: machine-canvas-item.c,v 1.34 2005-01-18 19:53:20 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.35 2005-01-19 12:18:27 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
 /* @todo:
- * - add muto/solo/bypass buttons
+ * - add mute/solo/bypass buttons or a quad state:
+ *   cycle through or use modifiers (shift, ctrl, alt)
+ *   - normal: square        (         klick)
+ *   - mute  : square with x (ctrl    +klick)
+ *   - solo  : square with o (alt     +klick)
+ *   - bypass: square with - (ctrl+alt+klick)
  * - add level meter widgets
  */
 
@@ -55,12 +60,13 @@ struct _BtMachineCanvasItemPrivate {
 	/* the graphical components */
 	GnomeCanvasItem *label;
 	GnomeCanvasItem *box;
+	GnomeCanvasItem *mode;
 
   /* the zoomration in pixels/per unit */
   double zoom;
 
   /* interaction state */
-  gboolean dragging,moved;
+  gboolean dragging,moved,switching;
   gdouble offx,offy,dragx,dragy;
 };
 
@@ -233,6 +239,22 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 }
 
 //-- helper methods
+
+static gboolean bt_machine_canvas_item_is_over_mode(const BtMachineCanvasItem *self,GdkEvent *event) {
+	GnomeCanvas *canvas;
+	//GnomeCanvasItem *ci;
+	gboolean res=FALSE;
+				
+	g_object_get(G_OBJECT(self->priv->main_page_machines),"canvas",&canvas,NULL);
+	//ci=gnome_canvas_get_item_at(canvas,event->button.x,event->button.y);
+	//GST_DEBUG("ci=%p : self=%p, self->box=%p, self->mode=%p",ci,self,self->priv->box,self->priv->mode);
+	//if(ci==self->priv->mode) {
+	if(gnome_canvas_get_item_at(canvas,event->button.x,event->button.y)==self->priv->mode) {
+		res=TRUE;
+	}
+	g_object_unref(canvas);
+	return(res);
+}
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
   GtkWidget *menu_item,*image,*label;
@@ -459,7 +481,8 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
 static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
-  guint bg_color=0xFFFFFFFF;
+	gdouble mx1,mx2,my1,my2;
+  guint bg_color=0xFFFFFFFF,bg_color2=0x99999999;
   gchar *id;
   
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
@@ -469,13 +492,13 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 
   // @todo that should be handled by subclassing
   if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-    bg_color=0xFFAFAFFF;
+    bg_color=0xFFAFAFFF;bg_color2=0x99696999;
   }
   if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-    bg_color=0xAFFFAFFF;
+    bg_color=0xAFFFAFFF;bg_color2=0x69996999;
   }
   if(BT_IS_SINK_MACHINE(self->priv->machine)) {
-    bg_color=0xAFAFFFFF;
+    bg_color=0xAFAFFFFF;bg_color2=0x69699999;
   }
   g_object_get(self->priv->machine,"id",&id,NULL);
 
@@ -495,6 +518,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x", +0.0,
                            "y", -3.0,
                            "justification", GTK_JUSTIFY_CENTER,
+													 "font", "helvetica",	/* test if this ensures equal sizes among systems */
                            "size-points", BASE_FONT_SIZE*self->priv->zoom,
                            "size-set", TRUE,
                            "text", id,
@@ -503,6 +527,19 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 													 "clip-width",w+w,
 													 "clip-height",h+h,
                            NULL);
+	mx1=-w*0.90;mx2=-w*0.70;
+	my1=-h*0.85;my2=-h*0.55;
+  self->priv->mode=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", mx1,
+                           "y1", my1,
+                           "x2", mx2,
+                           "y2", my2,
+                           "fill-color-rgba", bg_color2,
+                           "outline_color", "black",
+                           "width-pixels", 1,
+                           NULL);
+	gnome_canvas_item_raise(self->priv->mode,1);
   g_free(id);
   //item->realized = TRUE;
 }
@@ -530,12 +567,17 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d, 0x%x",event->button.button,event->button.state);
       if(event->button.button==1) {
-       	// dragx/y coords are world coords of button press
-       	self->priv->dragx=event->button.x;
-       	self->priv->dragy=event->button.y;
-       	// set some flags
-       	self->priv->dragging=TRUE;
-       	self->priv->moved=FALSE;
+				if(!bt_machine_canvas_item_is_over_mode(self,event)) {
+					// dragx/y coords are world coords of button press
+					self->priv->dragx=event->button.x;
+					self->priv->dragy=event->button.y;
+					// set some flags
+					self->priv->dragging=TRUE;
+					self->priv->moved=FALSE;
+				}
+				else {
+					self->priv->switching=TRUE;
+				}
 	     	res=TRUE;
       }
       else if(event->button.button==3) {
@@ -588,6 +630,19 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 				}
         res=TRUE;
       }
+			else if(self->priv->switching) {
+				self->priv->switching=FALSE;
+				// still over mode switch
+				if(bt_machine_canvas_item_is_over_mode(self,event)) {
+					GST_DEBUG("  mode quad state switch, key_modifier is : %d",event->button.state);
+					/* @todo do mode quad state switching
+					 * get old state
+					 * hide the old state canvas item
+					 * go to new state
+					 * show the new state canvas item
+					 */
+				}	
+			}
       break;
     default:
       break;
