@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.4 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-pages.c,v 1.5 2004-09-09 12:00:26 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -34,8 +34,11 @@ struct _BtMainPagesPrivate {
 //-- helper methods
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditApplication *app) {
-  GtkWidget *label;
+  GtkWidget *label,*event_box;
+  GtkTooltips *tips;
 
+  tips=gtk_tooltips_new();
+  
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
   // add wigets for machine view
@@ -44,7 +47,11 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
 
   label=gtk_label_new(_("machine view"));
   gtk_widget_set_name(label,_("machine view"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),0),label);
+  gtk_widget_show(label);
+  event_box=gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(event_box),label);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),0),event_box);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("machines used in the song and their wires"),NULL);
 
   // add wigets for pattern view
   self->private->patterns_page=bt_main_page_patterns_new(app);
@@ -52,7 +59,11 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
 
   label=gtk_label_new(_("pattern view"));
   gtk_widget_set_name(label,_("pattern view"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),1),label);
+  gtk_widget_show(label);
+  event_box=gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(event_box),label);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),1),event_box);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("event pattern editor"),NULL);
 
   // add wigets for sequence view
   self->private->sequence_page=bt_main_page_sequence_new(app);
@@ -60,15 +71,23 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
 
   label=gtk_label_new(_("sequence view"));
   gtk_widget_set_name(label,_("sequence view"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),2),label);
-  
+  gtk_widget_show(label);
+  event_box=gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(event_box),label);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),2),event_box);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("song sequence editor"),NULL);
+
   // add widgets for song info view
   self->private->info_page=bt_main_page_info_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->info_page));
 
   label=gtk_label_new(_("song information"));
   gtk_widget_set_name(label,_("song information"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),3),label);
+  gtk_widget_show(label);
+  event_box=gtk_event_box_new();
+  gtk_container_add(GTK_CONTAINER(event_box),label);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),3),event_box);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("song meta data editor"),NULL);
 
   return(TRUE);
 }

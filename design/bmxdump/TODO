@@ -5,9 +5,5 @@ Read the following sections:
     PDLG (will probably be ignored forever)
     MIDI
 
-Uncompress CWAV audio data.
-Therefore port over lines 130-480 from decomp.cpp
-1.) replace ->hFile and
-      SetFilePointer
-			ReadFile
+Fix the strange memleak in ~BmxWavtSection()
 

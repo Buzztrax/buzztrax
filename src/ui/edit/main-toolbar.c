@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.9 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.10 2004-09-09 12:00:26 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -81,6 +81,9 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
 static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image;
+  GtkTooltips *tips;
+   
+  tips=gtk_tooltips_new();
 
   gtk_widget_set_name(GTK_WIDGET(self),_("handlebox for toolbar"));
 
@@ -100,7 +103,8 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("New"));
-  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Prepare a new empty song"),NULL);
+	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
 
   icon=gtk_image_new_from_stock(GTK_STOCK_OPEN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -111,6 +115,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Open"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Load a new song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 
   icon=gtk_image_new_from_stock(GTK_STOCK_SAVE, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
@@ -122,6 +127,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Save"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Save this song"),NULL);
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
@@ -136,6 +142,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Play"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play this song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
 
   image=create_pixmap("stock_media-stop.png");
@@ -147,6 +154,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Stop"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of this song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
 
   image=create_pixmap("stock_repeat.png");
@@ -158,6 +166,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Loop"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Toggle looping of playback"),NULL);
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
