@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.22 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-page-info.c,v 1.23 2005-02-02 16:35:56 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -46,6 +46,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
   g_object_get(G_OBJECT(song_info),
@@ -184,6 +186,8 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   GtkWidget *scrolledwindow;
 	GtkAdjustment *spin_adjustment;
   
+	GST_DEBUG("!!!! self=%p",self);
+	
   // first row of vbox
   frame=gtk_frame_new(_("song meta data"));
   gtk_widget_set_name(frame,_("song meta data"));
@@ -248,17 +252,22 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   gtk_widget_set_name(scrolledwindow,"scrolledwindow");
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),GTK_SHADOW_IN);
   gtk_container_add(GTK_CONTAINER(frame),scrolledwindow);
+	GST_DEBUG("  scrolled window: %p",scrolledwindow);
 
   self->priv->info=GTK_TEXT_VIEW(gtk_text_view_new());
   gtk_widget_set_name(GTK_WIDGET(self->priv->info),_("free text info"));
   //gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),1);
+	GST_DEBUG("  text view: %p",self->priv->info);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
+	GST_DEBUG("   tuck");
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
+	GST_DEBUG("   tuck");
 	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", (GCallback)on_info_changed, (gpointer)self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
 
+	GST_DEBUG("  done");
 	return(TRUE);
 }
 

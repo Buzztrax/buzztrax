@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
 
-/* $Id: main-page-sequence.c,v 1.51 2005-01-30 10:37:33 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.52 2005-02-02 16:35:57 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -617,6 +617,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,NULL);
   // update page
   // update sequence and pattern list
@@ -681,6 +683,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
 
+	GST_DEBUG("!!!! self=%p",self);
+	
   // add toolbar
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("machine view tool bar"));
@@ -782,7 +786,9 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
 	g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", (GCallback)on_sequence_table_key_release_event, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", (GCallback)on_sequence_table_button_press_event, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
-  return(TRUE);
+
+	GST_DEBUG("  done");
+	return(TRUE);
 }
 
 //-- constructor methods

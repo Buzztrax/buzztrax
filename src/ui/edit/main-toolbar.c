@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.41 2005-01-31 10:05:50 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.42 2005-02-02 16:35:58 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -232,6 +232,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   
   // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"master",&master,NULL);
 	if(master) {
 		GstPad *pad;

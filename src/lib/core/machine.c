@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.81 2005-02-01 16:01:43 ensonic Exp $
+/* $Id: machine.c,v 1.82 2005-02-02 16:35:45 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -227,6 +227,20 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	return(res);
 }
 
+GstElement *bt_machine_get_sink_peer(GstElement *elem) {
+	GstElement *peer;
+	GstPad *pad,*peer_pad;
+		
+	// add before machine (sink peer of machine)
+	if((pad=gst_element_get_pad(elem,"sink"))
+		&& (peer_pad=gst_pad_get_peer(pad))
+		&& (peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))
+	) {
+		return(peer);
+	}
+	return(NULL);
+}
+
 gboolean bt_machine_insert_element(BtMachine *self,BtMachinePart part_position) {
 	gboolean res=FALSE;
 	
@@ -348,6 +362,7 @@ gboolean bt_machine_new(BtMachine *self) {
  */
 gboolean bt_machine_add_input_level(BtMachine *self) {
   gboolean res=FALSE;
+	GstElement *peer;
 	
 	g_assert(BT_IS_MACHINE(self));
 	g_assert(!BT_IS_SOURCE_MACHINE(self));
@@ -358,8 +373,8 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
   }
   g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),"interval",0.1, "signal",TRUE, NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_INPUT_LEVEL]);
-	// is the machine unconnected towards the input side?
-	if(self->dst_elem==self->priv->machines[PART_MACHINE]) {
+	// is the machine unconnected towards the input side (its sink)?
+	if(!(peer=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]))) {
 		GST_DEBUG("machine '%s' is not yet connected",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   	if(!gst_element_link(self->priv->machines[PART_INPUT_LEVEL],self->priv->machines[PART_MACHINE])) {
 			GST_ERROR("failed to link the machines input level analyser");goto Error;
@@ -368,27 +383,16 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
   	GST_INFO("sucessfully added input level analyser %p",self->priv->machines[PART_INPUT_LEVEL]);
 	}
 	else {
-		// @todo use bt_machine_insert_element(self,PART_INPUT_LEVEL)
-		GstElement *peer;
-		GstPad *pad,*peer_pad;
-		
-		GST_DEBUG("machine '%s' is connected",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+		// @todo use bt_machine_insert_element(self,PART_INPUT_LEVEL)		
+		GST_DEBUG("machine '%s' is connected to '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]),GST_OBJECT_NAME(peer));
 
 		// add before machine (sink peer of machine)
-		if((pad=gst_element_get_pad(self->priv->machines[PART_MACHINE],"sink"))
-			&& (peer_pad=gst_pad_get_peer(pad))
-			&& (peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))
-			) {
-			GST_DEBUG("got peer element '%s'",GST_OBJECT_NAME(peer));
-			gst_element_unlink(peer,self->priv->machines[PART_MACHINE]);
-	  	if(!gst_element_link_many(peer,self->priv->machines[PART_INPUT_LEVEL],self->priv->machines[PART_MACHINE],NULL)) {
-				GST_ERROR("failed to link the machines input level analyser");goto Error;
-			}	
-  		GST_INFO("sucessfully added input level analyser %p",self->priv->machines[PART_INPUT_LEVEL]);
-		}
-		else {
-			GST_ERROR("cant get sink-peer element of machine");goto Error;
-		}
+		GST_DEBUG("got peer element '%s'",GST_OBJECT_NAME(peer));
+		gst_element_unlink(peer,self->priv->machines[PART_MACHINE]);
+  	if(!gst_element_link_many(peer,self->priv->machines[PART_INPUT_LEVEL],self->priv->machines[PART_MACHINE],NULL)) {
+			GST_ERROR("failed to link the machines input level analyser");goto Error;
+		}	
+ 		GST_INFO("sucessfully added input level analyser %p",self->priv->machines[PART_INPUT_LEVEL]);
 	}
   res=TRUE;
 Error:
@@ -405,6 +409,7 @@ Error:
  */
 gboolean bt_machine_add_input_gain(BtMachine *self) {
   gboolean res=FALSE;
+	GstElement *peer;
 	
 	g_assert(BT_IS_MACHINE(self));
 	g_assert(!BT_IS_SOURCE_MACHINE(self));
@@ -414,8 +419,8 @@ gboolean bt_machine_add_input_gain(BtMachine *self) {
     GST_ERROR("failed to create machines input gain element");goto Error;
   }
   gst_bin_add(self->priv->bin,self->priv->machines[PART_INPUT_GAIN]);
-	// is the machine unconnected towards the input side?
-	if(self->dst_elem==self->priv->machines[PART_MACHINE]) {
+	// is the machine unconnected towards the input side (its sink)?
+	if(!(peer=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]))) {
 		GST_DEBUG("machine '%s' is not yet connected",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   	if(!gst_element_link(self->priv->machines[PART_INPUT_GAIN],self->priv->machines[PART_MACHINE])) {
 			GST_ERROR("failed to link the machines input gain element");goto Error;
@@ -425,6 +430,7 @@ gboolean bt_machine_add_input_gain(BtMachine *self) {
 	}
 	else {
 		// @todo use bt_machine_insert_element(self,PART_INPUT_GAIN)
+		GST_DEBUG("machine '%s' is connected to '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]),GST_OBJECT_NAME(peer));
 	}
   res=TRUE;
 Error:

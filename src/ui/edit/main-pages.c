@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.18 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-pages.c,v 1.19 2005-02-02 16:35:57 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -63,6 +63,8 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   GtkWidget *label,*event_box,*box,*image;
   GtkTooltips *tips;
 
+	GST_DEBUG("!!!! self=%p",self);
+	
   tips=gtk_tooltips_new();
   
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
@@ -94,7 +96,8 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
 	bt_main_pages_init_tab(self,tips,4,_("song information"),"tab_info.png",_("song meta data editor"));
 
-  return(TRUE);
+	GST_DEBUG("  done");
+	return(TRUE);
 }
 
 //-- constructor methods

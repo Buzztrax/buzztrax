@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.53 2005-01-31 10:05:50 ensonic Exp $
+/* $Id: edit-application.c,v 1.54 2005-02-02 16:35:45 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -119,6 +119,9 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 	
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
+	// kick old song from up, to free element namespace
+	g_object_set(G_OBJECT(self),"song",NULL,NULL);
+	// create new song
 	if((song=bt_song_new(BT_APPLICATION(self)))) {
 		BtSetup *setup;
 		BtSequence *sequence;
@@ -193,33 +196,37 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       
     g_signal_connect(G_OBJECT(loader),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
-		song=bt_song_new(BT_APPLICATION(self));
-    if(bt_song_io_load(loader,song)) {
-			BtSetup *setup;
-			BtMachine *machine;
+		
+		// kick old song from up, to free element namespace
+		g_object_set(G_OBJECT(self),"song",NULL,NULL);
+		// create new song
+		if((song=bt_song_new(BT_APPLICATION(self)))) {
+			if(bt_song_io_load(loader,song)) {
+				BtSetup *setup;
+				BtMachine *machine;
 			
-			g_object_get(song,"setup",&setup,NULL);
-			// get sink-machine
-			if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-			  if(bt_machine_add_input_level(machine)) {
-					// set new song
-					g_object_set(G_OBJECT(self),"song",song,NULL);
-					res=TRUE;
+				g_object_get(song,"setup",&setup,NULL);
+				// get sink-machine
+				if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+					if(bt_machine_add_input_level(machine)) {
+						// set new song
+						g_object_set(G_OBJECT(self),"song",song,NULL);
+						res=TRUE;
+					}
+					else {
+						GST_WARNING("Can't add input levels in sink machine");
+					}
+					g_object_unref(machine);
 				}
 				else {
-					GST_WARNING("Can't add input levels in sink machine");
+					GST_WARNING("Can't look up sink machine");
 				}
-				g_object_unref(machine);
+				g_object_try_unref(setup);
 			}
 			else {
-				GST_WARNING("Can't look up sink machine");
+				GST_ERROR("could not load song \"%s\"",file_name);
 			}
-			g_object_try_unref(setup);
-    }
-    else {
-      GST_ERROR("could not load song \"%s\"",file_name);
-    }
-      
+    }  
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
 		g_object_unref(song);

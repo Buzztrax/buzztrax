@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.25 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.26 2005-02-02 16:35:58 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -89,6 +89,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   // get new song length
   msec=bt_sequence_get_loop_time(sequence);

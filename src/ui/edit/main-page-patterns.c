@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.42 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.43 2005-02-02 16:35:57 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -348,6 +348,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_menu_refresh(self,setup);
@@ -365,6 +367,8 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkWidget *toolbar,*scrolled_window;
   GtkWidget *box,*menu,*button;
 	GtkCellRenderer *renderer;
+	
+	GST_DEBUG("!!!! self=%p",self);
 	
   // add toolbar
   toolbar=gtk_toolbar_new();
@@ -441,6 +445,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", (GCallback)on_pattern_menu_changed, (gpointer)self);
 
+	GST_DEBUG("  done");
 	return(TRUE);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.41 2005-01-28 18:48:06 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.42 2005-02-02 16:35:56 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -587,7 +587,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-	GST_DEBUG("disposing ...");
+	GST_DEBUG("!!!! self=%p",self);
 	
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
@@ -606,21 +606,25 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 	GST_DEBUG("  destroying done");
 
+	GST_DEBUG("  chaining up");  
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_machine_canvas_item_finalize(GObject *object) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
 
-	GST_DEBUG("finalizing ...");
+	GST_DEBUG("!!!! self=%p",self);
   
   g_free(self->priv);
 
+	GST_DEBUG("  chaining up");  
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
+	GST_DEBUG("  done");
 }
 
 /**

@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.11 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.12 2005-02-02 16:35:57 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -88,6 +88,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
 	GtkWidget *scrolled_window;
 	GtkCellRenderer *renderer;
   GtkTooltips *tips;
+	
+	GST_DEBUG("!!!! self=%p",self);
 	
 	tips=gtk_tooltips_new();
 	
@@ -220,6 +222,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+
+	GST_DEBUG("  done");
   return(TRUE);
 }
 

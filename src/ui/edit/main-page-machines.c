@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.50 2005-01-29 14:18:38 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.51 2005-02-02 16:35:56 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -321,6 +321,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_view_refresh(self,setup);
@@ -584,6 +586,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   GtkWidget *menu_item,*menu,*submenu;
   GtkTooltips *tips;
 
+	GST_DEBUG("!!!! self=%p",self);
+	
   // add toolbar
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("machine view tool bar"));
@@ -761,7 +765,9 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
-  return(TRUE);
+
+	GST_DEBUG("  done");
+	return(TRUE);
 }
 
 //-- constructor methods

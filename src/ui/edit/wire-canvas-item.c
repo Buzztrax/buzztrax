@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.18 2005-01-28 18:48:06 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.19 2005-02-02 16:35:59 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -360,38 +360,43 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-	GST_DEBUG("disposing ...");
-
-  g_object_try_unref(self->priv->app);
-  g_object_try_unref(self->priv->wire);
-  g_object_try_unref(self->priv->src);
-  g_object_try_unref(self->priv->dst);
-	g_object_try_weak_unref(self->priv->main_page_machines);
-	
+	GST_DEBUG("!!!! self=%p",self);
 	if(self->priv->src_on_position_changed) {
 		g_signal_handler_disconnect(G_OBJECT(self->priv->src),self->priv->src_on_position_changed);
 	}
 	if(self->priv->dst_on_position_changed) {
 		g_signal_handler_disconnect(G_OBJECT(self->priv->dst),self->priv->dst_on_position_changed);
 	}
-  
+
+  g_object_try_unref(self->priv->app);
+  g_object_try_unref(self->priv->wire);
+  g_object_try_unref(self->priv->src);
+  g_object_try_unref(self->priv->dst);
+	g_object_try_weak_unref(self->priv->main_page_machines);
+
+	GST_DEBUG("  unrefing done");
+	  
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
-  
+
+	GST_DEBUG("  chaining up");  
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_wire_canvas_item_finalize(GObject *object) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
 
-	GST_DEBUG("finilizing ...");
+	GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
+	GST_DEBUG("  done");
 }
 
 /**

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.51 2005-01-29 14:18:38 ensonic Exp $
+/* $Id: main-window.c,v 1.52 2005-02-02 16:35:58 ensonic Exp $
  * class for the editor main window
  */
 
@@ -72,6 +72,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   // get song from app
   g_object_get(G_OBJECT(app),"song",&song,NULL);
+	if(!song) return;
+
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // compose title
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
