@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.8 2004-12-18 17:53:18 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.9 2005-01-08 14:22:49 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -50,6 +50,23 @@ BtMachineCanvasItemPrivate
 </SECTION>
 
 <SECTION>
+<FILE>btmachinepreferencesdialog</FILE>
+<TITLE>BtMachinePreferencesDialog</TITLE>
+BtMachinePreferencesDialog
+bt_machine_preferences_dialog_new
+<SUBSECTION Standard>
+BtMachinePreferencesDialogClass
+BT_MACHINE_PREFERENCES_DIALOG
+BT_IS_MACHINE_PREFERENCES_DIALOG
+BT_MACHINE_PREFERENCES_DIALOG_CLASS
+BT_IS_MACHINE_PREFERENCES_DIALOG_CLASS
+BT_TYPE_MACHINE_PREFERENCES_DIALOG
+<SUBSECTION Private>
+bt_machine_preferences_dialog_get_type
+BtMachinePreferencesDialogPrivate
+</SECTION>
+
+<SECTION>
 <FILE>btmachinepropertiesdialog</FILE>
 <TITLE>BtMachinePropertiesDialog</TITLE>
 BtMachinePropertiesDialog
@@ -82,24 +99,6 @@ BT_TYPE_MAIN_MENU
 <SUBSECTION Private>
 bt_main_menu_get_type
 BtMainMenuPrivate
-</SECTION>
-
-<SECTION>
-<FILE>btmaintoolbar</FILE>
-<TITLE>BtMainToolbar</TITLE>
-BtMainToolbar
-bt_main_toolbar_new
-<SUBSECTION Standard>
-BtMainToolbarClass
-BT_MAIN_TOOLBAR
-BT_IS_MAIN_TOOLBAR
-BT_MAIN_TOOLBAR_CLASS
-BT_IS_MAIN_TOOLBAR_CLASS
-BT_MAIN_TOOLBAR_GET_CLASS
-BT_TYPE_MAIN_TOOLBAR
-<SUBSECTION Private>
-bt_main_toolbar_get_type
-BtMainToolbarPrivate
 </SECTION>
 
 <SECTION>
@@ -164,6 +163,7 @@ BtMainPageMachinesPrivate
 BtMainPagePatterns
 bt_main_page_patterns_new
 bt_main_page_patterns_get_current_machine
+bt_main_page_patterns_get_current_pattern
 <SUBSECTION Standard>
 BtMainPagePatternsClass
 BT_MAIN_PAGE_PATTERNS
@@ -197,6 +197,24 @@ BtMainPageSequencePrivate
 </SECTION>
 
 <SECTION>
+<FILE>btmainpagewaves</FILE>
+<TITLE>BtMainPageWaves</TITLE>
+BtMainPageSequence
+bt_main_page_waves_new
+<SUBSECTION Standard>
+BtMainPageWavesClass
+BT_MAIN_PAGE_WAVES
+BT_IS_MAIN_PAGE_WAVES
+BT_MAIN_PAGE_WAVES_CLASS
+BT_IS_MAIN_PAGE_WAVES_CLASS
+BT_MAIN_PAGE_WAVES_GET_CLASS
+BT_TYPE_MAIN_PAGE_WAVES
+<SUBSECTION Private>
+bt_main_page_waves_get_type
+BtMainPageWavesPrivate
+</SECTION>
+
+<SECTION>
 <FILE>btmainstatusbar</FILE>
 <TITLE>BtMainStatusbar</TITLE>
 BtMainStatusbar
@@ -212,6 +230,24 @@ BT_TYPE_MAIN_STATUSBAR
 <SUBSECTION Private>
 bt_main_statusbar_get_type
 BtMainStatusbarPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmaintoolbar</FILE>
+<TITLE>BtMainToolbar</TITLE>
+BtMainToolbar
+bt_main_toolbar_new
+<SUBSECTION Standard>
+BtMainToolbarClass
+BT_MAIN_TOOLBAR
+BT_IS_MAIN_TOOLBAR
+BT_MAIN_TOOLBAR_CLASS
+BT_IS_MAIN_TOOLBAR_CLASS
+BT_MAIN_TOOLBAR_GET_CLASS
+BT_TYPE_MAIN_TOOLBAR
+<SUBSECTION Private>
+bt_main_toolbar_get_type
+BtMainToolbarPrivate
 </SECTION>
 
 <SECTION>
@@ -253,6 +289,23 @@ BT_TYPE_SETTINGS_DIALOG
 <SUBSECTION Private>
 bt_settings_dialog_get_type
 BtSettingsDialogPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsettingspageaudiodevices</FILE>
+<TITLE>BtSettingsPageAudiodevices</TITLE>
+BtSettingsPageAudiodevices
+bt_settings_page_audiodevices_new
+<SUBSECTION Standard>
+BtSettingsPageAudiodevicesClass
+BT_SETTINGS_PAGE_AUDIODEVICES
+BT_IS_SETTINGS_PAGE_AUDIODEVICES
+BT_SETTINGS_PAGE_AUDIODEVICES_CLASS
+BT_IS_SETTINGS_PAGE_AUDIODEVICES_CLASS
+BT_TYPE_SETTINGS_PAGE_AUDIODEVICES
+<SUBSECTION Private>
+bt_settings_page_audiodevices_get_type
+BtSettingsPageAudiodevicesPrivate
 </SECTION>
 
 <SECTION>

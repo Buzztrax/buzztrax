@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.29 2005-01-07 17:50:53 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.30 2005-01-08 14:22:54 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -10,7 +10,6 @@
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
 };
-
 
 struct _BtMainPagePatternsPrivate {
   /* used to validate if dispose has run */
@@ -146,18 +145,25 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
 	g_object_unref(store); // drop with comboxbox
 }
 
+/**
+ * pattern_table_refresh:
+ * @self:  the pattern page
+ * @song: the new pattern to display
+ *
+ * rebuild the pattern table after a new pattern has been chosen
+ */
+static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
+	GST_INFO("refresh pattern table");
+}
+
 //-- event handler
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
   g_assert(user_data);
-
-	GST_INFO("new pattern selected");
-  /* refresh pattern view
-	BtMachine *machine=bt_main_page_patterns_get_current_machine(self);
-	BtPattern *pattern=NULL;
-	*/
+  // refresh pattern view
+	pattern_table_refresh(self,bt_main_page_patterns_get_current_pattern(self));
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -197,7 +203,7 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
   g_assert(user_data);
-
+	// show new list of pattern in pattern menu
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
 }
 
@@ -360,6 +366,38 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
   g_object_try_unref(setup);
   g_object_try_unref(song);
   return(machine);
+}
+
+/**
+ * bt_main_page_patterns_get_current_pattern:
+ * @self: the pattern subpage
+ *
+ * Get the currently active #BtPattern as determined by the pattern option menu
+ * in the toolbar.
+ *
+ * Returns: the #BtPattern instance or NULL in case of an error
+ */
+BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self) {
+  gulong index;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+	BtPattern *pattern;
+
+  GST_INFO("get machine for pattern");
+  
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+
+  index=gtk_combo_box_get_active(self->priv->machine_menu);
+  machine=bt_setup_get_machine_by_index(setup,index);
+  index=gtk_combo_box_get_active(self->priv->pattern_menu);
+	pattern=bt_machine_get_pattern_by_index(machine,index);
+
+  //-- release the reference
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
+  return(pattern);
 }
 
 //-- wrapper

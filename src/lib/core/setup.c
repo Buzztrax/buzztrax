@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.50 2004-12-20 17:57:18 ensonic Exp $
+/* $Id: setup.c,v 1.51 2005-01-08 14:22:54 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -251,7 +251,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   
-	return(g_list_nth_data(self->priv->machines,(guint)index));
+	return(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index)));
 }
 
  

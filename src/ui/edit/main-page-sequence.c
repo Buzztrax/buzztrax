@@ -1,10 +1,10 @@
-/* $Id: main-page-sequence.c,v 1.38 2005-01-07 17:50:53 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.39 2005-01-08 14:22:54 ensonic Exp $
  * class for the editor main sequence page
  */
 
 /* @todo:
  *  - moving cursor around
- *  - disallowing to move to position columns
+ *  - disallowing to move to position column
  *  - adding/removing columns
  *  - add mute/solo/bypass buttons to column headers
  */

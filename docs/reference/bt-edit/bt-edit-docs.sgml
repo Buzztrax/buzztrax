@@ -6,17 +6,20 @@
 <!ENTITY btedit SYSTEM "xml/btedit.xml">
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
 <!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
+<!ENTITY BtMachinePreferencesDialog SYSTEM "xml/btmachinepreferencesdialog.xml">
 <!ENTITY BtMachinePropertiesDialog SYSTEM "xml/btmachinepropertiesdialog.xml">
-<!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtMainMenu SYSTEM "xml/btmainmenu.xml">
-<!ENTITY BtMainToolbar SYSTEM "xml/btmaintoolbar.xml">
 <!ENTITY BtMainPages SYSTEM "xml/btmainpages.xml">
+<!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
 <!ENTITY BtMainPageMachines SYSTEM "xml/btmainpagemachines.xml">
 <!ENTITY BtMainPagePatterns SYSTEM "xml/btmainpagepatterns.xml">
 <!ENTITY BtMainPageSequence SYSTEM "xml/btmainpagesequence.xml">
-<!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
+<!ENTITY BtMainPageWaves SYSTEM "xml/btmainpagewaves.xml">
 <!ENTITY BtMainStatusbar SYSTEM "xml/btmainstatusbar.xml">
+<!ENTITY BtMainToolbar SYSTEM "xml/btmaintoolbar.xml">
+<!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
+<!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
@@ -50,17 +53,20 @@
     &btedit;
     &BtEditApplication;
     &BtMachineCanvasItem;
+		&BtMachinePreferencesDialog;
 		&BtMachinePropertiesDialog;
     &BtMainWindow;
     &BtMainMenu;
-    &BtMainToolbar;
-    &BtMainPages;
+		&BtMainPages;
+    &BtMainPageInfo;
     &BtMainPageMachines;
     &BtMainPagePatterns;
     &BtMainPageSequence;
-    &BtMainPageInfo;
+    &BtMainPageWaves;
     &BtMainStatusbar;
+    &BtMainToolbar;
     &BtSettingsDialog;
+    &BtSettingsPageAudiodevices;
     &BtWireCanvasItem;
   </chapter>
 
