@@ -1,0 +1,81 @@
+#
+# mit winemaker 0.6.0
+# wine in /home/hoehmi/wine
+#
+
+#
+# ENV
+#
+export PATH=/home/hoehmi/wine/bin:/usr/local/ant/bin:/opt/gnome2/bin:/opt/gnome/bin:/home/hoehmi/bin:/usr/local/bin:/usr/bin:/usr/X11R6/bin:/bin:/usr/games:/opt/gnome2/bin:/opt/gnome/bin:/opt/kde3/bin:/usr/lib/java/bin
+export LD_LIBRARY_PATH=/home/hoehmi/wine/lib:/opt/gnome2/lib:/opt/gnome/lib:
+
+#
+# winemaker
+#
+# legt das erste Makefile an
+which winemaker
+#/home/hoehmi/wine/bin/winemaker
+
+winemaker --nosource-fix .
+#Winemaker 0.6.0
+#Copyright 2000 Francois Gouget <fgouget@codeweavers.com> for CodeWeavers
+#Scanning the source directories...
+#Generating project files...
+
+ll
+#-rw-r--r--    1 hoehmi   users        2638 2004-08-07 23:37 Makefile
+#-rw-r--r--    1 hoehmi   users        5868 2004-08-07 23:36 test.cpp
+
+#
+# EDITIEREN + COMPILIEREN
+#
+make
+#winebuild -o dll_loader.exe.dbg.c --debug -C.  test.cpp
+#winegcc -c  -mno-cygwin    -o dll_loader.exe.dbg.o dll_loader.exe.dbg.c
+#wineg++ -c  -mno-cygwin    -o test.o test.cpp
+#wineg++ -mwindows -mno-cygwin -o dll_loader.exe.so  test.o  dll_loader.exe.dbg.o   -lodbc32 -lole32 -loleaut32 -lwinspool -luuid
+
+ll
+#-rw-r--r--    1 hoehmi   users        2638 2004-08-07 23:37 Makefile
+#-rw-r--r--    1 hoehmi   users         173 2004-08-07 23:38 dll_loader.exe.dbg.c
+#-rw-r--r--    1 hoehmi   users         594 2004-08-07 23:38 dll_loader.exe.dbg.o
+#-rwxr-xr-x    1 hoehmi   users       81452 2004-08-07 23:38 dll_loader.exe.so
+#-rw-r--r--    1 hoehmi   users        5868 2004-08-07 23:36 test.cpp
+#-rw-r--r--    1 hoehmi   users        3244 2004-08-07 23:38 test.o
+
+ldd dll_loader.exe.so
+#libwine.so.1 => /home/hoehmi/wine/lib/libwine.so.1 (0x40014000)
+#libstdc++.so.5 => /usr/lib/libstdc++.so.5 (0x40045000)
+#libm.so.6 => /lib/libm.so.6 (0x400fd000)
+#libc.so.6 => /lib/libc.so.6 (0x4011f000)
+#libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x40255000)
+#libdl.so.2 => /lib/libdl.so.2 (0x4025d000)
+#/lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x80000000)
+
+//
+// start
+//
+hoehmi@bigwaffel:~/projects/buzztard/dll_loader> wine dll_loader.exe.so ../whitenoise_chorus.dll
+START
+load Windows DLL ../whitenoise_chorus.dll successful
+handle: 268435456
+load Function GetInfo successful
+fptr: 0x10001030
+result: (nil)
+result: 0x10002188
+result: 0x10002188
+Type: 2
+Version: 14
+Flags: 1
+minTracks: 0
+maxTracks: 0
+numGlobalParameters: 10
+numTrackParameters: 0
+numAttributes: 1
+Name: WhiteNoise Chorus
+ShortName: WhiteChorus
+Author: WhiteNoise
+Commands: (null)
+unload Windows DLL ../whitenoise_chorus.dll successful
+handle: 0
+

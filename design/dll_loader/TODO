@@ -1,0 +1,19 @@
+//
+// TODO: das muss noch gemacht werden
+//
+
+1. test.cpp + test.h
+   main() funktion so umschreiben, dass es eine "normale" funktion load_dll()
+   ist, der ein dll-name übergeben wird
+
+2. test.cpp -> test.o
+
+3. winebuild -> libtest.spec.c
+
+3. libtest.spec.c -> libtest.spec.o
+
+4. test.o + libtest.spec.o -> libtest.o
+
+5. testprogramm
+   lädt libtest.so
+   führt load_dll() aus

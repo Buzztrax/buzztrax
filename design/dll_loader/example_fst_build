@@ -1,0 +1,129 @@
+hoehmi@bigwaffel:~/projects/buzztard/fst-1.6> make
+make[1]: Entering directory `/home/hoehmi/projects/buzztard/fst-1.6/fst'
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o pthread.o pthread.c
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o interlocked.o interlocked.c
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o gettid.o gettid.c
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o libwinelib.o libwinelib.c
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o vstwin.o vstwin.c
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o fstinfofile.o fstinfofile.c
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o fst.o fst.c
+
+LD_LIBRARY_PATH="/home/hoehmi/wine//lib:$LD_LIBRARY_PATH" /home/hoehmi/wine//bin/winebuild -fPIC -o libfst.spec.c --exe libfst -mgui   pthread.o interlocked.o gettid.o libwinelib.o vstwin.o fstinfofile.o fst.o   -L/home/hoehmi/wine//lib/wine -L/home/hoehmi/wine//lib/wine  -ladvapi32 -lcomdlg32 -lgdi32 -lkernel32 -lodbc32 -lole32 -loleaut32 -lshell32 -luser32 -lwinspool
+
+#
+# nun existiert eine spec-datei (c-file) 
+# die eine art wrapper um die win32-dll herum ist
+#
+# -rw-r--r--    1 hoehmi   users       12595 2004-08-08 01:08 libfst.spec.c
+#
+#
+# der --exe name taucht in dieser datei NUR in der folgenden funktion auf:
+#
+void __wine_spec_init(void)
+{
+    extern void __wine_dll_register( const struct image_nt_headers *, const char * );
+    __wine_spec_init_state = 1;
+    __wine_dll_register( &nt_header, "libfst.exe" );
+}
+
+#
+# nun "wrapper" kompilieren
+#
+# ergebnis ist eine EXE.spec.o-datei
+#
+gcc -c  -I. -Iinclude -I/home/hoehmi/wine//include/wine/windows/.. -I/home/hoehmi/wine//include/wine/windows/../.. -I/home/hoehmi/wine//include/wine/windows -g -O2 -fPIC -I .. -I./vst  -DDLLPATH=\"/home/hoehmi/wine//lib/wine\" -DLIBPATH=\"/usr/local/lib\"  -D_REENTRANT -o libfst.spec.o libfst.spec.c
+
+#
+# inhalt
+#
+hoehmi@bigwaffel:~/projects/buzztard/fst-1.6/fst> nm libfst.spec.o
+0000018e r .LC31
+00000068 D CloseWindow
+00000010 D CreateThread
+00000070 D CreateWindowExA
+00000078 D DefWindowProcA
+00000080 D DispatchMessageA
+00000018 D ExitProcess
+00000020 D FreeLibrary
+00000028 D GetCommandLineA
+00000030 D GetCurrentProcess
+00000038 D GetCurrentProcessId
+00000040 D GetCurrentThreadId
+00000088 D GetMessageA
+00000048 D GetModuleHandleA
+00000050 D GetProcAddress
+00000090 D GetPropA
+00000058 D GetStartupInfoA
+00000008 D GetStockObject
+00000098 D LoadCursorA
+000000a0 D LoadIconA
+00000060 D LoadLibraryA
+000000a8 D PostThreadMessageA
+000000b0 D RegisterClassA
+000000b8 D SetFocus
+000000c0 D SetPropA
+000000c8 D SetTimer
+000000d0 D SetWindowPos
+000000d8 D ShowWindow
+000000e0 D TranslateMessage
+         w WinMain
+         U _GLOBAL_OFFSET_TABLE_
+         U __wine_dll_register
+00010000 t __wine_exe_main
+         U __wine_main_argc
+         U __wine_main_argv
+         U __wine_main_environ
+         U __wine_main_wargv
+00000000 d __wine_spec_data_start
+00000008 d __wine_spec_import_thunks
+000101b0 T __wine_spec_init
+000101f0 T __wine_spec_init_ctor
+00000000 b __wine_spec_init_state
+00000000 t __wine_spec_pe_header
+         U _end
+         U _fini
+         U _init
+00000000 d imports
+         w main
+00000000 d nt_header
+         w wmain
+
+#
+# jetzt alles zusammenlinken
+#
+# alle o-files + EXE.spec.o + wine-libs
+#
+# ergebnis ist die shared library
+#
+gcc -shared -Wl,-Bsymbolic -o libfst.so pthread.o interlocked.o gettid.o libwinelib.o vstwin.o fstinfofile.o fst.o   libfst.spec.o    -L/home/hoehmi/wine//lib   -ldl -lpthread -lwine -lwine_unicode -lm
+
+#
+# LDD
+#
+hoehmi@bigwaffel:~/projects/buzztard/fst-1.6/fst> ldd libfst.so
+        libdl.so.2 => /lib/libdl.so.2 (0x40030000)
+        libpthread.so.0 => /lib/libpthread.so.0 (0x40034000)
+        libwine.so.1 => /home/hoehmi/wine/lib/libwine.so.1 (0x40084000)
+        libwine_unicode.so.1 => /home/hoehmi/wine/lib/libwine_unicode.so.1 (0x4009d000)
+        libm.so.6 => /lib/libm.so.6 (0x40190000)
+        libc.so.6 => /lib/libc.so.6 (0x401b2000)
+        /lib/ld-linux.so.2 => /lib/ld-linux.so.2 (0x80000000)
+
+# ...
+make[1]: Leaving directory `/home/hoehmi/projects/buzztard/fst-1.6/fst'
+
+#
+# WINEBUILD
+#
+# http://www.winehq.com/site/docs/winebuild
+#
+winebuild  generates  the  C  and  assembly files that are necessary to
+Build a Wine dll, which is basically a Win32 dll encapsulated inside  a
+Unix library.
+
+winebuild  has  different  modes,  depending on what kind of file it is
+asked to generate. The mode is specified by one  of  the  mode  options
+specified below. In addition to the mode option, various other command-
+line option can be specified, as described in the OPTIONS section.
+
+
