@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.38 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: edit-application.c,v 1.39 2004-12-13 10:31:42 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -201,7 +201,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
       GST_ERROR("could not save song \"%s\"",file_name);
     }
     GST_INFO("saving done");
-      
+
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
     g_object_unref(saver);

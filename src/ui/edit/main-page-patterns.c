@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.24 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.25 2004-12-13 10:31:42 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -30,25 +30,42 @@ struct _BtMainPagePatternsPrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
+enum {
+  MACHINE_MENU_ICON=0,
+  MACHINE_MENU_LABEL,
+	MACHINE_MENU_MACHINE
+};
+
+//-- tree model helper
+
+static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
+	BtMachine *this_machine;
+
+	gtk_tree_model_get_iter_first(store,iter);
+	do {
+		gtk_tree_model_get(store,iter,MACHINE_MENU_MACHINE,&this_machine,-1);
+		if(this_machine==that_machine) break;
+	} while(gtk_tree_model_iter_next(store,iter));
+}
 
 //-- event handlers
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
-	GtkLabel *label=GTK_LABEL(user_data);
+	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	GtkListStore *store;
+	GtkTreeIter iter;
 	gchar *str;
+	
+	g_assert(user_data);
 
 	g_object_get(G_OBJECT(machine),"id",&str,NULL);
   GST_INFO("machine id changed to \"%s\"",str);
-
-	/* idea one
-	GtkComboBox *combo_box=GTK_COMBOX_BOX(user_data);
-	GtkTreeModel *store=gtk_combo_box_get_model(combo_box);
-	GtkTreeIter menu_iter;
-	// now get the row where row.machine==machine
-	gtk_list_store_set(store,&menu_iter,1,str,-1);
-	*/
 	
-  gtk_label_set_text(label,str);
+	store=gtk_combo_box_get_model(self->priv->machine_menu);
+	// get the row where row.machine==machine
+	machine_model_get_iter_by_machine(store,&iter,machine);
+	gtk_list_store_set(store,&iter,MACHINE_MENU_LABEL,str,-1);
+
 	g_free(str);
 }
 
@@ -63,23 +80,17 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
 
 	gtk_list_store_append(store,&menu_iter);
   if(BT_IS_SOURCE_MACHINE(machine)) {
-		gtk_list_store_set(store,&menu_iter,0,self->priv->source_icon,1,str,-1);
+		gtk_list_store_set(store,&menu_iter,MACHINE_MENU_ICON,self->priv->source_icon,-1);
   }
   else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-		gtk_list_store_set(store,&menu_iter,0,self->priv->procesor_icon,1,str,-1);
+		gtk_list_store_set(store,&menu_iter,MACHINE_MENU_ICON,self->priv->procesor_icon,-1);
   }
   else if(BT_IS_SINK_MACHINE(machine)) {
-		gtk_list_store_set(store,&menu_iter,0,self->priv->sink_icon,1,str,-1);
+		gtk_list_store_set(store,&menu_iter,MACHINE_MENU_ICON,self->priv->sink_icon,-1);
   }
-	/* we have just one user_data field, but gtk_list_store_set needs two things :(
-		GtkWidget *label=gtk_bin_get_child(GTK_BIN(menu_item));
-		if(GTK_IS_LABEL(label)) {
-			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
-		}
-		else {
-			GST_WARNING("    can't connect signal");
-		}
-	*/
+	gtk_list_store_set(store,&menu_iter,MACHINE_MENU_LABEL,str,MACHINE_MENU_MACHINE,machine,-1);
+	g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)self);
+	
   g_free(str);
 }
 
@@ -89,7 +100,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
 	GtkListStore *store;
 
   // update machine menu
-  store=gtk_list_store_new(2,GDK_TYPE_PIXBUF,G_TYPE_STRING);
+  store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
   iter=bt_setup_machine_iterator_new(setup);
 	
   while(iter) {
@@ -149,15 +160,15 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 	GtkListStore *store;
+	GtkTreeIter iter;
 	
   g_assert(user_data);
 	
 	GST_INFO("machine has been removed");
 	store=GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu));
-	/* @todo remove from model
-	// find entry
-	gtk_list_store_remove(GtkListStore *list_store,GtkTreeIter *iter);
-	*/
+	// get the row where row.machine==machine
+	machine_model_get_iter_by_machine(GTK_TREE_MODEL(store),&iter,machine);
+	gtk_list_store_remove(store,&iter);
 }
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {

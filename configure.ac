@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.26 2004-12-10 19:14:14 ensonic Exp $
+# $Id: configure.ac,v 1.27 2004-12-13 10:31:30 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -25,9 +25,9 @@ BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + 
 dnl our libraries and install dirs use major.minor as a version
 BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates
-#BT_MAJORMINOR=0.8
+#BT_MAJORMINOR=0.1
 
-dnl update this for each release
+dnl update this for each release (year-month-day)
 BT_RELEASE_YEAR=2004
 BT_RELEASE_DATE=$BT_RELEASE_YEAR-09-30
 
@@ -116,8 +116,8 @@ AC_SUBST(with_desktop_dir)
 
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
-  glib-2.0 >= 2.2.0 gthread-2.0 >= 2.2.0 gmodule-2.0 >= 2.2.0 \
-  gtk+-2.0 \
+  glib-2.0 >= 2.4.0 gthread-2.0 >= 2.4.0 gmodule-2.0 >= 2.4.0 \
+  gtk+-2.0 >= 2.4.0 \
   libgnomecanvas-2.0 \
 	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
   gstreamer-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.36 2004-12-10 19:14:38 ensonic Exp $
+/* $Id: main-window.c,v 1.37 2004-12-13 10:31:42 ensonic Exp $
  * class for the editor main window
  */
 
@@ -303,23 +303,31 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
 		FILE *file;
+		gboolean cont=TRUE;
 		
 		if((file=fopen(file_name,"rb"))) {
 			GST_INFO("file already exists");
-			// @todo it already exists, ask the user what to do (do not save, choose new name, overwrite song)
+			// it already exists, ask the user what to do (do not save, choose new name, overwrite song)
+			cont=bt_dialog_question(self,_("File already exists"),_("File already exists"),_("Choose 'yes' to overwrite and 'no' to not save the song."));
 			fclose(file);
 		}
 		else {
 			GST_INFO("file can not be opened : %d : %s",errno,strerror(errno));
-			// @todo check errno
-			// ENOENT A component of the path file_name does not exist, or the path is an empty string.
-			// -> just save
-			// EACCES Permission denied.
-			// -> ask user
+			switch(errno) {
+				case EACCES:	// Permission denied.
+					// @ todo tell user
+					cont=FALSE;
+					break;
+				default:
+				// ENOENT A component of the path file_name does not exist, or the path is an empty string.
+				// -> just save
+			}
 		}
-    if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-      // @todo show error message
-    }
+		if(cont) {
+			if(!bt_edit_application_save_song(self->priv->app,file_name)) {
+				// @todo show error message
+			}
+		}
     g_free(file_name);
   }
 	g_object_try_unref(song_info);

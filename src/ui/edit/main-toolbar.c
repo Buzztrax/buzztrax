@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.28 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.29 2004-12-13 10:31:42 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -292,7 +292,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
   
-  // @todo volume level and gain control
+  // volume level
   box=gtk_vbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // add gtk_vumeter widgets and update from level_callback
@@ -307,7 +307,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
     gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,2);
   }
   gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
-  // add gain-control
+  // @todo add gain-control
 
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,

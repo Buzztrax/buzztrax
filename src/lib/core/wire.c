@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.39 2004-11-26 18:53:26 waffel Exp $
+/* $Id: wire.c,v 1.40 2004-12-13 10:31:42 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -276,12 +276,16 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   g_assert(!BT_IS_SOURCE_MACHINE(dst_machine));
   g_assert(src_machine!=dst_machine);
 
-  self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
-  if(self) {
-    // @todo check result
-    bt_wire_connect(self);
+  if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
+		goto Error;
+	}
+  if(bt_wire_connect(self)) {
+    goto Error;
   }
   return(self);
+Error:
+	g_object_try_unref(self);
+	return(NULL);
 }
 
 //-- wrapper
@@ -354,7 +358,7 @@ static void bt_wire_dispose(GObject *object) {
   // remove the GstElements from the bin
   if(self->priv->bin) {
     bt_wire_unlink_machines(self); // removes convert and scale if in use
-    // @todo add the rest
+    // @todo add the remaining elements to remove (which?)
     GST_DEBUG("  elements removed from bin");
     g_object_try_unref(self->priv->bin);
   }

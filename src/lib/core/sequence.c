@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.45 2004-12-06 20:18:46 waffel Exp $
+/* $Id: sequence.c,v 1.46 2004-12-13 10:31:42 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -162,12 +162,14 @@ BtSequence *bt_sequence_new(const BtSong *song) {
   
 	g_return_val_if_fail(BT_IS_SONG(song),NULL);
   
-  self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
-  if(self) {
-    // @todo check result
-    bt_sequence_init_timelines(self);
-  }
+  if(!(self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL)))) {
+		goto Error;
+	}
+  bt_sequence_init_timelines(self);
   return(self);
+Error:
+	g_object_try_unref(self);
+	return(NULL);
 }
 
 //-- methods
@@ -321,7 +323,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
     // DEBUG {
     GTimer *timer;
     // }
-    
+
+		// @todo !! remove bars usage here, bars are one used for visual display!
+		
     g_object_get(G_OBJECT(self->priv->song),"bin",&bin,"song-info",&song_info,NULL);
     g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
     /* the number of pattern-events for one playline-step,
@@ -329,7 +333,6 @@ gboolean bt_sequence_play(const BtSequence *self) {
      * for 4/4 bars it is 16 (standart dance rhythm)
      * for 3/4 bars it is 12 (walz)
      */
-    //ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
     ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
     wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
     playline=bt_playline_new(self->priv->song,self->priv->tracks,bars,wait_per_position);
@@ -343,7 +346,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
       g_mutex_unlock(self->priv->is_playing_mutex);
       // DEBUG {
       timer=g_timer_new();
-      g_timer_start(timer);
+			g_timer_start(timer);
       // }
       do {
         // @todo handle loop-start/end
@@ -494,7 +497,7 @@ static void bt_sequence_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 	g_object_try_weak_unref(self->priv->song);
   bt_sequence_unref_timelines(self);
-  // @todo unref the machines
+  // @todo unref the machines ?
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

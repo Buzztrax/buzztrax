@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.47 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: song-io-native.c,v 1.48 2004-12-13 10:31:42 ensonic Exp $
  * class for native song input and output
  */
  
@@ -730,7 +730,7 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 		xmlNewProp(root_node,"xmlns:xsd","http://www.w3.org/2001/XMLSchema-instance");
 		xmlNewProp(root_node,"xsd:noNamespaceSchemaLocation","buzztard.xsd");
     xmlDocSetRootElement(song_doc,root_node);
-		// @todo build the xml document tree
+		// build the xml document tree
 		bt_song_io_native_save_song_info(self,song,song_doc,root_node);
 		bt_song_io_native_save_setup(    self,song,song_doc,root_node);
 		bt_song_io_native_save_patterns( self,song,song_doc,root_node);

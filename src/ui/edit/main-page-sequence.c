@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.28 2004-12-09 18:34:13 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.29 2004-12-13 10:31:42 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -6,8 +6,6 @@
 #define BT_MAIN_PAGE_SEQUENCE_C
 
 #include "bt-edit.h"
-
-// @todo use a  GtkTreeModelFilter for step display
 
 enum {
   MAIN_PAGE_SEQUENCE_APP=1,
@@ -58,6 +56,31 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	g_free(str);
 }
 
+//-- tree filter func
+
+static gboolean step_visible_filter(GtkTreeModel *model,GtkTreeIter *iter,gpointer user_data) {
+	gboolean visible=TRUE;
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	gulong pos;
+	
+	g_assert(user_data);
+	
+	// determine row number from iter (SEQUENCE_TABLE_POS) and hide or show accordingly
+	gtk_tree_model_get(model,iter,SEQUENCE_TABLE_POS,&pos,-1);
+	// visible=(pos&((1L<<self->priv->steps)-1)==0);
+	/*     1  2  4
+	  000  0  0  0
+	  001  1
+	  010  2  2
+	  011  3
+	  100  4  4  4
+	  101  5
+	  110  6  6
+	  111  7
+	*/
+
+	return(visible);
+}
 
 //-- event handler helper
 
@@ -113,6 +136,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   gchar *str;
   gulong i,j,col_ct,timeline_ct,track_ct,bars,pos=0;
   GtkListStore *store;
+	GtkTreeModel *filtered_store;
   GType *store_types;
   GtkTreeIter tree_iter;
   GtkTreeViewColumn *tree_col;
@@ -196,6 +220,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     }
     // set position
     gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_POS,pos,-1);
+		// @todo !! remove bars usage (while be handled by filter)
     pos+=bars;
     // set label
     g_object_get(G_OBJECT(timeline),"label",&str,NULL);
@@ -233,12 +258,18 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       if(free_str) g_free(str);
     }
   }
-  gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
+	// create a filterd model to realize step filtering
+	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
+	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,self,NULL);
+	
+	// should we use the filtered_store here?
+  //gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
+	gtk_tree_view_set_model(self->priv->sequence_table,filtered_store);
   // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(sequence);
   g_object_try_unref(setup);    
-  g_object_unref(store); // drop with treeview
+  g_object_unref(filtered_store); // drop with treeview
 }
 
 /**
@@ -357,6 +388,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // build the menu
+	/* @todo the useful stepping depends on the rythm
+	   4/4 -> 1,4,8,16,32
+	   3/4 -> 1,3,6,12,24
+	*/
 	self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),"1");
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),"2");

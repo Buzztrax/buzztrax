@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.3 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: tools.c,v 1.4 2004-12-13 10:31:42 ensonic Exp $
  * gui helper
  */
 
@@ -119,6 +119,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   
+	// @todo if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
   gtk_label_set_markup(GTK_LABEL(label),str);
@@ -134,7 +135,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
 /**
  * bt_dialog_question:
  * @self: the applications main window
- * @title: the title of the message`
+ * @title: the title of the message
  * @headline: the bold headline of the message
  * @message: the message itself
  *
@@ -161,6 +162,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   
+	// @todo if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
   gtk_label_set_markup(GTK_LABEL(label),str);
