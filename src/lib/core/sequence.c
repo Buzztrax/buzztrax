@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.55 2005-02-11 20:37:20 ensonic Exp $
+/* $Id: sequence.c,v 1.56 2005-03-06 15:42:44 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -471,9 +471,12 @@ static void bt_sequence_set_property(GObject      *object,
       //GST_DEBUG("set the song for sequence: %p",self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
+			// check if song is playing
+			if(self->priv->is_playing) bt_sequence_stop(self);
+			// free old data
       bt_sequence_unref_timelines(self);
       bt_sequence_free_timelines(self);
-			// @todo check if song is playing
+			// prepare new data
       self->priv->length = g_value_get_ulong(value);
       GST_DEBUG("set the length for sequence: %d",self->priv->length);
       bt_sequence_init_timelines(self);
@@ -488,9 +491,11 @@ static void bt_sequence_set_property(GObject      *object,
 			bt_sequence_limit_play_pos(self);
     } break;
     case SEQUENCE_TRACKS: {
+			// check if song is playing
+			if(self->priv->is_playing) bt_sequence_stop(self);
+			// prepare new data			
       self->priv->tracks = g_value_get_ulong(value);
       GST_DEBUG("set the tracks for sequence: %d",self->priv->tracks);
-			// @todo check if song is playing
       bt_sequence_init_machines(self);
       bt_sequence_init_timelinetracks(self);
     } break;
