@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.8 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: pattern.c,v 1.9 2004-09-15 16:57:58 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -339,6 +339,7 @@ static void bt_pattern_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case PATTERN_SONG: {
+      g_object_try_unref(self->private->song);
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the song for pattern: %p",self->private->song);
     } break;
@@ -366,6 +367,7 @@ static void bt_pattern_set_property(GObject      *object,
     } break;
     case PATTERN_MACHINE: {
       glong global_params,voice_params;
+      g_object_try_unref(self->private->machine);
       self->private->machine = g_object_ref(G_OBJECT(g_value_get_object(value)));
       self->private->global_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"global_params");
       self->private->voice_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"voice_params");
@@ -380,14 +382,20 @@ static void bt_pattern_set_property(GObject      *object,
 
 static void bt_pattern_dispose(GObject *object) {
   BtPattern *self = BT_PATTERN(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+
+	g_object_try_unref(G_OBJECT(self->private->song));
 }
 
 static void bt_pattern_finalize(GObject *object) {
   BtPattern *self = BT_PATTERN(object);
+
+  GST_DEBUG("!!!! self=%p",self);
   
-	g_object_unref(G_OBJECT(self->private->song));
 	g_free(self->private->id);
 	g_free(self->private->name);
   g_free(self->private->data);

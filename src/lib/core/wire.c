@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.22 2004-09-10 17:10:40 ensonic Exp $
+/* $Id: wire.c,v 1.23 2004-09-15 16:57:58 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -228,7 +228,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 	}
 	
 	if(!bt_wire_link_machines(self)) {
-		g_object_unref(G_OBJECT(self));
+		g_object_unref(self);
     GST_ERROR("linking machines failed");return(FALSE);
 	}
   bt_setup_add_wire(setup,self);
@@ -295,14 +295,17 @@ static void bt_wire_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
+      g_object_try_unref(self->private->song);
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the song for wire: %p",self->private->song);
     } break;
 		case WIRE_SRC: {
+      g_object_try_unref(self->private->src);
 			self->private->src = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the source element for the wire: %p",self->private->src);
 		} break;
 		case WIRE_DST: {
+      g_object_try_unref(self->private->dst);
 			self->private->dst = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the target element for the wire: %p",self->private->dst);
 		} break;
@@ -315,16 +318,22 @@ static void bt_wire_set_property(GObject      *object,
 
 static void bt_wire_dispose(GObject *object) {
   BtWire *self = BT_WIRE(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+
+	g_object_try_unref(self->private->song);
+	g_object_try_unref(self->private->dst);
+	g_object_try_unref(self->private->src);
 }
 
 static void bt_wire_finalize(GObject *object) {
   BtWire *self = BT_WIRE(object);
 
-	g_object_unref(G_OBJECT(self->private->song));
-	g_object_unref(G_OBJECT(self->private->dst));
-	g_object_unref(G_OBJECT(self->private->src));
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.39 2004-08-25 16:25:22 ensonic Exp $
+/* $Id: song.c,v 1.40 2004-09-15 16:57:58 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -198,10 +198,12 @@ static void bt_song_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
 		case SONG_BIN: {
+      g_object_try_unref(self->private->bin);
 			self->private->bin = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the bin for the song: %p",self->private->bin);
 		} break;
 		case SONG_MASTER: {
+      g_object_try_unref(self->private->master);
 			self->private->master = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the master for the song: %p",self->private->master);
 		} break;
@@ -214,18 +216,31 @@ static void bt_song_set_property(GObject      *object,
 
 static void bt_song_dispose(GObject *object) {
   BtSong *self = BT_SONG(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+  if(self->private->bin) {
+    GList *node=g_list_first(gst_bin_get_list(self->private->bin));
+    while(node) {
+      gst_object_unref(GST_OBJECT(node->data));
+      node=g_list_next(node);
+    }
+  }
+
+	g_object_try_unref(self->private->song_info);
+	g_object_try_unref(self->private->sequence);
+	g_object_try_unref(self->private->setup);
+  gst_object_unref(GST_OBJECT(self->private->master));
+	gst_object_unref(GST_OBJECT(self->private->bin));
 }
 
 static void bt_song_finalize(GObject *object) {
   BtSong *self = BT_SONG(object);
-
-	g_object_unref(G_OBJECT(self->private->song_info));
-	g_object_unref(G_OBJECT(self->private->sequence));
-	g_object_unref(G_OBJECT(self->private->setup));
-  gst_object_unref(GST_OBJECT(self->private->master));
-	gst_object_unref(GST_OBJECT(self->private->bin));
+  
+  GST_DEBUG("!!!! self=%p",self);
+  
   g_free(self->private);
 }
 

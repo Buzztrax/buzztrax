@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.31 2004-09-10 17:10:43 ensonic Exp $
+/* $Id: core.h,v 1.32 2004-09-15 16:57:58 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -135,6 +135,26 @@
  * checks if the supplied string pointer is not NULL and contains not just '\0'
  */
 #define is_string(a) (a && *a)
+
+/**
+ * g_object_try_ref:
+ * @obj: the object to reference
+ *
+ * If the supplied object is not NULL then reference it via
+ * g_object_ref().
+ *
+ * Return: the referenced object or NULL
+ */
+#define g_object_try_ref(obj) (obj)?g_object_ref(obj):NULL
+
+/**
+ * g_object_try_unref:
+ * @obj: the object to release the reference
+ *
+ * If the supplied object is not NULL then release the reference via
+ * g_object_unref().
+ */
+#define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
 
 #ifndef BT_CORE_C

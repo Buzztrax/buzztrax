@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.19 2004-08-25 16:25:22 ensonic Exp $
+/* $Id: setup.c,v 1.20 2004-09-15 16:57:58 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -264,35 +264,49 @@ static void bt_setup_set_property(GObject      *object,
 
 static void bt_setup_dispose(GObject *object) {
   BtSetup *self = BT_SETUP(object);
+	GList* node;
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+
+	g_object_try_unref(self->private->song);
+	// unref list of wires
+	if(self->private->wires) {
+		node=g_list_first(self->private->wires);
+		while(node) {
+			g_object_try_unref(node->data);
+      node->data=NULL;
+			node=g_list_next(node);
+		}
+	}
+	// unref list of machines
+	if(self->private->machines) {
+		node=g_list_first(self->private->machines);
+		while(node) {
+			g_object_try_unref(node->data);
+      node->data=NULL;
+			node=g_list_next(node);
+		}
+	}
 }
 
 static void bt_setup_finalize(GObject *object) {
   BtSetup *self = BT_SETUP(object);
-	GList* node;
 
-	g_object_unref(G_OBJECT(self->private->song));
+  GST_DEBUG("!!!! self=%p",self);
+
 	// free list of wires
 	if(self->private->wires) {
-		node=g_list_first(self->private->wires);
-		while(node) {
-			g_object_unref(G_OBJECT(node->data));
-			node=g_list_next(node);
-		}
 		g_list_free(self->private->wires);
 		self->private->wires=NULL;
 	}
 	// free list of machines
 	if(self->private->machines) {
-		node=g_list_first(self->private->machines);
-		while(node) {
-			g_object_unref(G_OBJECT(node->data));
-			node=g_list_next(node);
-		}
 		g_list_free(self->private->machines);
 		self->private->wires=NULL;
-	}
+  }
   g_free(self->private);
 }
 

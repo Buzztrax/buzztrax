@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.26 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: cmd-application.c,v 1.27 2004-09-15 16:57:59 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -14,6 +14,8 @@ struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+static BtApplicationClass *parent_class=NULL;
 
 //-- helper methods
 
@@ -91,12 +93,12 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 		GST_ERROR("could not load song \"%s\"",input_file_name);
     goto Error;
 	}
-  g_object_unref(G_OBJECT(song));
-  g_object_unref(G_OBJECT(loader));
+  g_object_try_unref(song);
+  g_object_try_unref(loader);
 	return(TRUE);
 Error:
-  if(song) g_object_unref(G_OBJECT(song));
-  if(loader) g_object_unref(G_OBJECT(loader));
+  g_object_try_unref(song);
+  g_object_try_unref(loader);
   return(FALSE);
 }
 
@@ -155,15 +157,15 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 		GST_ERROR("could not load song \"%s\"",input_file_name);
 		goto Error;
 	}
-  g_object_unref(G_OBJECT(song));
-  g_object_unref(G_OBJECT(loader));
+  g_object_try_unref(song);
+  g_object_try_unref(loader);
 	if (is_string(output_file_name)) {
 		fclose(output_file);
 	}
 	return(TRUE);
 Error:
-  if(song) g_object_unref(G_OBJECT(song));
-  if(loader) g_object_unref(G_OBJECT(loader));
+  g_object_try_unref(song);
+  g_object_try_unref(loader);
 	if (is_string(output_file_name)) {
 		fclose(output_file);
 	}
@@ -208,12 +210,18 @@ static void bt_cmd_application_set_property(GObject      *object,
 
 static void bt_cmd_application_dispose(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_cmd_application_finalize(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
+
   g_free(self->private);
 }
 
@@ -226,6 +234,8 @@ static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
+
+  parent_class=g_type_class_ref(BT_TYPE_APPLICATION);
   
   gobject_class->set_property = bt_cmd_application_set_property;
   gobject_class->get_property = bt_cmd_application_get_property;

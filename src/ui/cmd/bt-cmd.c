@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.19 2004-08-17 14:38:12 waffel Exp $
+/* $Id: bt-cmd.c,v 1.20 2004-09-15 16:57:59 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
   else usage(argc, argv, options);
 	
 	// free application
-	g_object_unref(G_OBJECT(app));
+	g_object_unref(app);
 	
 	return(!res);
 }

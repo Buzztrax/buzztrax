@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.24 2004-09-06 16:26:21 ensonic Exp $
+/* $Id: song-io-native.c,v 1.25 2004-09-15 16:57:58 ensonic Exp $
  * class for native song input and output
  */
  
@@ -12,10 +12,19 @@ struct _BtSongIONativePrivate {
   gboolean dispose_has_run;
 };
 
-//
+static BtSongIOClass *parent_class=NULL;
 
+//-- plugin detect
+/**
+ * bt_song_io_native_detect:
+ * @file_name: the file to check against
+ *
+ * Checks if this plugin should manage this kind of file.
+ *
+ * Retunrs: the GType of this plugin of NULL
+ */
 GType bt_song_io_native_detect(const gchar *file_name) {
-  GType type=NULL;
+  GType type=0;
 
   GST_INFO("file_name=\"%s\"",file_name);
   
@@ -27,10 +36,13 @@ GType bt_song_io_native_detect(const gchar *file_name) {
 
 //-- xml helper methods
 
-/* @brief test if the given XPathObject is of the expected type, otherwise discard the object
- * @param xpath_optr the xpath object to test
- * @param type the required type
- * @return the supplied xpath object or NULL is types do not match
+/**
+ * xpath_type_filter:
+ * @xpath_optr the xpath object to test
+ * @type the required type
+ *
+ * test if the given XPathObject is of the expected type, otherwise discard the object
+ * Returns: the supplied xpath object or NULL is types do not match
  */
 xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathObjectType type) {
 	if(xpath_optr && (xpath_optr->type!=type)) {
@@ -42,13 +54,16 @@ xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathO
 }
 
 
-/* @brief return the result as xmlXPathObjectPtr of the evaluation of the supplied compiled xpath expression agains the given document
- * @param dialog gitk dialog
- * @param access_type how to access the dialog
- * @param xpath_comp_expression compiled xpath expression to use
- * @param root_node from where to search, uses doc root when NULL
- * @return xpathobject; do not forget to free the result after use
- * @ingroup gitkcore
+/**
+ * cxpath_get_object:
+ * @doc gitk dialog
+ * @xpath_comp_expression compiled xpath expression to use
+ * @root_node from where to search, uses doc root when NULL
+ *
+ * return the result as xmlXPathObjectPtr of the evaluation of the supplied
+ * compiled xpath expression agains the given document
+ *
+ * Returns: the xpathobject; do not forget to free the result after use
  */
 xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr const xpath_comp_expression, xmlNodePtr const root_node) {
   xmlXPathObjectPtr result=NULL;
@@ -496,11 +511,19 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	xmlParserCtxtPtr ctxt=NULL;
 	xmlDocPtr song_doc=NULL;
 	xmlNsPtr ns=NULL;
-  gchar *filename=NULL;
+  gchar *filename=NULL,*status;
 
 	filename = bt_g_object_get_string_property(G_OBJECT(self),"file name");
 	GST_INFO("native loader will now load song from \"%s\"",filename);
 
+  status=g_strdup_printf(_("Loading file \"%s\""),filename);
+  bt_g_object_set_string_property(G_OBJECT(self),"status",status);
+  g_free(status);
+  
+  //DEBUG
+  sleep(1);
+  //DEBUG
+  
   // @todo add zip file processing
   /*
    * zip_file=bt_zip_file_new(filename,BT_ZIP_FILE_MODE_READ);
@@ -543,6 +566,10 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	else GST_ERROR("failed to create file-parser context for \"%s\"",filename);
 	if(ctxt) xmlFreeParserCtxt(ctxt);
 	if(song_doc) xmlFreeDoc(song_doc);
+  //DEBUG
+  sleep(1);
+  //DEBUG
+  bt_g_object_set_string_property(G_OBJECT(self),"status",NULL);
 	return(result);
 }
 
@@ -584,12 +611,18 @@ static void bt_song_io_native_set_property(GObject      *object,
 
 static void bt_song_io_native_dispose(GObject *object) {
   BtSongIONative *self = BT_SONG_IO_NATIVE(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
 }
 
 static void bt_song_io_native_finalize(GObject *object) {
   BtSongIONative *self = BT_SONG_IO_NATIVE(object);
+
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private);
 }
 
@@ -602,6 +635,8 @@ static void bt_song_io_native_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	BtSongIOClass *base_class = BT_SONG_IO_CLASS(klass);
+
+  parent_class=g_type_class_ref(BT_TYPE_SONG_IO);
 	
   gobject_class->set_property = bt_song_io_native_set_property;
   gobject_class->get_property = bt_song_io_native_get_property;

@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.8 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-menu.c,v 1.9 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -19,6 +19,8 @@ struct _BtMainMenuPrivate {
   /* the application */
   BtEditApplication *app;
 };
+
+static GtkMenuBarClass *parent_class=NULL;
 
 //-- event handler
 
@@ -202,7 +204,7 @@ BtMainMenu *bt_main_menu_new(const BtEditApplication *app,GtkAccelGroup *accel_g
   }
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -240,6 +242,7 @@ static void bt_main_menu_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_MENU_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the app for main_menu: %p",self->private->app);
     } break;
@@ -254,12 +257,17 @@ static void bt_main_menu_dispose(GObject *object) {
   BtMainMenu *self = BT_MAIN_MENU(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  g_object_try_unref(self->private->app);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_menu_finalize(GObject *object) {
   BtMainMenu *self = BT_MAIN_MENU(object);
   
-  g_object_unref(G_OBJECT(self->private->app));
   g_free(self->private);
 }
 
@@ -272,6 +280,8 @@ static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_menu_class_init(BtMainMenuClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
+
+  parent_class=g_type_class_ref(GTK_TYPE_MENU_BAR);
   
   gobject_class->set_property = bt_main_menu_set_property;
   gobject_class->get_property = bt_main_menu_get_property;

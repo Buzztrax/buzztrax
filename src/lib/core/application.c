@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.4 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: application.c,v 1.5 2004-09-15 16:57:57 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -20,6 +20,19 @@ struct _BtApplicationPrivate {
 };
 
 //-- methods
+
+/**
+ * bt_application_bin_flush:
+ * @self: the application instnace to cleanup
+ *
+ * Destroys all gstreamer plugins loaded by a song
+ * and prepares anew pipeline. Call this between
+ * g_object_unref(song) and song=bt_song_new(...).
+ */
+void bt_application_bin_flush(const BtApplication *self) {
+	//gst_object_unref(GST_OBJECT(self->private->bin));
+  //self->private->bin = gst_thread_new("thread");
+}
 
 //-- wrapper
 
@@ -62,15 +75,19 @@ static void bt_application_set_property(GObject      *object,
 
 static void bt_application_dispose(GObject *object) {
   BtApplication *self = BT_APPLICATION(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+	gst_object_unref(GST_OBJECT(self->private->bin));
 }
 
 static void bt_application_finalize(GObject *object) {
   BtApplication *self = BT_APPLICATION(object);
 
-	gst_object_unref(GST_OBJECT(self->private->bin));
-	//g_object_unref(G_OBJECT(self->private->bin));
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private);
 }
 

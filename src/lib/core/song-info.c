@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.17 2004-08-23 11:33:45 ensonic Exp $
+/* $Id: song-info.c,v 1.18 2004-09-15 16:57:58 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -108,6 +108,7 @@ static void bt_song_info_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {
+      g_object_try_unref(self->private->song);
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the song for song-info: %p",self->private->song);
     } break;
@@ -147,14 +148,19 @@ static void bt_song_info_set_property(GObject      *object,
 
 static void bt_song_info_dispose(GObject *object) {
   BtSongInfo *self = BT_SONG_INFO(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+	g_object_try_unref(self->private->song);
 }
 
 static void bt_song_info_finalize(GObject *object) {
   BtSongInfo *self = BT_SONG_INFO(object);
 
-	g_object_unref(G_OBJECT(self->private->song));
+  GST_DEBUG("!!!! self=%p",self);
+
 	g_free(self->private->info);
 	g_free(self->private->name);
 	g_free(self->private->genre);

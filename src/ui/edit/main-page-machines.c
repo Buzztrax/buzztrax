@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.6 2004-09-10 17:10:43 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.7 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -25,13 +25,15 @@ struct _BtMainPageMachinesPrivate {
   double zoom;
 };
 
+static GtkVBoxClass *parent_class=NULL;
+
 //-- event handler
 
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
 
-  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update page
@@ -188,7 +190,7 @@ BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -227,8 +229,9 @@ static void bt_main_page_machines_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_MACHINES_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //GST_DEBUG("set the app for MAIN_PAGE_MACHINES: %p",self->private->app);
+      //GST_DEBUG("set the app for main_page_machines: %p",self->private->app);
     } break;
     default: {
 			g_assert(FALSE);
@@ -241,12 +244,17 @@ static void bt_main_page_machines_dispose(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  g_object_try_unref(self->private->app);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_page_machines_finalize(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
   
-  g_object_unref(G_OBJECT(self->private->app));
   g_free(self->private);
 }
 
@@ -261,6 +269,8 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
+
+  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
   
   gobject_class->set_property = bt_main_page_machines_set_property;
   gobject_class->get_property = bt_main_page_machines_get_property;

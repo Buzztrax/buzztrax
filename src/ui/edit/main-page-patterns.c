@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.7 2004-08-26 16:44:11 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.8 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -24,6 +24,8 @@ struct _BtMainPagePatternsPrivate {
   /* pattern selection menu */
   GtkOptionMenu *pattern_menu;
 };
+
+static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler helper
 
@@ -92,7 +94,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSetup *setup;
   BtMachine *machine;
 
-  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   setup=bt_song_get_setup(song);
@@ -185,7 +187,7 @@ BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -246,6 +248,7 @@ static void bt_main_page_patterns_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_PATTERNS_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the app for MAIN_PAGE_PATTERNS: %p",self->private->app);
     } break;
@@ -260,12 +263,17 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  g_object_try_unref(G_OBJECT(self->private->app));
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
   
-  g_object_unref(G_OBJECT(self->private->app));
   g_free(self->private);
 }
 
@@ -278,7 +286,9 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
-  
+
+  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+    
   gobject_class->set_property = bt_main_page_patterns_set_property;
   gobject_class->get_property = bt_main_page_patterns_get_property;
   gobject_class->dispose      = bt_main_page_patterns_dispose;

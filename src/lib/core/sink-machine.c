@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.8 2004-08-13 18:58:10 ensonic Exp $
+/* $Id: sink-machine.c,v 1.9 2004-09-15 16:57:58 ensonic Exp $
  * class for a sink machine
  */
  
@@ -12,6 +12,8 @@ struct _BtSinkMachinePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+static BtMachineClass *parent_class=NULL;
 
 //-- constructor methods
 
@@ -78,10 +80,18 @@ static void bt_sink_machine_dispose(GObject *object) {
   BtSinkMachine *self = BT_SINK_MACHINE(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_sink_machine_finalize(GObject *object) {
   BtSinkMachine *self = BT_SINK_MACHINE(object);
+
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private);
 }
 
@@ -94,6 +104,8 @@ static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
+
+  parent_class=g_type_class_ref(BT_TYPE_MACHINE);
   
   gobject_class->set_property = bt_sink_machine_set_property;
   gobject_class->get_property = bt_sink_machine_get_property;

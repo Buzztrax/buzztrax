@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.10 2004-09-09 12:00:26 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.11 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -19,6 +19,8 @@ struct _BtMainToolbarPrivate {
   /* the application */
   BtEditApplication *app;
 };
+
+static GtkHandleBoxClass *parent_class=NULL;
 
 //-- event handler
 
@@ -195,7 +197,7 @@ BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -233,6 +235,7 @@ static void bt_main_toolbar_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_TOOLBAR_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the app for main_toolbar: %p",self->private->app);
     } break;
@@ -247,12 +250,19 @@ static void bt_main_toolbar_dispose(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+  g_object_try_unref(self->private->app);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_toolbar_finalize(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
   
-  g_object_unref(G_OBJECT(self->private->app));
+  GST_DEBUG("!!!! self=%p",self);
   g_free(self->private);
 }
 
@@ -265,6 +275,8 @@ static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
+
+  parent_class=g_type_class_ref(GTK_TYPE_HANDLE_BOX);
   
   gobject_class->set_property = bt_main_toolbar_set_property;
   gobject_class->get_property = bt_main_toolbar_get_property;

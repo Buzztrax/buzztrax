@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.19 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-window.c,v 1.20 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main window
  */
 
@@ -43,9 +43,6 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
   GST_INFO("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(self)) {
-    BtMainWindowClass *klass=BT_MAIN_WINDOW_GET_CLASS(self);
-    GtkObjectClass *gtk_klass=GTK_OBJECT_CLASS(klass);
-    GObjectClass *g_klass=G_OBJECT_CLASS(klass);
     res=FALSE;
   }
   return(res);
@@ -61,7 +58,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   static gchar *title;
   BtSong *song;
 
-  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
+  GST_INFO("song has changed : app=%p, window=%p",app,user_data);
 
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(app),"song"));
@@ -134,7 +131,7 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -225,17 +222,16 @@ void bt_main_window_new_song(const BtMainWindow *self) {
 void bt_main_window_open_song(const BtMainWindow *self) {
   GtkWidget *dialog=gtk_file_selection_new(_("Choose a song"));
   gint result;
+  char *filename=NULL;
     
-  /* Lets set the filename, as if this were a save dialog, and we are giving
+  /* lets set the filename, as if this were a save dialog, and we are giving
    a default filename */
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
-      if(!bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)))) {
-        // @todo show error message
-      }
+      filename=g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
       break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
@@ -245,6 +241,13 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       GST_WARNING("unhandled response code = %d",result);
   } 
   gtk_widget_destroy(dialog);
+  // load after destoying the dialog, otherwise it stays open all time
+  if(filename) {
+    if(!bt_edit_application_load_song(self->private->app,filename)) {
+      // @todo show error message
+    }
+    g_free(filename);
+  }
 }
 
 //-- wrapper
@@ -280,6 +283,7 @@ static void bt_main_window_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_WINDOW_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the app for main_window: %p",self->private->app);
     } break;
@@ -295,8 +299,9 @@ static void bt_main_window_dispose(GObject *object) {
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 
-  GST_INFO(" someone is disposing me");
-  
+  GST_DEBUG("!!!! self=%p",self);
+  g_object_try_unref(self->private->app);
+
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
@@ -304,8 +309,8 @@ static void bt_main_window_dispose(GObject *object) {
 
 static void bt_main_window_finalize(GObject *object) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
-  
-  g_object_unref(G_OBJECT(self->private->app));
+
+  GST_DEBUG("!!!! self=%p",self);
   g_free(self->private);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.8 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.9 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -40,6 +40,8 @@ struct _BtMainStatusbarPrivate {
   gint loop_context_id;
 };
 
+static GtkHBoxClass *parent_class=NULL;
+
 //-- event handler
 
 static void on_song_stop(const BtSong *song, gpointer user_data) {
@@ -75,7 +77,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   gchar *str;
   gulong msec,sec,min;
 
-  GST_INFO("song has changed : app=%p, window=%p",song,user_data);
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // get new song length
@@ -91,6 +93,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // subscribe to tick signal of song->sequence
   g_signal_connect(G_OBJECT(bt_song_get_sequence(song)), "tick", (GCallback)on_sequence_tick, (gpointer)self);
   g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
+  // @todo shouldn't we disconnet these somewhere
 }
 
 //-- helper methods
@@ -154,7 +157,7 @@ BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -192,6 +195,7 @@ static void bt_main_statusbar_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_STATUSBAR_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the app for main_statusbar: %p",self->private->app);
     } break;
@@ -206,12 +210,18 @@ static void bt_main_statusbar_dispose(GObject *object) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+  g_object_try_unref(self->private->app);
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_statusbar_finalize(GObject *object) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
   
-  g_object_unref(G_OBJECT(self->private->app));
+  GST_DEBUG("!!!! self=%p",self);
   g_free(self->private);
 }
 
@@ -224,7 +234,9 @@ static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
-  
+
+  parent_class=g_type_class_ref(GTK_TYPE_HBOX);
+
   gobject_class->set_property = bt_main_statusbar_set_property;
   gobject_class->get_property = bt_main_statusbar_get_property;
   gobject_class->dispose      = bt_main_statusbar_dispose;

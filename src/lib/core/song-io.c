@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.13 2004-09-10 17:10:40 ensonic Exp $
+/* $Id: song-io.c,v 1.14 2004-09-15 16:57:58 ensonic Exp $
  * base class for song input and output
  */
  
@@ -8,7 +8,8 @@
 #include <libbtcore/core.h>
 
 enum {
-  SONG_IO_FILE_NAME=1
+  SONG_IO_FILE_NAME=1,
+  SONG_IO_STATUS
 };
 
 struct _BtSongIOPrivate {
@@ -17,6 +18,9 @@ struct _BtSongIOPrivate {
   
 	/* used to load or save the song file */
 	gchar *file_name;
+
+	/* informs about the progress of the loader */
+	gchar *status;
 };
 
 /* list of registered io-classes */
@@ -153,6 +157,9 @@ static void bt_song_io_get_property(GObject      *object,
 		case SONG_IO_FILE_NAME: {
       g_value_set_string(value, self->private->file_name);
     } break;
+		case SONG_IO_STATUS: {
+      g_value_set_string(value, self->private->status);
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -169,7 +176,13 @@ static void bt_song_io_set_property(GObject      *object,
   BtSongIO *self = BT_SONG_IO(object);
   return_if_disposed();
   switch (property_id) {
-    default: {
+    case SONG_IO_STATUS: {
+      g_free(self->private->status);
+      self->private->status = g_value_dup_string(value);
+      g_signal_emit(G_OBJECT(self), BT_SONG_IO_GET_CLASS(self)->status_changed_signal_id, 0);
+      GST_DEBUG("set the status for song_io: %s",self->private->status);
+    } break;
+     default: {
       g_assert(FALSE);
       break;
     }
@@ -178,12 +191,18 @@ static void bt_song_io_set_property(GObject      *object,
 
 static void bt_song_io_dispose(GObject *object) {
   BtSongIO *self = BT_SONG_IO(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
 }
 
 static void bt_song_io_finalize(GObject *object) {
   BtSongIO *self = BT_SONG_IO(object);
+
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private);
 }
 
@@ -202,13 +221,39 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
   gobject_class->finalize     = bt_song_io_finalize;
 	
 	klass->load       = bt_song_io_real_load;
+
+  /** 
+	 * BtSongIO::status-changed
+   * @self: the song-io object that emitted the signal
+	 *
+	 * signals that the io-module has progressed with loading or saving.
+   * Access the "status" property of the song-io class to get a human-readable
+   * status message.
+	 */
+  klass->status_changed_signal_id = g_signal_newv("status-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        NULL, // class closure
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0, // n_params
+                                        NULL /* param data */ );
 	
 	g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "filename prop",
-                                     "filename for load save actions",
+                                     "filename for load save operations",
                                      NULL, /* default value */
                                      G_PARAM_READABLE));
+
+	g_object_class_install_property(gobject_class,SONG_IO_STATUS,
+                                  g_param_spec_string("status",
+                                     "status prop",
+                                     "status of load save operations",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_song_io_get_type(void) {

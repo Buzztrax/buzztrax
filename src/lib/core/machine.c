@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.25 2004-09-10 17:10:40 ensonic Exp $
+/* $Id: machine.c,v 1.26 2004-09-15 16:57:58 ensonic Exp $
  * base class for a machine
  */
  
@@ -349,6 +349,7 @@ static void bt_machine_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
+      g_object_try_unref(self->private->song);
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the song for machine: %p",self->private->song);
     } break;
@@ -381,32 +382,40 @@ static void bt_machine_set_property(GObject      *object,
 
 static void bt_machine_dispose(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+  g_object_try_unref(self->private->song);
+  // unref list of patterns
+	if(self->private->patterns) {
+    GList* node=g_list_first(self->private->patterns);
+		while(node) {
+			g_object_try_unref(node->data);
+      node->data=NULL;
+			node=g_list_next(node);
+		}
+	}
 }
 
 static void bt_machine_finalize(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
-  GList* node;
 
-  g_object_unref(G_OBJECT(self->private->song));
+  GST_DEBUG("!!!! self=%p",self);
+
 	g_free(self->private->id);
 	g_free(self->private->plugin_name);
   g_free(self->private->voice_types);
   g_free(self->private->voice_dparams);
   g_free(self->private->global_types);
   g_free(self->private->global_dparams);
+  g_free(self->private);
   // free list of patterns
 	if(self->private->patterns) {
-		node=g_list_first(self->private->patterns);
-		while(node) {
-			g_object_unref(G_OBJECT(node->data));
-			node=g_list_next(node);
-		}
 		g_list_free(self->private->patterns);
 		self->private->patterns=NULL;
 	}
-  g_free(self->private);
 }
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {

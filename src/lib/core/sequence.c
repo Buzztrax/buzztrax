@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.24 2004-09-06 16:26:21 ensonic Exp $
+/* $Id: sequence.c,v 1.25 2004-09-15 16:57:58 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -40,6 +40,24 @@ struct _BtSequencePrivate {
 //-- helper methods
 
 /**
+ * bt_sequence_unref_timelines:
+ * @self: the sequence that holds the timelines
+ *
+ * Unref the old timelines when we create/load a new song
+ */
+
+static void bt_sequence_unref_timelines(const BtSequence *self) {
+  GST_DEBUG("bt_sequence_unref_timelines");
+  if(self->private->timelines && self->private->length) {
+    glong i;
+    for(i=0;i<self->private->length;i++) {
+      g_object_try_unref(self->private->timelines[i]);
+    }
+    self->private->length=0;
+  }
+}
+  
+/**
  * bt_sequence_free_timelines:
  * @self: the sequence that holds the timelines
  *
@@ -48,13 +66,6 @@ struct _BtSequencePrivate {
 static void bt_sequence_free_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_free_timelines");
   if(self->private->timelines) {
-    if(self->private->length) {
-      glong i;
-      for(i=0;i<self->private->length;i++) {
-        g_object_unref(G_OBJECT(self->private->timelines[i]));
-      }
-      self->private->length=0;
-    }
     g_free(self->private->timelines);
     self->private->timelines=NULL;
   }
@@ -310,7 +321,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
   else {
     GST_ERROR("can't start playing");res=FALSE;
   }
-  g_object_unref(G_OBJECT(playline)); 
+  g_object_unref(playline); 
   return(res);
 }
 
@@ -370,10 +381,12 @@ static void bt_sequence_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_SONG: {
+      g_object_try_unref(self->private->song);
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the song for sequence: %p",self->private->song);
     } break;
     case SEQUENCE_LENGTH: {
+      bt_sequence_unref_timelines(self);
       bt_sequence_free_timelines(self);
       self->private->length = g_value_get_long(value);
       GST_DEBUG("set the length for sequence: %d",self->private->length);
@@ -394,17 +407,23 @@ static void bt_sequence_set_property(GObject      *object,
 
 static void bt_sequence_dispose(GObject *object) {
   BtSequence *self = BT_SEQUENCE(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+	g_object_try_unref(self->private->song);
+  bt_sequence_unref_timelines(self);
 }
 
 static void bt_sequence_finalize(GObject *object) {
   BtSequence *self = BT_SEQUENCE(object);
 
-	g_object_unref(G_OBJECT(self->private->song));
-  bt_sequence_free_timelines(self);
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private->machines);
   g_free(self->private);
+  g_free(self->private->timelines);
 }
 
 static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {

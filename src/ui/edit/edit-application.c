@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.13 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: edit-application.c,v 1.14 2004-09-15 16:57:59 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -25,14 +25,19 @@ struct _BtEditApplicationPrivate {
   BtMainWindow *main_window;
 };
 
+static BtApplicationClass *parent_class=NULL;
+
 //-- helper methods
 
 gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   
   if(self->private->song) {
-    g_object_unref(G_OBJECT(self->private->song));
+    GObject *object=G_OBJECT(self->private->song);
+    GST_INFO("song->ref_ct=%d",object->ref_count);
+    g_object_unref(self->private->song);
   }
+  bt_application_bin_flush(BT_APPLICATION(self));
   if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
     res=TRUE;
   }
@@ -57,7 +62,8 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
   self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL));
-  
+
+  GST_INFO("new edit app created");
   self->private->main_window=bt_main_window_new(self);
   return(self);
 }
@@ -102,19 +108,28 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     BtSongIO *loader=bt_song_io_new(file_name);
 
     if(loader) {
-      // @todo does not work -> (gdk_window_set_cursor): assertion `window != NULL' failed
-      //GdkWindow *window=gtk_window_get_transient_for(GTK_WINDOW(self->private->main_window));
-      //gdk_window_set_cursor(window,gdk_cursor_new(GDK_WATCH));
+      gtk_widget_set_sensitive(GTK_WIDGET(self->private->main_window),FALSE);
+      /* @todo does not work -> (gdk_window_set_cursor): assertion `window != NULL' failed
+        GdkWindow *window=gtk_window_get_transient_for(GTK_WINDOW(self->private->main_window));
+        gdk_window_set_cursor(window,gdk_cursor_new(GDK_WATCH));
+      */
+      /* @todo listen to loader changes and push them into the statusbar
+       * g_signal_connect(G_OBJECT(loader), "status-changed", (GCallback)on_loader_status_changed, (gpointer)self);
+       * - but how to read the status bar form here (method in main-statusbar.c)?
+       * - how to handle to push and pop stuff, first_acces=push_only, last_access=pop_only
+       */
+      while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->private->song)) {
         // emit signal that song has been changed
         g_signal_emit(G_OBJECT(self),BT_EDIT_APPLICATION_GET_CLASS(self)->song_changed_signal_id,0);
-         res=TRUE;
+        res=TRUE;
       }
       else {
         GST_ERROR("could not load song \"%s\"",file_name);
       }
-      //gdk_window_set_cursor(window,NULL);
       g_object_unref(loader);
+      //gdk_window_set_cursor(window,NULL);
+      gtk_widget_set_sensitive(GTK_WIDGET(self->private->main_window),TRUE);
     }
   }
   return(res);
@@ -132,7 +147,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 gboolean bt_edit_application_run(const BtEditApplication *self) {
 	gboolean res=FALSE;
 
-	GST_INFO("application.play launched");
+	GST_INFO("application.run launched");
 
   if(bt_edit_application_new_song(self)) {
     res=bt_edit_application_run_ui(self);
@@ -196,7 +211,9 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      gpointer ptr=g_value_get_object(value);
+      g_object_try_unref(self->private->song);
+      self->private->song=g_object_try_ref(ptr);
       //GST_DEBUG("set the song for edit_application: %p",self->private->song);
     } break;
     default: {
@@ -208,15 +225,25 @@ static void bt_edit_application_set_property(GObject      *object,
 
 static void bt_edit_application_dispose(GObject *object) {
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
+
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_DEBUG("!!!! self=%p",self);
+
+  bt_song_stop(self->private->song);
+  g_object_try_unref(self->private->song);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_edit_application_finalize(GObject *object) {
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
   
-  bt_song_stop(self->private->song);
-  g_object_unref(G_OBJECT(self->private->song));
+  GST_DEBUG("!!!! self=%p",self);
+
   g_free(self->private);
 }
 
@@ -229,7 +256,9 @@ static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) 
 static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
-  
+
+  parent_class=g_type_class_ref(BT_TYPE_APPLICATION);
+
   gobject_class->set_property = bt_edit_application_set_property;
   gobject_class->get_property = bt_edit_application_get_property;
   gobject_class->dispose      = bt_edit_application_dispose;

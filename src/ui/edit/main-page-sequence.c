@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.10 2004-09-10 17:10:43 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.11 2004-09-15 16:57:59 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -32,6 +32,8 @@ struct _BtMainPageSequencePrivate {
   GdkColor processor_bg1,processor_bg2;
   GdkColor sink_bg1,sink_bg2;
 };
+
+static GtkVBoxClass *parent_class=NULL;
 
 enum {
   SEQUENCE_TABLE_SOURCE_BG=0,
@@ -191,7 +193,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
           str="???";
           GST_ERROR("implement me");
       }
-      GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
+      //GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
     }
   }
@@ -261,7 +263,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSong *song;
   glong index,bars;
 
-  GST_INFO("song has changed : song=%p, page=%p",song,user_data);
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update page
@@ -408,7 +410,7 @@ BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  if(self) g_object_unref(self);
+  g_object_try_unref(self);
   return(NULL);
 }
 
@@ -484,6 +486,7 @@ static void bt_main_page_sequence_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_SEQUENCE_APP: {
+      g_object_try_unref(self->private->app);
       self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the app for MAIN_PAGE_SEQUENCE: %p",self->private->app);
     } break;
@@ -498,12 +501,17 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  g_object_try_unref(self->private->app);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_page_sequence_finalize(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
   
-  g_object_unref(G_OBJECT(self->private->app));
   g_free(self->private);
 }
 
@@ -517,6 +525,8 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
   
+  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+
   gobject_class->set_property = bt_main_page_sequence_set_property;
   gobject_class->get_property = bt_main_page_sequence_get_property;
   gobject_class->dispose      = bt_main_page_sequence_dispose;
