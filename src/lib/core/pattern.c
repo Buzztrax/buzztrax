@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.23 2004-12-07 20:18:42 waffel Exp $
+/* $Id: pattern.c,v 1.24 2004-12-14 19:16:57 waffel Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -34,7 +34,7 @@ struct _BtPatternPrivate {
   /* the number of dynamic params the machine provides per instance */
   gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
-  glong voice_params;
+  gulong voice_params;
   /* the machine the pattern belongs to */
   BtMachine *machine;
 
@@ -51,7 +51,7 @@ static GObjectClass *parent_class=NULL;
 static gboolean bt_pattern_init_data(const BtPattern *self) {
   gboolean ret=FALSE;
   gulong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
-  GValue *data;
+  //GValue *data;
 
   if(self->priv->machine==NULL) return(TRUE);
   if(self->priv->length==0) return(TRUE);
@@ -153,12 +153,11 @@ Error:
  *
  * Returns: the GValue or NULL if out of the pattern range
  */
-GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, glong param) {
+GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param) {
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
 
-  if((param==-1)) return(NULL);
   if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
   if(!(param<self->priv->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
 
@@ -177,14 +176,13 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, glo
  *
  * Fetches a cell from the given location in the pattern
  *
- * Returns: the GValue or NULL if out of the pattern range
+ * Returns: the GValue
  */
-GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, glong param) {
+GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param) {
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
 
-  if((param==-1)) return(NULL);
   if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
   if(!(voice<self->priv->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
   if(!(param<self->priv->voice_params)) { GST_ERROR("param beyond voice_ params");return(NULL); }
@@ -209,15 +207,20 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
  */
 gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
 	gulong ret=0;
-	GError *tmp_error;
+	GError *tmp_error=NULL;
 	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
 	
-	tmp_error=NULL;
 	ret=bt_machine_get_global_dparam_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
+		// set g_error
+		g_set_error (error,
+							 	g_quark_from_static_string("BtPattern"), 	/* error domain */
+								0,																				/* error code */
+								"global dparam for name %s not found",		/* error message format string */
+								name);
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);
@@ -236,15 +239,20 @@ gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *na
  */
 gulong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
 	gulong ret=0;
-	GError *tmp_error;
+	GError *tmp_error=NULL;
 	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
 	
-	tmp_error=NULL;
 	ret=bt_machine_get_voice_dparam_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
+		// set g_error
+		g_set_error (error,
+							 	g_quark_from_static_string("BtPattern"), 	/* error domain */
+								0,																				/* error code */
+								"voice dparam for name %s not found",			/* error message format string */
+								name);
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);

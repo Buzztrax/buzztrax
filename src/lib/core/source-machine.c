@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.20 2004-11-26 18:53:26 waffel Exp $
+/* $Id: source-machine.c,v 1.21 2004-12-14 19:16:57 waffel Exp $
  * class for a source machine
  */
  
@@ -131,13 +131,13 @@ GType bt_source_machine_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSourceMachineClass),
+      G_STRUCT_SIZE(BtSourceMachineClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_source_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSourceMachine),
+      G_STRUCT_SIZE(BtSourceMachine),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_source_machine_init, // instance_init
 			NULL // value_table

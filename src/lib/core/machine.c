@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.56 2004-12-07 20:18:42 waffel Exp $
+/* $Id: machine.c,v 1.57 2004-12-14 19:16:57 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -135,10 +135,12 @@ gboolean bt_machine_new(BtMachine *self) {
     GParamSpec **specs;
     GstDParam **dparam;
     guint i;
+		gboolean setModeOK=FALSE;
 
     // setting param mode. Only synchronized is currently supported
-    gst_dpman_set_mode(self->priv->dparam_manager, "synchronous");
+    setModeOK=gst_dpman_set_mode(self->priv->dparam_manager, "synchronous");
     GST_DEBUG("  machine \"%s\" supports dparams",self->priv->plugin_name);
+		g_return_val_if_fail(setModeOK==TRUE,FALSE);
     
     // manage dparams
     specs=gst_dpman_list_dparam_specs(self->priv->dparam_manager);
@@ -357,7 +359,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
 gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
   GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   gulong i;
-	glong ret=0;
+	gulong ret=0;
 	gboolean found=FALSE;
 
   g_assert(BT_IS_MACHINE(self));

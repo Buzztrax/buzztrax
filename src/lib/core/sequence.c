@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.47 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: sequence.c,v 1.48 2004-12-14 19:16:57 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -271,7 +271,7 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
 	g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
 
   ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
-  wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+  wait_per_position=(gulong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
 
   res=(gulong)((guint64)wait_per_position/G_USEC_PER_SEC);
   // release the references
@@ -333,7 +333,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
      * for 3/4 bars it is 12 (walz)
      */
     ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
-    wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+    wait_per_position=(gulong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
 		playline=bt_playline_new(self->priv->song,self->priv->tracks,wait_per_position);
     
     //GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
