@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.27 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.28 2004-12-09 18:34:13 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -6,6 +6,8 @@
 #define BT_MAIN_PAGE_SEQUENCE_C
 
 #include "bt-edit.h"
+
+// @todo use a  GtkTreeModelFilter for step display
 
 enum {
   MAIN_PAGE_SEQUENCE_APP=1,
@@ -20,7 +22,7 @@ struct _BtMainPageSequencePrivate {
   BtEditApplication *app;
   
   /* bars selection menu */
-  GtkOptionMenu *bars_menu;
+  GtkComboBox *bars_menu;
   
   /* the pattern list */
   GtkTreeView *sequence_table;
@@ -326,7 +328,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     index=1+(bars>>2);
   }
   //GST_INFO("  bars=%d, index=%d",bars,index);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(self->priv->bars_menu),index);
+  gtk_combo_box_set_active(self->priv->bars_menu,index);
   // update sequence and pattern list
   sequence_table_refresh(self,song);
   pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
@@ -339,7 +341,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
-  GtkWidget *box,*menu,*menu_item,*button,*scrolled_window;
+  GtkWidget *box,*button,*scrolled_window;
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
   glong i;
@@ -354,19 +356,14 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   // steps
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  // build list of values for the menu
-  menu=gtk_menu_new();
-  sprintf(str,"1");gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
-  sprintf(str,"2");gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
+  // build the menu
+	self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),"1");
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),"2");
   for(i=4;i<=64;i+=4) {
     sprintf(str,"%d",i);
-    menu_item=gtk_menu_item_new_with_label(str);
-		gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-    gtk_widget_show(menu_item);
+	  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),str);
   }
-  self->priv->bars_menu=GTK_OPTION_MENU(gtk_option_menu_new());
-  gtk_option_menu_set_menu(self->priv->bars_menu,menu);
-  
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);

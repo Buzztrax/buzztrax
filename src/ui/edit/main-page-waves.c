@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.5 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.6 2004-12-09 18:34:13 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -26,7 +26,7 @@ static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   BtSong *song;
   BtSetup *setup;
@@ -170,7 +170,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
 	gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample waveform view yet"));
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 

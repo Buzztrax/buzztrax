@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.21 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.22 2004-12-09 18:34:13 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -20,91 +20,133 @@ struct _BtMainPagePatternsPrivate {
   BtEditApplication *app;
   
   /* machine selection menu */
-  GtkOptionMenu *machine_menu;
+  GtkComboBox *machine_menu;
   /* pattern selection menu */
-  GtkOptionMenu *pattern_menu;
+  GtkComboBox *pattern_menu;
+	
+	/* icons */
+	GdkPixbuf *source_icon,*procesor_icon,*sink_icon;
 };
 
 static GtkVBoxClass *parent_class=NULL;
+
 
 //-- event handlers
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
 	GtkLabel *label=GTK_LABEL(user_data);
 	gchar *str;
-	
+
 	g_object_get(G_OBJECT(machine),"id",&str,NULL);
   GST_INFO("machine id changed to \"%s\"",str);
+
+	/* idea one
+	GtkComboBox *combo_box=GTK_COMBOX_BOX(user_data);
+	GtkTreeModel *store=gtk_combo_box_get_model(combo_box);
+	GtkTreeIter menu_iter;
+	// now get the row where row.machine==machine
+	gtk_list_store_set(store,&menu_iter,1,str,-1);
+	*/
+	
   gtk_label_set_text(label,str);
 	g_free(str);
 }
 
 //-- event handler helper
 
-static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
-  BtMachine *machine;
-  GtkWidget *menu,*menu_item,*label;
-  gpointer *iter;
-  gchar *str;
+static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,GtkListStore *store) {
+	gchar *str;
+	GtkTreeIter menu_iter;
 
-  // update machine menu
-  menu=gtk_menu_new();
-  iter=bt_setup_machine_iterator_new(setup);
-  while(iter) {
-    machine=bt_setup_machine_iterator_get_machine(iter);
-    g_object_get(G_OBJECT(machine),"id",&str,NULL);
-    GST_INFO("  adding \"%s\"",str);
-    menu_item=gtk_menu_item_new_with_label(str);g_free(str);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-    gtk_widget_show(menu_item);
-		
-		label=gtk_bin_get_child(GTK_BIN(menu_item));
+  g_object_get(G_OBJECT(machine),"id",&str,NULL);
+  GST_INFO("  adding \"%s\"",str);
+
+	gtk_list_store_append(store,&menu_iter);
+  if(BT_IS_SOURCE_MACHINE(machine)) {
+		gtk_list_store_set(store,&menu_iter,0,self->priv->source_icon,1,str,-1);
+  }
+  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+		gtk_list_store_set(store,&menu_iter,0,self->priv->procesor_icon,1,str,-1);
+  }
+  else if(BT_IS_SINK_MACHINE(machine)) {
+		gtk_list_store_set(store,&menu_iter,0,self->priv->sink_icon,1,str,-1);
+  }
+	/* we have just one user_data field, but gtk_list_store_set needs two things :(
+		GtkWidget *label=gtk_bin_get_child(GTK_BIN(menu_item));
 		if(GTK_IS_LABEL(label)) {
-			//GST_INFO("    connecting signal : %p",label);
 			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
 		}
 		else {
 			GST_WARNING("    can't connect signal");
 		}
-		
+	*/
+  g_free(str);
+}
+
+static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
+  BtMachine *machine=NULL;
+  gpointer *iter;
+	GtkListStore *store;
+
+  // update machine menu
+  store=gtk_list_store_new(2,GDK_TYPE_PIXBUF,G_TYPE_STRING);
+  iter=bt_setup_machine_iterator_new(setup);
+	
+  while(iter) {
+    machine=bt_setup_machine_iterator_get_machine(iter);
+		machine_menu_add(self,machine,store);
     iter=bt_setup_machine_iterator_next(iter);
   }
-  gtk_option_menu_set_menu(self->priv->machine_menu,menu);
-  gtk_option_menu_set_history(self->priv->machine_menu,0);
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(machine!=NULL));
+	gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
+  gtk_combo_box_set_active(self->priv->machine_menu,0);
+	g_object_unref(store); // drop with treeview
 }
 
 static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine *machine) {
   BtPattern *pattern=NULL;
-  GtkWidget *menu,*menu_item;
   gpointer *iter;
   gchar *str;
+	GtkListStore *store;
+	GtkTreeIter menu_iter;
 
   // update pattern menu
-  menu=gtk_menu_new();
+  store=gtk_list_store_new(1,G_TYPE_STRING);
   if(machine) {
     iter=bt_machine_pattern_iterator_new(machine);
     while(iter) {
       pattern=bt_machine_pattern_iterator_get_pattern(iter);
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
       GST_INFO("  adding \"%s\"",str);
-      menu_item=gtk_menu_item_new_with_label(str);g_free(str);
-      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-      gtk_widget_show(menu_item);
+			gtk_list_store_append(store,&menu_iter);
+			gtk_list_store_set(store,&menu_iter,0,str,-1);
+			g_free(str);
       iter=bt_machine_pattern_iterator_next(iter);
     }
   }
-  if(!pattern) { // generate an empty item
-    menu_item=gtk_menu_item_new_with_label("---");
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-    gtk_widget_show(menu_item);
-  }
-  gtk_option_menu_set_menu(self->priv->pattern_menu,menu);
-  gtk_option_menu_set_history(self->priv->pattern_menu,0);
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
+	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
+  gtk_combo_box_set_active(self->priv->pattern_menu,0);
+	g_object_unref(store); // drop with treeview
 }
 
 //-- event handler
 
-static void on_machine_menu_changed(GtkOptionMenu *optionmenu, gpointer user_data) {
+static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
+	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	
+  g_assert(user_data);
+	
+	GST_INFO("new machine has been added");
+	machine_menu_add(self,machine,GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu)));
+
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
+	if(gtk_combo_box_get_active(self->priv->machine_menu)==-1) {
+		gtk_combo_box_set_active(self->priv->machine_menu,0);
+	}
+}
+
+static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
   g_assert(user_data);
@@ -127,7 +169,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   machine_menu_refresh(self,setup);
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
-  // release the reference
+	g_signal_connect(G_OBJECT(setup),"machine-added",(GCallback)on_machine_added,(gpointer)self);
+  // release the references
   g_object_try_unref(setup);
   g_object_try_unref(song);
 }
@@ -137,7 +180,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *box,*menu,*button;
-
+	GtkCellRenderer *renderer;
+	
   // add toolbar
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("machine view tool bar"));
@@ -148,7 +192,14 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // machine select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  self->priv->machine_menu=GTK_OPTION_MENU(gtk_option_menu_new());
+  self->priv->machine_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+	renderer=gtk_cell_renderer_pixbuf_new ();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,FALSE);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"pixbuf", 0,NULL);
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text", 1,NULL);
+
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
@@ -166,7 +217,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // pattern select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  self->priv->pattern_menu=GTK_OPTION_MENU(gtk_option_menu_new());
+  self->priv->pattern_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,TRUE);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,"text", 0,NULL);
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
@@ -185,13 +239,14 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // base octave
   // play notes ?
   
-  // @todo add list-view  
+  // @todo add list-view / grid-view
   gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no pattern view yet"));
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
-  return(TRUE);
+
+return(TRUE);
 }
 
 //-- constructor methods
@@ -242,7 +297,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-  index=gtk_option_menu_get_history(self->priv->machine_menu);
+  index=gtk_combo_box_get_active(self->priv->machine_menu);
   machine=bt_setup_get_machine_by_index(setup,index);
 
   //-- release the reference
@@ -298,6 +353,10 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+	g_object_try_unref(self->priv->source_icon);
+	g_object_try_unref(self->priv->procesor_icon);
+	g_object_try_unref(self->priv->sink_icon);
+	
   g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -319,6 +378,10 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(instance);
   self->priv = g_new0(BtMainPagePatternsPrivate,1);
   self->priv->dispose_has_run = FALSE;
+
+	self->priv->source_icon=gdk_pixbuf_new_from_filename("menu_source_machine.png");
+	self->priv->procesor_icon=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
+	self->priv->sink_icon=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {

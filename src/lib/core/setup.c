@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.44 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: setup.c,v 1.45 2004-12-09 18:34:13 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -531,7 +531,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
 	 *
 	 * A new wire item has been added to the setup
 	 */
-  signals[MACHINE_ADDED_EVENT] = g_signal_new("wire-added",
+  signals[WIRE_ADDED_EVENT] = g_signal_new("wire-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
                                         G_STRUCT_OFFSET(BtSetupClass,wire_added_event),

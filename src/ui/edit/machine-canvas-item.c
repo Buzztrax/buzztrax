@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.17 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.18 2004-12-09 18:34:13 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -229,12 +229,9 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 	// make this menu item bold (default)
 	label=gtk_bin_get_child(GTK_BIN(menu_item));
 	if(GTK_IS_LABEL(label)) {
-		char *str,*mstr;
-		GST_INFO("!!! menu_item has a label child !!!!");
-		str=(gchar *)gtk_label_get_text(label);
-		mstr=g_strdup_printf("<b>%s</b>",str);
-		gtk_label_set_markup(label,mstr);
-		g_free(mstr);
+		char *str=g_strdup_printf("<b>%s</b>",gtk_label_get_text(label));
+		gtk_label_set_markup(label,str);
+		g_free(str);
 	}
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);
