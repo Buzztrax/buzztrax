@@ -1,5 +1,5 @@
-/** $Id: machine.c,v 1.5 2004-05-07 15:16:04 ensonic Exp $
- * cbase class for a machine
+/** $Id: machine.c,v 1.6 2004-05-07 16:29:25 ensonic Exp $
+ * base class for a machine
  */
  
 #define BT_CORE

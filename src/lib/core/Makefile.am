@@ -10,6 +10,7 @@ libbtcore_la_SOURCES = \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
+	sink-machine.c libbtcore/sink-machine.h \
 	song.c libbtcore/song.h libbtcore/song-methods.h \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \

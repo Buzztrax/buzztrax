@@ -1,4 +1,4 @@
-/** $Id: song-io.c,v 1.2 2004-05-07 11:46:57 ensonic Exp $
+/** $Id: song-io.c,v 1.3 2004-05-07 16:29:25 ensonic Exp $
  * base class for song input and output
  */
  
@@ -6,7 +6,6 @@
 #define BT_SONG_IO_C
 
 #include <libbtcore/core.h>
-#include <libbtcore/song-io-native.h>
 
 struct _BtSongIOPrivate {
   /* used to validate if dispose has run */

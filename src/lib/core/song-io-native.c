@@ -1,4 +1,4 @@
-/** $Id: song-io-native.c,v 1.3 2004-05-07 15:16:04 ensonic Exp $
+/** $Id: song-io-native.c,v 1.4 2004-05-07 16:29:25 ensonic Exp $
  * class for native song input and output
  */
  
@@ -6,7 +6,6 @@
 #define BT_SONG_IO_NATIVE_C
 
 #include <libbtcore/core.h>
-#include <libbtcore/song-io-native.h>
 
 struct _BtSongIONativePrivate {
   /* used to validate if dispose has run */
@@ -122,7 +121,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 				GST_INFO("  new sink_machine(\"%s\",\"%s\")",id,plugin_name);
 				// parse additional params
 				// create new sink machine
-				// g_object_new(BT_SINK_MACHINE,"song",song,"id",id,"pluginname",plugin_name,NULL);
+				machine=g_object_new(BT_SINK_MACHINE_TYPE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 				// ...
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
@@ -134,6 +133,12 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 				// create new processor machine
 			}
 			if(machine) { // add machine to setup
+				/*{ // DEBUG
+					GValue _val={0,};
+					g_value_init(&_val,G_TYPE_STRING);
+					g_object_get_property(G_OBJECT(machine),"id", &_val);
+					g_print("machine.id: \"%s\"\n", g_value_get_string(&_val));
+				} // DEBUG*/
 				bt_setup_add_machine(setup,machine);
 			}
 			xmlFree(id);xmlFree(plugin_name);
@@ -401,7 +406,7 @@ GType bt_song_io_native_get_type(void) {
       sizeof (BtSongIONativeClass),
       NULL, // base_init
       NULL, // base_finalize
-      (GClassInitFunc)bt_song_io_native_class_init,
+      (GClassInitFunc)bt_song_io_native_class_init, // class_init
 			NULL, // class_finalize
       //(GClassFinalizeFunc)bt_song_io_native_class_finalize,
       NULL, // class_data
