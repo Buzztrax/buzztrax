@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.17 2004-09-20 17:42:23 ensonic Exp $
+/* $Id: edit-application.c,v 1.18 2004-09-20 18:01:27 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -47,7 +47,7 @@ gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
     //GObject *object=G_OBJECT(self->private->song);
     GST_INFO("1. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
     g_object_unref(self->private->song);
-    GST_INFO("2. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
+    //GST_INFO("2. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
   }
   if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
     res=TRUE;
@@ -189,6 +189,8 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 
 //-- wrapper
 
+//-- default signal handler
+
 //-- class internals
 
 /* returns a property for the given property_id for this object */
@@ -289,7 +291,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
 	 * the song of the application has changed.
    * This happens after a load or new action
 	 */
-  signals[SONG_CHANGED] = g_signal_newv("song-changed",
+  signals[SONG_CHANGED] = g_signal_new("song-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
                                         G_STRUCT_OFFSET(BtEditApplicationClass,song_changed),

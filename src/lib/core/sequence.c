@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.29 2004-09-20 17:42:21 ensonic Exp $
+/* $Id: sequence.c,v 1.30 2004-09-20 18:01:20 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -360,6 +360,8 @@ gboolean bt_sequence_stop(const BtSequence *self) {
 }
 
 //-- wrapper
+
+//-- default signal handler
 
 //-- class internals
 
