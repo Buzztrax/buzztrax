@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard xmlns="http://buzztard.sourceforge.net/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="buzztard.xsd"
+	name="simple test Song">
+
+	<meta>
+		<info>what a lovely tune</info>
+    <name>simple 1</name>
+		<genre>dark-wave</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>4</bars>
+	</meta>
+	
+  <setup zoom="1.0">
+    <machines>
+      <sink id="audio_sink" pluginname="esdsink">
+        <machineui xpos="20" ypos="10"/>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="200"/>
+      </sink>
+      <source id="sine1" pluginname="sinesrc" voices="0">
+        <machineui xpos="20" ypos="80"/>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+    </machines>
+    
+    <wires>
+      <wire src="sine1" dst="audio_sink" gain="1.0"/>
+    </wires>    
+  </setup>
+  
+  <patterns>
+    <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
+      <tick time="0">
+        <globaldata name="freq" value="440,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="1">
+        <globaldata name="freq" value="880,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="2">
+        <globaldata name="freq" value="1760,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+    </pattern>
+  </patterns>
+  
+  <sequence>
+    <labels>
+      <label time="0" name="start"/>
+      <label time="3" name="end"/>
+    </labels>
+    <tracks>
+      <track index="0" machine="sine1">
+        <position time="0" pattern="sine1_beep"/>
+      </track>
+    </tracks>
+  </sequence>
+  
+  <wavetable/>
+
+</buzztard>
+
