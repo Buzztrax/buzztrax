@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.37 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.38 2005-01-16 10:04:32 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -41,7 +41,7 @@ enum {
 };
 
 enum {
-  PATTERN_TABLE_POS,
+  PATTERN_TABLE_POS=0,
   PATTERN_TABLE_PRE_CT
 };
 
@@ -230,11 +230,16 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 				-1);
 			for(j=0;j<number_of_global_params;j++) {
 				if((value=bt_pattern_get_global_event_data(pattern,i,j))) {
-					str=g_strdup_value_contents(value);
-	    		gtk_list_store_set(store,&tree_iter,
-						PATTERN_TABLE_POS+j,str,
-						-1);
-					g_free(str);
+					if(G_IS_VALUE(value)) {
+						str=g_strdup_value_contents(value);
+						gtk_list_store_set(store,&tree_iter,
+							PATTERN_TABLE_PRE_CT+j,str,
+							-1);
+						g_free(str);
+					}
+					//else {
+					//	GST_WARNING("pattern[%2d,%2d]=%p is not a GValue*",i,j,value);
+					//}
 				}
 			}
 			pos++;
@@ -259,7 +264,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 			pspec=GST_DPARAM_PARAM_SPEC(dparam);
 	  	renderer=gtk_cell_renderer_text_new();
 	  	grid_col=gtk_grid_column_new_with_attributes(GST_DPARAM_NAME(dparam),renderer,
-  	  	"text",PATTERN_TABLE_POS+j,
+  	  	"text",PATTERN_TABLE_PRE_CT+j,
     		NULL);
 			gtk_grid_append_column(self->priv->pattern_table,grid_col);
 		}

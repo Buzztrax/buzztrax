@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.45 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.46 2005-01-16 10:04:32 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -320,6 +320,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   machine_view_refresh(self,setup);
   // release the reference
+  g_object_try_unref(setup);
   g_object_try_unref(song);
 }
 

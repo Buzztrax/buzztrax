@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.25 2005-01-15 22:02:51 ensonic Exp $
+/* $Id: pattern.c,v 1.26 2005-01-16 10:04:32 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -157,13 +157,13 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gul
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
+	g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
   if(!(param<self->priv->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
 
   index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
        + param;
-  // @todo add assertion that there is a valid GValue at this index?
   return(&self->priv->data[index]);
 }
 
@@ -176,12 +176,13 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gul
  *
  * Fetches a cell from the given location in the pattern
  *
- * Returns: the GValue
+ * Returns: the GValue or %NULL if out of the pattern range
  */
 GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param) {
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
+	g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
   if(!(voice<self->priv->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
@@ -190,7 +191,6 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
   index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       self->priv->global_params+(voice*self->priv->voice_params)
        +param;
-  // @todo add assertion that there is a valid GValue at this index?
   return(&self->priv->data[index]);
 }
 

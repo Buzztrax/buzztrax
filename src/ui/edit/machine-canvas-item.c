@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.30 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.31 2005-01-16 10:04:32 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -422,13 +422,19 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   g_object_try_unref(self->priv->app);
 	g_object_try_unref(self->priv->main_page_machines);
   g_object_try_unref(self->priv->machine);
-	
+
+	GST_DEBUG("  unrefing done");
+
 	if(self->priv->properties_dialog) {
 		gtk_widget_destroy(self->priv->properties_dialog);
 	}
+	if(self->priv->preferences_dialog) {
+		gtk_widget_destroy(self->priv->preferences_dialog);
+	}
   
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
-  
+	GST_DEBUG("  destroying done");
+
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
