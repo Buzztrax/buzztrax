@@ -9,6 +9,7 @@ libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \
 	application.c libbtcore/application.h libbtcore/application-methods.h \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
+	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
 	processor-machine.c libbtcore/processor-machine.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
@@ -19,6 +20,7 @@ libbtcore_la_SOURCES = \
 	song-io-native.c libbtcore/song-io-native.h \
 	source-machine.c libbtcore/source-machine.h \
 	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
+	timelinetrack.c libbtcore/timelinetrack.h libbtcore/timelinetrack-methods.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
 	libbtcore/version.h
 
