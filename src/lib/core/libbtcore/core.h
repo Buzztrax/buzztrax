@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.21 2004-07-07 12:49:56 ensonic Exp $
+/* $Id: core.h,v 1.22 2004-07-12 16:38:49 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -36,10 +36,12 @@
 #include "song-io-methods.h"
 #include "song-io-native.h"
 #include "application-methods.h"
+#include "tools.h"
 #include "version.h"
 
 //-- global defines ------------------------------------------------------------
 
+// XML related
 /**
  * BT_NS_PREFIX:
  *
@@ -52,6 +54,10 @@
  * default buzztard xml namespace url
  */
 #define BT_NS_URL    "http://buzztard.sourceforge.net/"
+
+// handy shortcuts that improve readabillity
+
+//#define BT_SONG_GET_BIN GST_BIN(bt_g_object_get_object_property(G_OBJECT(self-private->song),"bin"))
 
 //-- misc
 #ifdef BT_CORE

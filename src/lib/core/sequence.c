@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.10 2004-07-07 15:39:03 ensonic Exp $
+/* $Id: sequence.c,v 1.11 2004-07-12 16:38:49 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -34,6 +34,8 @@ struct _BtSequencePrivate {
 
 /**
  * bt_sequence_free_timelines:
+ * @self: the sequence that holds the timelines
+ *
  * Freeing old timelines when we create/load a new song
  */
 static void bt_sequence_free_timelines(const BtSequence *self) {
@@ -53,6 +55,8 @@ static void bt_sequence_free_timelines(const BtSequence *self) {
 
 /**
  * bt_sequence_init_timelines:
+ * @self: the sequence that holds the timelines
+ *
  * Prepare new timelines when we create/load a new song
  */
 static void bt_sequence_init_timelines(const BtSequence *self) {
@@ -70,6 +74,8 @@ static void bt_sequence_init_timelines(const BtSequence *self) {
 
 /**
  * bt_sequence_init_timelinetracks:
+ * @self: the sequence that holds the timelinetracks
+ *
  * Initialize the timelinetracks when we create/load a new song
  */
 static void bt_sequence_init_timelinetracks(const BtSequence *self) {
@@ -92,8 +98,8 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
 
 /**
  * bt_sequence_get_timeline:
- * @self the #Sequence that holds the #TimeLine objects
- * @time the requested index
+ * @self: the #Sequence that holds the #TimeLine objects
+ * @time: the requested index
  *
  * fetches the required timeline.
  *

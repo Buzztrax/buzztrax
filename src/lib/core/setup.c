@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.12 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: setup.c,v 1.13 2004-07-12 16:38:49 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -60,13 +60,10 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 	BtMachine *machine;
 	GList* node=g_list_first(self->private->machines);
-	GValue val={0,};
-	g_value_init(&val,G_TYPE_STRING);
 	
 	while(node) {
 		machine=BT_MACHINE(node->data);
-		g_object_get_property(G_OBJECT(machine),"id", &val);
-		if(!strcmp(g_value_get_string(&val),id)) return(machine);
+		if(!strcmp(bt_g_object_get_string_property(G_OBJECT(machine),"id"),id)) return(machine);
 		node=g_list_next(node);
 	}
 	return(NULL);
@@ -96,13 +93,10 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
 	BtWire *wire;
 	GList *node=g_list_first(self->private->wires);
-	GValue val={0,};
-	g_value_init(&val,G_TYPE_OBJECT);
 	
 	while(node) {
 		wire=BT_WIRE(node->data);
-		g_object_get_property(G_OBJECT(wire),"src", &val);
-		if(g_value_get_object(&val)==src) return(wire);
+		if(bt_g_object_get_object_property(G_OBJECT(wire),"src")==src) return(wire);
 		node=g_list_next(node);
 	}
 	return(NULL);
@@ -120,13 +114,10 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
 BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
 	BtWire *wire;
 	GList *node=g_list_first(self->private->wires);
-	GValue val={0,};
-	g_value_init(&val,G_TYPE_OBJECT);
 	
 	while(node) {
 		wire=BT_WIRE(node->data);
-		g_object_get_property(G_OBJECT(wire),"dst", &val);
-		if(g_value_get_object(&val)==dst) return(wire);
+		if(bt_g_object_get_object_property(G_OBJECT(wire),"dst")==dst) return(wire);
 		node=g_list_next(node);
 	}
 	return(NULL);
@@ -184,6 +175,7 @@ static void bt_setup_dispose(GObject *object) {
 static void bt_setup_finalize(GObject *object) {
   BtSetup *self = BT_SETUP(object);
 	GList* node;
+
 	// free list of wires
 	if(self->private->wires) {
 		node=g_list_first(self->private->wires);

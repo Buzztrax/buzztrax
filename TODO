@@ -1,4 +1,11 @@
-$Id: TODO,v 1.3 2004-07-05 13:46:25 ensonic Exp $
+$Id: TODO,v 1.4 2004-07-12 16:38:47 ensonic Exp $
+
+* how do we implement multiple voices per machine?
+  * source 
+    * separate instances that are mixed together
+  * processors (e.g. multi-tap delay)
+    * separate instances that are getting the same input
+      and that are mixed together in the end
 
 * unit-tests
   * in the unit tests package, we have nasty, complex LDADD lines

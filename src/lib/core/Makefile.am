@@ -7,6 +7,9 @@ libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \
+	tools.c libbtcore/tools.h \
+	libbtcore/version.h \
+	\
 	application.c libbtcore/application.h libbtcore/application-methods.h \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
@@ -21,8 +24,7 @@ libbtcore_la_SOURCES = \
 	source-machine.c libbtcore/source-machine.h \
 	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
 	timelinetrack.c libbtcore/timelinetrack.h libbtcore/timelinetrack-methods.h \
-	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
-	libbtcore/version.h
+	wire.c libbtcore/wire.h libbtcore/wire-methods.h
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

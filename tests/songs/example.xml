@@ -21,7 +21,7 @@
         <machineui xpos="50" ypos="30"/>
       </processor>
       
-      <source id="sine1" pluginname="sinesrc" voice="2">
+      <source id="sine1" pluginname="sinesrc" voices="2">
         <machineui xpos="20" ypos="80"/>
         <globaldata name="volume" value="80"/>
         <globaldata name="bpm" value="4"/>

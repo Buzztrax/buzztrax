@@ -6,6 +6,7 @@
   <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
+  <xsd:attribute name="voices" type="xsd:integer"/>
   <xsd:attribute name="zoom" type="xsd:float"/>
   <xsd:attribute name="id" type="xsd:string"/>
   <xsd:attribute name="pluginname" type="xsd:string"/>
@@ -74,6 +75,7 @@
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
       <xsd:attribute ref="pluginname" use="required"/>
+      <xsd:attribute ref="voices"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -86,7 +88,7 @@
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
       <xsd:attribute ref="pluginname" use="required"/>
-      <xsd:attribute ref="voice" use="required"/>
+      <xsd:attribute ref="voices"/>
     </xsd:complexType>
   </xsd:element>
   

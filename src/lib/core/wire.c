@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.17 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: wire.c,v 1.18 2004-07-12 16:38:49 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -41,15 +41,10 @@ struct _BtWirePrivate {
 static gboolean bt_wire_link_machines(const BtWire *self) {
   BtMachine *src, *dst;
   BtSong *song=self->private->song;
-  GstBin *bin;
-  GValue val={0,};
-	g_value_init(&val,G_TYPE_OBJECT);
+  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
 
   src=self->private->src;
   dst=self->private->dst;
-
-  g_object_get_property(G_OBJECT(song),"bin", &val);
-  bin=GST_BIN(g_value_get_object(&val));
 
 	GST_DEBUG("trying to link machines directly : %p -> %p",src->src_elem,dst->dst_elem);
 	// try link src to dst {directly, with convert, with scale, with ...}
@@ -110,12 +105,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
  */
 static gboolean bt_wire_unlink_machines(const BtWire *self) {
   BtSong *song=self->private->song;
-  GstBin *bin;
-  GValue val={0,};
-	g_value_init(&val,G_TYPE_OBJECT);
-
-  g_object_get_property(G_OBJECT(song),"bin", &val);
-  bin=GST_BIN(g_value_get_object(&val));
+  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
 
 	GST_DEBUG("trying to unlink machines");
 	gst_element_unlink(self->private->src->src_elem, self->private->dst->dst_elem);
@@ -153,16 +143,11 @@ static gboolean bt_wire_connect(BtWire *self) {
   BtSetup *setup=bt_song_get_setup(song);
   BtWire *other_wire;
   BtMachine *src, *dst;
-  GstBin *bin;
-  GValue val={0,};
-	g_value_init(&val,G_TYPE_OBJECT);
+  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
 
   if((!self->private->src) || (!self->private->dst)) return(FALSE);
   src=self->private->src;
   dst=self->private->dst;
-
-  g_object_get_property(G_OBJECT(song),"bin", &val);
-  bin=GST_BIN(g_value_get_object(&val));
 
 	GST_DEBUG("trying to link machines : %p (%p) -> %p (%p)",src,src->src_elem,dst,dst->dst_elem);
 

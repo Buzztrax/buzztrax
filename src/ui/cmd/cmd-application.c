@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.9 2004-07-07 11:39:05 ensonic Exp $
+/* $Id: cmd-application.c,v 1.10 2004-07-12 16:38:50 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -50,7 +50,6 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 	gboolean res;
 	BtSong *song;
 	BtSongIO *loader;
-	GValue *sval,*oval,*lval;
 	gchar *filename;
 
 	if(argc==1) {
@@ -61,13 +60,7 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 
 	GST_INFO("application launched");
 
-	sval=g_new0(GValue,1);g_value_init(sval,G_TYPE_STRING);
-	oval=g_new0(GValue,1);g_value_init(oval,G_TYPE_OBJECT);
-	lval=g_new0(GValue,1);g_value_init(lval,G_TYPE_LONG);
-
-	g_object_get_property(G_OBJECT(app),"bin",oval);
-	
-	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",g_value_get_object(oval),"name","first buzztard song", NULL);
+	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(app),"bin"),"name","first buzztard song", NULL);
 	loader = (BtSongIO *)g_object_new(bt_song_io_detect(filename),NULL);
 	
 	GST_INFO("objects initialized");
@@ -75,23 +68,18 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 	//if(bt_song_load(song,filename)) {
 	if(bt_song_io_load(loader,song,filename)) {
 		/* print some info about the song */
-		g_object_get_property(G_OBJECT(song),"name",sval);
-		g_print("song.name: \"%s\"\n", g_value_get_string(sval));
-		g_object_get_property(G_OBJECT(bt_song_get_song_info(song)),"info", sval);
-		g_print("song.song_info.info: \"%s\"\n", g_value_get_string(sval));
-		g_object_get_property(G_OBJECT(bt_song_get_sequence(song)),"length", lval);
-		g_print("song.sequence.length: %d\n", g_value_get_long(lval));
-		g_object_get_property(G_OBJECT(bt_song_get_sequence(song)),"tracks", lval);
-		g_print("song.sequence.tracks: %d\n", g_value_get_long(lval));
+    g_print("song.name: \"%s\"\n",           bt_g_object_get_string_property(G_OBJECT(song),"name"));
+		g_print("song.song_info.info: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"));
+		g_print("song.sequence.length: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"length"));
+		g_print("song.sequence.tracks: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"tracks"));
     /* lookup a machine and print some info about it */
     {
       BtSetup *setup=bt_song_get_setup(song);
       BtMachine *machine=bt_setup_get_machine_by_id(setup,"audio_sink");
 
-      g_object_get_property(G_OBJECT(machine),"id", sval);
-      g_print("machine.id: \"%s\"\n", g_value_get_string(sval));
-      g_object_get_property(G_OBJECT(machine),"plugin_name", sval);
-      g_print("machine.plugin_name: \"%s\"\n", g_value_get_string(sval));    }
+      g_print("machine.id: \"%s\"\n",          bt_g_object_get_string_property(G_OBJECT(machine),"id"));
+      g_print("machine.plugin_name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"plugin_name"));
+    }
     
 		
 		/* connection play signal and invoking the play_event function */
@@ -103,9 +91,6 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 		GST_ERROR("could not load song \"%s\"",filename);
 		res=FALSE;
 	}
-	g_free(sval);
-	g_free(oval);
-	g_free(lval);
 	return(res);
 }
 
@@ -123,11 +108,7 @@ static void bt_cmd_application_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
- 			BtCmdApplicationClass *klass=BT_CMD_APPLICATION_GET_CLASS(object);
-			BtApplicationClass *base_klass=BT_APPLICATION_CLASS(klass);
-			GObjectClass *base_gobject_class = G_OBJECT_CLASS(base_klass);
-			
-			base_gobject_class->get_property(object,property_id,value,pspec);
+ 			g_assert(FALSE);
       break;
     }
   }
@@ -143,11 +124,7 @@ static void bt_cmd_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			BtCmdApplicationClass *klass=BT_CMD_APPLICATION_GET_CLASS(object);
-			BtApplicationClass *base_klass=BT_APPLICATION_CLASS(klass);
-			GObjectClass *base_gobject_class = G_OBJECT_CLASS(base_klass);
-			
-			base_gobject_class->set_property(object,property_id,value,pspec);
+			g_assert(FALSE);
       break;
     }
   }

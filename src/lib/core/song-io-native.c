@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.11 2004-07-07 15:39:03 ensonic Exp $
+/* $Id: song-io-native.c,v 1.12 2004-07-12 16:38:49 ensonic Exp $
  * class for native song input and output
  */
  
@@ -109,7 +109,8 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node) {
 	const BtSetup *setup=bt_song_get_setup(song);
 	BtMachine *machine;
-	xmlChar *id,*plugin_name;
+	xmlChar *id,*plugin_name,*voices_str;
+  glong voices;
 	
 	GST_INFO(" got setup.machines root node");
   while(xml_node) {
@@ -117,35 +118,31 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			machine=NULL;
 			id=xmlGetProp(xml_node,"id");
 			plugin_name=xmlGetProp(xml_node,"pluginname");
+			// parse additional params
+      if(voices_str=xmlGetProp(xml_node,"voices")) {
+        voices=atol(voices_str);
+      }
+      else voices=1;
 			if(!strncmp(xml_node->name,"sink\0",5)) {
 				GST_INFO("  new sink_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
-				// parse additional params
 				// create new sink machine
 				machine=g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
-				// ...
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
-				GST_INFO("  new source_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
-				// parse additional params
+				GST_INFO("  new source_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new source machine
-				machine=g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
+				machine=g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL);
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
-				GST_INFO("  new processor_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
-				// parse additional params
+				GST_INFO("  new processor_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new processor machine
-				machine=g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
+				machine=g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL);
 			}
 			if(machine) { // add machine to setup
-				/*{ // DEBUG
-					GValue _val={0,};
-					g_value_init(&_val,G_TYPE_STRING);
-					g_object_get_property(G_OBJECT(machine),"id", &_val);
-					g_print("machine.id: \"%s\"\n", g_value_get_string(&_val));
-				} // DEBUG*/
+				//GST_DEBUG("machine.id: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"id"));
 				bt_setup_add_machine(setup,machine);
 			}
-			xmlFree(id);xmlFree(plugin_name);
+			xmlFree(id);xmlFree(plugin_name);xmlFree(voices_str);
 		}
 		xml_node=xml_node->next;
 	}
@@ -208,12 +205,37 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
+static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr xml_node ) {
 	const BtSetup *setup=bt_song_get_setup(song);
+  BtMachine *machine;
+  BtPattern *pattern;
+	xmlChar *id,*machine_id,*pattern_name,*length_str;
+  guint length,voices;
+
+  id=xmlGetProp(xml_node,"id");
+  machine_id=xmlGetProp(xml_node,"machine");
+  pattern_name=xmlGetProp(xml_node,"name");
+  length_str=xmlGetProp(xml_node,"length");
+  length=atol(length_str);
+  // get the related machine
+  if((machine=bt_setup_get_machine_by_id(setup,machine_id))) {
+    voices=bt_g_object_get_long_property(G_OBJECT(machine),"voices");
+    // create pattern
+    GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
+    pattern=g_object_new(BT_TYPE_PATTERN,"song",song,"length",length,"voices",voices,"machine",machine,NULL);
+    // @todo load tick data
+    // add to machine's pattern-list
+    bt_machine_add_pattern(machine,pattern);
+  }
+  else {
+    GST_ERROR("invalid machine-id=\"%s\"",machine_id);
+  }
+  xmlFree(id);xmlFree(machine_id);xmlFree(pattern_name);xmlFree(length_str);
+}
+
+static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
-	xmlChar *id,*machine_name,*pattern_name,*length_str;
-  guint length;
 
 	GST_INFO("loading the pattern-data from the song");
 	// get top xml-node
@@ -229,14 +251,7 @@ static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, cons
 		for(i=0;i<items_len;i++) {
 			xml_node=xmlXPathNodeSetItem(items,i);
 			if(!xmlNodeIsText(xml_node)) {
-        id=xmlGetProp(xml_node,"id");
-        machine_name=xmlGetProp(xml_node,"machine");
-        pattern_name=xmlGetProp(xml_node,"name");
-        length_str=xmlGetProp(xml_node,"length");
-        length=atol(length_str);
-        GST_INFO("  new pattern(\"%s\",%d) --------------------",id,length);
-				// @todo create pattern and load tick data
-        xmlFree(id);xmlFree(machine_name);xmlFree(pattern_name);xmlFree(length_str);
+        bt_song_io_native_load_pattern(self,song,song_doc,xml_node);
 			}
 		}
 		xmlXPathFreeObject(items_xpoptr);
