@@ -1,0 +1,17 @@
+stamp-po
+remove-potcdate.sin
+quot.sed
+insert-header.sin
+*@quot.header
+*@boldquot.header
+*.gmo
+buzztard.pot
+boldquot.sed
+Rules-quot
+POTFILES
+Makevars.template
+Makefile.in.in
+Makefile.in
+Makefile
+.intltool-merge-cache
+
