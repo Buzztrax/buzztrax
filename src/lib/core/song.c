@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.58 2004-11-03 12:10:54 ensonic Exp $
+/* $Id: song.c,v 1.59 2004-11-19 18:32:51 waffel Exp $
  * song 
  *   holds all song related globals
  *
@@ -57,7 +57,14 @@ static guint signals[LAST_SIGNAL]={0,};
  * Create a new instance.
  * The new song instance automatically has one instance of #BtSetup, #BtSequence
  * and #BtSongInfo. These instances can be retrieved via the respecting
- * properties.
+ * properties. 
+ *
+ * For example use following code to retrive a BtSequence from the song class:
+ * <informalexample><programlisting language="c">
+ * BtSequence *sequence;
+ * ...
+ * g_object_get(BT_SONG(song), "sequence", &amp;sequence, NULL);</programlisting>
+ * </informalexample>
  *
  * Returns: the new instance or NULL in case of an error
  */
