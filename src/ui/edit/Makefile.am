@@ -22,6 +22,7 @@ libbtedit_la_SOURCES   = \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
+	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	tools.c tools.h \
 	wire-canvas-item.c wire-canvas-item.h
 	

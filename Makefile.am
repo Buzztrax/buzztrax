@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.19 2004-10-18 07:16:33 ensonic Exp $
+## $Id: Makefile.am,v 1.20 2004-10-18 18:03:19 ensonic Exp $
 
 SUBDIRS = src po tests docs
 
@@ -32,16 +32,20 @@ pixmapdata_DATA = \
 	pixmaps/stock_media-stop.png \
 	pixmaps/stock_repeat.png
 
+schemasdir = $(GCONF_SCHEMA_FILE_DIR)
+schemas_in_files = buzztard.schemas.in
+schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
+
 EXTRA_DIST = \
 	$(songdata_DATA) \
-	$(pixmapdata_DATA)
+	$(pixmapdata_DATA) \
+	$(schemas_DATA) \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
 	COPYING-DOCS \
 	omf.make \
-	xmldocs.make \
-	buzztard.schemas.in
+	xmldocs.make
 
 @INTLTOOL_SCHEMAS_RULE@
 
@@ -52,10 +56,15 @@ DISTCLEANFILES = \
 clean-local:
 	rm -f po/.intltool-merge-cache
 	
+#if GCONF_SCHEMAS_INSTALL
 install-data-local:
 	-$(mkinstalldirs) $(songdatadir)
 	-$(mkinstalldirs) $(pixmapdatadir)
-	GCONF_CONFIG_SOURCE=$(GCONF_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $(top_srcdir)/buzztard.schemas.in
+	if test -z "$(DESTDIR)" ; then \
+		for p in $(schemas_DATA) ; do \
+			GCONF_CONFIG_SOURCE=$(GCONF_SCHEMA_CONFIG_SOURCE) $(GCONFTOOL) --makefile-install-rule $(top_srcdir)/$$p ; \
+		done ; \
+	fi
 
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)

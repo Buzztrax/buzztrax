@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.6 2004-10-18 07:23:42 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.7 2004-10-18 18:03:29 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -34,6 +34,9 @@ struct _BtSettingsDialogPrivate {
   
   /* the pages */
   GtkNotebook *settings_pages;
+  
+  /* the audiodevices settings */
+  BtSettingsPageAudiodevices *audiodevices_page;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -62,19 +65,11 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
-  BtSettings *settings;
   GtkWidget *box,*scrolled_window,*page;
-  GtkWidget *label,*spacer,*table,*widget,*menu,*menu_item;  
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  gchar *audio_sink_name,*str;
-  GList *audio_sink_names,*node;
   
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_get(settings,"audiosink",&audio_sink_name,NULL);
-  audio_sink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
-
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   gtk_window_set_title(GTK_WINDOW(self), _("buzztard settings"));
   
@@ -103,7 +98,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   g_signal_connect(G_OBJECT(self->priv->settings_list),"cursor-changed",G_CALLBACK(on_settings_list_cursor_changed),(gpointer)self);
 
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_LONG);
-  //-- append entries fior settings pages
+  //-- append entries for settings pages
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Audio Devices"),COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,-1);
   gtk_list_store_append(store, &tree_iter);
@@ -120,41 +115,9 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_notebook_set_show_border(self->priv->settings_pages,FALSE);
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(self->priv->settings_pages));
 
-  // @todo move pages into separate classes
-  
-  // add notebook page #1
-  spacer=gtk_label_new("    ");
-  table=gtk_table_new(3,4,FALSE);
-  label=gtk_label_new(NULL);
-  str=g_strdup_printf("<big><b>%s</b></big>",_("Audio Device"));
-  gtk_label_set_markup(GTK_LABEL(label),str);
-  g_free(str);
-  gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_FILL|GTK_EXPAND, 2,1);
-  gtk_table_attach(GTK_TABLE(table),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
-
-  label=gtk_label_new(_("Sink"));
-  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
-  widget=gtk_option_menu_new();
-  menu=gtk_menu_new();
-  menu_item=gtk_menu_item_new_with_label(g_strdup_printf(_("system default (%s)"),audio_sink_name));
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  gtk_widget_show(menu_item);
-  // add audio sinks gstreamer provides
-  node=audio_sink_names;
-  while(node) {
-    menu_item=gtk_menu_item_new_with_label(g_strdup(node->data));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-    gtk_widget_show(menu_item);
-    node=g_list_next(node);
-  }
-  gtk_option_menu_set_menu(GTK_OPTION_MENU(widget),menu);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(widget),0);
-  gtk_table_attach(GTK_TABLE(table),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-  //g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", (GCallback)on_audiosink_menu_changed, (gpointer)self);
-  
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),table);
+  // @todo move pages into separate classes (settings-page-audiodevices, settings-page-colors, settings-page-shortcuts, ...)
+  self->priv->audiodevices_page=bt_settings_page_audiodevices_new(self->priv->app);
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),self->priv->audiodevices_page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),0),
     gtk_label_new(_("Audio Device")));
@@ -176,10 +139,6 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
     gtk_label_new("page 3"));
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
-  
-  g_list_free(audio_sink_names);
-  g_free(audio_sink_name);
-  g_object_try_unref(settings);
   return(TRUE);
 }
 
