@@ -4,4 +4,4 @@ build_so.sh
 autom4te.cache
 Makefile.in
 Make.rules.in
-
+*.dll
