@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.19 2004-10-06 17:26:30 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.20 2004-10-11 16:19:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -233,8 +233,6 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
   gchar *str;
 
   GST_INFO("refresh pattern list");
-  // @todo if machine is NULL add label columns
-  
   store=gtk_list_store_new(1,G_TYPE_STRING);
 
   //-- append default rows

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.15 2004-10-06 17:26:30 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.16 2004-10-11 16:19:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -132,10 +132,24 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   guint bg_color=0xFFFFFFFF;
   gdouble pos_x,pos_y;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
+  GList *items;
   
-  // @todo clear the canvas
-  // a.) each group-item has an item_list member
-  // b.) store all items in a local list below
+  // @todo clear the canvas, problem: items is always NULL
+  if((items=gtk_container_get_children(GTK_CONTAINER(self->priv->canvas)))) {
+    GList* node=g_list_first(items);
+    GnomeCanvasItem *item;
+    GST_DEBUG("before destoying canvas items");
+    while(node) {
+      GST_DEBUG("destoying canvas item");
+      item=GNOME_CANVAS_ITEM(node->data);
+      gtk_object_destroy(GTK_OBJECT(item));
+      node=g_list_next(node);
+    }
+    g_list_free(items);
+  }
+  else {
+    GST_DEBUG("no items on canvas");
+  }
   
   // draw all wires
   iter=bt_setup_wire_iterator_new(setup);

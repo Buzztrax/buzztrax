@@ -20,6 +20,7 @@ libbtedit_la_SOURCES   = \
 	main-page-sequence.c main-page-sequence.h main-page-patterns-sequence.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
+	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	tools.c tools.h
 	
 INCLUDES = \

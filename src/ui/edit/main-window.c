@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.27 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-window.c,v 1.28 2004-10-11 16:19:15 ensonic Exp $
  * class for the editor main window
  */
 
@@ -179,10 +179,8 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   GtkWidget *dialog = gtk_dialog_new_with_buttons(_("Really quit ?"),
                                                   GTK_WINDOW(self),
                                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                  GTK_STOCK_OK,
-                                                  GTK_RESPONSE_ACCEPT,
-                                                  GTK_STOCK_CANCEL,
-                                                  GTK_RESPONSE_REJECT,
+                                                  GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                                  GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                                                   NULL);
 
   box=gtk_hbox_new(FALSE,12);

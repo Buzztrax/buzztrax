@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.11 2004-08-23 15:45:38 ensonic Exp $
+/* $Id: bt-edit.h,v 1.12 2004-10-11 16:19:15 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -13,6 +13,7 @@
 #include <libgnomecanvas/libgnomecanvas.h>
 
 #include "tools.h"
+#include "settings-dialog.h"
 #include "main-menu-methods.h"
 #include "main-toolbar-methods.h"
 #include "main-pages-methods.h"

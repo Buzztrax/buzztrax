@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.16 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-menu.c,v 1.17 2004-10-11 16:19:15 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -59,6 +59,25 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
+  g_object_try_unref(main_window);
+}
+
+static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  GtkWidget *dialog;
+  
+  g_assert(user_data);
+
+  GST_INFO("menu settings event occurred");
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  
+  dialog = bt_settings_dialog_new(self->priv->app/*,main_window*/);
+  
+  gtk_widget_show_all(dialog);
+                                                  
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
   g_object_try_unref(main_window);
 }
 
@@ -182,6 +201,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,accel_group);
   gtk_widget_set_name(subitem,_("settings"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_settings_activate),(gpointer)self);
   
   // view menu
   item=gtk_menu_item_new_with_mnemonic(_("_View"));

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.20 2004-10-08 13:49:55 ensonic Exp $
+$Id: TODO,v 1.21 2004-10-11 16:18:43 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -44,3 +44,6 @@ run 'make todo' to get a list of todo comments from source
 * new tests
   * load songs and lookup te parts
     (e.g. bt_machine_get_pattern_by_id)
+
+* code enhancement
+  * use G_CONST_RETURN
