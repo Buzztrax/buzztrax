@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.18 2004-12-02 10:45:33 ensonic Exp $
+/* $Id: bt-edit.h,v 1.19 2004-12-11 15:07:53 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -13,7 +13,7 @@
 #include <libgnomecanvas/libgnomecanvas.h>
 
 #include "edit-application-methods.h"
-#include "machine-canvas-item.h"
+#include "machine-canvas-item-methods.h"
 #include "machine-dialog-methods.h"
 #include "main-menu-methods.h"
 #include "main-pages-methods.h"
@@ -28,7 +28,7 @@
 #include "settings-dialog-methods.h"
 #include "settings-page-audiodevices-methods.h"
 #include "tools.h"
-#include "wire-canvas-item.h"
+#include "wire-canvas-item-methods.h"
 
 //-- misc
 #ifndef GST_CAT_DEFAULT

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.37 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: edit-application.c,v 1.38 2004-12-11 15:07:53 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -76,14 +76,22 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
  */
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
-  self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL));
-
-  // @todo check result
-  bt_application_new(BT_APPLICATION(self));
-
+  
+	if(!(self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)))) {
+		goto Error;
+	}
+	if(!bt_application_new(BT_APPLICATION(self))) {
+		goto Error;
+	}
   GST_INFO("new edit app created");
-  self->priv->main_window=bt_main_window_new(self);
+  if(!(self->priv->main_window=bt_main_window_new(self))) {
+		goto Error;
+	}
+	GST_INFO("new edit app window created");
   return(self);
+Error:
+	g_object_try_unref(self);
+	return(NULL);
 }
 
 //-- methods

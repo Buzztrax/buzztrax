@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.36 2004-12-10 19:14:38 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.37 2004-12-11 15:07:53 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -9,6 +9,7 @@
 
 enum {
   MAIN_PAGE_MACHINES_APP=1,
+	MAIN_PAGE_MACHINES_CANVAS
 };
 
 struct _BtMainPageMachinesPrivate {
@@ -24,7 +25,7 @@ struct _BtMainPageMachinesPrivate {
 	GnomeCanvasItem *grid;
 	
   /* the zoomration in pixels/per unit */
-  double zoom;
+  gdouble zoom;
 	/* zomm in/out widgets */
 	GtkWidget *zoom_in,*zoom_out;
   
@@ -93,34 +94,16 @@ static void update_machines_zoom(const BtMainPageMachines *self) {
 }
 
 static void machine_item_new(const BtMainPageMachines *self,BtMachine *machine,gdouble xpos,gdouble ypos) {
-	GnomeCanvasItem *item;
+	BtMachineCanvasItem *item;
 
-  item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           BT_TYPE_MACHINE_CANVAS_ITEM,
-                           "app", self->priv->app,
-                           "machine", machine,
-                           "x", xpos,
-                           "y", ypos,
-													 "zoom", self->priv->zoom,
-                           NULL);
+	item=bt_machine_canvas_item_new(self,machine,xpos,ypos,self->priv->zoom);
   g_hash_table_insert(self->priv->machines,machine,item);
 }
 
 static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,GnomeCanvasItem *src_machine_item,GnomeCanvasItem *dst_machine_item) {
-	GnomeCanvasItem *item;
+	BtWireCanvasItem *item;
 
-  item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           BT_TYPE_WIRE_CANVAS_ITEM,
-                           "app", self->priv->app,
-                           "wire", wire,
-                           "x", pos_xs,
-                           "y", pos_ys,
-                           "w", (pos_xe-pos_xs),
-                           "h", (pos_ye-pos_ys),
-                           "src", src_machine_item,
-                           "dst", dst_machine_item,
-                           NULL);
-  gnome_canvas_item_lower_to_bottom(item);
+	item=bt_wire_canvas_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
   g_hash_table_insert(self->priv->wires,wire,item);
 }
 
@@ -655,6 +638,40 @@ Error:
 
 //-- methods
 
+/**
+ * bt_main_page_machines_remove_machine_item:
+ * @self: the machines page the contains the item
+ * @item: the machine canvas object to remove
+ *
+ * Removes a machine canvas item from the canvas.
+ */
+void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, BtMachineCanvasItem *item) {
+	BtMachine *machine;
+	
+	g_object_get(G_OBJECT(item),"machine",&machine,NULL);
+	g_hash_table_remove(self->priv->machines,machine);
+	gtk_object_destroy(GTK_OBJECT(item));
+
+	g_object_try_unref(machine);
+}
+
+/**
+ * bt_main_page_machines_remove_wire_item:
+ * @self: the machines page the contains the item
+ * @item: the wire canvas object to remove
+ *
+ * Removes a wire canvas item from the canvas.
+ */
+void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtMachineCanvasItem *item) {
+	BtWire *wire;
+	
+	g_object_get(G_OBJECT(item),"wire",&wire,NULL);
+	g_hash_table_remove(self->priv->wires,wire);
+	gtk_object_destroy(GTK_OBJECT(item));
+
+	g_object_try_unref(wire);
+}
+
 //-- wrapper
 
 //-- class internals
@@ -670,6 +687,9 @@ static void bt_main_page_machines_get_property(GObject      *object,
   switch (property_id) {
     case MAIN_PAGE_MACHINES_APP: {
       g_value_set_object(value, self->priv->app);
+    } break;
+    case MAIN_PAGE_MACHINES_CANVAS: {
+      g_value_set_object(value, self->priv->canvas);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -754,6 +774,13 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGE_MACHINES_CANVAS,
+                                  g_param_spec_object("canvas",
+                                     "canvas prop",
+                                     "Get the machine canvas",
+                                     GNOME_TYPE_CANVAS, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_main_page_machines_get_type(void) {

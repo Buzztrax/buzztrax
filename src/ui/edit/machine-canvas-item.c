@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.19 2004-12-10 19:14:38 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.20 2004-12-11 15:07:53 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -20,6 +20,7 @@ enum {
 
 enum {
   MACHINE_CANVAS_ITEM_APP=1,
+	MACHINE_CANVAS_ITEM_MACHINES_PAGE,
   MACHINE_CANVAS_ITEM_MACHINE,
 	MACHINE_CANVAS_ITEM_ZOOM
 };
@@ -31,7 +32,9 @@ struct _BtMachineCanvasItemPrivate {
   
   /* the application */
   BtEditApplication *app;
-  
+  /* the machine page we are on */
+  BtMainPageMachines *main_page_machines;
+
   /* the underlying machine */
   BtMachine *machine;
   /* and its properties */
@@ -167,14 +170,9 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 		
   	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-
-		/* @todo care about connected wires
-		  iterate over wires, remove all wires that have this machine as src or dst
-		  problem: we have to remove the *visual wires*
-		*/
 		
 		bt_setup_remove_machine(setup,self->priv->machine);
-		gtk_object_destroy(GTK_OBJECT(self));
+		bt_main_page_machines_remove_machine_item(self->priv->main_page_machines,self);
 		
 		g_object_try_unref(setup);
 		g_object_try_unref(song);
@@ -284,6 +282,39 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 
 //-- constructor methods
 
+/**
+ * bt_machine_canvas_item_new:
+ * @main_page_machines: the machine page the new item belongs to
+ * @xpos: the horizontal location
+ * @ypos: the vertical location
+ * @zoom: the zoom ratio
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtMachineCanvasItem *bt_machine_canvas_item_new(BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom) {
+	BtMachineCanvasItem *self;
+	BtEditApplication *app;
+	GnomeCanvas *canvas;
+
+	g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
+	
+  self=BT_MACHINE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
+                          	BT_TYPE_MACHINE_CANVAS_ITEM,
+														"machines-page",main_page_machines,
+                          	"app", app,
+                          	"machine", machine,
+                          	"x", xpos,
+                          	"y", ypos,
+														"zoom", zoom,
+                          	NULL));
+
+	g_object_try_unref(canvas);
+	g_object_try_unref(app);
+  return(self);
+}
+
 //-- methods
 
 //-- wrapper
@@ -301,6 +332,9 @@ static void bt_machine_canvas_item_get_property(GObject      *object,
   switch (property_id) {
     case MACHINE_CANVAS_ITEM_APP: {
       g_value_set_object(value, self->priv->app);
+    } break;
+    case MACHINE_CANVAS_ITEM_MACHINES_PAGE: {
+      g_value_set_object(value, self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
       g_value_set_object(value, self->priv->machine);
@@ -327,6 +361,11 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->app);
       self->priv->app = g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the app for machine_canvas_item: %p",self->priv->app);
+    } break;
+    case MACHINE_CANVAS_ITEM_MACHINES_PAGE: {
+      g_object_try_unref(self->priv->main_page_machines);
+      self->priv->main_page_machines = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
       g_object_try_unref(self->priv->machine);
@@ -358,6 +397,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	GST_DEBUG("disposing ...");
 	
   g_object_try_unref(self->priv->app);
+	g_object_try_unref(self->priv->main_page_machines);
   g_object_try_unref(self->priv->machine);
 	
 	if(self->priv->parameter_dialog) {
@@ -596,6 +636,16 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 #endif
                                      G_PARAM_READWRITE));
   
+  g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINES_PAGE,
+                                  g_param_spec_object("machines-page",
+                                     "machines-page contruct prop",
+                                     "Set application object, the window belongs to",
+                                     BT_TYPE_MAIN_PAGE_MACHINES, /* object type */
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
+
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINE,
                                   g_param_spec_object("machine",
                                      "machine contruct prop",

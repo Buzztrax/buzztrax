@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.40 2004-11-26 18:53:26 waffel Exp $
+/* $Id: cmd-application.c,v 1.41 2004-12-11 15:07:53 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -50,11 +50,18 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
  */
 BtCmdApplication *bt_cmd_application_new(void) {
   BtCmdApplication *self;
-  self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL));
   
-  // @todo check result
-  bt_application_new(BT_APPLICATION(self));
+	if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL)))) {
+		goto Error;
+	}  
+  if(!(bt_application_new(BT_APPLICATION(self)))) {
+		goto Error;
+	}
+	GST_INFO("new cmd app created");
   return(self);
+Error:
+	g_object_try_unref(self);
+	return(NULL);
 }
 
 //-- methods

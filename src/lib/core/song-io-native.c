@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.46 2004-12-07 20:18:42 waffel Exp $
+/* $Id: song-io-native.c,v 1.47 2004-12-11 15:07:53 ensonic Exp $
  * class for native song input and output
  */
  
@@ -651,7 +651,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 
 //-- saver helper methods
 
-static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
 
 	xml_node=xmlNewChild(root_node,NULL,"sequence",NULL);
@@ -661,7 +661,7 @@ static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, cons
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
 
 	xml_node=xmlNewChild(root_node,NULL,"patterns",NULL);
@@ -670,7 +670,7 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
 
 	xml_node=xmlNewChild(root_node,NULL,"setup",NULL);
@@ -680,7 +680,7 @@ static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	BtSongInfo *song_info;
 	xmlNodePtr xml_node,xml_child_node;
 	gchar *name,*genre,*info;

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.23 2004-12-10 19:14:38 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.24 2004-12-11 15:07:53 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -148,11 +148,16 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	GtkListStore *store;
 	
   g_assert(user_data);
 	
-	GST_INFO("new machine has been removed");
-	// @todo remove from model
+	GST_INFO("machine has been removed");
+	store=GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu));
+	/* @todo remove from model
+	// find entry
+	gtk_list_store_remove(GtkListStore *list_store,GtkTreeIter *iter);
+	*/
 }
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {

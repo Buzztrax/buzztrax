@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.6 2004-12-09 14:26:44 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.7 2004-12-11 15:07:52 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -36,6 +36,7 @@ BtEditApplicationPrivate
 <FILE>btmachinecanvasitem</FILE>
 <TITLE>BtMachineCanvasItem</TITLE>
 BtMachineCanvasItem
+bt_machine_canvas_item_new
 <SUBSECTION Standard>
 BtMachineCanvasItemClass
 BT_MACHINE_CANVAS_ITEM
@@ -142,6 +143,8 @@ BtMainPageInfoPrivate
 <TITLE>BtMainPageMachines</TITLE>
 BtMainPageMachines
 bt_main_page_machines_new
+bt_main_page_machines_remove_machine_item
+bt_main_page_machines_remove_wire_item
 <SUBSECTION Standard>
 BtMainPageMachinesClass
 BT_MAIN_PAGE_MACHINES
@@ -256,6 +259,7 @@ BtSettingsDialogPrivate
 <FILE>btwirecanvasitem</FILE>
 <TITLE>BtWireCanvasItem</TITLE>
 BtWireCanvasItem
+bt_wire_canvas_item_new
 <SUBSECTION Standard>
 BtWireCanvasItemClass
 BT_WIRE_CANVAS_ITEM
