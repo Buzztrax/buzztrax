@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.5 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.6 2004-10-18 07:23:42 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -152,6 +152,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_option_menu_set_menu(GTK_OPTION_MENU(widget),menu);
   gtk_option_menu_set_history(GTK_OPTION_MENU(widget),0);
   gtk_table_attach(GTK_TABLE(table),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+  //g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", (GCallback)on_audiosink_menu_changed, (gpointer)self);
   
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),table);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
