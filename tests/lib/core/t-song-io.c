@@ -1,7 +1,7 @@
-/** $Id: t-song-io.c,v 1.7 2004-09-26 01:50:08 ensonic Exp $
+/** $Id: t-song-io.c,v 1.8 2004-10-01 13:24:02 waffel Exp $
 **/
 
-#include "t-song.h"
+#include "t-core.h"
 
 //-- globals
 
