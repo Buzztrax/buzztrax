@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-11-05 20:43+0000\n"
+"POT-Creation-Date: 2005-01-05 16:30+0100\n"
 "PO-Revision-Date: 2004-08-06 23:50+0200\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -24,11 +24,7 @@ msgstr "Buzztard Editor"
 msgid "Edit buzztard song files"
 msgstr "Bearbeiten von Buzztard Musik-Dateien"
 
-#: src/ui/edit/main-menu.c:95
-msgid "About ..."
-msgstr "Über"
-
-#: src/ui/edit/main-menu.c:111
+#: src/ui/edit/main-menu.c:142
 msgid ""
 "brought to you by\n"
 "\n"
@@ -40,308 +36,392 @@ msgstr ""
 "Stefan 'ensonic' Kost\n"
 "Thomas 'waffel' Wabner"
 
-#: src/ui/edit/main-menu.c:130
+#: src/ui/edit/main-menu.c:144
+msgid "About ..."
+msgstr "Über"
+
+#: src/ui/edit/main-menu.c:156
 msgid "main menu"
 msgstr "Hauptmenü"
 
 #. -- file menu
-#: src/ui/edit/main-menu.c:133
+#: src/ui/edit/main-menu.c:159
 msgid "_File"
 msgstr "_Datei"
 
-#: src/ui/edit/main-menu.c:134 src/ui/edit/main-menu.c:138
+#: src/ui/edit/main-menu.c:160 src/ui/edit/main-menu.c:164
 msgid "file menu"
 msgstr "Datei Menü"
 
-#: src/ui/edit/main-menu.c:142 src/ui/edit/main-toolbar.c:201
-#: src/ui/edit/main-toolbar.c:205
+#: src/ui/edit/main-menu.c:168 src/ui/edit/main-toolbar.c:238
+#: src/ui/edit/main-toolbar.c:242
 msgid "New"
 msgstr "Neu"
 
-#: src/ui/edit/main-menu.c:147 src/ui/edit/main-toolbar.c:213
-#: src/ui/edit/main-toolbar.c:217
+#: src/ui/edit/main-menu.c:173 src/ui/edit/main-toolbar.c:250
+#: src/ui/edit/main-toolbar.c:254
 msgid "Open"
 msgstr "Öffnen"
 
-#: src/ui/edit/main-menu.c:152 src/ui/edit/main-menu.c:165
-#: src/ui/edit/main-menu.c:200
+#: src/ui/edit/main-menu.c:178 src/ui/edit/main-menu.c:193
+#: src/ui/edit/main-menu.c:228
 msgid "separator"
 msgstr ""
 
-#: src/ui/edit/main-menu.c:157 src/ui/edit/main-toolbar.c:225
-#: src/ui/edit/main-toolbar.c:229
+#: src/ui/edit/main-menu.c:183 src/ui/edit/main-toolbar.c:262
+#: src/ui/edit/main-toolbar.c:266
 msgid "Save"
 msgstr "Speichern"
 
-#: src/ui/edit/main-menu.c:161
+#: src/ui/edit/main-menu.c:188
 msgid "Save as"
 msgstr "Speichern unter"
 
-#: src/ui/edit/main-menu.c:170
+#: src/ui/edit/main-menu.c:198
 msgid "Quit"
 msgstr "Beenden"
 
 #. edit menu
-#: src/ui/edit/main-menu.c:175
+#: src/ui/edit/main-menu.c:203
 msgid "_Edit"
 msgstr "_Bearbeiten"
 
-#: src/ui/edit/main-menu.c:176 src/ui/edit/main-menu.c:180
+#: src/ui/edit/main-menu.c:204 src/ui/edit/main-menu.c:208
 msgid "edit menu"
 msgstr "Bearbeiten Menü"
 
-#: src/ui/edit/main-menu.c:184
+#: src/ui/edit/main-menu.c:212
 msgid "cut"
 msgstr ""
 
-#: src/ui/edit/main-menu.c:188
+#: src/ui/edit/main-menu.c:216
 msgid "copy"
 msgstr ""
 
-#: src/ui/edit/main-menu.c:192
+#: src/ui/edit/main-menu.c:220
 msgid "paste"
 msgstr ""
 
-#: src/ui/edit/main-menu.c:196
+#: src/ui/edit/main-menu.c:224
 msgid "delete"
 msgstr ""
 
-#: src/ui/edit/main-menu.c:205
+#: src/ui/edit/main-menu.c:233
 msgid "settings"
 msgstr ""
 
 #. view menu
-#: src/ui/edit/main-menu.c:210
+#: src/ui/edit/main-menu.c:238
 msgid "_View"
 msgstr "_Ansicht"
 
-#: src/ui/edit/main-menu.c:211 src/ui/edit/main-menu.c:215
+#: src/ui/edit/main-menu.c:239 src/ui/edit/main-menu.c:243
 msgid "view menu"
 msgstr "Ansichts Menü"
 
-#: src/ui/edit/main-menu.c:218 src/ui/edit/main-menu.c:219
+#: src/ui/edit/main-menu.c:246 src/ui/edit/main-menu.c:247
 #, fuzzy
 msgid "Toolbar"
 msgstr "Werkzeugleiste"
 
 #. help menu
-#: src/ui/edit/main-menu.c:223
+#: src/ui/edit/main-menu.c:254
 msgid "_Help"
 msgstr "_Hilfe"
 
-#: src/ui/edit/main-menu.c:224 src/ui/edit/main-menu.c:229
+#: src/ui/edit/main-menu.c:255 src/ui/edit/main-menu.c:260
 msgid "help menu"
 msgstr "Hilfe Menü"
 
-#: src/ui/edit/main-menu.c:233
+#: src/ui/edit/main-menu.c:264
 msgid "Content"
 msgstr ""
 
-#: src/ui/edit/main-menu.c:236 src/ui/edit/main-menu.c:237
-#: src/ui/edit/main-menu.c:240
+#: src/ui/edit/main-menu.c:267 src/ui/edit/main-menu.c:268
+#: src/ui/edit/main-menu.c:271
 msgid "About"
 msgstr ""
 
-#. @todo display all properties from BTSongInfo
-#. first row of hbox
-#: src/ui/edit/main-page-info.c:66 src/ui/edit/main-page-info.c:67
+#. first row of vbox
+#: src/ui/edit/main-page-info.c:188 src/ui/edit/main-page-info.c:189
 msgid "song meta data"
 msgstr ""
 
-#: src/ui/edit/main-page-info.c:73
+#: src/ui/edit/main-page-info.c:199
 msgid "name"
 msgstr ""
 
-#: src/ui/edit/main-page-info.c:79
+#: src/ui/edit/main-page-info.c:206
 msgid "genre"
 msgstr ""
 
+#: src/ui/edit/main-page-info.c:213
+msgid "author"
+msgstr ""
+
+#: src/ui/edit/main-page-info.c:224
+msgid "beats per minute"
+msgstr ""
+
+#: src/ui/edit/main-page-info.c:232
+msgid "tick per beat"
+msgstr ""
+
 #. second row of hbox
-#: src/ui/edit/main-page-info.c:86 src/ui/edit/main-page-info.c:87
-#: src/ui/edit/main-page-info.c:96
+#: src/ui/edit/main-page-info.c:243 src/ui/edit/main-page-info.c:244
+#: src/ui/edit/main-page-info.c:253
 msgid "free text info"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:213 src/ui/edit/main-page-patterns.c:121
-#: src/ui/edit/main-page-sequence.c:327
+#: src/ui/edit/main-page-machines.c:582 src/ui/edit/main-page-patterns.c:218
+#: src/ui/edit/main-page-sequence.c:445
 msgid "machine view tool bar"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:223 src/ui/edit/main-page-machines.c:227
+#: src/ui/edit/main-page-machines.c:592 src/ui/edit/main-page-machines.c:596
 msgid "Zoom Fit"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:228
+#: src/ui/edit/main-page-machines.c:597
 msgid "Zoom in/out so that everything is visible"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:235 src/ui/edit/main-page-machines.c:239
+#: src/ui/edit/main-page-machines.c:604 src/ui/edit/main-page-machines.c:608
 msgid "Zoom In"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:240
+#: src/ui/edit/main-page-machines.c:610
 msgid "Zoom in so more details are visible"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:247 src/ui/edit/main-page-machines.c:251
+#: src/ui/edit/main-page-machines.c:617 src/ui/edit/main-page-machines.c:621
 msgid "Zoom Out"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:252
+#: src/ui/edit/main-page-machines.c:623
 msgid "Zoom out for better overview"
 msgstr ""
 
-#: src/ui/edit/main-page-machines.c:276
+#: src/ui/edit/main-page-machines.c:633 src/ui/edit/main-page-machines.c:637
+msgid "Grid"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:638
+msgid "Show background grid"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:671
+msgid "Off"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:678
+msgid "Low"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:685
+msgid "Medium"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:692
+msgid "High"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:708
+#, fuzzy
+msgid "add menu"
+msgstr "Hauptmenü"
+
+#: src/ui/edit/main-page-machines.c:711
+msgid "Generators"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:718
+msgid "generators menu"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:727
+msgid "Effects"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:734
+#, fuzzy
+msgid "effects menu"
+msgstr "Bearbeiten Menü"
+
+#: src/ui/edit/main-page-machines.c:749
 msgid "Unmute all machines"
 msgstr ""
 
 #. @todo do we really have to add the label by our self
 #. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-#: src/ui/edit/main-page-patterns.c:131 src/ui/edit/main-page-patterns.c:141
+#: src/ui/edit/main-page-patterns.c:235 src/ui/edit/main-page-patterns.c:245
 msgid "Machine"
 msgstr "Gerät"
 
 #. @todo do we really have to add the label by our self
 #. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-#: src/ui/edit/main-page-patterns.c:149 src/ui/edit/main-page-patterns.c:159
+#: src/ui/edit/main-page-patterns.c:256 src/ui/edit/main-page-patterns.c:266
 msgid "Pattern"
 msgstr ""
 
-#: src/ui/edit/main-page-sequence.c:71
+#: src/ui/edit/main-page-sequence.c:112
 msgid "Pos."
 msgstr ""
 
-#: src/ui/edit/main-page-sequence.c:76
+#: src/ui/edit/main-page-sequence.c:117
 msgid "Labels"
 msgstr ""
 
-#: src/ui/edit/main-page-sequence.c:240
+#: src/ui/edit/main-page-sequence.c:311
 msgid "  mute"
 msgstr ""
 
-#: src/ui/edit/main-page-sequence.c:242
+#: src/ui/edit/main-page-sequence.c:313
 msgid "  break"
 msgstr ""
 
 #. @todo do we really have to add the label by our self
 #. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-#: src/ui/edit/main-page-sequence.c:348 src/ui/edit/main-page-sequence.c:358
+#: src/ui/edit/main-page-sequence.c:460 src/ui/edit/main-page-sequence.c:470
 msgid "Steps"
 msgstr ""
 
-#: src/ui/edit/main-page-sequence.c:407
+#: src/ui/edit/main-page-sequence.c:520
 msgid "Patterns"
 msgstr ""
 
-#: src/ui/edit/main-pages.c:44
+#: src/ui/edit/main-pages.c:68
 msgid "song views"
 msgstr "Liedansichten"
 
-#: src/ui/edit/main-pages.c:50 src/ui/edit/main-pages.c:51
+#: src/ui/edit/main-pages.c:73
 msgid "machine view"
 msgstr "Geräteansicht"
 
-#: src/ui/edit/main-pages.c:56
+#: src/ui/edit/main-pages.c:73
 msgid "machines used in the song and their wires"
 msgstr ""
 
-#: src/ui/edit/main-pages.c:62 src/ui/edit/main-pages.c:63
+#: src/ui/edit/main-pages.c:78
 msgid "pattern view"
 msgstr ""
 
-#: src/ui/edit/main-pages.c:68
+#: src/ui/edit/main-pages.c:78
 msgid "event pattern editor"
 msgstr ""
 
-#: src/ui/edit/main-pages.c:74 src/ui/edit/main-pages.c:75
+#: src/ui/edit/main-pages.c:83
 msgid "sequence view"
 msgstr "Sequenzansicht"
 
-#: src/ui/edit/main-pages.c:80
+#: src/ui/edit/main-pages.c:83
 msgid "song sequence editor"
 msgstr ""
 
-#: src/ui/edit/main-pages.c:86 src/ui/edit/main-pages.c:87
+#: src/ui/edit/main-pages.c:88
+msgid "wave table view"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:88
+msgid "sample wave table editor"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:93
 msgid "song information"
 msgstr ""
 
-#: src/ui/edit/main-pages.c:92
+#: src/ui/edit/main-pages.c:93
 msgid "song meta data editor"
 msgstr ""
 
-#: src/ui/edit/main-statusbar.c:116
+#: src/ui/edit/main-statusbar.c:118
 msgid "status bar"
 msgstr "Statusleiste"
 
-#: src/ui/edit/main-statusbar.c:120 src/ui/edit/main-statusbar.c:126
-#: src/ui/edit/main-statusbar.c:133 src/ui/edit/main-statusbar.c:140
+#: src/ui/edit/main-statusbar.c:122 src/ui/edit/main-statusbar.c:128
+#: src/ui/edit/main-statusbar.c:135 src/ui/edit/main-statusbar.c:142
 msgid "default"
 msgstr ""
 
-#: src/ui/edit/main-statusbar.c:122 src/ui/edit/main-statusbar.c:220
-#: src/ui/edit/main-statusbar.c:280
+#: src/ui/edit/main-statusbar.c:124 src/ui/edit/main-statusbar.c:222
+#: src/ui/edit/main-statusbar.c:282
 msgid "Ready to rock!"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:188
+#: src/ui/edit/main-toolbar.c:225
 msgid "handlebox for toolbar"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:191
+#: src/ui/edit/main-toolbar.c:228
 msgid "tool bar"
 msgstr "Werkzeugleiste"
 
-#: src/ui/edit/main-toolbar.c:206
+#: src/ui/edit/main-toolbar.c:243
 msgid "Prepare a new empty song"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:218
+#: src/ui/edit/main-toolbar.c:255
 msgid "Load a new song"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:230
+#: src/ui/edit/main-toolbar.c:267
 msgid "Save this song"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:240 src/ui/edit/main-toolbar.c:244
+#: src/ui/edit/main-toolbar.c:278 src/ui/edit/main-toolbar.c:283
 msgid "Play"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:245
+#: src/ui/edit/main-toolbar.c:284
 msgid "Play this song"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:252 src/ui/edit/main-toolbar.c:256
+#: src/ui/edit/main-toolbar.c:291 src/ui/edit/main-toolbar.c:296
 msgid "Stop"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:257
+#: src/ui/edit/main-toolbar.c:297
 msgid "Stop playback of this song"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:264 src/ui/edit/main-toolbar.c:268
+#: src/ui/edit/main-toolbar.c:305 src/ui/edit/main-toolbar.c:309
 msgid "Loop"
 msgstr ""
 
-#: src/ui/edit/main-toolbar.c:269
+#: src/ui/edit/main-toolbar.c:310
 msgid "Toggle looping of playback"
 msgstr ""
 
 #. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-#: src/ui/edit/main-toolbar.c:298
+#: src/ui/edit/main-toolbar.c:342
 msgid "Volume"
 msgstr ""
 
-#: src/ui/edit/main-window.c:180 src/ui/edit/main-window.c:195
+#. @todo check song->unsaved
+#: src/ui/edit/main-window.c:181
 msgid "Really quit ?"
 msgstr ""
 
-#: src/ui/edit/main-window.c:195
+#: src/ui/edit/main-window.c:181
 msgid "All unsaved changes will be lost then."
 msgstr ""
 
-#: src/ui/edit/main-window.c:241
-msgid "Choose a song"
+#: src/ui/edit/main-window.c:206
+msgid "Open a song"
+msgstr ""
+
+#: src/ui/edit/main-window.c:277
+#, fuzzy
+msgid "Save a song"
+msgstr "Speichern unter"
+
+#. it already exists, ask the user what to do (do not save, choose new name, overwrite song)
+#: src/ui/edit/main-window.c:313
+msgid "File already exists"
+msgstr ""
+
+#: src/ui/edit/main-window.c:313
+msgid "Choose 'yes' to overwrite and 'no' to not save the song."
 msgstr ""
 
 #: buzztard.schemas.in.h:1

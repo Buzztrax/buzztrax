@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.34 2005-01-06 11:19:50 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.35 2005-01-06 14:48:30 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -32,6 +32,8 @@ struct _BtMainPageSequencePrivate {
   GdkColor source_bg1,source_bg2;
   GdkColor processor_bg1,processor_bg2;
   GdkColor sink_bg1,sink_bg2;
+	
+	glong tick_pos;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -40,26 +42,84 @@ enum {
   SEQUENCE_TABLE_SOURCE_BG=0,
   SEQUENCE_TABLE_PROCESSOR_BG,
   SEQUENCE_TABLE_SINK_BG,
-	SEQUENCE_TABLE_TICK_FG,
 	SEQUENCE_TABLE_TICK_FG_SET,
   SEQUENCE_TABLE_POS,
   SEQUENCE_TABLE_LABEL,
   SEQUENCE_TABLE_PRE_CT
 };
 
+#define IS_SEQUENCE_POS_VISIBLE(pos,bars) ((pos&((bars)-1))==0)
+
+//-- tree filter func
+
+static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpointer user_data) {
+	//gboolean visible=TRUE;
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	gulong pos;
+	
+	g_assert(user_data);
+	
+	// determine row number and hide or show accordingly
+	gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
+	//visible=IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars);
+	//GST_INFO("bars=%d, pos=%d, -> visible=%1d",self->priv->bars,pos,visible);
+	return(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars));
+}
 
 //-- tree model helper
 
-static void sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeIter *iter,gulong that_pos) {
+static gboolean sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeIter *iter,gulong that_pos) {
 	gulong this_pos;
+	gboolean found=FALSE;
 
 	gtk_tree_model_get_iter_first(store,iter);
 	do {
 		gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&this_pos,-1);
-		if(this_pos==that_pos) break;
+		if(this_pos==that_pos) { 
+			found=TRUE;break;
+		}
 	} while(gtk_tree_model_iter_next(store,iter));
+	return(found);
 }
 
+/*
+ * sequence_model_recolorize:
+ * alternate coloring for visible rows
+ */
+static void sequence_model_recolorize(BtMainPageSequence *self) {
+	GtkTreeModel *store;
+	GtkTreeModelFilter *filtered_store;
+	GtkTreeIter iter;
+	gboolean visible,odd_row=FALSE;
+
+	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
+		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
+	{
+		gtk_tree_model_get_iter_first(store,&iter);
+		do {
+			if(step_visible_filter(store,&iter,self)) {
+				if(odd_row) {
+    		  gtk_list_store_set(GTK_LIST_STORE(store),&iter,
+        		SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
+        		SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
+        		SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
+        		-1);
+				}
+				else {
+      		gtk_list_store_set(GTK_LIST_STORE(store),&iter,
+        		SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
+        		SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
+        		SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
+        		-1);
+				}
+				odd_row=!odd_row;
+			}
+		} while(gtk_tree_model_iter_next(store,&iter));
+	}
+	else {
+		GST_WARNING("can't get tree model");
+	}
+}
 
 //-- event handlers
 
@@ -71,22 +131,6 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   GST_INFO("machine id changed to \"%s\"",str);
   gtk_label_set_text(label,str);
 	g_free(str);
-}
-
-//-- tree filter func
-
-static gboolean step_visible_filter(GtkTreeModel *model,GtkTreeIter *iter,gpointer user_data) {
-	gboolean visible=TRUE;
-	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-	gulong pos;
-	
-	g_assert(user_data);
-	
-	// determine row number and hide or show accordingly
-	gtk_tree_model_get(model,iter,SEQUENCE_TABLE_POS,&pos,-1);
-	visible=((pos&((self->priv->bars)-1))==0);
-	//GST_INFO("bars=%d, pos=%d, -> visible=%1d",self->priv->bars,pos,visible);
-	return(visible);
 }
 
 //-- event handler helper
@@ -124,17 +168,15 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"editable",FALSE,"xalign",1.0,NULL);
+  g_object_set(G_OBJECT(renderer),"editable",FALSE,"xalign",1.0,"foreground","red",NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
-		"foreground",SEQUENCE_TABLE_TICK_FG,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL);
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,NULL);
+  g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,"foreground","red",NULL);
   col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
-		"foreground",SEQUENCE_TABLE_TICK_FG,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL);
 	
@@ -185,7 +227,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store_types[SEQUENCE_TABLE_SOURCE_BG   ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_PROCESSOR_BG]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_SINK_BG     ]=GDK_TYPE_COLOR;
-  store_types[SEQUENCE_TABLE_TICK_FG     ]=G_TYPE_STRING;
   store_types[SEQUENCE_TABLE_TICK_FG_SET ]=G_TYPE_BOOLEAN;
   // for static display columns
   store_types[SEQUENCE_TABLE_POS         ]=G_TYPE_LONG;
@@ -199,25 +240,16 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   for(i=0;i<timeline_ct;i++) {
     timeline=bt_sequence_get_timeline_by_time(sequence,i);
     gtk_list_store_append(store, &tree_iter);
-    // set colors
-    if(i&1) {
-      gtk_list_store_set(store,&tree_iter,
-        SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
-        SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
-        SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
-        -1);
-    }
-    else {
-      gtk_list_store_set(store,&tree_iter,
-        SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
-        SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
-        SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
-        -1);
-    }
+		/* set colors
+    gtk_list_store_set(store,&tree_iter,
+      SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
+      SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
+      SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
+      -1);
+		*/
     // set rest: position, highight-color
     gtk_list_store_set(store,&tree_iter,
 			SEQUENCE_TABLE_POS,pos,
-			SEQUENCE_TABLE_TICK_FG,"red",
 			SEQUENCE_TABLE_TICK_FG_SET,FALSE,
 			-1);
 		pos++;
@@ -276,19 +308,24 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
 
     // set machine name as column header
-    g_object_get(G_OBJECT(machine),"id",&str,NULL);
+		if(machine) {
+    	g_object_get(G_OBJECT(machine),"id",&str,NULL);
+			label=gtk_label_new(str);
+			g_free(str);
+		}
+		else {
+			label=gtk_label_new("???");
+			GST_WARNING("can't get machine for column %d",j);
+		}
 		// @todo here we can add hbox that containts Mute, Solo, Bypass buttons as well
 		// or popup button that shows the whole context menu like that in the machine_view
-		label=gtk_label_new(str);
 		gtk_widget_show(label);
     col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,NULL,renderer,
       "text",SEQUENCE_TABLE_PRE_CT+j,
-			"widget",label,
       NULL);
-    g_free(str);
     
     if((tree_col=gtk_tree_view_get_column(self->priv->sequence_table,col_index-1))) {
-			//gtk_tree_view_column_set_widget(tree_col,label);
+			gtk_tree_view_column_set_widget(tree_col,label);
 			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
 		
 			// color code columns
@@ -304,7 +341,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 		}
 		else GST_WARNING("can't get treeview column");
   }
-  GST_DEBUG("    number of columns : %d",col_index);
+  GST_INFO("    number of columns : %d",col_index);
 
   // release the references
   g_object_try_unref(sequence);
@@ -359,44 +396,61 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	GtkTreeModel *store;
+	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
   
   g_assert(user_data);
 
+	// reset old tick pos
+	if(!pos) self->priv->tick_pos=-1;
+	// do nothing for invisible rows
+	if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) return;
+
   //GST_INFO("sequence tick received : %d",pos);
-	store=gtk_tree_view_get_model(self->priv->sequence_table);
-  // update sequence table highlight
-	gdk_threads_enter();
-	// set color for new pos
-	sequence_model_get_iter_by_position(store,&iter,pos);
-	gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,TRUE,-1);
-	// unset color for old pos
-	if(pos) {
-		sequence_model_get_iter_by_position(store,&iter,pos-1);
-		gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,FALSE,-1);
+	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
+		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
+	{
+	  // update sequence table highlight
+		gdk_threads_enter();
+		// set color for new pos
+		if(sequence_model_get_iter_by_position(store,&iter,pos)) {
+			gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,TRUE,-1);
+		}
+		// unset color for old pos
+		if(self->priv->tick_pos!=-1) {
+			if(sequence_model_get_iter_by_position(store,&iter,self->priv->tick_pos)) {
+				gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,FALSE,-1);
+			}
+		}
+		self->priv->tick_pos=pos;
+		gdk_threads_leave();
 	}
-	gdk_threads_leave();
+	else {
+		GST_WARNING("can't get tree model");
+	}
 }
 
 static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	GtkTreeModel *store;
-	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
 
   g_assert(user_data);
 
   GST_INFO("bars_menu has changed : page=%p",user_data);
-	store=gtk_combo_box_get_model(self->priv->bars_menu);
-	if(gtk_combo_box_get_active_iter(self->priv->bars_menu,&iter)) {
+	
+	if((store=gtk_combo_box_get_model(self->priv->bars_menu))
+		&& gtk_combo_box_get_active_iter(self->priv->bars_menu,&iter))
+	{
 		gchar *str;
+		GtkTreeModelFilter *filtered_store;
 
 		gtk_tree_model_get(store,&iter,0,&str,-1);
 		self->priv->bars=atoi(str);
 		g_free(str);
+		sequence_model_recolorize(self);
 		//GST_INFO("  bars = %d",self->priv->bars);
 		if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
-			GST_INFO("  filter = %p",filtered_store);
 			gtk_tree_model_filter_refilter(filtered_store);
 		}
 	}

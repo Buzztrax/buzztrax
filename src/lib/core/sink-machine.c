@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.28 2004-12-18 18:44:26 ensonic Exp $
+/* $Id: sink-machine.c,v 1.29 2005-01-06 14:48:30 ensonic Exp $
  * class for a sink machine
  */
  
@@ -36,7 +36,10 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   BtSettings *settings;
   gchar *audiosink_name,*system_audiosink_name,*sink_name,*eon;
   gchar *plugin_name=NULL;
-  
+
+  g_assert(BT_IS_SONG(song));
+  g_assert(id);
+
   // get plugin_name from song->app->settings
   g_object_get(G_OBJECT(song),"app",&app,NULL);
   g_object_get(app,"settings",&settings,NULL);
@@ -67,9 +70,6 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
     GST_ERROR("no audiosink configured/register");
     goto Error;
   }
-
-  g_assert(BT_IS_SONG(song));
-  g_assert(id);
   
   if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL)))) {
     goto Error;

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.61 2005-01-04 18:02:16 ensonic Exp $
+/* $Id: machine.c,v 1.62 2005-01-06 14:48:30 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -385,9 +385,6 @@ glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *nam
   g_assert(name);
 	
 	if(self->priv->dparam_manager) {
-		/** @todo if we call this with a non-existing name, then gst_dpman_get_dparam fires a CRITICAL via g_return_if_fail();
-		 * CRITICAL **: file dparammanager.c: line 409 (gst_dpman_get_dparam): assertion `dpwrap != NULL' failed
-		 */
 	  if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
 			gulong i;
 	  	for(i=0;i<self->priv->global_params;i++) {
