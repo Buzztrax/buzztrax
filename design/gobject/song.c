@@ -9,6 +9,16 @@ enum {
   SONG_NAME=1
 };
 
+struct _BtSongPrivate {
+  /* used to validate if dispose has run */
+  gboolean dispose_has_run;
+  
+  /* the name for the song */
+  gchar *name;
+  gpointer data;
+};
+
+
 static void bt_song_real_start_play(BtSong *self) {
   /* emitting signal if we start play */
   g_signal_emit(self, 

@@ -31,6 +31,9 @@ int main(void) {
   
   bt_song_start_play(song2);
   
+	// this must give a compiler error
+	//g_print("name %s\n",song2->private->name);
+	
   /* destroy classes */
   g_object_unref(G_OBJECT(song1));
   g_object_unref(G_OBJECT(song2));

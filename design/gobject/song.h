@@ -16,7 +16,7 @@
 */
 typedef struct _BtSong BtSong;
 typedef struct _BtSongClass BtSongClass;
-typedef struct _BtSongPrivate BtSongPrivate ;
+typedef struct _BtSongPrivate BtSongPrivate;
 
 struct _BtSong {
   GObject parent;
@@ -32,15 +32,6 @@ struct _BtSongClass {
   guint play_signal_id;
   /* class method start_play */
   void (*start_play) (BtSong *self);
-};
-
-struct _BtSongPrivate {
-  /* used to validate if dispose has run */
-  gboolean dispose_has_run;
-  
-  /* the name for the song */
-  gchar *name;
-  gpointer data;
 };
 
 /* used by SONG_TYPE */
