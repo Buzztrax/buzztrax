@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.1 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: application.h,v 1.2 2004-05-14 16:59:22 ensonic Exp $
  * base class for a buzztard based application
  */
 
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_APPLICATION_TYPE:
+ *
+ * #GType for BtApplication instances
+ */
 #define BT_APPLICATION_TYPE		        (bt_application_get_type ())
 #define BT_APPLICATION(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_APPLICATION_TYPE, BtApplication))
 #define BT_APPLICATION_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_APPLICATION_TYPE, BtApplicationClass))
@@ -21,6 +26,11 @@ typedef struct _BtApplication BtApplication;
 typedef struct _BtApplicationClass BtApplicationClass;
 typedef struct _BtApplicationPrivate BtApplicationPrivate;
 
+/**
+ * BtApplication:
+ *
+ * base object for a buzztard based application
+ */
 struct _BtApplication {
   GObject parent;
   

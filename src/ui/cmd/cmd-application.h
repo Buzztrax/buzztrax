@@ -1,4 +1,4 @@
-/* $Id: cmd-application.h,v 1.1 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: cmd-application.h,v 1.2 2004-05-14 16:59:22 ensonic Exp $
  * class for a commandline buzztard based application
  */
 
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_CMD_APPLICATION_TYPE:
+ *
+ * #GType for BtCmdApplication instances
+ */
 #define BT_CMD_APPLICATION_TYPE		         (bt_cmd_application_get_type ())
 #define BT_CMD_APPLICATION(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_CMD_APPLICATION_TYPE, BtCmdApplication))
 #define BT_CMD_APPLICATION_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_CMD_APPLICATION_TYPE, BtCmdApplicationClass))
@@ -21,6 +26,11 @@ typedef struct _BtCmdApplication BtCmdApplication;
 typedef struct _BtCmdApplicationClass BtCmdApplicationClass;
 typedef struct _BtCmdApplicationPrivate BtCmdApplicationPrivate;
 
+/**
+ * BtCmdApplication:
+ *
+ * #BtApplication subclass for the commandline application
+ */
 struct _BtCmdApplication {
   BtApplication parent;
   

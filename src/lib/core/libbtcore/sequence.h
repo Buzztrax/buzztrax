@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.2 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: sequence.h,v 1.3 2004-05-14 16:59:22 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_SEQUENCE_TYPE:
+ *
+ * #GType for BtSequence instances
+ */
 #define BT_SEQUENCE_TYPE		        (bt_sequence_get_type ())
 #define BT_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SEQUENCE_TYPE, BtSequence))
 #define BT_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SEQUENCE_TYPE, BtSequenceClass))

@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.3 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: song-io.h,v 1.4 2004-05-14 16:59:22 ensonic Exp $
  * base class for song input and output
  */
 
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_SONG_IO_TYPE:
+ *
+ * #GType for BtSongIO instances
+ */
 #define BT_SONG_IO_TYPE		         (bt_song_io_get_type ())
 #define BT_SONG_IO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SONG_IO_TYPE, BtSongIO))
 #define BT_SONG_IO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SONG_IO_TYPE, BtSongIOClass))
@@ -21,13 +26,23 @@ typedef struct _BtSongIO BtSongIO;
 typedef struct _BtSongIOClass BtSongIOClass;
 typedef struct _BtSongIOPrivate BtSongIOPrivate;
 
+/**
+ * BtSongIO:
+ *
+ * base object for song input and output plugins
+ */
 struct _BtSongIO {
   GObject parent;
   
   /* private */
   BtSongIOPrivate *private;
 };
-/* structure of the song_io class */
+/**
+ * BtSongIOClass:
+ * @load: virtual method for loading a song
+ *
+ * base class for song input and output plugins
+ */
 struct _BtSongIOClass {
   GObjectClass parent;
   

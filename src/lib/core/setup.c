@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.9 2004-05-13 18:43:29 ensonic Exp $
+/* $Id: setup.c,v 1.10 2004-05-14 16:59:21 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -83,6 +83,16 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 		 //use g_strdup_value_contents() with strcmp ?
 		 //use gst_value_compare()
  */
+ 
+/**
+ * bt_setup_get_wire_by_src_machine:
+ * @self: the setup to search for the wire
+ * @src: the machine that is at the src end of the wire
+ *
+ * searches for the first wire in setup that uses the given machine as a source
+ *
+ * Returns: the BtWire or NULL 
+ */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
 	BtWire *wire;
 	GList *node=g_list_first(self->private->wires);
@@ -97,6 +107,31 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
 	}
 	return(NULL);
 }
+
+/**
+ * bt_setup_get_wire_by_dst_machine:
+ * @self: the setup to search for the wire
+ * @dst: the machine that is at the dst end of the wire
+ *
+ * searches for the first wire in setup that uses the given machine as a target
+ *
+ * Returns: the BtWire or NULL 
+ */
+BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
+	BtWire *wire;
+	GList *node=g_list_first(self->private->wires);
+	GValue val={0,};
+	g_value_init(&val,G_TYPE_OBJECT);
+	
+	while(node) {
+		wire=BT_WIRE(node->data);
+		g_object_get_property(G_OBJECT(wire),"dst", &val);
+		if(g_value_get_object(&val)==dst) return(wire);
+		node=g_list_next(node);
+	}
+	return(NULL);
+}
+
 //-- wrapper
 
 //-- class internals

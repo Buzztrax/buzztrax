@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.2 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: setup.h,v 1.3 2004-05-14 16:59:22 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_SETUP_TYPE:
+ *
+ * #GType for BtSetup instances
+ */
 #define BT_SETUP_TYPE		        (bt_setup_get_type ())
 #define BT_SETUP(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SETUP_TYPE, BtSetup))
 #define BT_SETUP_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SETUP_TYPE, BtSetupClass))
@@ -21,6 +26,12 @@ typedef struct _BtSetup BtSetup;
 typedef struct _BtSetupClass BtSetupClass;
 typedef struct _BtSetupPrivate BtSetupPrivate;
 
+/**
+ * BtSetup:
+ *
+ * virtual hardware setup
+ * (contains #BtMachine and #BtWire objects)
+ */
 struct _BtSetup {
   GObject parent;
   
@@ -30,7 +41,6 @@ struct _BtSetup {
 /* structure of the setup class */
 struct _BtSetupClass {
   GObjectClass parent;
-  
 };
 
 /* used by SETUP_TYPE */

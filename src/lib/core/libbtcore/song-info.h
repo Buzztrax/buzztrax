@@ -1,5 +1,5 @@
-/* $Id: song-info.h,v 1.5 2004-05-11 16:16:38 ensonic Exp $
- * class for a machine to machine connection
+/* $Id: song-info.h,v 1.6 2004-05-14 16:59:22 ensonic Exp $
+ * class for a song metadata
  */
 
 #ifndef BT_SONG_INFO_H
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_SONG_INFO_TYPE:
+ *
+ * #GType for BtSongInfo instances
+ */
 #define BT_SONG_INFO_TYPE		         (bt_song_info_get_type ())
 #define BT_SONG_INFO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SONG_INFO_TYPE, BtSongInfo))
 #define BT_SONG_INFO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SONG_INFO_TYPE, BtSongInfoClass))
@@ -21,6 +26,11 @@ typedef struct _BtSongInfo BtSongInfo;
 typedef struct _BtSongInfoClass BtSongInfoClass;
 typedef struct _BtSongInfoPrivate BtSongInfoPrivate;
 
+/**
+ * BtSongInfo:
+ *
+ * holds song metadata
+ */
 struct _BtSongInfo {
   GObject parent;
   
@@ -30,11 +40,9 @@ struct _BtSongInfo {
 /* structure of the SongInfo class */
 struct _BtSongInfoClass {
   GObjectClass parent;
-	
-  /* class methods */
 };
 
-/* used by SongInfo_TYPE */
+/* used by SONG_INFO_TYPE */
 GType bt_song_info_get_type(void);
 
 #endif // BT_SONG_INFO_H

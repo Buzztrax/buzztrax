@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.4 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: wire.h,v 1.5 2004-05-14 16:59:22 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -8,6 +8,11 @@
 #include <glib.h>
 #include <glib-object.h>
 
+/**
+ * BT_WIRE_TYPE:
+ *
+ * #GType for BtWire instances
+ */
 #define BT_WIRE_TYPE		        (bt_wire_get_type ())
 #define BT_WIRE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_WIRE_TYPE, BtWire))
 #define BT_WIRE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_WIRE_TYPE, BtWireClass))
@@ -21,6 +26,11 @@ typedef struct _BtWire BtWire;
 typedef struct _BtWireClass BtWireClass;
 typedef struct _BtWirePrivate BtWirePrivate;
 
+/**
+ * BtWire:
+ *
+ * connects two #BtMachine instances
+ */
 struct _BtWire {
   GObject parent;
   
@@ -30,7 +40,6 @@ struct _BtWire {
 /* structure of the wire class */
 struct _BtWireClass {
   GObjectClass parent;
-  
 };
 
 /* used by WIRE_TYPE */
