@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.44 2005-01-18 19:53:32 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.45 2005-01-27 10:29:01 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -497,6 +497,9 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   g_assert(user_data);
 	
 	GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+	// look up pattern for key
+	// determine bttimeline and bttimelinetrack
+	// set pattern
 	return(FALSE);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.76 2005-01-26 17:29:50 ensonic Exp $
+/* $Id: machine.c,v 1.77 2005-01-27 10:29:00 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -124,6 +124,12 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
 	  }
 		g_list_free(wires);
 	}
+	else {
+		if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+			GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
+			res=FALSE;
+		}
+	}
 	return(res);
 }
 
@@ -153,6 +159,12 @@ static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
 			g_object_unref(wire);
 	  }
 		g_list_free(wires);
+	}
+	else {
+		if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+			GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
+			res=FALSE;
+		}
 	}
 	return(res);
 }

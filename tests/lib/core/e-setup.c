@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.12 2005-01-25 19:58:58 waffel Exp $
+/** $Id: e-setup.c,v 1.13 2005-01-27 10:29:01 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -258,14 +258,13 @@ START_TEST(test_btsetup_wire1) {
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	// machines
-	BtSourceMachine *source1=NULL;
-	BtSourceMachine *ref_machine=NULL;
+	BtSourceMachine *source=NULL;
 	BtSinkMachine *sink=NULL;
 	// wire
 	BtWire *wire=NULL;
 	BtWire *ref_wire=NULL;
 	/* wire list */
-	GList* wireList=NULL;
+	GList* wire_list=NULL;
 	
 	
 	GST_INFO("--------------------------------------------------------------------------------");
@@ -280,31 +279,32 @@ START_TEST(test_btsetup_wire1) {
 	fail_unless(setup!=NULL, NULL);
 	
 	/* try to craete generator1 with sinesrc */
-  source1 = bt_source_machine_new(song,"generator1","sinesrc",0);
-  fail_unless(source1!=NULL, NULL);
+  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(source!=NULL, NULL);
 	
 	/* try to create sink machine with esd sink */
 	sink = bt_sink_machine_new(song,"sink1");
 	fail_unless(sink!=NULL, NULL);
 	
 	/* try to create the wire */
-	wire = bt_wire_new(song, BT_MACHINE(source1), BT_MACHINE(sink));
+	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
 	fail_unless(wire!=NULL, NULL);
 	
 	/* try to add the machines to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source1));
+	bt_setup_add_machine(setup, BT_MACHINE(source));
 	bt_setup_add_machine(setup, BT_MACHINE(sink));
 	
 	/* try to add the wire to the setup */
 	bt_setup_add_wire(setup, wire);
 	
 	/* try to get the list of wires */
-	wireList=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(source1));
-	fail_unless(wireList!=NULL,NULL);
-	ref_machine=g_list_first(wireList)->data;
-	fail_unless(ref_machine!=NULL,NULL);
-	fail_unless(ref_machine==source1,NULL);
-	g_list_free(wireList);
+	wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(source));
+	fail_unless(wire_list!=NULL,NULL);
+	ref_wire=BT_WIRE(g_list_first(wire_list)->data);
+	fail_unless(ref_wire!=NULL,NULL);
+	fail_unless(ref_wire==wire,NULL);
+	g_object_unref(ref_wire);
+	g_list_free(wire_list);
 	
 }
 END_TEST
