@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.11 2004-12-15 09:07:35 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.12 2004-12-15 11:22:56 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -151,10 +151,9 @@ void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_d
   GHashTable *properties;  
   /* the application */
   BtEditApplication *app;
-
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GnomeCanvasPoints *points;
-
+	
   //GST_INFO("wire pos has changed : machine_item=%p, user_data=%p",machine_item,user_data);
 
   g_object_get(self->priv->src,"machine",&src_machine,NULL);

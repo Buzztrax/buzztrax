@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.48 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: song-io-native.c,v 1.49 2004-12-15 11:22:42 ensonic Exp $
  * class for native song input and output
  */
  
@@ -627,14 +627,16 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 			}
 			else {
 				GST_INFO("file looks good!");
-				bt_song_io_native_load_song_info(self,song,song_doc);
-				bt_song_io_native_load_setup(    self,song,song_doc);
-				bt_song_io_native_load_patterns( self,song,song_doc);
-				bt_song_io_native_load_sequence( self,song,song_doc);
-        //DEBUG
-        bt_song_write_to_xml_file(song);
-        //DEBUG
-				result=TRUE;
+				if(bt_song_io_native_load_song_info(self,song,song_doc) &&
+					bt_song_io_native_load_setup(    self,song,song_doc) &&
+					bt_song_io_native_load_patterns( self,song,song_doc) &&
+					bt_song_io_native_load_sequence( self,song,song_doc)
+				) {
+					//DEBUG
+					bt_song_write_to_xml_file(song);
+					//DEBUG
+					result=TRUE;
+				}
 			}
 		}		
 	}
@@ -731,13 +733,14 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 		xmlNewProp(root_node,"xsd:noNamespaceSchemaLocation","buzztard.xsd");
     xmlDocSetRootElement(song_doc,root_node);
 		// build the xml document tree
-		bt_song_io_native_save_song_info(self,song,song_doc,root_node);
-		bt_song_io_native_save_setup(    self,song,song_doc,root_node);
-		bt_song_io_native_save_patterns( self,song,song_doc,root_node);
-		bt_song_io_native_save_sequence( self,song,song_doc,root_node);
-		
-		if(xmlSaveFile(file_name,song_doc)!=-1) {
-			result=TRUE;
+		if(bt_song_io_native_save_song_info(self,song,song_doc,root_node) &&
+		  bt_song_io_native_save_setup(    self,song,song_doc,root_node) &&
+		  bt_song_io_native_save_patterns( self,song,song_doc,root_node) &&
+		  bt_song_io_native_save_sequence( self,song,song_doc,root_node)
+		) {
+			if(xmlSaveFile(file_name,song_doc)!=-1) {
+				result=TRUE;
+			}
 		}
 	}
 	

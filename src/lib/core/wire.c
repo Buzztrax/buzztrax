@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.41 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: wire.c,v 1.42 2004-12-15 11:22:42 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -62,7 +62,6 @@ static GObjectClass *parent_class=NULL;
 static gboolean bt_wire_link_machines(const BtWire *self) {
   gboolean res=TRUE;
   BtMachine *src, *dst;
-  BtSong *song=self->priv->song;
 
   g_assert(BT_IS_WIRE(self));
   
@@ -127,12 +126,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
  *
  * Unlinks gst-element of this wire and removes the conversion elemnts from the
  * song.
- *
- * Returns: true for success
  */
-static gboolean bt_wire_unlink_machines(const BtWire *self) {
-  BtSong *song=self->priv->song;
-  GstBin *bin;
+static void bt_wire_unlink_machines(const BtWire *self) {
 
   g_assert(BT_IS_WIRE(self));
 

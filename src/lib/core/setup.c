@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.46 2004-12-10 19:14:37 ensonic Exp $
+/* $Id: setup.c,v 1.47 2004-12-15 11:22:42 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -407,7 +407,7 @@ BtWire *bt_setup_wire_iterator_get_wire(gpointer iter) {
  */
 gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
 	gchar *id,*ptr;
-	gint8 i=0;
+	guint8 i=0;
 	
 	if(!bt_setup_get_machine_by_id(self,base_name)) {
 		return(g_strdup(base_name));
@@ -416,7 +416,7 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
 	id=g_strdup_printf("%s 00",base_name);
 	ptr=&id[strlen(base_name)+1];
 	do {
-		g_printf(ptr,"%d",i++);
+		(void)g_sprintf(ptr,"%u",i++);
 	} while(bt_setup_get_machine_by_id(self,id) && (i<100));
 	return(id);
 }
