@@ -1,4 +1,4 @@
-* $Id: gstreamer.txt,v 1.6 2004-12-07 14:17:31 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: gstreamer.txt,v 1.7 2005-03-12 12:11:28 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * gst-launch-0.8 tests
@@ -14,7 +14,11 @@
 * play video
   gst-launch-0.8 filesrc location=/usr/share/data/video-fun/Pixar\ -\ For\ the\ Birds.avi ! spider ! ffcolorspace ! ximagesink
   gst-launch filesrc location=~/stuff/TheChubbChubbs.avi ! avidemux name=demux demux.video_00 ! { queue ! ffdec_msmpeg4 ! ffcolorspace ! xvimagesink } demux.audio_00 ! { queue ! mad ! osssink }
-  
+
+* play from remote-webcam
+  gst-launch mmssrc location=mms://195.37.219.74:8080 ! asfdemux name=demux demux.video_00 ! { queue ! ffdec_msmpeg4 ! ffcolorspace ! xvimagesink }
+  gst-launch mmssrc location=mms://195.37.219.74:8080 ! asfdemux name=demux demux.video_00 ! { queue ! ffdec_wmv2 ! xvimagesink } demux.audio_00 ! { queue ! ffdec_wmav2 ! osssink }
+
 * rip audio from video
   gst-launch filesrc location=TheChubbChubbs.avi ! avidemux name=demux demux.audio_00 ! { queue ! filesink location=chubb.mp3 }
   gst-launch filesrc location=TheChubbChubbs.avi ! avidemux name=demux demux.audio_00 ! { queue ! mad ! wavenc ! filesink location=chubb.wav }

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.57 2005-03-07 16:29:40 ensonic Exp $
+/* $Id: sequence.c,v 1.58 2005-03-12 12:11:41 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -106,13 +106,16 @@ static void bt_sequence_free_timelines(const BtSequence *self) {
 static void bt_sequence_init_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_init_timelines");
   if(self->priv->length) {
-    self->priv->timelines=g_new(BtTimeLine*,self->priv->length);
+    self->priv->timelines=g_try_new(BtTimeLine*,self->priv->length);
     if(self->priv->timelines) {
       gulong i;
       for(i=0;i<self->priv->length;i++) {
         self->priv->timelines[i]=bt_timeline_new(self->priv->song);
       }
     }
+		else {
+			GST_WARNING("can't allocate memory for %d timelines",self->priv->length);
+		}
   }
 }
 
@@ -153,7 +156,7 @@ static void bt_sequence_init_machines(const BtSequence *self,gulong old_tracks) 
 	if(self->priv->machines) {
 		old_machines=self->priv->machines;
 	}
-  self->priv->machines=g_new0(BtMachine*,self->priv->tracks);
+  self->priv->machines=g_try_new0(BtMachine*,self->priv->tracks);
   if(self->priv->machines) {
     gulong i;
 		// copy data from old tracks
@@ -165,6 +168,9 @@ static void bt_sequence_init_machines(const BtSequence *self,gulong old_tracks) 
        g_object_unref(old_machines[i]);
     }
   }
+	else {
+		GST_WARNING("can't allocate memory for %d machines",self->priv->tracks);
+	}
 	if(old_machines) g_free(old_machines);
 }
 

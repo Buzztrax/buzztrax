@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.14 2005-01-10 12:22:07 ensonic Exp $
+/* $Id: tools.c,v 1.15 2005-03-12 12:11:41 ensonic Exp $
  */
  
 #define BT_CORE
@@ -35,4 +35,14 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   }
   g_list_free(elements);
   return(res);
+}
+
+
+gpointer g_try_malloc0(gulong n_bytes) {
+  gpointer mem;
+
+  if((mem=g_try_malloc(n_bytes))) {
+    memset(mem,0,n_bytes);
+  }
+  return(mem);
 }
