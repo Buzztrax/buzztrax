@@ -1,12 +1,12 @@
-# $Id: Makefile,v 1.6 2004-04-01 15:29:49 ensonic Exp $
+# $Id: Makefile,v 1.7 2004-04-02 18:00:31 ensonic Exp $
 
 .PHONY: clean
 
-TARGETS = gst1 gst2 gst3 net1 browser
+TARGETS = gst1 gst2 gst3 net1 net2 browser
 
 # targets
 
-all: $(TARGETS)
+all: $(TARGETS) net.h
 
 clean:
 	@rm -rf core *.o *~ $(TARGETS)
@@ -15,5 +15,5 @@ clean:
 # generic rules
 
 %: %.c
-	gcc -Wall `pkg-config gstreamer-control-0.8 --cflags --libs` `pkg-config gstreamer-0.8 --cflags --libs` $< -o $@
+	gcc -Wall -g `pkg-config gstreamer-control-0.8 --cflags --libs` `pkg-config gstreamer-0.8 --cflags --libs` $< -o $@
 
