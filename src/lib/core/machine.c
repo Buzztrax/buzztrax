@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.21 2004-07-21 15:17:18 ensonic Exp $
+/* $Id: machine.c,v 1.22 2004-07-30 15:15:51 ensonic Exp $
  * base class for a machine
  */
  
@@ -24,7 +24,7 @@ struct _BtMachinePrivate {
 	BtSong *song;
 	/* the id, we can use to lookup the machine */
 	gchar *id;
-	/* the gst-plugin the machine is using */
+	/* the name of the gst-plugin the machine is using */
 	gchar *plugin_name;
 
   /* the number of voices the machine provides */
@@ -46,59 +46,57 @@ struct _BtMachinePrivate {
 
 //-- helper methods
 
-static gboolean bt_machine_init_gst_element(BtMachine *self) {
-	if(self->machine) {
-		// @todo change id of machine in gst
-	}
-	else {
-		if(self->private->id && self->private->plugin_name) {
-		  self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
-			if(!self->machine) {
-				GST_ERROR("  failed to instantiate machine \"%s\"",self->private->plugin_name);
-				return(FALSE);
-			}
-			// there is no adder or spreader in use by default
-			self->dst_elem=self->src_elem=self->machine;
-			GST_DEBUG("  instantiated machine \"%s\"",self->private->plugin_name);
-			if((self->private->dparam_manager=gst_dpman_get_manager(self->machine))) {
-				GParamSpec **specs;
-				GstDParam **dparam;
-				guint i;
-		
-				// setting param mode. Only synchronized is currently supported
-				gst_dpman_set_mode(self->private->dparam_manager, "synchronous");
-				GST_DEBUG("  machine \"%s\" supports dparams",self->private->plugin_name);
-				
-				// manage dparams
-				specs=gst_dpman_list_dparam_specs(self->private->dparam_manager);
-				// count the specs
-				for(i=0;specs[i];i++);
-        // right now, we have no voice params
-				self->private->global_params=i;
-				self->private->global_dparams=(GstDParam **)g_new0(gpointer,self->private->global_params);
-				self->private->global_types  =(GType *     )g_new0(GType   ,self->private->global_params);
-				// iterate over all dparam
-				for(i=0,dparam=self->private->global_dparams;specs[i];i++,dparam++) {
-          self->private->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
-					self->private->global_dparams[i]=gst_dparam_new(self->private->global_types[i]);
-					gst_dpman_attach_dparam(self->private->dparam_manager,g_param_spec_get_name(specs[i]),self->private->global_dparams[i]);
-					GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
-				}
-			}
-			gst_bin_add(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin")), self->machine);
-      g_assert(self->machine!=NULL);
-      g_assert(self->src_elem!=NULL);
-      g_assert(self->dst_elem!=NULL);
+// @todo ideally this would be a protected method, but how to do this in 'C' ?
+gboolean bt_machine_init_gst_element(BtMachine *self) {
 
-      if(BT_IS_SINK_MACHINE(self)) {
-        GST_DEBUG("this will be the master for the song");
-        bt_g_object_set_object_property(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine));
-      }
+  g_assert(self->machine==NULL);
+  g_assert(self->private->id);
+  g_assert(self->private->plugin_name);
 
-      return(TRUE);
-		}
-	}
-  return(FALSE);
+  self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
+  if(!self->machine) {
+    GST_ERROR("  failed to instantiate machine \"%s\"",self->private->plugin_name);
+    return(FALSE);
+  }
+  // there is no adder or spreader in use by default
+  self->dst_elem=self->src_elem=self->machine;
+  GST_DEBUG("  instantiated machine \"%s\"",self->private->plugin_name);
+  if((self->private->dparam_manager=gst_dpman_get_manager(self->machine))) {
+    GParamSpec **specs;
+    GstDParam **dparam;
+    guint i;
+
+    // setting param mode. Only synchronized is currently supported
+    gst_dpman_set_mode(self->private->dparam_manager, "synchronous");
+    GST_DEBUG("  machine \"%s\" supports dparams",self->private->plugin_name);
+    
+    // manage dparams
+    specs=gst_dpman_list_dparam_specs(self->private->dparam_manager);
+    // count the specs
+    for(i=0;specs[i];i++);
+    // right now, we have no voice params
+    self->private->global_params=i;
+    self->private->global_dparams=(GstDParam **)g_new0(gpointer,self->private->global_params);
+    self->private->global_types  =(GType *     )g_new0(GType   ,self->private->global_params);
+    // iterate over all dparam
+    for(i=0,dparam=self->private->global_dparams;specs[i];i++,dparam++) {
+      self->private->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
+      self->private->global_dparams[i]=gst_dparam_new(self->private->global_types[i]);
+      gst_dpman_attach_dparam(self->private->dparam_manager,g_param_spec_get_name(specs[i]),self->private->global_dparams[i]);
+      GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
+    }
+  }
+  gst_bin_add(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin")), self->machine);
+  g_assert(self->machine!=NULL);
+  g_assert(self->src_elem!=NULL);
+  g_assert(self->dst_elem!=NULL);
+
+  if(BT_IS_SINK_MACHINE(self)) {
+    GST_DEBUG("this will be the master for the song");
+    bt_g_object_set_object_property(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine));
+  }
+
+  return(TRUE);
 }
 
 //-- methods
@@ -294,13 +292,12 @@ static void bt_machine_set_property(GObject      *object,
       g_free(self->private->id);
       self->private->id = g_value_dup_string(value);
       GST_DEBUG("set the id for machine: %s",self->private->id);
-			bt_machine_init_gst_element(self);
+      //if(self->machine)	bt_machine_rename(self);
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->private->plugin_name);
       self->private->plugin_name = g_value_dup_string(value);
       GST_DEBUG("set the plugin_name for machine: %s",self->private->plugin_name);
-			bt_machine_init_gst_element(self);
     } break;
     case MACHINE_VOICES: {
       self->private->voices = g_value_get_long(value);

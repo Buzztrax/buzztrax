@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.14 2004-07-29 15:51:31 ensonic Exp $
+/* $Id: cmd-application.c,v 1.15 2004-07-30 15:15:51 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -26,6 +26,22 @@ static void play_event(void) {
   GST_INFO("start play invoked per signal\n");
 }
 
+//-- constructor methods
+
+/**
+ * bt_cmd_application_new:
+ *
+ * Create a new instance
+ *
+ * Return: the new instance or NULL in case of an error
+ */
+BtCmdApplication *bt_cmd_application_new(void) {
+  BtCmdApplication *self;
+  self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL));
+  
+  return(self);
+}
+
 //-- methods
 
 /**
@@ -44,8 +60,8 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 
 	GST_INFO("application.play launched");
 
-	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(self),"bin"),"name","first buzztard song", NULL);
-	loader = (BtSongIO *)g_object_new(bt_song_io_detect(input_file_name),NULL);
+  song=bt_song_new(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+	loader=bt_song_io_new(input_file_name);
 	
 	GST_INFO("objects initialized");
 	
@@ -79,8 +95,8 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 
 	GST_INFO("application.info launched");
 
-	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(self),"bin"),NULL);
-	loader = (BtSongIO *)g_object_new(bt_song_io_detect(input_file_name),NULL);
+	song=bt_song_new(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+	loader=bt_song_io_new(input_file_name);
 	
 	GST_INFO("objects initialized");
 	

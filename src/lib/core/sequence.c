@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.17 2004-07-28 13:54:42 ensonic Exp $
+/* $Id: sequence.c,v 1.18 2004-07-30 15:15:51 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -66,7 +66,7 @@ static void bt_sequence_init_timelines(const BtSequence *self) {
     if(self->private->timelines) {
       glong i;
       for(i=0;i<self->private->length;i++) {
-        self->private->timelines[i]=g_object_new(BT_TYPE_TIMELINE,"song",self->private->song,NULL);
+        self->private->timelines[i]=bt_timeline_new(self->private->song);
       }
     }
   }
@@ -89,6 +89,23 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
       }
     }
   }
+}
+
+//-- constructor methods
+
+/**
+ * bt_sequence_new:
+ * @song: the song the new instance belongs to
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSequence *bt_sequence_new(const BtSong *song) {
+  BtSequence *self;
+  self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
+  
+  return(self);
 }
 
 //-- methods
@@ -144,7 +161,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
   playline_length=ticks_per_beat*bars;
   ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
   wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
-  playline=g_object_new(BT_TYPE_PLAYLINE,"song",self->private->song,"master",master,"tracks",self->private->tracks,"length",playline_length,"wpp",wait_per_position,NULL);
+  playline=bt_playline_new(self->private->song,master,self->private->tracks,playline_length,wait_per_position);
 
   if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
     for(i=0;i<self->private->length;i++,timeline++) {

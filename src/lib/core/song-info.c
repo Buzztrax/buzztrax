@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.12 2004-07-21 15:17:18 ensonic Exp $
+/* $Id: song-info.c,v 1.13 2004-07-30 15:15:51 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -34,6 +34,23 @@ struct _BtSongInfoPrivate {
   /* how many bars per beat */
   glong bars;
 };
+
+//-- constructor methods
+
+/**
+ * bt_song_info_new:
+ * @song: the song the new instance belongs to
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSongInfo *bt_song_info_new(const BtSong *song) {
+  BtSongInfo *self;
+  self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
+  
+  return(self);
+}
 
 //-- methods
 

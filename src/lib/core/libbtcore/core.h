@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.25 2004-07-28 13:25:21 ensonic Exp $
+/* $Id: core.h,v 1.26 2004-07-30 15:15:51 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -24,13 +24,13 @@
 #include <popt.h>
 
 //-- libbtcore
-// method prototype includes do include the data defs themself)
+// method prototype includes do include the data defs themself
 #include "song-methods.h"
 #include "song-info-methods.h"
 #include "machine-methods.h"
-#include "processor-machine.h"
-#include "sink-machine.h"
-#include "source-machine.h"
+#include "processor-machine-methods.h"
+#include "sink-machine-methods.h"
+#include "source-machine-methods.h"
 #include "wire-methods.h"
 #include "setup-methods.h"
 #include "pattern-methods.h"

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.28 2004-07-28 13:54:42 ensonic Exp $
+/* $Id: song.c,v 1.29 2004-07-30 15:15:51 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -31,6 +31,39 @@ struct _BtSongPrivate {
   /* the element that has the clock */
   GstElement *master;
 };
+
+//-- constructor methods
+
+/**
+ * bt_song_new:
+ * @bin: the gst root element to hold the song
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSong *bt_song_new(const GstBin *bin) {
+  BtSong *self;
+  self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
+  
+  return(self);
+}
+
+/**
+ * bt_song_new_with_name:
+ * @bin: the gst root elemnt to hold the song
+ * @name: the name of the new song
+ *
+ * Create a new instance with a initial name
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSong *bt_song_new_with_name(const GstBin *bin, const gchar *name) {
+  BtSong *self;
+  self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,"name",name,NULL));
+  
+  return(self);
+}
 
 //-- methods
 
@@ -211,9 +244,9 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   //GST_DEBUG("song_init self=%p",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
-  self->private->song_info = BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",self,NULL));
-  self->private->sequence  = BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",self,NULL));
-  self->private->setup     = BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",self,NULL));
+  self->private->song_info = bt_song_info_new(self);
+  self->private->sequence  = bt_sequence_new(self);
+  self->private->setup     = bt_setup_new(self);
 }
 
 static void bt_song_class_init(BtSongClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.5 2004-07-02 15:01:06 ensonic Exp $
+/* $Id: source-machine.c,v 1.6 2004-07-30 15:15:51 ensonic Exp $
  * class for a source machine
  */
  
@@ -12,6 +12,30 @@ struct _BtSourceMachinePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+//-- constructor methods
+
+// @todo ideally this would be a protected method, but how to do this in 'C' ?
+extern gboolean bt_machine_init_gst_element(BtMachine *self);
+
+/**
+ * bt_source_machine_new:
+ * @song: the song the new instance belongs to
+ * @id: the id, we can use to lookup the machine
+ * @plugin_name: the name of the gst-plugin the machine is using
+ * @voices: the number of voices the machine should initially have
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
+  BtSourceMachine *self;
+  self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL));
+  
+  bt_machine_init_gst_element(self);
+  return(self);
+}
 
 //-- methods
 

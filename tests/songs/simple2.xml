@@ -66,7 +66,7 @@
       <tick time="10"><globaldata name="volume" value="0,5"/></tick>
       <tick time="11"><globaldata name="volume" value="0,375"/></tick>
       <tick time="12"><globaldata name="volume" value="0,25"/></tick>
-      <tick time="11"><globaldata name="volume" value="0,125"/></tick>
+      <tick time="13"><globaldata name="volume" value="0,125"/></tick>
       <tick time="14"><globaldata name="volume" value="0,0"/></tick>
     </pattern>
   </patterns>

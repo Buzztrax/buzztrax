@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.15 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: setup.c,v 1.16 2004-07-30 15:15:51 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -22,6 +22,23 @@ struct _BtSetupPrivate {
 	GList *machines;	// each entry points to BtMachine
 	GList *wires;			// each entry points to BtWire
 };
+
+//-- constructor methods
+
+/**
+ * bt_setup_new:
+ * @song: the song the new instance belongs to
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSetup *bt_setup_new(const BtSong *song) {
+  BtSetup *self;
+  self=BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL));
+  
+  return(self);
+}
 
 //-- methods
 

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.6 2004-07-05 12:22:45 ensonic Exp $
+/* $Id: processor-machine.c,v 1.7 2004-07-30 15:15:51 ensonic Exp $
  * class for a processor machine
  */
 
@@ -6,12 +6,36 @@
 #define BT_PROCESSOR_MACHINE_C
 
 #include <libbtcore/core.h>
-#include <libbtcore/processor-machine.h>
+#include <libbtcore/machine.h>
 
 struct _BtProcessorMachinePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+//-- constructor methods
+
+// @todo ideally this would be a protected method, but how to do this in 'C' ?
+extern gboolean bt_machine_init_gst_element(BtMachine *self);
+
+/**
+ * bt_processor_machine_new:
+ * @song: the song the new instance belongs to
+ * @id: the id, we can use to lookup the machine
+ * @plugin_name: the name of the gst-plugin the machine is using
+ * @voices: the number of voices the machine should initially have
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
+  BtProcessorMachine *self;
+  self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL));
+  
+  bt_machine_init_gst_element(self);
+  return(self);
+}
 
 //-- methods
 

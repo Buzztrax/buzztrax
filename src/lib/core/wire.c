@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.20 2004-07-21 13:21:23 ensonic Exp $
+/* $Id: wire.c,v 1.21 2004-07-30 15:15:51 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -223,6 +223,26 @@ static gboolean bt_wire_connect(BtWire *self) {
 	return(TRUE);
 }
 
+//-- constructor methods
+
+/**
+ * bt_wire_new:
+ * @song: the song the new instance belongs to
+ * @src_machine: the data source
+ * @dst_machine: the data sink
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
+  BtWire *self;
+  self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
+
+  bt_wire_connect(self);
+  return(self);
+}
+
 //-- wrapper
 
 //-- class internals
@@ -268,12 +288,10 @@ static void bt_wire_set_property(GObject      *object,
 		case WIRE_SRC: {
 			self->private->src = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the source element for the wire: %p",self->private->src);
-      bt_wire_connect(self);
 		} break;
 		case WIRE_DST: {
 			self->private->dst = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the target element for the wire: %p",self->private->dst);
-      bt_wire_connect(self);
 		} break;
     default: {
       g_assert(FALSE);

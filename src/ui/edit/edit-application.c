@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.1 2004-07-29 15:51:31 ensonic Exp $
+/* $Id: edit-application.c,v 1.2 2004-07-30 15:15:51 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -84,6 +84,22 @@ static gboolean bt_edit_application_ui(const BtEditApplication *self) {
   return(res);
 }
 
+//-- constructor methods
+
+/**
+ * bt_edit_application_new:
+ *
+ * Create a new instance
+ *
+ * Return: the new instance or NULL in case of an error
+ */
+BtEditApplication *bt_edit_application_new(void) {
+  BtEditApplication *self;
+  self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL));
+  
+  return(self);
+}
+
 //-- methods
 
 /**
@@ -99,7 +115,7 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 
 	GST_INFO("application.play launched");
 
-	self->private->song=(BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(self),"bin"),"name","empty song", NULL);
+	self->private->song=bt_song_new_with_name(bt_g_object_get_object_property(G_OBJECT(self),"bin"),"empty song");
 	
 	GST_INFO("objects initialized");
   
@@ -123,8 +139,8 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 
 	GST_INFO("application.info launched");
 
-	self->private->song=(BtSong *)g_object_new(BT_TYPE_SONG,"bin",bt_g_object_get_object_property(G_OBJECT(self),"bin"), NULL);
-	loader=(BtSongIO *)g_object_new(bt_song_io_detect(input_file_name),NULL);
+	self->private->song=bt_song_new(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+	loader=bt_song_io_new(input_file_name);
 	
 	GST_INFO("objects initialized");
 	

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.3 2004-07-29 15:51:31 ensonic Exp $
+/* $Id: bt-edit.c,v 1.4 2004-07-30 15:15:51 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-	app=(BtEditApplication *)g_object_new(BT_TYPE_EDIT_APPLICATION,NULL);
+	app=bt_edit_application_new();
   if(command) {
     // depending on the popt options call the correct method
     if(!strncmp(command,"load",4)) {

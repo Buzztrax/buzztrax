@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.16 2004-07-29 15:51:31 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.17 2004-07-30 15:15:51 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   if(!command) usage(argc, argv, options);
   g_printf("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
 
-	app=(BtCmdApplication *)g_object_new(BT_TYPE_CMD_APPLICATION,NULL);
+	app=bt_cmd_application_new();
   // depending on the popt options call the correct method
   if(!strncmp(command,"play",4)) {
     if(!input_file_name) usage(argc, argv, options);

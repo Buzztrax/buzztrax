@@ -14,15 +14,15 @@ libbtcore_la_SOURCES = \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
 	playline.c libbtcore/playline.h libbtcore/playline-methods.h \
-	processor-machine.c libbtcore/processor-machine.h \
+	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
-	sink-machine.c libbtcore/sink-machine.h \
+	sink-machine.c libbtcore/sink-machine.h libbtcore/sink-machine-methods.h \
 	song.c libbtcore/song.h libbtcore/song-methods.h \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
 	song-io-native.c libbtcore/song-io-native.h \
-	source-machine.c libbtcore/source-machine.h \
+	source-machine.c libbtcore/source-machine.h libbtcore/source-methods.h \
 	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
 	timelinetrack.c libbtcore/timelinetrack.h libbtcore/timelinetrack-methods.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h

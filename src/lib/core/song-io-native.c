@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.18 2004-07-26 18:00:10 ensonic Exp $
+/* $Id: song-io-native.c,v 1.19 2004-07-30 15:15:51 ensonic Exp $
  * class for native song input and output
  */
  
@@ -132,17 +132,17 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			if(!strncmp(xml_node->name,"sink\0",5)) {
 				GST_INFO("  new sink_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
 				// create new sink machine
-				machine=g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
+				machine=bt_sink_machine_new(song,id,plugin_name);
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
 				GST_INFO("  new source_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new source machine
-				machine=g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL);
+				machine=bt_source_machine_new(song,id,plugin_name,voices);
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
 				GST_INFO("  new processor_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new processor machine
-				machine=g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL);
+				machine=bt_processor_machine_new(song,id,plugin_name,voices);
 			}
 			if(machine) { // add machine to setup
 				//GST_DEBUG("machine.id: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"id"));
@@ -159,7 +159,6 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 	const BtSetup *setup=bt_song_get_setup(song);
 	BtWire *wire;
 	xmlChar *src,*dst;
-	BtMachine *src_machine,*dst_machine;
 
 	GST_INFO(" got setup.wires root node");
   while(xml_node) {
@@ -168,9 +167,7 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 			dst=xmlGetProp(xml_node,"dst");
 			GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
 			// create new wire
-			src_machine=bt_setup_get_machine_by_id(setup,src);
-			dst_machine=bt_setup_get_machine_by_id(setup,dst);
-			wire=g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL);
+			wire=bt_wire_new(song,bt_setup_get_machine_by_id(setup,src),bt_setup_get_machine_by_id(setup,dst));
       xmlFree(src);xmlFree(dst);
 		}
 		xml_node=xml_node->next;
@@ -272,7 +269,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     voices=bt_g_object_get_long_property(G_OBJECT(machine),"voices");
     // create pattern and load data
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
-    pattern=g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",pattern_name,"length",length,"voices",voices,"machine",machine,NULL);
+    pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine);
     bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
     // add to machine's pattern-list
     bt_machine_add_pattern(machine,pattern);
@@ -492,7 +489,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song, c
 
   // @todo add zip file processing
   /*
-   * zip_file=g_object_new(BT_ZIP_FILE,"filename",filename,"mode",BT_ZIP_FILE_MODE_READ,NULL);
+   * zip_file=bt_zip_file_new(filename,BT_ZIP_FILE_MODE_READ);
    * xml_doc=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
    */
   

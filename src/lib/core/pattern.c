@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.7 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: pattern.c,v 1.8 2004-07-30 15:15:51 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -100,6 +100,29 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, glong voices) {
   GST_ERROR("not yet implemented");
 }
 
+//-- constructor methods
+
+/**
+ * bt_pattern_new:
+ * @song: the song the new instance belongs to
+ * @id: the id, we can use to lookup the pattern
+ * @name: the display name of the pattern
+ * @length: the number of ticks
+ * @voices: the number of voices
+ * @machine: the machine the pattern belongs to
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, glong length, glong voices,const BtMachine *machine) {
+  BtPattern *self;
+  self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",length,"voices",voices,"machine",machine,NULL));
+  
+  bt_pattern_init_data(self);
+  return(self);
+}
+
 //-- methods
 
 /**
@@ -191,6 +214,7 @@ glong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name
  *
  */
 void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong param) {
+  //GST_DEBUG("at %d",param);
   g_value_init(event,bt_machine_get_global_dparam_type(self->private->machine,param));
 }
 
@@ -205,6 +229,7 @@ void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong pa
  *
  */
 void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, glong param) {
+  //GST_DEBUG("at %d",param);
   g_value_init(event,bt_machine_get_voice_dparam_type(self->private->machine,param));
 }
 
@@ -331,15 +356,13 @@ static void bt_pattern_set_property(GObject      *object,
       length=self->private->length;
       self->private->length = g_value_get_long(value);
       GST_DEBUG("set the length for pattern: %d",self->private->length);
-      if(!self->private->data) bt_pattern_init_data(self);
-      else bt_pattern_resize_data_length(self,length);
+      if(self->private->data) bt_pattern_resize_data_length(self,length);
     } break;
     case PATTERN_VOICES: {
       voices=self->private->voices;
       self->private->voices = g_value_get_long(value);
       GST_DEBUG("set the voices for pattern: %d",self->private->voices);
-      if(!self->private->data) bt_pattern_init_data(self);
-      else bt_pattern_resize_data_voices(self,voices);
+      if(self->private->data) bt_pattern_resize_data_voices(self,voices);
     } break;
     case PATTERN_MACHINE: {
       glong global_params,voice_params;

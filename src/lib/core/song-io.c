@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.7 2004-07-21 13:21:23 ensonic Exp $
+/* $Id: song-io.c,v 1.8 2004-07-30 15:15:51 ensonic Exp $
  * base class for song input and output
  */
  
@@ -27,9 +27,28 @@ static void bt_song_io_register_all() {
  *
  * Returns: the type of the #SongIO sub-class that can handle the supplied file
  */
-GType bt_song_io_detect(const gchar *filename) {
-	return(bt_song_io_native_get_type());
+static GType bt_song_io_detect(const gchar *filename) {
+  // @todo check registered types
+	return(BT_TYPE_SONG_IO_NATIVE);
 }
+
+//-- constructor methods
+
+/**
+ * bt_song_io_new:
+ * @file_name: the file name of the new song
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or NULL in case of an error
+ */
+BtSongIO *bt_song_io_new(const gchar *file_name) {
+  BtSongIO *self;
+  self=BT_SONG_IO(g_object_new(bt_song_io_detect(file_name),NULL));
+  
+  return(self);
+}
+
 
 //-- methods
 

@@ -1,4 +1,4 @@
-/* $Id: setup-methods.h,v 1.6 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: setup-methods.h,v 1.7 2004-07-30 15:15:51 ensonic Exp $
  * defines all public methods of the setup class
  */
 
@@ -8,6 +8,8 @@
 #include "machine.h"
 #include "setup.h"
 #include "wire.h"
+
+extern BtSetup *bt_setup_new(const BtSong *song);
 
 extern void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine);
 
