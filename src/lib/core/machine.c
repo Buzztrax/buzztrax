@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.11 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: machine.c,v 1.12 2004-07-05 12:22:45 ensonic Exp $
  * base class for a machine
  */
  
@@ -33,12 +33,12 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
 	}
 	else {
 		if(self->private->id && self->private->plugin_name) {
-			GValue *oval;
+			GValue oval={0,};
 			
 		  self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
 			if(!self->machine) {
-				GST_INFO("  failed to instantiate machine \"%s\"",self->private->plugin_name);
-				return FALSE;
+				GST_ERROR("  failed to instantiate machine \"%s\"",self->private->plugin_name);
+				return(FALSE);
 			}
 			// there is no adder or spreader in use by default
 			self->dst_elem=self->src_elem=self->machine;
@@ -65,11 +65,16 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
 					GST_INFO("    added param \"%s\"",g_param_spec_get_name(specs[i]));
 				}
 			}
-			oval=g_new0(GValue,1);g_value_init(oval,G_TYPE_OBJECT);
-			g_object_get_property(G_OBJECT(self->private->song),"bin",oval);
-			gst_bin_add(g_value_get_object(oval), self->machine);
+			g_value_init(&oval,G_TYPE_OBJECT);
+			g_object_get_property(G_OBJECT(self->private->song),"bin",&oval);
+			gst_bin_add(GST_BIN(g_value_get_object(&oval)), self->machine);
+      g_assert(self->machine!=NULL);
+      g_assert(self->src_elem!=NULL);
+      g_assert(self->dst_elem!=NULL);
+      return(TRUE);
 		}
 	}
+  return(FALSE);
 }
 
 //-- methods

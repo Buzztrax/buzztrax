@@ -1,7 +1,7 @@
-/* $Id: processor-machine.c,v 1.5 2004-07-02 15:01:06 ensonic Exp $
+/* $Id: processor-machine.c,v 1.6 2004-07-05 12:22:45 ensonic Exp $
  * class for a processor machine
  */
- 
+
 #define BT_CORE
 #define BT_PROCESSOR_MACHINE_C
 

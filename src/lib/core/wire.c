@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.15 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: wire.c,v 1.16 2004-07-05 12:22:45 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -51,7 +51,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   g_object_get_property(G_OBJECT(song),"bin", &val);
   bin=GST_BIN(g_value_get_object(&val));
 
-	GST_INFO("trying to link machines");
+	GST_INFO("trying to link machines directly : %p -> %p",src->src_elem,dst->dst_elem);
 	// try link src to dst {directly, with convert, with scale, with ...}
 	if(!gst_element_link(src->src_elem, dst->dst_elem)) {
 		if(!self->private->convert) {
@@ -59,13 +59,16 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 			g_assert(self->private->convert!=NULL);
 		}
 		gst_bin_add(bin, self->private->convert);
+    GST_INFO("trying to link machines with convert");
 		if(!gst_element_link_many(src->src_elem, self->private->convert, dst->dst_elem, NULL)) {
 			if(!self->private->scale) {
 				self->private->scale=gst_element_factory_make("audioscale",g_strdup_printf("audioscale_%p",self));
 				g_assert(self->private->scale!=NULL);
 			}
 			gst_bin_add(bin, self->private->scale);
+      GST_INFO("trying to link machines with scale");
 			if(!gst_element_link_many(src->src_elem, self->private->scale, dst->dst_elem, NULL)) {
+        GST_INFO("trying to link machines with convert and scale");
 				if(!gst_element_link_many(src->src_elem, self->private->convert, self->private->scale, dst->dst_elem, NULL)) {
 					// try harder (scale, convert)
 					GST_DEBUG("failed to link the machines");return(FALSE);
@@ -154,14 +157,14 @@ static gboolean bt_wire_connect(BtWire *self) {
   GValue val={0,};
 	g_value_init(&val,G_TYPE_OBJECT);
 
-  if(!self->private->src || !self->private->dst) return(FALSE);
+  if((!self->private->src) || (!self->private->dst)) return(FALSE);
   src=self->private->src;
   dst=self->private->dst;
 
   g_object_get_property(G_OBJECT(song),"bin", &val);
   bin=GST_BIN(g_value_get_object(&val));
 
-	GST_INFO("trying to link machines : %p -> %p",src,dst);
+	GST_INFO("trying to link machines : %p (%p) -> %p (%p)",src,src->src_elem,dst,dst->dst_elem);
 
 	// if there is already a connection from src && src has not yet an spreader (in use)
 	if((other_wire=bt_setup_get_wire_by_src_machine(setup,src)) && (src->src_elem!=src->spreader)) {
@@ -228,7 +231,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 	
 	if(!bt_wire_link_machines(self)) {
 		g_object_unref(G_OBJECT(self));
-    return(FALSE);
+    GST_ERROR("linking machines failed");return(FALSE);
 	}
   bt_setup_add_wire(setup,self);
   GST_INFO("linking machines succeded");
@@ -279,12 +282,12 @@ static void bt_wire_set_property(GObject      *object,
     } break;
 		case WIRE_SRC: {
 			self->private->src = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //GST_INFO("set the source element for the wire: %p",self->private->src);
+      GST_INFO("set the source element for the wire: %p",self->private->src);
       bt_wire_connect(self);
 		} break;
 		case WIRE_DST: {
 			self->private->dst = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //GST_INFO("set the target element for the wire: %p",self->private->dst);
+      GST_INFO("set the target element for the wire: %p",self->private->dst);
       bt_wire_connect(self);
 		} break;
     default: {
@@ -333,13 +336,13 @@ static void bt_wire_class_init(BtWireClass *klass) {
                                      "src ro prop",
                                      "src machine object, the wire links to",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READABLE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
   g_object_class_install_property(gobject_class,WIRE_DST,
 																	g_param_spec_object("dst",
                                      "dst ro prop",
                                      "dst machine object, the wire links to",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READABLE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
 }
 
 GType bt_wire_get_type(void) {

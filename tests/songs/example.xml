@@ -17,7 +17,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <processor id="echo1" pluginname="ladspa_echo">
+      <processor id="amp1" pluginname="volume">
         <machineui xpos="50" ypos="30"/>
       </processor>
       
@@ -31,8 +31,8 @@
     </machines>
     
     <wires>
-      <wire src="sine1" dst="echo1" gain="1.5"/>
-      <wire src="echo1" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="sine1" dst="amp1" gain="1.5"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
   
