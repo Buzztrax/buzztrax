@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.8 2004-08-11 15:50:04 ensonic Exp $
+/* $Id: main-window.c,v 1.9 2004-08-12 14:02:59 ensonic Exp $
  * class for the editor main window
  */
 
@@ -21,6 +21,10 @@ struct _BtMainWindowPrivate {
 
   /* the menu of the window */
   BtMainMenu *menu;
+  /* the toolbar of the window */
+  BtMainToolbar *toolbar;
+  /* the statusbar of the window */
+  BtMainStatusbar *statusbar;
   
   /* the keyboard shortcut table for the window */
   GtkAccelGroup *accel_group;
@@ -47,72 +51,11 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) 
 }
 
 static void destroy(GtkWidget *widget, gpointer data) {
-  
   GST_INFO("destroy event occurred\n");
   gtk_main_quit();
 }
 
-
-static void on_toolbar_new_clicked(GtkButton *button, gpointer data) {
-  GST_INFO("toolbar new event occurred\n");
-  bt_main_window_new_song(BT_MAIN_WINDOW(data));
-}
-
-static void on_toolbar_open_clicked(GtkButton *button, gpointer data) {
-  GST_INFO("toolbar open event occurred\n");
-  bt_main_window_open_song(BT_MAIN_WINDOW(data));
-}
-
 //-- helper methods
-
-static GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box) {
-  GtkWidget *handlebox,*toolbar;
-  GtkWidget *icon;
-  GtkWidget *button;
-
-  // @todo make this a sub-class of  tool-bar
-  handlebox=gtk_handle_box_new();
-  gtk_widget_set_name(handlebox,_("handlebox for toolbar"));
-  gtk_box_pack_start(GTK_BOX(box),handlebox,FALSE,FALSE,0);
-
-  toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,_("tool bar"));
-  gtk_container_add(GTK_CONTAINER(handlebox),toolbar);
-  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
-
-  icon=gtk_image_new_from_stock(GTK_STOCK_NEW, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("New"),
-                                NULL,NULL,
-                                icon,NULL,NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("New"));
-  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
-
-  icon=gtk_image_new_from_stock(GTK_STOCK_OPEN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Open"),
-                                NULL,NULL,
-                                icon,NULL,NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Open"));
-  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
-
-  icon=gtk_image_new_from_stock(GTK_STOCK_SAVE, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Save"),
-                                NULL,NULL,
-                                icon,NULL,NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Save"));
-  return(handlebox);
-}
 
 static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *notebook;
@@ -201,20 +144,8 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   return(notebook);
 }
 
-static GtkWidget *bt_main_window_init_statusbar(const BtMainWindow *self, GtkWidget *box) {
-  GtkWidget *statusbar;
-  
-  // @todo make this a sub-class of status bar
-  statusbar=gtk_statusbar_new();
-  gtk_widget_set_name(statusbar,_("status bar"));
-  gtk_box_pack_start(GTK_BOX(box),statusbar,FALSE,FALSE,0);
-
-  return(statusbar);
-}
-
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
-  GtkWidget *handlebox;
   GtkWidget *notebook;
   GtkWidget *statusbar;
   
@@ -230,13 +161,16 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   // add the menu-bar
   self->private->menu=bt_main_menu_new(self->private->app,self->private->accel_group);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->menu),FALSE,FALSE,0);
-
   // add the tool-bar
-  handlebox=bt_main_window_init_toolbar(self, box);
+  self->private->toolbar=bt_main_toolbar_new(self->private->app);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->toolbar),FALSE,FALSE,0);
+  
   // add the notebook widget
   notebook=bt_main_window_init_notebook(self, box);
+  
   // add the status bar
-  statusbar=bt_main_window_init_statusbar(self, box);
+  self->private->statusbar=bt_main_statusbar_new(self->private->app);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->statusbar),FALSE,FALSE,0);
 
   bt_main_window_refresh_ui(self);
 

@@ -12,7 +12,9 @@ noinst_LTLIBRARIES      = libbtedit.la
 libbtedit_la_SOURCES   = \
 	edit-application.c edit-application.h edit-application-methods.h \
 	main-window.c main-window.h main-window-methods.h \
-	main-menu.c main-menu.h main-menu-methods.h
+	main-menu.c main-menu.h main-menu-methods.h \
+	main-toolbar.c main-toolbar.h main-toolbar-methods.h \
+	main-statusbar.c main-statusbar.h main-statusbar-methods.h
 	
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

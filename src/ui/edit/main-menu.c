@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.1 2004-08-11 15:50:04 ensonic Exp $
+/* $Id: main-menu.c,v 1.2 2004-08-12 14:02:59 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -44,7 +44,7 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer data) {
 
 //-- helper methods
 
-static gboolean bt_main_menu_init_menubar(const BtMainMenu *self,GtkAccelGroup *accel_group) {
+static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel_group) {
   GtkWidget *item,*menu,*subitem;
   
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
@@ -111,7 +111,8 @@ static gboolean bt_main_menu_init_menubar(const BtMainMenu *self,GtkAccelGroup *
 
 /**
  * bt_main_menu_new:
- * @window: the application the menu belongs to
+ * @app: the application the menu belongs to
+ * @accel_group: the main-windows accelerator group
  *
  * Create a new instance
  *
@@ -123,10 +124,7 @@ BtMainMenu *bt_main_menu_new(const BtEditApplication *app,GtkAccelGroup *accel_g
   if(!(self=BT_MAIN_MENU(g_object_new(BT_TYPE_MAIN_MENU,"app",app,NULL)))) {
     goto Error;
   }
-  // init menu
-  bt_main_menu_init_menubar(self,accel_group);
-  // we don't have the window here
-  //gtk_window_add_accel_group(GTK_WINDOW(window),accel_group);
+  bt_main_menu_init_ui(self,accel_group);
   return(self);
 Error:
   return(NULL);
