@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.46 2005-03-05 19:12:56 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.47 2005-03-07 16:30:10 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -74,6 +74,33 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	gtk_list_store_set(GTK_LIST_STORE(store),&iter,MACHINE_MENU_LABEL,str,-1);
 
 	g_free(str);
+}
+
+static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	gboolean res=FALSE;
+
+  g_assert(user_data);
+	
+	GST_INFO("pattern_table button : button 0x%x, type 0x%d",event->button,event->type);
+	if(event->button==1) {
+		if(gtk_tree_view_get_bin_window(self->priv->pattern_table)==(event->window)) {
+			GtkTreePath *path;
+			GtkTreeViewColumn *column;
+			// determine sequence position from mouse coordinates
+			if(gtk_tree_view_get_path_at_pos(self->priv->pattern_table,event->x,event->y,&path,&column,NULL,NULL)) {
+				gtk_tree_view_set_cursor_on_cell(self->priv->pattern_table,path,column,NULL,FALSE);
+				gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+				res=TRUE;
+			}
+			if(path) gtk_tree_path_free(path);
+		}
+	}
+	else if(event->button==3) {
+		//gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+		res=TRUE;
+	}
+	return(res);
 }
 
 //-- event handler helper
@@ -464,6 +491,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", (GCallback)on_pattern_menu_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", (GCallback)on_pattern_table_button_press_event, (gpointer)self);
 
 	GST_DEBUG("  done");
 	return(TRUE);

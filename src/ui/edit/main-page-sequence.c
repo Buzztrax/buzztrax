@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.65 2005-03-05 19:12:56 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.66 2005-03-07 16:30:19 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -79,6 +79,8 @@ enum {
 // the other (smaller) columns
 
 static gchar *pattern_keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);
 
 //-- tree filter func
 
@@ -209,18 +211,6 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   GST_INFO("machine id changed to \"%s\"",str);
   gtk_label_set_text(label,str);
 	g_free(str);
-}
-
-static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
-	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-
-	// @todo resize the tree-model
-	// get the machine by the menuitems name
-	// add a new track to the sequence (new method ?)
-	// g_object_set(sequence,"tracks",(glong)items_len+1,NULL);
-	// set the machinefor the new track
-	// reinit the view
-	// sequence_table_refresh(self,song);
 }
 
 //-- event handler helper
@@ -573,6 +563,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
 		g_object_get(G_OBJECT(machine),"id",&str,NULL);
 		
 		menu_item=gtk_image_menu_item_new_with_label(str);
+		gtk_widget_set_name(GTK_WIDGET(menu_item),str);
 		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_ressources_get_image_by_machine(machine));
 		gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
 		gtk_widget_show(menu_item);
@@ -582,13 +573,68 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
 			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
 		}
 		g_list_free(widgets);
-		// what parameters to pass here ?
-		//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
+		g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
   }
 	g_list_free(list);
 }
 
 //-- event handler
+
+static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	BtSong *song;
+	BtSequence *sequence;
+	BtSetup *setup;
+	BtMachine *machine;
+	gchar *id;
+	gulong number_of_tracks;
+
+  // get song from app and then setup from song
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
+
+	// get the machine by the menuitems name
+	id=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
+	GST_INFO("adding track for machine \"%s\"",id);
+	if((machine=bt_setup_get_machine_by_id(setup,id))) {
+		// change number of tracks
+		g_object_get(sequence,"tracks",&number_of_tracks,NULL);
+		g_object_set(sequence,"tracks",(gulong)(number_of_tracks+1),NULL);
+		// set the machine for the new track
+		bt_sequence_set_machine_by_track(sequence,number_of_tracks,machine);
+		// reinit the view
+		sequence_table_refresh(self,song);
+		sequence_model_recolorize(self);
+		g_object_unref(machine);
+	}
+	
+	g_object_unref(sequence);
+	g_object_unref(setup);
+	g_object_unref(song);
+}
+
+static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data) {
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	BtSong *song;
+	BtSequence *sequence;
+	gulong number_of_tracks;
+
+  // get song from app and then setup from song
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	g_object_get(song,"sequence",&sequence,NULL);
+
+	// change number of tracks
+	g_object_get(sequence,"tracks",&number_of_tracks,NULL);
+	if(number_of_tracks>0) {
+		g_object_set(sequence,"tracks",(gulong)(number_of_tracks-1),NULL);
+		// reinit the view
+		sequence_table_refresh(self,song);
+		sequence_model_recolorize(self);
+	}
+	
+	g_object_unref(sequence);
+	g_object_unref(song);
+}
 
 static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1031,7 +1077,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-	//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
 
   // add a hpaned
   box=gtk_hpaned_new();

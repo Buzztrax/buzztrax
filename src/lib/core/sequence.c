@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.56 2005-03-06 15:42:44 ensonic Exp $
+/* $Id: sequence.c,v 1.57 2005-03-07 16:29:40 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -141,11 +141,31 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
  *
  * Initialize the machines-list when we create/load a new song
  */
-static void bt_sequence_init_machines(const BtSequence *self) {
-  GST_DEBUG("bt_sequence_init_machines");
-  if(self->priv->tracks) {
-    self->priv->machines=g_new0(BtMachine*,self->priv->tracks);
+static void bt_sequence_init_machines(const BtSequence *self,gulong old_tracks) {
+	BtMachine **old_machines=NULL;
+  gulong keep_tracks=MIN(old_tracks,self->priv->tracks);
+
+	g_assert(BT_IS_SEQUENCE(self));
+
+  GST_DEBUG("bt_sequence_init_machines : %d -> %d",old_tracks,self->priv->tracks);
+  if(!self->priv->tracks) return;
+		
+	if(self->priv->machines) {
+		old_machines=self->priv->machines;
+	}
+  self->priv->machines=g_new0(BtMachine*,self->priv->tracks);
+  if(self->priv->machines) {
+    gulong i;
+		// copy data from old tracks
+		for(i=0;i<keep_tracks;i++) {
+			self->priv->machines[i]=old_machines[i];
+		}
+		// free old tracks, if old>new
+    for(i=keep_tracks;i<old_tracks;i++) {
+       g_object_unref(old_machines[i]);
+    }
   }
+	if(old_machines) g_free(old_machines);
 }
 
 static void bt_sequence_limit_play_pos(const BtSequence *self) {
@@ -491,12 +511,13 @@ static void bt_sequence_set_property(GObject      *object,
 			bt_sequence_limit_play_pos(self);
     } break;
     case SEQUENCE_TRACKS: {
+			gulong old_tracks=self->priv->tracks;
 			// check if song is playing
 			if(self->priv->is_playing) bt_sequence_stop(self);
 			// prepare new data			
       self->priv->tracks = g_value_get_ulong(value);
       GST_DEBUG("set the tracks for sequence: %d",self->priv->tracks);
-      bt_sequence_init_machines(self);
+      bt_sequence_init_machines(self,old_tracks);
       bt_sequence_init_timelinetracks(self);
     } break;
     case SEQUENCE_LOOP: {
