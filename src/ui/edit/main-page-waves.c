@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.13 2005-02-03 16:13:51 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.14 2005-02-03 19:40:41 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -201,8 +201,10 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_widget_set_name(button,_("Open"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Load current sample into wave table"),NULL);
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
-	//       listview
+	//       file-chooser
+	// this causes warning on gtk 2.4
 	self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
+	//self->priv->file_chooser=gtk_label_new("no file chooser yet");
 	gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
 
 	//   vbox (sample view)

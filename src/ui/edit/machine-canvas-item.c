@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.42 2005-02-02 16:35:56 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.43 2005-02-03 19:40:41 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -603,6 +603,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	}
 	GST_DEBUG("  destroying dialogs done");
   
+	// this causes warnings on gtk 2.4
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 	GST_DEBUG("  destroying done");
 
