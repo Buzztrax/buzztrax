@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.12 2004-05-13 18:43:30 ensonic Exp $
+/* $Id: song.h,v 1.13 2004-07-02 13:44:50 ensonic Exp $
  * class for a basic buzztard song
  */
  
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_SONG_TYPE:
+ * BT_TYPE_SONG:
  *
  * #GType for BtSong instances
  */
-#define BT_SONG_TYPE		        (bt_song_get_type ())
-#define BT_SONG(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SONG_TYPE, BtSong))
-#define BT_SONG_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SONG_TYPE, BtSongClass))
-#define BT_IS_SONG(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_SONG_TYPE))
-#define BT_IS_SONG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_SONG_TYPE))
-#define BT_SONG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_SONG_TYPE, BtSongClass))
+#define BT_TYPE_SONG		        (bt_song_get_type ())
+#define BT_SONG(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG, BtSong))
+#define BT_SONG_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG, BtSongClass))
+#define BT_IS_SONG(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_SONG))
+#define BT_IS_SONG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SONG))
+#define BT_SONG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SONG, BtSongClass))
 
 /* type macros */
 
@@ -45,11 +45,9 @@ struct _BtSong {
  * class of a song project object
  */
 struct _BtSongClass {
-  GObjectClass parent;
+  GObjectClass parent_class;
   
   guint play_signal_id;
-
-  void (*start_play)(const BtSong *self);
 };
 
 /* used by SONG_TYPE */

@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.3 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: source-machine.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
  * class for a source machine
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_SOURCE_MACHINE_TYPE:
+ * BT_TYPE_SOURCE_MACHINE:
  *
  * #GType for BtSourceMachine instances
  */
-#define BT_SOURCE_MACHINE_TYPE		        (bt_source_machine_get_type ())
-#define BT_SOURCE_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SOURCE_MACHINE_TYPE, BtSourceMachine))
-#define BT_SOURCE_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SOURCE_MACHINE_TYPE, BtSourceMachineClass))
+#define BT_TYPE_SOURCE_MACHINE		        (bt_source_machine_get_type ())
+#define BT_SOURCE_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SOURCE_MACHINE, BtSourceMachine))
+#define BT_SOURCE_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SOURCE_MACHINE, BtSourceMachineClass))
 #define BT_IS_SOURCE_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_SONG_IO_SOURCE_MACHINE))
-#define BT_IS_SOURCE_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_SOURCE_MACHINE_TYPE))
-#define BT_SOURCE_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_SOURCE_MACHINE_TYPE, BtSourceMachineClass))
+#define BT_IS_SOURCE_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SOURCE_MACHINE))
+#define BT_SOURCE_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SOURCE_MACHINE, BtSourceMachineClass))
 
 /* type macros */
 

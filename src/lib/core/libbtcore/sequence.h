@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.3 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: sequence.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_SEQUENCE_TYPE:
+ * BT_TYPE_SEQUENCE:
  *
  * #GType for BtSequence instances
  */
-#define BT_SEQUENCE_TYPE		        (bt_sequence_get_type ())
-#define BT_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SEQUENCE_TYPE, BtSequence))
-#define BT_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SEQUENCE_TYPE, BtSequenceClass))
-#define BT_IS_SEQUENCE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_SEQUENCE_TYPE))
-#define BT_IS_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_SEQUENCE_TYPE))
-#define BT_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_SEQUENCE_TYPE, BtSequenceClass))
+#define BT_TYPE_SEQUENCE		        (bt_sequence_get_type ())
+#define BT_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE, BtSequence))
+#define BT_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE, BtSequenceClass))
+#define BT_IS_SEQUENCE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_SEQUENCE))
+#define BT_IS_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE))
+#define BT_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE, BtSequenceClass))
 
 /* type macros */
 
@@ -34,7 +34,7 @@ struct _BtSequence {
 };
 /* structure of the sequence class */
 struct _BtSequenceClass {
-  GObjectClass parent;
+  GObjectClass parent_class;
   
 };
 

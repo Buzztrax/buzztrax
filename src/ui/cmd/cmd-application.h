@@ -1,4 +1,4 @@
-/* $Id: cmd-application.h,v 1.2 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: cmd-application.h,v 1.3 2004-07-02 13:44:50 ensonic Exp $
  * class for a commandline buzztard based application
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_CMD_APPLICATION_TYPE:
+ * BT_TYPE_CMD_APPLICATION:
  *
  * #GType for BtCmdApplication instances
  */
-#define BT_CMD_APPLICATION_TYPE		         (bt_cmd_application_get_type ())
-#define BT_CMD_APPLICATION(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_CMD_APPLICATION_TYPE, BtCmdApplication))
-#define BT_CMD_APPLICATION_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_CMD_APPLICATION_TYPE, BtCmdApplicationClass))
-#define BT_IS_CMD_APPLICATION(obj)	       (G_TYPE_CHECK_TYPE ((obj), BT_CMD_APPLICATION_TYPE))
-#define BT_IS_CMD_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_CMD_APPLICATION_TYPE))
-#define BT_CMD_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_CMD_APPLICATION_TYPE, BtCmdApplicationClass))
+#define BT_TYPE_CMD_APPLICATION		         (bt_cmd_application_get_type ())
+#define BT_CMD_APPLICATION(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_CMD_APPLICATION, BtCmdApplication))
+#define BT_CMD_APPLICATION_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_CMD_APPLICATION, BtCmdApplicationClass))
+#define BT_IS_CMD_APPLICATION(obj)	       (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_CMD_APPLICATION))
+#define BT_IS_CMD_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_CMD_APPLICATION))
+#define BT_CMD_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_CMD_APPLICATION, BtCmdApplicationClass))
 
 /* type macros */
 

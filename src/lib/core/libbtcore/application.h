@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.2 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: application.h,v 1.3 2004-07-02 13:44:50 ensonic Exp $
  * base class for a buzztard based application
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_APPLICATION_TYPE:
+ * BT_TYPE_APPLICATION:
  *
  * #GType for BtApplication instances
  */
-#define BT_APPLICATION_TYPE		        (bt_application_get_type ())
-#define BT_APPLICATION(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_APPLICATION_TYPE, BtApplication))
-#define BT_APPLICATION_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_APPLICATION_TYPE, BtApplicationClass))
-#define BT_IS_APPLICATION(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_APPLICATION_TYPE))
-#define BT_IS_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_APPLICATION_TYPE))
-#define BT_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_APPLICATION_TYPE, BtApplicationClass))
+#define BT_TYPE_APPLICATION		        (bt_application_get_type ())
+#define BT_APPLICATION(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_APPLICATION, BtApplication))
+#define BT_APPLICATION_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_APPLICATION, BtApplicationClass))
+#define BT_IS_APPLICATION(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_APPLICATION))
+#define BT_IS_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_APPLICATION))
+#define BT_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_APPLICATION, BtApplicationClass))
 
 /* type macros */
 
@@ -39,7 +39,7 @@ struct _BtApplication {
 };
 /* structure of the application class */
 struct _BtApplicationClass {
-  GObjectClass parent;
+  GObjectClass parent_class;
   
 };
 

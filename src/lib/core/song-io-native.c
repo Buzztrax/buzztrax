@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.8 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: song-io-native.c,v 1.9 2004-07-02 13:44:50 ensonic Exp $
  * class for native song input and output
  */
  
@@ -121,20 +121,20 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 				GST_INFO("  new sink_machine(\"%s\",\"%s\")",id,plugin_name);
 				// parse additional params
 				// create new sink machine
-				machine=g_object_new(BT_SINK_MACHINE_TYPE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
+				machine=g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 				// ...
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
 				GST_INFO("  new source_machine(\"%s\",\"%s\")",id,plugin_name);
 				// parse additional params
 				// create new source machine
-				machine=g_object_new(BT_SOURCE_MACHINE_TYPE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
+				machine=g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
 				GST_INFO("  new processor_machine(\"%s\",\"%s\")",id,plugin_name);
 				// parse additional params
 				// create new processor machine
-				machine=g_object_new(BT_PROCESSOR_MACHINE_TYPE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
+				machine=g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 			}
 			if(machine) { // add machine to setup
 				/*{ // DEBUG
@@ -163,14 +163,12 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 		if(!xmlNodeIsText(xml_node)) {
 			src=xmlGetProp(xml_node,"src");
 			dst=xmlGetProp(xml_node,"dst");
-			GST_INFO("  new wire(\"%s\",\"%s\")",src,dst);
+			GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
 			// parse params
 			// create new wire
-			wire=g_object_new(BT_WIRE_TYPE,"song",song,NULL);
 			src_machine=bt_setup_get_machine_by_id(setup,src);
 			dst_machine=bt_setup_get_machine_by_id(setup,dst);
-			bt_wire_connect(wire,src_machine,dst_machine);
-			bt_setup_add_wire(setup,wire);
+			wire=g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL);
 		}
 		xml_node=xml_node->next;
 	}
@@ -419,7 +417,7 @@ GType bt_song_io_native_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_io_native_init, // instance_init
     };
-		type = g_type_register_static(BT_SONG_IO_TYPE,"BtSongIONative",&info,0);
+		type = g_type_register_static(BT_TYPE_SONG_IO,"BtSongIONative",&info,0);
   }
   return type;
 }

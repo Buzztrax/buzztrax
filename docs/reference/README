@@ -1,7 +1,7 @@
-$Id: README,v 1.5 2004-05-14 16:59:18 ensonic Exp $
+$Id: README,v 1.6 2004-07-02 13:44:50 ensonic Exp $
 
 rebuild buzztard.types via
-  find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | uniq | sort
+  find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
 
 what to document where
   c-language constructs (such as methods, structs, defines, enums, ...)

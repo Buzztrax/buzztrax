@@ -1,0 +1,46 @@
+$Id: TODO,v 1.1 2004-07-02 13:44:48 ensonic Exp $
+
+* unit-tests
+  * in the unit tests package, we have nasty, complex LDADD lines
+  * how can we add --g-fatal-warnings when running the unit tests
+
+* gobject private members
+  * we need guidelines for use of ->private, 
+    when make members private, when public
+  * we need some convention how to shorten all the
+    object->private->member statements
+    * do once object_p=object->private;  
+
+* gobject properties
+  * we need s shortcut mechanism for things like
+    GstElement *bin;
+    GValue val={0,};
+    g_value_init(&val,G_TYPE_OBJECT);
+    g_object_get_property(G_OBJECT(song),"bin", &val);
+    bin=GST_ELEMENT(g_value_get_object(&val));
+    * v1)
+      =>
+      GstElement *bin=GST_ELEMENT(bt_g_object_get_property(G_OBJECT(song),G_TYPE_OBJECT,"bin"));
+      =>
+      <what>* bt_g_object_get_property(GObject *obj,GType *type,gchar *property_name) {
+        GValue val={0,};
+        g_value_init(&val,type);
+        if(type==G_TYPE_OBJECT) {
+          g_object_get_property(G_OBJECT(song),"bin", &val);
+          return(g_value_get_object(&val));
+        }
+        else if(...) {
+        }
+        GST_ERROR("unsupported type");
+      }
+    * v2)
+      =>
+      GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
+      =>
+      GObject* bt_g_object_get_property(GObject *obj,gchar *property_name) {
+        GValue val={0,};
+        g_value_init(&val,G_TYPE_OBJECT);
+        g_object_get_property(G_OBJECT(song),"bin", &val);
+        return(g_value_get_object(&val));
+      }
+

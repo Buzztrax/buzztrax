@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.9 2004-07-01 12:53:06 waffel Exp $
+# $Id: configure.ac,v 1.10 2004-07-02 13:44:48 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -90,6 +90,8 @@ if test "$enable_debug" = "yes"; then
 	AM_CONDITIONAL(DEBUG, true)
 else
 	AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, don not enable g_asserts])
+	AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, don not enable g_return_if_fail variants])
+	AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, don not enable dynamic type checks])
 	AM_CONDITIONAL(DEBUG, false)
 fi
 

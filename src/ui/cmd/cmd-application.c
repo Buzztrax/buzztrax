@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.5 2004-05-13 18:43:30 ensonic Exp $
+/* $Id: cmd-application.c,v 1.6 2004-07-02 13:44:50 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -64,7 +64,7 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 
 	g_object_get_property(G_OBJECT(app),"bin",oval);
 	
-	song = (BtSong *)g_object_new(BT_SONG_TYPE,"bin",g_value_get_object(oval),"name","first buzztard song", NULL);
+	song = (BtSong *)g_object_new(BT_TYPE_SONG,"bin",g_value_get_object(oval),"name","first buzztard song", NULL);
 	loader = (BtSongIO *)g_object_new(bt_song_io_detect(filename),NULL);
 	
 	GST_INFO("objects initialized");
@@ -176,7 +176,7 @@ GType bt_cmd_application_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_cmd_application_init, // instance_init
     };
-		type = g_type_register_static(BT_APPLICATION_TYPE,"BtCmdApplication",&info,0);
+		type = g_type_register_static(BT_TYPE_APPLICATION,"BtCmdApplication",&info,0);
   }
   return type;
 }

@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.4 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: song-io.h,v 1.5 2004-07-02 13:44:50 ensonic Exp $
  * base class for song input and output
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_SONG_IO_TYPE:
+ * BT_TYPE_SONG_IO:
  *
  * #GType for BtSongIO instances
  */
-#define BT_SONG_IO_TYPE		         (bt_song_io_get_type ())
-#define BT_SONG_IO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SONG_IO_TYPE, BtSongIO))
-#define BT_SONG_IO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SONG_IO_TYPE, BtSongIOClass))
-#define BT_IS_SONG_IO(obj)	       (G_TYPE_CHECK_TYPE ((obj), BT_SONG_IO_TYPE))
-#define BT_IS_SONG_IO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_SONG_IO_TYPE))
-#define BT_SONG_IO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_SONG_IO_TYPE, BtSongIOClass))
+#define BT_TYPE_SONG_IO		         (bt_song_io_get_type ())
+#define BT_SONG_IO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO, BtSongIO))
+#define BT_SONG_IO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO, BtSongIOClass))
+#define BT_IS_SONG_IO(obj)	       (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_SONG_IO))
+#define BT_IS_SONG_IO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SONG_IO))
+#define BT_SONG_IO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SONG_IO, BtSongIOClass))
 
 /* type macros */
 
@@ -44,7 +44,7 @@ struct _BtSongIO {
  * base class for song input and output plugins
  */
 struct _BtSongIOClass {
-  GObjectClass parent;
+  GObjectClass parent_class;
   
   /* class methods */
 	gboolean (*load)(const gpointer self, const BtSong *song, const gchar *filename);

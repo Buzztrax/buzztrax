@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.4 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: machine.h,v 1.5 2004-07-02 13:44:50 ensonic Exp $
  * base class for a machine
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_MACHINE_TYPE:
+ * BT_TYPE_MACHINE:
  *
  * #GType for BtMachine instances
  */
-#define BT_MACHINE_TYPE		        (bt_machine_get_type ())
-#define BT_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_MACHINE_TYPE, BtMachine))
-#define BT_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_MACHINE_TYPE, BtMachineClass))
-#define BT_IS_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_MACHINE_TYPE))
-#define BT_IS_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_MACHINE_TYPE))
-#define BT_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_MACHINE_TYPE, BtMachineClass))
+#define BT_TYPE_MACHINE		        (bt_machine_get_type ())
+#define BT_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
+#define BT_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE, BtMachineClass))
+#define BT_IS_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_MACHINE))
+#define BT_IS_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE))
+#define BT_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE, BtMachineClass))
 
 /* type macros */
 
@@ -52,7 +52,7 @@ struct _BtMachine {
 };
 /* structure of the machine class */
 struct _BtMachineClass {
-  GObjectClass parent;
+  GObjectClass parent_class;
   
 };
 

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.21 2004-05-13 09:35:29 ensonic Exp $
+/* $Id: song.c,v 1.22 2004-07-02 13:44:50 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -31,14 +31,7 @@ struct _BtSongPrivate {
 
 //-- methods
 
-static void bt_song_real_start_play(const BtSong *self) {
-  /* emitting signal if we start play */
-  g_signal_emit(G_OBJECT(self), 
-                BT_SONG_GET_CLASS(self)->play_signal_id,
-                0);
-}
-
-//-- wrapper
+/** @todo add playback code from design/gst/play_sequence */
 
 /** 
  * bt_song_start_play:
@@ -47,8 +40,14 @@ static void bt_song_real_start_play(const BtSong *self) {
  * Starts to play the specified song instance from beginning.
  */
 void bt_song_start_play(const BtSong *self) {
-  BT_SONG_GET_CLASS(self)->start_play(self);
+  /* emitting signal if we start play */
+  g_signal_emit(G_OBJECT(self), 
+                BT_SONG_GET_CLASS(self)->play_signal_id,
+                0);
+  /* @todo call bt_song_play_sequence */
 }
+
+//-- wrapper
 
 /**
  * bt_song_get_song_info:
@@ -154,9 +153,9 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   //GST_INFO("song_init self=%p",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
-  self->private->song_info = BT_SONG_INFO(g_object_new(BT_SONG_INFO_TYPE,"song",self,NULL));
-  self->private->sequence  = BT_SEQUENCE(g_object_new(BT_SEQUENCE_TYPE,"song",self,NULL));
-  self->private->setup     = BT_SETUP(g_object_new(BT_SETUP_TYPE,"song",self,NULL));
+  self->private->song_info = BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",self,NULL));
+  self->private->sequence  = BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",self,NULL));
+  self->private->setup     = BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",self,NULL));
 }
 
 static void bt_song_class_init(BtSongClass *klass) {
@@ -166,8 +165,6 @@ static void bt_song_class_init(BtSongClass *klass) {
   gobject_class->get_property = bt_song_get_property;
   gobject_class->dispose      = bt_song_dispose;
   gobject_class->finalize     = bt_song_finalize;
-  
-  klass->start_play = bt_song_real_start_play;
   
   /** 
 	 * BtSong::play:

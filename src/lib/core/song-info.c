@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.8 2004-05-11 20:01:23 ensonic Exp $
+/* $Id: song-info.c,v 1.9 2004-07-02 13:44:50 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -109,7 +109,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   g_param_spec = g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the song-info belongs to",
-                                     BT_SONG_TYPE, /* object type */
+                                     BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
   g_object_class_install_property(gobject_class,SONG_INFO_SONG,g_param_spec);
 

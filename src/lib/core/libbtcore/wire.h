@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.5 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: wire.h,v 1.6 2004-07-02 13:44:50 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_WIRE_TYPE:
+ * BT_TYPE_WIRE:
  *
  * #GType for BtWire instances
  */
-#define BT_WIRE_TYPE		        (bt_wire_get_type ())
-#define BT_WIRE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_WIRE_TYPE, BtWire))
-#define BT_WIRE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_WIRE_TYPE, BtWireClass))
-#define BT_IS_WIRE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_WIRE_TYPE))
-#define BT_IS_WIRE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_WIRE_TYPE))
-#define BT_WIRE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_WIRE_TYPE, BtWireClass))
+#define BT_TYPE_WIRE		        (bt_wire_get_type ())
+#define BT_WIRE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WIRE, BtWire))
+#define BT_WIRE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_WIRE, BtWireClass))
+#define BT_IS_WIRE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_WIRE))
+#define BT_IS_WIRE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_WIRE))
+#define BT_WIRE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_WIRE, BtWireClass))
 
 /* type macros */
 
@@ -39,7 +39,7 @@ struct _BtWire {
 };
 /* structure of the wire class */
 struct _BtWireClass {
-  GObjectClass parent;
+  GObjectClass parent_class;
 };
 
 /* used by WIRE_TYPE */

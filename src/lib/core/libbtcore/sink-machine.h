@@ -1,4 +1,4 @@
-/* $Id: sink-machine.h,v 1.3 2004-05-14 16:59:22 ensonic Exp $
+/* $Id: sink-machine.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
  * class for a sink machine
  */
 
@@ -9,16 +9,16 @@
 #include <glib-object.h>
 
 /**
- * BT_SINK_MACHINE_TYPE:
+ * BT_TYPE_SINK_MACHINE:
  *
  * #GType for BtSinkMachine instances
  */
-#define BT_SINK_MACHINE_TYPE		        (bt_sink_machine_get_type ())
-#define BT_SINK_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_SINK_MACHINE_TYPE, BtSinkMachine))
-#define BT_SINK_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_SINK_MACHINE_TYPE, BtSinkMachineClass))
+#define BT_TYPE_SINK_MACHINE		        (bt_sink_machine_get_type ())
+#define BT_SINK_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SINK_MACHINE, BtSinkMachine))
+#define BT_SINK_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SINK_MACHINE, BtSinkMachineClass))
 #define BT_IS_SINK_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_SONG_IO_SINK_MACHINE))
-#define BT_IS_SINK_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_SINK_MACHINE_TYPE))
-#define BT_SINK_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_SINK_MACHINE_TYPE, BtSinkMachineClass))
+#define BT_IS_SINK_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SINK_MACHINE))
+#define BT_SINK_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SINK_MACHINE, BtSinkMachineClass))
 
 /* type macros */
 

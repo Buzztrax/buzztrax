@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.10 2004-05-14 16:59:21 ensonic Exp $
+/* $Id: setup.c,v 1.11 2004-07-02 13:44:50 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -226,7 +226,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   g_param_spec = g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the setup belongs to",
-                                     BT_SONG_TYPE, /* object type */
+                                     BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
   g_object_class_install_property(gobject_class,SETUP_SONG,g_param_spec);
 }
