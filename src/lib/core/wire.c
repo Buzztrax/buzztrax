@@ -1,9 +1,11 @@
-/* $Id: wire.c,v 1.52 2005-03-18 08:50:06 ensonic Exp $
+/* $Id: wire.c,v 1.53 2005-03-19 19:16:52 ensonic Exp $
  * class for a machine to machine connection
- * @todo try to derive this from GstThread!
+ * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
+ *  What if we can directly connect src->dst, then the wire can't be an element (nothing there to use as ghost-pads).
+ *  On the other hand this is only the case, if we do not need converters and have no volume and no monitors.
  */
  
 #define BT_CORE
