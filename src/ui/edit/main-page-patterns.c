@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.11 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.12 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -40,9 +40,9 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   iter=bt_setup_machine_iterator_new(setup);
   while(iter) {
     machine=bt_setup_machine_iterator_get_machine(iter);
-    str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
+    g_object_get(G_OBJECT(machine),"id",&str,NULL);
     GST_INFO("  adding \"%s\"",str);
-    menu_item=gtk_menu_item_new_with_label(str);
+    menu_item=gtk_menu_item_new_with_label(str);g_free(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
     iter=bt_setup_machine_iterator_next(iter);
@@ -63,9 +63,9 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
     iter=bt_machine_pattern_iterator_new(machine);
     while(iter) {
       pattern=bt_machine_pattern_iterator_get_pattern(iter);
-      str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+      g_object_get(G_OBJECT(pattern),"name",&str,NULL);
       GST_INFO("  adding \"%s\"",str);
-      menu_item=gtk_menu_item_new_with_label(str);
+      menu_item=gtk_menu_item_new_with_label(str);g_free(str);
       gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
       gtk_widget_show(menu_item);
       iter=bt_machine_pattern_iterator_next(iter);
@@ -96,13 +96,13 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
-  setup=bt_song_get_setup(song);
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_menu_refresh(self,setup);
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
   // release the reference
-  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  g_object_try_unref(setup);
   g_object_try_unref(song);
 }
 
@@ -213,14 +213,14 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
 
   GST_INFO("get machine for pattern");
   
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
-  setup=bt_song_get_setup(song);
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   index=gtk_option_menu_get_history(self->private->machine_menu);
   machine=bt_setup_get_machine_by_index(setup,index);
 
   //-- release the reference
-  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  g_object_try_unref(setup);
   g_object_try_unref(song);
   return(machine);
 }

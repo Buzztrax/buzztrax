@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.9 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-page-info.c,v 1.10 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -34,19 +34,20 @@ static GtkVBoxClass *parent_class=NULL;
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
-  gchar *str;
+  BtSongInfo *song_info;
+  gchar *name,*genre,*info;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
-  if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"))) str="";
-  gtk_entry_set_text(self->private->name,str);
-  if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"genre"))) str="";
-  gtk_entry_set_text(self->private->genre,str);
-  if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"))) str="";
-  gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->private->info),str,-1);
-  // release the reference
+  g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"info",&info,NULL);
+  gtk_entry_set_text(self->private->name,safe_string(name));g_free(name);
+  gtk_entry_set_text(self->private->genre,safe_string(genre));g_free(genre);
+  gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->private->info),safe_string(info),-1);g_free(info);
+  // release the references
+  g_object_try_unref(song_info);
   g_object_try_unref(song);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.29 2004-09-22 16:05:11 ensonic Exp $
+/* $Id: machine.c,v 1.30 2004-09-24 22:42:14 ensonic Exp $
  * base class for a machine
  */
  
@@ -103,7 +103,7 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
       GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
     }
   }
-  bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
+  g_object_get(G_OBJECT(self->private->song),"bin",&bin,NULL);
   gst_bin_add(bin,self->machine);
   g_assert(self->machine!=NULL);
   g_assert(self->src_elem!=NULL);
@@ -111,7 +111,7 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
 
   if(BT_IS_SINK_MACHINE(self)) {
     GST_DEBUG("this will be the master for the song");
-    bt_g_object_set_object_property(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine));
+    g_object_set(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine),NULL);
   }
   g_object_try_unref(bin);
   return(TRUE);
@@ -141,12 +141,17 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
  * Returns: BtPattern instance or NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
+  gboolean found=FALSE;
 	BtPattern *pattern;
+  gchar *pattern_id;
 	GList* node=g_list_first(self->private->patterns);
 	
 	while(node) {
 		pattern=BT_PATTERN(node->data);
-		if(!strcmp(bt_g_object_get_string_property(G_OBJECT(pattern),"id"),id)) return(pattern);
+    g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
+		if(!strcmp(pattern_id,"id")) found=TRUE;
+    g_free(pattern_id);
+    if(found) return(pattern);
 		node=g_list_next(node);
 	}
   return(NULL);

@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.24 2004-09-22 16:05:11 ensonic Exp $
+/* $Id: setup.c,v 1.25 2004-09-24 22:42:14 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -51,6 +51,7 @@ BtSetup *bt_setup_new(const BtSong *song) {
  */
 void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
   g_assert(self);
+  if(!machine) return;
 
 	self->private->machines=g_list_append(self->private->machines,g_object_ref(G_OBJECT(machine)));
 }
@@ -64,6 +65,7 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
  */
 void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
   g_assert(self);
+  if(!wire) return;
 
 	self->private->wires=g_list_append(self->private->wires,g_object_ref(G_OBJECT(wire)));
 }
@@ -79,16 +81,22 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
  * Returns: BtMachine instance or NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
+  gboolean found=FALSE;
 	BtMachine *machine;
+  gchar *machine_id;
 	GList* node=g_list_first(self->private->machines);
 
   g_assert(self);
 	
 	while(node) {
 		machine=BT_MACHINE(node->data);
-		if(!strcmp(bt_g_object_get_string_property(G_OBJECT(machine),"id"),id)) return(machine);
+    g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
+		if(!strcmp(machine_id,id)) found=TRUE;
+    g_free(machine_id);
+    if(found) return(machine);
 		node=g_list_next(node);
 	}
+	GST_DEBUG("no machine found for id \"%s\"",id);
 	return(NULL);
 }
 /* should we better use
@@ -141,12 +149,13 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
   node=g_list_first(self->private->wires);
 	while(node) {
 		wire=BT_WIRE(node->data);
-    machine=BT_MACHINE(bt_g_object_get_object_property(G_OBJECT(wire),"src"));
+    g_object_get(G_OBJECT(wire),"src",&machine,NULL);
 		if(machine==src) found=TRUE;
     g_object_try_unref(machine);
     if(found) return(wire);
 		node=g_list_next(node);
 	}
+	GST_DEBUG("no wire found for src-machine %p",src);
 	return(NULL);
 }
 
@@ -170,12 +179,13 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
   node=g_list_first(self->private->wires);
 	while(node) {
 		wire=BT_WIRE(node->data);
-    machine=BT_MACHINE(bt_g_object_get_object_property(G_OBJECT(wire),"dst"));
+    g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
 		if(machine==dst) found=TRUE;
     g_object_try_unref(machine);
     if(found) return(wire);
 		node=g_list_next(node);
 	}
+	GST_DEBUG("no wire found for dst-machine %p",dst);
 	return(NULL);
 }
 

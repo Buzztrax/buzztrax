@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.3 2004-08-31 17:35:29 ensonic Exp $
+# $Id: autogen.sh,v 1.4 2004-09-24 22:42:08 ensonic Exp $
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0
@@ -318,6 +318,8 @@ version_check "automake" "$AUTOMAKE automake automake-1.7 automake17 automake-1.
               "ftp://ftp.gnu.org/pub/gnu/automake/" 1 6 || DIE=1
 version_check "autopoint" "autopoint" \
               "ftp://ftp.gnu.org/pub/gnu/gettext/" 0 12 1 || DIE=1
+version_check "intltoolize" "" \
+              "ftp://ftp.gnome.org/pub/GNOME/stable/sources/intltool" 0 1 5 || DIE=1
 version_check "libtoolize" "libtoolize" \
               "ftp://ftp.gnu.org/pub/gnu/libtool/" 1 5 0 || DIE=1
 version_check "pkg-config" "" \
@@ -351,6 +353,7 @@ tool_run "$autopoint --force"
 if test -f acinclude.m4; then rm acinclude.m4; fi
 tool_run "$aclocal" "-I macros $ACLOCAL_FLAGS"
 
+tool_run "$intltoolize" "--copy --force --automake"
 tool_run "$libtoolize" "--copy --force"
 tool_run "$autoheader"
 

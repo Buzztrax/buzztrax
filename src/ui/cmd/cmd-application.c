@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.30 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: cmd-application.c,v 1.31 2004-09-24 22:42:15 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -25,7 +25,7 @@ static BtApplicationClass *parent_class=NULL;
  * signal callback funktion
  */
 static void on_song_play(const BtSong *song, gpointer user_data) {
-  GST_INFO("start playing - invoked per signal : song=%p, user_data=%p\n",song,user_data);
+  GST_INFO("start playing - invoked per signal : song=%p, user_data=%p",song,user_data);
 }
 
 /**
@@ -34,7 +34,7 @@ static void on_song_play(const BtSong *song, gpointer user_data) {
  * signal callback funktion
  */
 static void on_song_stop(const BtSong *song, gpointer user_data) {
-  GST_INFO("stoped playing - invoked per signal : song=%p, user_data=%p\n",song,user_data);
+  GST_INFO("stoped playing - invoked per signal : song=%p, user_data=%p",song,user_data);
 }
 
 //-- constructor methods
@@ -76,7 +76,8 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   if(!is_string(input_file_name)) {
     goto Error;
   }
-  bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+  // prepare song and song-io
+  g_object_get(G_OBJECT(self),"bin",&bin,NULL);
   if(!(song=bt_song_new(bin))) {
     goto Error;
   }
@@ -127,12 +128,14 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   if(!is_string(input_file_name)) {
     goto Error;
   }
+  // choose appropriate output
 	if (!is_string(output_file_name)) {
 		output_file=stdout; 
 	} else {
 		output_file = fopen(output_file_name,"wb");
 	}
-  bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+  // prepare song and song-io
+  g_object_get(G_OBJECT(self),"bin",&bin,NULL);
   if(!(song=bt_song_new(bin))) {
     goto Error;
   }
@@ -144,19 +147,32 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 	
 	//if(bt_song_load(song,filename)) {
 	if(bt_song_io_load(loader,song)) {
+    BtSongInfo *song_info;
+    BtSequence *sequence;
+    BtSetup *setup;
+    gchar *name,*info,*id;
+    glong length,tracks;
+    
+    g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,NULL);
 		/* print some info about the song */
-    g_fprintf(output_file,"song.song_info.name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
-		g_fprintf(output_file,"song.song_info.info: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"));
-		g_fprintf(output_file,"song.sequence.length: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"length"));
-		g_fprintf(output_file,"song.sequence.tracks: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"tracks"));
+    g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,NULL);
+    g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
+		g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
+    g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
+		g_fprintf(output_file,"song.sequence.length: %d\n",length);
+		g_fprintf(output_file,"song.sequence.tracks: %d\n",tracks);
     /* lookup a machine and print some info about it */
     {
-      BtSetup *setup=bt_song_get_setup(song);
       BtMachine *machine=bt_setup_get_machine_by_id(setup,"audio_sink");
 
-      g_fprintf(output_file,"machine.id: \"%s\"\n",          bt_g_object_get_string_property(G_OBJECT(machine),"id"));
-      g_fprintf(output_file,"machine.plugin_name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"plugin_name"));
+      g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
+      g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
+      g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
     }
+    // release the references
+    g_object_try_unref(song_info);
+    g_object_try_unref(sequence);
+    g_object_try_unref(setup);    
     res=TRUE;
 	}
 	else {

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.11 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: pattern.c,v 1.12 2004-09-24 22:42:14 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -366,11 +366,9 @@ static void bt_pattern_set_property(GObject      *object,
       if(self->private->data) bt_pattern_resize_data_voices(self,voices);
     } break;
     case PATTERN_MACHINE: {
-      glong global_params,voice_params;
       g_object_try_unref(self->private->machine);
       self->private->machine = g_object_try_ref(G_OBJECT(g_value_get_object(value)));
-      self->private->global_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"global_params");
-      self->private->voice_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"voice_params");
+      g_object_get(G_OBJECT(self->private->machine),"global_params",&self->private->global_params,"voice_params",&self->private->voice_params,NULL);
       GST_DEBUG("set the machine for pattern: %p",self->private->machine);
     } break;
     default: {

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.12 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.13 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -74,14 +74,16 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   BtSong *song;
+  BtSequence *sequence;
   gchar *str;
   gulong msec,sec,min;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   // get new song length
-  msec=bt_sequence_get_loop_time(bt_song_get_sequence(song));
+  msec=bt_sequence_get_loop_time(sequence);
   GST_INFO("  new msec : %ld",msec);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
@@ -91,10 +93,11 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 	gtk_statusbar_push(self->private->loop,self->private->loop_context_id,str);
  	g_free(str);
   // subscribe to tick signal of song->sequence
-  g_signal_connect(G_OBJECT(bt_song_get_sequence(song)), "tick", (GCallback)on_sequence_tick, (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "tick", (GCallback)on_sequence_tick, (gpointer)self);
   g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
   // @todo shouldn't we disconnet these signals somewhere
-  // release the reference
+  // release the references
+  g_object_try_unref(sequence);
   g_object_try_unref(song);
 }
 

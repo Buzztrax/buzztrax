@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.11 2004-08-07 23:29:02 ensonic Exp $
+/* $Id: core.c,v 1.12 2004-09-24 22:42:14 ensonic Exp $
  */
 
 #define BT_CORE
@@ -39,6 +39,7 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
   
 	//-- init gobject
 	g_type_init();
+  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
 	//-- init gstreamer with popt options
   if(options) {

@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the buzztard package.
 # Stefan Kost <ensonic@users.sf.net>, 2004.
 # :encoding=UTF-8:
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.1\n"
-"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2004-08-14 10:09+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-09-23 18:32+0200\n"
 "PO-Revision-Date: 2004-08-06 23:50+0200\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -16,37 +15,314 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ui/edit/main-window.c:173 src/ui/edit/main-window.c:185
+#: src/ui/edit/bt-edit.desktop.in.h:1
+msgid "Buzztard Editor"
+msgstr "Buzztard Editor"
+
+#: src/ui/edit/bt-edit.desktop.in.h:2
+msgid "Edit buzztard song files"
+msgstr "Bearbeiten von Buzztard Musik-Dateien"
+
+#: src/ui/edit/main-menu.c:60
+msgid "About ..."
+msgstr "Über"
+
+#: src/ui/edit/main-menu.c:74
+msgid ""
+"brought to you by\n"
+"\n"
+"Stefan 'ensonic' Kost\n"
+"Thomas 'waffel' Wabner"
+msgstr ""
+"für euch geschaffen von\n"
+"\n"
+"Stefan 'ensonic' Kost\n"
+"Thomas 'waffel' Wabner"
+
+#: src/ui/edit/main-menu.c:91
+msgid "main menu"
+msgstr "Hauptmenü"
+
+#. -- file menu
+#: src/ui/edit/main-menu.c:94
+msgid "_File"
+msgstr "_Datei"
+
+#: src/ui/edit/main-menu.c:95 src/ui/edit/main-menu.c:99
+msgid "file menu"
+msgstr "Datei Menü"
+
+#: src/ui/edit/main-menu.c:103 src/ui/edit/main-toolbar.c:113
+#: src/ui/edit/main-toolbar.c:117
+msgid "New"
+msgstr "Neu"
+
+#: src/ui/edit/main-menu.c:108 src/ui/edit/main-toolbar.c:125
+#: src/ui/edit/main-toolbar.c:129
+msgid "Open"
+msgstr "Öffnen"
+
+#: src/ui/edit/main-menu.c:113 src/ui/edit/main-toolbar.c:137
+#: src/ui/edit/main-toolbar.c:141
+msgid "Save"
+msgstr "Speichern"
+
+#: src/ui/edit/main-menu.c:117
+msgid "Save as"
+msgstr "Speichern unter"
+
+#: src/ui/edit/main-menu.c:121 src/ui/edit/main-menu.c:156
+msgid "separator"
+msgstr ""
+
+#: src/ui/edit/main-menu.c:126
+msgid "Quit"
+msgstr "Beenden"
+
+#. edit menu
+#: src/ui/edit/main-menu.c:131
+msgid "_Edit"
+msgstr "_Bearbeiten"
+
+#: src/ui/edit/main-menu.c:132 src/ui/edit/main-menu.c:136
+msgid "edit menu"
+msgstr "Bearbeiten Menü"
+
+#: src/ui/edit/main-menu.c:140
+msgid "cut"
+msgstr ""
+
+#: src/ui/edit/main-menu.c:144
+msgid "copy"
+msgstr ""
+
+#: src/ui/edit/main-menu.c:148
+msgid "paste"
+msgstr ""
+
+#: src/ui/edit/main-menu.c:152
+msgid "delete"
+msgstr ""
+
+#: src/ui/edit/main-menu.c:161
+msgid "settings"
+msgstr ""
+
+#. view menu
+#: src/ui/edit/main-menu.c:165
+msgid "_View"
+msgstr "_Ansicht"
+
+#: src/ui/edit/main-menu.c:166 src/ui/edit/main-menu.c:170
+msgid "view menu"
+msgstr "Ansichts Menü"
+
+#. help menu
+#: src/ui/edit/main-menu.c:174
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: src/ui/edit/main-menu.c:175 src/ui/edit/main-menu.c:180
+msgid "help menu"
+msgstr "Hilfe Menü"
+
+#: src/ui/edit/main-menu.c:184
+msgid "Content"
+msgstr ""
+
+#: src/ui/edit/main-menu.c:187 src/ui/edit/main-menu.c:188
+#: src/ui/edit/main-menu.c:191
+msgid "About"
+msgstr ""
+
+#. @todo display all properties from BTSongInfo
+#. first row of hbox
+#: src/ui/edit/main-page-info.c:75 src/ui/edit/main-page-info.c:76
+msgid "song meta data"
+msgstr ""
+
+#: src/ui/edit/main-page-info.c:82
+msgid "name"
+msgstr ""
+
+#: src/ui/edit/main-page-info.c:88
+msgid "genre"
+msgstr ""
+
+#. second row of hbox
+#: src/ui/edit/main-page-info.c:95 src/ui/edit/main-page-info.c:96
+#: src/ui/edit/main-page-info.c:105
+msgid "free text info"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:110 src/ui/edit/main-page-patterns.c:117
+#: src/ui/edit/main-page-sequence.c:309
+msgid "machine view tool bar"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:120 src/ui/edit/main-page-machines.c:124
+msgid "Zoom Fit"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:125
+msgid "Zoom in/out so that everything is visible"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:132 src/ui/edit/main-page-machines.c:136
+msgid "Zoom In"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:137
+msgid "Zoom in so more details are visible"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:144 src/ui/edit/main-page-machines.c:148
+msgid "Zoom Out"
+msgstr ""
+
+#: src/ui/edit/main-page-machines.c:149
+msgid "Zoom out for better overview"
+msgstr ""
+
+#. @todo do we really have to add the label by our self
+#. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+#: src/ui/edit/main-page-patterns.c:127 src/ui/edit/main-page-patterns.c:137
+msgid "Machine"
+msgstr "Gerät"
+
+#. @todo do we really have to add the label by our self
+#. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+#: src/ui/edit/main-page-patterns.c:145 src/ui/edit/main-page-patterns.c:155
+msgid "Pattern"
+msgstr ""
+
+#: src/ui/edit/main-page-sequence.c:70
+msgid "Pos."
+msgstr ""
+
+#: src/ui/edit/main-page-sequence.c:75
+msgid "Labels"
+msgstr ""
+
+#: src/ui/edit/main-page-sequence.c:229
+msgid "  mute"
+msgstr ""
+
+#: src/ui/edit/main-page-sequence.c:231
+msgid "  break"
+msgstr ""
+
+#. @todo do we really have to add the label by our self
+#. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+#: src/ui/edit/main-page-sequence.c:330 src/ui/edit/main-page-sequence.c:340
+msgid "Steps"
+msgstr ""
+
+#: src/ui/edit/main-page-sequence.c:389
+msgid "Patterns"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:44
+msgid "song views"
+msgstr "Liedansichten"
+
+#: src/ui/edit/main-pages.c:50 src/ui/edit/main-pages.c:51
+msgid "machine view"
+msgstr "Geräteansicht"
+
+#: src/ui/edit/main-pages.c:56
+msgid "machines used in the song and their wires"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:62 src/ui/edit/main-pages.c:63
+msgid "pattern view"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:68
+msgid "event pattern editor"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:74 src/ui/edit/main-pages.c:75
+msgid "sequence view"
+msgstr "Sequenzansicht"
+
+#: src/ui/edit/main-pages.c:80
+msgid "song sequence editor"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:86 src/ui/edit/main-pages.c:87
+msgid "song information"
+msgstr ""
+
+#: src/ui/edit/main-pages.c:92
+msgid "song meta data editor"
+msgstr ""
+
+#: src/ui/edit/main-statusbar.c:109
+msgid "status bar"
+msgstr "Statusleiste"
+
+#: src/ui/edit/main-statusbar.c:113 src/ui/edit/main-statusbar.c:119
+#: src/ui/edit/main-statusbar.c:126 src/ui/edit/main-statusbar.c:133
+msgid "default"
+msgstr ""
+
+#: src/ui/edit/main-statusbar.c:115
+msgid "Ready to rock!"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:100
+msgid "handlebox for toolbar"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:103
+msgid "tool bar"
+msgstr "Werkzeugleiste"
+
+#: src/ui/edit/main-toolbar.c:118
+msgid "Prepare a new empty song"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:130
+msgid "Load a new song"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:142
+msgid "Save this song"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:152 src/ui/edit/main-toolbar.c:156
+msgid "Play"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:157
+msgid "Play this song"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:164 src/ui/edit/main-toolbar.c:168
+msgid "Stop"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:169
+msgid "Stop playback of this song"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:176 src/ui/edit/main-toolbar.c:180
+msgid "Loop"
+msgstr ""
+
+#: src/ui/edit/main-toolbar.c:181
+msgid "Toggle looping of playback"
+msgstr ""
+
+#: src/ui/edit/main-window.c:174 src/ui/edit/main-window.c:188
 msgid "Really quit ?"
 msgstr ""
 
-#: src/ui/edit/main-window.c:231
-msgid "Choose a song"
+#: src/ui/edit/main-window.c:188
+msgid "All unsaved changes will be lost then."
 msgstr ""
 
-#~ msgid "main menu"
-#~ msgstr "Hauptmenü"
-
-#~ msgid "_File"
-#~ msgstr "_Datei"
-
-#~ msgid "file menu"
-#~ msgstr "Datei Menü"
-
-#~ msgid "tool bar"
-#~ msgstr "Werkzeugleiste"
-
-#~ msgid "New"
-#~ msgstr "Neu"
-
-#~ msgid "new"
-#~ msgstr "neu"
-
-#~ msgid "song views"
-#~ msgstr "Liedansichten"
-
-#~ msgid "machine view"
-#~ msgstr "Geräteansicht"
-
-#~ msgid "status bar"
-#~ msgstr "Statusleiste"
+#: src/ui/edit/main-window.c:233
+msgid "Choose a song"
+msgstr ""

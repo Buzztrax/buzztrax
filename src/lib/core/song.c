@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.44 2004-09-24 11:48:46 waffel Exp $
+/* $Id: song.c,v 1.45 2004-09-24 22:42:14 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -61,7 +61,7 @@ BtSong *bt_song_new(const GstBin *bin) {
     self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
   }
   else {
-     GST_ERROR("bin should not be NULL");
+     GST_WARNING("bin should not be NULL");
   }
   return(self);
 }
@@ -140,48 +140,6 @@ gboolean bt_song_continue(const BtSong *self) {
 }
 
 //-- wrapper
-
-/**
- * bt_song_get_song_info:
- * @self: the song to get the information from
- *
- * get the #BtSongInfo for the song
- *
- * Returns: the #BtSongInfo instance
- */
-BtSongInfo *bt_song_get_song_info(const BtSong *self) {
-  // @todo deprecate method -> bt_g_object_get_object_property(song,"song-info")
-  g_assert(self);
-	return(self->private->song_info);
-}
-
-/**
- * bt_song_get_setup:
- * @self: the song to get the setup from
- *
- * get the #BtSetup for the song
- *
- * Returns: the #BtSetup instance
- */
-BtSetup *bt_song_get_setup(const BtSong *self) {
-  // @todo deprecate method -> bt_g_object_get_object_property(song,"setup")
-  g_assert(self);
-	return(self->private->setup);
-}
-
-/**
- * bt_song_get_sequence:
- * @self: the song to get the sequence from
- *
- * get the #BtSequence for the song
- *
- * Returns: the #BtSequence instance
- */
-BtSequence *bt_song_get_sequence(const BtSong *self) {
-  // @todo deprecate method -> bt_g_object_get_object_property(song,"sequence")
-  g_assert(self);
-  return(self->private->sequence);
-}
 
 //-- class internals
 

@@ -1,1 +1,15 @@
+src/ui/cmd/bt-cmd.c
+src/ui/cmd/cmd-application.c
+src/ui/edit/bt-edit.c
+src/ui/edit/bt-edit.desktop.in
+src/ui/edit/edit-application.c
+src/ui/edit/main-menu.c
+src/ui/edit/main-page-info.c
+src/ui/edit/main-page-machines.c
+src/ui/edit/main-page-patterns.c
+src/ui/edit/main-page-sequence.c
+src/ui/edit/main-pages.c
+src/ui/edit/main-statusbar.c
+src/ui/edit/main-toolbar.c
 src/ui/edit/main-window.c
+

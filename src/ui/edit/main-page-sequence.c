@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.14 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.15 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -91,34 +91,35 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtPattern *pattern;
   GtkCellRenderer *renderer;
   gchar *str;
-  gulong i,j,col_ct,timeline_ct,track_ct,bars,pos=1;
+  gulong i,j,col_ct,timeline_ct,track_ct,bars,pos=0;
   GtkListStore *store;
   GType *store_types;
   GtkTreeIter tree_iter;
   GtkTreeViewColumn *tree_col;
-  GValue pattern_type={0,};
+  gulong pattern_type;
+  gboolean free_str;
 
   GST_INFO("refresh sequence table");
   
-  setup=bt_song_get_setup(song);
-  sequence=bt_song_get_sequence(song);
-  song_info=bt_song_get_song_info(song);
-
+  g_object_get(G_OBJECT(song),"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
   // reset columns
   sequence_table_init(self);
-  timeline_ct=bt_g_object_get_long_property(G_OBJECT(sequence),"length");
-  track_ct=bt_g_object_get_long_property(G_OBJECT(sequence),"tracks");
-  bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
+  g_object_get(G_OBJECT(sequence),"length",&timeline_ct,"tracks",&track_ct,NULL);
+  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   GST_INFO("  size is %2d,%2d",timeline_ct,track_ct);
   // add column for each machine
   for(j=0;j<track_ct;j++) {
     machine=bt_sequence_get_machine_by_track(sequence,j);
-    str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
     renderer=gtk_cell_renderer_text_new();
     g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
+
+    // set machine name as column header
+    g_object_get(G_OBJECT(machine),"id",&str,NULL);
     i=gtk_tree_view_insert_column_with_attributes(self->private->sequence_table,-1,str,renderer,
       "text",SEQUENCE_TABLE_PRE_CT+j,
       NULL);
+    g_free(str);
+    
     tree_col=gtk_tree_view_get_column(self->private->sequence_table,i-1);
     if(BT_IS_SOURCE_MACHINE(machine)) {
       gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
@@ -144,8 +145,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     store_types[i]=G_TYPE_STRING;
   }
   store=gtk_list_store_newv(col_ct,store_types);
+  g_free(store_types);
   // add patterns
-  g_value_init(&pattern_type,BT_TYPE_TIMELINETRACK_TYPE);
   for(i=0;i<timeline_ct;i++) {
     timeline=bt_sequence_get_timeline_by_time(sequence,i);
     gtk_list_store_append(store, &tree_iter);
@@ -168,21 +169,25 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_POS,pos,-1);
     pos+=bars;
     // set label
-    if((str=bt_g_object_get_string_property(G_OBJECT(timeline),"label"))) {
+    g_object_get(G_OBJECT(timeline),"label",&str,NULL);
+    if(str) {
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
+      g_free(str);
     }
     // set patterns
     for(j=0;j<track_ct;j++) {
       timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,j);
-      g_object_get_property(G_OBJECT(timelinetrack),"type", &pattern_type);
-      switch(g_value_get_enum(&pattern_type)) {
+      g_object_get(G_OBJECT(timelinetrack),"type",&pattern_type,NULL);
+      free_str=FALSE;
+      switch(pattern_type) {
         case BT_TIMELINETRACK_TYPE_EMPTY:
           str=" ";
           break;
         case BT_TIMELINETRACK_TYPE_PATTERN:
-          pattern=BT_PATTERN(bt_g_object_get_object_property(G_OBJECT(timelinetrack),"pattern"));
-          str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+          g_object_get(G_OBJECT(timelinetrack),"pattern",&pattern,NULL);
+          g_object_get(G_OBJECT(pattern),"name",&str,NULL);
           g_object_try_unref(pattern);
+          free_str=TRUE;
           break;
         case BT_TIMELINETRACK_TYPE_MUTE:
           str="---";
@@ -196,9 +201,14 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       }
       //GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
+      if(free_str) g_free(str);
     }
   }
   gtk_tree_view_set_model(self->private->sequence_table,GTK_TREE_MODEL(store));
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(sequence);
+  g_object_try_unref(setup);    
   g_object_unref(store); // drop with treeview
 }
 
@@ -230,10 +240,11 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
     iter=bt_machine_pattern_iterator_new(machine);
     while(iter) {
       pattern=bt_machine_pattern_iterator_get_pattern(iter);
-      str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+      g_object_get(G_OBJECT(pattern),"name",&str,NULL);
       GST_INFO("  adding \"%s\"",str);
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,0,str,-1);
+      g_free(str);
       iter=bt_machine_pattern_iterator_next(iter);
     }
   }
@@ -261,15 +272,17 @@ gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep a
 
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSongInfo *song_info;
   BtSong *song;
   glong index,bars;
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update page
   // update toolbar
-  bars=bt_g_object_get_long_property(G_OBJECT(bt_song_get_song_info(song)),"bars");
+  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   // find out to which entry it belongs and set the index
   // 1 -> 0, 2 -> 1, 4 -> 2 , 8 -> 3
   if(bars<4) {
@@ -283,9 +296,9 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // update sequence and pattern list
   sequence_table_refresh(self,song);
   pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
-  //-- release the reference
+  //-- release the references
+  g_object_try_unref(song_info);
   g_object_try_unref(song);
- 
 }
 
 //-- helper methods
@@ -433,14 +446,13 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
   BtMachine *machine=NULL;
   BtSong *song;
   BtSequence *sequence;
-  //GtkTreeSelection *selection;
   GtkTreePath *path;
   GtkTreeViewColumn *column;
 
   GST_INFO("get active machine");
   
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
-  sequence=bt_song_get_sequence(song);
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 
   // get table column number (column 0 is for labels)
   gtk_tree_view_get_cursor(self->private->sequence_table,&path,&column);
@@ -454,7 +466,8 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
       machine=bt_sequence_get_machine_by_track(sequence,track-1);
     }
   }
-  // release the reference
+  // release the references
+  g_object_try_unref(sequence);
   g_object_try_unref(song);
   return(machine);
 }

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.32 2004-09-22 16:05:11 ensonic Exp $
+/* $Id: sequence.c,v 1.33 2004-09-24 22:42:14 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -114,7 +114,7 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
       glong i;
 
       for(i=0;i<self->private->length;i++) {
-        bt_g_object_set_long_property(G_OBJECT(self->private->timelines[i]),"tracks",self->private->tracks);
+        g_object_set(G_OBJECT(self->private->timelines[i]),"tracks",self->private->tracks,NULL);
       }
     }
   }
@@ -231,20 +231,21 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,c
  *
  */
 gulong bt_sequence_get_bar_time(const BtSequence *self) {
-  BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
+  BtSongInfo *song_info;
   glong wait_per_position,bars;
   glong beats_per_minute,ticks_per_beat;
   gdouble ticks_per_minute;
   gulong res;
-  
-  ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
-  beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
-  bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
+
+  g_object_get(G_OBJECT(self->private->song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
 
   ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
   wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
 
   res=(gulong)(((guint64)bars*(guint64)wait_per_position)/G_USEC_PER_SEC);
+  // release the references
+  g_object_try_unref(song_info);
   return(res);
 }
 
@@ -278,10 +279,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
   
   if((!self->private->tracks) || (!self->private->length)) return(res);
   else {
-    BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
     BtTimeLine **timeline=self->private->timelines;
-    GstElement *master=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
-    GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
+    BtSongInfo *song_info;
+    GstElement *master,*bin;
     BtPlayLine *playline;
     glong i;
     glong wait_per_position,bars;
@@ -291,9 +291,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
     GTimer *timer;
     // }
     
-    ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
-    beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
-    bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
+    g_object_get(G_OBJECT(self->private->song),"master",&master,"bin",&bin,NULL);
+    g_object_get(G_OBJECT(self->private->song),"song-info",&song_info,NULL);
+    g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
     /* the number of pattern-events for one playline-step,
      * when using 4 ticks_per_beat then
      * for 4/4 bars it is 16 (standart dance rhythm)
@@ -338,9 +338,11 @@ gboolean bt_sequence_play(const BtSequence *self) {
     else {
       GST_ERROR("can't start playing");res=FALSE;
     }
+    // release the references
     g_object_try_unref(playline);
     g_object_try_unref(bin);
     g_object_try_unref(master);
+    g_object_try_unref(song_info);
   }
   return(res);
 }

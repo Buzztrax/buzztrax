@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.18 2004-09-24 11:48:46 waffel Exp $
+/* $Id: song-io.c,v 1.19 2004-09-24 22:42:14 ensonic Exp $
  * base class for song input and output
  */
  
@@ -86,7 +86,7 @@ static void bt_song_io_register_plugins(void) {
  * Returns: the type of the #SongIO sub-class that can handle the supplied file
  */
 static GType bt_song_io_detect(const gchar *file_name) {
-  GType type=NULL;
+  GType type=0;
   GList *node=g_list_first(plugins);
   BtSongIODetect detect;
   

@@ -1,14 +1,19 @@
-/** $Id: t-song.c,v 1.2 2004-09-24 11:48:10 waffel Exp $
+/** $Id: t-song.c,v 1.3 2004-09-24 22:42:16 ensonic Exp $
 **/
 
 #include "t-song.h"
 
+//-- globals
+
+GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 gboolean play_signal_invoke=FALSE;
+
 //-- fixtures
 
 static void test_setup(void) {
   bt_init(NULL,NULL,NULL);
-  //puts(__FILE__":setup");
+  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
@@ -80,8 +85,7 @@ START_TEST(test_btsong_play2) {
   mark_point();
 	bt_song_play(song);
 	fail_unless(play_signal_invoke, NULL);
-	g_object_unref(G_OBJECT(song));
-	fail_unless(G_IS_OBJECT(song) == FALSE, NULL);
+	g_object_checked_unref(G_OBJECT(song));
 }
 END_TEST
 
@@ -95,12 +99,11 @@ START_TEST(test_btsong_setup1) {
 	song=bt_song_new(GST_BIN(bin));
 	fail_unless(song != NULL, "failed to get song");
 	
-	setup=bt_song_get_setup(song);
+	g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	g_object_unref(G_OBJECT(song));
-	fail_unless(G_IS_OBJECT(song) == FALSE, NULL);
-	fail_unless(G_IS_OBJECT(setup) == FALSE, NULL);
+  g_object_checked_unref(setup);
+	g_object_checked_unref(song);
 }
 END_TEST
 

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.26 2004-09-22 16:05:11 ensonic Exp $
+/* $Id: wire.c,v 1.27 2004-09-24 22:42:15 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -55,8 +55,9 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   gboolean res=TRUE;
   BtMachine *src, *dst;
   BtSong *song=self->private->song;
-  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
+  GstBin *bin;
 
+  g_object_get(G_OBJECT(song),"bin",&bin,NULL);
   src=self->private->src;
   dst=self->private->dst;
 
@@ -121,7 +122,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
  */
 static gboolean bt_wire_unlink_machines(const BtWire *self) {
   BtSong *song=self->private->song;
-  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
+  GstBin *bin;
 
 	GST_DEBUG("trying to unlink machines");
 	gst_element_unlink(self->private->src->src_elem, self->private->dst->dst_elem);
@@ -134,6 +135,7 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
 	if(self->private->convert && self->private->scale) {
 		gst_element_unlink_many(self->private->src->src_elem, self->private->convert, self->private->scale, self->private->dst->dst_elem, NULL);
 	}
+  g_object_get(G_OBJECT(song),"bin",&bin,NULL);
 	if(self->private->convert) {
 		gst_bin_remove(bin, self->private->convert);
 	}
@@ -153,17 +155,21 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
  * transparently add spreader or adder elements in such cases. It further
  * inserts elemnts for data-type conversion if neccesary.
  *
+ * The machines must have been previously added to the setup using #bt_setup_add_machine().
+ * Same way the resulting wire should be added to the setup using #bt_setup_add_wire().
+ *
  * Returns: true for success
  */
 static gboolean bt_wire_connect(BtWire *self) {
   gboolean res=FALSE;
   BtSong *song=self->private->song;
-  BtSetup *setup=bt_song_get_setup(song);
+  BtSetup *setup=NULL;
+  GstBin *bin=NULL;
   BtWire *other_wire;
   BtMachine *src, *dst;
-  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
 
   if((!self->private->src) || (!self->private->dst)) goto Error;
+  g_object_get(G_OBJECT(song),"bin",&bin,"setup",&setup,NULL);
   src=self->private->src;
   dst=self->private->dst;
 
@@ -198,7 +204,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 	}
 	
 	// if there is already a wire to dst and dst has not yet an adder (in use)
-	if((other_wire=bt_setup_get_wire_by_src_machine(setup,dst)) && (dst->dst_elem!=dst->adder)) {
+	if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst)) && (dst->dst_elem!=dst->adder)) {
 		GST_DEBUG("  other wire to dst found");
 		// unlink the elements from the other wire
 		bt_wire_unlink_machines(other_wire);
@@ -240,6 +246,7 @@ static gboolean bt_wire_connect(BtWire *self) {
   GST_DEBUG("linking machines succeded");
 Error:
   g_object_try_unref(bin);
+  g_object_try_unref(setup);
   if(!res) g_object_unref(self);
 	return(res);
 }

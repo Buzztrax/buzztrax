@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=@VERSION@
+Encoding=UTF-8
+Type=Application
+_Name=Buzztard Music Editor
+_Comment=Edit buzztard song files
+TryExec=bt-edit
+Exec=bt-edit --command=load --input-file=%f
+Terminal=0
+Icon=buzztard.png
+DocPath=buzztard/buzztard.xml
+Categories=Application;AudioVideo
+

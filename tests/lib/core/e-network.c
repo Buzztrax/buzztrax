@@ -1,12 +1,18 @@
-/** $Id: e-network.c,v 1.1 2004-09-24 11:50:17 waffel Exp $
+/** $Id: e-network.c,v 1.2 2004-09-24 22:42:16 ensonic Exp $
  */
 
 #include "t-core.h"
+
+//-- globals
+
+GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
 static void test_setup(void) {
   bt_init(NULL,NULL,NULL);
+  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
@@ -24,15 +30,20 @@ START_TEST(test_btcore_net_example1) {
 	// machines
 	BtSourceMachine *gen1=NULL;
 	BtSinkMachine *sink=NULL;
+  BtMachine *machine;
 	GstElement *bin=NULL;
 	// wires
-  BtWire *wire1=NULL;
+  BtWire *wire, *wire1=NULL;
 	// song setup 
 	BtSetup *setup=NULL;
 	
 	bin=gst_thread_new("thread");
   /* create a new song */
   song=bt_song_new(GST_BIN(bin));
+	/* get the song setup */
+	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  fail_unless(setup!=NULL, NULL);
+
   /* try to create the esd sink */
 	sink=bt_sink_machine_new(song,"master","esdsink");
   if (sink == NULL) {
@@ -44,15 +55,28 @@ START_TEST(test_btcore_net_example1) {
   /* try to craete generator1 with sinesrc */
   gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(gen1!=NULL, NULL);
+
+	/* try to add all machines to the setup (and therewith to the song) */
+  bt_setup_add_machine(setup,BT_MACHINE(sink));
+  bt_setup_add_machine(setup,BT_MACHINE(gen1));
+  
+  /* check if we can retrieve the machine via the id */
+  machine=bt_setup_get_machine_by_id(setup,"master");
+  fail_unless(machine==sink, NULL);
+  machine=bt_setup_get_machine_by_id(setup,"generator1");
+  fail_unless(machine==gen1, NULL);
   
   /* try to link machines */
 	wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
-	// @todo why the BT_MACHINE function cannot be found in the documentation?
   fail_unless(wire1!=NULL, NULL);
-	
-	/* get the song setup */
-	setup=bt_song_get_setup(song);
-  fail_unless(setup!=NULL, NULL);
+  
+  /* check if we can retrieve the wire via the source machine */
+  wire=bt_setup_get_wire_by_src_machine(setup,BT_MACHINE(gen1));
+  fail_unless(wire==wire1, NULL);
+
+  /* check if we can retrieve the wire via the dest machine */
+  wire=bt_setup_get_wire_by_dst_machine(setup,BT_MACHINE(sink));
+  fail_unless(wire==wire1, NULL);
 	
 	/* add wire to song setup */
 	bt_setup_add_wire(setup, wire1);
@@ -64,8 +88,9 @@ START_TEST(test_btcore_net_example1) {
 	} else {
     fail("playing of network song failed");
   }
-	g_object_unref(G_OBJECT(song));
-	fail_unless(G_IS_OBJECT(song) == FALSE, NULL);
+  
+  g_object_checked_unref(setup);
+	g_object_checked_unref(song);
 }
 END_TEST
 
@@ -82,13 +107,17 @@ START_TEST(test_btcore_net_example2) {
 	BtSinkMachine *sink=NULL;
 	GstElement *bin=NULL;
 	// wires
-	BtWire *wire1=NULL, *wire2=NULL;
+	BtWire *wire, *wire1=NULL, *wire2=NULL;
 	// setup
 	BtSetup *setup=NULL;
   
 	bin=gst_thread_new("thread");
   /* create a new song */
   song=bt_song_new(GST_BIN(bin));  
+	/* get the song setup */
+	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  fail_unless(setup!=NULL, NULL);
+
   /* try to create the esd sink */
 	sink=bt_sink_machine_new(song,"master","esdsink");
   if (sink == NULL) {
@@ -105,19 +134,23 @@ START_TEST(test_btcore_net_example2) {
   gen2 = bt_source_machine_new(song,"generator2","sinesrc",0);
   fail_unless(gen2!=NULL, NULL);
   
+	/* try to add all machines to the setup (and therewith to the song) */
+  bt_setup_add_machine(setup,BT_MACHINE(sink));
+  bt_setup_add_machine(setup,BT_MACHINE(gen1));
+  bt_setup_add_machine(setup,BT_MACHINE(gen2));
+  
 	/* try to create a wire from gen1 to sink */
   wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
 	fail_unless(wire1!=NULL, NULL);
+
+	/* try to add the wire to the setup (and therewith to the song) */
+	bt_setup_add_wire(setup, wire1);
 	
 	/* try to create a wire from gen2 to sink */ 
 	wire2=bt_wire_new(song, BT_MACHINE(gen2), BT_MACHINE(sink));
 	fail_unless(wire2!=NULL, NULL);
 	
-	/* get the (should be empty) setup from the song */
-	setup=bt_song_get_setup(song);
-	
-	/* try to add both wires to the setup (and impliziet to the song) */
-	bt_setup_add_wire(setup, wire1);
+	/* try to add the wire to the setup (and therewith to the song) */
 	bt_setup_add_wire(setup, wire2);
 	
   /* try to start playing the song */
@@ -127,8 +160,9 @@ START_TEST(test_btcore_net_example2) {
 	} else {
     fail("playing of network song failed");
   }
-	g_object_unref(G_OBJECT(song));
-	fail_unless(G_IS_OBJECT(song) == FALSE, NULL);
+  
+  g_object_checked_unref(setup);
+	g_object_checked_unref(song);
 }
 END_TEST
 
@@ -138,6 +172,7 @@ TCase *bt_network_example_tcase(void) {
 
   tcase_add_test(tc,test_btcore_net_example1);
   tcase_add_test(tc,test_btcore_net_example2);
+  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
 

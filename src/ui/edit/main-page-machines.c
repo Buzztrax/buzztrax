@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.10 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.11 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -35,10 +35,9 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
   // update page
   // release the reference
-  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
   g_object_try_unref(song);
 }
 
@@ -156,7 +155,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_push_visual(gdk_imlib_get_visual());
   // @todo try gtk_widget_push_colormap(gdk_colormap_get_system());
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
-  self->private->canvas = gnome_canvas_new_aa();
+  self->private->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
   gnome_canvas_set_center_scroll_region(self->private->canvas,TRUE);
   gnome_canvas_set_scroll_region(self->private->canvas,0.0,0.0,100.0,100.0);
   gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);

@@ -1,12 +1,18 @@
-/** $Id: t-song-io.c,v 1.4 2004-09-24 11:48:10 waffel Exp $
+/** $Id: t-song-io.c,v 1.5 2004-09-24 22:42:16 ensonic Exp $
 **/
 
 #include "t-song.h"
+
+//-- globals
+
+GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
 static void test_setup(void) {
   bt_init(NULL,NULL,NULL);
+  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
@@ -51,8 +57,7 @@ START_TEST(test_btsong_io_obj4) {
 	// check if the type of songIO is nativ
 	fail_unless(BT_IS_SONG_IO_NATIVE(songIO), NULL);
 	fail_unless(songIO!=NULL, NULL);
-	g_object_unref(songIO);
-	fail_unless(G_IS_OBJECT(songIO) == FALSE, NULL);
+	g_object_checked_unref(songIO);
 }
 END_TEST
 

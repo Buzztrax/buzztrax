@@ -31,3 +31,13 @@ INCLUDES = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
+desktopdir = ${datadir}/applications
+desktop_in_files = bt-edit.desktop.in
+desktop_DATA = bt-edit.desktop
+@INTLTOOL_DESKTOP_RULE@
+
+EXTRA_DIST = $(desktop_DATA)
+
+clean-local:
+	rm -f bt-edit.desktop
+

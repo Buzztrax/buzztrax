@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.16 2004-08-31 17:35:29 ensonic Exp $
+# $Id: configure.ac,v 1.17 2004-09-24 22:42:08 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -67,6 +67,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_ISC_POSIX
 AC_PROG_LIBTOOL
+AC_PROG_INTLTOOL
 AM_PROG_CC_STDC
 
 # Initialise gettext
@@ -202,6 +203,7 @@ AC_CONFIG_FILES(Makefile \
 		src/ui/Makefile \
 			src/ui/cmd/Makefile \
 			src/ui/edit/Makefile \
+      src/ui/edit/bt-edit.desktop.in \
   tests/Makefile \
 		tests/lib/Makefile \
 			tests/lib/core/Makefile \

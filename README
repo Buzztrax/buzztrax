@@ -1,4 +1,4 @@
-$Id: README,v 1.4 2004-08-31 17:35:29 ensonic Exp $
+$Id: README,v 1.5 2004-09-24 22:42:08 ensonic Exp $
 
 quickinfo
   Please turn you browser to http://www.buzztard.org to learn what this project
@@ -17,6 +17,7 @@ supported packages
 directories
   design : little test sources, not needed for releases
   docs : design ideas and API reference
+  po : gettext i18n catalogs
   src : the project sources
 		ui
 			cmd : buzztard tool for the commandline

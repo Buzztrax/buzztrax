@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.23 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-window.c,v 1.24 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main window
  */
 
@@ -55,17 +55,21 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
 
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  static gchar *title;
+  gchar *title,*name;
   BtSong *song;
+  BtSongInfo *song_info;
 
   GST_INFO("song has changed : app=%p, window=%p",app,user_data);
 
   // get song from app
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(app),"song"));
+  g_object_get(G_OBJECT(app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // compose title
-  title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
-  gtk_window_set_title(GTK_WINDOW(self), title);
-  //-- release the reference
+  g_object_get(G_OBJECT(song_info),"name",&name,NULL);
+  title=g_strdup_printf("%s - "PACKAGE_NAME,name);g_free(name);
+  gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
+  //-- release the references
+  g_object_try_unref(song_info);
   g_object_try_unref(song);
 }
 
@@ -176,9 +180,12 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
                                                   GTK_RESPONSE_REJECT,
                                                   NULL);
 
-  box=gtk_hbox_new(FALSE,0);
+  box=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
+  
   label=gtk_label_new(NULL);
   gtk_label_set_markup(GTK_LABEL(label), g_strdup_printf(
     "<big><b>%s</b></big>\n\n%s",_("Really quit ?"),_("All unsaved changes will be lost then.")

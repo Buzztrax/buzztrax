@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.13 2004-09-22 16:05:05 ensonic Exp $
+## $Id: Makefile.am,v 1.14 2004-09-24 22:42:08 ensonic Exp $
 
 SUBDIRS = src po tests docs
 
@@ -32,6 +32,16 @@ pixmapdata_DATA = \
 EXTRA_DIST = \
 	$(songdata_DATA) \
 	$(pixmapdata_DATA)
+	intltool-extract.in \
+	intltool-merge.in \
+	intltool-update.in
+
+DISTCLEANFILES = \
+	intltool-merge \
+	intltool-update
+
+clean-local:
+	rm -f po/.intltool-merge-cache
 	
 install-data-local:
 	-$(mkinstalldirs) $(songdatadir)

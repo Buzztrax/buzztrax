@@ -1,7 +1,19 @@
-/** $Id: t-core.c,v 1.1 2004-08-17 17:02:17 waffel Exp $
+/** $Id: t-core.c,v 1.2 2004-09-24 22:42:16 ensonic Exp $
  */
 
 #include "t-core.h"
+
+//-- globals
+
+//-- fixtures
+
+static void test_setup(void) {
+  GST_INFO("================================================================================");
+}
+
+static void test_teardown(void) {
+  //puts(__FILE__":teardown");
+}
 
 // test if the normal init call works with commandline arguments
 START_TEST(test_btcore_init0) {
@@ -20,6 +32,7 @@ TCase *libbtcore_tcase(void) {
 
   tcase_add_test(tc,test_btcore_init0);
 	tcase_add_test(tc,test_btcore_init1);
+  tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.12 2004-09-22 16:05:12 ensonic Exp $
+/* $Id: main-menu.c,v 1.13 2004-09-24 22:42:15 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -27,9 +27,10 @@ static GtkMenuBarClass *parent_class=NULL;
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   gboolean quit;
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window=BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window"));
+  BtMainWindow *main_window;
 
   GST_INFO("menu quit event occurred");
+  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
   quit=bt_main_window_check_quit(main_window);
   g_object_try_unref(main_window);
   if(quit) gtk_main_quit();
@@ -37,43 +38,50 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window=BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window"));
+  BtMainWindow *main_window;
 
   GST_INFO("menu new event occurred");
+  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
   g_object_try_unref(main_window);
 }
 
 static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window=BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window"));
+  BtMainWindow *main_window;
 
   GST_INFO("menu open event occurred");
+  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
   g_object_try_unref(main_window);
 }
 
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window=BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window"));
+  BtMainWindow *main_window;
   GtkWidget *label,*icon,*box;
-  GtkWidget *dialog = gtk_dialog_new_with_buttons(_("About ..."),
-                                                  main_window,
-                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                  GTK_STOCK_OK,
-                                                  GTK_RESPONSE_ACCEPT,
-                                                  NULL);
-
+  GtkWidget *dialog;
+  
   GST_INFO("menu about event occurred");
+  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  dialog = gtk_dialog_new_with_buttons(_("About ..."),
+                                        GTK_WINDOW(main_window),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK,
+                                        GTK_RESPONSE_ACCEPT,
+                                        NULL);
 
-  box=gtk_hbox_new(FALSE,0);
+  box=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
+  
   label=gtk_label_new(NULL);
   gtk_label_set_markup(GTK_LABEL(label), g_strdup_printf(
-    "<big><b>"PACKAGE_STRING"</b></big>\n\n%s",_("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")
+    "<big><b>"PACKAGE_STRING"</b></big>\n\n%s\n\nhttp://www.buzztard.org",
+    _("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")
   ));
-  //label=gtk_label_new(g_strdup_printf(PACKAGE_STRING"\n\n%s",_("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")));
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
   gtk_widget_show_all(dialog);
@@ -182,7 +190,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
-  gtk_widget_set_name(subitem,_("Inhalt"));
+  gtk_widget_set_name(subitem,_("Content"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("About"));
