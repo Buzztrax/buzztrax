@@ -1,5 +1,12 @@
-/* $Id: main-page-sequence.c,v 1.35 2005-01-06 14:48:30 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.36 2005-01-06 20:00:13 ensonic Exp $
  * class for the editor main sequence page
+ */
+
+/* @todo:
+ *  - moving cursor around
+ *  - disallowing to move to position columns
+ *  - adding/removing columns
+ *  - add mute/solo/bypass buttons to column headers
  */
 
 #define BT_EDIT
@@ -168,7 +175,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"editable",FALSE,"xalign",1.0,"foreground","red",NULL);
+  g_object_set(G_OBJECT(renderer),"xalign",1.0,"foreground","red",NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
@@ -364,27 +371,34 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
   GtkListStore *store;
   GtkTreeIter tree_iter;
   gpointer *iter;
-  gchar *str;
+  gchar *str,key[2]={0,};
+	gchar *keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	gulong index=0;
 
   GST_INFO("refresh pattern list");
-  store=gtk_list_store_new(1,G_TYPE_STRING);
+  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
   //-- append default rows
   gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,_("  mute"),-1);
+  gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
   gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,_("  break"),-1);
+  gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
   if(machine) {
     //-- append pattern rows
     iter=bt_machine_pattern_iterator_new(machine);
     while(iter) {
       pattern=bt_machine_pattern_iterator_get_pattern(iter);
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-      GST_INFO("  adding \"%s\"",str);
+			GST_INFO("  adding \"%s\" at index %d -> '%c'",str,index,keys[index]);
+			key[0]=(index<64)?keys[index]:' ';
+			//if(index<64) key[0]=keys[index];
+			//else key[0]=' ';
+      GST_INFO("  with shortcut \"%s\"",key);
       gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,0,str,-1);
+      gtk_list_store_set(store,&tree_iter,0,key,1,str,-1);
       g_free(str);
       iter=bt_machine_pattern_iterator_next(iter);
+			index++;
     }
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
@@ -537,7 +551,7 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
   }
 	gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->bars_menu,2);
-	g_object_unref(store); // drop with comboxbox
+	g_object_unref(store); // drop with combobox
 }
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
@@ -612,7 +626,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
   gtk_tree_view_set_rules_hint(self->priv->sequence_table,TRUE);
 	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column 
-  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
+  //gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
+	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_NONE);
   sequence_table_init(self);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
@@ -623,7 +638,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
   renderer=gtk_cell_renderer_text_new();
-  gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Patterns"),renderer,"text",0,NULL);
+	g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Key"),renderer,"text",0,NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Patterns"),renderer,"text",1,NULL);
   //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_paned_pack2(GTK_PANED(box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
@@ -692,8 +710,8 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
 
     g_list_free(columns);
     GST_INFO("  active track is %d",track);
-    if(track) {
-      machine=bt_sequence_get_machine_by_track(sequence,track-1);
+    if(track>1) { // first two tracks are pos and label
+      machine=bt_sequence_get_machine_by_track(sequence,track-2);
     }
   }
   // release the references

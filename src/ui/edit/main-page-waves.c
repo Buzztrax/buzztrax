@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.6 2004-12-09 18:34:13 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.7 2005-01-06 20:00:13 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -17,12 +17,48 @@ struct _BtMainPageWavesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;  
+  BtEditApplication *app;
+	
+  /* the waves list */
+  GtkTreeView *waves_list;
 };
 
 static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler helper
+
+/**
+ * waves_list_refresh:
+ * @self: the waves page
+ * 
+ * Build the list of waves from the songs wavetable
+ */
+static void waves_list_refresh(const BtMainPageWaves *self) {
+  GtkListStore *store;
+  GtkTreeIter tree_iter;
+  gpointer *iter;
+	gulong index=0;
+
+  GST_INFO("refresh waves list");
+  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
+
+  //-- append waves rows
+	/*
+  iter=bt_wavetable_waves_iterator_new();
+  while(iter) {
+    wave=bt_wavetable_waves_iterator_get_wave(iter);
+    g_object_get(G_OBJECT(pattern),"name",&str,NULL);
+		GST_INFO("  adding \"%s\"");
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,key,1,str,-1);
+    g_free(str);
+    iter=bt_wavetable_waves_iterator_next(iter);
+		index++;
+  }
+	*/
+  gtk_tree_view_set_model(self->priv->waves_list,GTK_TREE_MODEL(store));
+  g_object_unref(store); // drop with treeview
+}
 
 //-- event handler
 
@@ -38,6 +74,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   // update page
+	waves_list_refresh(self);
   // release the reference
   g_object_try_unref(song);
 }
@@ -48,6 +85,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   GtkWidget *toolbar;
   GtkWidget *vpaned,*hpaned,*box,*box2;
 	GtkWidget *button,*image,*icon;
+	GtkWidget *scrolled_window;
+	GtkCellRenderer *renderer;
   GtkTooltips *tips;
 	
 	tips=gtk_tooltips_new();
@@ -103,7 +142,17 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_widget_set_name(button,_("Clear"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Clear current wave table entry"),NULL);
 	//       listview
-	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no loaded sample list yet"));
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+  self->priv->waves_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  renderer=gtk_cell_renderer_text_new();
+	g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+  gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Ix"),renderer,"text",0,NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(self->priv->waves_list,-1,_("Wave"),renderer,"text",1,NULL);
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->waves_list));
+	gtk_container_add(GTK_CONTAINER(box),scrolled_window);
 
 	//     vbox (file browser)
 	box=gtk_vbox_new(FALSE,0);

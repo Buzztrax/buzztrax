@@ -75,7 +75,7 @@
   </setup>
   
   <patterns>
-    <pattern id="sine1_beep" machine="sine1" name="beeps" length="16">
+    <pattern id="sine1_beeps_up" machine="sine1" name="beeps_up" length="16">
       <tick time="0">
         <globaldata name="freq" value="440,0"/>
 				<globaldata name="volume" value="1,0"/>
@@ -86,6 +86,20 @@
       </tick>
       <tick time="8">
         <globaldata name="freq" value="1760,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+    </pattern>
+    <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
+      <tick time="0">
+        <globaldata name="freq" value="1760,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="4">
+        <globaldata name="freq" value="880,0"/>
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="8">
+        <globaldata name="freq" value="440,0"/>
 				<globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
@@ -115,8 +129,8 @@
     </labels>
     <tracks>
       <track index="0" machine="sine1">
-        <position time="0" pattern="sine1_beep"/>
-        <position time="32" pattern="sine1_beep"/>
+        <position time="0" pattern="sine1_beeps_up"/>
+        <position time="32" pattern="sine1_beeps_down"/>
       </track>
       <track index="1" machine="amp1">
         <position time="0" pattern="amp1_fade"/>

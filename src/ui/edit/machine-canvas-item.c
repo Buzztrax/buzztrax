@@ -1,5 +1,10 @@
-/* $Id: machine-canvas-item.c,v 1.25 2004-12-20 17:57:19 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.26 2005-01-06 20:00:13 ensonic Exp $
  * class for the editor machine views machine canvas item
+ */
+
+/* @todo:
+ * - add muto/solo/bypass buttons
+ * - add level meter widgets
  */
 
 #define BT_EDIT
