@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.31 2005-02-12 12:56:49 ensonic Exp $
+## $Id: Makefile.am,v 1.32 2005-02-17 10:23:16 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -7,6 +7,7 @@ songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
 	tests/songs/buzz1.xml \
 	tests/songs/buzz2.xml \
+	tests/songs/buzz3.xml \
 	tests/songs/example.xml \
 	tests/songs/simple1.xml \
 	tests/songs/simple2.xml \
