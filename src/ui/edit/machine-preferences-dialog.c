@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.6 2005-01-20 16:18:53 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.7 2005-01-24 19:05:36 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -41,21 +41,49 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
 	gtk_range_set_value(GTK_RANGE(widget),value);
 }
 
+static void on_double_entry_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+	GtkWidget *widget=GTK_WIDGET(user_data);
+	gdouble value;
+	gchar *str_value;
+	
+	g_assert(user_data);
+
+	GST_INFO("preferences value notify received for: '%s'",property->name);
+	
+	g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+	str_value=g_strdup_printf("%f",value);
+	gtk_entry_set_text(GTK_ENTRY(widget),str_value);
+	g_free(str_value);
+}
+
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
 	GstElement *machine=GST_ELEMENT(user_data);
 	const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
 	
 	g_assert(user_data);
 
-	//GST_INFO("preferences value change received for: '%s'",name);
+	GST_INFO("preferences value change received for: '%s'",name);
 	g_object_set(machine,name,gtk_range_get_value(range),NULL);
+}
+
+static void on_double_entry_property_changed(GtkEditable *editable,gpointer user_data) {
+	GstElement *machine=GST_ELEMENT(user_data);
+	gdouble value;
+	const gchar *name=gtk_widget_get_name(GTK_WIDGET(editable));
+	
+	g_assert(user_data);
+
+	GST_INFO("preferences value change received for: '%s'",name);
+	value=g_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
+	g_object_set(machine,name,value,NULL);
 }
 
 //-- helper methods
 
 static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
 	BtMainWindow *main_window;
-  GtkWidget *label,*widget,*table,*scrolled_window;
+  GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
+	GtkAdjustment *spin_adjustment;
 	GtkTooltips *tips=gtk_tooltips_new();
 	gchar *id;
 	GdkPixbuf *window_icon=NULL;
@@ -98,7 +126,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
 		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
 		// add machine preferences into the table
-		table=gtk_table_new(/*rows=*/number_of_properties+1,/*columns=*/2,/*homogenous=*/FALSE);
+		table=gtk_table_new(/*rows=*/number_of_properties+1,/*columns=*/3,/*homogenous=*/FALSE);
 		gtk_container_set_border_width(GTK_CONTAINER(table),6);
 		for(i=0;i<number_of_properties;i++) {
 			property=properties[i];
@@ -114,46 +142,74 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				gchar *value;
 				
 				g_object_get(machine,property->name,&value,NULL);
-				widget=gtk_entry_new();
-				gtk_entry_set_text(GTK_ENTRY(widget),safe_string(value));g_free(value);
+				widget1=gtk_entry_new();
+				gtk_entry_set_text(GTK_ENTRY(widget1),safe_string(value));g_free(value);
+				widget2=NULL;
 			}
 			else if(param_type==G_TYPE_PARAM_BOOLEAN) {
 				gboolean value;
 				
 				g_object_get(machine,property->name,&value,NULL);
-				widget=gtk_check_button_new();
-				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
+				widget1=gtk_check_button_new();
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget1),value);
+				widget2=NULL;
 			}
 			else if(param_type==G_TYPE_PARAM_INT) {
-				// @todo add (slider + entry) or spin button
-				widget=gtk_entry_new();
-				gtk_entry_set_text(GTK_ENTRY(widget),"int");
+				GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+				gint value;
+				gdouble step;
+				//gchar *str_value;
+				
+				g_object_get(machine,property->name,&value,NULL);
+				//str_value=g_strdup_printf("%d",value);
+				step=(gdouble)(int_property->maximum-int_property->minimum)/10.0;
+				spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
+  			widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+				gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+				widget2=NULL;
+				//g_free(str_value);
+				// @todo connect handlers
 			}
 			else if(param_type==G_TYPE_PARAM_DOUBLE) {
 				GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
 				gdouble step,value;
+				gchar *str_value;
 
 				g_object_get(machine,property->name,&value,NULL);
+				str_value=g_strdup_printf("%f",value);
 				step=(double_property->maximum-double_property->minimum)/1024.0;
-				widget=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
-				gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-				gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
-				gtk_range_set_value(GTK_RANGE(widget),value);
-				// @todo add numerical entry as well ?
+				widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+				gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+				gtk_scale_set_draw_value(GTK_SCALE(widget1),TRUE);
+				gtk_range_set_value(GTK_RANGE(widget1),value);
+				widget2=gtk_entry_new();
+				gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
+				gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
+				g_free(str_value);
 				signal_name=g_strdup_printf("notify::%s",property->name);
-				g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget);
-				g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
+				g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget1);
+				g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_entry_property_notify, (gpointer)widget2);
+				g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
+				g_signal_connect(G_OBJECT(widget2), "changed", (GCallback)on_double_entry_property_changed, (gpointer)machine);
 				g_free(signal_name);
 			}
 			else {
 				gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-				widget=gtk_label_new(str);g_free(str);
+				widget1=gtk_label_new(str);g_free(str);
+				widget2=NULL;
 			}
-			gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
-			gtk_table_attach(GTK_TABLE(table),widget, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+			gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+			if(!widget2) {
+				gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+			}
+			else {
+				gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+				gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+				gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_SHRINK,GTK_SHRINK, 2,1);
+			}
 		}
 		// eat remaning space
-		gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+		gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 		g_free(properties);
 		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
 		gtk_container_add(GTK_CONTAINER(self),scrolled_window);
@@ -248,10 +304,19 @@ static void bt_machine_preferences_dialog_set_property(GObject      *object,
 
 static void bt_machine_preferences_dialog_dispose(GObject *object) {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(object);
+	GstElement *machine;
+	
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+	
+	// disconnect handlers connected to machine properties
+	g_object_get(self->priv->machine,"machine",&machine,NULL);
+	g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_range_property_notify,NULL);
+	g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_entry_property_notify,NULL);
+	g_object_unref(machine);
+	
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
 

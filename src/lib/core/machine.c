@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.72 2005-01-21 18:25:40 ensonic Exp $
+/* $Id: machine.c,v 1.73 2005-01-24 19:05:35 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -62,8 +62,6 @@ struct _BtMachinePrivate {
   
   /* the gstreamer element that is used */
   GstElement *machine;
-	/* the gstreamer element pads */
-	GstPad *dst,*src;
   
   /* utillity elements to allow multiple inputs/outputs */
   GstElement *adder,*spreader;
@@ -105,7 +103,34 @@ GType bt_machine_state_get_type(void) {
 
 //-- helper methods
 
+static gboolean bt_machine_set_mute(BtMachine *self) {
+	gboolean res=TRUE;
+
+	/*  we need to pause all elements downstream until we hit a loop-based element :(
+	 *  for each wire with src==self
+	 *    if bt_machine_has_active_adder(dst-machine), pause dst-machine
+	 *    else check all wires of dst-machine
+	 */
+	if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+		GST_WARNING("setting element '%s' to paused state failed",self->priv->id);
+		res=FALSE;
+	}
+	return(res);
+}
+
+static gboolean bt_machine_unset_mute(BtMachine *self) {
+	gboolean res=TRUE;
+
+	if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+		GST_WARNING("setting element '%s' to playing state failed",self->priv->id);
+		res=FALSE;
+	}
+	return(res);
+}
+
 static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_state) {
+	gboolean res=TRUE;
+
 	// reject a few nonsense changes
 	if((new_state==BT_MACHINE_STATE_BYPASS) && (!BT_IS_PROCESSOR_MACHINE(self))) return(FALSE);
 	if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
@@ -113,15 +138,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	// return to normal state
 	switch(self->priv->state) {
 		case BT_MACHINE_STATE_MUTE:
-			gst_pad_set_active(self->priv->src,TRUE);
-			/*
-			gst_pad_link(self->priv->src,self->priv->src_peer);
-			*/
-			/*
-			if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
-				GST_WARNING("setting element '%s' to playing state failed",self->priv->id);
-			}
-			*/
+			if(!bt_machine_unset_mute(self)) res=FALSE;
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to playing again
@@ -133,17 +150,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	// set to new state
 	switch(new_state) {
 		case BT_MACHINE_STATE_MUTE:
-			gst_pad_set_active(self->priv->src,FALSE);
-			/*
-			self->priv->src=gst_element_get_pad(self->priv->machine,"src");
-	  	self->priv->src_peer=gst_pad_get_peer(self->priv->src);
-	  	gst_pad_unlink(self->priv->src,self->priv->src_peer);
-			*/
-			/*
-			if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
-				GST_WARNING("setting element '%s' to paused state failed",self->priv->id);
-			}
-			*/
+			if(!bt_machine_set_mute(self)) res=FALSE;
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to paused
@@ -153,7 +160,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 			break;
 	}
 	self->priv->state=new_state;
-	return(TRUE);
+	return(res);
 }
 
 //-- constructor methods
@@ -207,8 +214,6 @@ gboolean bt_machine_new(BtMachine *self) {
 
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machine;
-	self->priv->src=gst_element_get_pad(self->priv->machine,"src");
-	self->priv->dst=gst_element_get_pad(self->priv->machine,"sink");
   GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machine)->ref_count);
   if((self->priv->dparam_manager=gst_dpman_get_manager(self->priv->machine))) {
     GParamSpec **specs;

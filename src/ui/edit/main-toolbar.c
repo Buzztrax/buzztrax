@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.37 2005-01-20 16:18:53 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.38 2005-01-24 19:05:37 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -46,7 +46,6 @@ static gint gst_caps_get_channels(GstCaps *caps) {
 	if(GST_CAPS_IS_SIMPLE(caps)) {
 		if((structure=gst_caps_get_structure(caps,0))) {
 			gst_structure_get_int(structure,"channels",&channels);
-			channels++;
 			GST_DEBUG("---    simple caps with channels=%d",channels);
 		}
 	}
@@ -55,7 +54,6 @@ static gint gst_caps_get_channels(GstCaps *caps) {
 		for(i=0;i<size;i++) {
 			if((structure=gst_caps_get_structure(caps,i))) {
 				gst_structure_get_int(structure,"channels",&channels);
-				channels++;
 				GST_DEBUG("---    caps %d with channels=%d",i,channels);
 			}
 		}
@@ -199,6 +197,27 @@ static void on_song_volume_change(GtkRange *range,gpointer user_data) {
 	GST_INFO("volume has changed : %f",gtk_range_get_value(GTK_RANGE(self->priv->volume)));
 }
 
+static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
+	BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+	GstCaps *caps;
+	gint i,channels;
+	
+  g_assert(user_data);
+	if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
+		channels=gst_caps_get_channels(caps);
+		GST_INFO("!!!  input level src has %d output channels",channels);
+
+		gdk_threads_enter();
+		for(i=0;i<channels;i++) {
+			gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
+		}
+		for(i=channels;i<MAX_VUMETER;i++) {
+			gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
+		}
+		gdk_threads_leave();
+	}
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
@@ -216,43 +235,22 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"master",&master,NULL);
 	if(master) {
 		GstPad *pad;
-		GstCaps *caps;
-		GstStructure *structure;
 		gint channels_i=0,channels_o=0;
 
 		// get the input_level property from audio_sink
 		g_object_get(G_OBJECT(master),"input-level",&level,NULL);
 		// connect to the level signal
 		g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
-
-		// determine number of channels (seems to be not negotiated yet!)
-		if((pad=gst_element_get_pad(level,"sink")) && (caps=gst_pad_get_caps(pad))) {
-			channels_i=gst_caps_get_channels(caps);
-			GST_INFO("!!!  input level sink has %d inputs channels",channels_i);
-			gst_caps_free(caps);
+		// get the pad from the input-level and listen there for channel negotiation
+		if((pad=gst_element_get_pad(level,"src"))) {
+			g_signal_connect(pad,"notify::caps",(GCallback)on_channels_negotiated,(gpointer)self);
 		}
-		if((pad=gst_element_get_pad(level,"src")) && (caps=gst_pad_get_caps(pad))) {
-			channels_o=gst_caps_get_channels(caps);
-			GST_INFO("!!!  input level sink has %d output channels",channels_o);
-			gst_caps_free(caps);
-		}
-		channels=(channels_i<channels_o)?channels_o:channels_i;
-		if(channels>MAX_VUMETER) channels=MAX_VUMETER;
 		// release the references
 		g_object_try_unref(level);
 		
 		// connect volumne event
 		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
-	GST_INFO("!!!  input level analyser will process %d channels",channels);
-	// show/hide channel vumeters depending on the numer of channel
-	for(i=0;i<channels;i++) {
-		gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
-	}
-	for(i=channels;i<MAX_VUMETER;i++) {
-		gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
-	}
-
 	g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)self);
   g_object_try_unref(master);
   g_object_try_unref(song);

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.8 2005-01-21 18:25:40 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.9 2005-01-24 19:05:37 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -41,13 +41,13 @@ static void on_range_property_notify(const GstDParam *dparam,GParamSpec *propert
 	
 	g_assert(user_data);
 
-	//GST_INFO("property value notify received");
-	gdk_threads_enter();
+	GST_INFO("property value notify received : %s ",property->name);
+	//gdk_threads_enter();
 	g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
-	g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
+	//g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
 	gtk_range_set_value(GTK_RANGE(widget),value);
-	g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
-	gdk_threads_leave();
+	//g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
+	//gdk_threads_leave();
 }
 
 static void on_range_property_notify_changed(const GstDParam *dparam,gpointer user_data) {
@@ -56,13 +56,13 @@ static void on_range_property_notify_changed(const GstDParam *dparam,gpointer us
 	
 	g_assert(user_data);
 
-	//GST_INFO("property value notify_changed received");
-	gdk_threads_enter();
-	g_object_get(G_OBJECT(dparam),"value_double",&value,NULL);
-	g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
-	gtk_range_set_value(GTK_RANGE(widget),value);
-	g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
-	gdk_threads_leave();
+	GST_INFO("property value notify_changed received");
+	//gdk_threads_enter();
+	//g_object_get(G_OBJECT(dparam),"value_double",&value,NULL);
+	//g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
+	//gtk_range_set_value(GTK_RANGE(widget),value);
+	//g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
+	//gdk_threads_leave();
 }
 
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -71,11 +71,11 @@ static void on_range_property_changed(GtkRange *range,gpointer user_data) {
 	g_assert(user_data);
 
 	//GST_INFO("property value change received");
-	gdk_threads_enter();
-	g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify_changed,(gpointer)range);
+	//gdk_threads_enter();
+	//g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify_changed,(gpointer)range);
 	g_object_set(dparam,"value_double",gtk_range_get_value(range),NULL);
-	g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify_changed,(gpointer)range);
-	gdk_threads_leave();
+	//g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify_changed,(gpointer)range);
+	//gdk_threads_leave();
 }
 
 //-- helper methods
@@ -91,8 +91,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 	GParamSpec *property;
 	GType param_type;
 
-	// @todo disconnect all handlers that are connected to dparams when closing this window
-	
 	g_object_get(self->priv->app,"main-window",&main_window,NULL);
 	gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
@@ -158,8 +156,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
 				gtk_range_set_value(GTK_RANGE(widget),value);
 				// @todo add numerical entry as well ?
-				//g_signal_connect(G_OBJECT(dparam), "notify::value_double", (GCallback)on_range_property_notify, (gpointer)widget);
-				g_signal_connect(G_OBJECT(dparam), "value-changed", (GCallback)on_range_property_notify_changed, (gpointer)widget);
+				g_signal_connect(G_OBJECT(dparam), "notify::value_double", (GCallback)on_range_property_notify, (gpointer)widget);
+				//g_signal_connect(G_OBJECT(dparam), "value-changed", (GCallback)on_range_property_notify_changed, (gpointer)widget);
 				g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_range_property_changed, (gpointer)dparam);
 			}
 			else {
@@ -263,10 +261,21 @@ static void bt_machine_properties_dialog_set_property(GObject      *object,
 
 static void bt_machine_properties_dialog_dispose(GObject *object) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
+	gulong i,global_params;
+	GstDParam *dparam;
+	
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+	
+	// disconnect all handlers that are connected to dparams
+	g_object_get(self->priv->machine,"global-params",&global_params,NULL);
+	for(i=0;i<global_params;i++) {
+		dparam=bt_machine_get_global_dparam(self->priv->machine,i);
+		g_signal_handlers_disconnect_matched(dparam,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_range_property_notify,NULL);
+	}
+	
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
 
