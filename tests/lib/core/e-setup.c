@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.5 2004-10-22 16:15:58 ensonic Exp $
+/** $Id: e-setup.c,v 1.6 2004-12-18 16:12:39 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -136,11 +136,115 @@ START_TEST(test_btsetup_obj2) {
 }
 END_TEST
 
+/**
+* In this test we demonstrate how to remove a machine from the setup after the 
+* same machine is added to the setup.
+*/
+START_TEST(test_btsetup_obj3) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	// machines
+	BtSourceMachine *source=NULL;
+	BtMachine *ref_machine=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL, NULL);
+	
+	/* try to craete generator1 with sinesrc */
+  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(source!=NULL, NULL);
+	
+	/* try to add the machine to the setup. */
+	bt_setup_add_machine(setup, BT_MACHINE(source));
+	
+  /* try to get the machine back from the setup */
+	ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
+	fail_unless(ref_machine!=NULL, NULL);
+	
+	/* now we try to remove the same machine from the setup */
+	bt_setup_remove_machine(setup, BT_MACHINE(source));
+	
+	/* try to get the machine back from the setup, the ref_machine should be null */
+	ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
+	fail_unless(ref_machine==NULL, NULL);
+}
+END_TEST
+
+/**
+* In this test we demonstrate how to remove a machine from the setup after the 
+* same machine is added to the setup.
+*/
+START_TEST(test_btsetup_obj4) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	// machines
+	BtSourceMachine *source=NULL;
+	BtSinkMachine *sink=NULL;
+	// wire
+	BtWire *wire=NULL;
+	BtWire *ref_wire=NULL;
+	
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL, NULL);
+	
+	/* try to craete generator1 with sinesrc */
+  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(source!=NULL, NULL);
+	
+	/* try to create sink machine with esd sink */
+	sink = bt_sink_machine_new(song,"sink1");
+	fail_unless(sink!=NULL, NULL);
+	
+	/* try to create the wire */
+	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
+	fail_unless(wire!=NULL, NULL);
+	
+	/* try to add the machines to the setup. We must do this. */
+	bt_setup_add_machine(setup, BT_MACHINE(source));
+	bt_setup_add_machine(setup, BT_MACHINE(sink));
+	
+	/* try to add the wire to the setup */
+	bt_setup_add_wire(setup, wire);
+	
+	/* check if we can get the wire from the setup */
+	ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
+	fail_unless(ref_wire!=NULL,NULL);
+	
+	/* try to remove the wire from the setup */
+	bt_setup_remove_wire(setup, wire);
+	
+  /* check if we can get the wire from the setup. The ref_wire should be null */
+	ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
+	fail_unless(ref_wire==NULL,NULL);
+}
+END_TEST
+
 TCase *bt_setup_example_tcase(void) {
   TCase *tc = tcase_create("bt_setup example case");
 
   tcase_add_test(tc,test_btsetup_obj1);
 	tcase_add_test(tc,test_btsetup_obj2);
+	tcase_add_test(tc,test_btsetup_obj3);
+	tcase_add_test(tc,test_btsetup_obj4);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

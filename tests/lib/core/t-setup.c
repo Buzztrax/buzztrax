@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.7 2004-10-27 16:40:38 waffel Exp $
+/** $Id: t-setup.c,v 1.8 2004-12-18 16:12:39 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -513,11 +513,192 @@ START_TEST(test_btsetup_obj18) {
   /* create a new song */
 	song=bt_song_new(app);
 	fail_unless(song!=NULL,NULL);
+  
+	check_init_error_trapp("bt_setup_wire_iterator_get_wire",NULL);
+	bt_setup_wire_iterator_get_wire(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to remove a machine from setup with NULL pointer for setup
+*/
+START_TEST(test_btsetup_obj19) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  
+	check_init_error_trapp("bt_setup_remove_machine",NULL);
+	bt_setup_remove_machine(NULL,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to remove a wire from setup with NULL pointer for setup
+*/
+START_TEST(test_btsetup_obj20) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  
+	check_init_error_trapp("bt_setup_remove_wire",NULL);
+	bt_setup_remove_wire(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+
+/**
+* try to remove a machine from setup with NULL pointer for machine
+*/
+START_TEST(test_btsetup_obj21) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL,NULL);
 	
-	check_init_error_trapp("bt_setup_wire_iterator_get_wire",NULL);
-	bt_setup_wire_iterator_get_wire(NULL);
+	check_init_error_trapp("bt_setup_remove_machine",NULL);
+	bt_setup_remove_machine(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to remove a wire from setup with NULL pointer for wire
+*/
+START_TEST(test_btsetup_obj22) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_remove_wire",NULL);
+	bt_setup_remove_wire(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to remove a machine from setup with a machine witch is never added
+*/
+START_TEST(test_btsetup_obj23) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	BtSourceMachine *gen=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	/* try to craete generator1 with sinesrc */
+  gen = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(gen!=NULL, NULL);
+	
+	check_init_error_trapp("bt_setup_remove_machine",
+	   "trying to remove machine that is not in setup");
+	bt_setup_remove_machine(setup,BT_MACHINE(gen));
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to remove a wire from setup with a wire witch is never added
+*/
+START_TEST(test_btsetup_obj24) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	// machines
+	BtSourceMachine *source=NULL;
+	BtSinkMachine *sink=NULL;
+	// wire
+	BtWire *wire=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	/* try to craete generator1 with sinesrc */
+  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  fail_unless(source!=NULL, NULL);
+	
+	/* try to create sink machine with esd sink */
+	sink = bt_sink_machine_new(song,"sink1");
+	fail_unless(sink!=NULL, NULL);
+	
+	/* try to create the wire */
+	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
+	fail_unless(wire!=NULL, NULL);
+	
+	check_init_error_trapp("bt_setup_remove_wire",
+	   "trying to remove wire that is not in setup");
+	bt_setup_remove_wire(setup,BT_WIRE(wire));
 	fail_unless(check_has_error_trapped(), NULL);
 }
 END_TEST
@@ -543,6 +724,12 @@ TCase *bt_setup_obj_tcase(void) {
 	tcase_add_test(tc,test_btsetup_obj16);
 	tcase_add_test(tc,test_btsetup_obj17);
 	tcase_add_test(tc,test_btsetup_obj18);
+	tcase_add_test(tc,test_btsetup_obj19);
+	tcase_add_test(tc,test_btsetup_obj20);
+	tcase_add_test(tc,test_btsetup_obj21);
+	tcase_add_test(tc,test_btsetup_obj22);
+	tcase_add_test(tc,test_btsetup_obj23);
+	tcase_add_test(tc,test_btsetup_obj24);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
