@@ -1,0 +1,31 @@
+* design.txt (-*- mode:outline -*-)
+================================================================================
+
+** network
+*** user plugins
+= ladspa plugins
+
+0 input, 1 output : sources    : generators
+1 input, 1 output : processors : effects
+1 input, 0 output : sinks      : player, analyser
+
+*** internal plugins
+= ladspa plugins
+hide the input mixing
+hide channel conversion
+
+** file-format
+
+** controller ids
+
+** user interface
+- plugins have level-meters (sources at right side, effects at both sides,
+  sinks at the left side)
+- meta-page (blabla)
+  - author, title,... form fields + freeform text field
+  - save as rdf with dc-schema
+  - info can e.g. be used for id-3 tgas when encoding
+- menu/new load/default song, which could contain e.g.
+  - initial blabla page
+  - some initial machines
+  ? does it make sense to provide "new from..."
