@@ -3,7 +3,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 >
 
-  <xsd:attribute name="comand" type="xsd:string"/>
+  <xsd:attribute name="command" type="xsd:string"/>
   <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
@@ -30,8 +30,8 @@
   <xsd:element name="meta">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="info" minOccurse="0" maxOccurs="1"/>
-        <xsd:element ref="genre" minOccurse="0" maxOccurs="1"/>
+        <xsd:element ref="info" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="genre" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -163,7 +163,7 @@
   <xsd:element name="patterns">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="pattern" minOccurse="1" maxOccurs="unbounded"/>
+        <xsd:element ref="pattern" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -178,7 +178,7 @@
   <xsd:element name="labels">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="label" minOccurse="1" maxOccurs="unbounded"/>
+        <xsd:element ref="label" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -186,16 +186,17 @@
   <xsd:element name="position">
     <xsd:complexType>
       <xsd:attribute ref="time" use="required"/>
-      <!-- we need either one, pattern or command -->
-      <xsd:attribute ref="pattern" minOccurse="0" maxOccurs="1"/>
-      <xsd:attribute ref="comand" minOccurse="0" maxOccurs="1"/>
+      <!-- we need either one, pattern or command
+      <xsd:attribute ref="pattern" minOccurs="0" maxOccurs="1"/>
+      <xsd:attribute ref="command" minOccurs="0" maxOccurs="1"/>
+      -->
     </xsd:complexType>
   </xsd:element>
   
   <xsd:element name="track">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="position" minOccurse="1" maxOccurs="unbounded"/>
+        <xsd:element ref="position" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     <xsd:attribute ref="index" use="required"/>
     <xsd:attribute ref="machine" use="required"/>
@@ -205,7 +206,7 @@
   <xsd:element name="tracks">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="track" minOccurse="1" maxOccurs="unbounded"/>
+        <xsd:element ref="track" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -213,8 +214,8 @@
   <xsd:element name="sequence">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="labels" minOccurse="1" maxOccurs="1"/>
-        <xsd:element ref="tracks" minOccurse="1" maxOccurs="1"/>
+        <xsd:element ref="labels" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="tracks" minOccurs="1" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -230,7 +231,7 @@
   <xsd:element name="wavetable">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="wave" minOccurse="1" maxOccurs="unbounded"/>
+        <xsd:element ref="wave" minOccurs="1" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
