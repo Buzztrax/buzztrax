@@ -1,0 +1,6 @@
+* $Id: gstreamer.txt,v 1.1 2004-02-20 15:57:02 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+================================================================================
+
+* gst-launch-0.7 tests
+	sinesrc freq=1000 ! audioconvert ! esdsink
+	sinesrc freq=1000 ! adder ! audioconvert ! esdsink sinesrc freq=500 ! adder0.sink1

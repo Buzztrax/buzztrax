@@ -1,10 +1,12 @@
-* $Id: file-format.txt,v 1.4 2004-02-18 18:04:07 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: file-format.txt,v 1.5 2004-02-20 15:57:02 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * multi-file archive (like zip/tat/lha/lzx/jar)
-	- is there a (free) library to provide compressing multiple files into one
-		archive?
-	- single-xml file song is preferred, as xml can be easier checked.
+  ** general
+		- single-xml file song is preferred, as xml can be easier checked.
+
+	** zip archive i/o
+		- see zlib/contrib/minizip
 
 	** multi xml file song
 		- meta.rdf contains rdf with dc:schema from the blabla page
