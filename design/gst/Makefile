@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.4 2004-02-13 15:36:13 ensonic Exp $
+# $Id: Makefile,v 1.5 2004-04-01 14:49:08 waffel Exp $
 
 .PHONY: clean
 
-TARGETS = gst1 gst2 gst3
+TARGETS = gst1 gst2 gst3 browser
 
 # targets
 
