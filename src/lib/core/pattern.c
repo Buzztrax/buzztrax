@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.19 2004-11-26 18:53:26 waffel Exp $
+/* $Id: pattern.c,v 1.20 2004-11-29 19:21:49 waffel Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -28,9 +28,9 @@ struct _BtPatternPrivate {
 	gchar *name;
 
   /* the number of ticks */
-  glong length;
+  gulong length;
   /* the number of voices */
-  glong voices;
+  gulong voices;
   /* the number of dynamic params the machine provides per instance */
   glong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
@@ -51,12 +51,11 @@ static GObjectClass *parent_class=NULL;
 static gboolean bt_pattern_init_data(const BtPattern *self) {
   gboolean ret=FALSE;
   glong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
-  glong i,j,k;
   GValue *data;
 
-  if(self->priv->machine==NULL) return;
-  if(self->priv->length==0) return;
-  if(self->priv->voices==-1) return;
+  if(self->priv->machine==NULL) return(TRUE);
+  if(self->priv->length==0) return(TRUE);
+  if(self->priv->voices==-1) return(TRUE);
 
   if(self->priv->data) {
     GST_ERROR("data has already been initialized");
@@ -493,7 +492,7 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                      "length prop",
                                      "length of the pattern in ticks",
                                      1,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      1,
                                      G_PARAM_READWRITE));
 
@@ -502,7 +501,7 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                      "voices prop",
                                      "number of voices in the pattern",
                                      0,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      0,
                                      G_PARAM_READWRITE));
 

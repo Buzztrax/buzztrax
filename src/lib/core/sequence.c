@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.43 2004-11-26 18:53:26 waffel Exp $
+/* $Id: sequence.c,v 1.44 2004-11-29 19:21:50 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -73,7 +73,7 @@ static guint signals[LAST_SIGNAL]={0,};
 static void bt_sequence_unref_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_unref_timelines");
   if(self->priv->timelines && self->priv->length) {
-    glong i;
+    gulong i;
     for(i=0;i<self->priv->length;i++) {
       g_object_try_unref(self->priv->timelines[i]);
     }
@@ -106,7 +106,7 @@ static void bt_sequence_init_timelines(const BtSequence *self) {
   if(self->priv->length) {
     self->priv->timelines=g_new(BtTimeLine*,self->priv->length);
     if(self->priv->timelines) {
-      glong i;
+      gulong i;
       for(i=0;i<self->priv->length;i++) {
         self->priv->timelines[i]=bt_timeline_new(self->priv->song);
       }
@@ -124,7 +124,7 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
   GST_DEBUG("bt_sequence_init_timelinetracks");
   if(self->priv->timelines) {
     if(self->priv->length && self->priv->tracks) {
-      glong i;
+      gulong i;
 
       for(i=0;i<self->priv->length;i++) {
         g_object_set(G_OBJECT(self->priv->timelines[i]),"tracks",self->priv->tracks,NULL);
@@ -181,7 +181,7 @@ BtSequence *bt_sequence_new(const BtSong *song) {
  *
  * Returns: the #BtTimeLine pointer or NULL in case of an error
  */
-BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time) {
+BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const gulong time) {
 	
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
   /* @todo check if not better initialize self->priv->length with -1 */
@@ -203,7 +203,7 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  *
  * Returns: the #BtMachine pointer or NULL in case of an error
  */
-BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong track) {
+BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const gulong track) {
 	
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
 
@@ -224,7 +224,7 @@ BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong t
  *
  * sets #BtMachine for the respective track.
  */
-void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,const BtMachine *machine) {
+void bt_sequence_set_machine_by_track(const BtSequence *self,const gulong track,const BtMachine *machine) {
 
 	g_return_if_fail(BT_IS_SEQUENCE(self));
 	g_return_if_fail(BT_IS_MACHINE(machine));

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.51 2004-11-26 18:53:26 waffel Exp $
+/* $Id: machine.c,v 1.52 2004-11-29 19:21:46 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -40,11 +40,11 @@ struct _BtMachinePrivate {
 	gchar *plugin_name;
 
   /* the number of voices the machine provides */
-  glong voices;
+  gulong voices;
   /* the number of dynamic params the machine provides per instance */
-  glong global_params;
+  gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
-  glong voice_params;
+  gulong voice_params;
 
   /* gstreamer dparams */
   GstDParamManager *dparam_manager;
@@ -735,7 +735,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "voices prop",
                                      "number of voices in the machine",
                                      0,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      0,
                                      G_PARAM_READWRITE));
 
@@ -744,7 +744,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "global_params prop",
                                      "number of params for the machine",
                                      0,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      0,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
@@ -753,7 +753,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "voice_params prop",
                                      "number of params for each machine voice",
                                      0,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      0,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
