@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.13 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-menu.c,v 1.14 2004-09-29 16:08:56 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -118,6 +118,11 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
+  subitem=gtk_separator_menu_item_new();
+  gtk_widget_set_name(subitem,_("separator"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
   gtk_widget_set_name(subitem,_("Save"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -178,6 +183,10 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   menu=gtk_menu_new();
   gtk_widget_set_name(menu,_("view menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+
+  subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
+  gtk_widget_set_name(subitem,_("Toolbar"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
 
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
