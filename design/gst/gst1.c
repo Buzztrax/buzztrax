@@ -1,4 +1,4 @@
-/** $Id: gst1.c,v 1.7 2004-04-08 16:05:04 waffel Exp $
+/** $Id: gst1.c,v 1.8 2004-04-23 12:38:17 ensonic Exp $
 * small example, how to create a pipeline with one source and one sink and how to
 * use dparams to control the volume. The volume in this example is decrementes from
 * the given volume to silence. After silence is reached, the example stpped.
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
   gst_dpman_set_mode(audiosrcParam, "synchronous");
   volume = gst_dparam_new(G_TYPE_DOUBLE);
   
-  if (gst_dpman_attach_dparam (audiosrcParam, "volume", volume)){
+  if (gst_dpman_attach_dparam(audiosrcParam, "volume", volume)){
     /* the dparam was successfully attached */
     set_val = g_new0(GValue,1);
     g_value_init(set_val, G_TYPE_FLOAT);

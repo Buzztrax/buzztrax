@@ -1,4 +1,5 @@
-/** $Id: core.h,v 1.5 2004-04-21 14:38:59 ensonic Exp $*/
+/** $Id: core.h,v 1.6 2004-04-23 12:38:18 ensonic Exp $
+  */
 
 #ifndef BT_CORE_H
 #define BT_CORE_H
@@ -45,3 +46,4 @@
 #endif
 
 #endif /* BT_CORE_H */
+
