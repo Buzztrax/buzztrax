@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.40 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-page-patterns.c,v 1.41 2005-01-17 11:08:22 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -483,20 +483,19 @@ Error:
  * Returns: the #BtMachine instance or %NULL in case of an error
  */
 BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
-  gulong index;
+  glong index;
   BtSong *song;
   BtSetup *setup;
-  BtMachine *machine;
+  BtMachine *machine=NULL;
 
   GST_INFO("get machine for pattern");
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-  index=gtk_combo_box_get_active(self->priv->machine_menu);
-  machine=bt_setup_get_machine_by_index(setup,index);
-
-  //-- release the reference
+  if((index=gtk_combo_box_get_active(self->priv->machine_menu))>-1) {
+		machine=bt_setup_get_machine_by_index(setup,index);
+	}
   g_object_try_unref(setup);
   g_object_try_unref(song);
   return(machine);
@@ -513,24 +512,24 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
  * Returns: the #BtPattern instance or %NULL in case of an error
  */
 BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self) {
-  gulong index;
+  glong index;
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;
-	BtPattern *pattern;
+	BtPattern *pattern=NULL;
 
   GST_INFO("get machine for pattern");
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-  index=gtk_combo_box_get_active(self->priv->machine_menu);
-  machine=bt_setup_get_machine_by_index(setup,index);
-  index=gtk_combo_box_get_active(self->priv->pattern_menu);
-	pattern=bt_machine_get_pattern_by_index(machine,index);
-
-  //-- release the reference
-	g_object_try_unref(machine);
+  if((index=gtk_combo_box_get_active(self->priv->machine_menu))>-1) {
+		machine=bt_setup_get_machine_by_index(setup,index);
+		if((index=gtk_combo_box_get_active(self->priv->pattern_menu))>-1) {
+			pattern=bt_machine_get_pattern_by_index(machine,index);
+		}
+		g_object_try_unref(machine);
+	}
   g_object_try_unref(setup);
   g_object_try_unref(song);
   return(pattern);

@@ -91,34 +91,34 @@
     </pattern>
     <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
       <tick time="0">
-        <globaldata name="freq" value="1760,0"/>
-				<globaldata name="volume" value="1,0"/>
+        <globaldata name="freq" value="1760.0"/>
+				<globaldata name="volume" value="1.0"/>
       </tick>
       <tick time="4">
-        <globaldata name="freq" value="880,0"/>
-				<globaldata name="volume" value="1,0"/>
+        <globaldata name="freq" value="880.0"/>
+				<globaldata name="volume" value="1.0"/>
       </tick>
       <tick time="8">
-        <globaldata name="freq" value="440,0"/>
-				<globaldata name="volume" value="1,0"/>
+        <globaldata name="freq" value="440.0"/>
+				<globaldata name="volume" value="1.0"/>
       </tick>
     </pattern>
     <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
-      <tick time= "0"><globaldata name="volume" value="1,0"/></tick>
-      <tick time= "1"><globaldata name="volume" value="0,75"/></tick>
-      <tick time= "2"><globaldata name="volume" value="0,5"/></tick>
-      <tick time= "3"><globaldata name="volume" value="0,25"/></tick>
-      <tick time= "4"><globaldata name="volume" value="1,0"/></tick>
-      <tick time= "5"><globaldata name="volume" value="0,75"/></tick>
-      <tick time= "6"><globaldata name="volume" value="0,5"/></tick>
-      <tick time= "7"><globaldata name="volume" value="0,25"/></tick>
-      <tick time= "8"><globaldata name="volume" value="1,0"/></tick>
-      <tick time= "9"><globaldata name="volume" value="0,75"/></tick>
-      <tick time="10"><globaldata name="volume" value="0,5"/></tick>
-      <tick time="11"><globaldata name="volume" value="0,375"/></tick>
-      <tick time="12"><globaldata name="volume" value="0,25"/></tick>
-      <tick time="13"><globaldata name="volume" value="0,125"/></tick>
-      <tick time="14"><globaldata name="volume" value="0,0"/></tick>
+      <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
+      <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
+      <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
+      <tick time= "3"><globaldata name="volume" value="0.25"/></tick>
+      <tick time= "4"><globaldata name="volume" value="1.0"/></tick>
+      <tick time= "5"><globaldata name="volume" value="0.75"/></tick>
+      <tick time= "6"><globaldata name="volume" value="0.5"/></tick>
+      <tick time= "7"><globaldata name="volume" value="0.25"/></tick>
+      <tick time= "8"><globaldata name="volume" value="1.0"/></tick>
+      <tick time= "9"><globaldata name="volume" value="0.75"/></tick>
+      <tick time="10"><globaldata name="volume" value="0.5"/></tick>
+      <tick time="11"><globaldata name="volume" value="0.375"/></tick>
+      <tick time="12"><globaldata name="volume" value="0.25"/></tick>
+      <tick time="13"><globaldata name="volume" value="0.125"/></tick>
+      <tick time="14"><globaldata name="volume" value="0.0"/></tick>
     </pattern>
   </patterns>
   
