@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.20 2004-08-07 23:29:02 ensonic Exp $
+/* $Id: song-io-native.c,v 1.21 2004-08-12 13:53:29 waffel Exp $
  * class for native song input and output
  */
  
@@ -475,16 +475,15 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
 
 //-- methods
 
-gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song, const gchar *filename) {
+gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	const BtSongIONative *self=BT_SONG_IO_NATIVE(_self);
 	gboolean result=FALSE;
 	xmlParserCtxtPtr ctxt=NULL;
 	xmlDocPtr song_doc=NULL;
 	xmlNsPtr ns=NULL;
+  gchar *filename=NULL;
 
-	g_assert(filename!=NULL);
-	g_assert(*filename);
-
+	filename = bt_g_object_get_string_property(G_OBJECT(self),"file name");
 	GST_INFO("native loader will now load song from \"%s\"",filename);
 
   // @todo add zip file processing

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.8 2004-08-11 15:50:04 ensonic Exp $
+/* $Id: edit-application.c,v 1.9 2004-08-12 13:53:30 waffel Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -94,7 +94,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     BtSongIO *loader=bt_song_io_new(file_name);
 
     if(loader) {    
-      if(bt_song_io_load(loader,self->private->song,file_name)) {
+      if(bt_song_io_load(loader,self->private->song)) {
         res=TRUE;
       }
       else {

@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.8 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: song-io.c,v 1.9 2004-08-12 13:53:29 waffel Exp $
  * base class for song input and output
  */
  
@@ -7,9 +7,15 @@
 
 #include <libbtcore/core.h>
 
+enum {
+  SONG_IO_FILE_NAME=1
+};
+
 struct _BtSongIOPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+	/* used to load or save the song file */
+	gchar *file_name;
 };
 
 //-- helper methods
@@ -27,7 +33,7 @@ static void bt_song_io_register_all() {
  *
  * Returns: the type of the #SongIO sub-class that can handle the supplied file
  */
-static GType bt_song_io_detect(const gchar *filename) {
+static GType bt_song_io_detect(const gchar *file_name) {
   // @todo check registered types
 	return(BT_TYPE_SONG_IO_NATIVE);
 }
@@ -44,16 +50,21 @@ static GType bt_song_io_detect(const gchar *filename) {
  */
 BtSongIO *bt_song_io_new(const gchar *file_name) {
   BtSongIO *self;
+	
+	if (!is_string(file_name)) {
+		return NULL;
+	}
+	
   self=BT_SONG_IO(g_object_new(bt_song_io_detect(file_name),NULL));
-  
+  self->private->file_name=(gchar *)file_name;
   return(self);
 }
 
 
 //-- methods
 
-gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song, const gchar *filename) {
-	GST_ERROR("virtual method bt_song_io_real_load(self,song,\"%s\") called",filename);
+gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song) {
+	GST_ERROR("virtual method bt_song_io_real_load(self,song) called");
 	return(FALSE);	// this is a base class that can't load anything
 }
 
@@ -63,14 +74,13 @@ gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song, const gc
  * bt_song_io_load:
  * @self: the #SongIO instance to use
  * @song: the #Song instance that should initialized
- * @filename: the path of the file that contains the song to load
  *
- * load the song from a file
+ * load the song from a file.  The file ist set in the constructor
  *
  * Returns: true for success
  */
-gboolean bt_song_io_load(const gpointer self, const BtSong *song, const gchar *filename) {
-	return(BT_SONG_IO_GET_CLASS(self)->load(self,song,filename));
+gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
+	return(BT_SONG_IO_GET_CLASS(self)->load(self,song));
 }
 
 //-- class internals
@@ -84,6 +94,9 @@ static void bt_song_io_get_property(GObject      *object,
   BtSongIO *self = BT_SONG_IO(object);
   return_if_disposed();
   switch (property_id) {
+		case SONG_IO_FILE_NAME: {
+      g_value_set_string(value, self->private->file_name);
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -133,6 +146,13 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
   gobject_class->finalize     = bt_song_io_finalize;
 	
 	klass->load       = bt_song_io_real_load;
+	
+	g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
+                                  g_param_spec_string("file name",
+                                     "filename prop",
+                                     "filename for load save actions",
+                                     NULL, /* default value */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_song_io_get_type(void) {

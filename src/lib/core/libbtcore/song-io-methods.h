@@ -1,4 +1,4 @@
-/* $Id: song-io-methods.h,v 1.6 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: song-io-methods.h,v 1.7 2004-08-12 13:53:30 waffel Exp $
  * defines all public methods of the song-io base class
  */
 
@@ -10,6 +10,6 @@
 
 extern BtSongIO *bt_song_io_new(const gchar *file_name);
 
-extern gboolean bt_song_io_load(const gpointer self, const BtSong *song, const gchar *filename);
+extern gboolean bt_song_io_load(const gpointer self, const BtSong *song);
 
 #endif // BT_SONG_IO_METHDOS_H
