@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.2 2005-01-07 11:53:27 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.3 2005-01-07 15:02:08 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -32,7 +32,9 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
+	BtMainWindow *main_window;
   GtkWidget *label,*widget,*table,*scrolled_window;
+	GtkTooltips *tips=gtk_tooltips_new();
 	gchar *id;
 	GdkPixbuf *window_icon=NULL;
 	GstElement *machine;
@@ -40,6 +42,9 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 	guint i,number_of_properties;
 	GType param_type;
 
+	g_object_get(self->priv->app,"main-window",&main_window,NULL);
+	gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
+	
   // create and set window icon
 	if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
 		window_icon=gdk_pixbuf_new_from_filename("menu_source_machine.png");
@@ -53,9 +58,10 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   if(window_icon) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
-  
-  //gtk_widget_set_size_request(GTK_WIDGET(self),250,300);
-	gtk_window_set_default_size(GTK_WINDOW(self),250,300);
+	
+	// leave the choice of with to gtk
+	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
+	// set a title
 	g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
   gtk_window_set_title(GTK_WINDOW(self),g_strdup_printf(_("%s preferences"),id));
 	g_free(id);
@@ -66,7 +72,6 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 		// machine preferences inside a scrolled window
 		scrolled_window=gtk_scrolled_window_new(NULL,NULL);
 		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
-		//gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
 		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
 		// add machine preferences into the table
 		table=gtk_table_new(/*rows=*/number_of_properties+1,/*columns=*/2,/*homogenous=*/FALSE);
@@ -74,10 +79,11 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 		for(i=0;i<number_of_properties;i++) {
 			property=properties[i];
 			GST_INFO("property %p has name %s",property,property->name);
+			// get name
 			label=gtk_label_new(property->name);
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
 			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-			// @todo choose proper widget
+			// @todo choose proper widgets
 			param_type=G_PARAM_SPEC_TYPE(property);
 			if(param_type==G_TYPE_PARAM_STRING) {
 				//GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
@@ -88,30 +94,41 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				gtk_entry_set_text(GTK_ENTRY(widget),safe_string(value));g_free(value);
 			}
 			else if(param_type==G_TYPE_PARAM_BOOLEAN) {
-				widget=gtk_label_new("boolean");
+				gboolean value;
+				
+				g_object_get(machine,property->name,&value,NULL);
+				widget=gtk_check_button_new();
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
 			}
 			else if(param_type==G_TYPE_PARAM_INT) {
-				widget=gtk_label_new("int");
+				// @todo add (slider + entry) or spin button
+				widget=gtk_entry_new();
+				gtk_entry_set_text(GTK_ENTRY(widget),"int");
 			}
 			else if(param_type==G_TYPE_PARAM_DOUBLE) {
-				widget=gtk_label_new("double");
+				// @add slider + entry
+				widget=gtk_entry_new();
+				gtk_entry_set_text(GTK_ENTRY(widget),"double");
 			}
 			else {
-				widget=gtk_label_new("unhandled");
+				gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+				widget=gtk_label_new(str);g_free(str);
 			}
+			gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
 			gtk_table_attach(GTK_TABLE(table),widget, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 		}
 		// eat remaning space
 		gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 		g_free(properties);
 		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
-		//gtk_container_add(GTK_CONTAINER(scrolled_window),table);
 		gtk_container_add(GTK_CONTAINER(self),scrolled_window);
 	}
 	else {
 		gtk_container_add(GTK_CONTAINER(self),gtk_label_new(_("machine has no preferences")));
 	}
-
+	
+	g_object_try_unref(machine);
+	g_object_try_unref(main_window);
   return(TRUE);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.62 2005-01-06 14:48:30 ensonic Exp $
+/* $Id: machine.c,v 1.63 2005-01-07 15:01:59 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -468,6 +468,24 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
   return(ret);
 }
 
+
+/**
+ * bt_machine_get_global_dparam:
+ * @self: the machine to search for the global dparam
+ * @index: the offset in the list of global dparams
+ *
+ * Retrieves the a global GstDParam
+ *
+ * Returns: the requested GstDParam
+ */
+GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(index<self->priv->global_params);
+  g_assert(self->priv->global_dparams);
+	
+  return(self->priv->global_dparams[index]);
+}
+
 /**
  * bt_machine_get_global_dparam_type:
  * @self: the machine to search for the global dparam type
@@ -480,6 +498,7 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
 GType bt_machine_get_global_dparam_type(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
+	g_assert(self->priv->global_types);
   
   return(self->priv->global_types[index]);
 }

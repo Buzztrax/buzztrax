@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.h,v 1.2 2005-01-06 22:12:03 ensonic Exp $
+/* $Id: machine-properties-dialog.h,v 1.3 2005-01-07 15:02:09 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -27,14 +27,14 @@ typedef struct _BtMachinePropertiesDialogPrivate BtMachinePropertiesDialogPrivat
  * the root window for the editor application
  */
 struct _BtMachinePropertiesDialog {
-  GtkDialog parent;
+  GtkWindow parent;
   
   /* private */
   BtMachinePropertiesDialogPrivate *priv;
 };
 /* structure of the machine-properties-dialog class */
 struct _BtMachinePropertiesDialogClass {
-  GtkDialogClass parent;
+  GtkWindowClass parent;
   
 };
 

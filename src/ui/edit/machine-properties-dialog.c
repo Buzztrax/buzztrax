@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.3 2005-01-06 22:12:03 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.4 2005-01-07 15:02:09 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -32,9 +32,17 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
-  GtkWidget *box,*table,*scrolled_window;
+	BtMainWindow *main_window;
+  GtkWidget *box,*label,*widget,*table,*scrolled_window;
 	gchar *id;
 	GdkPixbuf *window_icon=NULL;
+	gulong i,global_params;
+	GstDParam *dparam;
+	GParamSpec *property;
+	GType param_type;
+
+	g_object_get(self->priv->app,"main-window",&main_window,NULL);
+	gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
 	if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
@@ -50,34 +58,60 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   
-  //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-	g_object_get(self->priv->machine,"id",&id,NULL);
+	// leave the choice of with to gtk
+	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
+	// set a title
+	g_object_get(self->priv->machine,"id",&id,"global-params",&global_params,NULL);
   gtk_window_set_title(GTK_WINDOW(self),g_strdup_printf(_("%s properties"),id));
 	g_free(id);
-  
-  // add dialog commision widgets (okay, cancel)
-  gtk_dialog_add_buttons(GTK_DIALOG(self),NULL);
-  
+    
   // add widgets to the dialog content area
   box=gtk_vbox_new(FALSE,12);
-  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+  //gtk_container_set_border_width(GTK_CONTAINER(box),6);
 	
-	// @todo add preset controls (combobox, edit button)
+	// @todo add preset controls (combobox, edit button, copy, random, help)
 	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no preset selection here yet"));
 
 	// add separator
   gtk_container_add(GTK_CONTAINER(box),gtk_hseparator_new());
-	// machine controls inside a scrolled window
-  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-	// @todo add machine controls into the table
-	table=gtk_vbox_new(FALSE,6);//gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
-	gtk_container_add(GTK_CONTAINER(table),gtk_label_new("no machine controls here yet"));
-	gtk_container_add(GTK_CONTAINER(scrolled_window),table);
-	gtk_container_add(GTK_CONTAINER(box),scrolled_window);
-
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
+	
+	if(global_params/*+voices*voice_params*/) {
+		GST_INFO("machine has %d properties",global_params);
+		// machine controls inside a scrolled window
+  	scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+  	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
+		// add machine controls into the table
+		table=gtk_table_new(/*rows=*/global_params+1,/*columns=*/2,/*homogenous=*/FALSE);
+		for(i=0;i<global_params;i++) {
+			dparam=bt_machine_get_global_dparam(self->priv->machine,i);
+			property=GST_DPARAM_PARAM_SPEC(dparam);
+			// get name
+			label=gtk_label_new(GST_DPARAM_NAME(dparam));
+			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+			// @todo choose proper widgets
+			param_type=bt_machine_get_global_dparam_type(self->priv->machine,i);
+			if(param_type==G_TYPE_PARAM_STRING) {
+				widget=gtk_label_new("string");
+			}
+			else {
+				gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+				widget=gtk_label_new(str);g_free(str);
+			}
+			//gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
+			gtk_table_attach(GTK_TABLE(table),widget, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+		}
+		gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
+		gtk_container_add(GTK_CONTAINER(box),scrolled_window);
+	}
+	else {
+		gtk_container_add(GTK_CONTAINER(box),gtk_label_new(_("machine has no params")));
+	}
+  gtk_container_add(GTK_CONTAINER(self),box);
+	
+	g_object_try_unref(main_window);
   return(TRUE);
 }
 
@@ -231,7 +265,7 @@ GType bt_machine_properties_dialog_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_properties_dialog_init, // instance_init
     };
-		type = g_type_register_static(GTK_TYPE_DIALOG,"BtMachinePropertiesDialog",&info,0);
+		type = g_type_register_static(GTK_TYPE_WINDOW,"BtMachinePropertiesDialog",&info,0);
   }
   return type;
 }
