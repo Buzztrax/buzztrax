@@ -50,11 +50,18 @@ endif
 if USE_VALGRIND
 VALPREFIX = $(TESTS_ENVIRONMENT) GLIBCPP_FORCE_NEW=
 VALDEFAULT = @VALGRIND@/bin/valgrind
+VALSUPP = @VALGRIND@/lib/valgrind
+VALSUPPRESSIONDEF = --suppressions=$(VALSUPP)/default.supp
+VALSUPPRESSIONOWN = --suppressions=$(top_builddir)/buzztard.supp
+VALSUPPRESSION = $(VALSUPPRESSIONDEF) $(VALSUPPRESSIONOWN)
 VALOPTIONS = --tool=memcheck -q --show-reachable=yes --leak-check=yes --num-callers=20
-VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS)
+VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS) $(VALSUPPRESSION)
 
 valgrind:: $(TESTS_BIN)
-	for i in $^; do $(VALCMD) --log-file=/tmp/$$i.valgrind ./$$i; done
+	for i in $^; do \
+	  rm -rf /tmp/$$i.valgrind.pid*; \
+		$(VALCMD) --log-file=/tmp/$$i.valgrind ./$$i; \
+	done
 endif
 
 splint::

@@ -1,0 +1,41 @@
+{
+   <insert a suppression name here>
+   Memcheck:Cond
+   obj:/lib/ld-2.3.4.so
+   obj:/lib/ld-2.3.4.so
+   obj:/lib/ld-2.3.4.so
+   obj:/lib/ld-2.3.4.so
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:xrealloc
+   fun:__libc_start_main
+   obj:/bin/bash
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:xmalloc
+   fun:__libc_start_main
+   obj:/bin/bash
+}
+
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:realloc
+   fun:xrealloc
+}
+
