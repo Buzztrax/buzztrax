@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.14 2004-08-18 16:55:09 ensonic Exp $
+/* $Id: main-window.c,v 1.15 2004-08-18 17:57:07 ensonic Exp $
  * class for the editor main window
  */
 
@@ -32,30 +32,21 @@ struct _BtMainWindowPrivate {
   GtkAccelGroup *accel_group;
 };
 
-//-- helper
-
-/*
-static void bt_main_window_refresh_ui(const BtMainWindow *self) {
-  static gchar *title;
-  BtSong *song;
-
-  // get song from app
-  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
-  // compose title
-  title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
-  gtk_window_set_title(GTK_WINDOW(self), title);
-}
-*/
-
 //-- event handler
 
-static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  gboolean res=TRUE;
+  
   GST_INFO("delete event occurred\n");
-  return(!bt_main_window_check_quit(BT_MAIN_WINDOW(user_data)));
+  // returning TRUE means, we don't want the window to be destroyed
+  if(bt_main_window_check_quit(BT_MAIN_WINDOW(user_data))) {
+    res=FALSE;
+  }
+  return(res);
 }
 
-static void destroy(GtkWidget *widget, gpointer user_data) {
-  GST_INFO("destroy event occurred\n");
+static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
+  GST_INFO("destroy occurred\n");
   gtk_main_quit();
 }
 
@@ -80,9 +71,6 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GdkPixbuf *main_icon;
   
   self->private->accel_group=gtk_accel_group_new();
-  
-  g_signal_connect(G_OBJECT(self),"delete_event",G_CALLBACK(delete_event),(gpointer)self);
-  g_signal_connect(G_OBJECT(self),"destroy",     G_CALLBACK(destroy),(gpointer)self);
   
   // create and set window icon
   if((main_icon=create_pixbuf("buzztard.png"))) {
@@ -109,6 +97,9 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   g_signal_connect(G_OBJECT(self->private->app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
 
   gtk_window_add_accel_group(GTK_WINDOW(self),self->private->accel_group);
+
+  g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
+  g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
 
   return(TRUE);
 }

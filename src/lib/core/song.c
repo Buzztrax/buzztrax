@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.37 2004-08-18 16:55:08 ensonic Exp $
+/* $Id: song.c,v 1.38 2004-08-18 17:57:05 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -82,8 +82,6 @@ gboolean bt_song_stop(const BtSong *self) {
   gboolean res;
   
   res=bt_sequence_stop(self->private->sequence);
-  // emit signal that we have finished playing
-  g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->stop_signal_id, 0);
   return(res);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.10 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: edit-application.c,v 1.11 2004-08-18 17:57:07 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -211,6 +211,7 @@ static void bt_edit_application_dispose(GObject *object) {
 static void bt_edit_application_finalize(GObject *object) {
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
   
+  bt_song_stop(self->private->song);
   g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
