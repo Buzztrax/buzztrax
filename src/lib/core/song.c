@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.48 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: song.c,v 1.49 2004-10-01 16:01:46 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -57,12 +57,9 @@ static guint signals[LAST_SIGNAL]={0,};
 BtSong *bt_song_new(const GstBin *bin) {
   BtSong *self=NULL;
 	
-  if(bin) {
-    self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
-  }
-  else {
-     GST_WARNING("bin should not be NULL");
-  }
+  g_assert(bin);
+  
+  self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
   return(self);
 }
 

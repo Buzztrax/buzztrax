@@ -1,4 +1,4 @@
-* $Id: gui.txt,v 1.3 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: gui.txt,v 1.4 2004-10-01 16:01:44 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * mimic the apperance and behaviour of buzz
@@ -17,11 +17,14 @@
 			sinks at the left side)
 
 * sequence view
+  - allow folding for each label until the next label
 	- colorize track-columns like machines (generator, effect, player/analyser)
 
 * pattern view
 	- allow folding tracks
-	- number view (like buzz) or gui view (have embedded sliders, drop-downs and check-boxes)
+  - views
+	  - number view (like buzz)
+    - gui view (have embedded sliders, drop-downs and check-boxes)
 
 * menu
 	- menu/new load/default song, which could contain e.g.

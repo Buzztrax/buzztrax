@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.16 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: processor-machine.c,v 1.17 2004-10-01 16:01:46 ensonic Exp $
  * class for a processor machine
  */
 
@@ -33,10 +33,16 @@ static BtMachineClass *parent_class=NULL;
  */
 BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
   BtProcessorMachine *self;
-  self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
   
-  // @todo check result
-  bt_machine_new(BT_MACHINE(self));
+  g_assert(song);
+  g_assert(id);
+  g_assert(plugin_name);
+  
+  self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
+  if(self) {
+    // @todo check result
+    bt_machine_new(BT_MACHINE(self));
+  }
   return(self);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.13 2004-09-29 16:56:25 ensonic Exp $
+/* $Id: application.c,v 1.14 2004-10-01 16:01:46 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -35,6 +35,7 @@ struct _BtApplicationPrivate {
  */
 gboolean bt_application_new(BtApplication *self) {
   gboolean res=FALSE;
+
   g_assert(self);
   
 #ifdef USE_GCONF

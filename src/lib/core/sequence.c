@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.34 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: sequence.c,v 1.35 2004-10-01 16:01:46 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -145,8 +145,12 @@ static void bt_sequence_init_machines(const BtSequence *self) {
  */
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
+  
+  g_assert(song);
+  
   self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
   if(self) {
+    // @todo check result
     bt_sequence_init_timelines(self);
   }
   return(self);

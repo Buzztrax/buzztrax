@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.3 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.4 2004-10-01 16:01:46 ensonic Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -12,9 +12,8 @@ struct _BtPlainfileSettingsPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   
-  /* key=value list, keys are defined in BtSettings
+  /* key=value list, keys are defined in BtSettings */
   GHashTable *settings;
-   */
 };
 
 static BtSettingsClass *parent_class=NULL;
@@ -101,6 +100,7 @@ static void bt_plainfile_settings_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_hash_table_destroy(self->priv->settings);
   g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -111,6 +111,7 @@ static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(instance);
   self->priv = g_new0(BtPlainfileSettingsPrivate,1);
   self->priv->dispose_has_run = FALSE;
+  self->priv->settings=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
 static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {

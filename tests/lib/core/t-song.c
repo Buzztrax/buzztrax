@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.5 2004-10-01 13:24:02 waffel Exp $
+/** $Id: t-song.c,v 1.6 2004-10-01 16:01:47 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -27,19 +27,8 @@ static void play_event_test(void) {
   play_signal_invoke=TRUE;
 }
 
-// test if the constructor works with null
+// test if the default constructor works as expected
 START_TEST(test_btsong_obj1) {
-  BtSong *song;
-
-  GST_INFO("--------------------------------------------------------------------------------");
-
-  song=bt_song_new(NULL);
-	fail_unless(song == NULL,NULL);
-}
-END_TEST
-
-// test if the default constructor works as aspected
-START_TEST(test_btsong_obj2) {
 	BtSong *song;
 	GstElement *bin;
 	
@@ -178,7 +167,6 @@ TCase *bt_song_obj_tcase(void) {
   TCase *tc = tcase_create("bt_song case");
 
   tcase_add_test(tc,test_btsong_obj1);
-	tcase_add_test(tc,test_btsong_obj2);
   tcase_add_test(tc,test_btsong_load1);
   tcase_add_test(tc,test_btsong_load2);
 	tcase_add_test(tc,test_btsong_play1);

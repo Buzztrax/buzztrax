@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.1 2004-10-01 13:25:03 waffel Exp $
+/** $Id: t-setup.c,v 1.2 2004-10-01 16:01:47 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -22,26 +22,11 @@ static void test_teardown(void) {
 //-- tests
 
 /**
-* Try to create a new setup with NULL song.
-*
-* This is a negative test
-*/
-START_TEST(test_btsetup_obj1){
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-
-	setup=bt_setup_new(NULL);
-	fail_unless(setup==NULL, NULL);
-}
-END_TEST
-
-/**
 * Try to add a NULL machine to a empty setup. We have no return value. But in
 * this case no assertion should be thrown.
 *
 */
-START_TEST(test_btsetup_obj2){
+START_TEST(test_btsetup_obj1){
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	GstElement *bin=NULL;
@@ -62,7 +47,7 @@ END_TEST
 * this case no assertion should be thrown.
 *
 */
-START_TEST(test_btsetup_obj3){
+START_TEST(test_btsetup_obj2){
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	GstElement *bin=NULL;
@@ -83,7 +68,6 @@ TCase *bt_setup_obj_tcase(void) {
 
   tcase_add_test(tc,test_btsetup_obj1);
 	tcase_add_test(tc,test_btsetup_obj2);
-	tcase_add_test(tc,test_btsetup_obj3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.16 2004-08-18 16:55:08 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.17 2004-10-01 16:01:44 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture [modular ofcourse ;-)]
@@ -202,6 +202,7 @@
 		- sources: play multiple notes
 		- effects: delay=multi-tap-delay, pitchshift=make-chords
 	** how do we handle multi-channel connections
+    see multichannel.txt
 		src has n channels, dst has m channels
 		*** n=m
 			just connect

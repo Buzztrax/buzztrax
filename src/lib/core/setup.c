@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.28 2004-09-30 16:55:58 ensonic Exp $
+/* $Id: setup.c,v 1.29 2004-10-01 16:01:46 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -35,8 +35,10 @@ struct _BtSetupPrivate {
  */
 BtSetup *bt_setup_new(const BtSong *song) {
   BtSetup *self;
+
+  g_assert(song);
+
   self=BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL));
-  
   return(self);
 }
 

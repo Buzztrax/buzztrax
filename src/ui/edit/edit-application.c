@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.27 2004-09-30 16:55:58 ensonic Exp $
+/* $Id: edit-application.c,v 1.28 2004-10-01 16:01:46 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -162,7 +162,24 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
          *   * if we put these things into an extra file, which only bt-edit will load, how does custom loader do it then?
          *     e.g. the buzz song load could deliver this data as well
          *   * if we put this into the same songfile (e.g. with a different namespace), we still have the problem of how to get the data
-         * possible solution: all elements with an id need a list of general properties
+         * possible solution:
+         *   * all elements with an id need a list of general properties in the xml-doc, e.g.
+         *     <sink id="audio_sink" ...>
+         *       <properties>
+         *         <property key="xpos" value="50"/>
+         *         <property key="bt-edit:color" value="#AAFFCC"/>
+         *       </properties>
+         *     </sink>
+         *   a) the loader gets a property-bin object instance
+         *     when-ever it detects properties, if calls a method of the property bin and
+         *     passes (parent-name,parent-id,key,value), e.g.
+         *     ("processor","amp","xpos","20")
+         *     => difficult for saving
+         *   b) the corresponding objects have a HashTable and a property to
+         *     retrieve it (under the name "properties")
+         *     g_object_get(audio_sink,"properties",&properties,NULL);
+         *     the loader can then store the data directly into the hastable
+         *     the saver can iterate over the hastable and write out the items
          */ 
         // emit signal that song has been changed
         g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);

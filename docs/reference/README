@@ -1,4 +1,4 @@
-$Id: README,v 1.8 2004-09-25 13:38:32 ensonic Exp $
+$Id: README,v 1.9 2004-10-01 16:01:45 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
@@ -33,9 +33,9 @@ to make the hierarchy work
 	and the type of the object must be named "BtSongInfo"
 	and not e.g. "BtSongInfoType"
 
-to make devhelp find local books
-  export DEVHELP_SEARCH_PATH="/home/ensonic/buzztard/share/gtk-doc/html/"
-
 to force rebuilding the docs
   rm docs/reference/bt-*/*.stamp
 
+documentation guidelines
+  Whenever a parameter can be NULL, document it. Default is that NULL is not
+  acceptable for (pointer) parameters.

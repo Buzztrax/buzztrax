@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.20 2004-09-30 14:50:04 ensonic Exp $
+# $Id: configure.ac,v 1.21 2004-10-01 16:01:35 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -172,10 +172,17 @@ fi
 
 AM_CONDITIONAL(ENABLE_GTK_DOC, test x$enable_gtk_doc = xyes)
 
-# Check for ScrollKeeper
+# Check for xsltproc
+#AC_PATH_PROG(xsltproc, xsltproc, no)
+#AM_CONDITIONAL(ENABLE_XSLTPROC, test ! x$xsltproc = xno)
+
+# Check for scrollkeeper
 AC_PATH_PROG(scrollkeeper_config, scrollkeeper-config, no)
 if test x$scrollkeeper_config = xno; then
   AC_MSG_WARN([Couldn't find scrollkeeper-config, please install the scrollkeeper package])
+#  if test x$xsltproc = xno; then
+#    AC_MSG_WARN([Couldn't find xsltproc, please install the libxml/libxslt package])
+#  fi
 fi
 AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5

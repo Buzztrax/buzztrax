@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.22 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: song-info.c,v 1.23 2004-10-01 16:01:46 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -50,8 +50,10 @@ struct _BtSongInfoPrivate {
  */
 BtSongInfo *bt_song_info_new(const BtSong *song) {
   BtSongInfo *self;
-  self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
+
+  g_assert(song);
   
+  self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
   return(self);
 }
 

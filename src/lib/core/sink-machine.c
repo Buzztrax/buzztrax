@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.15 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: sink-machine.c,v 1.16 2004-10-01 16:01:46 ensonic Exp $
  * class for a sink machine
  */
  
@@ -32,10 +32,16 @@ static BtMachineClass *parent_class=NULL;
  */
 BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name) {
   BtSinkMachine *self;
-  self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL));
   
-  // @todo check result
-  bt_machine_new(BT_MACHINE(self));
+  g_assert(song);
+  g_assert(id);
+  g_assert(plugin_name);
+  
+  self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL));
+  if(self) {
+    // @todo check result
+    bt_machine_new(BT_MACHINE(self));
+  }
   return(self);
 }
 

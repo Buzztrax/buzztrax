@@ -1,0 +1,109 @@
+* $Id: multichannel.txt,v 1.1 2004-10-01 16:01:44 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+================================================================================
+
+* every source and processor machine gets a 2d pan widget
+  left-right = -1.0 ... 1.0
+  back-front = -1.0 ... 1.0
+  |       f
+  |   +-------+
+  |   |       |
+  | l |       | r
+  |   |       |
+  |   +-------+
+  |       b
+  - this pan controls its output 
+* the sink gets an encoder plugin
+  ** sink with mono ouput
+    - just mix everything together
+  ** sink with stereo output
+    - drop bf-axis
+    - surround encoder
+  ** sink with multi-channel playback
+    - multichannel decoder that distributes the sound to the proper channels
+* using mono channels with pan properties
+  ** cases
+    *** (generator: in=0, out=1) -> (stereo-sink: in=2)
+      |          gen                  sink
+      |      in       out         in        out
+      |  +-------+ +-------+   +-----0-+ +-------+
+      |  |       | |     0 |   |       | |       |
+      |  |       | |       | > |       | |       |
+      |  |       | |       |   |       | |       |
+      |  +-------+ +-------+   +-------+ +-------+
+      - the output of the generator is mono
+        pan.0: lr= 0.5, bf= 0.5 - the channel has been panned
+      - the sink is just dropping the bf-axis of the input and
+        creates a stereo mix from the pan
+    *** (generator: in=0, out=2) -> (stereo-sink: in=2)
+      |          gen                  sink
+      |      in       out         in        out
+      |  +-------+ 0-------+   0-----1-+ +-------+
+      |  |       | |     1 |   |       | |       |
+      |  |       | |       | > |       | |       |
+      |  |       | |       |   |       | |       |
+      |  +-------+ +-------+   +-------+ +-------+
+      - the output of the generator is stereo
+        pan.0: lr=-1.0, bf= 1.0 - the left channel has been left at original position
+        pan.1: lr= 0.5, bf= 0.5 - the right channel has been panned
+      - the sink is just dropping the bf-axis of each input and
+        creates a stereo mix from the pan
+    *** (generator1: in=0, out=1) + (generator2: in=0, out=1) -> (stereo-sink: in=2)
+      |          gen1       
+      |      in       out   
+      |  +-------+ +-------+
+      |  |       | |     0 |
+      |  |       | |       |          sink
+      |  |       | |       |      in        out
+      |  +-------+ +-------+ > +-1---0-+ +-------+
+      |                        |       | |       |
+      |          gen2          |       | |       |
+      |      in       out      |       | |       |
+      |  +-------+ +-------+ > +-------+ +-------+
+      |  |       | |       |
+      |  |       | | 1     |
+      |  |       | |       |
+      |  +-------+ +-------+
+      - the output of the generator1 is mono
+        pan.0: lr= 0.5, bf= 0.5 - the channel has been panned
+      - the output of the generator2 is mono
+        pan.1: lr=-0.5, bf= 0.0 - the channel has been panned
+      - the sink is just dropping the bf-axis of each input and
+        creates a stereo mix from the pan
+    *** (generator1: in=0, out=1) + (generator2: in=0, out=1) -> (fx in=n, out=n) -> (stereo-sink: in=2)
+      |          gen1       
+      |      in       out   
+      |  +-------+ +-------+
+      |  |       | |     0 |
+      |  |       | |       |          fx                  sink
+      |  |       | |       |      in        out         in        out
+      |  +-------+ +-------+ > +-----0-+ +-----0-+   +-1---0-+ +-------+
+      |                        |       | |       |   |       | |       |
+      |          gen2          | 1     | | 1     | > |       | |       |
+      |      in       out      |       | |       |   |       | |       |
+      |  +-------+ +-------+ > +-------+ +-------+   +-------+ +-------+
+      |  |       | |       |
+      |  |       | | 1     |
+      |  |       | |       |
+      |  +-------+ +-------+
+      - the fx needs to keep two separate channels
+    *** (generator1: in=0, out=1) + (generator2: in=0, out=1) -> (fx in=n, out=n) -> (stereo-sink: in=2)
+      |          gen1       
+      |      in       out   
+      |  +-------+ +-------+
+      |  |       | |     0 |
+      |  |       | |       |          fx                  sink
+      |  |       | |       |      in        out         in        out
+      |  +-------+ +-------+ > +-------+ +-------+   +-----0-+ +-------+
+      |                        |     0 | |       |   |       | |       |
+      |          gen2          |       | |     0 | > |       | |       |
+      |      in       out      |       | |       |   |       | |       |
+      |  +-------+ +-------+ > +-------+ +-------+   +-------+ +-------+
+      |  |       | |     0 |
+      |  |       | |       |
+      |  |       | |       |
+      |  +-------+ +-------+
+      - the input optimizer could mix the input to reduce the number of channels
+  ** problems
+    - fx like autopan
+      would have to general n-outputs for each output?
+      would have to add pans on pans (chained, relative)

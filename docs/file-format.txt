@@ -1,4 +1,4 @@
-* $Id: file-format.txt,v 1.6 2004-04-16 17:38:13 waffel Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: file-format.txt,v 1.7 2004-10-01 16:01:44 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * multi-file archive (like zip/tat/lha/lzx/jar)
@@ -11,19 +11,20 @@
 	** multi xml file song
 		- meta.rdf contains rdf with dc:schema from the blabla page
 		- setup.xml is the description of the used machines and how they are wired
+		- patterns.xml desctibes the patterns for all machines
 		- sequence.xml is the timeline of the song and denotes which pattern is used for
 			which machine at which time
-		- "machines" directory contains all patterns for each machine
 		- "waveforms" directory holds all used sample-waveforms, it may not exist
 		- example
 			meta.rdf
 			setup.xml
+  		patterns.xml
 			sequence.xml
-			machines/
-				patterns/
-					<pattern>.xml
 			waveforms/
 				<sample>.wav
+    - application needs to specify which files to load and in which order, e.g.:
+      bt-edit : meta, setup, patterns, sequence
+      bt-freestyle : meta, setup, pattern, session
 	** single xml file song
 		- xml based, along with sample data as a zip archive
 		- root: buzztard, bsf (buzztard song file), ...

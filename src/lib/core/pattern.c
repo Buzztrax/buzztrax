@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.14 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: pattern.c,v 1.15 2004-10-01 16:01:46 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -117,9 +117,17 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, glong voices) {
  */
 BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, glong length, glong voices,const BtMachine *machine) {
   BtPattern *self;
-  self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",length,"voices",voices,"machine",machine,NULL));
   
-  bt_pattern_init_data(self);
+  g_assert(song);
+  g_assert(id);
+  g_assert(name);
+  g_assert(machine);
+  
+  self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",length,"voices",voices,"machine",machine,NULL));
+  if(self) {
+    // @todo check result
+    bt_pattern_init_data(self);
+  }
   return(self);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.30 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: wire.c,v 1.31 2004-10-01 16:01:46 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -269,9 +269,16 @@ Error:
  */
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
   BtWire *self;
-  self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
+  
+  g_assert(song);
+  g_assert(src_machine);
+  g_assert(dst_machine);
 
-  bt_wire_connect(self);
+  self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
+  if(self) {
+    // @todo check result
+    bt_wire_connect(self);
+  }
   return(self);
 }
 
