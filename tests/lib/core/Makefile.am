@@ -3,7 +3,7 @@
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = \
-	core.c core.h
+	core.c core.h song.h song.c
 
 
 INCLUDES = \

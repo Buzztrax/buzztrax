@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.9 2004-07-28 13:54:42 ensonic Exp $
+/* $Id: core.c,v 1.10 2004-08-07 17:44:14 waffel Exp $
  */
 
 #define BT_CORE
@@ -36,7 +36,7 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
  * This function prepares gstreamer and libxml. 
  */
 void bt_init(int *argc, char ***argv, struct poptOption *options) {
-
+  
 	//-- init gobject
 	g_type_init();
 
