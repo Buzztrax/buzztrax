@@ -1,4 +1,4 @@
-/** $Id: sink-machine.c,v 1.1 2004-05-07 16:29:25 ensonic Exp $
+/* $Id: sink-machine.c,v 1.2 2004-05-11 16:16:38 ensonic Exp $
  * class for a sink machine
  */
  

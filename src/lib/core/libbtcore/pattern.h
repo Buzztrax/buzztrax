@@ -1,4 +1,4 @@
-/** $Id: pattern.h,v 1.4 2004-04-26 14:43:29 ensonic Exp $
+/* $Id: pattern.h,v 1.5 2004-05-11 16:16:38 ensonic Exp $
  * patterns/sequence
  *
  */

@@ -1,4 +1,4 @@
-/** $Id: song-info.h,v 1.4 2004-05-06 18:26:58 ensonic Exp $
+/* $Id: song-info.h,v 1.5 2004-05-11 16:16:38 ensonic Exp $
  * class for a machine to machine connection
  */
 

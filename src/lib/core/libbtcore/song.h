@@ -1,6 +1,5 @@
-/** $Id: song.h,v 1.9 2004-05-06 18:26:58 ensonic Exp $
+/* $Id: song.h,v 1.10 2004-05-11 16:16:38 ensonic Exp $
  * Class for a basic buzztard song
- *
  */
  
 #ifndef BT_SONG_H

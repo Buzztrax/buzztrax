@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.16 2004-05-10 20:46:36 ensonic Exp $
+/* $Id: song.c,v 1.17 2004-05-11 16:16:38 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -36,23 +36,53 @@ static void bt_song_real_start_play(const BtSong *self) {
 
 //-- wrapper
 
-/* wrapper method from song
- * @todo inline the wrapper?
+/** 
+ * bt_song_start_play:
+ * @self: the #BtSong that should be played
+ *
+ * Starts to play the specified song instance from beginning.
  */
 void bt_song_start_play(const BtSong *self) {
   BT_SONG_GET_CLASS(self)->start_play(self);
 }
 
+/**
+ * bt_song_get_song_info:
+ *
+ * get the #BtSongInfo for the song
+ */
 BtSongInfo *bt_song_get_song_info(const BtSong *self) {
 	return(self->private->song_info);
 }
 
+/**
+ * bt_song_get_setup:
+ *
+ * get the #BtSetup for the song
+ */
 BtSetup *bt_song_get_setup(const BtSong *self) {
 	return(self->private->setup);
 }
 
+/**
+ * bt_song_get_sequence:
+ *
+ * get the #BtSequence for the song
+ */
 BtSequence *bt_song_get_sequence(const BtSong *self) {
 	return(self->private->sequence);
+}
+
+/**
+ * bt_song_get_bin:
+ *
+ * get the root #GstBin for the song
+ *
+ * Returns: the root #GstBin to insert #GstElements for this song
+ */
+GstElement *bt_song_get_bin(const BtSong *self) {
+	GST_WARNING("implement me!");
+	return(NULL);
 }
 
 //-- class internals

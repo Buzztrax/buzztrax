@@ -1,6 +1,6 @@
-/* $Id: wire-methods.h,v 1.5 2004-05-07 18:04:15 ensonic Exp $
-* defines all public methods of the wire class
-*/
+/* $Id: wire-methods.h,v 1.6 2004-05-11 16:16:38 ensonic Exp $
+ * defines all public methods of the wire class
+ */
 
 #ifndef BT_WIRE_METHODS_H
 #define BT_WIRE_METHODS_H

@@ -1,6 +1,6 @@
-/* $Id: machine-methods.h,v 1.3 2004-05-06 18:26:58 ensonic Exp $
-* defines all public methods of the machine base class
-*/
+/* $Id: machine-methods.h,v 1.4 2004-05-11 16:16:38 ensonic Exp $
+ * defines all public methods of the machine base class
+ */
 
 #ifndef BT_MACHINE_METHODS_H
 #define BT_MACHINE_METHODS_H

@@ -1,4 +1,4 @@
-/** $Id: source-machine.c,v 1.1 2004-05-07 18:04:14 ensonic Exp $
+/* $Id: source-machine.c,v 1.2 2004-05-11 16:16:38 ensonic Exp $
  * class for a source machine
  */
  

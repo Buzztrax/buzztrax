@@ -1,4 +1,4 @@
-/** $Id: machine.h,v 1.2 2004-05-07 18:04:15 ensonic Exp $
+/* $Id: machine.h,v 1.3 2004-05-11 16:16:38 ensonic Exp $
  * base class for a machine
  */
 

@@ -1,4 +1,4 @@
-/** $Id: wire.h,v 1.2 2004-05-04 15:24:59 ensonic Exp $
+/* $Id: wire.h,v 1.3 2004-05-11 16:16:38 ensonic Exp $
  * class for a machine to machine connection
  */
 

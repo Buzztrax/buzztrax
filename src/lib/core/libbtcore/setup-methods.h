@@ -1,6 +1,6 @@
-/* $Id: setup-methods.h,v 1.3 2004-05-07 18:04:15 ensonic Exp $
-* defines all public methods of the setup class
-*/
+/* $Id: setup-methods.h,v 1.4 2004-05-11 16:16:38 ensonic Exp $
+ * defines all public methods of the setup class
+ */
 
 #ifndef BT_SETUP_METHODS_H
 #define BT_SETUP_METHODS_H

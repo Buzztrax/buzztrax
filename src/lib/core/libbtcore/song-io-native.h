@@ -1,4 +1,4 @@
-/** $Id: song-io-native.h,v 1.3 2004-05-07 16:29:28 ensonic Exp $
+/* $Id: song-io-native.h,v 1.4 2004-05-11 16:16:38 ensonic Exp $
  * class for native song input and output
  */
 

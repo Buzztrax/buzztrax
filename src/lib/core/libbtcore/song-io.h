@@ -1,4 +1,4 @@
-/** $Id: song-io.h,v 1.2 2004-05-07 11:46:57 ensonic Exp $
+/* $Id: song-io.h,v 1.3 2004-05-11 16:16:38 ensonic Exp $
  * base class for song input and output
  */
 

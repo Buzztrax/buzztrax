@@ -1,4 +1,4 @@
-/** $Id: sequence.c,v 1.3 2004-05-07 15:16:04 ensonic Exp $
+/* $Id: sequence.c,v 1.4 2004-05-11 16:16:38 ensonic Exp $
  * class for the pattern sequence
  */
  
