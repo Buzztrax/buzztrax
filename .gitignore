@@ -12,11 +12,15 @@ config.log
 config.h.in
 config.h
 config.guess
+config.rpath
 autoregen.sh
 autom4te.cache
 aclocal.m4
 Makefile.in
 Makefile
+ABOUT-NLS
 INSTALL
 COPYING
-
+intltool*
+m4
+mkinstalldirs
