@@ -1,4 +1,4 @@
-$Id: TODO,v 1.10 2004-08-06 19:42:44 ensonic Exp $
+$Id: TODO,v 1.11 2004-08-07 21:23:15 ensonic Exp $
 
 * run 'make todo' to get a list of todo comments from source
 
@@ -23,13 +23,6 @@ $Id: TODO,v 1.10 2004-08-06 19:42:44 ensonic Exp $
       (one global and one for each voice)
     * gst-elemnts need caps to tell wheter they support multiple voices
     * if they do they need function to add/remove voices
-
-* unit-tests
-  * in the unit tests package, we have nasty, complex LDADD lines
-  * how can we add --g-fatal-warnings when running the unit tests, check
-    g_log_set_always_fatal()
-    g_log_set_fatal_mask()
-  * add unit test that loads songs from the 'tests/songs' folder
 
 * gobject private members
   * we need guidelines for use of ->private, 

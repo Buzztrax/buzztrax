@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.3 2004-08-07 01:35:53 ensonic Exp $
+/* $Id: main-window.c,v 1.4 2004-08-07 21:23:19 ensonic Exp $
  * class for the editor main window
  */
 
@@ -28,7 +28,8 @@ struct _BtMainWindowPrivate {
 static gboolean bt_main_check_quit(const BtMainWindow *self)  {
   gboolean quit=FALSE;
   gint result;
-  GtkWidget *dialog = gtk_dialog_new_with_buttons ("Really quit ?",
+  GtkWidget *label,*icon,*box;
+  GtkWidget *dialog = gtk_dialog_new_with_buttons (_("Really quit ?"),
                                                   self->private->window,
                                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                                   GTK_STOCK_OK,
@@ -37,6 +38,14 @@ static gboolean bt_main_check_quit(const BtMainWindow *self)  {
                                                   GTK_RESPONSE_REJECT,
                                                   NULL);
 
+  box=gtk_hbox_new(FALSE,0);
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+  label=gtk_label_new(_("Really quit ?"));
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
+  gtk_widget_show_all(dialog);
+                                                  
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -55,6 +64,7 @@ static gboolean bt_main_check_quit(const BtMainWindow *self)  {
 
 
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
+  BtMainWindow *self=BT_MAIN_WINDOW(data);
   /* If you return FALSE in the "delete_event" signal handler, GTK will emit the
    * "destroy" signal. Returning TRUE means you don't want the window to be
    * destroyed.
@@ -62,15 +72,16 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) 
    */
 
   GST_INFO("delete event occurred\n");
-  return(FALSE);
+  return(!bt_main_check_quit(self));
 }
 
 static void destroy(GtkWidget *widget, gpointer data) {
-  /* destroy callback */
+  
+  GST_INFO("destroy event occurred\n");
   gtk_main_quit();
 }
 
-void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
+static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
   BtMainWindow *self=BT_MAIN_WINDOW(data);
   
   GST_INFO("menu quit event occurred\n");
@@ -79,10 +90,9 @@ void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
   }
 }
 
-
 //-- helper methods
 
-GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box) {
+static GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *menubar,*item,*menu,*subitem;
   GtkAccelGroup *accel_group;
   
@@ -93,6 +103,7 @@ GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box)
   gtk_widget_set_name(menubar,_("main menu"));
   gtk_box_pack_start(GTK_BOX(box),menubar,FALSE,FALSE,0);
 
+
   item=gtk_menu_item_new_with_mnemonic(_("_File"));
   gtk_widget_set_name(item,_("file menu"));
   gtk_container_add(GTK_CONTAINER(menubar),item);
@@ -101,19 +112,19 @@ GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box)
   gtk_widget_set_name(menu,_("file menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
 
-  subitem=gtk_image_menu_item_new_from_stock("gtk-new",accel_group);
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,accel_group);
   gtk_widget_set_name(subitem,_("New"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
-  subitem=gtk_image_menu_item_new_from_stock("gtk-open",accel_group);
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN,accel_group);
   gtk_widget_set_name(subitem,_("Open"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
-  subitem=gtk_image_menu_item_new_from_stock("gtk-save",accel_group);
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
   gtk_widget_set_name(subitem,_("Save"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
-  subitem=gtk_image_menu_item_new_from_stock("gtk-save-as",accel_group);
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE_AS,accel_group);
   gtk_widget_set_name(subitem,_("Save as"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 
@@ -122,17 +133,37 @@ GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box)
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   gtk_widget_set_sensitive(subitem,FALSE);
 
-  subitem=gtk_image_menu_item_new_from_stock("gtk-quit",accel_group);
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT,accel_group);
   gtk_widget_set_name(subitem,_("Quit"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),self);
+
+
+  item=gtk_menu_item_new_with_mnemonic(_("_Help"));
+  gtk_widget_set_name(item,_("help menu"));
+  gtk_container_add(GTK_CONTAINER(menubar),item);
+
+  menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("help menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
+  gtk_widget_set_name(subitem,_("Inhalt"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  // gtk stock defines no std icon for about, only gnome does
+  //subitem=gtk_image_menu_item_new_from_stock("",accel_group);
+  subitem=gtk_menu_item_new_with_mnemonic(_("About"));
+  gtk_widget_set_name(subitem,_("About"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
 
   gtk_window_add_accel_group(GTK_WINDOW(self->private->window),accel_group);
  
   return(menubar);
 }
 
-GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box) {
+static GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *handlebox,*toolbar;
   GtkWidget *icon;
   GtkWidget *button;
@@ -147,7 +178,7 @@ GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box)
   gtk_container_add(GTK_CONTAINER(handlebox),toolbar);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 
-  icon=gtk_image_new_from_stock("gtk-new", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  icon=gtk_image_new_from_stock(GTK_STOCK_NEW, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -157,7 +188,7 @@ GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box)
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("New"));
 
-  icon=gtk_image_new_from_stock("gtk-open", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  icon=gtk_image_new_from_stock(GTK_STOCK_OPEN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -167,7 +198,7 @@ GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box)
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Open"));
 
-  icon=gtk_image_new_from_stock("gtk-save", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  icon=gtk_image_new_from_stock(GTK_STOCK_SAVE, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -179,7 +210,7 @@ GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box)
   return(handlebox);
 }
 
-GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box) {
+static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *notebook;
   GtkWidget *page,*label;
 
@@ -224,7 +255,7 @@ GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box
   return(notebook);
 }
 
-GtkWidget *bt_main_window_init_statusbar(const BtMainWindow *self, GtkWidget *box) {
+static GtkWidget *bt_main_window_init_statusbar(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *statusbar;
   
   // @todo make this a sub-class of status bar
@@ -246,8 +277,8 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   self->private->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
   // @todo make the title: PACKAGE_NAME": %s",song->name 
   gtk_window_set_title(GTK_WINDOW(self->private->window), PACKAGE_NAME);
-  g_signal_connect(G_OBJECT(self->private->window), "delete_event", G_CALLBACK(delete_event), NULL);
-  g_signal_connect(G_OBJECT(self->private->window), "destroy",      G_CALLBACK(destroy), NULL);
+  g_signal_connect(G_OBJECT(self->private->window), "delete_event", G_CALLBACK(delete_event), self);
+  g_signal_connect(G_OBJECT(self->private->window), "destroy",      G_CALLBACK(destroy), self);
   
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.30 2004-08-06 23:52:39 ensonic Exp $
+/* $Id: song.c,v 1.31 2004-08-07 21:23:18 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -36,9 +36,10 @@ struct _BtSongPrivate {
 
 /**
  * bt_song_new:
- * @bin: the gst root element to hold the song
+ * @bin: the gst root element to hold the song. 
  *
- * Create a new instance
+ * Create a new instance. The bin object can be retrieved from the bin property
+ * of an #BtApplication instance
  *
  * Returns: the new instance or NULL in case of an error
  */
@@ -55,7 +56,8 @@ BtSong *bt_song_new(const GstBin *bin) {
  * @bin: the gst root elemnt to hold the song
  * @name: the name of the new song
  *
- * Create a new instance with a initial name
+ * Create a new instance with a initial name. The bin object can be retrieved
+ * from the bin property of an #BtApplication instance
  *
  * Returns: the new instance or NULL in case of an error
  */
