@@ -1,6 +1,5 @@
-/** $Id: wire.h,v 1.1 2004-05-04 13:47:25 ensonic Exp $
- * Class for a machine to machine connection
- *
+/** $Id: wire.h,v 1.2 2004-05-04 15:24:59 ensonic Exp $
+ * class for a machine to machine connection
  */
 
 #ifndef BT_WIRE_H
@@ -38,5 +37,5 @@ struct _BtWireClass {
 GType bt_wire_get_type(void);
 
 
-#endif /* BT_WIRE_H */
+#endif // BT_WIRE_H
 

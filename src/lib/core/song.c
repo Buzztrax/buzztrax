@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.5 2004-05-04 14:21:37 ensonic Exp $
+/** $Id: song.c,v 1.6 2004-05-04 15:24:59 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -19,12 +19,60 @@ struct _BtSongPrivate {
   
   /* the name for the song */
   gchar *name;
+	
+	/*
+	BtSetup *setup;
+	BtSequence *sequence;
+	*/
 };
 
 //-- methods
 
 static void bt_song_real_load(const BtSong *self, const gchar *filename) {
+	xmlParserCtxtPtr ctxt=NULL;
+	xmlDocPtr song_doc=NULL;
+	xmlNsPtr ns=NULL;
+
+	g_assert(filename!=NULL);
+	g_assert(*filename);
+
+	GST_INFO("will now load song from \"%s\"",filename);
 	
+	if((ctxt=xmlCreateFileParserCtxt(filename))) {
+		ctxt->validate=FALSE;
+		xmlParseDocument(ctxt);
+		if(!ctxt->valid) {
+			GST_WARNING("the supplied document is not a XML/Buzztard document");
+		}
+		else if(!ctxt->wellFormed) {
+			GST_WARNING("the supplied document is not a wellformed XML document");
+		}
+		else {
+			xmlNodePtr cur;
+			song_doc=ctxt->myDoc;
+			if((cur=xmlDocGetRootElement(song_doc))==NULL) {
+				GST_WARNING("xmlDoc is empty");
+			}
+			//else if((ns=xmlSearchNsByHref(song_doc,cur,(const xmlChar *)GITK_NS_URL))==NULL) {
+			//	GST_WARNING("no namespace found in xmlDoc");
+			//}
+			else if(xmlStrcmp(cur->name,(const xmlChar *)"buzztard")) {
+				GST_WARNING("wrong document type root node in xmlDoc src");
+			}
+			else {
+				GST_INFO("file looks good!");
+				// get setup-node
+				// bt_setup_load(self->setup,xml_node);
+				// get sequence-node
+				// bt_sequence_load(self->sequence,xml_node);
+				// ... meta-data, patterns
+			}
+		}		
+	}
+	else GST_ERROR("failed to create file-parser context for \"%s\"",filename);
+Error:
+	if(ctxt) xmlFreeParserCtxt(ctxt);
+	if(song_doc) xmlFreeDoc(song_doc);
 }
 
 static void bt_song_real_start_play(const BtSong *self) {

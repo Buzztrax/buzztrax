@@ -1,4 +1,4 @@
-/* $Id: wire-methods.h,v 1.1 2004-05-04 13:47:25 ensonic Exp $
+/* $Id: wire-methods.h,v 1.2 2004-05-04 15:24:59 ensonic Exp $
 * defines all public methods of the wire-class
 */
 
@@ -8,4 +8,4 @@
 #include "wire.h"
 
 
-#endif //BT_WIRE_METHDOS_H 
+#endif // BT_WIRE_METHDOS_H
