@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.3 2004-09-25 13:38:32 ensonic Exp $
+/** $Id: e-network.c,v 1.4 2004-09-26 01:50:08 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -72,6 +72,9 @@ START_TEST(test_btcore_net_example1) {
 	wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
   fail_unless(wire1!=NULL, NULL);
   
+	/* add wire to song setup */
+	bt_setup_add_wire(setup, wire1);
+
   /* check if we can retrieve the wire via the source machine */
   wire=bt_setup_get_wire_by_src_machine(setup,BT_MACHINE(gen1));
   fail_unless(wire==wire1, NULL);
@@ -79,9 +82,6 @@ START_TEST(test_btcore_net_example1) {
   /* check if we can retrieve the wire via the dest machine */
   wire=bt_setup_get_wire_by_dst_machine(setup,BT_MACHINE(sink));
   fail_unless(wire==wire1, NULL);
-	
-	/* add wire to song setup */
-	bt_setup_add_wire(setup, wire1);
 	
   /* try to start playing the song */
   if(bt_song_play(song)) {

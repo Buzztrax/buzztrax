@@ -1,4 +1,4 @@
-/** $Id: t-song-io.c,v 1.6 2004-09-25 13:38:33 ensonic Exp $
+/** $Id: t-song-io.c,v 1.7 2004-09-26 01:50:08 ensonic Exp $
 **/
 
 #include "t-song.h"
@@ -69,6 +69,22 @@ START_TEST(test_btsong_io_obj4) {
 }
 END_TEST
 
+// try to create a songIO object with a file name that contains mixed case letters
+// this test is a positiv test
+START_TEST(test_btsong_io_obj5) {
+	BtSongIO *songIO;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	songIO=bt_song_io_new("test.XmL");
+	// check if the type of songIO is native
+	fail_unless(BT_IS_SONG_IO_NATIVE(songIO), NULL);
+	fail_unless(songIO!=NULL, NULL);
+	g_object_checked_unref(songIO);
+}
+END_TEST
+
+
 TCase *bt_song_io_obj_tcase(void) {
   TCase *tc = tcase_create("bt_song_io case");
 
@@ -76,6 +92,7 @@ TCase *bt_song_io_obj_tcase(void) {
 	tcase_add_test(tc,test_btsong_io_obj2);
 	tcase_add_test(tc,test_btsong_io_obj3);
 	tcase_add_test(tc,test_btsong_io_obj4);
+	tcase_add_test(tc,test_btsong_io_obj5);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

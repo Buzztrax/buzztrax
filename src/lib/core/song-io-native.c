@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.29 2004-09-25 00:20:24 ensonic Exp $
+/* $Id: song-io-native.c,v 1.30 2004-09-26 01:50:08 ensonic Exp $
  * class for native song input and output
  */
  
@@ -25,12 +25,16 @@ static BtSongIOClass *parent_class=NULL;
  */
 GType bt_song_io_native_detect(const gchar *file_name) {
   GType type=0;
-
-  GST_INFO("file_name=\"%s\"",file_name);
+  gchar *lc_file_name;
   
-  if(file_name && (strstr(file_name,".xml"))) {
+  GST_INFO("file_name=\"%s\"",file_name);
+  if(!file_name) return(type);
+  
+  lc_file_name=g_ascii_strdown(file_name,-1);
+  if(g_str_has_suffix(lc_file_name,".xml")) {
     type=BT_TYPE_SONG_IO_NATIVE;
   }
+  g_free(lc_file_name);
   return(type);
 }
 
@@ -178,6 +182,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			}
 			if(machine) { // add machine to setup
 				bt_setup_add_machine(setup,machine);
+        g_object_unref(machine);
 			}
 			xmlFree(id);xmlFree(plugin_name);xmlFree(voices_str);
 		}
@@ -202,6 +207,10 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 			GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
 			// create new wire
 			wire=bt_wire_new(song,bt_setup_get_machine_by_id(setup,src),bt_setup_get_machine_by_id(setup,dst));
+      if(wire) {
+        bt_setup_add_wire(setup,wire);
+        g_object_unref(wire);
+      }
       xmlFree(src);xmlFree(dst);
 		}
 		xml_node=xml_node->next;
@@ -637,6 +646,9 @@ static void bt_song_io_native_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_song_io_native_finalize(GObject *object) {
@@ -645,6 +657,9 @@ static void bt_song_io_native_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->private);
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_song_io_native_init(GTypeInstance *instance, gpointer g_class) {

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.30 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: machine.c,v 1.31 2004-09-26 01:50:08 ensonic Exp $
  * base class for a machine
  */
  
@@ -22,6 +22,9 @@ struct _BtMachinePrivate {
 	
 	/* the song the machine belongs to */
 	BtSong *song;
+	/* the main gstreamer container element */
+	GstBin *bin;
+
 	/* the id, we can use to lookup the machine */
 	gchar *id;
 	/* the name of the gst-plugin the machine is using */
@@ -64,7 +67,6 @@ struct _BtMachinePrivate {
 
 // @todo ideally this would be a protected method, but how to do this in 'C' ?
 gboolean bt_machine_init_gst_element(BtMachine *self) {
-  GstBin *bin=NULL;
 
   g_assert(self->machine==NULL);
   g_assert(self->private->id);
@@ -103,8 +105,8 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
       GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
     }
   }
-  g_object_get(G_OBJECT(self->private->song),"bin",&bin,NULL);
-  gst_bin_add(bin,self->machine);
+  g_object_get(G_OBJECT(self->private->song),"bin",&self->private->bin,NULL);
+  gst_bin_add(self->private->bin,self->machine);
   g_assert(self->machine!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
@@ -113,7 +115,6 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
     GST_DEBUG("this will be the master for the song");
     g_object_set(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine),NULL);
   }
-  g_object_try_unref(bin);
   return(TRUE);
 }
 
@@ -393,11 +394,42 @@ static void bt_machine_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  // remove the GstElements from the bin
+  if(self->private->bin) {
+    if(self->machine) {
+      GST_DEBUG("  removing machine from bin, obj->ref_count=%d",G_OBJECT(self->machine)->ref_count);
+      gst_bin_remove(self->private->bin,self->machine);
+    }
+    if(self->adder) {
+      GST_DEBUG("  removing adder from bin, obj->ref_count=%d",G_OBJECT(self->adder)->ref_count);
+       gst_bin_remove(self->private->bin,self->adder);
+    }
+    if(self->spreader) {
+      GST_DEBUG("  removing spreader from bin, obj->ref_count=%d",G_OBJECT(self->spreader)->ref_count);
+      gst_bin_remove(self->private->bin,self->spreader);
+    }
+    // @todo add the rest
+    GST_DEBUG("  elements removed from bin");
+    g_object_try_unref(self->private->bin);
+  }
+
   g_object_try_weak_unref(self->private->song);
+  g_object_try_unref(self->private->dparam_manager);
+  g_object_try_unref(self->private->input_level);
+  g_object_try_unref(self->private->output_level);
+  //g_object_try_unref(self->machine);
+  //g_object_try_unref(self->adder);
+  //g_object_try_unref(self->spreader);
+
   // unref list of patterns
 	if(self->private->patterns) {
     GList* node=g_list_first(self->private->patterns);
 		while(node) {
+      {
+        GObject *obj=node->data;
+        GST_DEBUG("  free pattern : %p (%d)",obj,obj->ref_count);
+      }
 			g_object_try_unref(node->data);
       node->data=NULL;
 			node=g_list_next(node);

@@ -1,6 +1,13 @@
 ## Makefile.am for src/lib/core
 
-#SUBDIRS = . libbtcore
+SUBDIRS = . libbtcore
+
+if USE_GCONF
+GCONF_SETTINGS_SRC = gconf-settings.c libbtcore/gconf-settings.h libbtcore/gconf-settings-methods.h
+else
+GCONF_SETTINGS_SRC = 
+endif
+
 
 lib_LTLIBRARIES = libbtcore.la
 libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS)
@@ -11,6 +18,7 @@ libbtcore_la_SOURCES = \
 	libbtcore/version.h \
 	\
 	application.c libbtcore/application.h libbtcore/application-methods.h \
+	$(GCONF_SETTINGS_SRC) \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
 	playline.c libbtcore/playline.h libbtcore/playline-methods.h \
@@ -22,8 +30,8 @@ libbtcore_la_SOURCES = \
 	song.c libbtcore/song.h libbtcore/song-methods.h \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
-	song-io-native.c libbtcore/song-io-native.h \
-	source-machine.c libbtcore/source-machine.h libbtcore/source-methods.h \
+	song-io-native.c libbtcore/song-io-native.h libbtcore/song-io-native-methods.h \
+	source-machine.c libbtcore/source-machine.h libbtcore/source-machine-methods.h \
 	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
 	timelinetrack.c libbtcore/timelinetrack.h libbtcore/timelinetrack-methods.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h
@@ -36,4 +44,10 @@ INCLUDES = \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libbtcore.pc
+
+EXTRA_DIST = \
+	libbtcore.pc.in
 

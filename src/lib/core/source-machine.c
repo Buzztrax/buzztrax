@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.11 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: source-machine.c,v 1.12 2004-09-26 01:50:08 ensonic Exp $
  * class for a source machine
  */
  
@@ -28,6 +28,8 @@ extern gboolean bt_machine_init_gst_element(BtMachine *self);
  * @voices: the number of voices the machine should initially have
  *
  * Create a new instance
+ * A machine should be added to a songs setup using
+ * <code>bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
  * Returns: the new instance or NULL in case of an error
  */
@@ -93,7 +95,6 @@ static void bt_source_machine_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->private);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }

@@ -1,4 +1,4 @@
-$Id: TODO,v 1.17 2004-09-25 13:38:32 ensonic Exp $
+$Id: TODO,v 1.18 2004-09-26 01:50:06 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -35,10 +35,6 @@ run 'make todo' to get a list of todo comments from source
     object->private->member statements
     * do once object_p=object->private;
     * #define G_SELF self->private
-
-* split gtk-doc
-  * into docs for: bt-core, bt-cmd bt-edit
-  * this is neccesary that e.g. bt-mix can have a BT_MAIN_WINDOW class
 
 * new signals
   song::new ?

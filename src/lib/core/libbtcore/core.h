@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.37 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: core.h,v 1.38 2004-09-26 01:50:08 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -60,6 +60,10 @@
 	#define textdomain(Domain)
 	#define bindtextdomain(Package, Directory)
 #endif
+//-- gconf
+#ifdef USE_GCONF
+#include <gconf/gconf-client.h>
+#endif
 
 //-- libbtcore
 // method prototype includes do include the data defs themself
@@ -82,6 +86,10 @@
 #include "application-methods.h"
 #include "tools.h"
 #include "version.h"
+
+#ifdef USE_GCONF
+#include "gconf-settings-methods.h"
+#endif
 
 //-- global defines ------------------------------------------------------------
 

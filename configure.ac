@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.18 2004-09-25 13:38:32 ensonic Exp $
+# $Id: configure.ac,v 1.19 2004-09-26 01:50:06 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -88,22 +88,10 @@ if test "$enable_debug" = "yes"; then
 	AC_DEFINE(APP_DEBUG, [1], [enable runtime debugging code])
 	AM_CONDITIONAL(DEBUG, true)
 else
-	AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, don not enable g_asserts])
-	AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, don not enable g_return_if_fail variants])
-	AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, don not enable dynamic type checks])
+	AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
+	AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
+	AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
 	AM_CONDITIONAL(DEBUG, false)
-fi
-
-# enable ansi colored reports
-AC_MSG_CHECKING(whether to use ansi-colored reports)
-AC_ARG_ENABLE(
-	ansi_color,
-	AC_HELP_STRING([--enable-ansi-color],[use ansi colored reports (default=yes)]),
-	,
-	[enable_ansi_color="yes"])
-AC_MSG_RESULT($enable_ansi_color)
-if test "$enable_ansi_color" = "yes"; then
-	AC_DEFINE(USE_ANSI_COLOR, [1], [use ansi colored reports])
 fi
 
 # gstreamer-libs not required, while there are only provided from gstreamer-plugins
@@ -116,7 +104,17 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   libgnomecanvas-2.0 \
 	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
   gstreamer-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
-	)
+)
+
+PKG_CHECK_MODULES(CUSTOM_DEPS, gconf-2.0 >= 2.2.0, [
+    AM_CONDITIONAL(USE_GCONF, true)
+    AC_DEFINE(USE_GCONF, [1], [Define to 1 if we can use GConf])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $CUSTOM_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $CUSTOM_DEPS_LIBS"
+  ],[
+    AM_CONDITIONAL(USE_GCONF, false)
+    AC_DEFINE(USE_GCONF, [0], [Define to 1 if we can use GConf])
+  ])
 
 # Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
@@ -177,17 +175,17 @@ AC_C_CONST
 # Checks for library functions.
 
 # Extra vars
+BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
 BT_CFLAGS=""
 BT_LIBDIR='-L${libdir}'
-BT_LIBS="-lgitk -lm $LIBS"
-BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
+BT_LIBS="-lbtcore -lm $LIBS"
 
 # Substitutes
 
+AC_SUBST(BT_INCLUDEDIR)
 AC_SUBST(BT_CFLAGS)
 AC_SUBST(BT_LIBDIR)
 AC_SUBST(BT_LIBS)
-AC_SUBST(BT_INCLUDEDIR)
 AC_SUBST(BASE_DEPS_LIBS)
 AC_SUBST(BASE_DEPS_CFLAGS)
 
@@ -202,7 +200,9 @@ AC_CONFIG_FILES(Makefile \
   src/Makefile \
 		src/lib/Makefile \
 			src/lib/core/Makefile \
-			src/lib/core/libbtcore/version.h \
+			src/lib/core/libbtcore.pc \
+			  src/lib/core/libbtcore/Makefile \
+			  src/lib/core/libbtcore/version.h \
 		src/ui/Makefile \
 			src/ui/cmd/Makefile \
 			src/ui/edit/Makefile \

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.12 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: processor-machine.c,v 1.13 2004-09-26 01:50:08 ensonic Exp $
  * class for a processor machine
  */
 
@@ -27,7 +27,9 @@ extern gboolean bt_machine_init_gst_element(BtMachine *self);
  * @plugin_name: the name of the gst-plugin the machine is using
  * @voices: the number of voices the machine should initially have
  *
- * Create a new instance
+ * Create a new instance.
+ * A machine should be added to a songs setup using
+ * <code>bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
  * Returns: the new instance or NULL in case of an error
  */

@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.25 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: setup.c,v 1.26 2004-09-26 01:50:08 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -296,7 +296,11 @@ static void bt_setup_dispose(GObject *object) {
 	if(self->private->wires) {
 		node=g_list_first(self->private->wires);
 		while(node) {
-			g_object_try_unref(node->data);
+      {
+        GObject *obj=node->data;
+        GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
+      }
+      g_object_try_unref(node->data);
       node->data=NULL;
 			node=g_list_next(node);
 		}
@@ -305,6 +309,10 @@ static void bt_setup_dispose(GObject *object) {
 	if(self->private->machines) {
 		node=g_list_first(self->private->machines);
 		while(node) {
+      {
+        GObject *obj=node->data;
+        GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
+      }
 			g_object_try_unref(node->data);
       node->data=NULL;
 			node=g_list_next(node);

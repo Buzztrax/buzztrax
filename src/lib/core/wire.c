@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.27 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: wire.c,v 1.28 2004-09-26 01:50:08 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -19,6 +19,9 @@ struct _BtWirePrivate {
 	
 	/* the song the wire belongs to */
 	BtSong *song;
+	/* the main gstreamer container element */
+	GstBin *bin;
+
 	/* which machines are linked */
 	BtMachine *src,*dst;
 	/* wire type adapter elements */
@@ -55,9 +58,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   gboolean res=TRUE;
   BtMachine *src, *dst;
   BtSong *song=self->private->song;
-  GstBin *bin;
 
-  g_object_get(G_OBJECT(song),"bin",&bin,NULL);
   src=self->private->src;
   dst=self->private->dst;
 
@@ -68,14 +69,14 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 			self->private->convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",self));
 			g_assert(self->private->convert!=NULL);
 		}
-		gst_bin_add(bin, self->private->convert);
+		gst_bin_add(self->private->bin, self->private->convert);
     GST_DEBUG("trying to link machines with convert");
 		if(!gst_element_link_many(src->src_elem, self->private->convert, dst->dst_elem, NULL)) {
 			if(!self->private->scale) {
 				self->private->scale=gst_element_factory_make("audioscale",g_strdup_printf("audioscale_%p",self));
 				g_assert(self->private->scale!=NULL);
 			}
-			gst_bin_add(bin, self->private->scale);
+			gst_bin_add(self->private->bin, self->private->scale);
       GST_DEBUG("trying to link machines with scale");
 			if(!gst_element_link_many(src->src_elem, self->private->scale, dst->dst_elem, NULL)) {
         GST_DEBUG("trying to link machines with convert and scale");
@@ -107,7 +108,6 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 		self->private->dst_elem=dst->dst_elem;
 		GST_DEBUG("  wire okay");
 	}
-  g_object_try_unref(bin);
 	return(res);
 }
 
@@ -135,14 +135,18 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
 	if(self->private->convert && self->private->scale) {
 		gst_element_unlink_many(self->private->src->src_elem, self->private->convert, self->private->scale, self->private->dst->dst_elem, NULL);
 	}
-  g_object_get(G_OBJECT(song),"bin",&bin,NULL);
 	if(self->private->convert) {
-		gst_bin_remove(bin, self->private->convert);
+    GST_DEBUG("  removing convert from bin, obj->ref_count=%d",G_OBJECT(self->private->convert)->ref_count);
+		gst_bin_remove(self->private->bin, self->private->convert);
+    //g_object_try_unref(self->private->convert);
+    self->private->convert=NULL;
 	}
 	if(self->private->scale) {
-		gst_bin_remove(bin, self->private->scale);
+    GST_DEBUG("  removing scale from bin, obj->ref_count=%d",G_OBJECT(self->private->scale)->ref_count);
+		gst_bin_remove(self->private->bin, self->private->scale);
+    //g_object_try_unref(self->private->scale);
+    self->private->scale=NULL;
 	}
-  g_object_try_unref(bin);
 }
 
 /**
@@ -164,12 +168,11 @@ static gboolean bt_wire_connect(BtWire *self) {
   gboolean res=FALSE;
   BtSong *song=self->private->song;
   BtSetup *setup=NULL;
-  GstBin *bin=NULL;
   BtWire *other_wire;
   BtMachine *src, *dst;
 
   if((!self->private->src) || (!self->private->dst)) goto Error;
-  g_object_get(G_OBJECT(song),"bin",&bin,"setup",&setup,NULL);
+  g_object_get(G_OBJECT(song),"bin",&self->private->bin,"setup",&setup,NULL);
   src=self->private->src;
   dst=self->private->dst;
 
@@ -184,7 +187,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		if(!src->spreader) {
 			src->spreader=gst_element_factory_make("oneton",g_strdup_printf("oneton_%p",src));
 			g_assert(src->spreader!=NULL);
-			gst_bin_add(bin, src->spreader);
+			gst_bin_add(self->private->bin, src->spreader);
 			if(!gst_element_link(src->machine, src->spreader)) {
 				GST_ERROR("failed to link the machines internal spreader");goto Error;
 			}
@@ -215,11 +218,11 @@ static gboolean bt_wire_connect(BtWire *self) {
 			
 			dst->adder=gst_element_factory_make("adder",g_strdup_printf("adder_%p",dst));
 			g_assert(dst->adder!=NULL);
-			gst_bin_add(bin, dst->adder);
+			gst_bin_add(self->private->bin, dst->adder);
 			// @todo this is a workaround for gst not making full caps-nego
 			convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",dst));
 			g_assert(convert!=NULL);
-			gst_bin_add(bin, convert);
+			gst_bin_add(self->private->bin, convert);
 			if(!gst_element_link_many(dst->adder, convert, dst->machine, NULL)) {
 				GST_ERROR("failed to link the machines internal adder");goto Error;
 			}
@@ -241,11 +244,10 @@ static gboolean bt_wire_connect(BtWire *self) {
 	if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed");goto Error;
 	}
-  bt_setup_add_wire(setup,self);
+  //bt_setup_add_wire(setup,self);
   res=TRUE;
   GST_DEBUG("linking machines succeded");
 Error:
-  g_object_try_unref(bin);
   g_object_try_unref(setup);
   if(!res) g_object_unref(self);
 	return(res);
@@ -259,7 +261,9 @@ Error:
  * @src_machine: the data source
  * @dst_machine: the data sink
  *
- * Create a new instance
+ * Create a new instance.
+ * A wire should be added to a songs setup using
+ * <code>bt_setup_add_wire(setup,wire);</code>.
  *
  * Returns: the new instance or NULL in case of an error
  */
@@ -337,10 +341,23 @@ static void bt_wire_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  // remove the GstElements from the bin
+  if(self->private->bin) {
+    bt_wire_unlink_machines(self); // removes convert and scale if in use
+    // @todo add the rest
+    GST_DEBUG("  elements removed from bin");
+    g_object_try_unref(self->private->bin);
+  }
 
 	g_object_try_weak_unref(self->private->song);
 	g_object_try_unref(self->private->dst);
 	g_object_try_unref(self->private->src);
+  g_object_try_unref(self->private->convert);
+  g_object_try_unref(self->private->scale);
+  g_object_try_unref(self->private->gain);
+  g_object_try_unref(self->private->level);
+  g_object_try_unref(self->private->spectrum);
 }
 
 static void bt_wire_finalize(GObject *object) {

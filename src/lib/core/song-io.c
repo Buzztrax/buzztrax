@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.19 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: song-io.c,v 1.20 2004-09-26 01:50:08 ensonic Exp $
  * base class for song input and output
  */
  
@@ -58,11 +58,18 @@ static void bt_song_io_register_plugins(void) {
     struct dirent *dire;
     GModule *plugin;
     BtSongIODetect bt_song_io_plugin_detect;
+    gchar link_target[FILENAME_MAX],plugin_name[FILENAME_MAX];
+    
     //   1.) scan plugin-folder (LIBDIR/songio)
     while((dire=readdir(dirp))!=NULL) {
+      // skip names starting with a dot
+      if((!dire->d_name) || (*dire->d_name=='.')) continue;
+      g_sprintf(plugin_name,LIBDIR"/songio/%s",dire->d_name);
+      // skip symlinks
+      if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
       GST_INFO("    found file \"%s\"",dire->d_name);
-      //   2.) open each g_modules
- 			if((plugin=g_module_open(dire->d_name,G_MODULE_BIND_LAZY))!=NULL) {
+      //   2.) try to open each as g_module
+ 			if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
         GST_INFO("    that is a shared object");
         //   3.) gets the address of GType bt_song_io_detect(const gchar *);
         if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer *)&bt_song_io_plugin_detect)) {
@@ -98,6 +105,7 @@ static GType bt_song_io_detect(const gchar *file_name) {
   node=g_list_first(plugins);
   while(node) {
     detect=(BtSongIODetect)node->data;
+    GST_INFO("  trying ...");
     // the detect function return a GType if the file matches to the plugin or NULL otheriwse
     if((type=detect(file_name))) {
       GST_INFO("  found one!");

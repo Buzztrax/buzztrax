@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.45 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: song.c,v 1.46 2004-09-26 01:50:08 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -205,15 +205,6 @@ static void bt_song_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  /* @todo we need to do this in setup !
-  if(self->private->bin) {
-    GList *node=g_list_first(gst_bin_get_list(self->private->bin));
-    while(node) {
-      g_object_try_unref(node->data);
-      node=g_list_next(node);
-    }
-  }
-  */
 
 	g_object_try_unref(self->private->song_info);
 	g_object_try_unref(self->private->sequence);

@@ -1,7 +1,7 @@
-/* $Id: settings.c,v 1.2 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: settings.c,v 1.3 2004-09-26 01:50:08 ensonic Exp $
  * base class for buzztard settings handling
  */
- 
+
 #define BT_CORE
 #define BT_SETTINGS_C
 
