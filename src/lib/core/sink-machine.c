@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.32 2005-01-16 13:17:36 ensonic Exp $
+/* $Id: sink-machine.c,v 1.33 2005-01-26 17:29:50 ensonic Exp $
  * class for a sink machine
  */
  
@@ -87,12 +87,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   }
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
-  }
-	// @todo we only need this for GUI apps
-  if(!bt_machine_add_input_level(BT_MACHINE(self))) {
-    goto Error;
-  }
-  
+  }  
   g_free(system_audiosink_name);
   g_free(audiosink_name);
   g_object_try_unref(settings);

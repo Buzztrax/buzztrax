@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.75 2005-01-25 16:05:06 ensonic Exp $
+/* $Id: machine.c,v 1.76 2005-01-26 17:29:50 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -66,16 +66,10 @@ struct _BtMachinePrivate {
   /* utillity elements to allow multiple inputs/outputs */
   GstElement *adder,*spreader;
   
-  /* the element to analyse the current input
-   * could be placed right behind the internal adder
-   * (see wire.c)
-   */
-  GstElement *input_level;
-  /* the element to analyse the current output
-   * could be placed right before the internal spreader
-   * (see wire.c)
-   */
-  GstElement *output_level;
+  /* the elements to control and analyse the current input signal */
+  GstElement *input_volume,*input_level;
+  /* the elements to control and analyse the current output signal */
+  GstElement *output_colume,*output_level;
   
   /* public fields are
 	GstElement *dst_elem,*src_elem;
@@ -323,11 +317,36 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
   }
   g_object_set(G_OBJECT(self->priv->input_level),"interval",0.1, "signal",TRUE, NULL);
   gst_bin_add(self->priv->bin,self->priv->input_level);
-  if(!gst_element_link(self->priv->input_level,self->priv->machine)) {
-		GST_ERROR("failed to link the machines input level analyser");goto Error;
+	// is the machine unconnected ?
+	if(self->dst_elem==self->priv->machine) {
+		GST_DEBUG("machine '%s' is not yet connected",GST_OBJECT_NAME(self->priv->machine));
+  	if(!gst_element_link(self->priv->input_level,self->priv->machine)) {
+			GST_ERROR("failed to link the machines input level analyser");goto Error;
+		}
+  	self->dst_elem=self->priv->input_level;
+  	GST_INFO("sucessfully added input level analyser %p",self->priv->input_level);
 	}
-  self->dst_elem=self->priv->input_level;
-  GST_INFO("sucessfully added input level analyser %p",self->priv->input_level);
+	else {
+		GstElement *peer;
+		GstPad *pad,*peer_pad;
+		
+		GST_DEBUG("machine '%s' is connected",GST_OBJECT_NAME(self->priv->machine));
+
+		if((pad=gst_element_get_pad(self->priv->machine,"sink"))
+			&& (peer_pad=gst_pad_get_peer(pad))
+			&& (peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))
+			) {
+			GST_DEBUG("got peer element '%s'",GST_OBJECT_NAME(peer));
+			gst_element_unlink(peer,self->priv->machine);
+	  	if(!gst_element_link_many(peer,self->priv->input_level,self->priv->machine,NULL)) {
+				GST_ERROR("failed to link the machines input level analyser");goto Error;
+			}	
+  		GST_INFO("sucessfully added input level analyser %p",self->priv->input_level);
+		}
+		else {
+			GST_ERROR("cant get sink-peer element of machine");goto Error;
+		}
+	}
   
   res=TRUE;
 Error:

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.46 2005-01-18 16:38:37 ensonic Exp $
+/* $Id: edit-application.c,v 1.47 2005-01-26 17:29:51 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -134,19 +134,24 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 				g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
 			}
 			bt_setup_add_machine(setup,machine);
-
+		  if(bt_machine_add_input_level(machine)) {
+				// set new song
+				g_object_set(G_OBJECT(self),"song",song,NULL);
+				res=TRUE;
+			}
+			else {
+				GST_WARNING("Can't add input levels in sink machine");
+			}
 			g_object_unref(machine);
 		}
+		else {
+			GST_WARNING("Can't create sink machine");
+		}
 		g_free(id);
-
-		// set new song
-		g_object_set(G_OBJECT(self),"song",song,NULL);
 
 		// release references
 		g_object_try_unref(setup);
 		g_object_unref(song);
-
-		res=TRUE;
 	}
   return(res);
 }
@@ -182,8 +187,26 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     while(gtk_events_pending()) gtk_main_iteration();
 		song=bt_song_new(BT_APPLICATION(self));
     if(bt_song_io_load(loader,song)) {
-			g_object_set(G_OBJECT(self),"song",song,NULL);
-      res=TRUE;
+			BtSetup *setup;
+			BtMachine *machine;
+			
+			g_object_get(song,"setup",&setup,NULL);
+			// get sink-machine
+			if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+			  if(bt_machine_add_input_level(machine)) {
+					// set new song
+					g_object_set(G_OBJECT(self),"song",song,NULL);
+					res=TRUE;
+				}
+				else {
+					GST_WARNING("Can't add input levels in sink machine");
+				}
+				g_object_unref(machine);
+			}
+			else {
+				GST_WARNING("Can't look up sink machine");
+			}
+			g_object_try_unref(setup);
     }
     else {
       GST_ERROR("could not load song \"%s\"",file_name);

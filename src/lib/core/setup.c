@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.60 2005-01-25 12:00:48 ensonic Exp $
+/* $Id: setup.c,v 1.61 2005-01-26 17:29:50 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -311,6 +311,33 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
 	
 	return(g_object_ref(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index))));
+}
+
+/**
+ * bt_setup_get_machine_by_type:
+ * @self: the setup to search for the machine
+ * @type: the gobject type (sink,processor,source)
+ *
+ * Search the setup for the first machine with the given type.
+ * The machine must have been added previously to this setup with bt_setup_add_machine().
+ * Unref the machine, when done with it.
+ *
+ * Returns: #BtMachine instance or %NULL if not found
+ */
+BtMachine *bt_setup_get_machine_by_type(const BtSetup *self, GType type) {
+	BtMachine *machine;
+	GList* node;
+
+	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+
+	for(node=self->priv->machines;node;node=g_list_next(node)) {
+		machine=BT_MACHINE(node->data);
+		if(G_OBJECT_TYPE(machine)==type) {
+			return(g_object_ref(machine));
+		}
+	}
+	GST_DEBUG("no machine found for this type");
+	return(NULL);
 }
 
  

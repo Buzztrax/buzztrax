@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.8 2005-01-25 16:05:07 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.9 2005-01-26 17:29:51 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -82,6 +82,18 @@ static void on_double_entry_property_changed(GtkEditable *editable,gpointer user
 	g_object_set(machine,name,value,NULL);
 }
 
+static void on_spinbutton_property_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+	GstElement *machine=GST_ELEMENT(user_data);
+	gint value;
+	const gchar *name=gtk_widget_get_name(GTK_WIDGET(spinbutton));
+	
+	g_assert(user_data);
+
+	GST_INFO("preferences value change received for: '%s'",name);
+	value=gtk_spin_button_get_value_as_int(spinbutton);
+	g_object_set(machine,name,value,NULL);
+}
+
 //-- helper methods
 
 static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
@@ -113,7 +125,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
 	
-	// leave the choice of with to gtk
+	// leave the choice of width to gtk
 	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
 	// set a title
 	g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
@@ -166,14 +178,16 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				
 				g_object_get(machine,property->name,&value,NULL);
 				//str_value=g_strdup_printf("%d",value);
-				step=(gdouble)(int_property->maximum-int_property->minimum)/10.0;
-				GST_INFO("  int : %d...%d, step=%f",int_property->maximum,int_property->minimum,step);
+				step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
+				GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
 				spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
   			widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+				gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
 				gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
 				widget2=NULL;
 				//g_free(str_value);
 				// @todo connect handlers
+				g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
 			}
 			else if(param_type==G_TYPE_PARAM_DOUBLE) {
 				GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
@@ -181,7 +195,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				gchar *str_value;
 
 				g_object_get(machine,property->name,&value,NULL);
-				str_value=g_strdup_printf("%f",value);
+				// get max(max,-min), count digits -> to determine needed length of field
+				str_value=g_strdup_printf("%7.2f",value);
 				step=(double_property->maximum-double_property->minimum)/1024.0;
 				widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
 				gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
@@ -190,6 +205,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				widget2=gtk_entry_new();
 				gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
 				gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
+				g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
 				g_free(str_value);
 				signal_name=g_strdup_printf("notify::%s",property->name);
 				g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget1);

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.10 2005-01-25 16:05:07 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.11 2005-01-26 17:29:51 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -93,7 +93,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   
-	// leave the choice of with to gtk
+	// leave the choice of width to gtk
 	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
 	// set a title
 	g_object_get(self->priv->machine,"id",&id,"global-params",&global_params,NULL);
@@ -137,6 +137,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				
 				GST_INFO("  int : %d...%d",int_property->maximum,int_property->minimum);
 				widget=gtk_label_new("int property");
+				// make it a check box when range ist 0...1 ?
 			}
 			else if(param_type==G_TYPE_DOUBLE) {
 				GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
