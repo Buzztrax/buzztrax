@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.14 2004-10-29 16:46:04 waffel Exp $
+/** $Id: t-song.c,v 1.15 2005-01-18 20:35:35 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -26,6 +26,20 @@ static void test_teardown(void) {
 static void play_event_test(void) {
   play_signal_invoke=TRUE;
 }
+
+START_TEST(test_btsong_properties) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+	song=bt_song_new(app);
+	fail_unless(song != NULL, NULL);
+	check_gobject_properties(G_OBJECT(song));
+}
+END_TEST
 
 // test if the default constructor handles NULL
 START_TEST(test_btsong_obj1) {
@@ -115,6 +129,7 @@ END_TEST
 TCase *bt_song_obj_tcase(void) {
   TCase *tc = tcase_create("bt_song case");
 
+	tcase_add_test(tc,test_btsong_properties);
   tcase_add_test(tc,test_btsong_obj1);
 	tcase_add_test(tc,test_btsong_play1);
 	tcase_add_test(tc,test_btsong_play2);
