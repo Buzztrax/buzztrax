@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.5 2004-09-29 14:38:43 ensonic Exp $
+/* $Id: settings.c,v 1.6 2004-09-29 14:46:33 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -28,13 +28,9 @@ static void bt_settings_get_property(GObject      *object,
   BtSettings *self = BT_SETTINGS(object);
   GObjectClass *gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
-  switch (property_id) {
-    default: {
-      GST_DEBUG("!!!! call implementation");
-      gobject_class->get_property(object,property_id,value,pspec);
-      //G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
+
+  // call implementation
+  gobject_class->get_property(object,property_id,value,pspec);
 }
 
 /* sets the given properties for this object */
@@ -46,13 +42,9 @@ static void bt_settings_set_property(GObject      *object,
   BtSettings *self = BT_SETTINGS(object);
   GObjectClass *gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
-  switch (property_id) {
-    default: {
-      GST_DEBUG("!!!! call implementation");
-      gobject_class->set_property(object,property_id,value,pspec);
-      //G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
-  }
+
+  // call implementation
+  gobject_class->set_property(object,property_id,value,pspec);
 }
 
 static void bt_settings_dispose(GObject *object) {
