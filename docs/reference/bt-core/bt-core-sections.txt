@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.22 2005-02-01 16:01:19 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.23 2005-02-10 15:27:34 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -54,8 +54,8 @@ BtGConfSettingsPrivate
 BtMachine
 BtMachineState
 bt_machine_new
-bt_machine_add_input_level
-bt_machine_add_input_gain
+bt_machine_enable_input_level
+bt_machine_enable_input_gain
 bt_machine_activate_adder
 bt_machine_has_active_adder
 bt_machine_activate_spreader

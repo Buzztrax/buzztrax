@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.85 2005-02-09 18:35:21 ensonic Exp $
+/* $Id: machine.c,v 1.86 2005-02-10 15:27:58 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -411,14 +411,14 @@ gboolean bt_machine_new(BtMachine *self) {
 //-- methods
 
 /**
- * bt_machine_add_input_level:
- * @self: the machine to add the input-level analyser to
+ * bt_machine_enable_input_level:
+ * @self: the machine to enable the input-level analyser in
  *
- * Add an input-level analyser to the machine and activate it.
+ * Creates the input-level analyser of the machine and activates it.
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_add_input_level(BtMachine *self) {
+gboolean bt_machine_enable_input_level(BtMachine *self) {
   gboolean res=FALSE;
 	GstElement *peer;
 	
@@ -456,14 +456,14 @@ Error:
 }
 
 /**
- * bt_machine_add_input_gain:
- * @self: the machine to add the input-gain element to
+ * bt_machine_enable_input_gain:
+ * @self: the machine to enable the input-gain element in
  *
- * Add an input-gain element to the machine and activate it.
+ * Creates the input-gain element of the machine and activates it.
  *
  * Returns: %TRUE for success, %FALSE otherwise
  */
-gboolean bt_machine_add_input_gain(BtMachine *self) {
+gboolean bt_machine_enable_input_gain(BtMachine *self) {
   gboolean res=FALSE;
 	GstElement *peer;
 	

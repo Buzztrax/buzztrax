@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.57 2005-02-09 18:35:42 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.58 2005-02-10 15:28:01 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -50,7 +50,9 @@ struct _BtMainPageSequencePrivate {
   GdkColor processor_bg1,processor_bg2;
   GdkColor sink_bg1,sink_bg2;
 	
+	/* some internal states */
 	glong tick_pos;
+	glong cursor_column;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -86,6 +88,34 @@ static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoint
 }
 
 //-- tree model helper
+
+static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,glong *col,glong *row) {
+	gboolean res=FALSE;
+	GtkTreeModel *store;
+	GtkTreeModelFilter *filtered_store;
+	GtkTreeIter iter,filter_iter;
+	
+	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(tree_view)))
+		&& (store=gtk_tree_model_filter_get_model(filtered_store))
+	)	{
+		if(gtk_tree_model_get_iter(GTK_TREE_MODEL(filtered_store),&filter_iter,path)) {
+			if(col) {
+				GList *columns=gtk_tree_view_get_columns(tree_view);
+				*col=g_list_index(columns,(gpointer)column);
+				g_list_free(columns);
+			}
+			if(row) {
+				gtk_tree_model_filter_convert_iter_to_child_iter(filtered_store,&iter,&filter_iter);
+				gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,row,-1);
+			}
+			res=TRUE;
+		}
+	}
+	else {
+		GST_WARNING("  can't get tree-model");
+	}
+	return(res);
+}
 
 static gboolean sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeIter *iter,gulong that_pos) {
 	gulong this_pos;
@@ -421,11 +451,11 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 		for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-			GST_INFO("  adding \"%s\" at index %d -> '%c'",str,index,pattern_keys[index]);
+			//GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,pattern_keys[index]);
 			key[0]=(index<64)?pattern_keys[index]:' ';
 			//if(index<64) key[0]=pattern_keys[index];
 			//else key[0]=' ';
-      GST_INFO("  with shortcut \"%s\"",key);
+      //GST_DEBUG("  with shortcut \"%s\"",key);
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,0,key,1,str,-1);
       g_free(str);
@@ -596,6 +626,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			GtkTreeIter iter,filter_iter;
 			
 			GST_INFO("  update model");
+			
+			//sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&track,&row);
 
 			if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
 				&& (store=gtk_tree_model_filter_get_model(filtered_store))
@@ -607,8 +639,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 				
 					g_list_free(columns);
 					gtk_tree_model_filter_convert_iter_to_child_iter(filtered_store,&iter,&filter_iter);
-					gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
-					GST_INFO("  position is %d,%d -> ",row,track,SEQUENCE_TABLE_PRE_CT+track);
+					//gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
+					//GST_INFO("  position is %d,%d -> ",row,track,SEQUENCE_TABLE_PRE_CT+track);
 					
 					gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
 				}
@@ -637,8 +669,39 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 
   g_assert(user_data);
 	
-	GST_INFO("sequence_table button : button 0x%x",event->button);
-	if(event->button==3) {
+	GST_INFO("sequence_table button : button 0x%x, type 0x%d",event->button,event->type);
+	if(event->button==1) {
+		if(gtk_tree_view_get_bin_window(self->priv->sequence_table)==(event->window)) {
+			GtkTreePath *path;
+			GtkTreeViewColumn *column;
+			// determine sequence position from mouse coordinates
+			if(gtk_tree_view_get_path_at_pos(self->priv->sequence_table,event->x,event->y,&path,&column,NULL,NULL)) {
+				glong track,row;
+				if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&track,&row)) {
+					GST_DEBUG("  left click to column %d, row %d",track,row);
+					if(track==0) {
+						BtSequence *song;
+						BtSequence *sequence;
+						gdouble play_pos;
+						gulong sequence_length;
+
+						// calculate fractional pos and set into sequence-viewer
+						g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+						g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+						g_object_get(G_OBJECT(sequence),"length",&sequence_length,NULL);
+						play_pos=(gdouble)row/(gdouble)sequence_length;
+						g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
+						g_object_unref(sequence);
+						g_object_unref(song);
+					}
+					else {
+						gtk_tree_view_set_cursor_on_cell(self->priv->sequence_table,path,column,NULL,FALSE);
+					}
+				}
+			}
+		}
+	}
+	else if(event->button==3) {
 		gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
 		res=TRUE;
 	}	
@@ -1048,6 +1111,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv = g_new0(BtMainPageSequencePrivate,1);
   self->priv->dispose_has_run = FALSE;
 	self->priv->bars=1;
+	self->priv->cursor_column=-1;
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.5 2005-02-09 18:35:43 ensonic Exp $
+/* $Id: sequence-view.c,v 1.6 2005-02-10 15:28:01 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -93,9 +93,9 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
 	self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
 	gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
 
-	color.red = 0;
-	color.green = (gint)(0.5*65535.0);
-	color.blue = (gint)(0.75*65535.0);
+	color.red = 65535;
+	color.green = (gint)(0.75*65535.0);
+	color.blue = 0;
 	self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);
 	gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,&color);
 
@@ -144,9 +144,9 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
   	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
 
 		y=(gint)(self->priv->loop_start*h);
-  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+  	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
 		y=(gint)(self->priv->loop_end*h);
-  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+  	gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
 	}
 	return(FALSE);
 }
@@ -190,10 +190,12 @@ static void bt_sequence_view_set_property(GObject      *object,
     } break;
     case SEQUENCE_VIEW_LOOP_START: {
       self->priv->loop_start = g_value_get_double(value);
+			GST_DEBUG("set the loop-start for sequence_view: %f",self->priv->loop_start);
 			gtk_widget_queue_draw(GTK_WIDGET(self));
     } break;
     case SEQUENCE_VIEW_LOOP_END: {
       self->priv->loop_end = g_value_get_double(value);
+			GST_DEBUG("set the loop-end for sequence_view: %f",self->priv->loop_end);
 			gtk_widget_queue_draw(GTK_WIDGET(self));
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {

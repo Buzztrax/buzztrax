@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.57 2005-02-08 19:58:28 ensonic Exp $
+/* $Id: edit-application.c,v 1.58 2005-02-10 15:28:00 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -141,8 +141,8 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 				g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
 			}
 			bt_setup_add_machine(setup,machine);
-		  if(bt_machine_add_input_level(machine) &&
-				bt_machine_add_input_gain(machine)
+		  if(bt_machine_enable_input_level(machine) &&
+				bt_machine_enable_input_gain(machine)
 			) {
 				// set new song
 				g_object_set(G_OBJECT(self),"song",song,NULL);
@@ -205,8 +205,8 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 				g_object_get(song,"setup",&setup,NULL);
 				// get sink-machine
 				if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-				  if(bt_machine_add_input_level(machine) &&
-						bt_machine_add_input_gain(machine)
+				  if(bt_machine_enable_input_level(machine) &&
+						bt_machine_enable_input_gain(machine)
 					) {
 						// set new song
 						g_object_set(G_OBJECT(self),"song",song,NULL);
