@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.16 2004-10-11 16:19:15 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.17 2004-10-12 17:41:02 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -77,6 +77,8 @@ static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self, g
                            "text", name,
                            "fill-color", "black",
                            NULL);
+                           
+  // @todo connect the event signal to on_machine_event()
 }
 
 static void bt_main_page_machines_draw_wire(const BtMainPageMachines *self, gdouble pos_xs, gdouble pos_ys,gdouble pos_xe, gdouble pos_ye) {
@@ -98,6 +100,15 @@ static void bt_main_page_machines_draw_wire(const BtMainPageMachines *self, gdou
                            "width-pixels", 1,
                            NULL);
   gnome_canvas_points_free(points);
+  
+  // @todo add trinagle pointing (GnomeCanvasPolygon) to dest at the middle of the wire
+  /*
+  mid_x=pos_xs+(pos_xe-pos_xs)/2.0;
+  mid_y=pos_ys+(pos_ye-pos_ys)/2.0;
+  // go X points forth on the wire, that is the tip of the triangle
+  // go X points back on the wire and cast an orthogonal line of length X*2
+  */
+  // @todo connect the event signal to on_wire_event()
 }
 
 //-- event handler helper

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.30 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: edit-application.c,v 1.31 2004-10-12 17:41:02 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -167,30 +167,6 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       g_signal_connect(G_OBJECT(loader),"status-changed",(GCallback)on_loader_status_changed,(gpointer)self);
       while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->priv->song)) {
-        /* @todo now load bt-edit specific data (machine view zoom & machine positions)
-         * problem:
-         *   * if we put these things into an extra file, which only bt-edit will load, how does custom loader do it then?
-         *     e.g. the buzz song load could deliver this data as well
-         *   * if we put this into the same songfile (e.g. with a different namespace), we still have the problem of how to get the data
-         * possible solution:
-         *   * all elements with an id need a list of general properties in the xml-doc, e.g.
-         *     <sink id="audio_sink" ...>
-         *       <properties>
-         *         <property key="xpos" value="50"/>
-         *         <property key="bt-edit:color" value="#AAFFCC"/>
-         *       </properties>
-         *     </sink>
-         *   a) the loader gets a property-bin object instance
-         *     when-ever it detects properties, if calls a method of the property bin and
-         *     passes (parent-name,parent-id,key,value), e.g.
-         *     ("processor","amp","xpos","20")
-         *     => difficult for saving
-         *   b) the corresponding objects have a HashTable and a property to
-         *     retrieve it (under the name "properties")
-         *     g_object_get(audio_sink,"properties",&properties,NULL);
-         *     the loader can then store the data directly into the hastable
-         *     the saver can iterate over the hastable and write out the items
-         */ 
         // emit signal that song has been changed
         g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);
         res=TRUE;

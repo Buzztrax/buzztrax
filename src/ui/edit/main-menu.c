@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.17 2004-10-11 16:19:15 ensonic Exp $
+/* $Id: main-menu.c,v 1.18 2004-10-12 17:41:02 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -86,6 +86,7 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
   GtkWidget *label,*icon,*box;
   GtkWidget *dialog;
+  gchar *str;
   
   g_assert(user_data);
 
@@ -105,14 +106,16 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   gtk_container_add(GTK_CONTAINER(box),icon);
   
   label=gtk_label_new(NULL);
-  gtk_label_set_markup(GTK_LABEL(label), g_strdup_printf(
+  str=g_strdup_printf(
     "<big><b>"PACKAGE_STRING"</b></big>\n\n%s\n\nhttp://www.buzztard.org",
     _("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")
-  ));
+  );
+  gtk_label_set_markup(GTK_LABEL(label),str);
+  g_free(str);
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
   gtk_widget_show_all(dialog);
-                                                  
+
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
   g_object_try_unref(main_window);

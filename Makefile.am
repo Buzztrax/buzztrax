@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.17 2004-09-30 14:50:04 ensonic Exp $
+## $Id: Makefile.am,v 1.18 2004-10-12 17:40:58 ensonic Exp $
 
 SUBDIRS = src po tests docs
 
@@ -13,6 +13,7 @@ songdata_DATA = \
 	tests/songs/example.xml \
 	tests/songs/simple1.xml \
 	tests/songs/simple2.xml \
+	tests/songs/simple3.xml \
 	tests/songs/test-simple1.xml \
 	tests/songs/test-simple2.xml \
 	tests/songs/test-simple3.xml \

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.28 2004-10-11 16:19:15 ensonic Exp $
+/* $Id: main-window.c,v 1.29 2004-10-12 17:41:02 ensonic Exp $
  * class for the editor main window
  */
 
@@ -176,6 +176,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean quit=FALSE;
   gint result;
   GtkWidget *label,*icon,*box;
+  gchar *str; 
   GtkWidget *dialog = gtk_dialog_new_with_buttons(_("Really quit ?"),
                                                   GTK_WINDOW(self),
                                                   GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -190,10 +191,11 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gtk_container_add(GTK_CONTAINER(box),icon);
   
   label=gtk_label_new(NULL);
-  gtk_label_set_markup(GTK_LABEL(label), g_strdup_printf(
+  str=g_strdup_printf(
     "<big><b>%s</b></big>\n\n%s",_("Really quit ?"),_("All unsaved changes will be lost then.")
-  ));
-  //label=gtk_label_new(_("Really quit ?"));
+  );
+  gtk_label_set_markup(GTK_LABEL(label),str);
+  g_free(str);
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
   gtk_widget_show_all(dialog);

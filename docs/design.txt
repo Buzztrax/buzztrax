@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.17 2004-10-01 16:01:44 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.18 2004-10-12 17:41:02 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture [modular ofcourse ;-)]
@@ -10,7 +10,8 @@
 			-o,--output-file
 			<cmd> can be {play, convert, info}
 		*** bt-edit (graphical composer, editor)
-		*** bt-mix (graphical dj-player (can not edit the songs))
+		*** bt-mix (graphical dj-player, can not edit the songs)
+    *** bt-session (graphical realtime composer/arranger)
 	** core-lib
 		- put all player code into libbtcore
 				- so that this can be used in players like xmms
