@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.6 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: cmd-application.c,v 1.7 2004-07-05 13:46:27 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -76,6 +76,16 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 		g_print("song.name: \"%s\"\n", g_value_get_string(sval));
 		g_object_get_property(G_OBJECT(bt_song_get_song_info(song)),"info", sval);
 		g_print("song.song_info.info: \"%s\"\n", g_value_get_string(sval));
+    /* lookup a machine and print some info about it */
+    {
+      BtSetup *setup=bt_song_get_setup(song);
+      BtMachine *machine=bt_setup_get_machine_by_id(setup,"audio_sink");
+
+      g_object_get_property(G_OBJECT(machine),"id", sval);
+      g_print("machine.id: \"%s\"\n", g_value_get_string(sval));
+      g_object_get_property(G_OBJECT(machine),"plugin_name", sval);
+      g_print("machine.plugin_name: \"%s\"\n", g_value_get_string(sval));    }
+    
 		
 		/* connection play signal and invoking the play_event function */
 		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);

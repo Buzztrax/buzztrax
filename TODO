@@ -1,10 +1,11 @@
-$Id: TODO,v 1.2 2004-07-02 15:00:59 ensonic Exp $
+$Id: TODO,v 1.3 2004-07-05 13:46:25 ensonic Exp $
 
 * unit-tests
   * in the unit tests package, we have nasty, complex LDADD lines
   * how can we add --g-fatal-warnings when running the unit tests, check
     g_log_set_always_fatal()
     g_log_set_fatal_mask()
+  * add unit test that loads songs from the 'tests/songs' folder
 
 * gobject private members
   * we need guidelines for use of ->private, 
@@ -39,7 +40,7 @@ $Id: TODO,v 1.2 2004-07-02 15:00:59 ensonic Exp $
       =>
       GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
       =>
-      GObject* bt_g_object_get_property(GObject *obj,gchar *property_name) {
+      GObject* bt_g_object_get_object_property(GObject *obj,gchar *property_name) {
         GValue val={0,};
         g_value_init(&val,G_TYPE_OBJECT);
         g_object_get_property(G_OBJECT(song),"bin", &val);
