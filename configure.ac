@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.4 2004-04-19 16:00:33 ensonic Exp $
+# $Id: configure.ac,v 1.5 2004-05-03 16:53:29 waffel Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -99,10 +99,13 @@ if test "$enable_ansi_color" = "yes"; then
 	AC_DEFINE(USE_ANSI_COLOR, [1], [use ansi colored reports])
 fi
 
+# gstreamer-libs not required, while there are only provided from gstreamer-plugins
+#	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
+
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, glib-2.0 >= 2.2.0 gthread-2.0 >= 2.2.0 gmodule-2.0 >= 2.2.0 \
 	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
-	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
+  gstreamer-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 	)
 
 # Add additional libraries
