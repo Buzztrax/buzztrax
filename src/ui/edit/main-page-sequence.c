@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.25 2004-12-07 14:17:51 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.26 2004-12-09 12:57:57 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -43,6 +43,19 @@ enum {
   SEQUENCE_TABLE_LABEL,
   SEQUENCE_TABLE_PRE_CT
 };
+
+//-- event handlers
+
+static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+	GtkLabel *label=GTK_LABEL(user_data);
+	gchar *str;
+	
+	g_object_get(G_OBJECT(machine),"id",&str,NULL);
+  GST_INFO("machine id changed to \"%s\"",str);
+  gtk_label_set_text(label,str);
+	g_free(str);
+}
+
 
 //-- event handler helper
 
@@ -94,6 +107,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtTimeLineTrack *timelinetrack;
   BtPattern *pattern;
   GtkCellRenderer *renderer;
+	GtkWidget *label;
   gchar *str;
   gulong i,j,col_ct,timeline_ct,track_ct,bars,pos=0;
   GtkListStore *store;
@@ -119,12 +133,21 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
     // set machine name as column header
     g_object_get(G_OBJECT(machine),"id",&str,NULL);
-    i=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,str,renderer,
+		// @todo here we can add hbox that containts Mute, Solo, Bypass buttons as well
+		// or popup button that shows the whole context menu like that in the machine_view
+		label=gtk_label_new(str);
+		gtk_widget_show(label);
+    i=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,NULL,renderer,
       "text",SEQUENCE_TABLE_PRE_CT+j,
+			"widget",label,
       NULL);
     g_free(str);
     
     tree_col=gtk_tree_view_get_column(self->priv->sequence_table,i-1);
+		gtk_tree_view_column_set_widget(tree_col,label);
+		g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
+		
+		// color code columns
     if(BT_IS_SOURCE_MACHINE(machine)) {
       gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
     }

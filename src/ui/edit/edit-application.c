@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.35 2004-11-26 18:53:27 waffel Exp $
+/* $Id: edit-application.c,v 1.36 2004-12-09 12:57:57 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -41,7 +41,7 @@ static BtApplicationClass *parent_class=NULL;
 
 //-- event handler
 
-static gboolean on_songio_status_changed(BtSongIO *songio, gpointer user_data) {
+static gboolean on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer user_data) {
   BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
   BtMainStatusbar *statusbar;
   gchar *str;
@@ -163,7 +163,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       gdk_cursor_unref(cursor);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
       
-      g_signal_connect(G_OBJECT(loader),"status-changed",(GCallback)on_songio_status_changed,(gpointer)self);
+      g_signal_connect(G_OBJECT(loader),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
       while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->priv->song)) {
         // emit signal that song has been changed
@@ -210,7 +210,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
       
-    g_signal_connect(G_OBJECT(saver),"status-changed",(GCallback)on_songio_status_changed,(gpointer)self);
+    g_signal_connect(G_OBJECT(saver),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
     if(bt_song_io_save(saver,self->priv->song)) {
       res=TRUE;

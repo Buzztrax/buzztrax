@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.29 2004-12-06 20:18:47 waffel Exp $
+/* $Id: song-io.c,v 1.30 2004-12-09 12:57:57 ensonic Exp $
  * base class for song input and output
  */
  
@@ -6,13 +6,6 @@
 #define BT_SONG_IO_C
 
 #include <libbtcore/core.h>
-
-//-- signal ids
-
-enum {
-  STATUS_CHANGED,
-  LAST_SIGNAL
-};
 
 //-- property ids
 
@@ -33,8 +26,6 @@ struct _BtSongIOPrivate {
 };
 
 static GObjectClass *parent_class=NULL;
-
-static guint signals[LAST_SIGNAL]={0,};
 
 /* list of registered io-classes */
 static GList *plugins=NULL;
@@ -255,7 +246,6 @@ static void bt_song_io_set_property(GObject      *object,
     case SONG_IO_STATUS: {
       g_free(self->priv->status);
       self->priv->status = g_value_dup_string(value);
-      g_signal_emit(G_OBJECT(self), signals[STATUS_CHANGED], 0);
       GST_DEBUG("set the status for song_io: %s",self->priv->status);
     } break;
      default: {
@@ -307,26 +297,6 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
 	
   klass->load           = bt_song_io_real_load;
   klass->save           = bt_song_io_real_save;
-  klass->status_changed = NULL;
-
-  /** 
-	 * BtSongIO::status-changed
-   * @self: the song-io object that emitted the signal
-	 *
-	 * signals that the io-module has progressed with loading or saving.
-   * Access the "status" property of the song-io class to get a human-readable
-   * status message.
-	 */
-  signals[STATUS_CHANGED] = g_signal_new("status-changed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSongIOClass,status_changed),
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
-                                        G_TYPE_NONE, // return type
-                                        0, // n_params
-                                        NULL /* param data */ );
 	
 	g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",

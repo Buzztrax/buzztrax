@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.19 2004-12-09 11:04:52 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.20 2004-12-09 12:57:57 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -34,7 +34,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	gchar *str;
 	
 	g_object_get(G_OBJECT(machine),"id",&str,NULL);
-  GST_INFO("machine id change to \"%s\"",str);
+  GST_INFO("machine id changed to \"%s\"",str);
   gtk_label_set_text(label,str);
 	g_free(str);
 }
