@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.17 2005-02-15 18:32:12 ensonic Exp $
+/* $Id: bt-edit.c,v 1.18 2005-02-23 18:57:15 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
 	bt_threads_init();
 
   // init gtk (before or after bt_init ?)
+	// @todo when starting bt-edit with --help it does not print help for gtk
   gtk_init(&argc,&argv);
 	gdk_rgb_init();
 	// init buzztard core with own popt options
