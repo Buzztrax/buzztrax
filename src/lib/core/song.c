@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.10 2004-05-05 13:53:15 ensonic Exp $
+/** $Id: song.c,v 1.11 2004-05-05 19:49:57 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -50,27 +50,22 @@ static gboolean bt_song_real_load(const BtSong *self, const gchar *filename) {
 			GST_WARNING("the supplied document is not a wellformed XML document");
 		}
 		else {
-			xmlNodePtr cur;
+			xmlNodePtr xml_node;
 			song_doc=ctxt->myDoc;
-			if((cur=xmlDocGetRootElement(song_doc))==NULL) {
+			if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
 				GST_WARNING("xmlDoc is empty");
 			}
-			else if((ns=xmlSearchNsByHref(song_doc,cur,(const xmlChar *)BUZZTARD_NS_URL))==NULL) {
+			else if((ns=xmlSearchNsByHref(song_doc,xml_node,(const xmlChar *)BUZZTARD_NS_URL))==NULL) {
 				GST_WARNING("no or incorrect namespace found in xmlDoc");
 			}
-			else if(xmlStrcmp(cur->name,(const xmlChar *)"buzztard")) {
+			else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
 				GST_WARNING("wrong document type root node in xmlDoc src");
 			}
 			else {
-				xmlNodePtr *xml_node;
 				GST_INFO("file looks good!");
-				// get meta-node
-				// xml_node=("//buzztard/meta");
-				bt_song_info_load(self->private->song_info,xml_node);
-				// get setup-node
-				// bt_setup_load(self->setup,xml_node);
-				// get sequence-node
-				// bt_sequence_load(self->sequence,xml_node);
+				bt_song_info_load(self->private->song_info,song_doc);
+				// bt_setup_load(self->private->setup,song_doc);
+				// bt_sequence_load(self->private->sequence,song_doc);
 				// ... patterns
 				result=TRUE;
 			}

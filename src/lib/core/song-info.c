@@ -1,4 +1,4 @@
-/** $Id: song-info.c,v 1.2 2004-05-05 13:53:15 ensonic Exp $
+/** $Id: song-info.c,v 1.3 2004-05-05 19:49:57 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -21,15 +21,18 @@ struct _BtSongInfoPrivate {
 
 //-- methods
 
-static gboolean bt_song_info_real_load(const BtSongInfo *self, const xmlNodePtr xml_node) {
+static gboolean bt_song_info_real_load(const BtSongInfo *self, const xmlDocPtr song_doc) {
+	xmlNodePtr xml_node;
+	// get meta-node
+	// xml_node=("//buzztard/meta");
 	g_print("loading the meta-data from the song\n");
 	return(TRUE);
 }
 
 //-- wrapper
 
-gboolean bt_song_info_load(const BtSongInfo *self, const xmlNodePtr xml_node) {
-	return(BT_SONG_INFO_GET_CLASS(self)->load(self,xml_node));
+gboolean bt_song_info_load(const BtSongInfo *self, const xmlDocPtr song_doc) {
+	return(BT_SONG_INFO_GET_CLASS(self)->load(self,song_doc));
 }
 
 //-- class internals

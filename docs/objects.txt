@@ -1,34 +1,32 @@
-//$Id: objects.txt,v 1.6 2004-05-04 15:27:17 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.7 2004-05-05 19:49:56 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
-// grep -o "#define BT_[A-Z]*_TYPE" src/lib/core/libbtcore/*.h
+// grep -o "#define Bt_[A-Z]*_TYPE" src/lib/core/libbtcore/*.h
 
-BTMachine {	// no interface, but base-class
-
+BtMachine {	// no interface, but base-class
 	// public methods
 	void bt_machine_mute(BtMachinePtr machine);
-
 }
 
-BTSourceMachine extends BTMachine {
+BtSourceMachine extends BtMachine {
 }
 
-BTProcessorMachine extends BTMachine {
+BtProcessorMachine extends BtMachine {
 }
 
-BTSinkMachine extends BTMachine {
+BtSinkMachine extends BtMachine {
 }
 
-BTWire { // was BTConnection
+BtWire { // was BtConnection
 }
 
-BTSong {
-	// metadata
-	     gchar* name;
-	BTSongInfo* song_info; 
-  BTSequence* sequence;
-	   BTSetup* setup;
+BtSong {
+	// data
+	   gchar* name;
+  BtSongInfo* song_info; //buztard/meta
+  BtSequence* sequence;  //buzztard/sequence
+	 BtSetup* setup;     //buzztard/setup
 
 	// public methods
 	BtSongPtr bt_song_new(void)
@@ -42,37 +40,75 @@ BTSong {
    gboolean bt_song_stop(BtSongPtr song);
 }
 
-BTSequence {
+BtSequence {
 	GList *rows;	// row with pattern id per track
 }
 
-BTSetup {
-	GList *machines;	// each entry points to BTMachine
-	GList *wires;			// each entry points to BTWire
+BtSetup {
+	GList *machines;	// each entry points to BtMachine
+	GList *wires;			// each entry points to BtWire
 }
 
-BTPattern {
+BtPattern {
 	GValue[ticks][params] events;
 }
 
-BTTimeLine {
-	BTPattern* patterns;
+BtTimeLine {
+	BtPattern* patterns;
 	      ???* event;
+}
+
+BtSongIO { // base class (because of factory for import) and virtaul methods
+	void bt_song_io_register_all();
+	GType bt_song_io_detect(const gchar *);
+
+	// we need default implementations for methods like save, that returns an error,
+	// as external plugins might not offer a save method  
+
+	// how does the user select the file-type (and therewith the plugin)?
+	// do we just try them, one after the other until one groks the file
+	//
+	// we need a factory function in the base-class GType bt_song_io_detect(const gchar *)
+  // * when it is called for the first time (static GList *modules is NULL)
+	//   it calls bt_song_io_register_all() which 
+	//   1.) scans plugin-folder
+	//   2.) opens each g_modules
+	//   3.) gets the address of GType bt_song_io_custom_detect(const gchar *);
+	//   4.) stores the g_module handle and the function pointer in a list (uhm, global (static) variable)
+	// * afterwards it
+	//   first tried bt_song_io_native_detect(const gchar *);
+	//   if that fails it further
+	//   iterates the list and calls GType bt_song_io_custom_detect(const gchar *); for each entry
+	//   every entry tests if it can handle the file
+	//   if yes, it does return(bt_song_io_custom_get_type(void));
+	//
+}
+
+BtSongIONative extends BtSongIO { // loads and saves songs in buzztard xml/zip format
+}
+
+BtSongIO<XXXX> extends BtSongIO { // external import export plugins
 }
 
 //------------------------------------------------------------------------------
 
 
-BTSong *mysong=g_object_new(BT_SONG,NULL);
-bt_song_load("~/songs.song.bt);
-bt_song_import("~/songs.song.bmx);
+BtSong *mysong=g_object_new(BT_SONG,NULL);
+//-- loading in the current version
+bt_song_load("~/songs.song.bt");
+bt_song_import("~/songs.song.bmx");
+//-- loading in the new style
+BtSongIO *song_io=g_object_new(bt_song_io_detect(fname),NULL);
+bt_song_io_load(song_io,mysong);
+//-- for saving we need to iterate over the list to get available types
 
 // creating a new wire between two machines
 wire=g_object_new(BT_WIRE,"song",mysong,"src",machine1,"dst",machine2);
-// the constructor of BT_WIRE adds the new instance to mysong->setup->wires
+// the constructor of Bt_WIRE adds the new instance to mysong->setup->wires
 //  -> this is not working as we can't rely upon the construction parameters (src,dst)
 wire=g_object_new(BT_WIRE,"song",mysong);
 // the constructor remembers the ref to the song
 bt_wire_connect(wire,machine1,machine2);
 // this methods initializes the wire and adds it to wire->song->setup->wires
 // -> it needs to g_assert(wire->song);
+

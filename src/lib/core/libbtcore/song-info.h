@@ -1,4 +1,4 @@
-/** $Id: song-info.h,v 1.2 2004-05-05 13:53:29 ensonic Exp $
+/** $Id: song-info.h,v 1.3 2004-05-05 19:49:57 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -32,7 +32,7 @@ struct _BtSongInfoClass {
   GObjectClass parent;
 	
   /* class methods */
-	gboolean (*load)(const BtSongInfo *self, const xmlNodePtr xml_node);
+	gboolean (*load)(const BtSongInfo *self, const xmlDocPtr song_doc);
 };
 
 /* used by SongInfo_TYPE */
