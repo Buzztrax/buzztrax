@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.9 2005-01-11 09:26:39 ensonic Exp $
+/** $Id: e-setup.c,v 1.10 2005-01-12 17:41:04 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -87,9 +87,8 @@ START_TEST(test_btsetup_obj2) {
 	// wire
 	BtWire *wire=NULL;
 	BtWire *ref_wire=NULL;
-	
-	gpointer *iter_ptr;
-	
+	GList *list,*node;
+  	
 	GST_INFO("--------------------------------------------------------------------------------");
 	
 	/* create a dummy app */
@@ -119,7 +118,18 @@ START_TEST(test_btsetup_obj2) {
 	
 	/* try to add the wire to the setup */
 	bt_setup_add_wire(setup, wire);
-	
+	/* try to get the list of wires in the setup */
+  g_object_get(G_OBJECT(setup),"wires",&list,NULL);
+  /* the list should not null */
+  fail_unless(list!=NULL,NULL);
+  
+  /* look, of the added wire is in the list */
+  ref_wire=list->data;
+  fail_unless(ref_wire!=NULL,NULL);
+  fail_unless(wire==BT_WIRE(ref_wire),NULL);
+  /* setting ref_wire back to NULL for next check */
+  ref_wire=NULL;
+  
 	/* try to get the current added wire by the source machine. In this case the 
 	source of the wire is our source machine.*/
 	ref_wire = bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
