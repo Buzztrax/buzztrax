@@ -1,4 +1,4 @@
-/* $Id: song-methods.h,v 1.3 2004-05-04 15:24:59 ensonic Exp $
+/* $Id: song-methods.h,v 1.4 2004-05-04 15:37:39 ensonic Exp $
 * defines all public methods of the song-class
 */
 
@@ -9,7 +9,7 @@
 
 /** load the song from a file
  */
-void bt_song_load(const BtSong *self, const gchar *filename);
+gboolean bt_song_load(const BtSong *self, const gchar *filename);
 
 /** start to play the entire song 
  * at the moment this method does nothing!

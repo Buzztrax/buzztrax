@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.2 2004-05-04 15:24:59 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.3 2004-05-04 15:37:39 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd <filename>
  * to enable debugging add e.g. --gst-debug="*:2,bt-*:3"
@@ -35,12 +35,15 @@ int main(int argc, char **argv) {
 	
 	song = (BtSong *)g_object_new(BT_SONG_TYPE,"name","first buzztard song", NULL);
 
-	bt_song_load(song,argv[1]);
-
-	/* connection play signal and invoking the play_event function */
-  g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);
-	bt_song_start_play(song);
-
+	if(bt_song_load(song,argv[1])) {
+		/* connection play signal and invoking the play_event function */
+		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);
+		bt_song_start_play(song);
+	}
+	else {
+		g_print("could not load song \"%s\"\n",argv[1]);
+	}
+	
 	/* free song */
 	g_object_unref(G_OBJECT(song));
 	

@@ -1,4 +1,4 @@
-/** $Id: song.h,v 1.7 2004-05-04 14:21:52 ensonic Exp $
+/** $Id: song.h,v 1.8 2004-05-04 15:37:39 ensonic Exp $
  * Class for a basic buzztard song
  *
  */
@@ -34,9 +34,9 @@ struct _BtSongClass {
   
   /* id for the play signal */
   guint play_signal_id;
-  /* class method start_play */
+  /* class methods */
+	gboolean (*load)(const BtSong *self, const gchar *filename);
   void (*start_play)(const BtSong *self);
-	void (*load)(const BtSong *self, const gchar *filename);
 };
 
 /* used by SONG_TYPE */

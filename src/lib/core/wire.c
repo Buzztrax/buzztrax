@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.2 2004-05-04 14:21:38 ensonic Exp $
+/** $Id: wire.c,v 1.3 2004-05-04 15:37:39 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -20,6 +20,9 @@ struct _BtWirePrivate {
 };
 
 //-- methods
+
+//static gboolean bt_wire_connect(const BtWire *self, const BtMachine *src, const BtMachine *dst) {
+//}
 
 //-- wrapper
 

@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.7 2004-05-04 15:27:17 ensonic Exp $
+/** $Id: song.c,v 1.8 2004-05-04 15:37:39 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -29,7 +29,8 @@ struct _BtSongPrivate {
 
 //-- methods
 
-static void bt_song_real_load(const BtSong *self, const gchar *filename) {
+static gboolean bt_song_real_load(const BtSong *self, const gchar *filename) {
+	gboolean result=FALSE;
 	xmlParserCtxtPtr ctxt=NULL;
 	xmlDocPtr song_doc=NULL;
 	xmlNsPtr ns=NULL;
@@ -67,13 +68,14 @@ static void bt_song_real_load(const BtSong *self, const gchar *filename) {
 				// get sequence-node
 				// bt_sequence_load(self->sequence,xml_node);
 				// ... meta-data, patterns
+				result=TRUE;
 			}
 		}		
 	}
 	else GST_ERROR("failed to create file-parser context for \"%s\"",filename);
-Error:
 	if(ctxt) xmlFreeParserCtxt(ctxt);
 	if(song_doc) xmlFreeDoc(song_doc);
+	return(result);
 }
 
 static void bt_song_real_start_play(const BtSong *self) {
@@ -86,8 +88,8 @@ static void bt_song_real_start_play(const BtSong *self) {
 
 //-- wrapper
 
-void bt_song_load(const BtSong *self, const gchar *filename) {
-	BT_SONG_GET_CLASS(self)->load(self,filename);
+gboolean bt_song_load(const BtSong *self, const gchar *filename) {
+	return(BT_SONG_GET_CLASS(self)->load(self,filename));
 }
 
 /* wrapper method from song
