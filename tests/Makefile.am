@@ -10,7 +10,7 @@ noinst_PROGRAMS=buzztard
 buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/tests/lib/core/libbtcore.la
 
-check_libgitk_SOURCES= \
+buzztard_SOURCES= \
 	buzztard.c
 
 INCLUDES = \
