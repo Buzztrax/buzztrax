@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.18 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: sequence.c,v 1.19 2004-08-17 13:11:35 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -104,7 +104,9 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
   self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
-  
+  if(self) {
+    bt_sequence_init_timelines(self);
+  }
   return(self);
 }
 
@@ -149,6 +151,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
   glong beats_per_minute, ticks_per_beat;
   gdouble ticks_per_minute;
   gboolean res=TRUE;
+  
+  if(!self->private->tracks) return(res);
+  if(!self->private->length) return(res);
   
   ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
   beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
@@ -258,6 +263,7 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtSequence *self = BT_SEQUENCE(instance);
   self->private = g_new0(BtSequencePrivate,1);
   self->private->dispose_has_run = FALSE;
+  self->private->length=1;
 }
 
 static void bt_sequence_class_init(BtSequenceClass *klass) {
@@ -289,9 +295,9 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
 																	g_param_spec_long("tracks",
                                      "tracks prop",
                                      "number of tracks in the sequence",
-                                     1,
+                                     0,
                                      G_MAXLONG,
-                                     1,
+                                     0,
                                      G_PARAM_READWRITE));
 
 }

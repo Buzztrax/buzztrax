@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.5 2004-08-14 08:12:23 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.6 2004-08-17 13:11:40 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -87,7 +87,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   
   image=create_pixmap("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
+                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
                                 _("Play"),
                                 NULL, NULL,
@@ -107,7 +107,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   image=create_pixmap("stock_repeat.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
+                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
                                 _("Loop"),
                                 NULL, NULL,

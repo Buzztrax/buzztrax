@@ -1,4 +1,4 @@
-$Id: TODO,v 1.14 2004-08-13 20:44:06 ensonic Exp $
+$Id: TODO,v 1.15 2004-08-17 13:11:32 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -7,6 +7,8 @@ run 'make todo' to get a list of todo comments from source
     audio-outputs
     audio-generators (and implement the instrument interface)
     audio-effects
+  * add playing to bt-edit
+    show play-position as time
 
 * how do we implement multiple voices per machine?
   * source 
