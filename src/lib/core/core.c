@@ -1,4 +1,4 @@
-/** $Id: core.c,v 1.3 2004-04-21 14:38:56 ensonic Exp $
+/** $Id: core.c,v 1.4 2004-04-21 14:56:33 ensonic Exp $
  */
 
 #define BT_CORE
@@ -17,3 +17,4 @@ void bt_init(int *argc, char ***argv) {
   gst_control_init(argc,argv);
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 }
+
