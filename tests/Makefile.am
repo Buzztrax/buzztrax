@@ -8,7 +8,8 @@ endif
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=buzztard
 buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
-	$(top_builddir)/tests/lib/core/libbtcore.la
+	$(top_builddir)/src/lib/core/libbtcore.la \
+	$(top_builddir)/tests/lib/core/libbtcore-check.la
 
 buzztard_SOURCES= \
 	buzztard.c buzztard.h

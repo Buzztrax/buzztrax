@@ -9,7 +9,8 @@ libbtcore_la_SOURCES = \
 	libbtcore/version.h \
 	core.c libbtcore/core.h \
 	network.c libbtcore/network.h \
-	libbtcore/pattern.h
+	libbtcore/pattern.h \
+	song.c libbtcore/song.h
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \
