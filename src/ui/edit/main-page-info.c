@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.13 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: main-page-info.c,v 1.14 2004-11-19 18:28:46 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -53,6 +53,63 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   g_object_try_unref(song);
 }
 
+void on_name_changed(GtkEditable *editable,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+
+  g_assert(user_data);
+
+  GST_INFO("name changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+	g_object_set(G_OBJECT(song_info),"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
+void on_genre_changed(GtkEditable *editable,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+
+  g_assert(user_data);
+
+  GST_INFO("genre changed : self=%p -> \"%s\"",self,gtk_entry_get_text(GTK_ENTRY(editable)));
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+	g_object_set(G_OBJECT(song_info),"genre",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
+void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+	gchar *str;
+
+  g_assert(user_data);
+
+  GST_INFO("info changed : self=%p",self);
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+	// @todo get begin and end textiters :(
+	str=gtk_text_buffer_get_text(textbuffer,NULL,NULL,FALSE);
+	g_object_set(G_OBJECT(song_info),"info",str,NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
 //-- helper methods
 
 static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEditApplication *app) {
@@ -75,12 +132,14 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->name=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->name), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	g_signal_connect(G_OBJECT(self->priv->name), "changed", (GCallback)on_name_changed, (gpointer)self);
 
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0,0, 2,1);
   self->priv->genre=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	g_signal_connect(G_OBJECT(self->priv->genre), "changed", (GCallback)on_genre_changed, (gpointer)self);
 
   // second row of hbox
   frame=gtk_frame_new(_("free text info"));
@@ -97,6 +156,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   //gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),1);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
+	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", (GCallback)on_info_changed, (gpointer)self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
@@ -237,4 +297,3 @@ GType bt_main_page_info_get_type(void) {
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.24 2004-11-15 15:06:55 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.25 2004-11-19 18:28:46 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -20,6 +20,9 @@ struct _BtMainPageMachinesPrivate {
 
   /* canvas for machine view */
   GnomeCanvas *canvas;
+	/* canvas background grid */
+	GnomeCanvasItem *grid;
+	
   /* the zoomration in pixels/per unit */
   double zoom;
   
@@ -135,7 +138,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     g_object_try_unref(dst_machine);
     iter=bt_setup_wire_iterator_next(iter);
   }
-
+	gnome_canvas_item_lower_to_bottom(self->priv->grid);
 }
 
 //-- event handler
@@ -210,6 +213,65 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 
 //-- helper methods
 
+static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
+	GnomeCanvasPoints *points;
+	
+	points=gnome_canvas_points_new(2);
+	
+	// @todo support grid-density={off,low,mid,high}
+		
+  points->coords[0]=0.0;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
+  points->coords[2]=0.0;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+                          GNOME_TYPE_CANVAS_LINE,
+                          "points", points,
+                          "fill-color", "gray",
+                          "width-pixels", 1,
+                          NULL);
+  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=0.0;
+	points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]=0.0;
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+                          GNOME_TYPE_CANVAS_LINE,
+                          "points", points,
+                          "fill-color", "gray",
+                          "width-pixels", 1,
+                          NULL);
+  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
+  points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]=-MACHINE_VIEW_ZOOM_Y;
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+                          GNOME_TYPE_CANVAS_LINE,
+                          "points", points,
+                          "fill-color", "gray",
+                          "width-pixels", 1,
+                          NULL);
+  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]= MACHINE_VIEW_ZOOM_Y;
+  points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+                          GNOME_TYPE_CANVAS_LINE,
+                          "points", points,
+                          "fill-color", "gray",
+                          "width-pixels", 1,
+                          NULL);
+  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
+  points->coords[2]=-MACHINE_VIEW_ZOOM_X;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+                          GNOME_TYPE_CANVAS_LINE,
+                          "points", points,
+                          "fill-color", "gray",
+                          "width-pixels", 1,
+                          NULL);
+  points->coords[0]= MACHINE_VIEW_ZOOM_X;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
+  points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
+                          GNOME_TYPE_CANVAS_LINE,
+                          "points", points,
+                          "fill-color", "gray",
+                          "width-pixels", 1,
+                          NULL);
+	gnome_canvas_points_free(points);
+}
+
+
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image,*scrolled_window;
@@ -259,6 +321,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_set_name(button,_("Zoom Out"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Zoom out for better overview"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
+	
+	// @todo add a toolbar icon, where on click we open a popup-menu with grid-density={off,low,mid,high}
   
   // add canvas
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -277,11 +341,15 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   //gtk_widget_pop_colormap();
   gtk_widget_pop_visual();
+	self->priv->grid=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           GNOME_TYPE_CANVAS_GROUP,"x",0,0,"y",0,0,NULL);
+	bt_main_page_machine_draw_grid(self);
+	
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
 
   // generate the context menu
-  self->priv->context_menu=gtk_menu_new();
+  self->priv->context_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.42 2004-11-18 18:37:04 ensonic Exp $
+/* $Id: song-io-native.c,v 1.43 2004-11-19 18:28:38 ensonic Exp $
  * class for native song input and output
  */
  
@@ -92,7 +92,7 @@ xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr cons
   return(result);
 }
 
-//-- helper methods
+//-- loader helper methods
 
 static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node, GObject *object) {
   xmlNodePtr xml_subnode;
@@ -567,7 +567,7 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
 	return(TRUE);
 }
 
-//-- methods
+//-- loader method
 
 gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	const BtSongIONative *self=BT_SONG_IO_NATIVE(_self);
@@ -646,6 +646,36 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	return(result);
 }
 
+//-- saver helper methods
+
+
+static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+	BtSongInfo *song_info;
+	xmlNodePtr xml_node,xml_child_node;
+	gchar *name,*genre,*info;
+	
+	GST_INFO("saving the meta-data to the song");
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+	
+	xml_node=xmlNewChild(root_node,NULL,"meta",NULL);
+	g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"info",&info,NULL);
+  if(info) {
+		xmlNewChild(xml_node,NULL,"info",info);
+		g_free(info);
+	}
+  if(name) {
+		xmlNewChild(xml_node,NULL,"name",name);
+		g_free(name);
+	}
+  if(genre) {
+		xmlNewChild(xml_node,NULL,"genre",genre);
+  	g_free(genre);
+	}
+	g_object_try_unref(song_info);
+}
+
+//-- saver method
+
 gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 	const BtSongIONative *self=BT_SONG_IO_NATIVE(_self);
 	gboolean result=FALSE;
@@ -663,10 +693,13 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 
 	if((song_doc=xmlNewDoc("1.0"))) {
 		// create the root-node
-    root_node = xmlNewNode(NULL,"buzztard");
+    root_node=xmlNewNode(NULL,"buzztard");
 		xmlNewProp(root_node,"xmlns",(const xmlChar *)BT_NS_URL);
-    xmlDocSetRootElement(song_doc, root_node);
+		xmlNewProp(root_node,"xmlns:xsd","http://www.w3.org/2001/XMLSchema-instance");
+		xmlNewProp(root_node,"xsd:noNamespaceSchemaLocation","buzztard.xsd");
+    xmlDocSetRootElement(song_doc,root_node);
 		// @todo build the xml document tree
+		bt_song_io_native_save_song_info(self,song,song_doc,root_node);
 		
 		if(xmlSaveFile(file_name,song_doc)!=-1) {
 			result=TRUE;
