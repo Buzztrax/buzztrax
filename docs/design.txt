@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.9 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.10 2004-02-18 18:04:07 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture (two main modules)
@@ -99,7 +99,7 @@
 	hide channel conversion
 
 * controller ids
-	- define a few standart controler ids to aid cut/copy/paste of pattern data
+	- define a few standart controller ids to aid cut/copy/paste of pattern data
 
 * recording
   ** we record via gstreamer
@@ -114,7 +114,7 @@
 		QUESTION: can we attach drivers to running jackd?
 
 
-* open questions --------------------------------------------------------------
+* open questions
 	** can we have multiple sinks (visualisation, statistics) ?
 		- should the audio_sink be the master?
 		- can we synchronize audio and video?
