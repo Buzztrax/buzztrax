@@ -1,4 +1,4 @@
-/** $Id: t-network.c,v 1.4 2004-09-25 13:38:33 ensonic Exp $
+/** $Id: t-network.c,v 1.5 2004-09-29 11:23:23 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -64,6 +64,7 @@ END_TEST
  * @todo test creating wires with args beeing NULL
  * @todo test creating wires with args beeing nonsense (not BtMachines)
  * @todo test creating machines with wrong names (not existing)
+ * @todo test creating machines of the wrong typ (sink that is a source)
  * @todo test adding machines/wires twice
  */
 

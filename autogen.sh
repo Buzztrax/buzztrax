@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.4 2004-09-24 22:42:08 ensonic Exp $
+# $Id: autogen.sh,v 1.5 2004-09-29 11:23:17 ensonic Exp $
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0
@@ -351,7 +351,7 @@ tool_run "$autopoint --force"
 
 # aclocal
 if test -f acinclude.m4; then rm acinclude.m4; fi
-tool_run "$aclocal" "-I macros $ACLOCAL_FLAGS"
+tool_run "$aclocal" "$ACLOCAL_FLAGS"
 
 tool_run "$intltoolize" "--copy --force --automake"
 tool_run "$libtoolize" "--copy --force"
