@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.42 2004-12-20 17:57:19 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.43 2005-01-10 12:22:08 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -120,7 +120,6 @@ static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble po
 }
 
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
-  gpointer iter;
   GHashTable *properties;
   GnomeCanvasItem *item;
 	BtMachineCanvasItem *src_machine_item,*dst_machine_item;
@@ -128,7 +127,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   BtWire *wire;
   gdouble pos_x,pos_y;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
-  GList *node;
+  GList *node,*list;
   
   // clear the canvas
   GST_DEBUG("before destoying machine canvas items");
@@ -138,21 +137,21 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   GST_DEBUG("done");
 
   // draw all machines
-  iter=bt_setup_machine_iterator_new(setup);
-  while(iter) {
-    machine=bt_setup_machine_iterator_get_machine(iter);
+	g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
     // get position, name and machine type
     g_object_get(machine,"properties",&properties,NULL);
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
     // draw machine
 		machine_item_new(self,machine,pos_x,pos_y);
-    iter=bt_setup_machine_iterator_next(iter);
   }
+	g_list_free(list);
 
   // draw all wires
-  iter=bt_setup_wire_iterator_new(setup);
-  while(iter) {
-    wire=bt_setup_wire_iterator_get_wire(iter);
+  g_object_get(G_OBJECT(setup),"wires",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
     // get positions of source and dest
     g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
     g_object_get(src_machine,"properties",&properties,NULL);
@@ -165,8 +164,8 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
 		wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
     g_object_try_unref(src_machine);
     g_object_try_unref(dst_machine);
-    iter=bt_setup_wire_iterator_next(iter);
   }
+	g_list_free(list);
 	gnome_canvas_item_lower_to_bottom(self->priv->grid);
 	GST_DEBUG("drawing done");
 }

@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.32 2004-12-18 19:16:03 ensonic Exp $
+/* $Id: song-io.c,v 1.33 2005-01-10 12:22:07 ensonic Exp $
  * base class for song input and output
  */
  
@@ -97,8 +97,7 @@ static GType bt_song_io_detect(const gchar *file_name) {
   if(!plugins) bt_song_io_register_plugins();
   
   // try all registered plugins
-  node=plugins;
-  while(node) {
+	for(node=plugins;node;node=g_list_next(node)) {
     detect=(BtSongIODetect)node->data;
     GST_INFO("  trying ...");
     // the detect function return a GType if the file matches to the plugin or NULL otheriwse
@@ -106,7 +105,6 @@ static GType bt_song_io_detect(const gchar *file_name) {
       GST_INFO("  found one!");
       break;
     }
-    node=g_list_next(node);
   }
 	//return(BT_TYPE_SONG_IO_NATIVE);
   return(type);

@@ -1,9 +1,9 @@
-/* $Id: setup.c,v 1.51 2005-01-08 14:22:54 ensonic Exp $
+/* $Id: setup.c,v 1.52 2005-01-10 12:22:07 ensonic Exp $
  * class for machine and wire setup
  */
  
 /* @todo add a methods for dumping the setup as a dot-graph
- * machines and wires should be dumped with details !
+ * machines and wires should be dumped with details (as subgraphs)!
  */
  
 #define BT_CORE
@@ -24,7 +24,9 @@ enum {
 //-- property ids
 
 enum {
-  SETUP_SONG=1
+  SETUP_SONG=1,
+	SETUP_MACHINES,
+	SETUP_WIRES,
 };
 
 struct _BtSetupPrivate {
@@ -82,15 +84,13 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
   BtMachine *search_machine;
 	GList *node;
 	 
-	node=self->priv->wires;
-	while(node) {
+	for(node=self->priv->wires;node;node=g_list_next(node)) {
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
 		if(search_machine==machine) found=TRUE;
     g_object_try_unref(search_machine);
     // @todo return(g_object_ref(wire));
     if(found) return(wire);
-		node=g_list_next(node);
 	}
 	GST_DEBUG("no wire found for %s-machine %p",type,machine);
 	return(NULL);
@@ -224,15 +224,13 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 	  if(node) return(BT_MACHINE(node->data);
 	*/
 	
-  node=self->priv->machines;
-	while(node) {
+	for(node=self->priv->machines;node;node=g_list_next(node)) {
 		machine=BT_MACHINE(node->data);
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
 		if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
     // @todo return(g_object_ref(machine));
     if(found) return(machine);
-		node=g_list_next(node);
 	}
 	GST_DEBUG("no machine found for id \"%s\"",id);
 	return(NULL);
@@ -308,8 +306,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
 	g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
 	g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
 	 
-	node=self->priv->wires;
-	while(node) {
+	for(node=self->priv->wires;node;node=g_list_next(node)) {
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
 		if((src_machine==src) && (dst_machine==dst))found=TRUE;
@@ -317,7 +314,6 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
 		g_object_try_unref(dst_machine);
     // @todo return(g_object_ref(wire));
     if(found) return(wire);
-		node=g_list_next(node);
 	}
 	GST_DEBUG("no wire found for machines %p %p",src,dst);
 	return(NULL);
@@ -334,6 +330,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
  * read from the iterator with bt_setup_machine_iterator_get_machine().
  *
  * Returns: the iterator or NULL
+ * Deprecated: Use the machines property
  */
 gpointer bt_setup_machine_iterator_new(const BtSetup *self) {
   gpointer res=NULL;
@@ -353,6 +350,7 @@ gpointer bt_setup_machine_iterator_new(const BtSetup *self) {
  * Advances the iterator for one element. Read data with bt_setup_machine_iterator_get_machine().
  * 
  * Returns: the new iterator or NULL for end-of-list
+ * Deprecated: Use the machines property
  */
 gpointer bt_setup_machine_iterator_next(gpointer iter) {
 	g_return_val_if_fail(iter,NULL);
@@ -368,6 +366,7 @@ gpointer bt_setup_machine_iterator_next(gpointer iter) {
  * Advance the iterator with bt_setup_machine_iterator_next().
  *
  * Returns: the #BtMachine instance
+ * Deprecated: Use the machines property
  */
 BtMachine *bt_setup_machine_iterator_get_machine(gpointer iter) {
 	g_return_val_if_fail(iter,NULL);
@@ -386,6 +385,7 @@ BtMachine *bt_setup_machine_iterator_get_machine(gpointer iter) {
  * read from the iterator with bt_setup_wire_iterator_get_wire().
  *
  * Returns: the iterator or NULL
+ * Deprecated: Use the wires property
  */
 gpointer bt_setup_wire_iterator_new(const BtSetup *self) {
   gpointer res=NULL;
@@ -405,6 +405,7 @@ gpointer bt_setup_wire_iterator_new(const BtSetup *self) {
  * Advances the iterator for one element. Read data with bt_setup_wire_iterator_get_wire().
  * 
  * Returns: the new iterator or NULL for end-of-list
+ * Deprecated: Use the wires property
  */
 gpointer bt_setup_wire_iterator_next(gpointer iter) {
 	g_return_val_if_fail(iter,NULL);
@@ -420,6 +421,7 @@ gpointer bt_setup_wire_iterator_next(gpointer iter) {
  * Advance the iterator with bt_setup_wire_iterator_next().
  *
  * Returns: the #BtWire instance
+ * Deprecated: Use the wires property
  */
 BtWire *bt_setup_wire_iterator_get_wire(gpointer iter) {
 	g_return_val_if_fail(iter,NULL);
@@ -469,6 +471,12 @@ static void bt_setup_get_property(GObject      *object,
     case SETUP_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
+		case SETUP_MACHINES: {
+			g_value_set_pointer(value,g_list_copy(self->priv->machines));
+		} break;
+		case SETUP_WIRES: {
+			g_value_set_pointer(value,g_list_copy(self->priv->wires));
+		} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -508,28 +516,20 @@ static void bt_setup_dispose(GObject *object) {
 	g_object_try_weak_unref(self->priv->song);
 	// unref list of wires
 	if(self->priv->wires) {
-		node=self->priv->wires;
-		while(node) {
-      {
-        GObject *obj=node->data;
-        GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
-      }
+		for(node=self->priv->wires;node;node=g_list_next(node)) {
+      GObject *obj=node->data;
+      GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
       g_object_try_unref(node->data);
       node->data=NULL;
-			node=g_list_next(node);
 		}
 	}
 	// unref list of machines
 	if(self->priv->machines) {
-		node=self->priv->machines;
-		while(node) {
-      {
-        GObject *obj=node->data;
-        GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
-      }
+		for(node=self->priv->machines;node;node=g_list_next(node)) {
+      GObject *obj=node->data;
+      GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
 			g_object_try_unref(node->data);
       node->data=NULL;
-			node=g_list_next(node);
 		}
 	}
 
@@ -663,6 +663,18 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                      "Set song object, the setup belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SETUP_MACHINES,
+                                  g_param_spec_pointer("machines",
+                                     "machine list prop",
+                                     "A copy of the list of machines",
+                                     G_PARAM_READABLE));
+
+	g_object_class_install_property(gobject_class,SETUP_WIRES,
+                                  g_param_spec_pointer("wires",
+                                     "wire list prop",
+                                     "A copy of the list of wires",
+                                     G_PARAM_READABLE));
 }
 
 GType bt_setup_get_type(void) {

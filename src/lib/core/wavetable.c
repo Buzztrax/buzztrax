@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.1 2004-12-18 17:53:18 ensonic Exp $
+/* $Id: wavetable.c,v 1.2 2005-01-10 12:22:07 ensonic Exp $
  * class for wavetable
  */
 
@@ -10,7 +10,8 @@
 //-- property ids
 
 enum {
-  WAVETABLE_SONG=1
+  WAVETABLE_SONG=1,
+	WAVETABLE_WAVES
 };
 
 struct _BtWavetablePrivate {
@@ -64,6 +65,9 @@ static void bt_wavetable_get_property(GObject      *object,
     case WAVETABLE_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
+		case WAVETABLE_WAVES: {
+			g_value_set_pointer(value,g_list_copy(self->priv->waves));
+		} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -159,6 +163,12 @@ static void bt_wavetable_class_init(BtWavetableClass *klass) {
                                      "Set song object, the wavetable belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,WAVETABLE_WAVES,
+                                  g_param_spec_pointer("waves",
+                                     "wave list prop",
+                                     "A copy of the list of waves",
+                                     G_PARAM_READABLE));
 }
 
 GType bt_wavetable_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.64 2005-01-08 14:22:54 ensonic Exp $
+/* $Id: machine.c,v 1.65 2005-01-10 12:22:07 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -19,7 +19,8 @@ enum {
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
-  MACHINE_INPUT_LEVEL
+  MACHINE_INPUT_LEVEL,
+	MACHINE_PATTERNS
 };
 
 struct _BtMachinePrivate {
@@ -334,15 +335,13 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(id);
   
-  node=self->priv->patterns;
-	while(node) {
+	for(node=self->priv->patterns;node;node=g_list_next(node)) {
 		pattern=BT_PATTERN(node->data);
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
 		if(!strcmp(pattern_id,id)) found=TRUE;
     g_free(pattern_id);
     // @todo return(g_object_ref(pattern));
     if(found) return(pattern);
-		node=g_list_next(node);
 	}
   GST_DEBUG("no pattern found for id \"%s\"",id);
   return(NULL);
@@ -560,6 +559,7 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GVa
  * read from the iterator with bt_machine_pattern_iterator_get_pattern().
  *
  * Returns: the iterator or NULL
+ * Deprecated: Use the patterns property
  */
 gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
   gpointer res=NULL;
@@ -579,6 +579,7 @@ gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
  * Advances the iterator for one element. Read data with bt_machine_pattern_iterator_get_pattern().
  * 
  * Returns: the new iterator or NULL for end-of-list
+ * Deprecated: Use the patterns property
  */
 gpointer bt_machine_pattern_iterator_next(gpointer iter) {
   g_assert(iter);
@@ -593,6 +594,7 @@ gpointer bt_machine_pattern_iterator_next(gpointer iter) {
  * Advance the iterator with bt_machine_pattern_iterator_next().
  *
  * Returns: the #BtPattern instance
+ * Deprecated: Use the patterns property
  */
 BtPattern *bt_machine_pattern_iterator_get_pattern(gpointer iter) {
   g_assert(iter);
@@ -639,6 +641,9 @@ static void bt_machine_get_property(GObject      *object,
     case MACHINE_INPUT_LEVEL: {
       g_value_set_object(value, self->priv->input_level);
     } break;
+		case MACHINE_PATTERNS: {
+			g_value_set_pointer(value,g_list_copy(self->priv->patterns));
+		} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -738,18 +743,24 @@ static void bt_machine_dispose(GObject *object) {
     g_object_unref(self->priv->bin);
   }
 
+	GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
+	GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
+	// seems that gst_dpman_get_dparam() does not ref it, therefore we shouldn't unref it
   g_object_try_unref(self->priv->dparam_manager);
+	
+	GST_DEBUG("  releasing patterns");
 
   // unref list of patterns
 	if(self->priv->patterns) {
-    GList* node=self->priv->patterns;
-		while(node) {
+    GList* node;
+		for(node=self->priv->patterns;node;node=g_list_next(node)) {
 			g_object_try_unref(node->data);
       node->data=NULL;
-			node=g_list_next(node);
 		}
 	}
+
+	GST_DEBUG("  done");
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -866,6 +877,12 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "input-level prop",
                                      "the input-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MACHINE_PATTERNS,
+                                  g_param_spec_pointer("patterns",
+                                     "pattern list prop",
+                                     "A copy of the list of patterns",
                                      G_PARAM_READABLE));
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.39 2005-01-08 14:22:54 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.40 2005-01-10 12:22:08 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -154,10 +154,8 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
 	
   // remove columns
   if((columns=gtk_tree_view_get_columns(self->priv->sequence_table))) {
-    node=g_list_first(columns);
-    while(node) {
+		for(node=g_list_first(columns);node;node=g_list_next(node)) {
       gtk_tree_view_remove_column(self->priv->sequence_table,GTK_TREE_VIEW_COLUMN(node->data));
-      node=g_list_next(node);
     }
     g_list_free(columns);
   }
@@ -204,11 +202,11 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtTimeLine *timeline;
   BtTimeLineTrack *timelinetrack;
   BtPattern *pattern;
-  GtkCellRenderer *renderer;
 	GtkWidget *label;
   gchar *str;
   gulong i,j,col_ct,timeline_ct,track_ct,pos=0;
 	gint col_index;
+  GtkCellRenderer *renderer;
   GtkListStore *store;
 	GtkTreeModel *filtered_store;
   GType *store_types;
@@ -247,14 +245,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   for(i=0;i<timeline_ct;i++) {
     timeline=bt_sequence_get_timeline_by_time(sequence,i);
     gtk_list_store_append(store, &tree_iter);
-		/* set colors
-    gtk_list_store_set(store,&tree_iter,
-      SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
-      SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
-      SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
-      -1);
-		*/
-    // set rest: position, highight-color
+    // set position, highlight-color
     gtk_list_store_set(store,&tree_iter,
 			SEQUENCE_TABLE_POS,pos,
 			SEQUENCE_TABLE_TICK_FG_SET,FALSE,
@@ -305,7 +296,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 	gtk_tree_view_set_model(self->priv->sequence_table,filtered_store);
 
   // build view
-	GST_DEBUG("  build model");
+	GST_DEBUG("  build view");
 	// add initial columns
   sequence_table_init(self);
   // add column for each machine
@@ -370,7 +361,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
   BtPattern *pattern;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  gpointer *iter;
+  GList *node,*list;
   gchar *str,key[2]={0,};
 	gchar *keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	gulong index=0;
@@ -385,9 +376,9 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
   gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
   if(machine) {
     //-- append pattern rows
-    iter=bt_machine_pattern_iterator_new(machine);
-    while(iter) {
-      pattern=bt_machine_pattern_iterator_get_pattern(iter);
+		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+		for(node=list;node;node=g_list_next(node)) {
+      pattern=BT_PATTERN(node->data);
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
 			GST_INFO("  adding \"%s\" at index %d -> '%c'",str,index,keys[index]);
 			key[0]=(index<64)?keys[index]:' ';
@@ -397,9 +388,9 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
       gtk_list_store_append(store, &tree_iter);
       gtk_list_store_set(store,&tree_iter,0,key,1,str,-1);
       g_free(str);
-      iter=bt_machine_pattern_iterator_next(iter);
 			index++;
     }
+		g_list_free(list);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview

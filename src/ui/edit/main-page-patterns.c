@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.30 2005-01-08 14:22:54 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.31 2005-01-10 12:22:08 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -38,6 +38,11 @@ enum {
   MACHINE_MENU_ICON=0,
   MACHINE_MENU_LABEL,
 	MACHINE_MENU_MACHINE
+};
+
+enum {
+  PATTERN_TABLE_POS,
+  PATTERN_TABLE_PRE_CT
 };
 
 //-- tree model helper
@@ -100,27 +105,26 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
 
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
   BtMachine *machine=NULL;
-  gpointer *iter;
 	GtkListStore *store;
+	GList *node,*list;
 
   // update machine menu
   store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
-  iter=bt_setup_machine_iterator_new(setup);
-	
-  while(iter) {
-    machine=bt_setup_machine_iterator_get_machine(iter);
+  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+	for(node=list;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
 		machine_menu_add(self,machine,store);
-    iter=bt_setup_machine_iterator_next(iter);
   }
+	g_list_free(list);
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(machine!=NULL));
 	gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->machine_menu,0);
+  gtk_combo_box_set_active(self->priv->machine_menu,((machine!=NULL)?0:-1));
 	g_object_unref(store); // drop with comboxbox
 }
 
 static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine *machine) {
   BtPattern *pattern=NULL;
-  gpointer *iter;
+  GList *node,*list;
   gchar *str;
 	GtkListStore *store;
 	GtkTreeIter menu_iter;
@@ -128,21 +132,46 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
   // update pattern menu
   store=gtk_list_store_new(1,G_TYPE_STRING);
   if(machine) {
-    iter=bt_machine_pattern_iterator_new(machine);
-    while(iter) {
-      pattern=bt_machine_pattern_iterator_get_pattern(iter);
+		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+		for(node=list;node;node=g_list_next(node)) {
+      pattern=BT_PATTERN(node->data);
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
       GST_INFO("  adding \"%s\"",str);
 			gtk_list_store_append(store,&menu_iter);
 			gtk_list_store_set(store,&menu_iter,0,str,-1);
 			g_free(str);
-      iter=bt_machine_pattern_iterator_next(iter);
     }
+		g_list_free(list);
   }
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
 	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->pattern_menu,0);
+  gtk_combo_box_set_active(self->priv->pattern_menu,((pattern!=NULL)?0:-1));
 	g_object_unref(store); // drop with comboxbox
+}
+
+/**
+ * pattern_table_clear:
+ * @self: the pattern page
+ *
+ * removes old columns
+ */
+static void pattern_table_clear(const BtMainPagePatterns *self) {
+  GList *columns,*node;
+	
+	g_assert(self->priv->pattern_table);
+	
+  // remove columns
+#ifdef USE_GTKGRID
+	GST_INFO("clearing pattern table");
+  if((columns=gtk_grid_get_columns(self->priv->pattern_table))) {
+		GST_INFO("is not empty");
+		for(node=g_list_first(columns);node;node=g_list_next(node)) {
+      gtk_grid_remove_column(self->priv->pattern_table,GTK_GRID_COLUMN(node->data));
+    }
+    g_list_free(columns);
+  }
+#endif
+	GST_INFO("done");
 }
 
 /**
@@ -153,17 +182,72 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
  * rebuild the pattern table after a new pattern has been chosen
  */
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
+	BtMachine *machine;
+	gulong i,number_of_ticks,pos=0;
+  GtkCellRenderer *renderer;
+  GtkListStore *store;
+  GType *store_types;
+	GtkTreeIter tree_iter;
+#ifdef USE_GTKGRID
+  GtkGridColumn *grid_col;
+#endif
+
 	GST_INFO("refresh pattern table");
+	g_assert(BT_IS_PATTERN(pattern));
+	
+	g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"machine",&machine,NULL);
+  GST_INFO("  size is %2d,?",number_of_ticks);
+
+  // reset columns
+	pattern_table_clear(self);
+
+	// build model
+	GST_DEBUG("  build model");
+	store_types=(GType *)g_new(GType *,1);
+	store_types[0]=G_TYPE_STRING;
+	store=gtk_list_store_newv(1,store_types);
+  g_free(store_types);
+	// add events
+  for(i=0;i<number_of_ticks;i++) {
+    //timeline=bt_sequence_get_timeline_by_time(sequence,i);
+    gtk_list_store_append(store, &tree_iter);
+    // set position, highlight-color
+    gtk_list_store_set(store,&tree_iter,
+			PATTERN_TABLE_POS,pos,
+			-1);
+		pos++;
+	}
+#ifdef USE_GTKGRID
+	gtk_grid_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
+#endif
+
+  // build view
+	GST_DEBUG("  build view");
+	// add initial columns
+#ifdef USE_GTKGRID
+  renderer=gtk_cell_renderer_text_new();
+  g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+  grid_col=gtk_grid_column_new_with_attributes(_("Pos."),renderer,
+    "text",PATTERN_TABLE_POS,
+    NULL);
+	gtk_grid_append_column(self->priv->pattern_table,grid_col);
+#endif
+
+	// release the references
+	g_object_unref(store); // drop with gridview
 }
 
 //-- event handler
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	BtPattern *pattern;
 
   g_assert(user_data);
   // refresh pattern view
-	pattern_table_refresh(self,bt_main_page_patterns_get_current_pattern(self));
+	if((pattern=bt_main_page_patterns_get_current_pattern(self))) {
+		pattern_table_refresh(self,pattern);
+	}
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -308,7 +392,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", (GCallback)on_pattern_menu_changed, (gpointer)self);
 
-return(TRUE);
+	return(TRUE);
 }
 
 //-- constructor methods

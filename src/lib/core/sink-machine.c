@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.29 2005-01-06 14:48:30 ensonic Exp $
+/* $Id: sink-machine.c,v 1.30 2005-01-10 12:22:07 ensonic Exp $
  * class for a sink machine
  */
  
@@ -77,6 +77,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
+	// @todo we only need this for GUI apps
   if(!bt_machine_add_input_level(BT_MACHINE(self))) {
     goto Error;
   }

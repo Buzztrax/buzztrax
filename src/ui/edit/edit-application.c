@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.42 2004-12-18 13:31:43 ensonic Exp $
+/* $Id: edit-application.c,v 1.43 2005-01-10 12:22:08 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -108,7 +108,7 @@ Error:
  * Creates a new blank song instance. If there is a previous song instance it
  * will be freed.
  *
- * Returns: true for success
+ * Returns: TRUE for success
  */
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
@@ -116,11 +116,38 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 	
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
-	song=bt_song_new(BT_APPLICATION(self));
-	g_object_set(G_OBJECT(self),"song",song,NULL);
-	res=TRUE;
+	if((song=bt_song_new(BT_APPLICATION(self)))) {
+		BtSetup *setup;
+		BtMachine *machine;
+		gchar *id;
 
-	g_object_unref(song);
+		g_object_get(song,"setup",&setup,NULL);
+		// add audiosink
+		id=bt_setup_get_unique_machine_id(setup,"master");
+		if((machine=BT_MACHINE(bt_sink_machine_new(song,id)))) {
+			GHashTable *properties;
+		
+			g_object_get(machine,"properties",&properties,NULL);
+			if(properties) {
+				gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+				g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
+				g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,0.0)));
+			}
+			bt_setup_add_machine(setup,machine);
+
+			g_object_unref(machine);
+		}
+		g_free(id);
+
+		// set new song
+		g_object_set(G_OBJECT(self),"song",song,NULL);
+
+		// release references
+		g_object_try_unref(setup);
+		g_object_unref(song);
+
+		res=TRUE;
+	}
   return(res);
 }
 

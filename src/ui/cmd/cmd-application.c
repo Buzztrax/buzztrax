@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.41 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: cmd-application.c,v 1.42 2005-01-10 12:22:08 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -159,31 +159,44 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     BtSongInfo *song_info;
     BtSequence *sequence;
     BtSetup *setup;
+		BtMachine *machine;
     gchar *name,*info,*id;
-    glong length,tracks;
+    gulong length,tracks,n_patterns=0;
+		GList *machines,*wires,*patterns,*node;
     
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,NULL);
-		/* print some info about the song */
+		// print some info about the song
     g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,NULL);
     g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
 		g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
     g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
 		g_fprintf(output_file,"song.sequence.length: %d\n",length);
 		g_fprintf(output_file,"song.sequence.tracks: %d\n",tracks);
-    /* lookup a machine and print some info about it */
-    {
-      BtMachine *machine=bt_setup_get_machine_by_id(setup,"audio_sink");
-      if(machine) {
-        g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
-        g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
-        g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
-      }
+		// print some statistics about the song (number of machines, wires, patterns)
+		// @todo more statisticas (waves, gstreamer elements, ...)
+		g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);
+		g_fprintf(output_file,"song.setup.number_of_machines: %d\n",g_list_length(machines));
+		g_fprintf(output_file,"song.setup.number_of_wires: %d\n",g_list_length(wires));
+		for(node=machines;node;node=g_list_next(node)) {
+			g_object_get(G_OBJECT(node->data),"patterns",&patterns,NULL);
+			n_patterns+=g_list_length(patterns);
+			g_list_free(patterns);
+		}
+		g_fprintf(output_file,"song.setup.number_of_patterns: %d\n",n_patterns);
+		g_list_free(machines);
+		g_list_free(wires);
+    // lookup the audio-sink machine and print some info about it (problem, it is not always called audio_sink)
+    if((machine=bt_setup_get_machine_by_id(setup,"audio_sink"))) {
+      g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
+      g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
+      g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
     }
     // release the references
     g_object_try_unref(song_info);
     g_object_try_unref(sequence);
-    g_object_try_unref(setup);    
+    g_object_try_unref(setup);
     res=TRUE;
+		GST_INFO("finished succesfully");
 	}
 	else {
 		GST_ERROR("could not load song \"%s\"",input_file_name);
@@ -237,6 +250,8 @@ static void bt_cmd_application_dispose(GObject *object) {
 
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+	
+  GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -245,6 +260,8 @@ static void bt_cmd_application_dispose(GObject *object) {
 
 static void bt_cmd_application_finalize(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
+
+  GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
 

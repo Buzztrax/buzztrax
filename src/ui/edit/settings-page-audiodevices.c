@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.5 2004-12-10 12:34:03 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.6 2005-01-10 12:22:08 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -82,14 +82,12 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
 	gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
 	g_free(str);
   // add audio sinks gstreamer provides
-  node=self->priv->audiosink_names;ct=1;
-  while(node) {
+	for(node=self->priv->audiosink_names,ct=1;node;node=g_list_next(node),ct++) {
     if(!use_system_audiosink) {
       // compare with audiosink_name and set audiosink_index if equal
       if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
     }
 		gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
-    node=g_list_next(node);ct++;
   }
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
