@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.33 2004-12-03 16:29:37 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.34 2004-12-07 14:17:51 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -344,7 +344,15 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
 			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
 		}
-		// @todo e.g. the pattern view do not find out about this
+		/* @todo e.g. the pattern view does not find out about this
+		 * a) should main-page-machines trigger a "machine-added" signal?
+		 *    then main-window need to make the sub-pages readable properties, so that other pages can listen to the signals
+		 *    but pages should not be depend on each other, if possible
+		 * b) should setup trigger a "machine-added" signal?
+		 *    then the setup need a mechanism to announce bult-additions
+		 *    so that when in bulk-add-mode this signal is not emitted
+		 *    as this would cause lots of refreshes during load
+		 */
 		bt_setup_add_machine(setup,machine);
 
 		// draw machine
@@ -393,7 +401,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
 			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
 		}
-		// @todo e.g. the pattern view do not find out about this
+		// @todo e.g. the pattern view does not find out about this
 		bt_setup_add_machine(setup,machine);
 
 		// draw machine
@@ -560,6 +568,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
 
   // create the context menu
+	// @todo make it a new class that derives from gtk_menu and that hides the complexity of the machine sub menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);

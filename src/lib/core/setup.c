@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.42 2004-12-06 20:18:47 waffel Exp $
+/* $Id: setup.c,v 1.43 2004-12-07 14:17:50 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -6,11 +6,24 @@
  * machines and wires should be dumped with details !
  */
  
+/* @todo add bulk-edit-mode
+ * see bt-edit::main-page-machiners.c::on_source_machine_add_activated()
+ */
  
 #define BT_CORE
 #define BT_SETUP_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  MACHINE_ADDED_EVENT,
+  WIRE_ADDED_EVENT,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
   SETUP_SONG=1
@@ -28,6 +41,8 @@ struct _BtSetupPrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- constructor methods
 
@@ -98,6 +113,7 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 
   if(!g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
+		// @todo emit signal
   }
   else {
     GST_WARNING("trying to add machine again"); 
@@ -117,6 +133,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 
   if(!g_list_find(self->priv->wires,wire)) {
     self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+		// @todo emit signal
   }
   else {
     GST_WARNING("trying to add wire again"); 
