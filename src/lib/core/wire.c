@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.34 2004-10-22 16:15:58 ensonic Exp $
+/* $Id: wire.c,v 1.35 2004-10-26 07:52:16 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -63,6 +63,9 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   
   src=self->priv->src;
   dst=self->priv->dst;
+
+  g_assert(GST_IS_OBJECT(src->src_elem));
+  g_assert(GST_IS_OBJECT(dst->dst_elem));
 
 	GST_DEBUG("trying to link machines directly : %p -> %p",src->src_elem,dst->dst_elem);
 	// try link src to dst {directly, with convert, with scale, with ...}
@@ -228,7 +231,8 @@ static gboolean bt_wire_connect(BtWire *self) {
 			convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",dst));
 			g_assert(convert!=NULL);
 			gst_bin_add(self->priv->bin, convert);
-			if(!gst_element_link_many(dst->dst_elem, convert, dst->machine, NULL)) {
+      GST_DEBUG("  about to link adder -> convert -> dst_elem");
+			if(!gst_element_link_many(dst->adder, convert, dst->dst_elem, NULL)) {
 				GST_ERROR("failed to link the machines internal adder");goto Error;
 			}
 		}
@@ -238,7 +242,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		}
 		// activate adder
 		dst->dst_elem=dst->adder;
-		GST_DEBUG("  adder activated for \"%s\"",gst_element_get_name(dst->machine)); 
+		GST_DEBUG("  adder activated for \"%s\"",gst_element_get_name(dst->machine));
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src_elem, other_wire->dst->dst_elem)) {

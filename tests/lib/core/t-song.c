@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.9 2004-10-26 07:08:03 ensonic Exp $
+/** $Id: t-song.c,v 1.10 2004-10-26 07:52:16 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -55,7 +55,7 @@ START_TEST(test_btsong_obj2) {
   /* create a new song */
 	song=bt_song_new(app);
 	fail_unless(song != NULL, NULL);
-  g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(song);
 
   g_object_checked_unref(app);
 }
@@ -79,8 +79,8 @@ START_TEST(test_btsong_load1) {
 	fail_unless(loader != NULL, NULL);
 	load_ret = bt_song_io_load(loader,song);
 	fail_unless(load_ret, NULL);
-  g_object_checked_unref(G_OBJECT(loader));
-	g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(loader);
+	g_object_checked_unref(song);
 
   g_object_checked_unref(app);
 }
@@ -104,8 +104,8 @@ START_TEST(test_btsong_load2) {
 	fail_unless(loader != NULL, NULL);
 	load_ret = bt_song_io_load(loader,song);
 	fail_unless(load_ret, NULL);
-  g_object_checked_unref(G_OBJECT(loader));
-	g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(loader);
+	g_object_checked_unref(song);
 
 	song=bt_song_new(app);
 	fail_unless(song != NULL, NULL);
@@ -113,8 +113,8 @@ START_TEST(test_btsong_load2) {
 	fail_unless(loader != NULL, NULL);
 	load_ret = bt_song_io_load(loader,song);
 	fail_unless(load_ret, NULL);
-  g_object_checked_unref(G_OBJECT(loader));
-	g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(loader);
+	g_object_checked_unref(song);
   
   g_object_checked_unref(app);
 }
@@ -142,8 +142,8 @@ START_TEST(test_btsong_play1) {
 	g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event_test, NULL);
 	bt_song_play(song);
 	fail_unless(play_signal_invoke, NULL);
-  g_object_checked_unref(G_OBJECT(loader));
-	g_object_checked_unref(G_OBJECT(song));
+  g_object_checked_unref(loader);
+	g_object_checked_unref(song);
 
   g_object_checked_unref(app);
 }

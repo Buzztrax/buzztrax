@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.42 2004-10-22 16:15:57 ensonic Exp $
+/* $Id: machine.c,v 1.43 2004-10-26 07:52:16 ensonic Exp $
  * base class for a machine
  */
  
@@ -144,19 +144,18 @@ gboolean bt_machine_new(BtMachine *self) {
 gboolean bt_machine_add_input_level(BtMachine *self) {
   gboolean res=FALSE;
   
-  /*  
   // add input-level meter
-  if(!(self->priv->input_level=gst_element_factory_make("level","level"))) {
+  if(!(self->priv->input_level=gst_element_factory_make("level",g_strdup_printf("input_level_%p",self)))) {
     GST_ERROR("failed to create machines input level analyser");goto Error;
   }
   g_object_set(G_OBJECT(self->priv->input_level),"interval",0.1, "signal",TRUE, NULL);
   gst_bin_add(self->priv->bin,self->priv->input_level);
-  if(!gst_element_link(self->machine, self->priv->input_level)) {
+  if(!gst_element_link(self->priv->input_level,self->machine)) {
 		GST_ERROR("failed to link the machines input level analyser");goto Error;
 	}
   self->dst_elem=self->priv->input_level;
   //g_signal_connect(sd->pe->level, "level", G_CALLBACK (level_callback), sd->gsgui);
-  */
+  GST_INFO("sucessfully added input level analyser %p",self->priv->input_level);
   res=TRUE;
 Error:
   return(res);
@@ -471,31 +470,50 @@ static void bt_machine_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   // remove the GstElements from the bin
+  // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
   if(self->priv->bin) {
     if(self->machine) {
-      GST_DEBUG("  removing machine from bin, obj->ref_count=%d",G_OBJECT(self->machine)->ref_count);
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->machine));
+      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->machine),(G_OBJECT(self->machine))->ref_count);
       gst_bin_remove(self->priv->bin,self->machine);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
     if(self->adder) {
-      GST_DEBUG("  removing adder from bin, obj->ref_count=%d",G_OBJECT(self->adder)->ref_count);
-       gst_bin_remove(self->priv->bin,self->adder);
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->adder));
+      GST_DEBUG("  removing adder from bin, obj->ref_count=%d",(G_OBJECT(self->adder))->ref_count);
+      gst_bin_remove(self->priv->bin,self->adder);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
     if(self->spreader) {
-      GST_DEBUG("  removing spreader from bin, obj->ref_count=%d",G_OBJECT(self->spreader)->ref_count);
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->spreader));
+      GST_DEBUG("  removing spreader from bin, obj->ref_count=%d",(G_OBJECT(self->spreader))->ref_count);
       gst_bin_remove(self->priv->bin,self->spreader);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
-    // @todo add the rest
-    g_object_try_unref(self->priv->bin);
+    if(self->priv->input_level) {
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->priv->input_level));
+      GST_DEBUG("  removing input_level %p from bin, obj->ref_count=%d",self->priv->input_level,(G_OBJECT(self->priv->input_level))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->input_level);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    }
+    if(self->priv->output_level) {
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->priv->output_level));
+      GST_DEBUG("  removing output_level from bin, obj->ref_count=%d",(G_OBJECT(self->priv->output_level))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->output_level);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    }
+    // release the bin (that is reffed in bt_machine_new() )
+    GST_DEBUG("  releasing the bin, obj->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    g_object_unref(self->priv->bin);
   }
 
   g_object_try_weak_unref(self->priv->song);
   g_object_try_unref(self->priv->dparam_manager);
-  //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  //g_object_try_unref(self->priv->input_level);
-  //g_object_try_unref(self->priv->output_level);
-  //g_object_try_unref(self->machine);
-  //g_object_try_unref(self->adder);
-  //g_object_try_unref(self->spreader);
 
   // unref list of patterns
 	if(self->priv->patterns) {
@@ -520,12 +538,12 @@ static void bt_machine_finalize(GObject *object) {
   g_free(self->priv->voice_dparams);
   g_free(self->priv->global_types);
   g_free(self->priv->global_dparams);
-  g_free(self->priv);
   // free list of patterns
 	if(self->priv->patterns) {
 		g_list_free(self->priv->patterns);
 		self->priv->patterns=NULL;
 	}
+  g_free(self->priv);
 }
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
@@ -534,6 +552,8 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->dispose_has_run = FALSE;
   self->priv->voices=-1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+  
+  GST_DEBUG("!!!! self=%p, self->machine=%p",self,self->machine);
 }
 
 static void bt_machine_class_init(BtMachineClass *klass) {
