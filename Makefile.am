@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.5 2004-05-09 12:59:16 ensonic Exp $
+## $Id: Makefile.am,v 1.6 2004-07-21 13:21:13 ensonic Exp $
 
 SUBDIRS = src tests docs
 
@@ -8,3 +8,5 @@ else
 AM_CFLAGS = -pipe -O3
 endif
 
+todo::
+	find . -name "*.c" -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"

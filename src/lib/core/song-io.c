@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.6 2004-05-11 20:01:23 ensonic Exp $
+/* $Id: song-io.c,v 1.7 2004-07-21 13:21:23 ensonic Exp $
  * base class for song input and output
  */
  
@@ -15,7 +15,7 @@ struct _BtSongIOPrivate {
 //-- helper methods
 
 static void bt_song_io_register_all() {
-  /* @todo implement bt_song_io_register_all() */
+  // @todo implement bt_song_io_register_all()
 }
 
 /**

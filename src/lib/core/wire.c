@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.19 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: wire.c,v 1.20 2004-07-21 13:21:23 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -192,7 +192,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 			dst->adder=gst_element_factory_make("adder",g_strdup_printf("adder_%p",dst));
 			g_assert(dst->adder!=NULL);
 			gst_bin_add(bin, dst->adder);
-			/** @todo this is a workaround for gst not making full caps-nego */
+			// @todo this is a workaround for gst not making full caps-nego
 			convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",dst));
 			g_assert(convert!=NULL);
 			gst_bin_add(bin, convert);

@@ -32,38 +32,24 @@ m4_define(`__NAVBUTTON_ARCHITECTURE',`
 ')m4_dnl
 
 m4_define(`__NAVBUTTON_DEVELOPMENT',`
-	m4_ifelse(m4_index(__NODE,`development'),0,
-	`<a id="menua" href="development.html">Development</a>',
-	`<a id="menu" href="development.html">Development</a>')
+	`<a id="menu" href="/phpwiki/index.php/Welcome%20Developers%21">Development</a>'
 ')m4_dnl
 
 m4_define(`__NAVBUTTON_LINKS',`
-	m4_ifelse(m4_index(__NODE,`links'),0,
-	`<a id="menua" href="links.html">Links</a>',
-	`<a id="menu" href="links.html">Links</a>')
+	`<a id="menu" href="/phpwiki/index.php/Related%20Software%20Packages">Links</a>'
 ')m4_dnl
 
 m4_define(`__NAVBUTTON_OVERVIEW',`
-	m4_ifelse(m4_index(__NODE,`overview'),0,
-	`<a id="menua" href="overview.html">Overview</a>',
-	`<a id="menu" href="overview.html">Overview</a>')
-')m4_dnl
-
-m4_define(`__NAVBUTTON_PUBLICATIONS',`
-	m4_ifelse(m4_index(__NODE,`publications'),0,
-	`<a id="menua" href="publications.html">Publications</a>',
-	`<a id="menu" href="publications.html">Publications</a>')
+	`<a id="menu" href="/phpwiki/index.php/Overview">Overview</a>'
 ')m4_dnl
 
 m4_define(`__NAVBUTTON_STATUS',`
-	m4_ifelse(m4_index(__NODE,`status'),0,
-	`<a id="menua" href="status.html">Status</a>',
-	`<a id="menu" href="status.html">Status</a>')
+	`<a id="menu" href="/phpwiki/index.php/Overview">Status</a>'
 ')m4_dnl
 
-m4_define(`__NAVBUTTON_WIKI',`
-	<a id="menu" href="/phpwiki/">Wiki</a>
-')m4_dnl
+m4_dnl when changing the menu do
+m4_dnl ssh ensonic@shell.sourceforge.net
+m4_dnl vi ./themes/buzztard/templates/sitehead.tmpl
 
 m4_define(`__NAVBAR',`
 		<div id="nav">
@@ -85,11 +71,9 @@ m4_define(`__NAVBAR',`
 						<div id="navi">
 							::: Menu<br><br>
 							__NAVBUTTON_OVERVIEW<br>
-							<!--__NAVBUTTON_ARCHITECTURE<br>-->
 							__NAVBUTTON_STATUS<br>
 							__NAVBUTTON_DEVELOPMENT<br>
-							<!--__NAVBUTTON_LINKS><br-->
-							__NAVBUTTON_WIKI<br>
+							__NAVBUTTON_LINKS<br>
 						</div>
 					</td>
 				</tr>

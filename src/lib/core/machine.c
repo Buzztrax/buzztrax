@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.19 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: machine.c,v 1.20 2004-07-21 13:21:18 ensonic Exp $
  * base class for a machine
  */
  
@@ -48,7 +48,7 @@ struct _BtMachinePrivate {
 
 static gboolean bt_machine_init_gst_element(BtMachine *self) {
 	if(self->machine) {
-		/* @todo change id of machine in gst */
+		// @todo change id of machine in gst
 	}
 	else {
 		if(self->private->id && self->private->plugin_name) {
@@ -69,7 +69,7 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
 				gst_dpman_set_mode(self->private->dparam_manager, "synchronous");
 				GST_DEBUG("  machine \"%s\" supports dparams",self->private->plugin_name);
 				
-				/** @todo manage dparams */
+				// manage dparams
 				specs=gst_dpman_list_dparam_specs(self->private->dparam_manager);
 				// count the specs
 				for(i=0;specs[i];i++);
