@@ -1,4 +1,4 @@
-/* $Id: setup-methods.h,v 1.13 2004-12-10 19:14:37 ensonic Exp $
+/* $Id: setup-methods.h,v 1.14 2004-12-20 17:57:19 ensonic Exp $
  * defines all public methods of the setup class
  */
 
@@ -22,6 +22,7 @@ extern BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong inde
 
 extern BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src);
 extern BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst);
+extern BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,const BtMachine *dst);
 
 extern gpointer bt_setup_machine_iterator_new(const BtSetup *self);
 extern gpointer bt_setup_machine_iterator_next(gpointer iter);

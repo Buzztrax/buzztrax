@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.49 2004-12-18 17:53:18 ensonic Exp $
+/* $Id: setup.c,v 1.50 2004-12-20 17:57:18 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -130,6 +130,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 	g_return_if_fail(BT_IS_WIRE(wire));
 
   if(!g_list_find(self->priv->wires,wire)) {
+		// @todo check for wires with equal src and dst machines
     self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
 		g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
   }
@@ -286,6 +287,41 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
 	return(bt_setup_get_wire_by_machine_type(self,dst,"dst"));
 }
 
+/**
+ * bt_setup_get_wire_by_machines:
+ * @self: the setup to search for the wire
+ * @src: the machine that is at the src end of the wire
+ * @dst: the machine that is at the dst end of the wire
+ *
+ * Searches for a wire in setup that uses the given #BtMachine instances as a
+ * source and dest.
+ *
+ * Returns: the #BtWire or NULL
+ */
+BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,const BtMachine *dst) {
+	gboolean found=FALSE;
+	BtWire *wire=NULL;
+  BtMachine *src_machine,*dst_machine;
+	GList *node;
+
+	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+	g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
+	g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+	 
+	node=self->priv->wires;
+	while(node) {
+		wire=BT_WIRE(node->data);
+    g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
+		if((src_machine==src) && (dst_machine==dst))found=TRUE;
+    g_object_try_unref(src_machine);
+		g_object_try_unref(dst_machine);
+    // @todo return(g_object_ref(wire));
+    if(found) return(wire);
+		node=g_list_next(node);
+	}
+	GST_DEBUG("no wire found for machines %p %p",src,dst);
+	return(NULL);
+}
 
 /**
  * bt_setup_machine_iterator_new:

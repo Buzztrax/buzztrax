@@ -84,7 +84,6 @@
       All the objects that belong to a song have their song-instance as their member.
       Likewise all objects that belong to the applications have their application instance as a member.
 		</para>
-    &libcore;
     &BtApplication;
     &BtGConfSettings;
     &BtMachine;

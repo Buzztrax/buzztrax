@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.41 2004-12-19 21:13:49 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.42 2004-12-20 17:57:19 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -43,7 +43,16 @@ struct _BtMainPageMachinesPrivate {
    */
   GHashTable *machines;	// each entry points to BtMachineCanvasItem
 	GHashTable *wires;			// each entry points to BtWireCanvasItem
+
+  /* interaction state */
+  gboolean connecting,moved;
+  gdouble offx,offy,dragx,dragy;
 	
+	/* used for adding a new wire*/
+	GnomeCanvasItem *new_wire;
+	GnomeCanvasPoints *new_wire_points;
+	BtMachineCanvasItem *new_wire_src,*new_wire_dst;
+
 	/* mouse coodinates on context menu invokation (used for placing machines there */
 	gdouble mouse_x,mouse_y;
 };
@@ -211,6 +220,89 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 	gnome_canvas_points_free(points);
 }
 
+static void bt_main_page_machine_add_wire(const BtMainPageMachines *self) {
+	BtSong *song;
+	BtSetup *setup;
+	BtWire *wire;
+	BtMachine *src_machine,*dst_machine;
+	GHashTable *properties;
+	gdouble pos_xs,pos_ys,pos_xe,pos_ye;
+
+	g_assert(self->priv->new_wire_src);
+	g_assert(self->priv->new_wire_dst);
+	
+	g_object_get(self->priv->app,"song",&song,NULL);
+	g_object_get(song,"setup",&setup,NULL);
+	g_object_get(self->priv->new_wire_src,"machine",&src_machine,NULL);
+	g_object_get(self->priv->new_wire_dst,"machine",&dst_machine,NULL);
+
+	// try to establish a new connection
+	if((wire=bt_wire_new(song,src_machine,dst_machine))) {
+    bt_setup_add_wire(setup,wire);
+
+    g_object_get(src_machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
+    g_object_get(dst_machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
+    // draw wire
+		wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,self->priv->new_wire_src,self->priv->new_wire_dst);
+    g_object_unref(wire);
+  }
+	g_object_try_unref(dst_machine);
+	g_object_try_unref(src_machine);
+	g_object_try_unref(setup);
+	g_object_try_unref(song);
+}
+
+static BtMachineCanvasItem *bt_main_page_machine_get_machine_canvas_item_at(const BtMainPageMachines *self,gdouble mouse_x,gdouble mouse_y) {
+	BtMachineCanvasItem *mitem=NULL;
+	GnomeCanvasItem *ci,*pci;
+
+	GST_INFO("is there a machine at pos ?");
+	
+	if((ci=gnome_canvas_get_item_at(self->priv->canvas,mouse_x,mouse_y))) {
+		g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
+		if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
+			mitem=BT_MACHINE_CANVAS_ITEM(pci);
+			GST_INFO("  yes!");
+		}
+		else g_object_unref(pci);
+	}
+	return(mitem);
+}
+
+static gboolean bt_main_page_machine_check_wire(const BtMainPageMachines *self) {
+	gboolean ret=FALSE;
+	BtSong *song;
+	BtSetup *setup;
+	BtMachine *src_machine,*dst_machine;
+	
+	GST_INFO("can we link to it ?");
+	
+	g_assert(self->priv->new_wire_src);
+	g_assert(self->priv->new_wire_dst);
+
+	g_object_get(self->priv->app,"song",&song,NULL);
+	g_object_get(song,"setup",&setup,NULL);
+	g_object_get(self->priv->new_wire_src,"machine",&src_machine,NULL);
+	g_object_get(self->priv->new_wire_dst,"machine",&dst_machine,NULL);
+	
+	// if the citem->machine is a sink/processor-machine
+	if(BT_IS_SINK_MACHINE(dst_machine) || BT_IS_PROCESSOR_MACHINE(dst_machine)) {
+		// check if these machines are not yet connected
+		if(!bt_setup_get_wire_by_machines(setup,src_machine,dst_machine)) {
+			ret=TRUE;
+			GST_INFO("  yes!");
+		}
+	}
+	g_object_try_unref(dst_machine);
+	g_object_try_unref(src_machine);
+	g_object_try_unref(setup);
+	g_object_try_unref(song);
+	return(ret);
+}
+
+
 //-- event handler
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -303,7 +395,6 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 
 static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-	BtMainWindow *main_window;
 	BtSong *song;
 	BtSetup *setup;
 	BtMachine *machine;
@@ -313,7 +404,7 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 	name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
 	GST_DEBUG("adding source machine \"%s\"",name);
 	
-	g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
+	g_object_get(self->priv->app,"song",&song,NULL);
 	g_object_get(song,"setup",&setup,NULL);
 	
 	id=bt_setup_get_unique_machine_id(setup,name);
@@ -335,12 +426,10 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 	g_free(id);
 	g_object_try_unref(setup);
 	g_object_try_unref(song);
-	g_object_try_unref(main_window);
 }
 
 static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-	BtMainWindow *main_window;
 	BtSong *song;
 	BtSetup *setup;
 	BtMachine *machine;
@@ -351,7 +440,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 	GST_DEBUG("adding processor machine \"%s\"",name);
 	
 	
-	g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
+	g_object_get(self->priv->app,"song",&song,NULL);
 	g_object_get(song,"setup",&setup,NULL);
 	
 	id=bt_setup_get_unique_machine_id(setup,name);
@@ -373,35 +462,105 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 	g_free(id);
 	g_object_try_unref(setup);
 	g_object_try_unref(song);
-	g_object_try_unref(main_window);
 }
 
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
+  GdkCursor *fleur;
+	GnomeCanvasItem *ci,*pci;
+	gdouble mouse_x,mouse_y;
+	gchar *color;
+	BtMachine *machine;
 
   g_assert(user_data);
   switch(event->type) {
     case GDK_BUTTON_PRESS:
-			// @todo store mouse coordinates, so that we can later place a newly added machine there
+			// store mouse coordinates, so that we can later place a newly added machine there
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
-      if(!gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y)) {
+      if(!(ci=gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y))) {
         GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);				
-        //GST_DEBUG("  win.x/y: %f/%f  world.x/y: %f/%f",event->button.x,event->button.y,self->priv->mouse_x,self->priv->mouse_y);
-        GST_DEBUG("  zoom: %f  norm.x/y: %f/%f",self->priv->zoom,
-					self->priv->mouse_x/MACHINE_VIEW_ZOOM_X,self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y);
         if(event->button.button==3) {
           // show context menu
           gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
           res=TRUE;
         }
       }
-      break;
+			else {
+				if((event->button.button==1) && (event->button.state&GDK_SHIFT_MASK)) {
+					g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
+					if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
+						self->priv->new_wire_src=BT_MACHINE_CANVAS_ITEM(pci);
+						g_object_get(G_OBJECT(pci),"machine",&machine,NULL);
+						// if the citem->machine is a source/processor-machine
+						if(BT_IS_SOURCE_MACHINE(machine) || BT_IS_PROCESSOR_MACHINE(machine)) {
+							// handle drawing a new wire
+							self->priv->new_wire_points=gnome_canvas_points_new(2);
+							self->priv->new_wire_points->coords[0]=self->priv->mouse_x;
+							self->priv->new_wire_points->coords[1]=self->priv->mouse_y;
+  						self->priv->new_wire_points->coords[2]=self->priv->mouse_x;
+  						self->priv->new_wire_points->coords[3]=self->priv->mouse_y;
+						  self->priv->new_wire=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           GNOME_TYPE_CANVAS_LINE,
+                           "points", self->priv->new_wire_points,
+                           "fill-color", "red",
+                           "width-pixels", 1,
+                           NULL);
+							gnome_canvas_item_lower_to_bottom(self->priv->new_wire);
+							self->priv->connecting=TRUE;
+							self->priv->moved=FALSE;
+							res=TRUE;
+						}
+						g_object_unref(machine);
+					}
+					else g_object_unref(pci);
+				}
+			}
+			break;
     case GDK_MOTION_NOTIFY:
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
+			if(self->priv->connecting) {
+				if(!self->priv->moved) {
+        	fleur=gdk_cursor_new(GDK_FLEUR);
+        	gnome_canvas_item_grab(self->priv->new_wire, GDK_POINTER_MOTION_MASK |
+          	                    /* GDK_ENTER_NOTIFY_MASK | */
+            	                  /* GDK_LEAVE_NOTIFY_MASK | */
+          GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
+				}
+				// handle setting the coords of the connection line
+				gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
+				self->priv->new_wire_points->coords[2]=mouse_x;
+				self->priv->new_wire_points->coords[3]=mouse_y;
+				color="red";
+				if((self->priv->new_wire_dst=bt_main_page_machine_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
+					if(bt_main_page_machine_check_wire(self)) {
+						color="green";
+					}
+					g_object_unref(self->priv->new_wire_dst);
+				}
+				gnome_canvas_item_set(self->priv->new_wire,"points",self->priv->new_wire_points,"fill-color",color,NULL);
+				self->priv->moved=TRUE;
+        res=TRUE;
+			}
       break;
     case GDK_BUTTON_RELEASE:
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
+			if(self->priv->connecting) {
+				if(self->priv->moved) {
+        	gnome_canvas_item_ungrab(self->priv->new_wire,event->button.time);
+				}
+				gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
+				if((self->priv->new_wire_dst=bt_main_page_machine_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
+					if(bt_main_page_machine_check_wire(self)) {
+						bt_main_page_machine_add_wire(self);
+					}
+					g_object_unref(self->priv->new_wire_dst);
+				}
+				g_object_unref(self->priv->new_wire_src);
+				gtk_object_destroy(GTK_OBJECT(self->priv->new_wire));self->priv->new_wire=NULL;
+				gnome_canvas_points_free(self->priv->new_wire_points);self->priv->new_wire_points=NULL;
+				self->priv->connecting=FALSE;
+			}
       break;
     default:
       break;

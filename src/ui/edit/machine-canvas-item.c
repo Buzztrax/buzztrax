@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.24 2004-12-19 22:08:27 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.25 2004-12-20 17:57:19 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -53,11 +53,8 @@ struct _BtMachineCanvasItemPrivate {
   double zoom;
 
   /* interaction state */
-  gboolean dragging,moved,connecting;
+  gboolean dragging,moved;
   gdouble offx,offy,dragx,dragy;
-
-	/* used for adding a new wire*/
-	GnomeCanvasItem *new_wire;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -486,9 +483,9 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 
 static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *event) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
+  gboolean res=FALSE;
   gdouble dx, dy, px, py;
   GdkCursor *fleur;
-  gboolean res=FALSE;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
   //GST_DEBUG("event for machine occured");
@@ -506,24 +503,13 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d, 0x%x",event->button.button,event->button.state);
       if(event->button.button==1) {
-				if(event->button.state&GDK_SHIFT_MASK) {
-					// if the citem->machine is a source/processor-machine
-					if(BT_IS_SOURCE_MACHINE(self->priv->machine) || BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-						/* @todo handle drawing a new wire (if the citem->machine is a source/processor-machine)
-						 * add a Line Canvas Item
-						 */
-						self->priv->connecting=TRUE;
-					}
-				}
-				else {
-        	// dragx/y coords are world coords of button press
-        	self->priv->dragx=event->button.x;
-        	self->priv->dragy=event->button.y;
-        	// set some flags
-        	self->priv->dragging=TRUE;
-        	self->priv->moved=FALSE;
-				}
-       	res=TRUE;
+       	// dragx/y coords are world coords of button press
+       	self->priv->dragx=event->button.x;
+       	self->priv->dragy=event->button.y;
+       	// set some flags
+       	self->priv->dragging=TRUE;
+       	self->priv->moved=FALSE;
+	     	res=TRUE;
       }
       else if(event->button.button==3) {
         // show context menu
@@ -559,9 +545,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         self->priv->moved=TRUE;
         res=TRUE;
       }
-			else if(self->priv->connecting) {
-				// @todo handle setting the coords of the connection line
-			}
       break;
     case GDK_BUTTON_RELEASE:
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
@@ -572,17 +555,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 				}
         res=TRUE;
       }
-			else if(self->priv->connecting) {
-				gdouble mouse_x,mouse_y;
-				GnomeCanvasItem *ci;
-				/* @todo try to establish a new connection
-				 * (if there is a sink/processor-machine under mouse pointer)
-				 */
-				//gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
-				//ci=gnome_canvas_get_item_at(self->priv->canvas,mouse_x,mouse_y);
-				//GST_INFO("ci=%p",ci);
-				self->priv->connecting=FALSE;
-			}
       break;
     default:
       break;
