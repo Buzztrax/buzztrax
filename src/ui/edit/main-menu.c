@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.5 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: main-menu.c,v 1.6 2004-08-17 15:51:12 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -74,6 +74,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
 
+  //-- file menu
   item=gtk_menu_item_new_with_mnemonic(_("_File"));
   gtk_widget_set_name(item,_("file menu"));
   gtk_container_add(GTK_CONTAINER(self),item);
@@ -110,9 +111,53 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),(gpointer)self);
 
+  // edit menu
+  item=gtk_menu_item_new_with_mnemonic(_("_Edit"));
+  gtk_widget_set_name(item,_("edit menu"));
+  gtk_container_add(GTK_CONTAINER(self),item);
 
+  menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("edit menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_CUT,accel_group);
+  gtk_widget_set_name(subitem,_("cut"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_COPY,accel_group);
+  gtk_widget_set_name(subitem,_("copy"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PASTE,accel_group);
+  gtk_widget_set_name(subitem,_("paste"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,accel_group);
+  gtk_widget_set_name(subitem,_("delete"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_separator_menu_item_new();
+  gtk_widget_set_name(subitem,_("separator"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,accel_group);
+  gtk_widget_set_name(subitem,_("settings"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  
+  // view menu
+  item=gtk_menu_item_new_with_mnemonic(_("_View"));
+  gtk_widget_set_name(item,_("view menu"));
+  gtk_container_add(GTK_CONTAINER(self),item);
+
+  menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("view menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+
+  // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
   gtk_widget_set_name(item,_("help menu"));
+  gtk_menu_item_right_justify(GTK_MENU_ITEM(item));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();

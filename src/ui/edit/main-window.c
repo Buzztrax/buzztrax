@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.12 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: main-window.c,v 1.13 2004-08-17 15:51:12 ensonic Exp $
  * class for the editor main window
  */
 
@@ -107,8 +107,8 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->statusbar),FALSE,FALSE,0);
 
   g_signal_connect(G_OBJECT(self->private->app), "song-changed", (GCallback)song_changed_event, (gpointer)self);
-  
-  //bt_main_window_refresh_ui(self);
+
+  gtk_window_add_accel_group(GTK_WINDOW(self),self->private->accel_group);
 
   return(TRUE);
 }
