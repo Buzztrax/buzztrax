@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.1 2004-12-18 14:44:27 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.2 2004-12-29 12:08:04 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -32,7 +32,7 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
-  GtkWidget *box;
+  GtkWidget *box,*table,*scrolled_window;
 	gchar *id;
 	
   
@@ -48,12 +48,20 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   box=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 	
+	// @todo add preset controls (combobox, edit button)
 	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no preset selection here yet"));
-	// @todo add preset controls (option-menu, edit button)
+
 	// add separator
   gtk_container_add(GTK_CONTAINER(box),gtk_hseparator_new());
-	// @todo add machine controls
-	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no machine controls here yet"));
+	// machine controls inside a scrolled window
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+	// @todo add machine controls into the table
+	table=gtk_vbox_new(FALSE,6);//gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+	gtk_container_add(GTK_CONTAINER(table),gtk_label_new("no machine controls here yet"));
+	gtk_container_add(GTK_CONTAINER(scrolled_window),table);
+	gtk_container_add(GTK_CONTAINER(box),scrolled_window);
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   return(TRUE);

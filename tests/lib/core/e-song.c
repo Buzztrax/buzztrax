@@ -1,4 +1,4 @@
-/** $Id: e-song.c,v 1.1 2004-11-03 16:21:08 waffel Exp $
+/** $Id: e-song.c,v 1.2 2004-12-29 12:08:04 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -63,13 +63,18 @@ START_TEST(test_btsong_load1) {
 	fail_unless(song != NULL, NULL);
 	//gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
 	loader=bt_song_io_new("songs/test-simple1.xml");
+  mark_point();
 	fail_unless(loader != NULL, NULL);
 	//gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
 	load_ret = bt_song_io_load(loader,song);
+  mark_point();
 	fail_unless(load_ret, NULL);
+  
+  mark_point();
   g_object_checked_unref(loader);
+  mark_point();
 	g_object_checked_unref(song);
-
+  mark_point();
   g_object_checked_unref(app);
 }
 END_TEST
@@ -137,6 +142,53 @@ START_TEST(test_btsong_play1) {
 }
 END_TEST
 
+// test, if a newly created song contains empty setup, sequence, song-info and 
+// wavetable
+START_TEST(test_btsong_new1){
+  BtApplication *app=NULL;
+	BtSong *song=NULL;
+  BtSetup *setup=NULL;
+  BtSequence *sequence=NULL;
+  BtSongInfo *songinfo=NULL;
+  BtWavetable *wavetable=NULL;
+  
+  GST_INFO("--------------------------------------------------------------------------------");
+
+  // create a dummy application
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+  // create a new, empty song
+	song=bt_song_new(app);
+	fail_unless(song != NULL, NULL);
+  
+  // get the setup property
+  g_object_get(song,"setup",&setup,NULL);
+  fail_unless(setup!=NULL,NULL);
+  g_object_unref(setup);
+  
+  // get the sequence property
+  g_object_get(song,"sequence",&sequence,NULL);
+  fail_unless(sequence!=NULL,NULL);
+  g_object_unref(sequence);
+  
+  // get the song-info property
+  g_object_get(song,"song-info",&songinfo,NULL);
+  fail_unless(songinfo!=NULL,NULL);
+  g_object_unref(songinfo);
+  
+  // get the wavetable property
+  g_object_get(song,"wavetable",&wavetable,NULL);
+  fail_unless(wavetable!=NULL,NULL);
+  g_object_unref(wavetable);
+  
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+  
+  
+}
+END_TEST
+
 TCase *bt_song_example_tcase(void) {
   TCase *tc = tcase_create("bt_song_exmaple case");
 
@@ -144,6 +196,7 @@ TCase *bt_song_example_tcase(void) {
   tcase_add_test(tc,test_btsong_load1);
   tcase_add_test(tc,test_btsong_load2);
 	tcase_add_test(tc,test_btsong_play1);
+  tcase_add_test(tc,test_btsong_new1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

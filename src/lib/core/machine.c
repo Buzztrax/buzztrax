@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.59 2004-12-18 16:09:14 waffel Exp $
+/* $Id: machine.c,v 1.60 2004-12-29 12:07:51 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -366,6 +366,7 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
  * bt_machine_get_global_dparam_index:
  * @self: the machine to search for the global dparam
  * @name: the name of the global dparam
+ * @error: the error to fill with error message, if an error occurse
  *
  * Searches the list of registered dparam of a machine for a global dparam of
  * the given name and returns the index if found.
@@ -374,18 +375,15 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
  * You should always check g_error if you use this function!
  */
 gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
-  GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
+  GstDParam *dparam=NULL;
   gulong i;
 	gulong ret=0;
 	gboolean found=FALSE;
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
-
-  if((dparam==NULL)) { 
-		GST_ERROR("no dparam named \"%s\" found",name);
-		return(0); 
-	}
+  
+  dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   
   for(i=0;i<self->priv->global_params;i++) {
     if(self->priv->global_dparams[i]==dparam) {
@@ -394,7 +392,7 @@ gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *na
 			break;
 		}
   }
-	if (!found) {
+	if ((dparam==NULL) || !found) {
 		// set g_error
 		g_set_error (error,
 							 	g_quark_from_static_string("BtMachine"), 	/* error domain */
@@ -409,6 +407,7 @@ gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *na
  * bt_machine_get_voice_dparam_index:
  * @self: the machine to search for the voice dparam
  * @name: the name of the voice dparam
+ * @error: the error to fill with error message, if an error occurse
  *
  * Searches the list of registered dparam of a machine for a voice dparam of
  * the given name and returns the index if found.
@@ -417,7 +416,7 @@ gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *na
  * alway check for error if you use this function.
  */
 gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name, GError **error) {
-  GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
+  GstDParam *dparam=NULL;
   gulong i;
 	gulong ret=0;
 	gboolean found=FALSE;
@@ -425,11 +424,8 @@ gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *nam
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
   
-  if((dparam==NULL)) { 
-		GST_ERROR("no dparam named \"%s\" found",name);
-		return(0); 
-	}
-  
+  dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
+ 
   // @todo we need to support multiple voices
   for(i=0;i<self->priv->voice_params;i++) {
     if(self->priv->voice_dparams[i]==dparam) {
@@ -438,7 +434,7 @@ gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *nam
 			break;
 		}
   }
-		if (!found) {
+		if ((dparam==NULL) || !found) {
 		// set g_error
 		g_set_error (error,
 							 	g_quark_from_static_string("BtMachine"), 	/* error domain */

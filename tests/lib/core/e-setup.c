@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.6 2004-12-18 16:12:39 waffel Exp $
+/** $Id: e-setup.c,v 1.7 2004-12-29 12:08:04 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -180,8 +180,8 @@ START_TEST(test_btsetup_obj3) {
 END_TEST
 
 /**
-* In this test we demonstrate how to remove a machine from the setup after the 
-* same machine is added to the setup.
+* In this test we demonstrate how to remove a wire from the setup after the 
+* same wire is added to the setup.
 */
 START_TEST(test_btsetup_obj4) {
 	BtApplication *app=NULL;

@@ -1,4 +1,4 @@
-/** $Id: t-wire.c,v 1.3 2004-10-22 16:15:58 ensonic Exp $
+/** $Id: t-wire.c,v 1.4 2004-12-29 12:08:04 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -29,7 +29,7 @@ START_TEST(test_btwire_obj1){
 	BtSong *song=NULL;
 	BtWire *wire=NULL;
 	// machine
-	BtSourceMachine *machine=NULL;
+	BtProcessorMachine *machine=NULL;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
 	
@@ -39,21 +39,69 @@ START_TEST(test_btwire_obj1){
   
   /* create a new song */
 	song=bt_song_new(app);
-	
+	fail_unless(song!=NULL,NULL);
+  
 	/* try to create a source machine */
-	machine=bt_source_machine_new(song,"genrator1","sinesource",1);
-	
+	machine=bt_processor_machine_new(song,"id","volume",1);
+  fail_unless(machine!=NULL,NULL);
+  
+  check_init_error_trapp("bt_wire_new","src_machine!=dst_machine");
 	/* try to add the machine twice to the wire */
 	wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine));
-	// this should fail and the wire should be null
-	fail_unless(wire==NULL, NULL);
+  fail_unless(check_has_error_trapped(), NULL);
+  fail_unless(wire==NULL,NULL);
+}
+END_TEST
+
+START_TEST(test_btwire_obj2){
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtWire *wire1=NULL;
+  BtWire *wire2=NULL;
+  BtSourceMachine *sinesrc=NULL;
+  BtProcessorMachine *volume1=NULL;
+  BtProcessorMachine *volume2=NULL;
+  
+  GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  
+  /* try to create a source machine */
+	sinesrc=bt_source_machine_new(song,"id","sinesrc",1);
+  fail_unless(sinesrc!=NULL,NULL);
+  
+  /* try to create a volume machine */
+  volume1=bt_processor_machine_new(song,"volume1","volume",1);
+  fail_unless(volume1!=NULL,NULL);
+  
+  /* try to create a volume machine */
+  volume2=bt_processor_machine_new(song,"volume2","volume",1);
+  fail_unless(volume2!=NULL,NULL);
+  
+  /* try to connect processor machine to volume1 */
+  wire1=bt_wire_new(song,BT_MACHINE(sinesrc),BT_MACHINE(volume1));
+  mark_point();
+  fail_unless(wire1!=NULL,NULL);
+  
+  /* try to connect processor machine to volume2 */
+  wire2=bt_wire_new(song,BT_MACHINE(sinesrc),BT_MACHINE(volume2));
+  mark_point();
+  fail_unless(wire2!=NULL,NULL);
+  
 }
 END_TEST
 
 TCase *bt_wire_obj_tcase(void) {
   TCase *tc = tcase_create("bt_wire case");
 
-  //tcase_add_test(tc,test_btwire_obj1);
+  tcase_add_test(tc,test_btwire_obj1);
+  tcase_add_test(tc,test_btwire_obj2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

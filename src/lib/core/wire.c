@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.42 2004-12-15 11:22:42 ensonic Exp $
+/* $Id: wire.c,v 1.43 2004-12-29 12:07:52 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -264,12 +264,12 @@ Error:
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
   BtWire *self;
   
-  g_assert(BT_IS_SONG(song));
-  g_assert(BT_IS_MACHINE(src_machine));
-  g_assert(!BT_IS_SINK_MACHINE(src_machine));
-  g_assert(BT_IS_MACHINE(dst_machine));
-  g_assert(!BT_IS_SOURCE_MACHINE(dst_machine));
-  g_assert(src_machine!=dst_machine);
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(src_machine),NULL);
+  g_return_val_if_fail(!BT_IS_SINK_MACHINE(src_machine),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(dst_machine),NULL);
+  g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(dst_machine),NULL);
+  g_return_val_if_fail( (src_machine!=dst_machine) ,NULL);
 
   if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
 		goto Error;
