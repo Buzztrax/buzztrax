@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.29 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-page-machines.c,v 1.30 2004-12-01 14:06:07 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -174,6 +174,8 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 	if(!self->priv->grid_density) return;
 	
 	points=gnome_canvas_points_new(2);
+	
+	// @todo check zoom sizes to draw a wider range ?
 	
   // low=1->2, mid=2->4, high=3->8
   step=(MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X)/(gdouble)(1<<self->priv->grid_density);
@@ -574,8 +576,6 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   
   self->priv->machines=g_hash_table_new(g_direct_hash,g_direct_equal);
   self->priv->wires=g_hash_table_new(g_direct_hash,g_direct_equal);
-	
-	GST_INFO("initialized #####");
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
