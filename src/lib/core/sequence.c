@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.51 2005-01-15 22:02:51 ensonic Exp $
+/* $Id: sequence.c,v 1.52 2005-01-18 16:38:35 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -309,7 +309,10 @@ gboolean bt_sequence_play(const BtSequence *self) {
   
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
 
-  if((!self->priv->tracks) || (!self->priv->length)) return(res);
+  if((!self->priv->tracks) || (!self->priv->length)) {
+		GST_INFO("skip playing (no tracks or no timeline at all");
+		return(res);
+	}
   else {
     BtTimeLine **timeline;
     BtSongInfo *song_info;

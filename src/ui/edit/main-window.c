@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.47 2005-01-16 14:20:42 waffel Exp $
+/* $Id: main-window.c,v 1.48 2005-01-18 16:38:37 ensonic Exp $
  * class for the editor main window
  */
 
@@ -227,7 +227,9 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
-      // @todo show error message
+			gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
+			bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
+			g_free(msg);
     }
     g_free(file_name);
   }
@@ -253,7 +255,9 @@ void bt_main_window_save_song(const BtMainWindow *self) {
 	// check the file_name of the song
 	if(file_name) {
     if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-      // @todo show error message
+			gchar *msg=g_strdup_printf(_("An error occured while trying to save the song to file '%s'"),file_name);
+			bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
+			g_free(msg);
     }
 	}
 	else {
@@ -303,7 +307,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       GST_WARNING("unhandled response code = %d",result);
   }
   gtk_widget_destroy(dialog);
-  // load after destoying the dialog, otherwise it stays open all time
+  // save after destoying the dialog, otherwise it stays open all time
   if(file_name) {
 		FILE *file;
 		gboolean cont=TRUE;
@@ -315,11 +319,16 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 			fclose(file);
 		}
 		else {
-			GST_INFO("file can not be opened : %d : %s",errno,strerror(errno));
+			const gchar *reason=(const gchar *)strerror(errno);
+			gchar *msg;
+
+			GST_INFO("file can not be opened : %d : %s",errno,reason);
 			switch(errno) {
 				case EACCES:	// Permission denied.
-					// @ todo tell user
 					cont=FALSE;
+					msg=g_strdup_printf(_("An error occured while trying to open the file '%s' for writing : %s"),file_name,reason);
+					bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
+					g_free(msg);
 					break;
 				default:
 					// ENOENT A component of the path file_name does not exist, or the path is an empty string.
@@ -329,7 +338,9 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 		}
 		if(cont) {
 			if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-				// @todo show error message
+				gchar *msg=g_strdup_printf(_("An error occured while trying to save the song to file '%s'"),file_name);
+				bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
+				g_free(msg);
 			}
 		}
     g_free(file_name);

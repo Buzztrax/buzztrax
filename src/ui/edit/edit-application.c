@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.45 2005-01-16 14:20:41 waffel Exp $
+/* $Id: edit-application.c,v 1.46 2005-01-18 16:38:37 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -213,7 +213,6 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
   GST_INFO("song name = %s",file_name);
-
 
   if((saver=bt_song_io_new(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);

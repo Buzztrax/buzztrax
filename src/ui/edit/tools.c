@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.5 2005-01-15 22:02:53 ensonic Exp $
+/* $Id: tools.c,v 1.6 2005-01-18 16:38:37 ensonic Exp $
  * gui helper
  */
 
@@ -107,6 +107,11 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   gchar *str; 
   GtkWidget *dialog;
 	
+	g_assert(BT_IS_MAIN_WINDOW(self));
+	g_assert(title);
+	g_assert(headline);
+	g_assert(message);
+
 	dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -119,7 +124,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   
-	// @todo if headline is NULL use title ?
+	// @idea if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
   gtk_label_set_markup(GTK_LABEL(label),str);
@@ -148,6 +153,11 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   GtkWidget *label,*icon,*box;
   gchar *str; 
   GtkWidget *dialog;
+
+	g_assert(BT_IS_MAIN_WINDOW(self));
+	g_assert(title);
+	g_assert(headline);
+	g_assert(message);
 	
 	dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),
@@ -162,7 +172,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   
-	// @todo if headline is NULL use title ?
+	// @idea if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
   gtk_label_set_markup(GTK_LABEL(label),str);

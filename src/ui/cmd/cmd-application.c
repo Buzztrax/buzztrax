@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.47 2005-01-16 15:54:05 ensonic Exp $
+/* $Id: cmd-application.c,v 1.48 2005-01-18 16:38:37 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -236,7 +236,9 @@ Error:
  */
 gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
-
+	BtSong *song=NULL;
+	BtSongIO *loader=NULL,*saver=NULL;
+	
   g_assert(BT_IS_CMD_APPLICATION(self));
 
   if(!is_string(input_file_name)) {
@@ -246,10 +248,34 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
     goto Error;
   }
 
-  // @todo implement me (determine output format by filename?)
-  g_printf("sorry this is not yet implemented\n");
-
+  // prepare song and song-io
+  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
+    goto Error;
+  }
+	if(!(loader=bt_song_io_new(input_file_name))) {
+    goto Error;
+  }
+	if(!(saver=bt_song_io_new(output_file_name))) {
+    goto Error;
+  }
+	
+	GST_INFO("objects initialized");
+	
+	if(bt_song_io_load(loader,song)) {
+	   if(bt_song_io_save(saver,song)) {
+      res=TRUE;
+    }
+    else {
+      GST_ERROR("could not save song \"%s\"",output_file_name);
+    }
+ 	}
+	else {
+		GST_ERROR("could not load song \"%s\"",input_file_name);
+	}
 Error:
+  g_object_try_unref(song);
+  g_object_try_unref(loader);
+  g_object_try_unref(saver);
 	return(res);	
 }
 
@@ -283,6 +309,7 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
    *   BtPlayline (uses gst_element_wait()), BtRenderline (uses gst_bin_iterate())
 	 * - the play methods need refactoring, as the caller needs to pass the BtTimelineCursor
 	 *   maybe rename bt_sequence_play -> bt_sequence_run
+	 * can we enforce a certain buffersize, so that we can push new events after each iterate?
 	 */
   g_printf("sorry this is not yet implemented\n");
 

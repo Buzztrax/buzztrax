@@ -15,7 +15,7 @@ DOC_SOURCE_DIR=$(top_builddir)/src/ui/cmd
 SCANOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
 
 # Extra options to supply to gtkdoc-scan.
-SCAN_OPTIONS=
+SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
 
 # Extra options to supply to gtkdoc-mkdb.
 MKDB_OPTIONS=--output-format=xml --sgml-mode --ignore-files=parse
