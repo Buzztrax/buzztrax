@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.23 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: wire.c,v 1.24 2004-09-20 16:44:28 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -270,13 +270,13 @@ static void bt_wire_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
-      g_value_set_object(value, G_OBJECT(self->private->song));
+      g_value_set_object(value, self->private->song);
     } break;
     case WIRE_SRC: {
-      g_value_set_object(value, G_OBJECT(self->private->src));
+      g_value_set_object(value, self->private->src);
     } break;
     case WIRE_DST: {
-      g_value_set_object(value, G_OBJECT(self->private->dst));
+      g_value_set_object(value, self->private->dst);
     } break;
     default: {
       g_assert(FALSE);

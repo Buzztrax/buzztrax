@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.26 2004-09-16 17:00:03 ensonic Exp $
+/* $Id: sequence.c,v 1.27 2004-09-20 16:44:28 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -362,7 +362,7 @@ static void bt_sequence_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_SONG: {
-      g_value_set_object(value, G_OBJECT(self->private->song));
+      g_value_set_object(value, self->private->song);
     } break;
     case SEQUENCE_LENGTH: {
       g_value_set_long(value, self->private->length);
@@ -387,8 +387,9 @@ static void bt_sequence_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_SONG: {
-      g_object_try_unref(self->private->song);
-      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      g_object_try_weak_unref(self->private->song);
+      self->private->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->private->song);
       //GST_DEBUG("set the song for sequence: %p",self->private->song);
     } break;
     case SEQUENCE_LENGTH: {
@@ -462,7 +463,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
   klass->tick_signal_id = g_signal_new("tick",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        NULL, // class closure
+                                        0, // class offset
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__LONG,

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.9 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.10 2004-09-20 16:44:29 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -176,7 +176,7 @@ static void bt_main_statusbar_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_STATUSBAR_APP: {
-      g_value_set_object(value, G_OBJECT(self->private->app));
+      g_value_set_object(value, self->private->app);
     } break;
     default: {
  			g_assert(FALSE);
@@ -223,6 +223,10 @@ static void bt_main_statusbar_finalize(GObject *object) {
   
   GST_DEBUG("!!!! self=%p",self);
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {

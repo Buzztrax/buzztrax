@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.5 2004-09-15 16:57:57 ensonic Exp $
+/* $Id: application.c,v 1.6 2004-09-20 16:44:28 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -17,22 +17,11 @@ struct _BtApplicationPrivate {
 	
 	/* the main gstreamer container element */
 	GstElement *bin;
+  /* a reference to the buzztard settings object */
+  BtSettings *settings;
 };
 
 //-- methods
-
-/**
- * bt_application_bin_flush:
- * @self: the application instnace to cleanup
- *
- * Destroys all gstreamer plugins loaded by a song
- * and prepares anew pipeline. Call this between
- * g_object_unref(song) and song=bt_song_new(...).
- */
-void bt_application_bin_flush(const BtApplication *self) {
-	//gst_object_unref(GST_OBJECT(self->private->bin));
-  //self->private->bin = gst_thread_new("thread");
-}
 
 //-- wrapper
 
@@ -48,7 +37,7 @@ static void bt_application_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case APPLICATION_BIN: {
-      g_value_set_object(value, G_OBJECT(self->private->bin));
+      g_value_set_object(value, self->private->bin);
     } break;
     default: {
       g_assert(FALSE);

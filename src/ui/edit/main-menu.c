@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.9 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: main-menu.c,v 1.10 2004-09-20 16:44:29 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -223,7 +223,7 @@ static void bt_main_menu_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_MENU_APP: {
-      g_value_set_object(value, G_OBJECT(self->private->app));
+      g_value_set_object(value, self->private->app);
     } break;
     default: {
  			g_assert(FALSE);
@@ -269,6 +269,10 @@ static void bt_main_menu_finalize(GObject *object) {
   BtMainMenu *self = BT_MAIN_MENU(object);
   
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {

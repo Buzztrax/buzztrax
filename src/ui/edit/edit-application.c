@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.15 2004-09-16 17:00:22 ensonic Exp $
+/* $Id: edit-application.c,v 1.16 2004-09-20 16:44:29 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -33,14 +33,14 @@ gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   
   if(self->private->song) {
-    GObject *object=G_OBJECT(self->private->song);
-    GST_INFO("1. song->ref_ct=%d",object->ref_count);
+    //GObject *object=G_OBJECT(self->private->song);
+    GST_INFO("1. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
     g_object_unref(self->private->song);
-    GST_INFO("2. song->ref_ct=%d",object->ref_count);
+    GST_INFO("2. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
   }
-  bt_application_bin_flush(BT_APPLICATION(self));
   if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
     res=TRUE;
+    GST_INFO("0. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
   }
   return(res);
 }
@@ -190,10 +190,10 @@ static void bt_edit_application_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      g_value_set_object(value, G_OBJECT(self->private->song));
+      g_value_set_object(value, self->private->song);
     } break;
     case EDIT_APPLICATION_MAIN_WINDOW: {
-      g_value_set_object(value, G_OBJECT(self->private->main_window));
+      g_value_set_object(value, self->private->main_window);
     } break;
     default: {
  			g_assert(FALSE);
@@ -246,6 +246,10 @@ static void bt_edit_application_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) {
@@ -275,7 +279,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   klass->song_changed_signal_id = g_signal_newv("song-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        NULL, // class closure
+                                        0, // class offset
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

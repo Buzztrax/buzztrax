@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.6 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: main-page-info.c,v 1.7 2004-09-20 16:44:29 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -140,7 +140,7 @@ static void bt_main_page_info_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_INFO_APP: {
-      g_value_set_object(value, G_OBJECT(self->private->app));
+      g_value_set_object(value, self->private->app);
     } break;
     default: {
  			g_assert(FALSE);
@@ -186,6 +186,10 @@ static void bt_main_page_info_finalize(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {

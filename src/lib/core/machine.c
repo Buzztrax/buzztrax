@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.26 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: machine.c,v 1.27 2004-09-20 16:44:28 ensonic Exp $
  * base class for a machine
  */
  
@@ -314,7 +314,7 @@ static void bt_machine_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
-      g_value_set_object(value, G_OBJECT(self->private->song));
+      g_value_set_object(value, self->private->song);
     } break;
     case MACHINE_ID: {
       g_value_set_string(value, self->private->id);

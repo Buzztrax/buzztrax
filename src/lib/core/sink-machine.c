@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.9 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: sink-machine.c,v 1.10 2004-09-20 16:44:28 ensonic Exp $
  * class for a sink machine
  */
  
@@ -93,6 +93,10 @@ static void bt_sink_machine_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {

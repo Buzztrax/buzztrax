@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.8 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: bt-edit.c,v 1.9 2004-09-20 16:44:29 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -63,8 +63,7 @@ int main(int argc, char **argv) {
   GST_DEBUG("exiting ...");
 	// free application
   {
-    GObject *object=G_OBJECT(app);
-    GST_INFO("app->ref_ct=%d",object->ref_count);
+    GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   }
 	g_object_unref(app);
 	return(!res);

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.7 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.8 2004-09-20 16:44:29 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -210,7 +210,7 @@ static void bt_main_page_machines_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_MACHINES_APP: {
-      g_value_set_object(value, G_OBJECT(self->private->app));
+      g_value_set_object(value, self->private->app);
     } break;
     default: {
  			g_assert(FALSE);
@@ -256,6 +256,10 @@ static void bt_main_page_machines_finalize(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
   
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class) {

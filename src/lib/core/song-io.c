@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.15 2004-09-16 17:00:03 ensonic Exp $
+/* $Id: song-io.c,v 1.16 2004-09-20 16:44:28 ensonic Exp $
  * base class for song input and output
  */
  
@@ -236,7 +236,7 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
   klass->status_changed_signal_id = g_signal_newv("status-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        NULL, // class closure
+                                        0, // class offset
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

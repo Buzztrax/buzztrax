@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.27 2004-09-15 16:57:59 ensonic Exp $
+/* $Id: cmd-application.c,v 1.28 2004-09-20 16:44:29 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -223,6 +223,10 @@ static void bt_cmd_application_finalize(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
   g_free(self->private);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {

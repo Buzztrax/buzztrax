@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.40 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: song.c,v 1.41 2004-09-20 16:44:28 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -45,7 +45,7 @@ BtSong *bt_song_new(const GstBin *bin) {
     self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
   }
   else {
-     GST_ERROR("app has no bin");
+     GST_ERROR("bin should not be NULL");
   }
   return(self);
 }
@@ -176,10 +176,10 @@ static void bt_song_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_BIN: {
-      g_value_set_object(value, G_OBJECT(self->private->bin));
+      g_value_set_object(value, self->private->bin);
     } break;
     case SONG_MASTER: {
-      g_value_set_object(value, G_OBJECT(self->private->master));
+      g_value_set_object(value, self->private->master);
     } break;
     default: {
       g_assert(FALSE);
@@ -272,7 +272,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   klass->play_signal_id = g_signal_newv("play",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        NULL, // class closure
+                                        0, // class offset
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
@@ -289,7 +289,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   klass->stop_signal_id = g_signal_newv("stop",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        NULL, // class closure
+                                        0, // class offset
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

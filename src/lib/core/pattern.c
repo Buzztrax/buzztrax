@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.9 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: pattern.c,v 1.10 2004-09-20 16:44:28 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -303,7 +303,7 @@ static void bt_pattern_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case PATTERN_SONG: {
-      g_value_set_object(value, G_OBJECT(self->private->song));
+      g_value_set_object(value, self->private->song);
     } break;
     case PATTERN_ID: {
       g_value_set_string(value, self->private->id);
@@ -318,7 +318,7 @@ static void bt_pattern_get_property(GObject      *object,
       g_value_set_long(value, self->private->voices);
     } break;
     case PATTERN_MACHINE: {
-      g_value_set_object(value, G_OBJECT(self->private->machine));
+      g_value_set_object(value, self->private->machine);
     } break;
     default: {
       g_assert(FALSE);

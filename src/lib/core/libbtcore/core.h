@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.33 2004-09-16 17:00:22 ensonic Exp $
+/* $Id: core.h,v 1.34 2004-09-20 16:44:28 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -78,6 +78,7 @@
 #include "sequence-methods.h"
 #include "song-io-methods.h"
 #include "song-io-native-methods.h"
+#include "settings-methods.h"
 #include "application-methods.h"
 #include "tools.h"
 #include "version.h"
@@ -155,6 +156,8 @@
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
+#define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),&obj);
+#define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),&obj);
 
 #ifndef BT_CORE_C
 	extern void bt_init(int *argc, char ***argv, struct poptOption *options);
