@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.15 2005-01-28 19:39:03 waffel Exp $
+/** $Id: e-setup.c,v 1.16 2005-01-31 19:05:05 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -371,6 +371,9 @@ START_TEST(test_btsetup_wire2) {
 }
 END_TEST
 
+/**
+* In this example you can see, how we get a source machine back by its type.
+*/
 START_TEST(test_btsetup_machine1) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
@@ -399,12 +402,11 @@ START_TEST(test_btsetup_machine1) {
 	/* try to add the machine to the setup. We must do this. */
 	bt_setup_add_machine(setup, BT_MACHINE(source));
 	
-	/* new try to get the machine back via bt_setup_get_machine_by_type */
+	/* now try to get the machine back via bt_setup_get_machine_by_type */
 	machine_type=G_OBJECT_TYPE(source);
 	ref_machine=bt_setup_get_machine_by_type(setup, machine_type);
 	fail_unless(BT_IS_SOURCE_MACHINE(ref_machine),NULL);
 	fail_unless(ref_machine==BT_MACHINE(source),NULL);
-	
 }
 END_TEST
 
