@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.33 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: main-window.c,v 1.34 2004-12-08 18:17:32 ensonic Exp $
  * class for the editor main window
  */
 
@@ -174,47 +174,8 @@ gboolean bt_main_window_run(const BtMainWindow *self) {
  * Returns: TRUE if the user has confirmed to exit
  */
 gboolean bt_main_window_check_quit(const BtMainWindow *self) {
-  gboolean quit=FALSE;
-  gint result;
-  GtkWidget *label,*icon,*box;
-  gchar *str; 
-  GtkWidget *dialog = gtk_dialog_new_with_buttons(_("Really quit ?"),
-                                                  GTK_WINDOW(self),
-                                                  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                  GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                                                  GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-                                                  NULL);
-
-  box=gtk_hbox_new(FALSE,12);
-  gtk_container_set_border_width(GTK_CONTAINER(box),6);
-
-  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
-  gtk_container_add(GTK_CONTAINER(box),icon);
-  
-  label=gtk_label_new(NULL);
-  str=g_strdup_printf(
-    "<big><b>%s</b></big>\n\n%s",_("Really quit ?"),_("All unsaved changes will be lost then.")
-  );
-  gtk_label_set_markup(GTK_LABEL(label),str);
-  g_free(str);
-  gtk_container_add(GTK_CONTAINER(box),label);
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
-  gtk_widget_show_all(dialog);
-                                                  
-  result=gtk_dialog_run(GTK_DIALOG(dialog));
-  switch(result) {
-    case GTK_RESPONSE_ACCEPT:
-      quit=TRUE;
-      break;
-    case GTK_RESPONSE_REJECT:
-      quit=FALSE;
-      break;
-    default:
-      GST_WARNING("unhandled response code = %d",result);
-  }
-  gtk_widget_destroy(dialog);
-  GST_INFO("menu quit result = %d",quit);
-  return(quit);
+	// @todo check song->unsaved
+	return(bt_dialog_question(self,_("Really quit ?"),_("Really quit ?"),_("All unsaved changes will be lost then.")));
 }
 
 /**

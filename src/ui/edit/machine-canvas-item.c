@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.15 2004-12-03 16:29:37 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.16 2004-12-08 18:17:32 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -91,17 +91,80 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
 
 static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  BtMainWindow *main_window;
+  gint answer;
+  GtkWidget *label,*entry,*icon,*hbox,*vbox;
+  gchar *str,*id; 
+  GtkWidget *dialog;
   
   g_assert(user_data);
 	GST_INFO("context_menu rename event occurred");
-	// like about dialog
+
+	g_object_get(self->priv->app,"main-window",&main_window,NULL);
+	g_object_get(self->priv->machine,"id",&id,NULL);
+	
+	dialog = gtk_dialog_new_with_buttons(_("Rename ..."),
+                                        GTK_WINDOW(main_window),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                        NULL);
+
+  hbox=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
+
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(hbox),icon);
+  
+	vbox=gtk_vbox_new(FALSE,12);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),0);
+
+  label=gtk_label_new(NULL);
+  str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",_("Rename ..."),_("choose a new name for the machine"));
+  gtk_label_set_markup(GTK_LABEL(label),str);
+  g_free(str);
+  gtk_container_add(GTK_CONTAINER(vbox),label);
+	entry=gtk_entry_new();
+	gtk_entry_set_text(entry,id);g_free(id);
+	gtk_container_add(GTK_CONTAINER(vbox),entry);
+	gtk_container_add(GTK_CONTAINER(hbox),vbox);
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
+  gtk_widget_show_all(dialog);
+                                                  
+  answer=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(answer) {
+    case GTK_RESPONSE_ACCEPT:
+			id=(gchar *)gtk_entry_get_text(GTK_ENTRY(entry));
+      GST_INFO("set new name : \"%s\"",id);
+			g_object_set(self->priv->machine,"id",g_strdup(id),NULL);
+			if(self->priv->label) {
+				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"text",id,NULL);
+			}
+			// @todo machine needs to be redrawn, pattern and sequence page needs update
+      break;
+    case GTK_RESPONSE_REJECT:
+      GST_INFO("do nothing");
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d",answer);
+  }
+  gtk_widget_destroy(dialog);
+	
+	g_object_try_unref(main_window);
 }
 
 static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  
+  BtMainWindow *main_window;
+	
   g_assert(user_data);
 	GST_INFO("context_menu delete event occurred");
+	
+	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	if(bt_dialog_question(main_window,_("Delete machine..."),_("Delete machine..."),_("There is no undo for this."))) {
+		GST_INFO("  confirmed");
+	}
+	g_object_try_unref(main_window);
 }
 
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -120,40 +183,18 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
     const gchar *element_author=gst_element_factory_get_author(element_factory);
     const gchar *element_description=gst_element_factory_get_description(element_factory);
     BtMainWindow *main_window;
-    GtkWidget *label,*icon,*box;
-    GtkWidget *dialog;
     gchar *str,*str_author;
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    dialog = gtk_dialog_new_with_buttons(_("About ..."),
-                                          GTK_WINDOW(main_window),
-                                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                          GTK_STOCK_OK,
-                                          GTK_RESPONSE_ACCEPT,
-                                          NULL);
-  
-    box=gtk_hbox_new(FALSE,12);
-    gtk_container_set_border_width(GTK_CONTAINER(box),6);
-  
-    icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
-    gtk_container_add(GTK_CONTAINER(box),icon);
-    
-    label=gtk_label_new(NULL);
-    str_author=g_markup_escape_text(element_author,strlen(element_author));
-    GST_INFO("machine_info: \"%s\" -> \"%s\"",element_author,str_author);
-    
-    str=g_strdup_printf(
-      "<big><b>%s</b></big>\nby %s\n\n%s\n\n",
-      element_longname,str_author,element_description
-    );
-    gtk_label_set_markup(GTK_LABEL(label),str);
+		
+		str_author=g_markup_escape_text(element_author,strlen(element_author));
+		str=g_strdup_printf(
+			_("by %s\n\n%s"),
+    	str_author,element_description
+  	);
+		bt_dialog_message(main_window,_("About ..."),element_longname,str);
+		
     g_free(str);g_free(str_author);
-    gtk_container_add(GTK_CONTAINER(box),label);
-    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
-    gtk_widget_show_all(dialog);
-  
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
     g_object_try_unref(main_window);
   }
   g_object_try_unref(machine);

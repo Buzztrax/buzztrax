@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.24 2004-12-03 16:29:37 ensonic Exp $
+/* $Id: main-menu.c,v 1.25 2004-12-08 18:17:32 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -130,40 +130,20 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
-  GtkWidget *label,*icon,*box;
-  GtkWidget *dialog;
   gchar *str;
   
   g_assert(user_data);
 
   GST_INFO("menu about event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  dialog = gtk_dialog_new_with_buttons(_("About ..."),
-                                        GTK_WINDOW(main_window),
-                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                        GTK_STOCK_OK,
-                                        GTK_RESPONSE_ACCEPT,
-                                        NULL);
-
-  box=gtk_hbox_new(FALSE,12);
-  gtk_container_set_border_width(GTK_CONTAINER(box),6);
-
-  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
-  gtk_container_add(GTK_CONTAINER(box),icon);
-  
-  label=gtk_label_new(NULL);
-  str=g_strdup_printf(
-    "<big><b>"PACKAGE_STRING"</b></big>\n\n%s\n\nhttp://www.buzztard.org",
+	
+	str=g_strdup_printf(
+		"%s\n\nhttp://www.buzztard.org",
     _("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")
   );
-  gtk_label_set_markup(GTK_LABEL(label),str);
-  g_free(str);
-  gtk_container_add(GTK_CONTAINER(box),label);
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
-  gtk_widget_show_all(dialog);
+	bt_dialog_message(main_window,_("About ..."),PACKAGE_STRING,str);
 
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
+  g_free(str);
   g_object_try_unref(main_window);
 }
 

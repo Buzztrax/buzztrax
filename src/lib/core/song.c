@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.61 2004-12-06 20:18:47 waffel Exp $
+/* $Id: song.c,v 1.62 2004-12-08 18:17:31 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -25,7 +25,8 @@ enum {
   SONG_MASTER,
   SONG_SONG_INFO,
   SONG_SEQUENCE,
-  SONG_SETUP
+  SONG_SETUP,
+	SONG_UNSAVED
 };
 
 struct _BtSongPrivate {
@@ -35,6 +36,9 @@ struct _BtSongPrivate {
 	BtSongInfo* song_info; 
 	BtSequence* sequence;
 	BtSetup*    setup;
+	
+	/* whenever the song is changed, unsave should be set TRUE */
+	gboolean unsaved;
 
   /* the application that currently uses the song */
   BtApplication *app;
@@ -200,6 +204,9 @@ static void bt_song_get_property(GObject      *object,
     case SONG_SETUP: {
       g_value_set_object(value, self->priv->setup);
     } break;
+    case SONG_UNSAVED: {
+      g_value_set_boolean(value, self->priv->unsaved);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -231,6 +238,10 @@ static void bt_song_set_property(GObject      *object,
       g_object_try_weak_ref(self->priv->master);
       GST_DEBUG("set the master for the song: %p",self->priv->master);
 		} break;
+    case SONG_UNSAVED: {
+      self->priv->unsaved = g_value_get_boolean(value));
+      GST_DEBUG("set the unsaved flag for the song: %d",self->priv->unsaved);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -367,6 +378,13 @@ static void bt_song_class_init(BtSongClass *klass) {
                                      "songs setup sub object",
                                      BT_TYPE_SETUP, /* object type */
                                      G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,SONG_UNSAVED,
+                                  g_param_spec_boolean("unsaved",
+                                     "unsaved prop",
+                                     "tell wheter the current state of the song has been saved",
+                                     TRUE,
+                                     G_PARAM_READWRITE));
 }
 
 /**

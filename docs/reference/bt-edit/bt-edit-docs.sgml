@@ -3,6 +3,7 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
+<!ENTITY btedit SYSTEM "xml/btedit.xml">
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
 <!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
@@ -45,6 +46,7 @@
       Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
       before reading further.
     </para>
+    &btedit;
     &BtEditApplication;
     &BtMachineCanvasItem;
     &BtMainWindow;

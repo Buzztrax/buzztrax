@@ -1,0 +1,57 @@
+/* $Id: signals.dot,v 1.1 2004-12-08 18:17:24 ensonic Exp $
+ * compile with:
+ *   dot -Tpng signals.dot -o signals.png
+ */
+digraph M {
+	orientation=portrait;
+	node [shape=box,fontname="Arial",fontsize="10",style=filled,fillcolor="#FFFFFF"];
+	edge [fontname="Arial",fontsize="10"];
+
+	/* nodes */
+	song;
+	machine_view [color="#0000FF",fillcolor="#CCCCFF"];
+	pattern_view [color="#0000FF",fillcolor="#CCCCFF"];
+	sequence_view [color="#0000FF",fillcolor="#CCCCFF"];
+	info_view [color="#0000FF",fillcolor="#CCCCFF"];
+	loader [color="#0000FF",fillcolor="#CCCCFF"];
+	
+	/* edges */
+	/* has */
+	song -> song_info [label="has"];
+	song -> sequence [label="has"];
+	song -> setup [label="has"];
+	
+	setup -> machine_list [label="has"];
+	setup -> wire_list [label="has"];
+	
+	machine_list -> machine [label="has"];
+	
+	machine -> pattern_list [label="has"];
+
+	/* changes */
+	loader -> song [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	loader -> song_info [label="changes 1x",color="#FF9999",style=dashed,fontcolor="#FF9999"];
+	loader -> sequence [label="changes 1x",color="#FF9999",style=dashed,fontcolor="#FF9999"];
+	loader -> setup [label="changes 1x",color="#FF9999",style=dashed,fontcolor="#FF9999"];
+	loader -> machine_list [label="changes Nx",color="#FF9999",style=dashed,fontcolor="#FF9999"];
+	loader -> wire_list [label="changes Nx",color="#FF9999",style=dashed,fontcolor="#FF9999"];
+	loader -> machine_list [label="changes Nx",color="#FF9999",style=dashed,fontcolor="#FF9999"];
+
+	machine_view -> machine_list [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	machine_view -> wire_list [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	machine_view -> machine [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	
+	pattern_view -> pattern_list [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	
+	sequence_view -> sequence [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	
+	info_view -> song_info [label="changes 1x",color="#FF0000",fontcolor="#FF0000"];
+	
+	/* listens */
+	sequence_view -> machine_list [label="listens",color="#00AA00",fontcolor="#00AA00"];
+	sequence_view -> pattern_list [label="listens",color="#00AA00",fontcolor="#00AA00"];
+	sequence_view -> machine [label="listens",color="#00AA00",fontcolor="#00AA00"];
+	
+	pattern_view -> machine_list [label="listens",color="#00AA00",fontcolor="#00AA00"];
+	pattern_view -> machine [label="listens",color="#00AA00",fontcolor="#00AA00"];
+}

@@ -1,14 +1,20 @@
-/* $Id: tools.c,v 1.1 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: tools.c,v 1.2 2004-12-08 18:17:32 ensonic Exp $
  * gui helper
  */
 
-#define TOOLS_C
+#define BT_EDIT
+#define BT_TOOLS_C
  
 #include "bt-edit.h"
 
 static GList *pixmaps_directories = NULL;
 
-/* Use this function to set the directory containing installed pixmaps. */
+/**
+ * add_pixmap_directory:
+ * @directory: register another directory to search for pixmaps
+ *
+ * Use this function to set the directory containing installed pixmaps.
+ */
 void add_pixmap_directory(const gchar *directory) {
   pixmaps_directories = g_list_prepend(pixmaps_directories, g_strdup(directory));
 }
@@ -28,7 +34,14 @@ static gchar *find_pixmap_file(const gchar *filename) {
   return NULL;
 }
 
-/* This is an internally used function to create pixmaps. */
+/**
+ * create_pixmap:
+ * @filename: the filename of the image file
+ *
+ * Creates a new pixmap image widget for the image file.
+ *
+ * Returns: a new pixmap widget
+ */
 GtkWidget* create_pixmap(const gchar *filename) {
   gchar *pathname = NULL;
   GtkWidget *pixmap;
@@ -47,7 +60,14 @@ GtkWidget* create_pixmap(const gchar *filename) {
   return pixmap;
 }
 
-/* This is an internally used function to create pixmaps. */
+/**
+ * create_pixbuf:
+ * @filename: the filename of the image file
+ *
+ * Creates a new pixbuf image for the image file.
+ *
+ * Returns: a new pixbuf
+ */
 GdkPixbuf *create_pixbuf(const gchar *filename) {
   gchar *pathname = NULL;
   GdkPixbuf *pixbuf;
@@ -71,3 +91,94 @@ GdkPixbuf *create_pixbuf(const gchar *filename) {
   return pixbuf;
 }
 
+/**
+ * bt_dialog_message:
+ * @self: the applications main window
+ * @title: the title of the message
+ * @headline: the bold headline of the message
+ * @message: the message itself
+ *
+ * Displays a modal message dialog, that needs to be confirmed with "Okay".
+ */
+void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message) {
+  GtkWidget *label,*icon,*box;
+  gchar *str; 
+  GtkWidget *dialog;
+	
+	dialog = gtk_dialog_new_with_buttons(title,
+                                        GTK_WINDOW(self),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        NULL);
+
+  box=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+  
+  label=gtk_label_new(NULL);
+  str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
+  gtk_label_set_markup(GTK_LABEL(label),str);
+  g_free(str);
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
+  gtk_widget_show_all(dialog);
+                                                  
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+}
+
+/**
+ * bt_dialog_question:
+ * @self: the applications main window
+ * @title: the title of the message`
+ * @headline: the bold headline of the message
+ * @message: the message itself
+ *
+ * Displays a modal question dialog, that needs to be confirmed with "Okay" or aborted with "Cancel".
+ * Returns: TRUE for Okay, FALSE otherwise
+ */
+gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message) {
+  gboolean result=FALSE;
+  gint answer;
+  GtkWidget *label,*icon,*box;
+  gchar *str; 
+  GtkWidget *dialog;
+	
+	dialog = gtk_dialog_new_with_buttons(title,
+                                        GTK_WINDOW(self),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                        NULL);
+
+  box=gtk_hbox_new(FALSE,12);
+  gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
+  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
+  gtk_container_add(GTK_CONTAINER(box),icon);
+  
+  label=gtk_label_new(NULL);
+  str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
+  gtk_label_set_markup(GTK_LABEL(label),str);
+  g_free(str);
+  gtk_container_add(GTK_CONTAINER(box),label);
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
+  gtk_widget_show_all(dialog);
+                                                  
+  answer=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(answer) {
+    case GTK_RESPONSE_ACCEPT:
+      result=TRUE;
+      break;
+    case GTK_RESPONSE_REJECT:
+      result=FALSE;
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d",answer);
+  }
+  gtk_widget_destroy(dialog);
+  GST_INFO("bt_dialog_question(\"%s\") = %d",title,result);
+  return(result);
+}
