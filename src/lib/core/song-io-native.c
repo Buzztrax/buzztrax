@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.50 2004-12-18 16:09:14 waffel Exp $
+/* $Id: song-io-native.c,v 1.51 2004-12-18 17:53:18 ensonic Exp $
  * class for native song input and output
  */
  
@@ -169,7 +169,8 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
               // depending on th name of the property, treat it's type
               if(!strncmp(property_name,"info",4) ||
                 !strncmp(property_name,"name",4) ||
-                !strncmp(property_name,"genre",5)) {
+                !strncmp(property_name,"genre",5) ||
+                !strncmp(property_name,"author",6)) {
                 g_object_set(G_OBJECT(song_info),property_name,elem,NULL);
               }
               else if(!strncmp(property_name,"bpm",3) ||

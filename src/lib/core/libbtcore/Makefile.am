@@ -24,5 +24,5 @@ libbtcore_HEADERS = \
 	source-machine.h source-machine-methods.h \
 	timeline.h timeline-methods.h \
 	timelinetrack.h timelinetrack-methods.h \
+	wavetable.h wavetable-methods.h \
 	wire.h wire-methods.h
-

@@ -1,13 +1,9 @@
-/* $Id: setup.c,v 1.48 2004-12-18 16:09:14 waffel Exp $
+/* $Id: setup.c,v 1.49 2004-12-18 17:53:18 ensonic Exp $
  * class for machine and wire setup
  */
  
 /* @todo add a methods for dumping the setup as a dot-graph
  * machines and wires should be dumped with details !
- */
- 
-/* @todo add bulk-edit-mode
- * see bt-edit::main-page-machiners.c::on_source_machine_add_activated()
  */
  
 #define BT_CORE
@@ -401,7 +397,7 @@ BtWire *bt_setup_wire_iterator_get_wire(gpointer iter) {
  * @base_name: the leading name part
  *
  * The function makes the supplied base_name unique in this setup by eventually
- * adding a number postfix.
+ * adding a number postfix. This method should be used when adding new machines.
  *
  * Returns: the newly allocated unique name
  */

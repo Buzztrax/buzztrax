@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.64 2004-12-18 16:09:14 waffel Exp $
+/* $Id: song.c,v 1.65 2004-12-18 17:53:18 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -26,6 +26,7 @@ enum {
   SONG_SONG_INFO,
   SONG_SEQUENCE,
   SONG_SETUP,
+	SONG_WAVETABLE,
 	SONG_UNSAVED
 };
 
@@ -33,9 +34,10 @@ struct _BtSongPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   
-	BtSongInfo* song_info; 
-	BtSequence* sequence;
-	BtSetup*    setup;
+	BtSongInfo*  song_info; 
+	BtSequence*  sequence;
+	BtSetup*     setup;
+	BtWavetable* wavetable;
 	
 	/* whenever the song is changed, unsave should be set TRUE */
 	gboolean unsaved;
@@ -204,6 +206,9 @@ static void bt_song_get_property(GObject      *object,
     case SONG_SETUP: {
       g_value_set_object(value, self->priv->setup);
     } break;
+    case SONG_WAVETABLE: {
+      g_value_set_object(value, self->priv->wavetable);
+    } break;
     case SONG_UNSAVED: {
       g_value_set_boolean(value, self->priv->unsaved);
     } break;
@@ -260,6 +265,7 @@ static void bt_song_dispose(GObject *object) {
 	g_object_try_unref(self->priv->song_info);
 	g_object_try_unref(self->priv->sequence);
 	g_object_try_unref(self->priv->setup);
+	g_object_try_unref(self->priv->wavetable);
 	g_object_try_unref(self->priv->bin);
 	g_object_try_unref(self->priv->app);
 
@@ -289,6 +295,7 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->song_info = bt_song_info_new(self);
   self->priv->sequence  = bt_sequence_new(self);
   self->priv->setup     = bt_setup_new(self);
+  self->priv->wavetable = bt_wavetable_new(self);
 }
 
 static void bt_song_class_init(BtSongClass *klass) {
@@ -377,6 +384,13 @@ static void bt_song_class_init(BtSongClass *klass) {
                                      "setup prop",
                                      "songs setup sub object",
                                      BT_TYPE_SETUP, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,SONG_WAVETABLE,
+																	g_param_spec_object("wavetable",
+                                     "wavetable prop",
+                                     "songs wavetable sub object",
+                                     BT_TYPE_WAVETABLE, /* object type */
                                      G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,SONG_UNSAVED,

@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.7 2004-12-11 15:07:52 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.8 2004-12-18 17:53:18 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -50,20 +50,20 @@ BtMachineCanvasItemPrivate
 </SECTION>
 
 <SECTION>
-<FILE>btmachinedialog</FILE>
-<TITLE>BtMachineDialog</TITLE>
-BtMachineDialog
-bt_machine_dialog_new
+<FILE>btmachinepropertiesdialog</FILE>
+<TITLE>BtMachinePropertiesDialog</TITLE>
+BtMachinePropertiesDialog
+bt_machine_properties_dialog_new
 <SUBSECTION Standard>
-BtMachineDialogClass
-BT_MACHINE_DIALOG
-BT_IS_MACHINE_DIALOG
-BT_MACHINE_DIALOG_CLASS
-BT_IS_MACHINE_DIALOG_CLASS
-BT_TYPE_MACHINE_DIALOG
+BtMachinePropertiesDialogClass
+BT_MACHINE_PROPERTIES_DIALOG
+BT_IS_MACHINE_PROPERTIES_DIALOG
+BT_MACHINE_PROPERTIES_DIALOG_CLASS
+BT_IS_MACHINE_PROPERTIES_DIALOG_CLASS
+BT_TYPE_MACHINE_PROPERTIES_DIALOG
 <SUBSECTION Private>
-bt_machine_dialog_get_type
-BtMachineDialogPrivate
+bt_machine_properties_dialog_get_type
+BtMachinePropertiesDialogPrivate
 </SECTION>
 
 <SECTION>
