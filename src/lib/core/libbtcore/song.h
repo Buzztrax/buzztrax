@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.14 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: song.h,v 1.15 2004-08-18 16:55:08 ensonic Exp $
  * class for a basic buzztard song
  */
  
@@ -41,6 +41,7 @@ struct _BtSong {
 /**
  * BtSongClass:
  * @play_signal_id: will be emitted upon starting to play a song
+ * @stop_signal_id: will be emitted after the song has stopped
  *
  * class of a song project object
  */
@@ -48,6 +49,7 @@ struct _BtSongClass {
   GObjectClass parent_class;
   
   guint play_signal_id;
+  guint stop_signal_id;
 };
 
 /* used by SONG_TYPE */

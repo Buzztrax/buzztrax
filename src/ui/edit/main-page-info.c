@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.2 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: main-page-info.c,v 1.3 2004-08-18 16:55:09 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -29,7 +29,7 @@ struct _BtMainPageInfoPrivate {
 
 //-- event handler
 
-static void song_changed_event(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   gchar *str;
@@ -92,7 +92,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->private->info));
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)song_changed_event, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 

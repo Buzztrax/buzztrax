@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.6 2004-08-17 13:11:40 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.7 2004-08-18 16:55:09 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -22,16 +22,58 @@ struct _BtMainToolbarPrivate {
 
 //-- event handler
 
-static void on_toolbar_new_clicked(GtkButton *button, gpointer data) {
-  BtMainToolbar *self=BT_MAIN_TOOLBAR(data);
+// @todo globale variables are not nice
+gulong on_song_stop_handler_id;
+GThread* player_thread=NULL;
+
+static void on_song_stop(const BtSong *song, gpointer user_data) {
+  GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
+
+  GST_INFO("song stop event occured\n");
+  g_signal_handler_disconnect(G_OBJECT(song),on_song_stop_handler_id);
+  gtk_toggle_button_set_active(button,FALSE);
+}
+
+static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
   GST_INFO("toolbar new event occurred\n");
   bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
 }
 
-static void on_toolbar_open_clicked(GtkButton *button, gpointer data) {
-  BtMainToolbar *self=BT_MAIN_TOOLBAR(data);
+static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
   GST_INFO("toolbar open event occurred\n");
   bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
+}
+
+static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
+  if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
+    BtSong *song;
+    GError *error;
+
+    GST_INFO("toolbar play event occurred\n");
+    song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+
+    on_song_stop_handler_id=g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)button);
+    //-- start playing in a thread
+    if(!(player_thread=g_thread_create(&bt_song_play, song, FALSE, &error))) {
+      GST_ERROR("error creating player thread : \"%s\"", error->message);
+      g_error_free(error);
+    }
+  }
+}
+
+static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  BtSong *song;
+
+  GST_INFO("toolbar stop event occurred\n");
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  bt_song_stop(song);
 }
 
 //-- helper methods
@@ -94,6 +136,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Play"));
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
 
   image=create_pixmap("stock_media-stop.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -104,6 +147,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Stop"));
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
 
   image=create_pixmap("stock_repeat.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -114,6 +158,8 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Loop"));
+
+  gtk_toolbar_append_space(GTK_TOOLBAR (toolbar));
 
   return(TRUE);
 }

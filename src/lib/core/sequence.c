@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.20 2004-08-18 11:23:22 ensonic Exp $
+/* $Id: sequence.c,v 1.21 2004-08-18 16:55:08 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -28,6 +28,10 @@ struct _BtSequencePrivate {
 
   /* the timelines that form the sequence */
   BtTimeLine **timelines;
+
+  /* flag to externally abort playing */
+  GMutex *is_playing_mutex;
+  gboolean is_playing;
 };
 
 //-- helper methods
@@ -132,6 +136,33 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
 }
 
 /**
+ * bt_sequence_get_loop_time:
+ * @self: the #BtSequence of the song
+ *
+ * calculates the length of the song loop in milliseconds
+ *
+ * Returns: the length of the song loop in milliseconds
+ *
+ */
+gulong bt_sequence_get_loop_time(const BtSequence *self) {
+  BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
+  glong wait_per_position,bars;
+  glong beats_per_minute,ticks_per_beat;
+  gdouble ticks_per_minute;
+  gulong res;
+  
+  ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
+  beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
+  bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
+
+  ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
+  wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+
+  res=(gulong)(((guint64)self->private->length*(guint64)bars*(guint64)wait_per_position)/G_USEC_PER_SEC);
+  return(res);
+}
+
+/**
  * bt_sequence_play:
  * @self: the #BtSequence that should be played
  *
@@ -147,7 +178,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
   GstElement *master=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
   GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
   BtPlayLine *playline;
-  glong playline_length,wait_per_position,bars;
+  glong wait_per_position,bars;
   glong beats_per_minute,ticks_per_beat;
   gdouble ticks_per_minute;
   gboolean res=TRUE;
@@ -164,18 +195,20 @@ gboolean bt_sequence_play(const BtSequence *self) {
    * for 4/4 bars it is 16 (standart dance rhythm)
    * for 3/4 bars it is 12 (walz)
    */
-  //playline_length=ticks_per_beat*bars;
-  playline_length=bars;
-  ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
+  //ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
+  ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
   wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
-  playline=bt_playline_new(self->private->song,master,self->private->tracks,playline_length,wait_per_position);
+  playline=bt_playline_new(self->private->song,master,self->private->tracks,bars,wait_per_position);
   
-  GST_INFO("pattern.duration = %d * %d usec = %ld sec",playline_length,wait_per_position,(gulong)(((guint64)playline_length*(guint64)wait_per_position)/GST_SECOND));
-  GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->private->length, playline_length,wait_per_position,(gulong)(((guint64)self->private->length*(guint64)playline_length*(guint64)wait_per_position)/GST_SECOND));
+  GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
+  GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->private->length,bars,wait_per_position,(gulong)(((guint64)self->private->length*(guint64)bars*(guint64)wait_per_position)/GST_SECOND));
 
   if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
+    g_mutex_lock(self->private->is_playing_mutex);
+    self->private->is_playing=TRUE;
+    g_mutex_unlock(self->private->is_playing_mutex);
     tm1=time(NULL);
-    for(i=0;i<self->private->length;i++,timeline++) {
+    for(i=0;((i<self->private->length) && (self->private->is_playing));i++,timeline++) {
       tm2=time(NULL);
       GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,difftime(tm2,tm1));
       // enter new patterns into the playline and stop or mute patterns
@@ -183,13 +216,32 @@ gboolean bt_sequence_play(const BtSequence *self) {
       // play the patterns in the cursor
       bt_playline_play(playline);
     }
-    gst_element_set_state(bin,GST_STATE_NULL);
+    if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
+      GST_ERROR("can't stop playing");res=FALSE;
+    }
   }
   else {
     GST_ERROR("can't start playing");res=FALSE;
   }
-  g_object_unref(G_OBJECT(playline));
+  g_object_unref(G_OBJECT(playline)); 
   return(res);
+}
+
+/**
+ * bt_sequence_stop:
+ * @self: the #BtSequence that should be stopped
+ *
+ * stops playback for the sequence
+ *
+ * Returns: TRUE for success
+ *
+ */
+gboolean bt_sequence_stop(const BtSequence *self) {
+  g_mutex_lock(self->private->is_playing_mutex);
+  self->private->is_playing=FALSE;
+  g_mutex_unlock(self->private->is_playing_mutex);
+
+  return(TRUE);
 }
 
 //-- wrapper
@@ -271,6 +323,8 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   self->private = g_new0(BtSequencePrivate,1);
   self->private->dispose_has_run = FALSE;
   self->private->length=1;
+  self->private->is_playing_mutex=g_mutex_new();
+
 }
 
 static void bt_sequence_class_init(BtSequenceClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.13 2004-08-17 15:51:12 ensonic Exp $
+/* $Id: main-window.c,v 1.14 2004-08-18 16:55:09 ensonic Exp $
  * class for the editor main window
  */
 
@@ -34,6 +34,7 @@ struct _BtMainWindowPrivate {
 
 //-- helper
 
+/*
 static void bt_main_window_refresh_ui(const BtMainWindow *self) {
   static gchar *title;
   BtSong *song;
@@ -44,27 +45,26 @@ static void bt_main_window_refresh_ui(const BtMainWindow *self) {
   title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
   gtk_window_set_title(GTK_WINDOW(self), title);
 }
+*/
 
 //-- event handler
 
-static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
+static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
   GST_INFO("delete event occurred\n");
-  return(!bt_main_window_check_quit(BT_MAIN_WINDOW(data)));
+  return(!bt_main_window_check_quit(BT_MAIN_WINDOW(user_data)));
 }
 
-static void destroy(GtkWidget *widget, gpointer data) {
+static void destroy(GtkWidget *widget, gpointer user_data) {
   GST_INFO("destroy event occurred\n");
   gtk_main_quit();
 }
 
-static void song_changed_event(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   static gchar *title;
   BtSong *song;
 
   GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
-
-  //main_window_refresh_ui(main_window);
 
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(app),"song"));
@@ -106,7 +106,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   self->private->statusbar=bt_main_statusbar_new(self->private->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->statusbar),FALSE,FALSE,0);
 
-  g_signal_connect(G_OBJECT(self->private->app), "song-changed", (GCallback)song_changed_event, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->private->app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
 
   gtk_window_add_accel_group(GTK_WINDOW(self),self->private->accel_group);
 

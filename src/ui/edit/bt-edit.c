@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.6 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: bt-edit.c,v 1.7 2004-08-18 16:55:09 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / gtk ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+  
+  if(!g_thread_supported()) g_thread_init(NULL);
 
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);

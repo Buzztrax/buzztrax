@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.1 2004-08-12 14:02:59 ensonic Exp $
+/* $Id: main-statusbar.h,v 1.2 2004-08-18 16:55:09 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -32,14 +32,14 @@ typedef struct _BtMainStatusbarPrivate BtMainStatusbarPrivate;
  * the root window for the editor application
  */
 struct _BtMainStatusbar {
-  GtkStatusbar parent;
+  GtkHBox parent;
   
   /* private */
   BtMainStatusbarPrivate *private;
 };
 /* structure of the main-menu class */
 struct _BtMainStatusbarClass {
-  GtkStatusbarClass parent;
+  GtkHBoxClass parent;
   
 };
 

@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.1 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: tools.h,v 1.2 2004-08-18 16:55:09 ensonic Exp $
  * gui helper
  */
 
@@ -6,7 +6,7 @@
 #define TOOL_H
  
 /* Use this function to set the directory containing installed pixmaps. */
-extern void add_pixmap_directory(const gchar     *directory);
+extern void add_pixmap_directory(const gchar *directory);
 
 /*
  * Private Functions.

@@ -6,8 +6,7 @@ bt_edit_LDADD = $(BASE_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	libbtedit.la
 bt_edit_SOURCES= \
-	bt-edit.c bt-edit.h \
-	tools.c tools.h
+	bt-edit.c bt-edit.h
 
 noinst_LTLIBRARIES      = libbtedit.la
 libbtedit_la_SOURCES   = \
@@ -17,7 +16,8 @@ libbtedit_la_SOURCES   = \
 	main-toolbar.c main-toolbar.h main-toolbar-methods.h \
 	main-pages.c main-pages.h main-pages-methods.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
-	main-statusbar.c main-statusbar.h main-statusbar-methods.h
+	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
+	tools.c tools.h
 	
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

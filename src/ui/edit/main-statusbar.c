@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.3 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.4 2004-08-18 16:55:09 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -18,22 +18,84 @@ struct _BtMainStatusbarPrivate {
 
   /* the application */
   BtEditApplication *app;
+  
+  /* main status bar */
+  GtkStatusbar *status;
   /* identifier of the status message group */
   gint status_context_id;
+
+  /* time-elapsed status bar */
+  GtkStatusbar *elapsed;
+  /* identifier of the elapsed message group */
+  gint elapsed_context_id;
+
+  /* time-current status bar */
+  GtkStatusbar *current;
+  /* identifier of the current message group */
+  gint current_context_id;
+
+  /* time-loop status bar */
+  GtkStatusbar *loop;
+  /* identifier of the loop message group */
+  gint loop_context_id;
 };
 
 //-- event handler
 
+static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  BtSong *song;
+  gchar *str;
+  gulong msec,sec,min;
+
+  GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
+  // get song from app
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  // get new song length
+  msec=bt_sequence_get_loop_time(bt_song_get_sequence(song));
+  GST_INFO("  new msec : %ld",msec);
+  min=(gulong)(msec/60000);msec-=(min*60000);
+  sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+	str=g_strdup_printf("%02d:%02d.%03d",min,sec,msec);
+  // update statusbar fields
+  gtk_statusbar_pop(self->private->loop,self->private->loop_context_id); 
+	gtk_statusbar_push(self->private->loop,self->private->loop_context_id,str);
+ 	g_free(str);
+}
 
 //-- helper methods
 
-static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self) {
+static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
+  gchar *msg="00:00.000";
+  
   gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
+  //gtk_box_set_spacing(GTK_BOX(self),1);
 
-  self->private->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self),_("default"));
+  self->private->status=GTK_STATUSBAR(gtk_statusbar_new());
+  self->private->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->status),_("default"));
+  gtk_statusbar_set_has_resize_grip(self->private->status,FALSE);
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->status),self->private->status_context_id,_("Ready to rock!"));
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->status),TRUE,TRUE,1);
 
-  gtk_statusbar_push(GTK_STATUSBAR(self),self->private->status_context_id,_("Ready to rock!"));
- 
+  self->private->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
+  self->private->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->elapsed),_("default"));
+  gtk_statusbar_set_has_resize_grip(self->private->elapsed,FALSE);
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->elapsed),self->private->elapsed_context_id,msg);
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->elapsed),TRUE,TRUE,1);
+
+  self->private->current=GTK_STATUSBAR(gtk_statusbar_new());
+  self->private->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->current),_("default"));
+  gtk_statusbar_set_has_resize_grip(self->private->current,FALSE);
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->current),self->private->current_context_id,msg);
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->current),TRUE,TRUE,1);
+
+  self->private->loop=GTK_STATUSBAR(gtk_statusbar_new());
+  self->private->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->loop),_("default"));
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->loop),self->private->loop_context_id,msg);
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->loop),TRUE,TRUE,1);
+
+  // register event handlers
+  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 
@@ -54,7 +116,7 @@ BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_statusbar_init_ui(self)) {
+  if(!bt_main_statusbar_init_ui(self,app)) {
     goto Error;
   }
   return(self);
@@ -157,7 +219,7 @@ GType bt_main_statusbar_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_main_statusbar_init, // instance_init
     };
-		type = g_type_register_static(GTK_TYPE_STATUSBAR,"BtMainStatusbar",&info,0);
+		type = g_type_register_static(GTK_TYPE_HBOX,"BtMainStatusbar",&info,0);
   }
   return type;
 }

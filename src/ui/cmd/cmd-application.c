@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.23 2004-08-17 14:38:12 waffel Exp $
+/* $Id: cmd-application.c,v 1.24 2004-08-18 16:55:08 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -22,8 +22,17 @@ struct _BtCmdApplicationPrivate {
  *
  * signal callback funktion
  */
-static void play_event(const BtSong *song, gpointer user_data) {
-  GST_INFO("start play invoked per signal : song=%p, user_data=%p\n",song,user_data);
+static void on_song_play(const BtSong *song, gpointer user_data) {
+  GST_INFO("start playing - invoked per signal : song=%p, user_data=%p\n",song,user_data);
+}
+
+/**
+ * stop_event:
+ *
+ * signal callback funktion
+ */
+static void on_song_stop(const BtSong *song, gpointer user_data) {
+  GST_INFO("stoped playing - invoked per signal : song=%p, user_data=%p\n",song,user_data);
 }
 
 //-- constructor methods
@@ -74,8 +83,9 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 	GST_INFO("objects initialized");
 	
 	if(bt_song_io_load(loader,song)) {
-    /* connection play signal and invoking the play_event function */
-		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, (gpointer)self);
+    // connection play and stop signals
+		g_signal_connect(G_OBJECT(song), "play", (GCallback)on_song_play, (gpointer)self);
+		g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
 		bt_song_play(song);
 	}
 	else {

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.36 2004-08-13 18:58:10 ensonic Exp $
+/* $Id: song.c,v 1.37 2004-08-18 16:55:08 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -60,11 +60,13 @@ BtSong *bt_song_new(const GstBin *bin) {
  *
  */
 gboolean bt_song_play(const BtSong *self) {
+  gboolean res;
   // emit signal that we start playing
-  g_signal_emit(G_OBJECT(self), 
-                BT_SONG_GET_CLASS(self)->play_signal_id,
-                0);
-  return(bt_sequence_play(self->private->sequence));
+  g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->play_signal_id, 0);
+  res=bt_sequence_play(self->private->sequence);
+  // emit signal that we have finished playing
+  g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->stop_signal_id, 0);
+  return(res);
 }
 
 /**
@@ -77,7 +79,12 @@ gboolean bt_song_play(const BtSong *self) {
  *
  */
 gboolean bt_song_stop(const BtSong *self) {
-  return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_NULL)!=GST_STATE_FAILURE);
+  gboolean res;
+  
+  res=bt_sequence_stop(self->private->sequence);
+  // emit signal that we have finished playing
+  g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->stop_signal_id, 0);
+  return(res);
 }
 
 /**
@@ -247,7 +254,24 @@ static void bt_song_class_init(BtSongClass *klass) {
                                         0, // n_params
                                         NULL /* param data */ );
   
-	g_object_class_install_property(gobject_class,SONG_BIN,
+  /** 
+	 * BtSong::stop:
+   * @self: the song object that emitted the signal
+	 *
+	 * signals that this song has finished to play
+	 */
+  klass->stop_signal_id = g_signal_newv("stop",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        NULL, // class closure
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0, // n_params
+                                        NULL /* param data */ );
+
+  g_object_class_install_property(gobject_class,SONG_BIN,
 																	g_param_spec_object("bin",
                                      "bin construct prop",
                                      "songs top-level GstElement container",

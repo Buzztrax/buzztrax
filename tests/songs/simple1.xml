@@ -10,7 +10,7 @@
 		<genre>dark-wave</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>
-    <bars>4</bars>
+    <bars>16</bars>
 	</meta>
 	
   <setup zoom="1.0">
@@ -44,6 +44,10 @@
       <tick time="4">
         <globaldata name="freq" value="1760,0"/>
 				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="6">
+        <globaldata name="freq" value="220,0"/>
+				<globaldata name="volume" value="0,0"/>
       </tick>
     </pattern>
   </patterns>

@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.15 2004-07-28 15:33:45 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.16 2004-08-18 16:55:08 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture [modular ofcourse ;-)]
@@ -85,6 +85,50 @@
 		at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
 		2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
 		SPT=(SRAT*60*4)/(BPM*TPB)
+  - examples
+    - 4/4 : bars=16, tpb=4
+      ticks beats  bars
+      00    0      0
+      01
+      02
+      03
+      04    1
+      05
+      06
+      07
+      08    2
+      09
+      10
+      11
+      12    3.
+      13
+      14
+      15
+    - 3/4 : bars=12, tpb=4
+      ticks beats  bars
+      00    0      0
+      01
+      02
+      03
+      04    1
+      05
+      06
+      07
+      08    2
+      09
+      10
+      11
+    - 4/2 : bars=16, tpb=2
+      ticks beats  bars
+      00    0      0
+      01
+      02    1
+      03
+      04    2
+      05
+      06    3
+      07
+  
 	- audio callback
 		- run our machine-plugin graph
 	- controldata callback
