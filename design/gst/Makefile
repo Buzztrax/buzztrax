@@ -1,9 +1,19 @@
-# $Id: Makefile,v 1.3 2004-02-12 18:01:30 ensonic Exp $
+# $Id: Makefile,v 1.4 2004-02-13 15:36:13 ensonic Exp $
 
-all: gst1 gst2
+.PHONY: clean
 
-gst1: gst1.c
-	gcc -Wall `pkg-config gstreamer-control-0.7 --cflags --libs` `pkg-config gstreamer-0.7 --cflags --libs` gst1.c -o gst1
-	
-gst2: gst2.c
-	gcc -Wall `pkg-config gstreamer-control-0.7 --cflags --libs` `pkg-config gstreamer-0.7 --cflags --libs` gst2.c -o gst2
+TARGETS = gst1 gst2 gst3
+
+# targets
+
+all: $(TARGETS)
+
+clean:
+	@rm -rf core *.o *~ $(TARGETS)
+
+
+# generic rules
+
+%: %.c
+	gcc -Wall `pkg-config gstreamer-control-0.7 --cflags --libs` `pkg-config gstreamer-0.7 --cflags --libs` $< -o $@
+
