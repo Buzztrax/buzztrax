@@ -1,4 +1,4 @@
-/* $Id: settings.h,v 1.4 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: settings.h,v 1.5 2005-01-11 16:50:47 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtSettingsPrivate BtSettingsPrivate;
 struct _BtSettings {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtSettingsPrivate *priv;
 };
 /* structure of the settings class */

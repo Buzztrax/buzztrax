@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.9 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: wire.h,v 1.10 2005-01-11 16:50:48 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtWirePrivate BtWirePrivate;
 struct _BtWire {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtWirePrivate *priv;
 };
 /* structure of the wire class */

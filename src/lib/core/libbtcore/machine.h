@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.13 2004-12-15 22:20:00 ensonic Exp $
+/* $Id: machine.h,v 1.14 2005-01-11 16:50:47 ensonic Exp $
  * base class for a machine
  */
 
@@ -33,7 +33,7 @@ struct _BtMachine {
 	GstElement *dst_elem;
 	GstElement *src_elem;
 
-  /* private */
+  /*< private >*/
   BtMachinePrivate *priv;
 };
 /* structure of the machine class */

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.h,v 1.5 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-page-patterns.h,v 1.6 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMainPagePatternsPrivate BtMainPagePatternsPrivate;
 struct _BtMainPagePatterns {
   GtkVBox parent;
   
-  /* private */
+  /*< private >*/
   BtMainPagePatternsPrivate *priv;
 };
 /* structure of the main-page-patterns class */

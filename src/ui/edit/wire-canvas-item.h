@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.h,v 1.1 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: wire-canvas-item.h,v 1.2 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtWireCanvasItemPrivate BtWireCanvasItemPrivate;
 struct _BtWireCanvasItem {
   GnomeCanvasGroup parent;
   
-  /* private */
+  /*< private >*/
   BtWireCanvasItemPrivate *priv;
 };
 /* structure of the main-pages class */

@@ -1,4 +1,4 @@
-/* $Id: main-pages.h,v 1.5 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: main-pages.h,v 1.6 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMainPagesPrivate BtMainPagesPrivate;
 struct _BtMainPages {
   GtkNotebook parent;
   
-  /* private */
+  /*< private >*/
   BtMainPagesPrivate *priv;
 };
 /* structure of the main-pages class */

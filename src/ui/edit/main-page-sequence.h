@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.h,v 1.5 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-page-sequence.h,v 1.6 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMainPageSequencePrivate BtMainPageSequencePrivate;
 struct _BtMainPageSequence {
   GtkVBox parent;
   
-  /* private */
+  /*< private >*/
   BtMainPageSequencePrivate *priv;
 };
 /* structure of the main-page-sequence class */

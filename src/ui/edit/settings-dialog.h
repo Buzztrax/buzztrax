@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.h,v 1.1 2004-10-11 16:19:15 ensonic Exp $
+/* $Id: settings-dialog.h,v 1.2 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtSettingsDialogPrivate BtSettingsDialogPrivate;
 struct _BtSettingsDialog {
   GtkDialog parent;
   
-  /* private */
+  /*< private >*/
   BtSettingsDialogPrivate *priv;
 };
 /* structure of the settings-dialog class */

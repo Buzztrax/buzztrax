@@ -1,4 +1,4 @@
-/** $Id: e-song.c,v 1.2 2004-12-29 12:08:04 ensonic Exp $
+/** $Id: e-song.c,v 1.3 2005-01-11 16:50:50 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -190,7 +190,7 @@ START_TEST(test_btsong_new1){
 END_TEST
 
 TCase *bt_song_example_tcase(void) {
-  TCase *tc = tcase_create("bt_song_exmaple case");
+  TCase *tc = tcase_create("bt_song_example case");
 
   tcase_add_test(tc,test_btsong_obj1);
   tcase_add_test(tc,test_btsong_load1);

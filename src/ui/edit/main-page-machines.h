@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.8 2004-12-19 21:13:49 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.9 2005-01-11 16:50:49 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMainPageMachinesPrivate BtMainPageMachinesPrivate;
 struct _BtMainPageMachines {
   GtkVBox parent;
   
-  /* private */
+  /*< private >*/
   BtMainPageMachinesPrivate *priv;
 };
 /* structure of the main-page-machines class */

@@ -21,7 +21,7 @@ typedef struct _BtSongPrivate BtSongPrivate;
 struct _BtSong {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtSongPrivate *private;
 };
 

@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.h,v 1.3 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: plainfile-settings.h,v 1.4 2005-01-11 16:50:47 ensonic Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtPlainfileSettingsPrivate BtPlainfileSettingsPrivate;
 struct _BtPlainfileSettings {
   BtSettings parent;
   
-  /* private */
+  /*< private >*/
   BtPlainfileSettingsPrivate *priv;
 };
 /* structure of the gconf-settings class */

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.h,v 1.7 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: cmd-application.h,v 1.8 2005-01-11 16:50:48 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtCmdApplicationPrivate BtCmdApplicationPrivate;
 struct _BtCmdApplication {
   BtApplication parent;
   
-  /* private */
+  /*< private >*/
   BtCmdApplicationPrivate *priv;
 };
 /* structure of the cmd-application class */

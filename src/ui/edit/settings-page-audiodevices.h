@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.h,v 1.1 2004-10-18 18:03:30 ensonic Exp $
+/* $Id: settings-page-audiodevices.h,v 1.2 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtSettingsPageAudiodevicesPrivate BtSettingsPageAudiodevicesPriv
 struct _BtSettingsPageAudiodevices {
   GtkTable parent;
   
-  /* private */
+  /*< private >*/
   BtSettingsPageAudiodevicesPrivate *priv;
 };
 /* structure of the settings-dialog class */

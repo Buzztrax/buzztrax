@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.h,v 1.2 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: machine-canvas-item.h,v 1.3 2005-01-11 16:50:49 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMachineCanvasItemPrivate BtMachineCanvasItemPrivate;
 struct _BtMachineCanvasItem {
   GnomeCanvasGroup parent;
   
-  /* private */
+  /*< private >*/
   BtMachineCanvasItemPrivate *priv;
 };
 /* structure of the main-pages class */

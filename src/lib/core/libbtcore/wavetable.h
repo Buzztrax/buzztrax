@@ -1,4 +1,4 @@
-/* $Id: wavetable.h,v 1.1 2004-12-18 17:53:19 ensonic Exp $
+/* $Id: wavetable.h,v 1.2 2005-01-11 16:50:48 ensonic Exp $
  * class for wavetable
  */
 
@@ -30,7 +30,7 @@ typedef struct _BtWavetablePrivate BtWavetablePrivate;
 struct _BtWavetable {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtWavetablePrivate *priv;
 };
 /* structure of the setup class */

@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.10 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: source-machine.h,v 1.11 2005-01-11 16:50:47 ensonic Exp $
  * class for a source machine
  */
 
@@ -30,7 +30,7 @@ typedef struct _BtSourceMachinePrivate BtSourceMachinePrivate;
 struct _BtSourceMachine {
   BtMachine parent;
   
-  /* private */
+  /*< private >*/
   BtSourceMachinePrivate *priv;
 };
 /* structure of the source_machine class */

@@ -1,4 +1,4 @@
-/* $Id: main-window.h,v 1.5 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: main-window.h,v 1.6 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor main window
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMainWindowPrivate BtMainWindowPrivate;
 struct _BtMainWindow {
   GtkWindow parent;
   
-  /* private */
+  /*< private >*/
   BtMainWindowPrivate *priv;
 };
 /* structure of the main-window class */

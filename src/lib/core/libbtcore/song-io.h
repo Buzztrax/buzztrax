@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.13 2004-11-15 15:06:54 ensonic Exp $
+/* $Id: song-io.h,v 1.14 2005-01-11 16:50:47 ensonic Exp $
  * base class for song input and output
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtSongIOPrivate BtSongIOPrivate;
 struct _BtSongIO {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtSongIOPrivate *priv;
 };
 /**

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.31 2005-01-11 12:31:54 ensonic Exp $
+# $Id: configure.ac,v 1.32 2005-01-11 16:50:37 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -158,7 +158,6 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_GCONF_SOURCE_2
   ],[
     AM_CONDITIONAL(USE_GCONF, false)
-    #AC_DEFINE(USE_GCONF, [0], [Define to 1 if we can use GConf])
   ]
 )
   
@@ -170,9 +169,7 @@ PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
     AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
- ],[
-    #AC_DEFINE(USE_GTKGRID, [0], [Define to 1 if we can use GtkGrid])
-  ]
+ ]
 )
 
 # Add additional libraries

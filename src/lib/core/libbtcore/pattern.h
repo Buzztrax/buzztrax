@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.11 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: pattern.h,v 1.12 2005-01-11 16:50:47 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -31,7 +31,7 @@ typedef struct _BtPatternPrivate BtPatternPrivate;
 struct _BtPattern {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtPatternPrivate *priv;
 };
 /* structure of the pattern class */

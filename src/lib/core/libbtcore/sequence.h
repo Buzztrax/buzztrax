@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.11 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: sequence.h,v 1.12 2005-01-11 16:50:47 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -31,7 +31,7 @@ typedef struct _BtSequencePrivate BtSequencePrivate;
 struct _BtSequence {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtSequencePrivate *priv;
 };
 /* structure of the sequence class */

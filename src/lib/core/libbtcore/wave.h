@@ -1,4 +1,4 @@
-/* $Id: wave.h,v 1.1 2004-12-18 20:43:20 ensonic Exp $
+/* $Id: wave.h,v 1.2 2005-01-11 16:50:47 ensonic Exp $
  * class for wave
  */
 
@@ -30,7 +30,7 @@ typedef struct _BtWavePrivate BtWavePrivate;
 struct _BtWave {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtWavePrivate *priv;
 };
 /* structure of the setup class */

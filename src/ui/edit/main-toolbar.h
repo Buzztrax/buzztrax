@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.h,v 1.4 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: main-toolbar.h,v 1.5 2005-01-11 16:50:50 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtMainToolbarPrivate BtMainToolbarPrivate;
 struct _BtMainToolbar {
   GtkHandleBox parent;
   
-  /* private */
+  /*< private >*/
   BtMainToolbarPrivate *priv;
 };
 /* structure of the main-menu class */

@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.9 2004-12-10 19:14:37 ensonic Exp $
+/* $Id: setup.h,v 1.10 2005-01-11 16:50:47 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -32,7 +32,7 @@ typedef struct _BtSetupPrivate BtSetupPrivate;
 struct _BtSetup {
   GObject parent;
   
-  /* private */
+  /*< private >*/
   BtSetupPrivate *priv;
 };
 /* structure of the setup class */

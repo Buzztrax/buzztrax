@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.27 2004-12-28 14:23:11 ensonic Exp $
+## $Id: Makefile.am,v 1.28 2005-01-11 16:50:37 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -60,7 +60,7 @@ DISTCLEANFILES = \
 clean-local:
 	rm -f po/.intltool-merge-cache
 	
-##if GCONF_SCHEMAS_INSTALL
+##if GCONF_SCHEMAS_INSTALL (this should be conditional)
 install-data-local:
 	-$(mkinstalldirs) $(songdatadir)
 	-$(mkinstalldirs) $(pixmapdatadir)

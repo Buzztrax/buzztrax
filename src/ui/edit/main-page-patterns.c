@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.33 2005-01-11 12:31:59 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.34 2005-01-11 16:50:49 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -192,68 +192,72 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 #endif
 
 	GST_INFO("refresh pattern table");
-	g_assert(BT_IS_PATTERN(pattern));
 #ifdef USE_GTKGRID
 	g_assert(GTK_IS_GRID(self->priv->pattern_table));
 #endif
 	
-	g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"machine",&machine,NULL);
-  GST_INFO("  size is %2d,?",number_of_ticks);
-
   // reset columns
 	pattern_table_clear(self);
 
-	// build model
-	GST_DEBUG("  build model");
-	store_types=(GType *)g_new(GType *,1);
-	store_types[0]=G_TYPE_LONG;
-	store=gtk_list_store_newv(1,store_types);
-  g_free(store_types);
-	// add events
-  for(i=0;i<number_of_ticks;i++) {
-    //timeline=bt_sequence_get_timeline_by_time(sequence,i);
-    gtk_list_store_append(store, &tree_iter);
-    // set position, highlight-color
-    gtk_list_store_set(store,&tree_iter,
-			PATTERN_TABLE_POS,pos,
-			-1);
-		pos++;
+	if(pattern) {
+		g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"machine",&machine,NULL);
+	  GST_INFO("  size is %2d,?",number_of_ticks);
+
+		// build model
+		GST_DEBUG("  build model");
+		store_types=(GType *)g_new(GType *,1);
+		store_types[0]=G_TYPE_LONG;
+		store=gtk_list_store_newv(1,store_types);
+  	g_free(store_types);
+		// add events
+  	for(i=0;i<number_of_ticks;i++) {
+    	//timeline=bt_sequence_get_timeline_by_time(sequence,i);
+    	gtk_list_store_append(store, &tree_iter);
+    	// set position, highlight-color
+    	gtk_list_store_set(store,&tree_iter,
+				PATTERN_TABLE_POS,pos,
+				-1);
+			pos++;
+		}
+#ifdef USE_GTKGRID
+		GST_DEBUG("    activating store: %p",store);
+		gtk_grid_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
+#endif
+
+  	// build view
+		GST_DEBUG("  build view");
+		// add initial columns
+#ifdef USE_GTKGRID
+  	renderer=gtk_cell_renderer_text_new();
+  	g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+		GST_DEBUG("    created cell renderer");
+  	grid_col=gtk_grid_column_new_with_attributes(_("Pos."),renderer,
+    	"text",PATTERN_TABLE_POS,
+    	NULL);
+		GST_DEBUG("    created column");
+		gtk_grid_append_column(self->priv->pattern_table,grid_col);
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),TRUE);
+#endif
+
+		GST_DEBUG("  done");
+		// release the references -> @todo fix bug in gtkgrid
+		//g_object_unref(store); // drop with gridview
 	}
+	else {
 #ifdef USE_GTKGRID
-	GST_DEBUG("    activating store: %p",store);
-	gtk_grid_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),FALSE);
 #endif
-
-  // build view
-	GST_DEBUG("  build view");
-	// add initial columns
-#ifdef USE_GTKGRID
-  renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
-	GST_DEBUG("    created cell renderer");
-  grid_col=gtk_grid_column_new_with_attributes(_("Pos."),renderer,
-    "text",PATTERN_TABLE_POS,
-    NULL);
-	GST_DEBUG("    created column");
-	gtk_grid_append_column(self->priv->pattern_table,grid_col);
-#endif
-
-	GST_DEBUG("  done");
-	// release the references
-	g_object_unref(store); // drop with gridview
+	}
 }
 
 //-- event handler
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-	BtPattern *pattern;
 
   g_assert(user_data);
   // refresh pattern view
-	if((pattern=bt_main_page_patterns_get_current_pattern(self))) {
-		pattern_table_refresh(self,pattern);
-	}
+	pattern_table_refresh(self,bt_main_page_patterns_get_current_pattern(self));
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {

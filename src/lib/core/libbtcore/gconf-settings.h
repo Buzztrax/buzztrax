@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.h,v 1.2 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: gconf-settings.h,v 1.3 2005-01-11 16:50:47 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -29,7 +29,7 @@ typedef struct _BtGConfSettingsPrivate BtGConfSettingsPrivate;
 struct _BtGConfSettings {
   BtSettings parent;
   
-  /* private */
+  /*< private >*/
   BtGConfSettingsPrivate *priv;
 };
 /* structure of the gconf-settings class */
