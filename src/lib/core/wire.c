@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.50 2005-02-16 19:10:06 waffel Exp $
+/* $Id: wire.c,v 1.51 2005-03-08 12:19:07 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -75,15 +75,19 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 	// try link src to dst {directly, with convert, with scale, with ...}
 	if(!gst_element_link(src->src_elem, dst->dst_elem)) {
 		if(!self->priv->convert) {
-			self->priv->convert=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",self));
+			gchar *name=g_strdup_printf("audioconvert_%p",self);
+			self->priv->convert=gst_element_factory_make("audioconvert",name);
 			g_assert(self->priv->convert!=NULL);
+			g_free(name);
 		}
 		gst_bin_add(self->priv->bin, self->priv->convert);
     GST_DEBUG("trying to link machines with convert");
 		if(!gst_element_link_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL)) {
 			if(!self->priv->scale) {
-				self->priv->scale=gst_element_factory_make("audioscale",g_strdup_printf("audioscale_%p",self));
+				gchar *name=g_strdup_printf("audioscale_%p",self);
+				self->priv->scale=gst_element_factory_make("audioscale",name);
 				g_assert(self->priv->scale!=NULL);
+				g_free(name);
 			}
 			gst_bin_add(self->priv->bin, self->priv->scale);
       GST_DEBUG("trying to link machines with scale");

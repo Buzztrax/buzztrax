@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.92 2005-03-04 16:47:05 ensonic Exp $
+/* $Id: machine.c,v 1.93 2005-03-08 12:19:07 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -470,6 +470,7 @@ gboolean bt_machine_new(BtMachine *self) {
 gboolean bt_machine_enable_input_level(BtMachine *self) {
   gboolean res=FALSE;
 	GstElement *peer;
+	gchar *name;
 	
 	g_assert(BT_IS_MACHINE(self));
 	g_assert(!BT_IS_SOURCE_MACHINE(self));
@@ -477,7 +478,8 @@ gboolean bt_machine_enable_input_level(BtMachine *self) {
 	GST_INFO(" for machine '%s'",self->priv->id);
   
   // add input-level analyser
-  if(!(self->priv->machines[PART_INPUT_LEVEL]=gst_element_factory_make("level",g_strdup_printf("input_level_%p",self)))) {
+	name=g_strdup_printf("input_level_%p",self);
+  if(!(self->priv->machines[PART_INPUT_LEVEL]=gst_element_factory_make("level",name))) {
     GST_ERROR("failed to create input level analyser for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
   }
   g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
@@ -503,6 +505,7 @@ gboolean bt_machine_enable_input_level(BtMachine *self) {
 	}
   res=TRUE;
 Error:
+	g_free(name);
   return(res);
 }
 
@@ -517,6 +520,7 @@ Error:
 gboolean bt_machine_enable_input_gain(BtMachine *self) {
   gboolean res=FALSE;
 	GstElement *peer;
+	gchar *name;
 	
 	g_assert(BT_IS_MACHINE(self));
 	g_assert(!BT_IS_SOURCE_MACHINE(self));
@@ -524,7 +528,8 @@ gboolean bt_machine_enable_input_gain(BtMachine *self) {
 	GST_INFO(" for machine '%s'",self->priv->id);
 
   // add input-gain element
-  if(!(self->priv->machines[PART_INPUT_GAIN]=gst_element_factory_make("volume",g_strdup_printf("input_gain_%p",self)))) {
+	name=g_strdup_printf("input_gain_%p",self);
+  if(!(self->priv->machines[PART_INPUT_GAIN]=gst_element_factory_make("volume",name))) {
     GST_ERROR("failed to create machines input gain element");goto Error;
   }
   gst_bin_add(self->priv->bin,self->priv->machines[PART_INPUT_GAIN]);
@@ -546,6 +551,7 @@ gboolean bt_machine_enable_input_gain(BtMachine *self) {
 	}
   res=TRUE;
 Error:
+	g_free(name);
   return(res);
 }
 
@@ -563,13 +569,18 @@ gboolean bt_machine_activate_adder(BtMachine *self) {
   gboolean res=TRUE;
   
   if(!self->priv->machines[PART_ADDER]) {
+		gchar *name;
 		// create the adder
-    self->priv->machines[PART_ADDER]=gst_element_factory_make("adder",g_strdup_printf("adder_%p",self));
+		name=g_strdup_printf("adder_%p",self);
+    self->priv->machines[PART_ADDER]=gst_element_factory_make("adder",name);
     g_assert(self->priv->machines[PART_ADDER]!=NULL);
+		g_free(name);
     gst_bin_add(self->priv->bin, self->priv->machines[PART_ADDER]);
     // adder not links directly to some elements
-    self->priv->machines[PART_ADDER_CONVERT]=gst_element_factory_make("audioconvert",g_strdup_printf("audioconvert_%p",self));
+		name=g_strdup_printf("audioconvert_%p",self);
+    self->priv->machines[PART_ADDER_CONVERT]=gst_element_factory_make("audioconvert",name);
     g_assert(self->priv->machines[PART_ADDER_CONVERT]!=NULL);
+		g_free(name);
     gst_bin_add(self->priv->bin, self->priv->machines[PART_ADDER_CONVERT]);
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
@@ -609,8 +620,12 @@ gboolean bt_machine_activate_spreader(BtMachine *self) {
   gboolean res=TRUE;
   
   if(!self->priv->machines[PART_SPREADER]) {
-    self->priv->machines[PART_SPREADER]=gst_element_factory_make("tee",g_strdup_printf("tee_%p",self));
+		gchar *name;
+		// create th spreader (tee)
+		name=g_strdup_printf("tee_%p",self);
+    self->priv->machines[PART_SPREADER]=gst_element_factory_make("tee",name);
     g_assert(self->priv->machines[PART_SPREADER]!=NULL);
+		g_free(name);
     gst_bin_add(self->priv->bin, self->priv->machines[PART_SPREADER]);
     if(!gst_element_link(self->src_elem, self->priv->machines[PART_SPREADER])) {
       GST_ERROR("failed to link the machines internal spreader");res=FALSE;

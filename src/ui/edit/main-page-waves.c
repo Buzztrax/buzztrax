@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.14 2005-02-03 19:40:41 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.15 2005-03-08 12:19:12 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -140,7 +140,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
-                                _("Open"),
+                                _("Clear"),
                                 NULL,NULL,
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);

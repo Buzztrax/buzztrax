@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.34 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: song-io.c,v 1.35 2005-03-08 12:19:07 ensonic Exp $
  * base class for song input and output
  */
  
@@ -75,6 +75,7 @@ static void bt_song_io_register_plugins(void) {
         else g_module_close(plugin);
       }
     }
+		closedir(dirp);
   }
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.11 2005-02-22 07:31:09 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.12 2005-03-08 12:19:12 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -101,7 +101,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
 	GtkAdjustment *spin_adjustment;
 	GtkTooltips *tips=gtk_tooltips_new();
-	gchar *id;
+	gchar *id,*title;
 	GdkPixbuf *window_icon=NULL;
 	GstElement *machine;
 	GParamSpec **properties,*property;
@@ -119,9 +119,10 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 	// leave the choice of width to gtk
 	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
 	// set a title
+	title=g_strdup_printf(_("%s preferences"),id);
 	g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
-  gtk_window_set_title(GTK_WINDOW(self),g_strdup_printf(_("%s preferences"),id));
-	g_free(id);
+  gtk_window_set_title(GTK_WINDOW(self),title);
+	g_free(id);g_free(title);
   
 	// get machine properties
 	if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
