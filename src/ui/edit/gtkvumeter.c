@@ -11,8 +11,8 @@
 #include "gtkvumeter.h"
 
 #define MIN_HORIZONTAL_VUMETER_WIDTH   400
-#define HORIZONTAL_VUMETER_HEIGHT  10
-#define VERTICAL_VUMETER_WIDTH     10
+#define HORIZONTAL_VUMETER_HEIGHT  8
+#define VERTICAL_VUMETER_WIDTH     8
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
 
 static void gtk_vumeter_init (GtkVUMeter *vumeter);

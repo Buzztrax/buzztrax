@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
 
-/* $Id: main-page-sequence.c,v 1.47 2005-01-27 17:17:30 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.48 2005-01-27 21:14:59 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -549,6 +549,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			GtkTreePath *path;
 			GtkTreeViewColumn *column;
 			GtkTreeIter iter;
+			
+			GST_INFO("  update model");
 
 			if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
 				&& (store=gtk_tree_model_filter_get_model(filtered_store))
@@ -559,14 +561,26 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 		  	  glong row,track=g_list_index(columns,(gpointer)column)-2;
 				
 					g_list_free(columns);
-					//gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
-					//GST_INFO("  position is %d,%d -> ",row,track,SEQUENCE_TABLE_PRE_CT+track);
+					gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
+					GST_INFO("  position is %d,%d -> ",row,track,SEQUENCE_TABLE_PRE_CT+track);
 					
 					gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
 				}
+				else {
+					GST_WARNING("  can't evaluate cursor pos");
+				}
 				if(free_str) g_free(str);
 			}
+			else {
+				GST_WARNING("  can't get tree-model");
+			}
 		}
+		else {
+			GST_WARNING("  nothing assgned to this key");
+		}
+	}
+	else {
+		GST_WARNING("  can't locate timelinetrack related to curos pos");
 	}
 	return(res);
 }
@@ -735,7 +749,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
-  gtk_tree_view_set_rules_hint(self->priv->sequence_table,TRUE);
+	g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,NULL);
+  //gtk_tree_view_set_rules_hint(self->priv->sequence_table,TRUE);
 	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column 
   //gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_NONE);

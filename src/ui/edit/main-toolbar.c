@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.38 2005-01-24 19:05:37 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.39 2005-01-27 21:14:59 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -359,7 +359,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
   
   // volume level
-  box=gtk_vbox_new(FALSE,1);
+  box=gtk_vbox_new(FALSE,0);
   gtk_container_set_border_width(GTK_CONTAINER(box),2);
   // add gtk_vumeter widgets and update from level_callback
   for(i=0;i<MAX_VUMETER;i++) {
@@ -367,12 +367,12 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
     gtk_vumeter_set_min_max(self->priv->vumeter[i], -900, 0);
     gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LOG);
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
-    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,1);
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,0);
   }
   gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
   // add gain-control
 	self->priv->volume=GTK_SCALE(gtk_hscale_new_with_range(/*min=*/0.0,/*max=*/1.0,/*step=*/0.01));
-	gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,1);
+	gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,0);
 	gtk_scale_set_draw_value(self->priv->volume,FALSE);
 	gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
 
