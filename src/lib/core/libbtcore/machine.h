@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.12 2004-10-28 11:16:29 ensonic Exp $
+/* $Id: machine.h,v 1.13 2004-12-15 22:20:00 ensonic Exp $
  * base class for a machine
  */
 
@@ -23,11 +23,6 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 
 /**
  * BtMachine:
- * @machine: the #GstElement that does the main signal processing
- * @adder: fan-in input pad adaptor,
- * only in use, when several other machines connect to this machines input pad
- * @spreader: fan-out output pad adapter
- * only in use, when several other machines connect to this machines output pad
  *
  * base object for a virtual piece of hardware
  */
@@ -35,7 +30,8 @@ struct _BtMachine {
   GObject parent;
 
 	/* convinience pointers (accessed alot by the wire object) */
-	GstElement *dst_elem,*src_elem;
+	GstElement *dst_elem;
+	GstElement *src_elem;
 
   /* private */
   BtMachinePrivate *priv;
