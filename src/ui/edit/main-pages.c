@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.14 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-pages.c,v 1.15 2004-12-14 16:12:07 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -170,6 +170,7 @@ static void bt_main_pages_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  GST_DEBUG("!!!! self=%p",self);
   g_object_try_unref(self->priv->app);
   // this disposes the pages for us
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -180,6 +181,7 @@ static void bt_main_pages_dispose(GObject *object) {
 static void bt_main_pages_finalize(GObject *object) {
   BtMainPages *self = BT_MAIN_PAGES(object);
   
+  GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {

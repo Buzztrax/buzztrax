@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.26 2004-12-09 14:26:48 ensonic Exp $
+/* $Id: main-menu.c,v 1.27 2004-12-14 16:12:07 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -350,6 +350,7 @@ static void bt_main_menu_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  GST_DEBUG("!!!! self=%p",self);
   g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -360,6 +361,7 @@ static void bt_main_menu_dispose(GObject *object) {
 static void bt_main_menu_finalize(GObject *object) {
   BtMainMenu *self = BT_MAIN_MENU(object);
   
+  GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {

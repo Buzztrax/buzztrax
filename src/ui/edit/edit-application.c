@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.39 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: edit-application.c,v 1.40 2004-12-14 16:12:06 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -59,10 +59,13 @@ static gboolean on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpoint
 //-- helper methods
 
 static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
+	gboolean res;
+	
   g_assert(self);
   g_assert(self->priv->main_window);
   
-  return(bt_main_window_run(self->priv->main_window));
+	res=bt_main_window_run(self->priv->main_window);	
+  return(res);
 }
 
 //-- constructor methods

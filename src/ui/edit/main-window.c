@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.39 2004-12-13 18:26:43 ensonic Exp $
+/* $Id: main-window.c,v 1.40 2004-12-14 16:12:07 ensonic Exp $
  * class for the editor main window
  */
 
@@ -54,7 +54,9 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
 
 static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
   GST_INFO("destroy occurred");
-  gtk_main_quit();
+  if(gtk_main_level()) {
+		gtk_main_quit();
+	}
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
