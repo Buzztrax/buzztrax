@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.62 2004-12-08 18:17:31 ensonic Exp $
+/* $Id: song.c,v 1.63 2004-12-09 11:04:52 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -239,7 +239,7 @@ static void bt_song_set_property(GObject      *object,
       GST_DEBUG("set the master for the song: %p",self->priv->master);
 		} break;
     case SONG_UNSAVED: {
-      self->priv->unsaved = g_value_get_boolean(value));
+      self->priv->unsaved = g_value_get_boolean(value);
       GST_DEBUG("set the unsaved flag for the song: %d",self->priv->unsaved);
     } break;
     default: {

@@ -1,4 +1,4 @@
-/** $Id: gst1.c,v 1.9 2004-11-01 11:38:42 ensonic Exp $
+/** $Id: gst1.c,v 1.10 2004-12-09 11:04:41 ensonic Exp $
 * small example, how to create a pipeline with one source and one sink and how to
 * use dparams to control the volume. The volume in this example is decrementes from
 * the given volume to silence. After silence is reached, the example stpped.
@@ -19,18 +19,17 @@ int main(int argc, char **argv) {
   gfloat set_to_value;
   /* the value to set dynamicly */
   GValue *set_val;
-  
-  /* init gstreamer */
-	gst_init(&argc, &argv);
-  /* init gstreamer control */
-  gst_control_init(&argc,&argv);
-  
+   
   /* if wrong count of commandline parameters are given, print a short help and exit */
   if (argc < 3) {
     g_print("use: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
     exit(-1);
   }
   
+  /* init gstreamer */
+	gst_init(&argc, &argv);
+  /* init gstreamer control */
+  gst_control_init(&argc,&argv);
   
   /* create a new pipeline to hold the elements */
   pipeline = gst_pipeline_new ("pipeline");

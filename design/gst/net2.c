@@ -1,4 +1,4 @@
-/** $Id: net2.c,v 1.2 2004-04-08 15:29:32 ensonic Exp $
+/** $Id: net2.c,v 1.3 2004-12-09 11:04:41 ensonic Exp $
  * this is beta code !
  *  - it does not free any memory ;-)
  *  - it contains hardcoded stuff
@@ -100,10 +100,6 @@ void play_sequence(void) {
 //-- main ----------------------------------------------------------------------
 
 int main(int argc, char **argv) {
-	// init gst
-	gst_init(&argc, &argv);
-  gst_control_init(&argc,&argv);
-	GST_DEBUG_CATEGORY_INIT(bt_core_debug, "buzztard", 0, "music production environment");
 
   if (argc < 2) {
     g_print("usage: %s <sink>\n",argv[0]);
@@ -111,6 +107,11 @@ int main(int argc, char **argv) {
 		g_print("\t%s esdsink\n",argv[0]);
     exit(-1);
   }
+
+  // init gst
+  gst_init(&argc, &argv);
+  gst_control_init(&argc,&argv);
+  GST_DEBUG_CATEGORY_INIT(bt_core_debug, "buzztard", 0, "music production environment");
 
   /* create a new thread to hold the elements */
   thread = gst_thread_new("thread");

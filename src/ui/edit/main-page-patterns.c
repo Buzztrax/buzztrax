@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.18 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-page-patterns.c,v 1.19 2004-12-09 11:04:52 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -27,11 +27,23 @@ struct _BtMainPagePatternsPrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
+//-- event handlers
+
+static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+	GtkLabel *label=GTK_LABEL(user_data);
+	gchar *str;
+	
+	g_object_get(G_OBJECT(machine),"id",&str,NULL);
+  GST_INFO("machine id change to \"%s\"",str);
+  gtk_label_set_text(label,str);
+	g_free(str);
+}
+
 //-- event handler helper
 
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
   BtMachine *machine;
-  GtkWidget *menu,*menu_item;
+  GtkWidget *menu,*menu_item,*label;
   gpointer *iter;
   gchar *str;
 
@@ -45,6 +57,16 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
     menu_item=gtk_menu_item_new_with_label(str);g_free(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
+		
+		label=gtk_bin_get_child(GTK_BIN(menu_item));
+		if(GTK_IS_LABEL(label)) {
+			//GST_INFO("    connecting signal : %p",label);
+			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
+		}
+		else {
+			GST_WARNING("    can't connect signal");
+		}
+		
     iter=bt_setup_machine_iterator_next(iter);
   }
   gtk_option_menu_set_menu(self->priv->machine_menu,menu);
