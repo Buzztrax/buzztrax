@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.9 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.10 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -37,6 +37,9 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update page
+  // release the reference
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  g_object_try_unref(song);
 }
 
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
@@ -64,14 +67,15 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
  * @todo this needs parameters
  */
 static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
-  GnomeCanvasItem *item,*group;
+  GnomeCanvasItem *item;
+  GnomeCanvasGroup *group;
   float x=30.0,y=30.0,w=25.0,h=15.0;
 
-  group = gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+  group = GNOME_CANVAS_GROUP(gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
                            GNOME_TYPE_CANVAS_GROUP,
                            "x", x,
                            "y", y,
-                           NULL);
+                           NULL));
 
   // add machine visualisation components
   item = gnome_canvas_item_new(group,

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.10 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.11 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -101,6 +101,9 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // update page
   machine_menu_refresh(self,setup);
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
+  // release the reference
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  g_object_try_unref(song);
 }
 
 //-- helper methods
@@ -206,13 +209,20 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
   glong index;
   BtSong *song;
   BtSetup *setup;
+  BtMachine *machine;
 
+  GST_INFO("get machine for pattern");
+  
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   setup=bt_song_get_setup(song);
 
   index=gtk_option_menu_get_history(self->private->machine_menu);
+  machine=bt_setup_get_machine_by_index(setup,index);
 
-  return(bt_setup_get_machine_by_index(setup,index));
+  //-- release the reference
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+  g_object_try_unref(song);
+  return(machine);
 }
 
 //-- wrapper

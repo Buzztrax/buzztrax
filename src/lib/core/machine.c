@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.28 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: machine.c,v 1.29 2004-09-22 16:05:11 ensonic Exp $
  * base class for a machine
  */
  
@@ -64,6 +64,7 @@ struct _BtMachinePrivate {
 
 // @todo ideally this would be a protected method, but how to do this in 'C' ?
 gboolean bt_machine_init_gst_element(BtMachine *self) {
+  GstBin *bin=NULL;
 
   g_assert(self->machine==NULL);
   g_assert(self->private->id);
@@ -102,7 +103,8 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
       GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
     }
   }
-  gst_bin_add(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin")), self->machine);
+  bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
+  gst_bin_add(bin,self->machine);
   g_assert(self->machine!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
@@ -111,7 +113,7 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
     GST_DEBUG("this will be the master for the song");
     bt_g_object_set_object_property(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine));
   }
-
+  g_object_try_unref(bin);
   return(TRUE);
 }
 
@@ -348,8 +350,9 @@ static void bt_machine_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
-      g_object_try_unref(self->private->song);
-      self->private->song = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->private->song);
+      self->private->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->private->song);
       GST_DEBUG("set the song for machine: %p",self->private->song);
     } break;
     case MACHINE_ID: {
@@ -385,7 +388,7 @@ static void bt_machine_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->private->song);
+  g_object_try_weak_unref(self->private->song);
   // unref list of patterns
 	if(self->private->patterns) {
     GList* node=g_list_first(self->private->patterns);

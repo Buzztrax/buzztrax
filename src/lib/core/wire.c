@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.25 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: wire.c,v 1.26 2004-09-22 16:05:11 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -52,6 +52,7 @@ struct _BtWirePrivate {
  * Returns: true for success
  */
 static gboolean bt_wire_link_machines(const BtWire *self) {
+  gboolean res=TRUE;
   BtMachine *src, *dst;
   BtSong *song=self->private->song;
   GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
@@ -79,7 +80,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
         GST_DEBUG("trying to link machines with convert and scale");
 				if(!gst_element_link_many(src->src_elem, self->private->convert, self->private->scale, dst->dst_elem, NULL)) {
 					// try harder (scale, convert)
-					GST_DEBUG("failed to link the machines");return(FALSE);
+					GST_DEBUG("failed to link the machines");
+          res=FALSE;
 				}
 				else {
 					self->private->src_elem=self->private->scale;
@@ -104,7 +106,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 		self->private->dst_elem=dst->dst_elem;
 		GST_DEBUG("  wire okay");
 	}
-	return(TRUE);
+  g_object_try_unref(bin);
+	return(res);
 }
 
 /**
@@ -137,6 +140,7 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
 	if(self->private->scale) {
 		gst_bin_remove(bin, self->private->scale);
 	}
+  g_object_try_unref(bin);
 }
 
 /**
@@ -152,13 +156,14 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
  * Returns: true for success
  */
 static gboolean bt_wire_connect(BtWire *self) {
+  gboolean res=FALSE;
   BtSong *song=self->private->song;
   BtSetup *setup=bt_song_get_setup(song);
   BtWire *other_wire;
   BtMachine *src, *dst;
   GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
 
-  if((!self->private->src) || (!self->private->dst)) return(FALSE);
+  if((!self->private->src) || (!self->private->dst)) goto Error;
   src=self->private->src;
   dst=self->private->dst;
 
@@ -175,7 +180,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 			g_assert(src->spreader!=NULL);
 			gst_bin_add(bin, src->spreader);
 			if(!gst_element_link(src->machine, src->spreader)) {
-				GST_ERROR("failed to link the machines internal spreader");return(FALSE);
+				GST_ERROR("failed to link the machines internal spreader");goto Error;
 			}
 		}
 		if(other_wire->private->src_elem==src->src_elem) {
@@ -188,7 +193,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src->src_elem, other_wire->dst_elem)) {
-			GST_ERROR("failed to re-link the machines after inserting internal spreaker");return(FALSE);
+			GST_ERROR("failed to re-link the machines after inserting internal spreaker");goto Error;
 		}
 	}
 	
@@ -210,7 +215,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 			g_assert(convert!=NULL);
 			gst_bin_add(bin, convert);
 			if(!gst_element_link_many(dst->adder, convert, dst->machine, NULL)) {
-				GST_ERROR("failed to link the machines internal adder");return(FALSE);
+				GST_ERROR("failed to link the machines internal adder");goto Error;
 			}
 		}
 		if(other_wire->private->dst_elem==dst->dst_elem) {
@@ -223,17 +228,20 @@ static gboolean bt_wire_connect(BtWire *self) {
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
 		//if(!gst_element_link(other_wire->src_elem, other_wire->dst->dst_elem)) {
-			GST_ERROR("failed to re-link the machines after inserting internal adder");return(FALSE);
+			GST_ERROR("failed to re-link the machines after inserting internal adder");goto Error;
 		}
 	}
 	
 	if(!bt_wire_link_machines(self)) {
-		g_object_unref(self);
-    GST_ERROR("linking machines failed");return(FALSE);
+    GST_ERROR("linking machines failed");goto Error;
 	}
   bt_setup_add_wire(setup,self);
+  res=TRUE;
   GST_DEBUG("linking machines succeded");
-	return(TRUE);
+Error:
+  g_object_try_unref(bin);
+  if(!res) g_object_unref(self);
+	return(res);
 }
 
 //-- constructor methods
@@ -294,8 +302,9 @@ static void bt_wire_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
-      g_object_try_unref(self->private->song);
-      self->private->song = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->private->song);
+      self->private->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->private->song);
       //GST_DEBUG("set the song for wire: %p",self->private->song);
     } break;
 		case WIRE_SRC: {
@@ -322,7 +331,7 @@ static void bt_wire_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_unref(self->private->song);
+	g_object_try_weak_unref(self->private->song);
 	g_object_try_unref(self->private->dst);
 	g_object_try_unref(self->private->src);
 }

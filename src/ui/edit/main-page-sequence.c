@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.13 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.14 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -182,6 +182,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         case BT_TIMELINETRACK_TYPE_PATTERN:
           pattern=BT_PATTERN(bt_g_object_get_object_property(G_OBJECT(timelinetrack),"pattern"));
           str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+          g_object_try_unref(pattern);
           break;
         case BT_TIMELINETRACK_TYPE_MUTE:
           str="---";
@@ -282,6 +283,9 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // update sequence and pattern list
   sequence_table_refresh(self,song);
   pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
+  //-- release the reference
+  g_object_try_unref(song);
+ 
 }
 
 //-- helper methods
@@ -450,6 +454,8 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
       machine=bt_sequence_get_machine_by_track(sequence,track-1);
     }
   }
+  // release the reference
+  g_object_try_unref(song);
   return(machine);
 }
 

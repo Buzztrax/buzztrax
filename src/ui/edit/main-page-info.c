@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.8 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-page-info.c,v 1.9 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -46,6 +46,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   gtk_entry_set_text(self->private->genre,str);
   if(!(str=(gchar *)bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"))) str="";
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->private->info),str,-1);
+  // release the reference
+  g_object_try_unref(song);
 }
 
 //-- helper methods

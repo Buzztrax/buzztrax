@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.42 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: song.c,v 1.43 2004-09-22 16:05:11 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -21,7 +21,10 @@ enum {
 
 enum {
 	SONG_BIN=1,
-  SONG_MASTER
+  SONG_MASTER,
+  SONG_SONG_INFO,
+  SONG_SEQUENCE,
+  SONG_SETUP
 };
 
 struct _BtSongPrivate {
@@ -146,6 +149,7 @@ gboolean bt_song_continue(const BtSong *self) {
  * Returns: the #BtSongInfo instance
  */
 BtSongInfo *bt_song_get_song_info(const BtSong *self) {
+  // @todo deprecate method -> bt_g_object_get_object_property(song,"song-info")
   g_assert(self);
 	return(self->private->song_info);
 }
@@ -159,6 +163,7 @@ BtSongInfo *bt_song_get_song_info(const BtSong *self) {
  * Returns: the #BtSetup instance
  */
 BtSetup *bt_song_get_setup(const BtSong *self) {
+  // @todo deprecate method -> bt_g_object_get_object_property(song,"setup")
   g_assert(self);
 	return(self->private->setup);
 }
@@ -172,6 +177,7 @@ BtSetup *bt_song_get_setup(const BtSong *self) {
  * Returns: the #BtSequence instance
  */
 BtSequence *bt_song_get_sequence(const BtSong *self) {
+  // @todo deprecate method -> bt_g_object_get_object_property(song,"sequence")
   g_assert(self);
   return(self->private->sequence);
 }
@@ -193,6 +199,15 @@ static void bt_song_get_property(GObject      *object,
     case SONG_MASTER: {
       g_value_set_object(value, self->private->master);
     } break;
+    case SONG_SONG_INFO: {
+      g_value_set_object(value, self->private->song_info);
+    } break;
+    case SONG_SEQUENCE: {
+      g_value_set_object(value, self->private->sequence);
+    } break;
+    case SONG_SETUP: {
+      g_value_set_object(value, self->private->setup);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -210,12 +225,12 @@ static void bt_song_set_property(GObject      *object,
   switch (property_id) {
 		case SONG_BIN: {
       g_object_try_unref(self->private->bin);
-			self->private->bin = g_object_try_ref(g_value_get_object(value));
+			self->private->bin = GST_BIN(g_object_try_ref(g_value_get_object(value)));
       GST_DEBUG("set the bin for the song: %p",self->private->bin);
 		} break;
 		case SONG_MASTER: {
       g_object_try_unref(self->private->master);
-			self->private->master = g_object_try_ref(g_value_get_object(value));
+			self->private->master = GST_ELEMENT(g_object_try_ref(g_value_get_object(value)));
       GST_DEBUG("set the master for the song: %p",self->private->master);
 		} break;
     default: {
@@ -231,6 +246,7 @@ static void bt_song_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  /* @todo we need to do this in setup !
   if(self->private->bin) {
     GList *node=g_list_first(gst_bin_get_list(self->private->bin));
     while(node) {
@@ -238,6 +254,7 @@ static void bt_song_dispose(GObject *object) {
       node=g_list_next(node);
     }
   }
+  */
 
 	g_object_try_unref(self->private->song_info);
 	g_object_try_unref(self->private->sequence);
@@ -322,6 +339,27 @@ static void bt_song_class_init(BtSongClass *klass) {
                                      "songs clocking GstElement",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_SONG_INFO,
+																	g_param_spec_object("song-info",
+                                     "song-info prop",
+                                     "songs metadata sub object",
+                                     BT_TYPE_SONG_INFO, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,SONG_SEQUENCE,
+																	g_param_spec_object("sequence",
+                                     "sequence prop",
+                                     "songs sequence sub object",
+                                     BT_TYPE_SEQUENCE, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,SONG_SETUP,
+																	g_param_spec_object("setup",
+                                     "setup prop",
+                                     "songs setup sub object",
+                                     BT_TYPE_SETUP, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 /**

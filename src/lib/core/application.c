@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.7 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: application.c,v 1.8 2004-09-22 16:05:11 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -67,6 +67,7 @@ static void bt_application_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  GST_INFO("bin->ref_ct=%d",G_OBJECT(self->private->bin)->ref_count);
 	g_object_try_unref(self->private->bin);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.22 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-window.c,v 1.23 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main window
  */
 
@@ -65,6 +65,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // compose title
   title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
   gtk_window_set_title(GTK_WINDOW(self), title);
+  //-- release the reference
+  g_object_try_unref(song);
 }
 
 //-- helper methods

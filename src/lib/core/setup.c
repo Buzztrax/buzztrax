@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.23 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: setup.c,v 1.24 2004-09-22 16:05:11 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -131,7 +131,9 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, glong index) {
  * Returns: the BtWire or NULL 
  */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
+  gboolean found=FALSE;
 	BtWire *wire;
+  BtMachine *machine;
 	GList *node;
 
   g_assert(self);
@@ -139,7 +141,10 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
   node=g_list_first(self->private->wires);
 	while(node) {
 		wire=BT_WIRE(node->data);
-		if(BT_MACHINE(bt_g_object_get_object_property(G_OBJECT(wire),"src"))==src) return(wire);
+    machine=BT_MACHINE(bt_g_object_get_object_property(G_OBJECT(wire),"src"));
+		if(machine==src) found=TRUE;
+    g_object_try_unref(machine);
+    if(found) return(wire);
 		node=g_list_next(node);
 	}
 	return(NULL);
@@ -155,7 +160,9 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
  * Returns: the BtWire or NULL 
  */
 BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
+  gboolean found=FALSE;
 	BtWire *wire;
+  BtMachine *machine;
 	GList *node;
 
   g_assert(self);
@@ -163,7 +170,10 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
   node=g_list_first(self->private->wires);
 	while(node) {
 		wire=BT_WIRE(node->data);
-		if(BT_MACHINE(bt_g_object_get_object_property(G_OBJECT(wire),"dst"))==dst) return(wire);
+    machine=BT_MACHINE(bt_g_object_get_object_property(G_OBJECT(wire),"dst"));
+		if(machine==dst) found=TRUE;
+    g_object_try_unref(machine);
+    if(found) return(wire);
 		node=g_list_next(node);
 	}
 	return(NULL);

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.11 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.12 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -93,7 +93,9 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   // subscribe to tick signal of song->sequence
   g_signal_connect(G_OBJECT(bt_song_get_sequence(song)), "tick", (GCallback)on_sequence_tick, (gpointer)self);
   g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
-  // @todo shouldn't we disconnet these somewhere
+  // @todo shouldn't we disconnet these signals somewhere
+  // release the reference
+  g_object_try_unref(song);
 }
 
 //-- helper methods

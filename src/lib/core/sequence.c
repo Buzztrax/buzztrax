@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.31 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: sequence.c,v 1.32 2004-09-22 16:05:11 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -210,7 +210,7 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,c
   if(track<self->private->tracks) {
     if(!self->private->machines[track]) {
       // @todo ref the machine
-      self->private->machines[track]=machine;
+      self->private->machines[track]=(BtMachine *)machine;
     }
     else {
       GST_ERROR("machine has already be set!");
@@ -274,71 +274,74 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
  *
  */
 gboolean bt_sequence_play(const BtSequence *self) {
-  glong i;
-  BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
-  BtTimeLine **timeline=self->private->timelines;
-  GstElement *master=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
-  GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
-  BtPlayLine *playline;
-  glong wait_per_position,bars;
-  glong beats_per_minute,ticks_per_beat;
-  gdouble ticks_per_minute;
   gboolean res=TRUE;
-  // DEBUG {
-  GTimer *timer;
-  // }
   
-  if(!self->private->tracks) return(res);
-  if(!self->private->length) return(res);
-  
-  ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
-  beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
-  bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
-  /* the number of pattern-events for one playline-step,
-   * when using 4 ticks_per_beat then
-   * for 4/4 bars it is 16 (standart dance rhythm)
-   * for 3/4 bars it is 12 (walz)
-   */
-  //ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
-  ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
-  wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
-  playline=bt_playline_new(self->private->song,master,self->private->tracks,bars,wait_per_position);
-  
-  GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
-  GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->private->length,bars,wait_per_position,(gulong)(((guint64)self->private->length*(guint64)bars*(guint64)wait_per_position)/GST_SECOND));
-
-  if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
-    g_mutex_lock(self->private->is_playing_mutex);
-    self->private->is_playing=TRUE;
-    g_mutex_unlock(self->private->is_playing_mutex);
+  if((!self->private->tracks) || (!self->private->length)) return(res);
+  else {
+    BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
+    BtTimeLine **timeline=self->private->timelines;
+    GstElement *master=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
+    GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
+    BtPlayLine *playline;
+    glong i;
+    glong wait_per_position,bars;
+    glong beats_per_minute,ticks_per_beat;
+    gdouble ticks_per_minute;
     // DEBUG {
-    timer=g_timer_new();
-    g_timer_start(timer);
+    GTimer *timer;
     // }
-    for(i=0;((i<self->private->length) && (self->private->is_playing));i++,timeline++) {
+    
+    ticks_per_beat=bt_g_object_get_long_property(G_OBJECT(song_info),"tpb");
+    beats_per_minute=bt_g_object_get_long_property(G_OBJECT(song_info),"bpm");
+    bars=bt_g_object_get_long_property(G_OBJECT(song_info),"bars");
+    /* the number of pattern-events for one playline-step,
+     * when using 4 ticks_per_beat then
+     * for 4/4 bars it is 16 (standart dance rhythm)
+     * for 3/4 bars it is 12 (walz)
+     */
+    //ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
+    ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
+    wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+    playline=bt_playline_new(self->private->song,master,self->private->tracks,bars,wait_per_position);
+    
+    GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
+    GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->private->length,bars,wait_per_position,(gulong)(((guint64)self->private->length*(guint64)bars*(guint64)wait_per_position)/GST_SECOND));
+  
+    if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
+      g_mutex_lock(self->private->is_playing_mutex);
+      self->private->is_playing=TRUE;
+      g_mutex_unlock(self->private->is_playing_mutex);
       // DEBUG {
-      GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
+      timer=g_timer_new();
+      g_timer_start(timer);
+      // }
+      for(i=0;((i<self->private->length) && (self->private->is_playing));i++,timeline++) {
+        // DEBUG {
+        GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
+        // }
+        // emit a tick signal
+        g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
+        // enter new patterns into the playline and stop or mute patterns
+        bt_timeline_update_playline(*timeline,playline);
+        // play the patterns in the cursor
+        bt_playline_play(playline);
+      }
+      // DEBUG {
+      g_timer_destroy(timer);
       // }
       // emit a tick signal
       g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
-      // enter new patterns into the playline and stop or mute patterns
-      bt_timeline_update_playline(*timeline,playline);
-      // play the patterns in the cursor
-      bt_playline_play(playline);
+      if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
+        GST_ERROR("can't stop playing");res=FALSE;
+      }
     }
-    // DEBUG {
-    g_timer_destroy(timer);
-    // }
-    // emit a tick signal
-    g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
-    if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
-      GST_ERROR("can't stop playing");res=FALSE;
+    else {
+      GST_ERROR("can't start playing");res=FALSE;
     }
+    g_object_try_unref(playline);
+    g_object_try_unref(bin);
+    g_object_try_unref(master);
   }
-  else {
-    GST_ERROR("can't start playing");res=FALSE;
-  }
-  g_object_unref(playline); 
   return(res);
 }
 

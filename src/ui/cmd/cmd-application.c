@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.29 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: cmd-application.c,v 1.30 2004-09-22 16:05:12 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -66,15 +66,18 @@ BtCmdApplication *bt_cmd_application_new(void) {
  */
 // @todo check if the self pointer is not NULL
 gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
+  gboolean res=FALSE;
 	BtSong *song=NULL;
 	BtSongIO *loader=NULL;
+  GstBin *bin=NULL;
 
 	GST_INFO("application.play launched");
   
   if(!is_string(input_file_name)) {
     goto Error;
   }
-  if(!(song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
+  bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+  if(!(song=bt_song_new(bin))) {
     goto Error;
   }
 	if(!(loader=bt_song_io_new(input_file_name))) {
@@ -88,18 +91,17 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 		g_signal_connect(G_OBJECT(song), "play", (GCallback)on_song_play, (gpointer)self);
 		g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
 		bt_song_play(song);
+    res=TRUE;
 	}
 	else {
 		GST_ERROR("could not load song \"%s\"",input_file_name);
     goto Error;
 	}
-  g_object_try_unref(song);
-  g_object_try_unref(loader);
-	return(TRUE);
 Error:
+  g_object_try_unref(bin);
   g_object_try_unref(song);
   g_object_try_unref(loader);
-  return(FALSE);
+  return(res);
 }
 
 /**
@@ -114,8 +116,10 @@ Error:
  * Returns: true for success
  */
 gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
+  gboolean res=FALSE;
 	BtSong *song=NULL;
 	BtSongIO *loader=NULL;
+  GstBin *bin=NULL;
 	FILE *output_file=NULL;
 
 	GST_INFO("application.info launched");
@@ -128,7 +132,8 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 	} else {
 		output_file = fopen(output_file_name,"wb");
 	}
-  if(!(song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
+  bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"));
+  if(!(song=bt_song_new(bin))) {
     goto Error;
   }
 	if(!(loader=bt_song_io_new(input_file_name))) {
@@ -152,24 +157,20 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
       g_fprintf(output_file,"machine.id: \"%s\"\n",          bt_g_object_get_string_property(G_OBJECT(machine),"id"));
       g_fprintf(output_file,"machine.plugin_name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"plugin_name"));
     }
+    res=TRUE;
 	}
 	else {
 		GST_ERROR("could not load song \"%s\"",input_file_name);
 		goto Error;
 	}
-  g_object_try_unref(song);
-  g_object_try_unref(loader);
-	if (is_string(output_file_name)) {
-		fclose(output_file);
-	}
-	return(TRUE);
 Error:
+  g_object_try_unref(bin);
   g_object_try_unref(song);
   g_object_try_unref(loader);
 	if (is_string(output_file_name)) {
 		fclose(output_file);
 	}
-	return(FALSE);
+	return(res);
 }
 
 //-- wrapper

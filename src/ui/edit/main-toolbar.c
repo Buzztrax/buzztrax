@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.13 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.14 2004-09-22 16:05:12 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -38,16 +38,20 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  BtMainWindow *main_window=BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window"));
   
   GST_INFO("toolbar new event occurred");
-  bt_main_window_new_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
+  bt_main_window_new_song(main_window);\
+  g_object_try_unref(main_window);
 }
 
 static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  BtMainWindow *main_window=BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window"));
   
   GST_INFO("toolbar open event occurred");
-  bt_main_window_open_song(BT_MAIN_WINDOW(bt_g_object_get_object_property(G_OBJECT(self->private->app),"main-window")));
+  bt_main_window_open_song(main_window);
+  g_object_try_unref(main_window);
 }
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
@@ -58,6 +62,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     GError *error;
 
     GST_INFO("toolbar play event occurred");
+    // get song from app
     song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
 
     on_song_stop_handler_id=g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)button);
@@ -66,6 +71,8 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
       GST_ERROR("error creating player thread : \"%s\"", error->message);
       g_error_free(error);
     }
+    // release the reference
+    g_object_try_unref(song);
   }
 }
 
@@ -74,8 +81,11 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   BtSong *song;
 
   GST_INFO("toolbar stop event occurred");
+  // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   bt_song_stop(song);
+  // release the reference
+  g_object_try_unref(song);
 }
 
 //-- helper methods

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.6 2004-08-26 16:44:11 ensonic Exp $
+/* $Id: tools.c,v 1.7 2004-09-22 16:05:11 ensonic Exp $
  */
  
 #define BT_CORE
@@ -11,21 +11,18 @@
  * @property_name: the property name
  *
  * Fetches the named property from the given object and returns it as a GObject*.
+ * Do not forget to call g_object_unref() on the returned object.
  *
  * Returns: the GObject value or NULL
  */
 GObject* bt_g_object_get_object_property(GObject *object, const gchar *property_name) {
-  static GValue *val=NULL;
+  static GObject *res;
   
   g_assert(object);
   g_assert(property_name);
   
-  if(val==NULL) {
-    val=g_new0(GValue,1);
-    g_value_init(val,G_TYPE_OBJECT);
-  }
-  g_object_get_property(G_OBJECT(object),property_name,val);
-  return(g_value_get_object(val));
+  g_object_get(object,property_name,&res,NULL);
+  return(res);
 }
 
 /**
@@ -34,21 +31,18 @@ GObject* bt_g_object_get_object_property(GObject *object, const gchar *property_
  * @property_name: the property name
  *
  * Fetches the named property from the given object and returns it as a gchar*.
+ * Do not forget to call g_free() on the returned string.
  *
  * Returns: the string value or NULL
  */
 gchar* bt_g_object_get_string_property(GObject *object, const gchar *property_name) {
-  static GValue *val=NULL;
+  static gchar *res;
   
   g_assert(object);
   g_assert(property_name);
 
-  if(val==NULL) {
-    val=g_new0(GValue,1);
-    g_value_init(val,G_TYPE_STRING);
-  }
-  g_object_get_property(G_OBJECT(object),property_name,val);
-  return(g_value_get_string(val));
+  g_object_get(object,property_name,&res,NULL);
+  return(res);
 }
 
 /**
@@ -61,17 +55,13 @@ gchar* bt_g_object_get_string_property(GObject *object, const gchar *property_na
  * Returns: the glong value
  */
 glong bt_g_object_get_long_property(GObject *object, const gchar *property_name) {
-  static GValue *val=NULL;
+  static glong res;
   
   g_assert(object);
   g_assert(property_name);
 
-  if(val==NULL) {
-    val=g_new0(GValue,1);
-    g_value_init(val,G_TYPE_LONG);
-  }
-  g_object_get_property(G_OBJECT(object),property_name,val);
-  return(g_value_get_long(val));
+  g_object_get(object,property_name,&res,NULL);
+  return(res);
 }
 
 
@@ -85,17 +75,11 @@ glong bt_g_object_get_long_property(GObject *object, const gchar *property_name)
  *
  */
 void bt_g_object_set_object_property(GObject *object, const gchar *property_name, GObject *data) {
-  static GValue *val;
-  
+
   g_assert(object);
   g_assert(property_name);
 
-  if(val==NULL) {
-    val=g_new0(GValue,1);
-    g_value_init(val,G_TYPE_OBJECT);
-  }
-  g_value_set_object(val,data);
-  g_object_set_property(G_OBJECT(object),property_name, val);
+  g_object_set(object,property_name,data,NULL);
 }
 
 /**
@@ -108,17 +92,11 @@ void bt_g_object_set_object_property(GObject *object, const gchar *property_name
  *
  */
 void bt_g_object_set_string_property(GObject *object, const gchar *property_name, const gchar *data) {
-  static GValue *val;
-  
+
   g_assert(object);
   g_assert(property_name);
 
-  if(val==NULL) {
-    val=g_new0(GValue,1);
-    g_value_init(val,G_TYPE_STRING);
-  }
-  g_value_set_string(val,data);
-  g_object_set_property(G_OBJECT(object),property_name, val);
+  g_object_set(object,property_name,data,NULL);
 }
 
 /**
@@ -131,16 +109,10 @@ void bt_g_object_set_string_property(GObject *object, const gchar *property_name
  *
  */
 void bt_g_object_set_long_property(GObject *object, const gchar *property_name, glong data) {
-  static GValue *val;
-  
+
   g_assert(object);
   g_assert(property_name);
 
-  if(val==NULL) {
-    val=g_new0(GValue,1);
-    g_value_init(val,G_TYPE_LONG);
-  }
-  g_value_set_long(val,data);
-  g_object_set_property(G_OBJECT(object),property_name, val);
+  g_object_set(object,property_name,data,NULL);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.35 2004-09-20 18:01:27 ensonic Exp $
+/* $Id: core.h,v 1.36 2004-09-22 16:05:12 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -100,7 +100,6 @@
 #define BT_NS_URL    "http://buzztard.sourceforge.net/"
 
 // handy shortcuts that improve readabillity
-
 //#define BT_SONG_GET_BIN GST_BIN(bt_g_object_get_object_property(G_OBJECT(self-private->song),"bin"))
 
 //-- misc
