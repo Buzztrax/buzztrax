@@ -1,4 +1,4 @@
-/** $Id: sequence.c,v 1.1 2004-05-06 15:10:21 ensonic Exp $
+/** $Id: sequence.c,v 1.2 2004-05-06 18:26:58 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -55,7 +55,7 @@ static void bt_sequence_set_property(GObject      *object,
   switch (property_id) {
     case SEQUENCE_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //g_print("set the song for sequence: %p\n",self->private->song);
+      //GST_INFO("set the song for sequence: %p",self->private->song);
     } break;
     default: {
       g_assert(FALSE);

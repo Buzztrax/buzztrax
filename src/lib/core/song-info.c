@@ -1,4 +1,4 @@
-/** $Id: song-info.c,v 1.4 2004-05-06 15:08:45 ensonic Exp $
+/** $Id: song-info.c,v 1.5 2004-05-06 18:26:58 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -8,7 +8,8 @@
 #include <libbtcore/core.h>
 
 enum {
-  SONG_INFO_SONG=1
+  SONG_INFO_SONG=1,
+	SONG_INFO_INFO
 };
 
 struct _BtSongInfoPrivate {
@@ -17,23 +18,14 @@ struct _BtSongInfoPrivate {
 	
 	/* the song the song-info belongs to */
 	BtSong *song;
+	
+  /* freeform info about the song */
+  gchar *info;
 };
 
 //-- methods
 
-static gboolean bt_song_info_real_load(const BtSongInfo *self, const xmlDocPtr song_doc) {
-	xmlNodePtr xml_node;
-	// get meta-node
-	// xml_node=("//buzztard/meta");
-	g_print("loading the meta-data from the song\n");
-	return(TRUE);
-}
-
 //-- wrapper
-
-gboolean bt_song_info_load(const BtSongInfo *self, const xmlDocPtr song_doc) {
-	return(BT_SONG_INFO_GET_CLASS(self)->load(self,song_doc));
-}
 
 //-- class internals
 
@@ -48,6 +40,9 @@ static void bt_song_info_get_property(GObject      *object,
   switch (property_id) {
     case SONG_INFO_SONG: {
       g_value_set_object(value, G_OBJECT(self->private->song));
+    } break;
+    case SONG_INFO_INFO: {
+      g_value_set_string(value, self->private->info);
     } break;
     default: {
       g_assert(FALSE);
@@ -67,7 +62,12 @@ static void bt_song_info_set_property(GObject      *object,
   switch (property_id) {
     case SONG_INFO_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      g_print("set the song for song-info: %p\n",self->private->song);
+      GST_INFO("set the song for song-info: %p",self->private->song);
+    } break;
+    case SONG_INFO_INFO: {
+      g_free(self->private->info);
+      self->private->info = g_value_dup_string(value);
+      GST_INFO("set the info for song_info: %s",self->private->info);
     } break;
     default: {
       g_assert(FALSE);
@@ -84,6 +84,7 @@ static void bt_song_info_dispose(GObject *object) {
 
 static void bt_song_info_finalize(GObject *object) {
   BtSongInfo *self = BT_SONG_INFO(object);
+	g_free(self->private->info);
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
@@ -91,7 +92,7 @@ static void bt_song_info_finalize(GObject *object) {
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   BtSongInfo *self = BT_SONG_INFO(instance);
 	
-	//g_print("song_info_init self=%p\n",self);
+	//GST_INFO("song_info_init self=%p",self);
   self->private = g_new0(BtSongInfoPrivate,1);
   self->private->dispose_has_run = FALSE;
 }
@@ -105,8 +106,6 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   gobject_class->dispose      = bt_song_info_dispose;
   gobject_class->finalize     = bt_song_info_finalize;
 	
-  klass->load       = bt_song_info_real_load;
-	
   g_param_spec = g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the song-info belongs to",
@@ -115,6 +114,16 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                            
   g_object_class_install_property(gobject_class,
                                  SONG_INFO_SONG,
+                                 g_param_spec);
+
+  g_param_spec = g_param_spec_string("info",
+                                     "freeform song info",
+                                     "Set songs freeform info",
+                                     "comment me!", /* default value */
+                                     G_PARAM_READWRITE);
+                                           
+  g_object_class_install_property(gobject_class,
+                                 SONG_INFO_INFO,
                                  g_param_spec);
 }
 

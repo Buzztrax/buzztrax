@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.5 2004-05-06 15:08:45 ensonic Exp $
+/** $Id: wire.c,v 1.6 2004-05-06 18:26:58 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -58,7 +58,7 @@ static void bt_wire_set_property(GObject      *object,
   switch (property_id) {
     case WIRE_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //g_print("set the song for wire: %p\n",self->private->song);
+      //GST_INFO("set the song for wire: %p",self->private->song);
     } break;
     default: {
       g_assert(FALSE);

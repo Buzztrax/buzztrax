@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.12 2004-05-06 15:08:45 ensonic Exp $
+/** $Id: core.h,v 1.13 2004-05-06 18:26:58 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -27,6 +27,7 @@
 #include "wire-methods.h"
 #include "setup-methods.h"
 #include "sequence-methods.h"
+#include "song-io-methods.h"
 #include "version.h"
 
 //-- global defines ------------------------------------------------------------

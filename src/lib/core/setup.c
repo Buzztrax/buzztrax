@@ -1,4 +1,4 @@
-/** $Id: setup.c,v 1.1 2004-05-06 15:10:21 ensonic Exp $
+/** $Id: setup.c,v 1.2 2004-05-06 18:26:58 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -17,6 +17,9 @@ struct _BtSetupPrivate {
 	
 	/* the song the setup belongs to */
 	BtSong *song;
+	
+	GList *machines;	// each entry points to BtMachine
+	GList *wires;			// each entry points to BtWire
 };
 
 //-- methods
@@ -55,7 +58,7 @@ static void bt_setup_set_property(GObject      *object,
   switch (property_id) {
     case SETUP_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //g_print("set the song for setup: %p\n",self->private->song);
+      //GST_INFO("set the song for setup: %p",self->private->song);
     } break;
     default: {
       g_assert(FALSE);

@@ -1,4 +1,4 @@
-/* $Id: song-methods.h,v 1.5 2004-05-05 12:46:03 ensonic Exp $
+/* $Id: song-methods.h,v 1.6 2004-05-06 18:26:58 ensonic Exp $
 * defines all public methods of the song class
 */
 
@@ -6,14 +6,14 @@
 #define BT_SONG_METHODS_H
 
 #include "song.h"
-
-/** load the song from a file
- */
-gboolean bt_song_load(const BtSong *self, const gchar *filename);
+#include "song-info.h"
 
 /** start to play the entire song 
  * at the moment this method does nothing!
  */
 void bt_song_start_play(const BtSong *self);
+
+/** get the info conatiner obejct for the song */
+BtSongInfo *bt_song_get_song_info(const BtSong *self);
 
 #endif // BT_SONG_METHDOS_H 

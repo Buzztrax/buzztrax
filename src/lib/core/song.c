@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.12 2004-05-06 15:08:45 ensonic Exp $
+/** $Id: song.c,v 1.13 2004-05-06 18:26:58 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -27,73 +27,24 @@ struct _BtSongPrivate {
 
 //-- methods
 
-static gboolean bt_song_real_load(const BtSong *self, const gchar *filename) {
-	gboolean result=FALSE;
-	xmlParserCtxtPtr ctxt=NULL;
-	xmlDocPtr song_doc=NULL;
-	xmlNsPtr ns=NULL;
-
-	g_assert(filename!=NULL);
-	g_assert(*filename);
-
-	GST_INFO("will now load song from \"%s\"",filename);
-	
-	if((ctxt=xmlCreateFileParserCtxt(filename))) {
-		ctxt->validate=FALSE;
-		xmlParseDocument(ctxt);
-		if(!ctxt->valid) {
-			GST_WARNING("the supplied document is not a XML/Buzztard document");
-		}
-		else if(!ctxt->wellFormed) {
-			GST_WARNING("the supplied document is not a wellformed XML document");
-		}
-		else {
-			xmlNodePtr xml_node;
-			song_doc=ctxt->myDoc;
-			if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
-				GST_WARNING("xmlDoc is empty");
-			}
-			else if((ns=xmlSearchNsByHref(song_doc,xml_node,(const xmlChar *)BUZZTARD_NS_URL))==NULL) {
-				GST_WARNING("no or incorrect namespace found in xmlDoc");
-			}
-			else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
-				GST_WARNING("wrong document type root node in xmlDoc src");
-			}
-			else {
-				GST_INFO("file looks good!");
-				bt_song_info_load(self->private->song_info,song_doc);
-				// bt_setup_load(self->private->setup,song_doc);
-				// bt_sequence_load(self->private->sequence,song_doc);
-				// ... patterns
-				result=TRUE;
-			}
-		}		
-	}
-	else GST_ERROR("failed to create file-parser context for \"%s\"",filename);
-	if(ctxt) xmlFreeParserCtxt(ctxt);
-	if(song_doc) xmlFreeDoc(song_doc);
-	return(result);
-}
-
 static void bt_song_real_start_play(const BtSong *self) {
   /* emitting signal if we start play */
-  g_signal_emit(self, 
+  g_signal_emit(G_OBJECT(self), 
                 BT_SONG_GET_CLASS(self)->play_signal_id,
-                0,
-                NULL);
+                0);
 }
 
 //-- wrapper
-
-gboolean bt_song_load(const BtSong *self, const gchar *filename) {
-	return(BT_SONG_GET_CLASS(self)->load(self,filename));
-}
 
 /* wrapper method from song
  * @todo inline the wrapper?
  */
 void bt_song_start_play(const BtSong *self) {
   BT_SONG_GET_CLASS(self)->start_play(self);
+}
+
+BtSongInfo *bt_song_get_song_info(const BtSong *self) {
+	return(self->private->song_info);
 }
 
 //-- class internals
@@ -129,7 +80,7 @@ static void bt_song_set_property(GObject      *object,
     case SONG_NAME: {
       g_free(self->private->name);
       self->private->name = g_value_dup_string(value);
-      g_print("set the name for song: %s\n",self->private->name);
+      GST_INFO("set the name for song: %s",self->private->name);
     } break;
     default: {
       g_assert(FALSE);
@@ -154,7 +105,7 @@ static void bt_song_finalize(GObject *object) {
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
 	
-	//g_print("song_init self=%p\n",self);
+	//GST_INFO("song_init self=%p",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
 	self->private->song_info = BT_SONG_INFO(g_object_new(BT_SONG_INFO_TYPE,"song",self,NULL));
@@ -171,7 +122,6 @@ static void bt_song_class_init(BtSongClass *klass) {
   gobject_class->dispose      = bt_song_dispose;
   gobject_class->finalize     = bt_song_finalize;
   
-  klass->load       = bt_song_real_load;
   klass->start_play = bt_song_real_start_play;
   
   /* adding simple signal */

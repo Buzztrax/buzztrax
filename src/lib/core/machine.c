@@ -1,4 +1,4 @@
-/** $Id: machine.c,v 1.3 2004-05-06 15:08:45 ensonic Exp $
+/** $Id: machine.c,v 1.4 2004-05-06 18:26:58 ensonic Exp $
  * cbase class for a machine
  */
  
@@ -55,7 +55,7 @@ static void bt_machine_set_property(GObject      *object,
   switch (property_id) {
     case MACHINE_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //g_print("set the song for machine: %p\n",self->private->song);
+      //GST_INFO("set the song for machine: %p",self->private->song);
     } break;
     default: {
       g_assert(FALSE);

@@ -12,6 +12,8 @@ libbtcore_la_SOURCES = \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
 	song.c libbtcore/song.h libbtcore/song-methods.h \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
+	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
+	song-io-native.c libbtcore/song-io-native.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
 	libbtcore/version.h
 

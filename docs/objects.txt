@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.7 2004-05-05 19:49:56 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.8 2004-05-06 18:26:57 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
@@ -77,10 +77,11 @@ BtSongIO { // base class (because of factory for import) and virtaul methods
 	//   4.) stores the g_module handle and the function pointer in a list (uhm, global (static) variable)
 	// * afterwards it
 	//   first tried bt_song_io_native_detect(const gchar *);
+	//   if that is okay return(bt_song_io_native_get_type(void));
 	//   if that fails it further
-	//   iterates the list and calls GType bt_song_io_custom_detect(const gchar *); for each entry
+	//   iterates the list and calls GType bt_song_io_XXXX_detect(const gchar *); for each entry
 	//   every entry tests if it can handle the file
-	//   if yes, it does return(bt_song_io_custom_get_type(void));
+	//   if yes, it does return(bt_song_io_XXXX_get_type(void));
 	//
 }
 
@@ -99,7 +100,7 @@ bt_song_load("~/songs.song.bt");
 bt_song_import("~/songs.song.bmx");
 //-- loading in the new style
 BtSongIO *song_io=g_object_new(bt_song_io_detect(fname),NULL);
-bt_song_io_load(song_io,mysong);
+bt_song_io_load(song_io,mysong,fname);
 //-- for saving we need to iterate over the list to get available types
 
 // creating a new wire between two machines

@@ -1,4 +1,4 @@
-/** $Id: song.h,v 1.8 2004-05-04 15:37:39 ensonic Exp $
+/** $Id: song.h,v 1.9 2004-05-06 18:26:58 ensonic Exp $
  * Class for a basic buzztard song
  *
  */
@@ -35,30 +35,11 @@ struct _BtSongClass {
   /* id for the play signal */
   guint play_signal_id;
   /* class methods */
-	gboolean (*load)(const BtSong *self, const gchar *filename);
   void (*start_play)(const BtSong *self);
 };
 
 /* used by SONG_TYPE */
 GType bt_song_get_type(void);
 
-/*
-struct _BtSong {
-	// the main bin that holds all children elements
-	GstElement *thread;
-	// the element that has the clock
-	GstElement *master;
-	
-	// setup data
-	// all used machines
-	GList *machines;
-	// add used connections
-	GList *connections;
-	
-	// sequence data
-	// @todo the song-sequence needs to be here
-	// @todo the size data (sequence-length, number of tracks( needs to be here
-};
-*/
 #endif // BT_SONG_H
 
