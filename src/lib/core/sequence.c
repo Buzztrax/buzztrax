@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.33 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: sequence.c,v 1.34 2004-09-29 16:56:26 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -59,12 +59,12 @@ static guint signals[LAST_SIGNAL]={0,};
 
 static void bt_sequence_unref_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_unref_timelines");
-  if(self->private->timelines && self->private->length) {
+  if(self->priv->timelines && self->priv->length) {
     glong i;
-    for(i=0;i<self->private->length;i++) {
-      g_object_try_unref(self->private->timelines[i]);
+    for(i=0;i<self->priv->length;i++) {
+      g_object_try_unref(self->priv->timelines[i]);
     }
-    self->private->length=0;
+    self->priv->length=0;
   }
 }
   
@@ -76,9 +76,9 @@ static void bt_sequence_unref_timelines(const BtSequence *self) {
  */
 static void bt_sequence_free_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_free_timelines");
-  if(self->private->timelines) {
-    g_free(self->private->timelines);
-    self->private->timelines=NULL;
+  if(self->priv->timelines) {
+    g_free(self->priv->timelines);
+    self->priv->timelines=NULL;
   }
 }
 
@@ -90,12 +90,12 @@ static void bt_sequence_free_timelines(const BtSequence *self) {
  */
 static void bt_sequence_init_timelines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_init_timelines");
-  if(self->private->length) {
-    self->private->timelines=g_new(BtTimeLine*,self->private->length);
-    if(self->private->timelines) {
+  if(self->priv->length) {
+    self->priv->timelines=g_new(BtTimeLine*,self->priv->length);
+    if(self->priv->timelines) {
       glong i;
-      for(i=0;i<self->private->length;i++) {
-        self->private->timelines[i]=bt_timeline_new(self->private->song);
+      for(i=0;i<self->priv->length;i++) {
+        self->priv->timelines[i]=bt_timeline_new(self->priv->song);
       }
     }
   }
@@ -109,12 +109,12 @@ static void bt_sequence_init_timelines(const BtSequence *self) {
  */
 static void bt_sequence_init_timelinetracks(const BtSequence *self) {
   GST_DEBUG("bt_sequence_init_timelinetracks");
-  if(self->private->timelines) {
-    if(self->private->length && self->private->tracks) {
+  if(self->priv->timelines) {
+    if(self->priv->length && self->priv->tracks) {
       glong i;
 
-      for(i=0;i<self->private->length;i++) {
-        g_object_set(G_OBJECT(self->private->timelines[i]),"tracks",self->private->tracks,NULL);
+      for(i=0;i<self->priv->length;i++) {
+        g_object_set(G_OBJECT(self->priv->timelines[i]),"tracks",self->priv->tracks,NULL);
       }
     }
   }
@@ -128,8 +128,8 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
  */
 static void bt_sequence_init_machines(const BtSequence *self) {
   GST_DEBUG("bt_sequence_init_machines");
-  if(self->private->tracks) {
-    self->private->machines=g_new0(BtMachine*,self->private->tracks);
+  if(self->priv->tracks) {
+    self->priv->machines=g_new0(BtMachine*,self->priv->tracks);
   }
 }
 
@@ -164,11 +164,11 @@ BtSequence *bt_sequence_new(const BtSong *song) {
  * Returns: the #BtTimeLine pointer or NULL in case of an error
  */
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time) {
-  if(time<self->private->length) {
-    return(self->private->timelines[time]);
+  if(time<self->priv->length) {
+    return(self->priv->timelines[time]);
   }
   else {
-    GST_ERROR("index out of bounds, %d should be < %d",time,self->private->length);
+    GST_ERROR("index out of bounds, %d should be < %d",time,self->priv->length);
   }
   return(NULL);
 }
@@ -183,11 +183,11 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  * Returns: the #BtMachine pointer or NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong track) {
-  if(track<self->private->tracks) {
-    return(self->private->machines[track]);
+  if(track<self->priv->tracks) {
+    return(self->priv->machines[track]);
   }
   else {
-    GST_ERROR("index out of bounds, %d should be < %d",track,self->private->tracks);
+    GST_ERROR("index out of bounds, %d should be < %d",track,self->priv->tracks);
   }
   return(NULL);
 }
@@ -204,20 +204,20 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,c
 
   g_assert(machine);
 
-  // @todo shouldn't we better make self->private->tracks a readonly property and offer methods to insert/remove tracks
+  // @todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
   // as it should not be allowed to change the machine later on
   
-  if(track<self->private->tracks) {
-    if(!self->private->machines[track]) {
+  if(track<self->priv->tracks) {
+    if(!self->priv->machines[track]) {
       // @todo ref the machine
-      self->private->machines[track]=(BtMachine *)machine;
+      self->priv->machines[track]=(BtMachine *)machine;
     }
     else {
       GST_ERROR("machine has already be set!");
     }
   }
   else {
-    GST_ERROR("index out of bounds, %d should be < %d",track,self->private->tracks);
+    GST_ERROR("index out of bounds, %d should be < %d",track,self->priv->tracks);
   }
 }
 
@@ -237,7 +237,7 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
   gdouble ticks_per_minute;
   gulong res;
 
-  g_object_get(G_OBJECT(self->private->song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
 
   ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
@@ -261,7 +261,7 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
 gulong bt_sequence_get_loop_time(const BtSequence *self) {
   gulong res;
 
-  res=(gulong)(self->private->length*bt_sequence_get_bar_time(self));
+  res=(gulong)(self->priv->length*bt_sequence_get_bar_time(self));
   return(res);
 }
 
@@ -277,9 +277,9 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
 gboolean bt_sequence_play(const BtSequence *self) {
   gboolean res=TRUE;
   
-  if((!self->private->tracks) || (!self->private->length)) return(res);
+  if((!self->priv->tracks) || (!self->priv->length)) return(res);
   else {
-    BtTimeLine **timeline=self->private->timelines;
+    BtTimeLine **timeline=self->priv->timelines;
     BtSongInfo *song_info;
     GstElement *master,*bin;
     BtPlayLine *playline;
@@ -291,8 +291,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
     GTimer *timer;
     // }
     
-    g_object_get(G_OBJECT(self->private->song),"master",&master,"bin",&bin,NULL);
-    g_object_get(G_OBJECT(self->private->song),"song-info",&song_info,NULL);
+    g_object_get(G_OBJECT(self->priv->song),"master",&master,"bin",&bin,NULL);
+    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
     g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
     /* the number of pattern-events for one playline-step,
      * when using 4 ticks_per_beat then
@@ -302,20 +302,20 @@ gboolean bt_sequence_play(const BtSequence *self) {
     //ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
     ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
     wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
-    playline=bt_playline_new(self->private->song,master,self->private->tracks,bars,wait_per_position);
+    playline=bt_playline_new(self->priv->song,master,self->priv->tracks,bars,wait_per_position);
     
     GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
-    GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->private->length,bars,wait_per_position,(gulong)(((guint64)self->private->length*(guint64)bars*(guint64)wait_per_position)/GST_SECOND));
+    GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->priv->length,bars,wait_per_position,(gulong)(((guint64)self->priv->length*(guint64)bars*(guint64)wait_per_position)/GST_SECOND));
   
     if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
-      g_mutex_lock(self->private->is_playing_mutex);
-      self->private->is_playing=TRUE;
-      g_mutex_unlock(self->private->is_playing_mutex);
+      g_mutex_lock(self->priv->is_playing_mutex);
+      self->priv->is_playing=TRUE;
+      g_mutex_unlock(self->priv->is_playing_mutex);
       // DEBUG {
       timer=g_timer_new();
       g_timer_start(timer);
       // }
-      for(i=0;((i<self->private->length) && (self->private->is_playing));i++,timeline++) {
+      for(i=0;((i<self->priv->length) && (self->priv->is_playing));i++,timeline++) {
         // DEBUG {
         GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
         // }
@@ -357,9 +357,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
  *
  */
 gboolean bt_sequence_stop(const BtSequence *self) {
-  g_mutex_lock(self->private->is_playing_mutex);
-  self->private->is_playing=FALSE;
-  g_mutex_unlock(self->private->is_playing_mutex);
+  g_mutex_lock(self->priv->is_playing_mutex);
+  self->priv->is_playing=FALSE;
+  g_mutex_unlock(self->priv->is_playing_mutex);
 
   return(TRUE);
 }
@@ -380,13 +380,13 @@ static void bt_sequence_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_SONG: {
-      g_value_set_object(value, self->private->song);
+      g_value_set_object(value, self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
-      g_value_set_long(value, self->private->length);
+      g_value_set_long(value, self->priv->length);
     } break;
     case SEQUENCE_TRACKS: {
-      g_value_set_long(value, self->private->tracks);
+      g_value_set_long(value, self->priv->tracks);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -404,21 +404,21 @@ static void bt_sequence_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_SONG: {
-      g_object_try_weak_unref(self->private->song);
-      self->private->song = BT_SONG(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->song);
-      //GST_DEBUG("set the song for sequence: %p",self->private->song);
+      g_object_try_weak_unref(self->priv->song);
+      self->priv->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->song);
+      //GST_DEBUG("set the song for sequence: %p",self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
       bt_sequence_unref_timelines(self);
       bt_sequence_free_timelines(self);
-      self->private->length = g_value_get_long(value);
-      GST_DEBUG("set the length for sequence: %d",self->private->length);
+      self->priv->length = g_value_get_long(value);
+      GST_DEBUG("set the length for sequence: %d",self->priv->length);
       bt_sequence_init_timelines(self);
     } break;
     case SEQUENCE_TRACKS: {
-      self->private->tracks = g_value_get_long(value);
-      GST_DEBUG("set the tracks for sequence: %d",self->private->tracks);
+      self->priv->tracks = g_value_get_long(value);
+      GST_DEBUG("set the tracks for sequence: %d",self->priv->tracks);
       bt_sequence_init_machines(self);
       bt_sequence_init_timelinetracks(self);
     } break;
@@ -432,10 +432,10 @@ static void bt_sequence_dispose(GObject *object) {
   BtSequence *self = BT_SEQUENCE(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	g_object_try_weak_unref(self->private->song);
+	g_object_try_weak_unref(self->priv->song);
   bt_sequence_unref_timelines(self);
   // @todo unref the machines
 }
@@ -445,17 +445,17 @@ static void bt_sequence_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private->machines);
-  g_free(self->private);
-  g_free(self->private->timelines);
+  g_free(self->priv->machines);
+  g_free(self->priv);
+  g_free(self->priv->timelines);
 }
 
 static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtSequence *self = BT_SEQUENCE(instance);
-  self->private = g_new0(BtSequencePrivate,1);
-  self->private->dispose_has_run = FALSE;
-  self->private->length=1;
-  self->private->is_playing_mutex=g_mutex_new();
+  self->priv = g_new0(BtSequencePrivate,1);
+  self->priv->dispose_has_run = FALSE;
+  self->priv->length=1;
+  self->priv->is_playing_mutex=g_mutex_new();
 
 }
 

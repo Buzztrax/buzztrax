@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.10 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-page-info.c,v 1.11 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -39,13 +39,13 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
   g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"info",&info,NULL);
-  gtk_entry_set_text(self->private->name,safe_string(name));g_free(name);
-  gtk_entry_set_text(self->private->genre,safe_string(genre));g_free(genre);
-  gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->private->info),safe_string(info),-1);g_free(info);
+  gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
+  gtk_entry_set_text(self->priv->genre,safe_string(genre));g_free(genre);
+  gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->priv->info),safe_string(info),-1);g_free(info);
   // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);
@@ -71,14 +71,14 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
-  self->private->name=GTK_ENTRY(gtk_entry_new());
-  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->private->name), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  self->priv->name=GTK_ENTRY(gtk_entry_new());
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->name), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0,0, 2,1);
-  self->private->genre=GTK_ENTRY(gtk_entry_new());
-  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->private->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  self->priv->genre=GTK_ENTRY(gtk_entry_new());
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second row of hbox
   frame=gtk_frame_new(_("free text info"));
@@ -90,11 +90,11 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),GTK_SHADOW_IN);
   gtk_container_add(GTK_CONTAINER(frame),scrolledwindow);
 
-  self->private->info=GTK_TEXT_VIEW(gtk_text_view_new());
-  gtk_widget_set_name(GTK_WIDGET(self->private->info),_("free text info"));
-  //gtk_container_set_border_width(GTK_CONTAINER(self->private->info),1);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->private->info),GTK_WRAP_WORD);
-  gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->private->info));
+  self->priv->info=GTK_TEXT_VIEW(gtk_text_view_new());
+  gtk_widget_set_name(GTK_WIDGET(self->priv->info),_("free text info"));
+  //gtk_container_set_border_width(GTK_CONTAINER(self->priv->info),1);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
+  gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
@@ -143,7 +143,7 @@ static void bt_main_page_info_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_INFO_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -161,9 +161,9 @@ static void bt_main_page_info_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_INFO_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for main_page_info: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for main_page_info: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -174,9 +174,9 @@ static void bt_main_page_info_set_property(GObject      *object,
 static void bt_main_page_info_dispose(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -186,7 +186,7 @@ static void bt_main_page_info_dispose(GObject *object) {
 static void bt_main_page_info_finalize(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -195,8 +195,8 @@ static void bt_main_page_info_finalize(GObject *object) {
 
 static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(instance);
-  self->private = g_new0(BtMainPageInfoPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainPageInfoPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.15 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.16 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -41,7 +41,7 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
   
   GST_INFO("toolbar new event occurred");
-  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
   g_object_try_unref(main_window);
 }
@@ -51,7 +51,7 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
   
   GST_INFO("toolbar open event occurred");
-  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
   g_object_try_unref(main_window);
 }
@@ -65,7 +65,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
 
     GST_INFO("toolbar play event occurred");
     // get song from app
-    g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 
     on_song_stop_handler_id=g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)button);
     //-- start playing in a thread
@@ -84,7 +84,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
 
   GST_INFO("toolbar stop event occurred");
   // get song from app
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   bt_song_stop(song);
   // release the reference
   g_object_try_unref(song);
@@ -228,7 +228,7 @@ static void bt_main_toolbar_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_TOOLBAR_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -246,9 +246,9 @@ static void bt_main_toolbar_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_TOOLBAR_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for main_toolbar: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for main_toolbar: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -259,10 +259,10 @@ static void bt_main_toolbar_set_property(GObject      *object,
 static void bt_main_toolbar_dispose(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -273,7 +273,7 @@ static void bt_main_toolbar_finalize(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
   
   GST_DEBUG("!!!! self=%p",self);
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -282,8 +282,8 @@ static void bt_main_toolbar_finalize(GObject *object) {
 
 static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(instance);
-  self->private = g_new0(BtMainToolbarPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainToolbarPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.40 2004-09-28 16:28:11 ensonic Exp $
+/* $Id: core.h,v 1.41 2004-09-29 16:56:46 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -129,12 +129,12 @@
  * return_if_disposed:
  * @a: return value or nothing
  *
- * checks <code>self->private->dispose_has_run</code> and
+ * checks <code>self->priv->dispose_has_run</code> and
  * if true returns with the supplied arg.
  * This macro is handy to use at the start of all class routines
  * such as _get_property(), _set_property(), _dispose().
  */
-#define return_if_disposed(a) if(self->private->dispose_has_run) return a
+#define return_if_disposed(a) if(self->priv->dispose_has_run) return a
 
 /**
  * is_string:

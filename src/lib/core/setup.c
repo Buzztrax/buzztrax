@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.26 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: setup.c,v 1.27 2004-09-29 16:56:26 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -53,7 +53,7 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
   g_assert(self);
   if(!machine) return;
 
-	self->private->machines=g_list_append(self->private->machines,g_object_ref(G_OBJECT(machine)));
+	self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
 }
 
 /**
@@ -67,7 +67,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
   g_assert(self);
   if(!wire) return;
 
-	self->private->wires=g_list_append(self->private->wires,g_object_ref(G_OBJECT(wire)));
+	self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
 }
 
 /**
@@ -84,7 +84,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   gboolean found=FALSE;
 	BtMachine *machine;
   gchar *machine_id;
-	GList* node=g_list_first(self->private->machines);
+	GList* node=g_list_first(self->priv->machines);
 
   g_assert(self);
 	
@@ -125,7 +125,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, glong index) {
   g_assert(self);
   
-	return(g_list_nth_data(self->private->machines,index));
+	return(g_list_nth_data(self->priv->machines,index));
 }
 
  
@@ -146,7 +146,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
 
   g_assert(self);
 	
-  node=g_list_first(self->private->wires);
+  node=g_list_first(self->priv->wires);
 	while(node) {
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&machine,NULL);
@@ -176,7 +176,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
 
   g_assert(self);
 	
-  node=g_list_first(self->private->wires);
+  node=g_list_first(self->priv->wires);
 	while(node) {
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
@@ -206,8 +206,8 @@ gpointer bt_setup_machine_iterator_new(const BtSetup *self) {
 
   g_assert(self);
 
-  if(self->private->machines) {
-    res=g_list_first(self->private->machines);
+  if(self->priv->machines) {
+    res=g_list_first(self->priv->machines);
   }
   return(res);
 }
@@ -253,7 +253,7 @@ static void bt_setup_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SETUP_SONG: {
-      g_value_set_object(value, self->private->song);
+      g_value_set_object(value, self->priv->song);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -271,10 +271,10 @@ static void bt_setup_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SETUP_SONG: {
-      g_object_try_weak_unref(self->private->song);
-      self->private->song = BT_SONG(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->song);
-      //GST_DEBUG("set the song for setup: %p",self->private->song);
+      g_object_try_weak_unref(self->priv->song);
+      self->priv->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->song);
+      //GST_DEBUG("set the song for setup: %p",self->priv->song);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -287,14 +287,14 @@ static void bt_setup_dispose(GObject *object) {
 	GList* node;
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_weak_unref(self->private->song);
+	g_object_try_weak_unref(self->priv->song);
 	// unref list of wires
-	if(self->private->wires) {
-		node=g_list_first(self->private->wires);
+	if(self->priv->wires) {
+		node=g_list_first(self->priv->wires);
 		while(node) {
       {
         GObject *obj=node->data;
@@ -306,8 +306,8 @@ static void bt_setup_dispose(GObject *object) {
 		}
 	}
 	// unref list of machines
-	if(self->private->machines) {
-		node=g_list_first(self->private->machines);
+	if(self->priv->machines) {
+		node=g_list_first(self->priv->machines);
 		while(node) {
       {
         GObject *obj=node->data;
@@ -326,22 +326,22 @@ static void bt_setup_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
 	// free list of wires
-	if(self->private->wires) {
-		g_list_free(self->private->wires);
-		self->private->wires=NULL;
+	if(self->priv->wires) {
+		g_list_free(self->priv->wires);
+		self->priv->wires=NULL;
 	}
 	// free list of machines
-	if(self->private->machines) {
-		g_list_free(self->private->machines);
-		self->private->wires=NULL;
+	if(self->priv->machines) {
+		g_list_free(self->priv->machines);
+		self->priv->wires=NULL;
   }
-  g_free(self->private);
+  g_free(self->priv);
 }
 
 static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {
   BtSetup *self = BT_SETUP(instance);
-  self->private = g_new0(BtSetupPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtSetupPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_setup_class_init(BtSetupClass *klass) {

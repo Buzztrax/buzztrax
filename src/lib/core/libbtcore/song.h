@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.17 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: song.h,v 1.18 2004-09-29 16:56:46 ensonic Exp $
  * class for a basic buzztard song
  */
  
@@ -31,7 +31,7 @@ struct _BtSong {
   GObject parent;
   
   /* private */
-  BtSongPrivate *private;
+  BtSongPrivate *priv;
 };
 /**
  * BtSongClass:

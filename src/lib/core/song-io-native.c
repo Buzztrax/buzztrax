@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.31 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: song-io-native.c,v 1.32 2004-09-29 16:56:26 ensonic Exp $
  * class for native song input and output
  */
  
@@ -644,7 +644,7 @@ static void bt_song_io_native_dispose(GObject *object) {
   BtSongIONative *self = BT_SONG_IO_NATIVE(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -657,7 +657,7 @@ static void bt_song_io_native_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private);
+  g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -665,8 +665,8 @@ static void bt_song_io_native_finalize(GObject *object) {
 
 static void bt_song_io_native_init(GTypeInstance *instance, gpointer g_class) {
   BtSongIONative *self = BT_SONG_IO_NATIVE(instance);
-  self->private = g_new0(BtSongIONativePrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtSongIONativePrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {

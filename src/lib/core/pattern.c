@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.13 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: pattern.c,v 1.14 2004-09-29 16:56:26 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -47,32 +47,32 @@ struct _BtPatternPrivate {
 //-- helper methods
 
 static void bt_pattern_init_data(const BtPattern *self) {
-  glong data_count=self->private->length*(self->private->global_params+self->private->voices*self->private->voice_params);
+  glong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
   glong i,j,k;
   GValue *data;
 
-  if(self->private->machine==NULL) return;
-  if(self->private->length==0) return;
-  if(self->private->voices==-1) return;
+  if(self->priv->machine==NULL) return;
+  if(self->priv->length==0) return;
+  if(self->priv->voices==-1) return;
 
-  if(self->private->data) {
+  if(self->priv->data) {
     GST_ERROR("that should not happen");
     return;
   }
 
-  GST_DEBUG("bt_pattern_init_data : %d*(%d+%d*%d)=%d",self->private->length,self->private->global_params,self->private->voices,self->private->voice_params,data_count);
-  self->private->data=g_new0(GValue,data_count);
+  GST_DEBUG("bt_pattern_init_data : %d*(%d+%d*%d)=%d",self->priv->length,self->priv->global_params,self->priv->voices,self->priv->voice_params,data_count);
+  self->priv->data=g_new0(GValue,data_count);
   // initialize the GValues (can we use memcpy for the tick-lines)
   /*
-  data=self->private->data;
-  for(i=0;i<self->private->length;i++) {
-    for(k=0;k<self->private->global_params;k++) {
-      g_value_init(data,bt_machine_get_global_dparam_type(self->private->machine,k));
+  data=self->priv->data;
+  for(i=0;i<self->priv->length;i++) {
+    for(k=0;k<self->priv->global_params;k++) {
+      g_value_init(data,bt_machine_get_global_dparam_type(self->priv->machine,k));
       data++;
     }
-    for(j=0;j<self->private->voices;j++) {
-      for(k=0;k<self->private->voice_params;k++) {
-        g_value_init(data,bt_machine_get_voice_dparam_type(self->private->machine,k));
+    for(j=0;j<self->priv->voices;j++) {
+      for(k=0;k<self->priv->voice_params;k++) {
+        g_value_init(data,bt_machine_get_voice_dparam_type(self->priv->machine,k));
         data++;
       }
     }
@@ -82,7 +82,7 @@ static void bt_pattern_init_data(const BtPattern *self) {
 
 static void bt_pattern_resize_data_length(const BtPattern *self, glong length) {
   // @todo implement pattern resizing
-  // old_data=self->private->data;
+  // old_data=self->priv->data;
   // allocate new space
   // copy old values over
   // if new space is bigger initialize new lines
@@ -92,7 +92,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, glong length) {
 
 static void bt_pattern_resize_data_voices(const BtPattern *self, glong voices) {
   // @todo implement pattern resizing
-  // old_data=self->private->data;
+  // old_data=self->priv->data;
   // allocate new space
   // copy old values over
   // if new space is bigger initialize new voices
@@ -139,13 +139,13 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, glong tick, glon
   glong index;
 
   if((param==-1)) return(NULL);
-  if(!(tick<self->private->length)) { GST_ERROR("tick beyond length");return(NULL); }
-  if(!(param<self->private->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
+  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
+  if(!(param<self->priv->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
 
-  index=(tick*(self->private->global_params+self->private->voices*self->private->voice_params))
+  index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
        + param;
   // @todo add assertion that there is a valid GValue at this index?
-  return(&self->private->data[index]);
+  return(&self->priv->data[index]);
 }
 
 /**
@@ -163,15 +163,15 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, glong tick, glong
   glong index;
 
   if((param==-1)) return(NULL);
-  if(!(tick<self->private->length)) { GST_ERROR("tick beyond length");return(NULL); }
-  if(!(voice<self->private->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
-  if(!(param<self->private->voice_params)) { GST_ERROR("param beyond voice_ params");return(NULL); }
+  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
+  if(!(voice<self->priv->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
+  if(!(param<self->priv->voice_params)) { GST_ERROR("param beyond voice_ params");return(NULL); }
 
-  index=(tick*(self->private->global_params+self->private->voices*self->private->voice_params))
-       +       self->private->global_params+(voice*self->private->voice_params)
+  index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
+       +       self->priv->global_params+(voice*self->priv->voice_params)
        +param;
   // @todo add assertion that there is a valid GValue at this index?
-  return(&self->private->data[index]);
+  return(&self->priv->data[index]);
 }
 
 /**
@@ -185,7 +185,7 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, glong tick, glong
  * Returns: the index or -1 when it has not be found
  */
 glong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name) {
-  return(bt_machine_get_global_dparam_index(self->private->machine,name));
+  return(bt_machine_get_global_dparam_index(self->priv->machine,name));
 }
 
 /**
@@ -199,7 +199,7 @@ glong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *nam
  * Returns: the index or -1 when it has not be found
  */
 glong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name) {
-  return(bt_machine_get_voice_dparam_index(self->private->machine,name));
+  return(bt_machine_get_voice_dparam_index(self->priv->machine,name));
 }
 
 
@@ -215,7 +215,7 @@ glong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name
  */
 void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong param) {
   //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_machine_get_global_dparam_type(self->private->machine,param));
+  g_value_init(event,bt_machine_get_global_dparam_type(self->priv->machine,param));
 }
 
 /**
@@ -230,7 +230,7 @@ void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong pa
  */
 void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, glong param) {
   //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_machine_get_voice_dparam_type(self->private->machine,param));
+  g_value_init(event,bt_machine_get_voice_dparam_type(self->priv->machine,param));
 }
 
 
@@ -274,15 +274,15 @@ void bt_pattern_play_tick(const BtPattern *self, glong index) {
   glong j,k;
   GValue *data;
 
-  data=&self->private->data[index*(self->private->global_params+self->private->voices*self->private->voice_params)];
-  for(k=0;k<self->private->global_params;k++) {
+  data=&self->priv->data[index*(self->priv->global_params+self->priv->voices*self->priv->voice_params)];
+  for(k=0;k<self->priv->global_params;k++) {
     if(G_IS_VALUE(data)) {
-      bt_machine_set_global_dparam_value(self->private->machine,k,data);
+      bt_machine_set_global_dparam_value(self->priv->machine,k,data);
     }
     data++;
   }
-  for(j=0;j<self->private->voices;j++) {
-    for(k=0;k<self->private->voice_params;k++) {
+  for(j=0;j<self->priv->voices;j++) {
+    for(k=0;k<self->priv->voice_params;k++) {
       // @set voice events
       data++;
     }
@@ -303,22 +303,22 @@ static void bt_pattern_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case PATTERN_SONG: {
-      g_value_set_object(value, self->private->song);
+      g_value_set_object(value, self->priv->song);
     } break;
     case PATTERN_ID: {
-      g_value_set_string(value, self->private->id);
+      g_value_set_string(value, self->priv->id);
     } break;
     case PATTERN_NAME: {
-      g_value_set_string(value, self->private->name);
+      g_value_set_string(value, self->priv->name);
     } break;
     case PATTERN_LENGTH: {
-      g_value_set_long(value, self->private->length);
+      g_value_set_long(value, self->priv->length);
     } break;
     case PATTERN_VOICES: {
-      g_value_set_long(value, self->private->voices);
+      g_value_set_long(value, self->priv->voices);
     } break;
     case PATTERN_MACHINE: {
-      g_value_set_object(value, self->private->machine);
+      g_value_set_object(value, self->priv->machine);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -338,39 +338,39 @@ static void bt_pattern_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case PATTERN_SONG: {
-      g_object_try_weak_unref(self->private->song);
-      self->private->song = BT_SONG(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->song);
-      //GST_DEBUG("set the song for pattern: %p",self->private->song);
+      g_object_try_weak_unref(self->priv->song);
+      self->priv->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->song);
+      //GST_DEBUG("set the song for pattern: %p",self->priv->song);
     } break;
     case PATTERN_ID: {
-      g_free(self->private->id);
-      self->private->id = g_value_dup_string(value);
-      GST_DEBUG("set the id for pattern: %s",self->private->id);
+      g_free(self->priv->id);
+      self->priv->id = g_value_dup_string(value);
+      GST_DEBUG("set the id for pattern: %s",self->priv->id);
     } break;
     case PATTERN_NAME: {
-      g_free(self->private->name);
-      self->private->name = g_value_dup_string(value);
-      GST_DEBUG("set the display name for the pattern: %s",self->private->name);
+      g_free(self->priv->name);
+      self->priv->name = g_value_dup_string(value);
+      GST_DEBUG("set the display name for the pattern: %s",self->priv->name);
     } break;
     case PATTERN_LENGTH: {
-      length=self->private->length;
-      self->private->length = g_value_get_long(value);
-      GST_DEBUG("set the length for pattern: %d",self->private->length);
-      if(self->private->data) bt_pattern_resize_data_length(self,length);
+      length=self->priv->length;
+      self->priv->length = g_value_get_long(value);
+      GST_DEBUG("set the length for pattern: %d",self->priv->length);
+      if(self->priv->data) bt_pattern_resize_data_length(self,length);
     } break;
     case PATTERN_VOICES: {
-      voices=self->private->voices;
-      self->private->voices = g_value_get_long(value);
-      GST_DEBUG("set the voices for pattern: %d",self->private->voices);
-      if(self->private->data) bt_pattern_resize_data_voices(self,voices);
+      voices=self->priv->voices;
+      self->priv->voices = g_value_get_long(value);
+      GST_DEBUG("set the voices for pattern: %d",self->priv->voices);
+      if(self->priv->data) bt_pattern_resize_data_voices(self,voices);
     } break;
     case PATTERN_MACHINE: {
-      g_object_try_weak_unref(self->private->machine);
-      self->private->machine = BT_MACHINE(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->machine);
-      g_object_get(G_OBJECT(self->private->machine),"global_params",&self->private->global_params,"voice_params",&self->private->voice_params,NULL);
-      GST_DEBUG("set the machine for pattern: %p",self->private->machine);
+      g_object_try_weak_unref(self->priv->machine);
+      self->priv->machine = BT_MACHINE(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->machine);
+      g_object_get(G_OBJECT(self->priv->machine),"global_params",&self->priv->global_params,"voice_params",&self->priv->voice_params,NULL);
+      GST_DEBUG("set the machine for pattern: %p",self->priv->machine);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -382,12 +382,12 @@ static void bt_pattern_dispose(GObject *object) {
   BtPattern *self = BT_PATTERN(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_weak_unref(self->private->song);
-  g_object_try_weak_unref(self->private->machine);
+	g_object_try_weak_unref(self->priv->song);
+  g_object_try_weak_unref(self->priv->machine);
 }
 
 static void bt_pattern_finalize(GObject *object) {
@@ -395,18 +395,18 @@ static void bt_pattern_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-	g_free(self->private->id);
-	g_free(self->private->name);
-  g_free(self->private->data);
-  g_free(self->private);
+	g_free(self->priv->id);
+	g_free(self->priv->name);
+  g_free(self->priv->data);
+  g_free(self->priv);
 }
 
 static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
   BtPattern *self = BT_PATTERN(instance);
 
-  self->private = g_new0(BtPatternPrivate,1);
-  self->private->dispose_has_run = FALSE;
-  self->private->voices=-1;
+  self->priv = g_new0(BtPatternPrivate,1);
+  self->priv->dispose_has_run = FALSE;
+  self->priv->voices=-1;
 }
 
 static void bt_pattern_class_init(BtPatternClass *klass) {

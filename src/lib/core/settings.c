@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.6 2004-09-29 14:46:33 ensonic Exp $
+/* $Id: settings.c,v 1.7 2004-09-29 16:56:26 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -51,7 +51,7 @@ static void bt_settings_dispose(GObject *object) {
   BtSettings *self = BT_SETTINGS(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 }
@@ -61,13 +61,13 @@ static void bt_settings_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private);
+  g_free(self->priv);
 }
 
 static void bt_settings_init(GTypeInstance *instance, gpointer g_class) {
   BtSettings *self = BT_SETTINGS(instance);
-  self->private = g_new0(BtSettingsPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtSettingsPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_settings_class_init(BtSettingsClass *klass) {

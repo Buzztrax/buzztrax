@@ -1,4 +1,4 @@
-/* $Id: main-menu.h,v 1.2 2004-09-02 17:43:30 ensonic Exp $
+/* $Id: main-menu.h,v 1.3 2004-09-29 16:56:46 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -30,7 +30,7 @@ struct _BtMainMenu {
   GtkMenuBar parent;
   
   /* private */
-  BtMainMenuPrivate *private;
+  BtMainMenuPrivate *priv;
 };
 /* structure of the main-menu class */
 struct _BtMainMenuClass {

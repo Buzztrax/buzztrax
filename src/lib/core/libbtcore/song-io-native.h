@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.11 2004-09-02 17:43:30 ensonic Exp $
+/* $Id: song-io-native.h,v 1.12 2004-09-29 16:56:46 ensonic Exp $
  * class for native song input and output
  */
 
@@ -30,7 +30,7 @@ struct _BtSongIONative {
   BtSongIO parent;
   
   /* private */
-  BtSongIONativePrivate *private;
+  BtSongIONativePrivate *priv;
 };
 /**
  * BtSongIONativeClass:

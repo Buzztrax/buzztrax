@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.14 2004-09-29 16:08:56 ensonic Exp $
+/* $Id: main-menu.c,v 1.15 2004-09-29 16:56:46 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -30,7 +30,7 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu quit event occurred");
-  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   quit=bt_main_window_check_quit(main_window);
   g_object_try_unref(main_window);
   if(quit) gtk_main_quit();
@@ -41,7 +41,7 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu new event occurred");
-  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
   g_object_try_unref(main_window);
 }
@@ -51,7 +51,7 @@ static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainWindow *main_window;
 
   GST_INFO("menu open event occurred");
-  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
   g_object_try_unref(main_window);
 }
@@ -63,7 +63,7 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GtkWidget *dialog;
   
   GST_INFO("menu about event occurred");
-  g_object_get(G_OBJECT(self->private->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   dialog = gtk_dialog_new_with_buttons(_("About ..."),
                                         GTK_WINDOW(main_window),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -255,7 +255,7 @@ static void bt_main_menu_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_MENU_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -273,9 +273,9 @@ static void bt_main_menu_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_MENU_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for main_menu: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for main_menu: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -286,9 +286,9 @@ static void bt_main_menu_set_property(GObject      *object,
 static void bt_main_menu_dispose(GObject *object) {
   BtMainMenu *self = BT_MAIN_MENU(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -298,7 +298,7 @@ static void bt_main_menu_dispose(GObject *object) {
 static void bt_main_menu_finalize(GObject *object) {
   BtMainMenu *self = BT_MAIN_MENU(object);
   
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -307,8 +307,8 @@ static void bt_main_menu_finalize(GObject *object) {
 
 static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {
   BtMainMenu *self = BT_MAIN_MENU(instance);
-  self->private = g_new0(BtMainMenuPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainMenuPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_main_menu_class_init(BtMainMenuClass *klass) {

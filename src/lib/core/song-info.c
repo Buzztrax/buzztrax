@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.21 2004-09-21 14:01:19 ensonic Exp $
+/* $Id: song-info.c,v 1.22 2004-09-29 16:56:26 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -71,25 +71,25 @@ static void bt_song_info_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {
-      g_value_set_object(value, self->private->song);
+      g_value_set_object(value, self->priv->song);
     } break;
     case SONG_INFO_INFO: {
-      g_value_set_string(value, self->private->info);
+      g_value_set_string(value, self->priv->info);
     } break;
     case SONG_INFO_NAME: {
-      g_value_set_string(value, self->private->name);
+      g_value_set_string(value, self->priv->name);
     } break;
     case SONG_INFO_GENRE: {
-      g_value_set_string(value, self->private->genre);
+      g_value_set_string(value, self->priv->genre);
     } break;
     case SONG_INFO_BPM: {
-      g_value_set_long(value, self->private->beats_per_minute);
+      g_value_set_long(value, self->priv->beats_per_minute);
     } break;
     case SONG_INFO_TPB: {
-      g_value_set_long(value, self->private->ticks_per_beat);
+      g_value_set_long(value, self->priv->ticks_per_beat);
     } break;
     case SONG_INFO_BARS: {
-      g_value_set_long(value, self->private->bars);
+      g_value_set_long(value, self->priv->bars);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -107,37 +107,37 @@ static void bt_song_info_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {  
-      g_object_try_weak_unref(self->private->song);
-      self->private->song = BT_SONG(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->song);
-      //GST_DEBUG("set the song for song-info: %p",self->private->song);
+      g_object_try_weak_unref(self->priv->song);
+      self->priv->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->song);
+      //GST_DEBUG("set the song for song-info: %p",self->priv->song);
     } break;
     case SONG_INFO_INFO: {
-      g_free(self->private->info);
-      self->private->info = g_value_dup_string(value);
-      GST_DEBUG("set the info for song_info: %s",self->private->info);
+      g_free(self->priv->info);
+      self->priv->info = g_value_dup_string(value);
+      GST_DEBUG("set the info for song_info: %s",self->priv->info);
     } break;
     case SONG_INFO_NAME: {
-      g_free(self->private->name);
-      self->private->name = g_value_dup_string(value);
-      GST_DEBUG("set the name for song_info: %s",self->private->name);
+      g_free(self->priv->name);
+      self->priv->name = g_value_dup_string(value);
+      GST_DEBUG("set the name for song_info: %s",self->priv->name);
     } break;
     case SONG_INFO_GENRE: {
-      g_free(self->private->genre);
-      self->private->genre = g_value_dup_string(value);
-      GST_DEBUG("set the genre for song_info: %s",self->private->genre);
+      g_free(self->priv->genre);
+      self->priv->genre = g_value_dup_string(value);
+      GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
     } break;
     case SONG_INFO_BPM: {
-      self->private->beats_per_minute = g_value_get_long(value);
-      GST_DEBUG("set the bpm for song_info: %d",self->private->beats_per_minute);
+      self->priv->beats_per_minute = g_value_get_long(value);
+      GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);
     } break;
     case SONG_INFO_TPB: {
-      self->private->ticks_per_beat = g_value_get_long(value);
-      GST_DEBUG("set the tpb for song_info: %d",self->private->ticks_per_beat);
+      self->priv->ticks_per_beat = g_value_get_long(value);
+      GST_DEBUG("set the tpb for song_info: %d",self->priv->ticks_per_beat);
     } break;
     case SONG_INFO_BARS: {
-      self->private->bars = g_value_get_long(value);
-      GST_DEBUG("set the bars for song_info: %d",self->private->bars);
+      self->priv->bars = g_value_get_long(value);
+      GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -149,10 +149,10 @@ static void bt_song_info_dispose(GObject *object) {
   BtSongInfo *self = BT_SONG_INFO(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	g_object_try_weak_unref(self->private->song);
+	g_object_try_weak_unref(self->priv->song);
 }
 
 static void bt_song_info_finalize(GObject *object) {
@@ -160,23 +160,23 @@ static void bt_song_info_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_free(self->private->info);
-	g_free(self->private->name);
-	g_free(self->private->genre);
-  g_free(self->private);
+	g_free(self->priv->info);
+	g_free(self->priv->name);
+	g_free(self->priv->genre);
+  g_free(self->priv);
 }
 
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   BtSongInfo *self = BT_SONG_INFO(instance);
 	
 	//GST_DEBUG("song_info_init self=%p",self);
-  self->private = g_new0(BtSongInfoPrivate,1);
-  self->private->dispose_has_run = FALSE;
-  self->private->name=g_strdup("unamed song");
+  self->priv = g_new0(BtSongInfoPrivate,1);
+  self->priv->dispose_has_run = FALSE;
+  self->priv->name=g_strdup("unamed song");
   // @idea alternate that all a little at new_song
-  self->private->beats_per_minute=125;
-  self->private->ticks_per_beat=4;
-  self->private->bars=16;
+  self->priv->beats_per_minute=125;
+  self->priv->ticks_per_beat=4;
+  self->priv->bars=16;
 }
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {

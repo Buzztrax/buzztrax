@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.12 2004-09-25 13:38:32 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.13 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -35,7 +35,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   // update page
   // release the reference
   g_object_try_unref(song);
@@ -45,16 +45,16 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
   GST_INFO("toolbar zoom_in event occurred");
-  self->private->zoom*=1.75;
-  gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);
+  self->priv->zoom*=1.75;
+  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
 static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
   GST_INFO("toolbar zoom_out event occurred");
-  self->private->zoom/=1.75;
-  gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);
+  self->priv->zoom/=1.75;
+  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
 
@@ -71,7 +71,7 @@ static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
   GnomeCanvasGroup *group;
   float x=30.0,y=30.0,w=25.0,h=15.0;
 
-  group = GNOME_CANVAS_GROUP(gnome_canvas_item_new(gnome_canvas_root(self->private->canvas),
+  group = GNOME_CANVAS_GROUP(gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
                            GNOME_TYPE_CANVAS_GROUP,
                            "x", x,
                            "y", y,
@@ -156,13 +156,13 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_push_visual(gdk_imlib_get_visual());
   // @todo try gtk_widget_push_colormap(gdk_colormap_get_system());
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
-  self->private->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
-  gnome_canvas_set_center_scroll_region(self->private->canvas,TRUE);
-  gnome_canvas_set_scroll_region(self->private->canvas,0.0,0.0,100.0,100.0);
-  gnome_canvas_set_pixels_per_unit(self->private->canvas,self->private->zoom);
+  self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
+  gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
+  gnome_canvas_set_scroll_region(self->priv->canvas,0.0,0.0,100.0,100.0);
+  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   //gtk_widget_pop_colormap();
   gtk_widget_pop_visual();
-  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->private->canvas));
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
   // add an example item (just so that we see something)
   bt_main_page_machines_draw_machine(self);
@@ -214,7 +214,7 @@ static void bt_main_page_machines_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_MACHINES_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -232,9 +232,9 @@ static void bt_main_page_machines_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_MACHINES_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for main_page_machines: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for main_page_machines: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -245,9 +245,9 @@ static void bt_main_page_machines_set_property(GObject      *object,
 static void bt_main_page_machines_dispose(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -257,7 +257,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
 static void bt_main_page_machines_finalize(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
   
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -266,10 +266,10 @@ static void bt_main_page_machines_finalize(GObject *object) {
 
 static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(instance);
-  self->private = g_new0(BtMainPageMachinesPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainPageMachinesPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 
-  self->private->zoom=10.0;
+  self->priv->zoom=10.0;
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

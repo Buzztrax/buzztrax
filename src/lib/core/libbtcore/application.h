@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.5 2004-09-02 17:43:30 ensonic Exp $
+/* $Id: application.h,v 1.6 2004-09-29 16:56:35 ensonic Exp $
  * base class for a buzztard based application
  */
 
@@ -30,7 +30,7 @@ struct _BtApplication {
   GObject parent;
   
   /* private */
-  BtApplicationPrivate *private;
+  BtApplicationPrivate *priv;
 };
 /* structure of the application class */
 struct _BtApplicationClass {

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.47 2004-09-26 10:36:32 ensonic Exp $
+/* $Id: song.c,v 1.48 2004-09-29 16:56:26 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -85,7 +85,7 @@ gboolean bt_song_play(const BtSong *self) {
 
   // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
-  res=bt_sequence_play(self->private->sequence);
+  res=bt_sequence_play(self->priv->sequence);
   // emit signal that we have finished playing
   g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
   return(res);
@@ -105,7 +105,7 @@ gboolean bt_song_stop(const BtSong *self) {
 
   g_assert(self);
   
-  res=bt_sequence_stop(self->private->sequence);
+  res=bt_sequence_stop(self->priv->sequence);
   return(res);
 }
 
@@ -121,7 +121,7 @@ gboolean bt_song_stop(const BtSong *self) {
 gboolean bt_song_pause(const BtSong *self) {
   g_assert(self);
   // @todo remember play position
-  return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
 }
 
 /**
@@ -136,7 +136,7 @@ gboolean bt_song_pause(const BtSong *self) {
 gboolean bt_song_continue(const BtSong *self) {
   g_assert(self);
   // @todo reuse play position
-  return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
 }
 
 //-- wrapper
@@ -153,19 +153,19 @@ static void bt_song_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_BIN: {
-      g_value_set_object(value, self->private->bin);
+      g_value_set_object(value, self->priv->bin);
     } break;
     case SONG_MASTER: {
-      g_value_set_object(value, self->private->master);
+      g_value_set_object(value, self->priv->master);
     } break;
     case SONG_SONG_INFO: {
-      g_value_set_object(value, self->private->song_info);
+      g_value_set_object(value, self->priv->song_info);
     } break;
     case SONG_SEQUENCE: {
-      g_value_set_object(value, self->private->sequence);
+      g_value_set_object(value, self->priv->sequence);
     } break;
     case SONG_SETUP: {
-      g_value_set_object(value, self->private->setup);
+      g_value_set_object(value, self->priv->setup);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -183,15 +183,15 @@ static void bt_song_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
 		case SONG_BIN: {
-      g_object_try_unref(self->private->bin);
-			self->private->bin = GST_BIN(g_object_try_ref(g_value_get_object(value)));
-      GST_DEBUG("set the bin for the song: %p",self->private->bin);
+      g_object_try_unref(self->priv->bin);
+			self->priv->bin = GST_BIN(g_object_try_ref(g_value_get_object(value)));
+      GST_DEBUG("set the bin for the song: %p",self->priv->bin);
 		} break;
 		case SONG_MASTER: {
-      g_object_try_weak_unref(self->private->master);
-			self->private->master = GST_ELEMENT(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->master);
-      GST_DEBUG("set the master for the song: %p",self->private->master);
+      g_object_try_weak_unref(self->priv->master);
+			self->priv->master = GST_ELEMENT(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->master);
+      GST_DEBUG("set the master for the song: %p",self->priv->master);
 		} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -203,15 +203,15 @@ static void bt_song_dispose(GObject *object) {
   BtSong *self = BT_SONG(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_object_try_weak_unref(self->private->master);
-	g_object_try_unref(self->private->song_info);
-	g_object_try_unref(self->private->sequence);
-	g_object_try_unref(self->private->setup);
-	g_object_try_unref(self->private->bin);
+  g_object_try_weak_unref(self->priv->master);
+	g_object_try_unref(self->priv->song_info);
+	g_object_try_unref(self->priv->sequence);
+	g_object_try_unref(self->priv->setup);
+	g_object_try_unref(self->priv->bin);
 }
 
 static void bt_song_finalize(GObject *object) {
@@ -219,18 +219,18 @@ static void bt_song_finalize(GObject *object) {
   
   GST_DEBUG("!!!! self=%p",self);
   
-  g_free(self->private);
+  g_free(self->priv);
 }
 
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
 	
   GST_DEBUG("song_init self=%p",self);
-  self->private = g_new0(BtSongPrivate,1);
-  self->private->dispose_has_run = FALSE;
-  self->private->song_info = bt_song_info_new(self);
-  self->private->sequence  = bt_sequence_new(self);
-  self->private->setup     = bt_setup_new(self);
+  self->priv = g_new0(BtSongPrivate,1);
+  self->priv->dispose_has_run = FALSE;
+  self->priv->song_info = bt_song_info_new(self);
+  self->priv->sequence  = bt_sequence_new(self);
+  self->priv->setup     = bt_setup_new(self);
 }
 
 static void bt_song_class_init(BtSongClass *klass) {

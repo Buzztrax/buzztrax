@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.20 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: song-io.c,v 1.21 2004-09-29 16:56:26 ensonic Exp $
  * base class for song input and output
  */
  
@@ -137,7 +137,7 @@ BtSongIO *bt_song_io_new(const gchar *file_name) {
 	
   if(type=bt_song_io_detect(file_name)) {
     self=BT_SONG_IO(g_object_new(type,NULL));
-    self->private->file_name=(gchar *)file_name;
+    self->priv->file_name=(gchar *)file_name;
   }
   return(self);
 }
@@ -177,10 +177,10 @@ static void bt_song_io_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
 		case SONG_IO_FILE_NAME: {
-      g_value_set_string(value, self->private->file_name);
+      g_value_set_string(value, self->priv->file_name);
     } break;
 		case SONG_IO_STATUS: {
-      g_value_set_string(value, self->private->status);
+      g_value_set_string(value, self->priv->status);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -198,10 +198,10 @@ static void bt_song_io_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_IO_STATUS: {
-      g_free(self->private->status);
-      self->private->status = g_value_dup_string(value);
+      g_free(self->priv->status);
+      self->priv->status = g_value_dup_string(value);
       g_signal_emit(G_OBJECT(self), signals[STATUS_CHANGED], 0);
-      GST_DEBUG("set the status for song_io: %s",self->private->status);
+      GST_DEBUG("set the status for song_io: %s",self->priv->status);
     } break;
      default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -213,7 +213,7 @@ static void bt_song_io_dispose(GObject *object) {
   BtSongIO *self = BT_SONG_IO(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 }
@@ -223,13 +223,13 @@ static void bt_song_io_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private);
+  g_free(self->priv);
 }
 
 static void bt_song_io_init(GTypeInstance *instance, gpointer g_class) {
   BtSongIO *self = BT_SONG_IO(instance);
-  self->private = g_new0(BtSongIOPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtSongIOPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_song_io_class_init(BtSongIOClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.34 2004-09-28 16:28:11 ensonic Exp $
+/* $Id: machine.c,v 1.35 2004-09-29 16:56:25 ensonic Exp $
  * base class for a machine
  */
  
@@ -78,45 +78,45 @@ gboolean bt_machine_new(BtMachine *self) {
 
   g_assert(self);
   g_assert(self->machine==NULL);
-  g_assert(self->private->id);
-  g_assert(self->private->plugin_name);
+  g_assert(self->priv->id);
+  g_assert(self->priv->plugin_name);
   GST_INFO("initializing machine");
 
-  self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
+  self->machine=gst_element_factory_make(self->priv->plugin_name,self->priv->id);
   if(!self->machine) {
-    GST_ERROR("  failed to instantiate machine \"%s\"",self->private->plugin_name);
+    GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
   }
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->machine;
-  GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->private->plugin_name,G_OBJECT(self->machine)->ref_count);
-  if((self->private->dparam_manager=gst_dpman_get_manager(self->machine))) {
+  GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->machine)->ref_count);
+  if((self->priv->dparam_manager=gst_dpman_get_manager(self->machine))) {
     GParamSpec **specs;
     GstDParam **dparam;
     guint i;
 
     // setting param mode. Only synchronized is currently supported
-    gst_dpman_set_mode(self->private->dparam_manager, "synchronous");
-    GST_DEBUG("  machine \"%s\" supports dparams",self->private->plugin_name);
+    gst_dpman_set_mode(self->priv->dparam_manager, "synchronous");
+    GST_DEBUG("  machine \"%s\" supports dparams",self->priv->plugin_name);
     
     // manage dparams
-    specs=gst_dpman_list_dparam_specs(self->private->dparam_manager);
+    specs=gst_dpman_list_dparam_specs(self->priv->dparam_manager);
     // count the specs
     for(i=0;specs[i];i++);
     // right now, we have no voice params
-    self->private->global_params=i;
-    self->private->global_dparams=(GstDParam **)g_new0(gpointer,self->private->global_params);
-    self->private->global_types  =(GType *     )g_new0(GType   ,self->private->global_params);
+    self->priv->global_params=i;
+    self->priv->global_dparams=(GstDParam **)g_new0(gpointer,self->priv->global_params);
+    self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
     // iterate over all dparam
-    for(i=0,dparam=self->private->global_dparams;specs[i];i++,dparam++) {
-      self->private->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
-      self->private->global_dparams[i]=gst_dparam_new(self->private->global_types[i]);
-      gst_dpman_attach_dparam(self->private->dparam_manager,g_param_spec_get_name(specs[i]),self->private->global_dparams[i]);
+    for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
+      self->priv->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
+      self->priv->global_dparams[i]=gst_dparam_new(self->priv->global_types[i]);
+      gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
       GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
     }
   }
-  g_object_get(G_OBJECT(self->private->song),"bin",&self->private->bin,NULL);
-  gst_bin_add(self->private->bin,self->machine);
+  g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
+  gst_bin_add(self->priv->bin,self->machine);
   GST_INFO("  added machine to bin, obj->ref_count=%d",G_OBJECT(self->machine)->ref_count);
   g_assert(self->machine!=NULL);
   g_assert(self->src_elem!=NULL);
@@ -124,7 +124,7 @@ gboolean bt_machine_new(BtMachine *self) {
 
   if(BT_IS_SINK_MACHINE(self)) {
     GST_DEBUG("this will be the master for the song");
-    g_object_set(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine),NULL);
+    g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self->machine),NULL);
   }
   return(TRUE);
 }
@@ -139,7 +139,7 @@ gboolean bt_machine_new(BtMachine *self) {
  * let the machine know that the suplied pattern has been added for the machine.
  */
 void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
-	self->private->patterns=g_list_append(self->private->patterns,g_object_ref(pattern));
+	self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(pattern));
 }
 
 /**
@@ -156,7 +156,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   gboolean found=FALSE;
 	BtPattern *pattern;
   gchar *pattern_id;
-	GList* node=g_list_first(self->private->patterns);
+	GList* node=g_list_first(self->priv->patterns);
 	
 	while(node) {
 		pattern=BT_PATTERN(node->data);
@@ -181,13 +181,13 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
  * Returns: the index or -1 when it has not be found
  */
 glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name) {
-  GstDParam *dparam=gst_dpman_get_dparam(self->private->dparam_manager,name);
+  GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   glong i;
 
   if((dparam==NULL)) { GST_ERROR("no dparam named \"%s\" found",name);return(-1); }
   
-  for(i=0;i<self->private->global_params;i++) {
-    if(self->private->global_dparams[i]==dparam) return(i);
+  for(i=0;i<self->priv->global_params;i++) {
+    if(self->priv->global_dparams[i]==dparam) return(i);
   }
   return(-1);
 }
@@ -203,14 +203,14 @@ glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *nam
  * Returns: the index or -1 when it has not be found
  */
 glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name) {
-  GstDParam *dparam=gst_dpman_get_dparam(self->private->dparam_manager,name);
+  GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   glong i;
 
   if((dparam==NULL)) { GST_ERROR("no dparam named \"%s\" found",name);return(-1); }
   
   // @todo we need to support multiple voices
-  for(i=0;i<self->private->voice_params;i++) {
-    if(self->private->voice_dparams[i]==dparam) return(i);
+  for(i=0;i<self->priv->voice_params;i++) {
+    if(self->priv->voice_dparams[i]==dparam) return(i);
   }
   return(-1);
 }
@@ -225,8 +225,8 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
  * Returns: the requested GType
  */
 GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index) {
-  g_assert(index<self->private->global_params);
-  return(self->private->global_types[index]);
+  g_assert(index<self->priv->global_params);
+  return(self->priv->global_types[index]);
 }
 
 /**
@@ -239,8 +239,8 @@ GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index) {
  * Returns: the requested GType
  */
 GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
-  g_assert(index<self->private->voice_params);
-  return(self->private->voice_types[index]);
+  g_assert(index<self->priv->voice_params);
+  return(self->priv->voice_types[index]);
 }
 
 /**
@@ -255,15 +255,15 @@ GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
 void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event) {
   GstDParam *dparam;
   
-  g_assert(index<self->private->global_params);
+  g_assert(index<self->priv->global_params);
   
-  dparam=self->private->global_dparams[index];
+  dparam=self->priv->global_dparams[index];
   // depending on the type, set the GValue
-  // @todo use a function pointer here, like e.g. self->private->global_param_set(dparam,event)
+  // @todo use a function pointer here, like e.g. self->priv->global_param_set(dparam,event)
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE: {
       //gchar *str=g_strdup_value_contents(event);
-      //GST_INFO("events for %s at track %d : \"%s\"",self->private->id,index,str);
+      //GST_INFO("events for %s at track %d : \"%s\"",self->priv->id,index,str);
       g_object_set_property(G_OBJECT(dparam),"value_double",event);
       //g_free(str);
     }  break;
@@ -287,8 +287,8 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GVal
 gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
   gpointer res=NULL;
 
-  if(self->private->patterns) {
-    res=g_list_first(self->private->patterns);
+  if(self->priv->patterns) {
+    res=g_list_first(self->priv->patterns);
   }
   return(res);
 }
@@ -334,23 +334,23 @@ static void bt_machine_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
-      g_value_set_object(value, self->private->song);
+      g_value_set_object(value, self->priv->song);
     } break;
     case MACHINE_ID: {
-      g_value_set_string(value, self->private->id);
+      g_value_set_string(value, self->priv->id);
     } break;
     case MACHINE_PLUGIN_NAME: {
-      g_value_set_string(value, self->private->plugin_name);
+      g_value_set_string(value, self->priv->plugin_name);
     } break;
     case MACHINE_VOICES: {
-      g_value_set_long(value, self->private->voices);
-      // @todo reallocate self->private->patterns->private->data
+      g_value_set_long(value, self->priv->voices);
+      // @todo reallocate self->priv->patterns->priv->data
     } break;
     case MACHINE_GLOBAL_PARAMS: {
-      g_value_set_long(value, self->private->global_params);
+      g_value_set_long(value, self->priv->global_params);
     } break;
     case MACHINE_VOICE_PARAMS: {
-      g_value_set_long(value, self->private->voice_params);
+      g_value_set_long(value, self->priv->voice_params);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -368,30 +368,30 @@ static void bt_machine_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
-      g_object_try_weak_unref(self->private->song);
-      self->private->song = BT_SONG(g_value_get_object(value));
-      g_object_try_weak_ref(self->private->song);
-      GST_DEBUG("set the song for machine: %p",self->private->song);
+      g_object_try_weak_unref(self->priv->song);
+      self->priv->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->song);
+      GST_DEBUG("set the song for machine: %p",self->priv->song);
     } break;
     case MACHINE_ID: {
-      g_free(self->private->id);
-      self->private->id = g_value_dup_string(value);
-      GST_DEBUG("set the id for machine: %s",self->private->id);
+      g_free(self->priv->id);
+      self->priv->id = g_value_dup_string(value);
+      GST_DEBUG("set the id for machine: %s",self->priv->id);
       //if(self->machine)	bt_machine_rename(self);
     } break;
     case MACHINE_PLUGIN_NAME: {
-      g_free(self->private->plugin_name);
-      self->private->plugin_name = g_value_dup_string(value);
-      GST_DEBUG("set the plugin_name for machine: %s",self->private->plugin_name);
+      g_free(self->priv->plugin_name);
+      self->priv->plugin_name = g_value_dup_string(value);
+      GST_DEBUG("set the plugin_name for machine: %s",self->priv->plugin_name);
     } break;
     case MACHINE_VOICES: {
-      self->private->voices = g_value_get_long(value);
+      self->priv->voices = g_value_get_long(value);
     } break;
     case MACHINE_GLOBAL_PARAMS: {
-      self->private->global_params = g_value_get_long(value);
+      self->priv->global_params = g_value_get_long(value);
     } break;
     case MACHINE_VOICE_PARAMS: {
-      self->private->voice_params = g_value_get_long(value);
+      self->priv->voice_params = g_value_get_long(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -403,40 +403,40 @@ static void bt_machine_dispose(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
   
   // remove the GstElements from the bin
-  if(self->private->bin) {
+  if(self->priv->bin) {
     if(self->machine) {
       GST_DEBUG("  removing machine from bin, obj->ref_count=%d",G_OBJECT(self->machine)->ref_count);
-      gst_bin_remove(self->private->bin,self->machine);
+      gst_bin_remove(self->priv->bin,self->machine);
     }
     if(self->adder) {
       GST_DEBUG("  removing adder from bin, obj->ref_count=%d",G_OBJECT(self->adder)->ref_count);
-       gst_bin_remove(self->private->bin,self->adder);
+       gst_bin_remove(self->priv->bin,self->adder);
     }
     if(self->spreader) {
       GST_DEBUG("  removing spreader from bin, obj->ref_count=%d",G_OBJECT(self->spreader)->ref_count);
-      gst_bin_remove(self->private->bin,self->spreader);
+      gst_bin_remove(self->priv->bin,self->spreader);
     }
     // @todo add the rest
-    g_object_try_unref(self->private->bin);
+    g_object_try_unref(self->priv->bin);
   }
 
-  g_object_try_weak_unref(self->private->song);
-  g_object_try_unref(self->private->dparam_manager);
+  g_object_try_weak_unref(self->priv->song);
+  g_object_try_unref(self->priv->dparam_manager);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  //g_object_try_unref(self->private->input_level);
-  //g_object_try_unref(self->private->output_level);
+  //g_object_try_unref(self->priv->input_level);
+  //g_object_try_unref(self->priv->output_level);
   //g_object_try_unref(self->machine);
   //g_object_try_unref(self->adder);
   //g_object_try_unref(self->spreader);
 
   // unref list of patterns
-	if(self->private->patterns) {
-    GList* node=g_list_first(self->private->patterns);
+	if(self->priv->patterns) {
+    GList* node=g_list_first(self->priv->patterns);
 		while(node) {
       {
         GObject *obj=node->data;
@@ -454,25 +454,25 @@ static void bt_machine_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_free(self->private->id);
-	g_free(self->private->plugin_name);
-  g_free(self->private->voice_types);
-  g_free(self->private->voice_dparams);
-  g_free(self->private->global_types);
-  g_free(self->private->global_dparams);
-  g_free(self->private);
+	g_free(self->priv->id);
+	g_free(self->priv->plugin_name);
+  g_free(self->priv->voice_types);
+  g_free(self->priv->voice_dparams);
+  g_free(self->priv->global_types);
+  g_free(self->priv->global_dparams);
+  g_free(self->priv);
   // free list of patterns
-	if(self->private->patterns) {
-		g_list_free(self->private->patterns);
-		self->private->patterns=NULL;
+	if(self->priv->patterns) {
+		g_list_free(self->priv->patterns);
+		self->priv->patterns=NULL;
 	}
 }
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtMachine *self = BT_MACHINE(instance);
-  self->private = g_new0(BtMachinePrivate,1);
-  self->private->dispose_has_run = FALSE;
-  self->private->voices=-1;
+  self->priv = g_new0(BtMachinePrivate,1);
+  self->priv->dispose_has_run = FALSE;
+  self->priv->voices=-1;
 }
 
 static void bt_machine_class_init(BtMachineClass *klass) {

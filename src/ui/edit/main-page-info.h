@@ -1,4 +1,4 @@
-/* $Id: main-page-info.h,v 1.3 2004-09-02 17:43:30 ensonic Exp $
+/* $Id: main-page-info.h,v 1.4 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -30,7 +30,7 @@ struct _BtMainPageInfo {
   GtkVBox parent;
   
   /* private */
-  BtMainPageInfoPrivate *private;
+  BtMainPageInfoPrivate *priv;
 };
 /* structure of the main-page-info class */
 struct _BtMainPageInfoClass {

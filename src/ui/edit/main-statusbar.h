@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.3 2004-09-02 17:43:30 ensonic Exp $
+/* $Id: main-statusbar.h,v 1.4 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -30,7 +30,7 @@ struct _BtMainStatusbar {
   GtkHBox parent;
   
   /* private */
-  BtMainStatusbarPrivate *private;
+  BtMainStatusbarPrivate *priv;
 };
 /* structure of the main-menu class */
 struct _BtMainStatusbarClass {

@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.14 2004-09-28 16:28:11 ensonic Exp $
+/* $Id: source-machine.c,v 1.15 2004-09-29 16:56:26 ensonic Exp $
  * class for a source machine
  */
  
@@ -80,7 +80,7 @@ static void bt_source_machine_dispose(GObject *object) {
   BtSourceMachine *self = BT_SOURCE_MACHINE(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -93,7 +93,7 @@ static void bt_source_machine_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private);
+  g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -101,8 +101,8 @@ static void bt_source_machine_finalize(GObject *object) {
 
 static void bt_source_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtSourceMachine *self = BT_SOURCE_MACHINE(instance);
-  self->private = g_new0(BtSourceMachinePrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtSourceMachinePrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_source_machine_class_init(BtSourceMachineClass *klass) {

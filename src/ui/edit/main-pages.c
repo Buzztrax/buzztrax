@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.8 2004-09-21 14:01:42 ensonic Exp $
+/* $Id: main-pages.c,v 1.9 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -44,8 +44,8 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
   // add wigets for machine view
-  self->private->machines_page=bt_main_page_machines_new(app);
-  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->machines_page));
+  self->priv->machines_page=bt_main_page_machines_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
 
   label=gtk_label_new(_("machine view"));
   gtk_widget_set_name(label,_("machine view"));
@@ -56,8 +56,8 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("machines used in the song and their wires"),NULL);
 
   // add wigets for pattern view
-  self->private->patterns_page=bt_main_page_patterns_new(app);
-  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->patterns_page));
+  self->priv->patterns_page=bt_main_page_patterns_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
 
   label=gtk_label_new(_("pattern view"));
   gtk_widget_set_name(label,_("pattern view"));
@@ -68,8 +68,8 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("event pattern editor"),NULL);
 
   // add wigets for sequence view
-  self->private->sequence_page=bt_main_page_sequence_new(app);
-  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->sequence_page));
+  self->priv->sequence_page=bt_main_page_sequence_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
 
   label=gtk_label_new(_("sequence view"));
   gtk_widget_set_name(label,_("sequence view"));
@@ -80,8 +80,8 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("song sequence editor"),NULL);
 
   // add widgets for song info view
-  self->private->info_page=bt_main_page_info_new(app);
-  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->info_page));
+  self->priv->info_page=bt_main_page_info_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
 
   label=gtk_label_new(_("song information"));
   gtk_widget_set_name(label,_("song information"));
@@ -136,7 +136,7 @@ static void bt_main_pages_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGES_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -154,9 +154,9 @@ static void bt_main_pages_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGES_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for main_pages: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for main_pages: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -167,9 +167,9 @@ static void bt_main_pages_set_property(GObject      *object,
 static void bt_main_pages_dispose(GObject *object) {
   BtMainPages *self = BT_MAIN_PAGES(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
   // this disposes the pages for us
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -179,7 +179,7 @@ static void bt_main_pages_dispose(GObject *object) {
 static void bt_main_pages_finalize(GObject *object) {
   BtMainPages *self = BT_MAIN_PAGES(object);
   
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -188,8 +188,8 @@ static void bt_main_pages_finalize(GObject *object) {
 
 static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPages *self = BT_MAIN_PAGES(instance);
-  self->private = g_new0(BtMainPagesPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainPagesPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_main_pages_class_init(BtMainPagesClass *klass) {

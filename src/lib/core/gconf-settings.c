@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.4 2004-09-29 14:38:43 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.5 2004-09-29 16:56:25 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -56,7 +56,7 @@ static void bt_gconf_settings_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
-      gchar *prop=gconf_client_get_string(self->private->client,BT_GCONF_PATH_GSTREAMER"audiosink",NULL);
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"audiosink",NULL);
       GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
       g_value_set_string(value, prop);
       g_free(prop);
@@ -92,15 +92,15 @@ static void bt_gconf_settings_dispose(GObject *object) {
   BtGConfSettings *self = BT_GCONF_SETTINGS(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
   
   // unregister directories to watch
   /* see bt_gconf_settings_init
-  gconf_client_remove_dir(self->private->client,BT_GCONF_PATH_GSTREAMER,NULL);
-  gconf_client_remove_dir(self->private->client,BT_GCONF_PATH_GNOME,NULL);
-  gconf_client_remove_dir(self->private->client,BT_GCONF_PATH_BUZZTARD,NULL);
+  gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
+  gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
+  gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
   */
-  g_object_unref(self->private->client);
+  g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -113,7 +113,7 @@ static void bt_gconf_settings_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private);
+  g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -121,17 +121,17 @@ static void bt_gconf_settings_finalize(GObject *object) {
 
 static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
   BtGConfSettings *self = BT_GCONF_SETTINGS(instance);
-  self->private = g_new0(BtGConfSettingsPrivate,1);
-  self->private->dispose_has_run = FALSE;
-  self->private->client=gconf_client_get_default();
-  gconf_client_set_error_handling(self->private->client,GCONF_CLIENT_HANDLE_UNRETURNED);
+  self->priv = g_new0(BtGConfSettingsPrivate,1);
+  self->priv->dispose_has_run = FALSE;
+  self->priv->client=gconf_client_get_default();
+  gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
   // register the config cache
   /* this atm causes 
   * (process:25225): GConf-CRITICAL **: file gconf-client.c: line 546 (gconf_client_add_dir): assertion `gconf_valid_key (dirname, NULL)' failed
   *
-  gconf_client_add_dir(self->private->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
-  gconf_client_add_dir(self->private->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
-  gconf_client_add_dir(self->private->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
+  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
+  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
+  gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
   */
 }
 

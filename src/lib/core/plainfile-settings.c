@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.2 2004-09-29 14:38:43 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.3 2004-09-29 16:56:26 ensonic Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -88,7 +88,7 @@ static void bt_plainfile_settings_dispose(GObject *object) {
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -101,7 +101,7 @@ static void bt_plainfile_settings_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->private);
+  g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -109,8 +109,8 @@ static void bt_plainfile_settings_finalize(GObject *object) {
 
 static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class) {
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(instance);
-  self->private = g_new0(BtPlainfileSettingsPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtPlainfileSettingsPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {

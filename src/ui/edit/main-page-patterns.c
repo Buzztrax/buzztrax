@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.12 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.13 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -47,8 +47,8 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
     gtk_widget_show(menu_item);
     iter=bt_setup_machine_iterator_next(iter);
   }
-  gtk_option_menu_set_menu(self->private->machine_menu,menu);
-  gtk_option_menu_set_history(self->private->machine_menu,0);
+  gtk_option_menu_set_menu(self->priv->machine_menu,menu);
+  gtk_option_menu_set_history(self->priv->machine_menu,0);
 }
 
 static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine *machine) {
@@ -76,8 +76,8 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
     gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
   }
-  gtk_option_menu_set_menu(self->private->pattern_menu,menu);
-  gtk_option_menu_set_history(self->private->pattern_menu,0);
+  gtk_option_menu_set_menu(self->priv->pattern_menu,menu);
+  gtk_option_menu_set_history(self->priv->pattern_menu,0);
 }
 
 //-- event handler
@@ -96,7 +96,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_menu_refresh(self,setup);
@@ -122,10 +122,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // machine select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  self->private->machine_menu=GTK_OPTION_MENU(gtk_option_menu_new());
+  self->priv->machine_menu=GTK_OPTION_MENU(gtk_option_menu_new());
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
-  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->machine_menu),TRUE,TRUE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
 
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,
@@ -140,10 +140,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // pattern select
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
-  self->private->pattern_menu=GTK_OPTION_MENU(gtk_option_menu_new());
+  self->priv->pattern_menu=GTK_OPTION_MENU(gtk_option_menu_new());
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
-  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->pattern_menu),TRUE,TRUE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
 
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,
@@ -164,7 +164,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
-  g_signal_connect(G_OBJECT(self->private->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
   return(TRUE);
 }
 
@@ -213,10 +213,10 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
 
   GST_INFO("get machine for pattern");
   
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-  index=gtk_option_menu_get_history(self->private->machine_menu);
+  index=gtk_option_menu_get_history(self->priv->machine_menu);
   machine=bt_setup_get_machine_by_index(setup,index);
 
   //-- release the reference
@@ -239,7 +239,7 @@ static void bt_main_page_patterns_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_PATTERNS_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -257,9 +257,9 @@ static void bt_main_page_patterns_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_PATTERNS_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for MAIN_PAGE_PATTERNS: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for MAIN_PAGE_PATTERNS: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -270,9 +270,9 @@ static void bt_main_page_patterns_set_property(GObject      *object,
 static void bt_main_page_patterns_dispose(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -282,7 +282,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
   
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -291,8 +291,8 @@ static void bt_main_page_patterns_finalize(GObject *object) {
 
 static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(instance);
-  self->private = g_new0(BtMainPagePatternsPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainPagePatternsPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.34 2004-09-29 14:38:44 ensonic Exp $
+/* $Id: cmd-application.c,v 1.35 2004-09-29 16:56:46 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -232,7 +232,7 @@ static void bt_cmd_application_dispose(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -242,7 +242,7 @@ static void bt_cmd_application_dispose(GObject *object) {
 static void bt_cmd_application_finalize(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -251,8 +251,8 @@ static void bt_cmd_application_finalize(GObject *object) {
 
 static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
   BtCmdApplication *self = BT_CMD_APPLICATION(instance);
-  self->private = g_new0(BtCmdApplicationPrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtCmdApplicationPrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {

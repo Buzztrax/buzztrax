@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.16 2004-09-27 16:05:41 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.17 2004-09-29 16:56:47 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -56,10 +56,10 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   GList *columns,*node;
   
   // remove columns
-  if((columns=gtk_tree_view_get_columns(self->private->sequence_table))) {
+  if((columns=gtk_tree_view_get_columns(self->priv->sequence_table))) {
     node=g_list_first(columns);
     while(node) {
-      gtk_tree_view_remove_column(self->private->sequence_table,GTK_TREE_VIEW_COLUMN(node->data));
+      gtk_tree_view_remove_column(self->priv->sequence_table,GTK_TREE_VIEW_COLUMN(node->data));
       node=g_list_next(node);
     }
     g_list_free(columns);
@@ -67,12 +67,12 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"editable",FALSE,"xalign",1.0,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->private->sequence_table,-1,_("Pos."),renderer,
+  gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
     NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->private->sequence_table,-1,_("Labels"),renderer,
+  gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
     NULL);
 }
@@ -115,12 +115,12 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
     // set machine name as column header
     g_object_get(G_OBJECT(machine),"id",&str,NULL);
-    i=gtk_tree_view_insert_column_with_attributes(self->private->sequence_table,-1,str,renderer,
+    i=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,str,renderer,
       "text",SEQUENCE_TABLE_PRE_CT+j,
       NULL);
     g_free(str);
     
-    tree_col=gtk_tree_view_get_column(self->private->sequence_table,i-1);
+    tree_col=gtk_tree_view_get_column(self->priv->sequence_table,i-1);
     if(BT_IS_SOURCE_MACHINE(machine)) {
       gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
     }
@@ -153,16 +153,16 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     // set colors
     if(i&1) {
       gtk_list_store_set(store,&tree_iter,
-        SEQUENCE_TABLE_SOURCE_BG   ,&self->private->source_bg2,
-        SEQUENCE_TABLE_PROCESSOR_BG,&self->private->processor_bg2,
-        SEQUENCE_TABLE_SINK_BG     ,&self->private->sink_bg2,
+        SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
+        SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
+        SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
           -1);
     }
     else {
       gtk_list_store_set(store,&tree_iter,
-        SEQUENCE_TABLE_SOURCE_BG   ,&self->private->source_bg1,
-        SEQUENCE_TABLE_PROCESSOR_BG,&self->private->processor_bg1,
-        SEQUENCE_TABLE_SINK_BG     ,&self->private->sink_bg1,
+        SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
+        SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
+        SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
           -1);
     }
     // set position
@@ -204,7 +204,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       if(free_str) g_free(str);
     }
   }
-  gtk_tree_view_set_model(self->private->sequence_table,GTK_TREE_MODEL(store));
+  gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
   // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(sequence);
@@ -248,7 +248,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
       iter=bt_machine_pattern_iterator_next(iter);
     }
   }
-  gtk_tree_view_set_model(self->private->pattern_list,GTK_TREE_MODEL(store));
+  gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
 }
 
@@ -278,7 +278,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update page
   // update toolbar
@@ -292,7 +292,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
     index=1+(bars>>2);
   }
   //GST_INFO("  bars=%d, index=%d",bars,index);
-  gtk_option_menu_set_history(GTK_OPTION_MENU(self->private->bars_menu),index);
+  gtk_option_menu_set_history(GTK_OPTION_MENU(self->priv->bars_menu),index);
   // update sequence and pattern list
   sequence_table_refresh(self,song);
   pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
@@ -330,12 +330,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
 		gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
     gtk_widget_show(menu_item);
   }
-  self->private->bars_menu=GTK_OPTION_MENU(gtk_option_menu_new());
-  gtk_option_menu_set_menu(self->private->bars_menu,menu);
+  self->priv->bars_menu=GTK_OPTION_MENU(gtk_option_menu_new());
+  gtk_option_menu_set_menu(self->priv->bars_menu,menu);
   
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
-  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->bars_menu),TRUE,TRUE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);
   
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,
@@ -348,30 +348,30 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
 
   // allocate out colors
   colormap=gdk_colormap_get_system();
-  self->private->source_bg1.red=  (guint16)(1.0*65535);
-  self->private->source_bg1.green=(guint16)(0.9*65535);
-  self->private->source_bg1.blue= (guint16)(0.9*65535);
-  gdk_colormap_alloc_color(colormap,&self->private->source_bg1,FALSE,TRUE);
-  self->private->source_bg2.red=  (guint16)(1.0*65535);
-  self->private->source_bg2.green=(guint16)(0.8*65535);
-  self->private->source_bg2.blue= (guint16)(0.8*65535);
-  gdk_colormap_alloc_color(colormap,&self->private->source_bg2,FALSE,TRUE);
-  self->private->processor_bg1.red=  (guint16)(0.9*65535);
-  self->private->processor_bg1.green=(guint16)(1.0*65535);
-  self->private->processor_bg1.blue= (guint16)(0.9*65535);
-  gdk_colormap_alloc_color(colormap,&self->private->processor_bg1,FALSE,TRUE);
-  self->private->processor_bg2.red=  (guint16)(0.8*65535);
-  self->private->processor_bg2.green=(guint16)(1.0*65535);
-  self->private->processor_bg2.blue= (guint16)(0.8*65535);
-  gdk_colormap_alloc_color(colormap,&self->private->processor_bg2,FALSE,TRUE);
-  self->private->sink_bg1.red=  (guint16)(0.9*65535);
-  self->private->sink_bg1.green=(guint16)(0.9*65535);
-  self->private->sink_bg1.blue= (guint16)(1.0*65535);
-  gdk_colormap_alloc_color(colormap,&self->private->sink_bg1,FALSE,TRUE);
-  self->private->sink_bg2.red=  (guint16)(0.8*65535);
-  self->private->sink_bg2.green=(guint16)(0.8*65535);
-  self->private->sink_bg2.blue= (guint16)(1.0*65535);
-  gdk_colormap_alloc_color(colormap,&self->private->sink_bg2,FALSE,TRUE);
+  self->priv->source_bg1.red=  (guint16)(1.0*65535);
+  self->priv->source_bg1.green=(guint16)(0.9*65535);
+  self->priv->source_bg1.blue= (guint16)(0.9*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->source_bg1,FALSE,TRUE);
+  self->priv->source_bg2.red=  (guint16)(1.0*65535);
+  self->priv->source_bg2.green=(guint16)(0.8*65535);
+  self->priv->source_bg2.blue= (guint16)(0.8*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->source_bg2,FALSE,TRUE);
+  self->priv->processor_bg1.red=  (guint16)(0.9*65535);
+  self->priv->processor_bg1.green=(guint16)(1.0*65535);
+  self->priv->processor_bg1.blue= (guint16)(0.9*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->processor_bg1,FALSE,TRUE);
+  self->priv->processor_bg2.red=  (guint16)(0.8*65535);
+  self->priv->processor_bg2.green=(guint16)(1.0*65535);
+  self->priv->processor_bg2.blue= (guint16)(0.8*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->processor_bg2,FALSE,TRUE);
+  self->priv->sink_bg1.red=  (guint16)(0.9*65535);
+  self->priv->sink_bg1.green=(guint16)(0.9*65535);
+  self->priv->sink_bg1.blue= (guint16)(1.0*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->sink_bg1,FALSE,TRUE);
+  self->priv->sink_bg2.red=  (guint16)(0.8*65535);
+  self->priv->sink_bg2.green=(guint16)(0.8*65535);
+  self->priv->sink_bg2.blue= (guint16)(1.0*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);
   
   // add a hbox
   box=gtk_hpaned_new();
@@ -380,27 +380,27 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-  self->private->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
-  gtk_tree_view_set_rules_hint(self->private->sequence_table,TRUE);
-  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->private->sequence_table),GTK_SELECTION_BROWSE);
+  self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
+  gtk_tree_view_set_rules_hint(self->priv->sequence_table,TRUE);
+  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
   sequence_table_init(self);
-  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->private->sequence_table));
-  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->private->sequence_table));
+  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_paned_pack1(GTK_PANED(box),GTK_WIDGET(scrolled_window),TRUE,TRUE);
   // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-  self->private->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  self->priv->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
   renderer=gtk_cell_renderer_text_new();
-  gtk_tree_view_insert_column_with_attributes(self->private->pattern_list,-1,_("Patterns"),renderer,"text",0,NULL);
-  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->private->pattern_list));
-  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->private->pattern_list));
+  gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Patterns"),renderer,"text",0,NULL);
+  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_paned_pack2(GTK_PANED(box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->private->sequence_table), "move-cursor", (GCallback)on_sequence_table_cursor_moved, (gpointer)self);
-  g_signal_connect(G_OBJECT(self->private->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", (GCallback)on_sequence_table_cursor_moved, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
@@ -451,13 +451,13 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
 
   GST_INFO("get active machine");
   
-  g_object_get(G_OBJECT(self->private->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 
   // get table column number (column 0 is for labels)
-  gtk_tree_view_get_cursor(self->private->sequence_table,&path,&column);
+  gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(column) {
-    GList *columns=gtk_tree_view_get_columns(self->private->sequence_table);
+    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
     glong track=g_list_index(columns,(gpointer)column);
 
     g_list_free(columns);
@@ -486,7 +486,7 @@ static void bt_main_page_sequence_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_SEQUENCE_APP: {
-      g_value_set_object(value, self->private->app);
+      g_value_set_object(value, self->priv->app);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -504,9 +504,9 @@ static void bt_main_page_sequence_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_SEQUENCE_APP: {
-      g_object_try_unref(self->private->app);
-      self->private->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for MAIN_PAGE_SEQUENCE: %p",self->private->app);
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for MAIN_PAGE_SEQUENCE: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -517,9 +517,9 @@ static void bt_main_page_sequence_set_property(GObject      *object,
 static void bt_main_page_sequence_dispose(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
 	return_if_disposed();
-  self->private->dispose_has_run = TRUE;
+  self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->private->app);
+  g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -529,7 +529,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 static void bt_main_page_sequence_finalize(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
   
-  g_free(self->private);
+  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -538,8 +538,8 @@ static void bt_main_page_sequence_finalize(GObject *object) {
 
 static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(instance);
-  self->private = g_new0(BtMainPageSequencePrivate,1);
-  self->private->dispose_has_run = FALSE;
+  self->priv = g_new0(BtMainPageSequencePrivate,1);
+  self->priv->dispose_has_run = FALSE;
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
