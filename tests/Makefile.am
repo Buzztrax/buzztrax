@@ -2,18 +2,23 @@
 
 if BUILD_CHECK_TESTS
 SUBDIRS = lib ui
-TESTS = buzztard
+TESTS = buzztard bt_cmd
 endif
 
 if BUILD_CHECK_TESTS
-noinst_PROGRAMS=buzztard
+noinst_PROGRAMS=buzztard bt_cmd
+
 buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
-	$(top_builddir)/tests/lib/core/libbtcore-check.la \
-	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la
-
+	$(top_builddir)/tests/lib/core/libbtcore-check.la
 buzztard_SOURCES= \
 	buzztard.c buzztard.h
+	
+bt_cmd_LDADD = $(BASE_DEPS_LIBS) -lcheck \
+	$(top_builddir)/src/lib/core/libbtcore.la \
+	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la
+bt_cmd_SOURCES= \
+	bt-cmd.c
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \
