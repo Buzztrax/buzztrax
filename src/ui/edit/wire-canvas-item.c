@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.10 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.11 2004-12-15 09:07:35 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -220,7 +220,7 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtWireCanvasItem *bt_wire_canvas_item_new(BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
+BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
 	BtWireCanvasItem *self;
 	BtEditApplication *app;
 	GnomeCanvas *canvas;
@@ -243,7 +243,7 @@ BtWireCanvasItem *bt_wire_canvas_item_new(BtMainPageMachines *main_page_machines
                           	"src", src_machine_item,
                           	"dst", dst_machine_item,
                           	NULL));
-  gnome_canvas_item_lower_to_bottom(self);
+  gnome_canvas_item_lower_to_bottom(GNOME_CANVAS_ITEM(self));
 	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
 
 	//GST_INFO("wire canvas item added");

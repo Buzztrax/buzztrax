@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.21 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.22 2004-12-15 09:07:34 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -293,7 +293,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtMachineCanvasItem *bt_machine_canvas_item_new(BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom) {
+BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom) {
 	BtMachineCanvasItem *self;
 	BtEditApplication *app;
 	GnomeCanvas *canvas;

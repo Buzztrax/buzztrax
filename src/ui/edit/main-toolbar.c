@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.30 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.31 2004-12-15 09:07:35 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -272,24 +272,26 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   //-- media controls
   
   image=gtk_image_new_from_filename("stock_media-play.png");
-  self->priv->play_button=button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
                                 _("Play"),
                                 NULL, NULL,
                                 image, NULL, NULL);
+	self->priv->play_button=GTK_TOGGLE_BUTTON(button);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Play"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play this song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
 
   image=gtk_image_new_from_filename("stock_media-stop.png");
-  self->priv->stop_button=button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+	button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
                                 _("Stop"),
                                 NULL, NULL,
                                 image, NULL, NULL);
+  self->priv->stop_button=GTK_BUTTON(button);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Stop"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of this song"),NULL);

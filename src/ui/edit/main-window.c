@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.40 2004-12-14 16:12:07 ensonic Exp $
+/* $Id: main-window.c,v 1.41 2004-12-15 09:07:35 ensonic Exp $
  * class for the editor main window
  */
 
@@ -323,8 +323,9 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 					cont=FALSE;
 					break;
 				default:
-				// ENOENT A component of the path file_name does not exist, or the path is an empty string.
-				// -> just save
+					// ENOENT A component of the path file_name does not exist, or the path is an empty string.
+					// -> just save
+					break;
 			}
 		}
 		if(cont) {

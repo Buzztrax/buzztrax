@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.39 2004-12-13 18:26:43 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.40 2004-12-15 09:07:35 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -100,7 +100,7 @@ static void machine_item_new(const BtMainPageMachines *self,BtMachine *machine,g
   g_hash_table_insert(self->priv->machines,machine,item);
 }
 
-static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,GnomeCanvasItem *src_machine_item,GnomeCanvasItem *dst_machine_item) {
+static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
 	BtWireCanvasItem *item;
 
 	item=bt_wire_canvas_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
@@ -110,7 +110,8 @@ static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble po
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   gpointer iter;
   GHashTable *properties;
-  GnomeCanvasItem *item,*src_machine_item,*dst_machine_item;
+  GnomeCanvasItem *item;
+	BtMachineCanvasItem *src_machine_item,*dst_machine_item;
   BtMachine *machine,*src_machine,*dst_machine;
   BtWire *wire;
   gdouble pos_x,pos_y;
@@ -653,7 +654,7 @@ void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, B
  *
  * Removes a wire canvas item from the canvas.
  */
-void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtMachineCanvasItem *item) {
+void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item) {
 	BtWire *wire;
 	
 	g_object_get(G_OBJECT(item),"wire",&wire,NULL);

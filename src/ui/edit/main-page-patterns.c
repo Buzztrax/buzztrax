@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.26 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.27 2004-12-15 09:07:35 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -64,7 +64,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	store=gtk_combo_box_get_model(self->priv->machine_menu);
 	// get the row where row.machine==machine
 	machine_model_get_iter_by_machine(store,&iter,machine);
-	gtk_list_store_set(store,&iter,MACHINE_MENU_LABEL,str,-1);
+	gtk_list_store_set(GTK_LIST_STORE(store),&iter,MACHINE_MENU_LABEL,str,-1);
 
 	g_free(str);
 }
@@ -150,8 +150,8 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   g_assert(user_data);
 	
 	GST_INFO("new machine has been added");
-	store=GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu));
-	machine_menu_add(self,machine,store);
+	store=gtk_combo_box_get_model(self->priv->machine_menu);
+	machine_menu_add(self,machine,GTK_LIST_STORE(store));
 
 	if(gtk_tree_model_iter_n_children(store,NULL)==1) {
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
@@ -161,16 +161,16 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-	GtkListStore *store;
+	GtkTreeModel *store;
 	GtkTreeIter iter;
 	
   g_assert(user_data);
 	
 	GST_INFO("machine has been removed");
-	store=GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu));
+	store=gtk_combo_box_get_model(self->priv->machine_menu);
 	// get the row where row.machine==machine
-	machine_model_get_iter_by_machine(GTK_TREE_MODEL(store),&iter,machine);
-	gtk_list_store_remove(store,&iter);
+	machine_model_get_iter_by_machine(store,&iter,machine);
+	gtk_list_store_remove(GTK_LIST_STORE(store),&iter);
 	if(gtk_tree_model_iter_n_children(store,NULL)==0) {
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),FALSE);
 	}
