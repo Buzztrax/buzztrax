@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.66 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: song.c,v 1.67 2005-01-28 18:04:21 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -228,8 +228,9 @@ static void bt_song_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SONG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for the song: %p",self->priv->app);
     } break;
 		case SONG_BIN: {
@@ -267,11 +268,13 @@ static void bt_song_dispose(GObject *object) {
 	g_object_try_unref(self->priv->setup);
 	g_object_try_unref(self->priv->wavetable);
 	g_object_try_unref(self->priv->bin);
-	g_object_try_unref(self->priv->app);
+	g_object_try_weak_unref(self->priv->app);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_song_finalize(GObject *object) {
@@ -281,9 +284,11 @@ static void bt_song_finalize(GObject *object) {
   
   g_free(self->priv);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {

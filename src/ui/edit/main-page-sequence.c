@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
 
-/* $Id: main-page-sequence.c,v 1.48 2005-01-27 21:14:59 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.49 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -548,7 +548,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			GtkTreeModel *store;
 			GtkTreePath *path;
 			GtkTreeViewColumn *column;
-			GtkTreeIter iter;
+			GtkTreeIter iter,filter_iter;
 			
 			GST_INFO("  update model");
 
@@ -556,11 +556,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 				&& (store=gtk_tree_model_filter_get_model(filtered_store))
 			)	{
 				gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
-				if(path && column && gtk_tree_model_get_iter(store,&iter,path)) {
+				if(path && column && gtk_tree_model_get_iter(GTK_TREE_MODEL(filtered_store),&filter_iter,path)) {
 			    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
 		  	  glong row,track=g_list_index(columns,(gpointer)column)-2;
 				
 					g_list_free(columns);
+					gtk_tree_model_filter_convert_iter_to_child_iter(filtered_store,&iter,&filter_iter);
 					gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
 					GST_INFO("  position is %d,%d -> ",row,track,SEQUENCE_TABLE_PRE_CT+track);
 					
@@ -668,7 +669,7 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
 	g_object_unref(store); // drop with combobox
 }
 
-static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
+static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *toolbar;
   GtkWidget *box,*button,*scrolled_window;
   GtkWidget *menu_item;
@@ -775,7 +776,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", (GCallback)on_sequence_table_key_release_event, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", (GCallback)on_sequence_table_button_press_event, (gpointer)self);
-  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 
@@ -796,7 +797,7 @@ BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_sequence_init_ui(self,app)) {
+  if(!bt_main_page_sequence_init_ui(self)) {
     goto Error;
   }
   return(self);
@@ -932,8 +933,9 @@ static void bt_main_page_sequence_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_SEQUENCE_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for MAIN_PAGE_SEQUENCE: %p",self->priv->app);
     } break;
     default: {
@@ -947,7 +949,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
 	
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 

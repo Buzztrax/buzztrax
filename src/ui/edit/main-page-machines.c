@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.48 2005-01-17 18:02:40 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.49 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -578,7 +578,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 
 //-- helper methods
 
-static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
+static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image,*scrolled_window;
   GtkWidget *menu_item,*menu,*submenu;
@@ -758,7 +758,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_show(menu_item);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
   return(TRUE);
 }
@@ -780,7 +780,7 @@ BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_machines_init_ui(self,app)) {
+  if(!bt_main_page_machines_init_ui(self)) {
     goto Error;
   }
   return(self);
@@ -860,8 +860,9 @@ static void bt_main_page_machines_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_MACHINES_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_page_machines: %p",self->priv->app);
     } break;
     default: {
@@ -877,7 +878,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
 
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
-  g_object_try_unref(self->priv->app);
+	g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+  g_object_try_weak_unref(self->priv->app);
   
 	gtk_object_destroy(GTK_OBJECT(self->priv->grid_density_menu));
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));

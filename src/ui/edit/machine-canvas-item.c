@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.39 2005-01-20 16:18:53 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.40 2005-01-28 18:04:43 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -553,8 +553,9 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       //GST_DEBUG("set the app for machine_canvas_item: %p",self->priv->app);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINES_PAGE: {
-      g_object_try_unref(self->priv->main_page_machines);
-      self->priv->main_page_machines = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->main_page_machines);
+      self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->main_page_machines);
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
@@ -589,8 +590,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	GST_DEBUG("disposing ...");
 	
   g_object_try_unref(self->priv->app);
-	g_object_try_unref(self->priv->main_page_machines);
   g_object_try_unref(self->priv->machine);
+	g_object_try_weak_unref(self->priv->main_page_machines);
 
 	GST_DEBUG("  unrefing done");
 
@@ -600,6 +601,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 	if(self->priv->preferences_dialog) {
 		gtk_widget_destroy(self->priv->preferences_dialog);
 	}
+	GST_DEBUG("  destroying dialogs done");
   
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 	GST_DEBUG("  destroying done");

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.41 2005-01-17 11:08:22 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.42 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -361,7 +361,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper methods
 
-static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, const BtEditApplication *app) {
+static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkWidget *toolbar,*scrolled_window;
   GtkWidget *box,*menu,*button;
 	GtkCellRenderer *renderer;
@@ -437,7 +437,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   gtk_container_add(GTK_CONTAINER(self),scrolled_window);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", (GCallback)on_pattern_menu_changed, (gpointer)self);
 
@@ -461,7 +461,7 @@ BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_patterns_init_ui(self,app)) {
+  if(!bt_main_page_patterns_init_ui(self)) {
     goto Error;
   }
   return(self);
@@ -567,8 +567,9 @@ static void bt_main_page_patterns_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_PATTERNS_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for MAIN_PAGE_PATTERNS: %p",self->priv->app);
     } break;
     default: {
@@ -586,7 +587,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 	g_object_try_unref(self->priv->procesor_icon);
 	g_object_try_unref(self->priv->sink_icon);
 	
-  g_object_try_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

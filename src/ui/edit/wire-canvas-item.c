@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.16 2005-01-16 14:20:42 waffel Exp $
+/* $Id: wire-canvas-item.c,v 1.17 2005-01-28 18:04:45 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -317,8 +317,9 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       //GST_DEBUG("set the app for wire_canvas_item: %p",self->priv->app);
     } break;
     case WIRE_CANVAS_ITEM_MACHINES_PAGE: {
-      g_object_try_unref(self->priv->main_page_machines);
-      self->priv->main_page_machines = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->main_page_machines);
+      self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->main_page_machines);
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case WIRE_CANVAS_ITEM_WIRE: {
@@ -362,10 +363,10 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 	GST_DEBUG("disposing ...");
 
   g_object_try_unref(self->priv->app);
-	g_object_try_unref(self->priv->main_page_machines);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
+	g_object_try_weak_unref(self->priv->main_page_machines);
 	
 	if(self->priv->src_on_position_changed) {
 		g_signal_handler_disconnect(G_OBJECT(self->priv->src),self->priv->src_on_position_changed);

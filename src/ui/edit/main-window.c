@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.49 2005-01-28 11:12:00 ensonic Exp $
+/* $Id: main-window.c,v 1.50 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main window
  */
 
@@ -55,6 +55,7 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
 static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
   GST_INFO("destroy occurred");
   if(gtk_main_level()) {
+		GST_DEBUG("  leaving main-loop");
 		gtk_main_quit();
 	}
 }
@@ -99,26 +100,34 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self),box);
- 
+
+	GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+	
   // add the menu-bar
   self->priv->menu=bt_main_menu_new(self->priv->app,self->priv->accel_group);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->menu),FALSE,FALSE,0);
+	GST_INFO("  #1, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   // add the tool-bar
   self->priv->toolbar=bt_main_toolbar_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
+	GST_INFO("  #2, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   // add the window content pages
   self->priv->pages=bt_main_pages_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pages),TRUE,TRUE,0);
+	GST_INFO("  #3, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   // add the status bar
   self->priv->statusbar=bt_main_statusbar_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->statusbar),FALSE,FALSE,0);
 
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
-
   gtk_window_add_accel_group(GTK_WINDOW(self),self->priv->accel_group);
 
+	GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+	
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
+
+	GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 
   return(TRUE);
 }
@@ -136,14 +145,17 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
 
+	GST_INFO("creating a new window, app->ref_ct=%d",G_OBJECT(app)->ref_count);
+	
   if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
     goto Error;
   }
+	GST_INFO("new main_window created, app->ref_ct=%d",G_OBJECT(app)->ref_count);
   // generate UI
   if(!bt_main_window_init_ui(self)) {
     goto Error;
   }
-	GST_INFO("new main_window created");
+	GST_INFO("new main_window layouted, app->ref_ct=%d",G_OBJECT(app)->ref_count);
   gtk_widget_show_all(GTK_WIDGET(self));
 	GST_INFO("new main_window shown");
   return(self);
@@ -392,7 +404,7 @@ static void bt_main_window_set_property(GObject      *object,
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
 			g_object_try_weak_ref(self->priv->app);
-      GST_DEBUG("set the app for main_window: %p",self->priv->app);
+      GST_DEBUG("set the app for main_window: %p, app->ref_ct=%d",self->priv->app,G_OBJECT(self->priv->app)->ref_count);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -406,11 +418,16 @@ static void bt_main_window_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+	g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+	//g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_delete_event,NULL);
+	//g_signal_handlers_disconnect_matched(self,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_window_destroy,NULL);
   g_object_try_weak_unref(self->priv->app);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	/* why the heck we never see this? */
 	GST_DEBUG("  done");
 }
 
@@ -420,6 +437,7 @@ static void bt_main_window_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_free(self->priv);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.39 2005-01-27 21:14:59 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.40 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -451,8 +451,9 @@ static void bt_main_toolbar_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_TOOLBAR_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_toolbar: %p",self->priv->app);
     } break;
     default: {
@@ -467,7 +468,8 @@ static void bt_main_toolbar_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->app);
+	
+  g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

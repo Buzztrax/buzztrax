@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.12 2005-01-16 14:20:42 waffel Exp $
+/* $Id: settings-dialog.c,v 1.13 2005-01-28 18:04:45 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -203,8 +203,9 @@ static void bt_settings_dialog_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case SETTINGS_DIALOG_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
     } break;
     default: {
@@ -219,7 +220,7 @@ static void bt_settings_dialog_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

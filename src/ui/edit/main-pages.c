@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.17 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-pages.c,v 1.18 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -59,7 +59,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,tip,NULL);
 }
 
-static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditApplication *app) {
+static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   GtkWidget *label,*event_box,*box,*image;
   GtkTooltips *tips;
 
@@ -67,28 +67,30 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
+	//GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+	
   // add wigets for machine view
-  self->priv->machines_page=bt_main_page_machines_new(app);
+  self->priv->machines_page=bt_main_page_machines_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
 	bt_main_pages_init_tab(self,tips,0,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
-
+	
   // add wigets for pattern view
-  self->priv->patterns_page=bt_main_page_patterns_new(app);
+  self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
 	bt_main_pages_init_tab(self,tips,1,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
-
+	
   // add wigets for sequence view
-  self->priv->sequence_page=bt_main_page_sequence_new(app);
+  self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
 	bt_main_pages_init_tab(self,tips,2,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
-  self->priv->waves_page=bt_main_page_waves_new(app);
+  self->priv->waves_page=bt_main_page_waves_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
 	bt_main_pages_init_tab(self,tips,3,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
-  self->priv->info_page=bt_main_page_info_new(app);
+  self->priv->info_page=bt_main_page_info_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
 	bt_main_pages_init_tab(self,tips,4,_("song information"),"tab_info.png",_("song meta data editor"));
 
@@ -112,7 +114,7 @@ BtMainPages *bt_main_pages_new(const BtEditApplication *app) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_pages_init_ui(self,app)) {
+  if(!bt_main_pages_init_ui(self)) {
     goto Error;
   }
   return(self);
@@ -155,8 +157,9 @@ static void bt_main_pages_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGES_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_pages: %p",self->priv->app);
     } break;
     default: {
@@ -171,7 +174,7 @@ static void bt_main_pages_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
   // this disposes the pages for us
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

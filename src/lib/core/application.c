@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.22 2005-01-15 22:02:51 ensonic Exp $
+/* $Id: application.c,v 1.23 2005-01-28 18:04:20 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -111,15 +111,17 @@ static void bt_application_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
 	g_object_try_unref(self->priv->bin);
   g_object_try_unref(self->priv->settings);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_application_finalize(GObject *object) {
@@ -129,9 +131,11 @@ static void bt_application_finalize(GObject *object) {
 
   g_free(self->priv);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_application_init(GTypeInstance *instance, gpointer g_class) {

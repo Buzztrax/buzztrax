@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.49 2005-01-28 11:12:00 ensonic Exp $
+/* $Id: edit-application.c,v 1.50 2005-01-28 18:04:43 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -66,7 +66,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   
 	GST_INFO("application.run_ui launched");
 	
-	res=bt_main_window_run(self->priv->main_window);	
+	res=bt_main_window_run(self->priv->main_window);
 
 	GST_INFO("application.run_ui finished");
   return(res);
@@ -90,11 +90,11 @@ BtEditApplication *bt_edit_application_new(void) {
 	if(!bt_application_new(BT_APPLICATION(self))) {
 		goto Error;
 	}
-  GST_INFO("new edit app created");
+  GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
   if(!(self->priv->main_window=bt_main_window_new(self))) {
 		goto Error;
 	}
-	GST_INFO("new edit app window created");
+	GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
   return(self);
 Error:
 	GST_WARNING("new edit app failed");
@@ -285,6 +285,7 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
   if(bt_edit_application_new_song(self)) {
     res=bt_edit_application_run_ui(self);
   }
+	GST_INFO("application.run finished");
 	return(res);
 }
 
@@ -307,6 +308,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
   if(bt_edit_application_load_song(self,input_file_name)) {
     res=bt_edit_application_run_ui(self);
   }
+	GST_INFO("application.load_and_run finished");
 	return(res);
 }
 
@@ -366,13 +368,12 @@ static void bt_edit_application_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-	/* I don't get it! This should destory the window as this is a child of the app.
-	 * On the other hand, this *NEVER* gats called as long as the window keeps its
+	/* This should destory the window as this is a child of the app.
+	 * Problem 1: On the other hand, this *NEVER* gets called as long as the window keeps its
 	 * strong reference to the app.
-	 * Solution: Only use weak refs when reffing upstream objects
+	 * Solution 1: Only use weak refs when reffing upstream objects
 	 */
-	
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
 
   if(self->priv->song) {
     GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
@@ -380,14 +381,16 @@ static void bt_edit_application_dispose(GObject *object) {
   }
   g_object_try_unref(self->priv->song);
 
-	if(self->priv->main_window) {
-		GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
-	}
-	g_object_try_unref(self->priv->main_window);
+	//if(self->priv->main_window) {
+		//GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
+	//}
+	//g_object_try_unref(self->priv->main_window);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_edit_application_finalize(GObject *object) {
@@ -397,9 +400,11 @@ static void bt_edit_application_finalize(GObject *object) {
 
   g_free(self->priv);
 
+	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) {

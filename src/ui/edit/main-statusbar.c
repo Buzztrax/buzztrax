@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.24 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-statusbar.c,v 1.25 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -207,8 +207,9 @@ static void bt_main_statusbar_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_STATUSBAR_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_statusbar: %p",self->priv->app);
     } break;
     case MAIN_STATUSBAR_STATUS: {
@@ -234,7 +235,9 @@ static void bt_main_statusbar_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->app);
+	
+  g_object_try_weak_unref(self->priv->app);
+	
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }

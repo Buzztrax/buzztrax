@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.30 2005-01-28 09:31:47 ensonic Exp $
+/* $Id: main-menu.c,v 1.31 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -25,7 +25,7 @@ static GtkMenuBarClass *parent_class=NULL;
 //-- event handler
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  gboolean quit;
+  gboolean not_quit;
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
@@ -33,9 +33,12 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   GST_INFO("menu quit event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  quit=bt_main_window_check_quit(main_window);
+	g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&not_quit);
   g_object_unref(main_window);
-  if(quit) gtk_main_quit();
+	//GST_DEBUG("  result = %d",not_quit);
+  if(not_quit) {
+		gtk_widget_destroy(GTK_WIDGET(main_window));
+	}
 }
 
 static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -335,8 +338,9 @@ static void bt_main_menu_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_MENU_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_menu: %p",self->priv->app);
     } break;
     default: {
@@ -350,8 +354,8 @@ static void bt_main_menu_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->app);
+  GST_DEBUG("!!!! self=%p",self);	
+  g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

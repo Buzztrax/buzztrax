@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.21 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-page-info.c,v 1.22 2005-01-28 18:04:44 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -178,7 +178,7 @@ void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
 
 //-- helper methods
 
-static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEditApplication *app) {
+static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   GtkWidget *label,*frame,*box;
   GtkWidget *table,*entry;
   GtkWidget *scrolledwindow;
@@ -257,7 +257,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
 	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", (GCallback)on_info_changed, (gpointer)self);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
 
 	return(TRUE);
 }
@@ -279,7 +279,7 @@ BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_info_init_ui(self,app)) {
+  if(!bt_main_page_info_init_ui(self)) {
     goto Error;
   }
   return(self);
@@ -322,8 +322,9 @@ static void bt_main_page_info_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_PAGE_INFO_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_page_info: %p",self->priv->app);
     } break;
     default: {
@@ -337,7 +338,7 @@ static void bt_main_page_info_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  g_object_try_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
