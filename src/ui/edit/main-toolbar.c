@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.16 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.17 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -31,7 +31,9 @@ GThread* player_thread=NULL;
 static void on_song_stop(const BtSong *song, gpointer user_data) {
   GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
 
-  GST_INFO("song stop event occured");
+  g_assert(user_data);
+  
+  GST_INFO("song stop event occured, button=%p",button);
   g_signal_handler_disconnect(G_OBJECT(song),on_song_stop_handler_id);
   gtk_toggle_button_set_active(button,FALSE);
 }
@@ -39,6 +41,8 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtMainWindow *main_window;
+
+  g_assert(user_data);
   
   GST_INFO("toolbar new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
@@ -49,6 +53,8 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
 static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtMainWindow *main_window;
+
+  g_assert(user_data);
   
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
@@ -58,7 +64,9 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  
+
+  g_assert(user_data);
+
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
     BtSong *song;
     GError *error;
@@ -81,6 +89,8 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
 static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
+
+  g_assert(user_data);
 
   GST_INFO("toolbar stop event occurred");
   // get song from app

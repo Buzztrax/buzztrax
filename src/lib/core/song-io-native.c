@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.32 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: song-io-native.c,v 1.33 2004-10-05 15:46:09 ensonic Exp $
  * class for native song input and output
  */
  
@@ -42,8 +42,8 @@ GType bt_song_io_native_detect(const gchar *file_name) {
 
 /**
  * xpath_type_filter:
- * @xpath_optr the xpath object to test
- * @type the required type
+ * @xpath_optr: the xpath object to test
+ * @type: the required type
  *
  * test if the given XPathObject is of the expected type, otherwise discard the object
  * Returns: the supplied xpath object or NULL is types do not match
@@ -60,9 +60,9 @@ xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathO
 
 /**
  * cxpath_get_object:
- * @doc gitk dialog
- * @xpath_comp_expression compiled xpath expression to use
- * @root_node from where to search, uses doc root when NULL
+ * @doc: gitk dialog
+ * @xpath_comp_expression: compiled xpath expression to use
+ * @root_node: from where to search, uses doc root when NULL
  *
  * return the result as xmlXPathObjectPtr of the evaluation of the supplied
  * compiled xpath expression agains the given document
@@ -93,6 +93,37 @@ xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr cons
 }
 
 //-- helper methods
+
+static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node, GObject *object) {
+  xmlNodePtr xml_subnode;
+  GHashTable *properties;
+  xmlChar *key,*value;
+  
+  // get property hashtable from object, return if NULL
+  g_object_get(object,"properties",&properties,NULL);
+  if(!properties) return(TRUE);
+  
+  // look for <properties> node
+  while(xml_node) {
+    if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"properties\0",11))) {
+      GST_DEBUG("  reading properties ...");
+      // iterate over children
+      xml_subnode=xml_node->children;
+      while(xml_subnode) {
+        if(!xmlNodeIsText(xml_subnode)) {
+          key=xmlGetProp(xml_subnode,"key");
+          value=xmlGetProp(xml_subnode,"value");
+          GST_DEBUG("    %s => %s",key,value);
+          g_hash_table_insert(properties,(gchar *)key,(gchar *)value);
+          xmlFree(key);xmlFree(value);
+        }
+        xml_subnode=xml_subnode->next;
+      }
+    }
+    xml_node=xml_node->next;
+  }
+  return(TRUE);
+}
 
 static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
 	BtSongInfo *song_info;
@@ -181,6 +212,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 				machine=BT_MACHINE(bt_processor_machine_new(song,id,plugin_name,voices));
 			}
 			if(machine) { // add machine to setup
+        bt_song_io_native_load_properties(self,song,xml_node->children,machine);
 				bt_setup_add_machine(setup,machine);
         g_object_unref(machine);
 			}
@@ -260,7 +292,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
   GValue *event;
 
   while(xml_node) {
-		if(!xmlNodeIsText(xml_node)) {
+		if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"tick\0",5))) {
       tick_str=xmlGetProp(xml_node,"time");
       tick=atoi(tick_str);
       // iterate over children
@@ -316,6 +348,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     // create pattern and load data
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
     pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine);
+    //bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
     bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
     // add to machine's pattern-list
     bt_machine_add_pattern(machine,pattern);
@@ -404,7 +437,7 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
     GST_INFO(" got sequence.labels root node with %d items",items_len);
     for(i=0;i<items_len;i++) {
       xml_node=xmlXPathNodeSetItem(items,i);
-      if(!xmlNodeIsText(xml_node)) {
+      if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"label\0",6))) {
         time_str=xmlGetProp(xml_node,"time");
         name=xmlGetProp(xml_node,"name");
         if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
@@ -432,7 +465,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
 
   bt_sequence_set_machine_by_track(sequence,index,machine);
   while(xml_node) {
-		if(!xmlNodeIsText(xml_node)) {
+    if(!xmlNodeIsText(xml_node)) {
       time_str=xmlGetProp(xml_node,"time");
       pattern_id=xmlGetProp(xml_node,"pattern");
       // @todo comand=xmlGetProp(xml_node,"comand");
@@ -481,7 +514,7 @@ static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *sel
     GST_INFO(" got sequence.tracks root node with %d items",items_len);
     for(i=0;i<items_len;i++) {
       xml_node=xmlXPathNodeSetItem(items,i);
-      if(!xmlNodeIsText(xml_node)) {
+      if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"track\0",6))) {
         machine_name=xmlGetProp(xml_node,"machine");
         index_str=xmlGetProp(xml_node,"index");
         if((machine=bt_setup_get_machine_by_id(setup, machine_name))) {

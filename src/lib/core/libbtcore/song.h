@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.18 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: song.h,v 1.19 2004-10-05 15:46:09 ensonic Exp $
  * class for a basic buzztard song
  */
  
@@ -35,8 +35,8 @@ struct _BtSong {
 };
 /**
  * BtSongClass:
- * @play_signal_id: will be emitted upon starting to play a song
- * @stop_signal_id: will be emitted after the song has stopped
+ * @play_event: default play signal handler
+ * @stop_event: default stop signal handler
  *
  * class of a song project object
  */

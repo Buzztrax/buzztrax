@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.11 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-page-info.c,v 1.12 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -36,6 +36,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSong *song;
   BtSongInfo *song_info;
   gchar *name,*genre,*info;
+
+  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app

@@ -16,12 +16,18 @@
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink" pluginname="esdsink">
-        <machineui xpos="20" ypos="10"/>
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="200"/>
       </sink>
       <source id="sine1" pluginname="sinesrc" voices="0">
-        <machineui xpos="20" ypos="80"/>
+        <properties>
+          <property key="xpos" value="0.2"/>
+          <property key="ypos" value="0.2"/>
+        </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
     </machines>

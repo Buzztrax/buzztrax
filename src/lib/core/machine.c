@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.36 2004-09-30 16:55:58 ensonic Exp $
+/* $Id: machine.c,v 1.37 2004-10-05 15:46:09 ensonic Exp $
  * base class for a machine
  */
  
@@ -8,7 +8,8 @@
 #include <libbtcore/core.h>
 
 enum {
-  MACHINE_SONG=1,
+  MACHINE_PROPERTIES=1,
+  MACHINE_SONG,
 	MACHINE_ID,
 	MACHINE_PLUGIN_NAME,
   MACHINE_VOICES,
@@ -20,6 +21,9 @@ struct _BtMachinePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 	
+  /* properties accociated with this machine */
+  GHashTable *properties;
+  
 	/* the song the machine belongs to */
 	BtSong *song;
 	/* the main gstreamer container element */
@@ -150,7 +154,7 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
  * search the machine for a pattern by the supplied id.
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  *
- * Returns: BtPattern instance or NULL if not found
+ * Returns: #BtPattern instance or NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   gboolean found=FALSE;
@@ -336,6 +340,9 @@ static void bt_machine_get_property(GObject      *object,
   BtMachine *self = BT_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
+    case MACHINE_PROPERTIES: {
+      g_value_set_pointer(value, self->priv->properties);
+    } break;
     case MACHINE_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
@@ -457,6 +464,7 @@ static void bt_machine_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_hash_table_destroy(self->priv->properties);
 	g_free(self->priv->id);
 	g_free(self->priv->plugin_name);
   g_free(self->priv->voice_types);
@@ -476,6 +484,7 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = g_new0(BtMachinePrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->voices=-1;
+  self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
 static void bt_machine_class_init(BtMachineClass *klass) {
@@ -486,6 +495,12 @@ static void bt_machine_class_init(BtMachineClass *klass) {
   gobject_class->get_property = bt_machine_get_property;
   gobject_class->dispose      = bt_machine_dispose;
   gobject_class->finalize     = bt_machine_finalize;
+
+  g_object_class_install_property(gobject_class,MACHINE_PROPERTIES,
+                                  g_param_spec_pointer("properties",
+                                     "properties prop",
+                                     "list of machine properties",
+                                     G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,MACHINE_SONG,
                                   g_param_spec_object("song",

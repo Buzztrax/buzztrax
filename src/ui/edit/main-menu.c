@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.15 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: main-menu.c,v 1.16 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -29,6 +29,8 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
+  g_assert(user_data);
+
   GST_INFO("menu quit event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   quit=bt_main_window_check_quit(main_window);
@@ -40,6 +42,8 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
 
+  g_assert(user_data);
+
   GST_INFO("menu new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
@@ -49,6 +53,8 @@ static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
+
+  g_assert(user_data);
 
   GST_INFO("menu open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
@@ -62,6 +68,8 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GtkWidget *label,*icon,*box;
   GtkWidget *dialog;
   
+  g_assert(user_data);
+
   GST_INFO("menu about event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   dialog = gtk_dialog_new_with_buttons(_("About ..."),

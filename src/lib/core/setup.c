@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.29 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: setup.c,v 1.30 2004-10-05 15:46:09 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -80,7 +80,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
  * search the setup for a machine by the supplied id.
  * The machine must have been added previously to this setup with bt_setup_add_machine().
  *
- * Returns: BtMachine instance or NULL if not found
+ * Returns: #BtMachine instance or NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   gboolean found=FALSE;
@@ -123,7 +123,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
  * search the setup for a machine by the supplied index position.
  * The machine must have been added previously to this setup with bt_setup_add_machine().
  *
- * Returns: BtMachine instance or NULL if not found
+ * Returns: #BtMachine instance or NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, glong index) {
   g_assert(self);
@@ -137,9 +137,10 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, glong index) {
  * @self: the setup to search for the wire
  * @src: the machine that is at the src end of the wire
  *
- * searches for the first wire in setup that uses the given machine as a source
+ * Searches for the first wire in setup that uses the given #BtMachine as a source.
+ * In other words - it returns the first wire that starts at the given #BtMachine.
  *
- * Returns: the BtWire or NULL 
+ * Returns: the #BtWire or NULL 
  */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
   gboolean found=FALSE;
@@ -168,9 +169,10 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
  * @self: the setup to search for the wire
  * @dst: the machine that is at the dst end of the wire
  *
- * searches for the first wire in setup that uses the given machine as a target
+ * Searches for the first wire in setup that uses the given #BtMachine as a target.
+ * In other words - it returns the first wire that ends at the given #BtMachine.
  *
- * Returns: the BtWire or NULL 
+ * Returns: the #BtWire or NULL 
  */
 BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
   gboolean found=FALSE;
@@ -351,19 +353,18 @@ static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_setup_class_init(BtSetupClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_setup_set_property;
   gobject_class->get_property = bt_setup_get_property;
   gobject_class->dispose      = bt_setup_dispose;
   gobject_class->finalize     = bt_setup_finalize;
 
-  g_param_spec = g_param_spec_object("song",
+  g_object_class_install_property(gobject_class,SETUP_SONG,
+                                  g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the setup belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-  g_object_class_install_property(gobject_class,SETUP_SONG,g_param_spec);
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 }
 
 GType bt_setup_get_type(void) {

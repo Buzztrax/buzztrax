@@ -1,7 +1,12 @@
-$Id: README,v 1.9 2004-10-01 16:01:45 ensonic Exp $
+$Id: README,v 1.10 2004-10-05 15:46:08 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
+  
+using g_object based sub systems
+  the XXX_init() function of the subsystem need to be added to SCANOBJ_OPTIONS
+  in Makefile.am e.g.: (omit the trailing ';')
+  SCANOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv);gtk_init(&argc,&argv)"
 
 what to document where
   c-language constructs (such as methods, structs, defines, enums, ...)

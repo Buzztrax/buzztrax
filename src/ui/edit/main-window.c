@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.26 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-window.c,v 1.27 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main window
  */
 
@@ -40,7 +40,9 @@ static GtkWindowClass *parent_class=NULL;
 static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gboolean res=TRUE;
-  
+
+  g_assert(user_data);
+
   GST_INFO("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(self)) {
@@ -59,6 +61,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   gchar *title,*name;
   BtSong *song;
   BtSongInfo *song_info;
+
+  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, window=%p",app,user_data);
 

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.31 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: wire.c,v 1.32 2004-10-05 15:46:09 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -263,7 +263,10 @@ Error:
  *
  * Create a new instance.
  * A wire should be added to a songs setup using
- * <code>bt_setup_add_wire(setup,wire);</code>.
+ * <code>#bt_setup_add_wire(setup,wire);</code>.
+ * Both #BtMachine instances have to be added
+ * (using <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>)
+ * to the setup before as well
  *
  * Returns: the new instance or NULL in case of an error
  */

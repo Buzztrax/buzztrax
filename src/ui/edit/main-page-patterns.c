@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.13 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.14 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -85,6 +85,8 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
 static void on_machine_menu_changed(GtkOptionMenu *optionmenu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
+  g_assert(user_data);
+
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
 }
 
@@ -93,6 +95,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;
+
+  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song

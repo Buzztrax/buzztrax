@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.13 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.14 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -33,6 +33,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
 
+  g_assert(user_data);
+
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -44,6 +46,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
+  g_assert(user_data);
+
   GST_INFO("toolbar zoom_in event occurred");
   self->priv->zoom*=1.75;
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
@@ -51,6 +55,8 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  g_assert(user_data);
 
   GST_INFO("toolbar zoom_out event occurred");
   self->priv->zoom/=1.75;
@@ -63,7 +69,8 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 // @todo this needs parameters
 /**
  * bt_main_page_machines_draw_machine:
- * @self the machine-view page to draw
+ * @self: the machine-view page to draw
+ *
  * draw something that looks a bit like a buzz-machine
  */
 static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {

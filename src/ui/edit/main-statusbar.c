@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.15 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.16 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -49,6 +49,8 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   gchar *str="00:00.000";
 
+  g_assert(user_data);
+
   // update statusbar fields
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id); 
 	gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
@@ -60,6 +62,8 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
   gchar *str;
   gulong msec,sec,min;
   
+  g_assert(user_data);
+
   GST_INFO("sequence tick received : %d",pos);
   // update elapsed statusbar
   msec=pos*bt_sequence_get_bar_time(sequence);
@@ -78,6 +82,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSequence *sequence;
   gchar *str;
   gulong msec,sec,min;
+
+  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app

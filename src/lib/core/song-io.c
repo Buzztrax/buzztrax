@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.22 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: song-io.c,v 1.23 2004-10-05 15:46:09 ensonic Exp $
  * base class for song input and output
  */
  
@@ -42,13 +42,15 @@ static GList *plugins=NULL;
 
 /**
  * bt_song_io_register_plugins:
+ *
  * Registers all song-io plugins for later use by bt_song_io_detect().
- * @todo shoudn't the contents of the plugin list be structures 
- * (so that apart from the detect ptr, we could keep the modules handle. we need this to close the plugins at sometime ... )
  */
 static void bt_song_io_register_plugins(void) {
   DIR *dirp=opendir(LIBDIR"/songio");
   
+  /* @todo shoudn't the contents of the plugin list be structures 
+   * (so that apart from the detect ptr, we could keep the modules handle. we need this to close the plugins at sometime ... )
+   */
   GST_INFO("register song-io plugins ...");
   // register internal song-io plugin
   plugins=g_list_append(plugins,&bt_song_io_native_detect);

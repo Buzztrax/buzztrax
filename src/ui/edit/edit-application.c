@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.28 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: edit-application.c,v 1.29 2004-10-05 15:46:09 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -45,7 +45,9 @@ static gboolean on_loader_status_changed(BtSongIO *loader, gpointer user_data) {
   BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
   BtMainStatusbar *statusbar;
   gchar *str;
-  
+
+  g_assert(user_data);
+
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
   
   /* @todo push loader status changes into the statusbar

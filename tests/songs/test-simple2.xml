@@ -13,7 +13,7 @@
     <bars>16</bars>
 	</meta>
 	
-  <setup zoom="1.0">
+  <setup>
     <machines>
       <sink id="audio_sink" pluginname="esdsink">
       </sink>

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.17 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.18 2004-10-05 15:46:09 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -48,6 +48,7 @@ enum {
 
 /**
  * sequence_table_init:
+ * @self: the sequence page
  *
  * removes old columns and re-inserts the Pos and Label columns.
  */
@@ -79,6 +80,9 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 
 /**
  * sequence_table_refresh:
+ * @self:  the sequence page
+ * @song: the newly created song
+ *
  * rebuild the sequence table after a structural change
  */
 static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *song) {
@@ -214,9 +218,12 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
 /**
  * pattern_list_refresh:
+ * @self: the sequence page
+ * @machine: the machine that now has the focus
+ *
  * When the user moves the cursor in the sequence, update the list of patterns
  * so that it shows the patterns that belong to the machine in the current
- * sequence row
+ * sequence row.
  */
 static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine *machine) {
   BtPattern *pattern;
@@ -257,12 +264,16 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
+  g_assert(user_data);
+
   GST_INFO("sequence_table cursor has changed : treeview=%p, page=%p",treeview,user_data);
   pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
 }
 
 gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  g_assert(user_data);
 
   GST_INFO("sequence_table cursor has moved : treeview=%p, page=%p, arg1=%d, arg2=%d",treeview,user_data,arg1,arg2);
   if(arg1==GTK_MOVEMENT_VISUAL_POSITIONS) {
@@ -275,6 +286,8 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtSongInfo *song_info;
   BtSong *song;
   glong index,bars;
+
+  g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
