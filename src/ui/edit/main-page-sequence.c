@@ -1,4 +1,6 @@
-/* $Id: main-page-sequence.c,v 1.45 2005-01-27 10:29:01 ensonic Exp $
+/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
+
+/* $Id: main-page-sequence.c,v 1.46 2005-01-27 12:55:16 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -59,6 +61,8 @@ enum {
 };
 
 #define IS_SEQUENCE_POS_VISIBLE(pos,bars) ((pos&((bars)-1))==0)
+
+static gchar *pattern_keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 //-- tree filter func
 
@@ -371,7 +375,6 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   GtkTreeIter tree_iter;
   GList *node,*list;
   gchar *str,key[2]={0,};
-	gchar *keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	gulong index=0;
 
   GST_INFO("refresh pattern list");
@@ -388,9 +391,9 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 		for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-			GST_INFO("  adding \"%s\" at index %d -> '%c'",str,index,keys[index]);
-			key[0]=(index<64)?keys[index]:' ';
-			//if(index<64) key[0]=keys[index];
+			GST_INFO("  adding \"%s\" at index %d -> '%c'",str,index,pattern_keys[index]);
+			key[0]=(index<64)?pattern_keys[index]:' ';
+			//if(index<64) key[0]=pattern_keys[index];
 			//else key[0]=' ';
       GST_INFO("  with shortcut \"%s\"",key);
       gtk_list_store_append(store, &tree_iter);
@@ -493,14 +496,48 @@ static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovemen
 
 static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	gboolean res=FALSE;
+	BtTimeLineTrack *timelinetrack;
 
   g_assert(user_data);
 	
 	GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
-	// look up pattern for key
-	// determine bttimeline and bttimelinetrack
-	// set pattern
-	return(FALSE);
+	// determine timeline and timelinetrack from cursor pos
+	if((timelinetrack=bt_main_page_sequence_get_current_timelinetrack(self))) {
+		// look up pattern for key
+		if(event->keyval=='-') {
+			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,"pattern",NULL,NULL);
+			res=TRUE;
+		}
+		else if(event->keyval==',') {
+			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,"pattern",NULL,NULL);
+			res=TRUE;
+		}
+		else if(event->keyval==' ') {
+			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_EMPTY,"pattern",NULL,NULL);
+			res=TRUE;
+		}
+		else {
+			gchar *pos=strchr(pattern_keys,event->keyval);
+			
+			if(pos) {
+				BtMachine *machine;
+
+				if((machine=bt_main_page_sequence_get_current_machine(self))) {
+					BtPattern *pattern;
+				
+					if((pattern=bt_machine_get_pattern_by_index(machine,((gulong)pos-(gulong)pattern_keys)))) {
+						g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_PATTERN,"pattern",pattern,NULL);
+						// @todo irks, we need to change model as well! (means in fact we need an own model class)
+						res=TRUE;
+						g_object_unref(pattern);
+					}
+					g_object_unref(machine);
+				}
+			}
+		}
+	}
+	return(res);
 }
 
 static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
@@ -762,6 +799,59 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
   g_object_try_unref(sequence);
   g_object_try_unref(song);
   return(machine);
+}
+
+/**
+ * bt_main_page_sequence_get_current_timelinetrack:
+ * @self: the pattern subpage
+ *
+ * Get the currently active #BtTimeLineTrack as determined by the cursor position in
+ * the sequence table.
+ * Unref the timelinetrack, when done with it.
+ *
+ * Returns: the #BtTimeLineTrack instance or %NULL in case of an error
+ */
+BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPageSequence *self) {
+	BtTimeLineTrack *timelinetrack=NULL;
+  BtSong *song;
+  BtSequence *sequence;
+	BtTimeLine *timeline;
+  GtkTreePath *path;
+  GtkTreeViewColumn *column;
+
+  GST_INFO("get active sequence cell");
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+
+  // get table column number (column 0 is for labels)
+  gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
+  if(column && path) {
+    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
+    glong row,track=g_list_index(columns,(gpointer)column);
+		GtkTreeModel *store;
+		GtkTreeIter iter;
+
+    g_list_free(columns);
+		if(track>1) { // first two tracks are pos and label
+			// get iter from path
+			store=gtk_tree_view_get_model(self->priv->sequence_table);
+			if(gtk_tree_model_get_iter(store,&iter,path)) {
+				gulong row;
+				// get pos from iter and then the timeline
+				gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
+				if(timeline=bt_sequence_get_timeline_by_time(sequence,row)) {
+					timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,track-2);
+					GST_INFO("  found one at %d,%d",track-2,row);
+					g_object_unref(timeline);
+				}
+			}
+		}
+  }
+  // release the references
+  g_object_try_unref(sequence);
+  g_object_try_unref(song);	
+	return(timelinetrack);
 }
 
 //-- wrapper
