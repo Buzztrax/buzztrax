@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.4 2004-11-26 18:53:27 waffel Exp $
+/* $Id: settings-page-audiodevices.c,v 1.5 2004-12-10 12:34:03 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -18,7 +18,7 @@ struct _BtSettingsPageAudiodevicesPrivate {
   /* the application */
   BtEditApplication *app;
   
-  GtkOptionMenu *audiosink_menu;
+  GtkComboBox *audiosink_menu;
   GList *audiosink_names;
 };
 
@@ -33,7 +33,7 @@ static void on_audiosink_menu_changed(GtkOptionMenu *optionmenu, gpointer user_d
 
   g_assert(user_data);
 
-  index=gtk_option_menu_get_history(self->priv->audiosink_menu);
+  index=gtk_combo_box_get_active(self->priv->audiosink_menu);
   GST_INFO("audiosink change : index=%d",index);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -51,10 +51,7 @@ static void on_audiosink_menu_changed(GtkOptionMenu *optionmenu, gpointer user_d
 static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevices *self) {
   BtSettings *settings;
   GtkWidget *box,*scrolled_window,*page;
-  GtkWidget *label,*spacer,*widget,*menu,*menu_item;  
-  GtkCellRenderer *renderer;
-  GtkListStore *store;
-  GtkTreeIter tree_iter;
+  GtkWidget *label,*spacer,*widget;  
   gchar *audiosink_name,*system_audiosink_name,*str;
   GList *node;
   gulong audiosink_index=0,ct;
@@ -79,25 +76,22 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   label=gtk_label_new(_("Sink"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
-  self->priv->audiosink_menu=GTK_OPTION_MENU(gtk_option_menu_new());
-  menu=gtk_menu_new();
-  menu_item=gtk_menu_item_new_with_label(g_strdup_printf(_("system default (%s)"),system_audiosink_name));
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  gtk_widget_show(menu_item);
+  self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+	
+	str=g_strdup_printf(_("system default (%s)"),system_audiosink_name);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+	g_free(str);
   // add audio sinks gstreamer provides
   node=self->priv->audiosink_names;ct=1;
   while(node) {
-    menu_item=gtk_menu_item_new_with_label(g_strdup(node->data));
     if(!use_system_audiosink) {
       // compare with audiosink_name and set audiosink_index if equal
       if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
     }
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-    gtk_widget_show(menu_item);
+		gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
     node=g_list_next(node);ct++;
   }
-  gtk_option_menu_set_menu(self->priv->audiosink_menu,menu);
-  gtk_option_menu_set_history(self->priv->audiosink_menu,audiosink_index);
+  gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", (GCallback)on_audiosink_menu_changed, (gpointer)self);
   
