@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.10 2004-02-18 18:04:07 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.11 2004-04-07 09:18:35 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture (two main modules)
@@ -32,7 +32,7 @@
 
 * gstreamer how-to
 	** get list of generators, effect, outputs
-		- see gst-player sources
+		- see gst-editor sources
 	** find out how to feed parameters into elements
 		- synchonous (from the GUI)
 				GstElement *sinesrc;
@@ -95,8 +95,8 @@
 
 	** internal plugins
 	= ladspa plugins
-	hide the input mixing
-	hide channel conversion
+	hide the input mixing,output spreading
+	hide channel conversion (see open questions)
 
 * controller ids
 	- define a few standart controller ids to aid cut/copy/paste of pattern data
@@ -146,4 +146,14 @@
 		(useful for keeping a few things static for multiple voices)
 		- sources: play multiple notes
 		- effects: delay=multi-tap-delay, pitchshift=make-chords
+	** how do we handle multi-channel connections
+		src has n channels, dst has m channels
+		*** n=m
+			just connect
+		*** n<m
+			n=1 : make copies of the src channel
+			n>1 :
+		*** n>m
+			m=1 : mix all src channels down to one dst channel
+			m>1 :
 *
