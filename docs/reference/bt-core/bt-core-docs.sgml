@@ -45,6 +45,7 @@
   </preface>
 
   <chapter id="conventions">
+    <title>Conventions</title>
     During the API docs some conventions are used to avoid duplication and
     improve precission.
     <orderedlist>
@@ -52,6 +53,14 @@
         <para>It is never valid to supply <symbol>NULL</symbol> for an object
         reference,unless it is explicitly said so.</para>
       </listitem>
+      <listitem>
+        <para>Methods do checking of preconditions using <function>g_return_if_fail()</function>
+        or <function>g_return_val_if_fail()</function>.
+        Therefore watch for the glibs log messages indicating wrong API usage.</para>
+      </listitem>
+      <!--
+        write about freeing results
+      -->
     </orderedlist>
   </chapter>
   

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.19 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.20 2004-11-01 12:05:37 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -193,6 +193,15 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Toggle looping of playback"),NULL);
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+  
+  // @todo volume level and gain control
+  // somehow get the audio_sink
+  //   (song->master is the audio-sink, but we need the bt-machine for that one)
+  // get the input_level property from audio_sink
+  // connect to the level signal
+  // g_signal_connect(song_level, "level", G_CALLBACK (level_callback), user_data);
+  // add gtk_vumeter widgets and update from level_callback
+  // add gain-control
 
   return(TRUE);
 }

@@ -42,7 +42,7 @@
     <para>
       The classes described in this chapter are all part of end user application
       code.
-      Please make sure you have read section <link linkend="conventions">conventions</link>
+      Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
       before reading further.
     </para>
     &BtEditApplication;

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.45 2004-10-29 13:12:18 ensonic Exp $
+/* $Id: machine.c,v 1.46 2004-11-01 12:05:36 ensonic Exp $
  * base class for a machine
  */
  
@@ -69,7 +69,6 @@ struct _BtMachinePrivate {
   GstElement *output_level;
   
   /* public fields are
-	GstElement *machine,*adder,*spreader;
 	GstElement *dst_elem,*src_elem;
   */
 };
@@ -161,7 +160,7 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
 		GST_ERROR("failed to link the machines input level analyser");goto Error;
 	}
   self->dst_elem=self->priv->input_level;
-  //g_signal_connect(sd->pe->level, "level", G_CALLBACK (level_callback), sd->gsgui);
+  //g_signal_connect(song_level, "level", G_CALLBACK (level_callback), user_data);
   GST_INFO("sucessfully added input level analyser %p",self->priv->input_level);
   res=TRUE;
 Error:
