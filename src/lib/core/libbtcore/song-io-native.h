@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.9 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: song-io-native.h,v 1.10 2004-07-28 13:54:43 ensonic Exp $
  * class for native song input and output
  */
 
@@ -43,6 +43,9 @@ struct _BtSongIONative {
  * @xpath_get_setup: compiled xpath expression to get the virtual hardware setup
  * @xpath_get_patterns: compiled xpath expression to get the pattern definitions
  * @xpath_get_sequence: compiled xpath expression to get the timeline sequence
+ * @xpath_get_sequence_labels: compiled xpath expression to get the labels of the timeline sequence
+ * @xpath_get_sequence_tracks: compiled xpath expression to get the tracks of the timeline sequence
+ * @xpath_get_sequence_length: compiled xpath expression to get the length of the timeline sequence
  *
  * class for song input and output in native zip/xml format
  */

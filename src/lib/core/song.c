@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.27 2004-07-26 18:00:10 ensonic Exp $
+/* $Id: song.c,v 1.28 2004-07-28 13:54:42 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -41,7 +41,7 @@ struct _BtSongPrivate {
  * Starts to play the specified song instance from beginning.
  * This methods emits the "play" signal.
  *
- * Return: TRUE for success
+ * Returns: TRUE for success
  *
  */
 gboolean bt_song_play(const BtSong *self) {
@@ -58,7 +58,7 @@ gboolean bt_song_play(const BtSong *self) {
  *
  * Stops the playback of the specified song instance.
  *
- * Return: TRUE for success
+ * Returns: TRUE for success
  *
  */
 gboolean bt_song_stop(const BtSong *self) {
@@ -71,7 +71,7 @@ gboolean bt_song_stop(const BtSong *self) {
  *
  * Pauses the playback of the specified song instance
  *
- * Return: TRUE for success
+ * Returns: TRUE for success
  *
  */
 gboolean bt_song_pause(const BtSong *self) {
@@ -85,7 +85,7 @@ gboolean bt_song_pause(const BtSong *self) {
  *
  * Continues the playback of the specified song instance
  *
- * Return: TRUE for success
+ * Returns: TRUE for success
  *
  */
 gboolean bt_song_continue(const BtSong *self) {

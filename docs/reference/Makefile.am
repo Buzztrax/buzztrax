@@ -33,7 +33,7 @@ HFILE_GLOB=
 CFILE_GLOB=
 
 # Header files to ignore when scanning.
-IGNORE_HFILES=
+IGNORE_HFILES=config.h
 
 # Images to copy into HTML directory.
 HTML_IMAGES =
@@ -49,6 +49,7 @@ extra_files =
 GTKDOC_CFLAGS = \
 	-I$(top_builddir)/src/lib/core \
 	-I$(top_builddir)/src/ui/cmd \
+	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = $(BASE_DEPS_LIBS) \

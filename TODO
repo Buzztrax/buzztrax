@@ -1,6 +1,12 @@
-$Id: TODO,v 1.8 2004-07-21 15:17:16 ensonic Exp $
+$Id: TODO,v 1.9 2004-07-28 13:54:41 ensonic Exp $
 
 * run 'make todo' to get a list of todo comments from source
+
+* next tasks
+  * get a list of GstElements from GStremaer registry that are
+    audio-outputs
+    audio-generators (and implement the instrument interface)
+    audio-effects
 
 * how do we implement multiple voices per machine?
   * source 
@@ -30,5 +36,5 @@ $Id: TODO,v 1.8 2004-07-21 15:17:16 ensonic Exp $
     when make members private, when public
   * we need some convention how to shorten all the
     object->private->member statements
-    * do once object_p=object->private;  
+    * do once object_p=object->private; ?
 

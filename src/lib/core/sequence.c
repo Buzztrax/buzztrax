@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.16 2004-07-26 18:00:10 ensonic Exp $
+/* $Id: sequence.c,v 1.17 2004-07-28 13:54:42 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -118,7 +118,7 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  *
  * starts playback for the sequence
  *
- * Return: TRUE for success
+ * Returns: TRUE for success
  *
  */
 gboolean bt_sequence_play(const BtSequence *self) {
