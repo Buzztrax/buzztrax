@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.2 2004-08-06 23:52:37 ensonic Exp $
+# $Id: autogen.sh,v 1.3 2004-08-31 17:35:29 ensonic Exp $
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0
@@ -98,7 +98,7 @@ version_check ()
           WRONG=1
         elif [ "$pkg_micro" -lt "$MICRO" ]; then
           debug "micro: $pkg_micro < $MICRO"
-	  WRONG=1
+          WRONG=1
         fi
       fi
     fi
@@ -379,21 +379,4 @@ echo ./configure $CONFIGURE_DEF_OPT $CONFIGURE_EXT_OPT
 }
 
 echo "Now type 'make' to compile $package."
-
-
-
-# old version
-# stupid simple autogen script (to get us started)
-
-#cfg=configure.ac
-
-## autopoint --force
-## intltoolize --copy --force --automake
-#libtoolize --force --copy
-#aclocal
-#autoheader
-#automake --add-missing --gnu
-#autoconf
-
-#echo "now do ./configure --enable-maintainer-mode --enable-compile-warnings --enable-debug=yes"
 

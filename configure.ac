@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.15 2004-08-18 16:55:06 ensonic Exp $
+# $Id: configure.ac,v 1.16 2004-08-31 17:35:29 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -67,8 +67,6 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_ISC_POSIX
 AC_PROG_LIBTOOL
-# we do not use intltool as it merges back translations into xml files
-# AC_PROG_INTLTOOL
 AM_PROG_CC_STDC
 
 # Initialise gettext
