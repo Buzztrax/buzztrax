@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.71 2005-01-19 17:44:00 ensonic Exp $
+/* $Id: machine.c,v 1.72 2005-01-21 18:25:40 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -62,6 +62,8 @@ struct _BtMachinePrivate {
   
   /* the gstreamer element that is used */
   GstElement *machine;
+	/* the gstreamer element pads */
+	GstPad *dst,*src;
   
   /* utillity elements to allow multiple inputs/outputs */
   GstElement *adder,*spreader;
@@ -107,13 +109,19 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	// reject a few nonsense changes
 	if((new_state==BT_MACHINE_STATE_BYPASS) && (!BT_IS_PROCESSOR_MACHINE(self))) return(FALSE);
 	if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
-		
+	
 	// return to normal state
 	switch(self->priv->state) {
 		case BT_MACHINE_STATE_MUTE:
+			gst_pad_set_active(self->priv->src,TRUE);
+			/*
+			gst_pad_link(self->priv->src,self->priv->src_peer);
+			*/
+			/*
 			if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
 				GST_WARNING("setting element '%s' to playing state failed",self->priv->id);
 			}
+			*/
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to playing again
@@ -125,9 +133,17 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	// set to new state
 	switch(new_state) {
 		case BT_MACHINE_STATE_MUTE:
+			gst_pad_set_active(self->priv->src,FALSE);
+			/*
+			self->priv->src=gst_element_get_pad(self->priv->machine,"src");
+	  	self->priv->src_peer=gst_pad_get_peer(self->priv->src);
+	  	gst_pad_unlink(self->priv->src,self->priv->src_peer);
+			*/
+			/*
 			if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
 				GST_WARNING("setting element '%s' to paused state failed",self->priv->id);
 			}
+			*/
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to paused
@@ -191,6 +207,8 @@ gboolean bt_machine_new(BtMachine *self) {
 
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machine;
+	self->priv->src=gst_element_get_pad(self->priv->machine,"src");
+	self->priv->dst=gst_element_get_pad(self->priv->machine,"sink");
   GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machine)->ref_count);
   if((self->priv->dparam_manager=gst_dpman_get_manager(self->priv->machine))) {
     GParamSpec **specs;
@@ -586,7 +604,6 @@ GType bt_machine_get_voice_dparam_type(const BtMachine *self, gulong index) {
  * @event: the new value
  *
  * Sets a the specified global dparam to the give data value.
- *
  */
 void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GValue *event) {
   GstDParam *dparam;
@@ -597,13 +614,13 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GVa
   
   dparam=self->priv->global_dparams[index];
   // depending on the type, set the GValue
-  // @todo use a function pointer here, like e.g. self->priv->global_param_set(dparam,event)
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE: {
       //gchar *str=g_strdup_value_contents(event);
       //GST_INFO("events for %s at track %d : \"%s\"",self->priv->id,index,str);
-      g_object_set_property(G_OBJECT(dparam),"value_double",event);
       //g_free(str);
+      //g_object_set_property(G_OBJECT(dparam),"value_double",event);
+			g_object_set(G_OBJECT(dparam),"value_double",g_value_get_double(event),NULL);
     }  break;
     default:
       GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));
