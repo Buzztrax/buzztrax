@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.38 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.39 2004-12-13 18:26:43 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -56,7 +56,7 @@ gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_data) {
 
 //-- event handler helper
 
-// @todo this methods probably should go to BtMachine
+// @todo this method probably should go to BtMachine, but otherwise it is GUI related
 void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
   gchar *prop;
 
@@ -328,15 +328,6 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
 			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
 		}
-		/* @todo e.g. the pattern view does not find out about this
-		 * a) should main-page-machines trigger a "machine-added" signal?
-		 *    then main-window need to make the sub-pages readable properties, so that other pages can listen to the signals
-		 *    but pages should not be depend on each other, if possible
-		 * b) should setup trigger a "machine-added" signal?
-		 *    then the setup need a mechanism to announce bult-additions
-		 *    so that when in bulk-add-mode this signal is not emitted
-		 *    as this would cause lots of refreshes during load
-		 */
 		bt_setup_add_machine(setup,machine);
 
 		// draw machine
@@ -385,7 +376,6 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
 			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
 		}
-		// @todo e.g. the pattern view does not find out about this
 		bt_setup_add_machine(setup,machine);
 
 		// draw machine

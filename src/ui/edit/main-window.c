@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.38 2004-12-13 17:46:05 ensonic Exp $
+/* $Id: main-window.c,v 1.39 2004-12-13 18:26:43 ensonic Exp $
  * class for the editor main window
  */
 
@@ -188,9 +188,9 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
  * Prepares a new song. Triggers cleaning up the old song and refreshes the ui.
  */
 void bt_main_window_new_song(const BtMainWindow *self) {
-  // @todo if unsaved ask the use, if we should save the song
+  // @todo if unsaved ask the user, if we should save the song
   if(!bt_edit_application_new_song(self->priv->app)) {
-    // @todo show error message
+    // @todo show error message (from where?)
   }
 }
 
