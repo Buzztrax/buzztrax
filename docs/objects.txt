@@ -1,0 +1,12 @@
+*$Id: objects.txt,v 1.1 2004-04-26 14:47:57 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+================================================================================
+
+BTMachine
+
+BTConnection
+
+BTSong
+
+BTPattern
+
+BTTimeLine
