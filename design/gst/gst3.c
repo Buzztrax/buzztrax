@@ -1,4 +1,4 @@
-/** $Id: gst3.c,v 1.1 2004-02-13 15:36:13 ensonic Exp $
+/** $Id: gst3.c,v 1.2 2004-02-13 16:30:56 ensonic Exp $
  */
  
 #include <stdio.h>
@@ -8,11 +8,14 @@
 int main(int argc, char **argv) {
 	GstElement *audiosink, *audiosrc, *audioconvert, *thread;
   GstClock *clock;
-  GstDParamManager *audiosrcParam;
-	gfloat set_to_value;
-	GValue *set_val;
-	GstDParam *volume;
 	guint tick;
+  GstDParamManager *audiosrcParam;
+	gfloat vol_floatval;	// volume
+	GValue *vol_val;
+	GstDParam *vol;
+	gfloat frq_floatval;	// frequency
+	GValue *frq_val;
+	GstDParam *frq;
   
 	gst_init(&argc, &argv);
   gst_control_init(&argc,&argv);
@@ -37,20 +40,31 @@ int main(int argc, char **argv) {
   audiosrc = gst_element_factory_make (argv[1], "audio-source");
   g_assert (audiosrc != NULL);
   
-  set_to_value = atof(argv[3]);
-  set_to_value = set_to_value/100;
   /* getting param manager */
   audiosrcParam = gst_dpman_get_manager (audiosrc);
-  /* setting param mode. Only synchronized currently supported */
+  /* setting param mode. Only synchronized is currently supported */
   gst_dpman_set_mode(audiosrcParam, "synchronous");
-  volume = gst_dparam_new(G_TYPE_FLOAT);
-  if (gst_dpman_attach_dparam (audiosrcParam, "volume", volume)){
+	/* preparing volume parameter */
+  vol = gst_dparam_new(G_TYPE_FLOAT);
+  if (gst_dpman_attach_dparam (audiosrcParam, "volume", vol)){
     /* the dparam was successfully attached */
-    set_val = g_new0(GValue,1);
-    g_value_init(set_val, G_TYPE_FLOAT);
-    g_value_set_float(set_val, set_to_value);
-    g_object_set_property(G_OBJECT(volume), "value_float", set_val);
+		vol_floatval = atof(argv[3])/100.0;
+    vol_val = g_new0(GValue,1);
+    g_value_init(vol_val, G_TYPE_FLOAT);
+    g_value_set_float(vol_val, vol_floatval);
+    g_object_set_property(G_OBJECT(vol), "value_float", vol_val);
   }
+	/* preparing frequency parameter */
+  frq = gst_dparam_new(G_TYPE_FLOAT);
+  if (gst_dpman_attach_dparam (audiosrcParam, "freq", frq)){
+    /* the dparam was successfully attached */
+		frq_floatval = 50.0;
+    frq_val = g_new0(GValue,1);
+    g_value_init(frq_val, G_TYPE_FLOAT);
+    g_value_set_float(frq_val, frq_floatval);
+    g_object_set_property(G_OBJECT(frq), "value_float", frq_val);
+  }
+	else g_print("freq failed\n");
   
   /* add objects to the thread */
   gst_bin_add_many (GST_BIN (thread), audiosrc, audioconvert, audiosink, NULL);
@@ -82,11 +96,14 @@ int main(int argc, char **argv) {
   g_print("thread is playing\n");
 
 	tick=1;
-	while(set_to_value > 0.0) {
-    g_print("tick : volume=%f - clock time %"G_GUINT64_FORMAT" - sink time %"G_GUINT64_FORMAT"\n",set_to_value,gst_clock_get_time(clock), gst_element_get_time(audiosink));
-    g_value_set_float(set_val, set_to_value);
-    g_object_set_property(G_OBJECT(volume), "value_float", set_val);
-    set_to_value-=0.05;
+	while(vol_floatval > 0.0) {
+    g_print("tick : vol=%f frq=%f - clock time %"G_GUINT64_FORMAT" - sink time %"G_GUINT64_FORMAT"\n",vol_floatval,frq_floatval,gst_clock_get_time(clock), gst_element_get_time(audiosink));
+		//-- update params
+    g_object_set_property(G_OBJECT(vol), "value_float", vol_val);
+    g_object_set_property(G_OBJECT(frq), "value_float", frq_val);
+		//-- update values
+    vol_floatval-=0.05;//g_value_set_float(vol_val, vol_floatval);
+		frq_floatval*=1.5 ;g_value_set_float(frq_val, frq_floatval);
 		gst_element_wait(audiosink, GST_SECOND*tick++);
 	}
 
@@ -95,6 +112,9 @@ int main(int argc, char **argv) {
 
   /* we don't need a reference to these objects anymore */
   gst_object_unref (GST_OBJECT (thread));
+	
+	g_free(vol_val);
+	g_free(frq_val);
   
   exit (0);
 }
