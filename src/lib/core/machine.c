@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.78 2005-01-27 17:17:30 ensonic Exp $
+/* $Id: machine.c,v 1.79 2005-01-31 10:05:49 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -20,6 +20,9 @@ enum {
   MACHINE_VOICE_PARAMS,
   MACHINE_MACHINE,
   MACHINE_INPUT_LEVEL,
+  MACHINE_INPUT_GAIN,
+  MACHINE_OUTPUT_LEVEL,
+  MACHINE_OUTPUT_GAIN,
 	MACHINE_PATTERNS,
 	MACHINE_STATE
 };
@@ -67,9 +70,9 @@ struct _BtMachinePrivate {
   GstElement *adder,*spreader;
   
   /* the elements to control and analyse the current input signal */
-  GstElement *input_volume,*input_level;
+  GstElement *input_gain,*input_level;
   /* the elements to control and analyse the current output signal */
-  GstElement *output_colume,*output_level;
+  GstElement *output_gain,*output_level;
   
   /* public fields are
 	GstElement *dst_elem,*src_elem;
@@ -322,8 +325,11 @@ gboolean bt_machine_new(BtMachine *self) {
  */
 gboolean bt_machine_add_input_level(BtMachine *self) {
   gboolean res=FALSE;
+	
+	g_assert(BT_IS_MACHINE(self));
+	g_assert(!BT_IS_SOURCE_MACHINE(self));
   
-  // add input-level meter
+  // add input-level analyser
   if(!(self->priv->input_level=gst_element_factory_make("level",g_strdup_printf("input_level_%p",self)))) {
     GST_ERROR("failed to create machines input level analyser");goto Error;
   }
@@ -344,6 +350,7 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
 		
 		GST_DEBUG("machine '%s' is connected",GST_OBJECT_NAME(self->priv->machine));
 
+		// add before machine (sink peer of machine)
 		if((pad=gst_element_get_pad(self->priv->machine,"sink"))
 			&& (peer_pad=gst_pad_get_peer(pad))
 			&& (peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))
@@ -359,11 +366,48 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
 			GST_ERROR("cant get sink-peer element of machine");goto Error;
 		}
 	}
-  
   res=TRUE;
 Error:
   return(res);
 }
+
+/**
+ * bt_machine_add_input_gain:
+ * @self: the machine to add the input-gain element to
+ *
+ * Add an input-gain element to the machine and activate it.
+ *
+ * Returns: %TRUE for success, %FALSE otherwise
+ */
+gboolean bt_machine_add_input_gain(BtMachine *self) {
+  gboolean res=FALSE;
+	
+	g_assert(BT_IS_MACHINE(self));
+	g_assert(!BT_IS_SOURCE_MACHINE(self));
+
+  // add input-gain element
+  if(!(self->priv->input_gain=gst_element_factory_make("volume",g_strdup_printf("input_gain_%p",self)))) {
+    GST_ERROR("failed to create machines input gain element");goto Error;
+  }
+  //g_object_set(G_OBJECT(self->priv->input_gain),"interval",0.1, "signal",TRUE, NULL);
+  gst_bin_add(self->priv->bin,self->priv->input_gain);
+	// is the machine unconnected ?
+	if(self->dst_elem==self->priv->machine) {
+		GST_DEBUG("machine '%s' is not yet connected",GST_OBJECT_NAME(self->priv->machine));
+  	if(!gst_element_link(self->priv->input_gain,self->priv->machine)) {
+			GST_ERROR("failed to link the machines input gain element");goto Error;
+		}
+  	self->dst_elem=self->priv->input_gain;
+  	GST_INFO("sucessfully added input  gain element %p",self->priv->input_gain);
+	}
+	else {
+		// @todo add before input-level = after dst_elem (source peer of dst_elem)
+	}
+  res=TRUE;
+Error:
+  return(res);
+}
+
 
 /**
  * bt_machine_activate_adder:
@@ -747,6 +791,15 @@ static void bt_machine_get_property(GObject      *object,
     case MACHINE_INPUT_LEVEL: {
       g_value_set_object(value, self->priv->input_level);
     } break;
+    case MACHINE_INPUT_GAIN: {
+      g_value_set_object(value, self->priv->input_gain);
+    } break;
+    case MACHINE_OUTPUT_LEVEL: {
+      g_value_set_object(value, self->priv->output_level);
+    } break;
+    case MACHINE_OUTPUT_GAIN: {
+      g_value_set_object(value, self->priv->output_gain);
+    } break;
 		case MACHINE_PATTERNS: {
 			g_value_set_pointer(value,g_list_copy(self->priv->patterns));
 		} break;
@@ -843,11 +896,25 @@ static void bt_machine_dispose(GObject *object) {
       gst_bin_remove(self->priv->bin,self->priv->input_level);
       GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
+    if(self->priv->input_gain) {
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->priv->input_gain));
+      GST_DEBUG("  removing input_gain %p from bin, obj->ref_count=%d",self->priv->input_gain,(G_OBJECT(self->priv->input_gain))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->input_gain);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    }
     if(self->priv->output_level) {
       g_assert(GST_IS_BIN(self->priv->bin));
       g_assert(GST_IS_ELEMENT(self->priv->output_level));
       GST_DEBUG("  removing output_level from bin, obj->ref_count=%d",(G_OBJECT(self->priv->output_level))->ref_count);
       gst_bin_remove(self->priv->bin,self->priv->output_level);
+      GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    }
+    if(self->priv->output_gain) {
+      g_assert(GST_IS_BIN(self->priv->bin));
+      g_assert(GST_IS_ELEMENT(self->priv->output_gain));
+      GST_DEBUG("  removing output_gain from bin, obj->ref_count=%d",(G_OBJECT(self->priv->output_gain))->ref_count);
+      gst_bin_remove(self->priv->bin,self->priv->output_gain);
       GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     }
     // release the bin (that is reffed in bt_machine_new() )
@@ -872,11 +939,12 @@ static void bt_machine_dispose(GObject *object) {
 		}
 	}
 
-	GST_DEBUG("  done");
+	GST_DEBUG("  chaining up");
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
+	GST_DEBUG("  done");
 }
 
 static void bt_machine_finalize(GObject *object) {
@@ -991,7 +1059,28 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE));
 
-  g_object_class_install_property(gobject_class,MACHINE_PATTERNS,
+  g_object_class_install_property(gobject_class,MACHINE_INPUT_GAIN,
+                                  g_param_spec_object("input-gain",
+                                     "input-gain prop",
+                                     "the input-gain element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_LEVEL,
+                                  g_param_spec_object("output-level",
+                                     "output-level prop",
+                                     "the output-level element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MACHINE_OUTPUT_GAIN,
+                                  g_param_spec_object("output-gain",
+                                     "output-gain prop",
+                                     "the output-gain element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE));
+
+	g_object_class_install_property(gobject_class,MACHINE_PATTERNS,
                                   g_param_spec_pointer("patterns",
                                      "pattern list prop",
                                      "A copy of the list of patterns",

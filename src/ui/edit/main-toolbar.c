@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.40 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.41 2005-01-31 10:05:50 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -248,6 +248,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		// release the references
 		g_object_try_unref(level);
 		
+		// @todo get the input_gain property from audio_sink and remember
 		// connect volumne event
 		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
