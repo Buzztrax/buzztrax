@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.31 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: sink-machine.c,v 1.32 2005-01-16 13:17:36 ensonic Exp $
  * class for a sink machine
  */
  
@@ -58,10 +58,21 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
 		plugin_name=sink_name;
 	}
   else {
-    // try first entry of gstreamer-audiosink list (@todo better would be the one with the highest rank)
-    GList *audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
-    if(audiosink_names) {
-      plugin_name=audiosink_names->data;
+    // iterate over gstreamer-audiosink list and choose element with highest rank
+    GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
+		GstElementFactory *factory;
+		guint max_rank=0,cur_rank;
+		
+		node=audiosink_names;
+		while(node) {
+			factory=gst_element_factory_find(node->data);
+			cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
+			//GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
+			if((cur_rank>max_rank) || (!plugin_name)) {
+      	plugin_name=node->data;
+				max_rank=cur_rank;
+			}
+			node=g_list_next(node);
     }
     g_list_free(audiosink_names);
   }

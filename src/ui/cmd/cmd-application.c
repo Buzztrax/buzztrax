@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.44 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: cmd-application.c,v 1.45 2005-01-16 13:17:36 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -159,12 +159,15 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     BtSongInfo *song_info;
     BtSequence *sequence;
     BtSetup *setup;
+    BtWavetable *wavetable;
 		BtMachine *machine;
     gchar *name,*info,*id;
     gulong length,tracks,n_patterns=0;
-		GList *machines,*wires,*patterns,*node;
+		GList *machines,*wires,*patterns,*waves,*node;
+		GstBin *bin;
     
-    g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,NULL);
+    g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
+
 		// print some info about the song
     g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,NULL);
     g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
@@ -172,8 +175,8 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
 		g_fprintf(output_file,"song.sequence.length: %d\n",length);
 		g_fprintf(output_file,"song.sequence.tracks: %d\n",tracks);
+
 		// print some statistics about the song (number of machines, wires, patterns)
-		// @todo more statisticas (waves, gstreamer elements, ...)
 		g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);
 		g_fprintf(output_file,"song.setup.number_of_machines: %d\n",g_list_length(machines));
 		g_fprintf(output_file,"song.setup.number_of_wires: %d\n",g_list_length(wires));
@@ -185,6 +188,12 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 		g_fprintf(output_file,"song.setup.number_of_patterns: %d\n",n_patterns);
 		g_list_free(machines);
 		g_list_free(wires);
+		g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
+		g_fprintf(output_file,"song.wavetable.number_of_waves: %d\n",g_list_length(waves));
+		g_list_free(waves);
+		g_object_get(G_OBJECT(self),"bin",&bin,NULL);
+		g_fprintf(output_file,"app.bin.number_of_elements: %d\n",g_list_length((GList *)gst_bin_get_list(bin)));
+
     // lookup the audio-sink machine and print some info about it (problem, it is not always called audio_sink)
     if((machine=bt_setup_get_machine_by_id(setup,"audio_sink"))) {
       g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
@@ -192,10 +201,12 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
       g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
 			g_object_unref(machine);
     }
+
     // release the references
     g_object_try_unref(song_info);
     g_object_try_unref(sequence);
     g_object_try_unref(setup);
+    g_object_try_unref(wavetable);
     res=TRUE;
 		GST_INFO("finished succesfully");
 	}

@@ -1,8 +1,8 @@
-/* $Id: setup.c,v 1.56 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: setup.c,v 1.57 2005-01-16 13:17:36 ensonic Exp $
  * class for machine and wire setup
  */
  
-/* @todo add a methods for dumping the setup as a dot-graph
+/* @idea add a methods for dumping the setup as a dot-graph
  * machines and wires should be dumped with details (as subgraphs)!
  */
  
@@ -129,9 +129,21 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 	g_return_if_fail(BT_IS_WIRE(wire));
 
   if(!g_list_find(self->priv->wires,wire)) {
-		// @todo check for wires with equal src and dst machines
-    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
-		g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
+		BtMachine *src,*dst;
+		BtWire *other_wire1,*other_wire2;
+		
+		// check for wires with equal src and dst machines 
+		g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
+		other_wire1=bt_setup_get_wire_by_machines(setup,src,dst);
+		other_wire2=bt_setup_get_wire_by_machines(setup,dst,src);
+		if((!other_wire1) && (!other_wire2)) {
+	    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+			g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
+		}
+		g_object_try_unref(other_wire1);
+		g_object_try_unref(other_wire2);
+		g_object_try_unref(src);
+		g_object_try_unref(dst);
   }
   else {
     GST_WARNING("trying to add wire again"); 

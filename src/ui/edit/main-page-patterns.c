@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.38 2005-01-16 10:04:32 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.39 2005-01-16 13:17:36 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -273,7 +273,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 #endif
 
 		GST_DEBUG("  done");
-		// release the references -> @todo fix bug in gtkgrid
+		// release the references
 		g_object_unref(store); // drop with gridview
 	}
 	else {

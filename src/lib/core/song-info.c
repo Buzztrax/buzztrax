@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.31 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: song-info.c,v 1.32 2005-01-16 13:17:36 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -210,10 +210,10 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = g_new0(BtSongInfoPrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->name=g_strdup("unamed song");
-  // @idea alternate that all a little at new_song
-  self->priv->beats_per_minute=125;
-  self->priv->ticks_per_beat=4;
-  self->priv->bars=16;
+  // @idea alternate bpm's a little at new_song (user defined range?)
+  self->priv->beats_per_minute=125;	// 1..1000
+  self->priv->ticks_per_beat=4;			// 1..128
+  self->priv->bars=4;								// 1..16
 }
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
