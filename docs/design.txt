@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.6 2004-02-04 12:52:21 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: design.txt,v 1.7 2004-02-10 14:30:20 ensonic Exp $ (-*- mode:outline -*-)
 ================================================================================
 
 ** architecture
@@ -12,6 +12,7 @@
 
 ** gstreamer how-to
 *** get list of generators, effect, outputs
+  - see gst-player sources
 *** find out how to feed parameters into elements
   - synchonous (from the GUI)
 			GstElement *sinesrc;
