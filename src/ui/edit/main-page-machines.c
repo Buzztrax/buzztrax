@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.26 2004-11-25 21:09:45 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.27 2004-11-26 14:48:44 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -77,6 +77,17 @@ void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gd
   else GST_WARNING("no properties supplied");
 }
 
+/**
+ * workaround for gnome_canvas bug, that fails to change font-sizes when zooming
+ */
+static void update_machine_zoom(gpointer key,gpointer value,gpointer user_data) {
+	g_object_set(BT_MACHINE_CANVAS_ITEM(value),"zoom",(gdouble)(*user_data),NULL);
+}
+
+static void update_machines_zoom(const BtMainPageMachines *self) {
+	g_hash_table_foreach(self->priv->machines,machine_zoom,&self->priv->zoom);
+}
+
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   gpointer iter;
   GHashTable *properties;
@@ -108,6 +119,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
                            "machine", machine,
                            "x", pos_x,
                            "y", pos_y,
+													 "zoom", self->priv->zoom,
                            NULL);
     g_hash_table_insert(self->priv->machines,machine,item);
     iter=bt_setup_machine_iterator_next(iter);
@@ -217,6 +229,7 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
   self->priv->zoom*=1.75;
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+	update_machines_zoom(self);
 }
 
 static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
@@ -227,6 +240,7 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   self->priv->zoom/=1.75;
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+	update_machines_zoom(self);
 }
 
 static void on_toolbar_grid_clicked(GtkButton *button, gpointer user_data) {

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.9 2004-11-18 14:05:33 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.10 2004-11-26 14:48:44 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -19,6 +19,7 @@ enum {
 enum {
   MACHINE_CANVAS_ITEM_APP=1,
   MACHINE_CANVAS_ITEM_MACHINE,
+	MACHINE_CANVAS_ITEM_ZOOM
 };
 
 
@@ -39,6 +40,9 @@ struct _BtMachineCanvasItemPrivate {
 
 	/* the parameter dialog */
 	GtkWidget *parameter_dialog;
+
+  /* the zoomration in pixels/per unit */
+  double zoom;
 
   /* interaction state */
   gboolean dragging,moved,connecting;
@@ -194,6 +198,9 @@ static void bt_machine_canvas_item_get_property(GObject      *object,
     case MACHINE_CANVAS_ITEM_MACHINE: {
       g_value_set_object(value, self->priv->machine);
     } break;
+    case MACHINE_CANVAS_ITEM_ZOOM: {
+      g_value_set_double(value, self->priv->zoom);
+    } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -222,6 +229,10 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
       }
+    } break;
+    case MACHINE_CANVAS_ITEM_ZOOM: {
+      self->priv->zoom=g_value_get_double(value);
+      GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -472,6 +483,15 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES                                     
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_ZOOM,
+                                  g_param_spec_double("zoom",
+                                     "zoom prop",
+                                     "Set zoom ratio for the machine item",
+                                     0.0,
+																		 100.0,
+																		 1.0,
                                      G_PARAM_READWRITE));
 }
 
