@@ -7,3 +7,7 @@ Read the following sections:
 
 Uncompress CWAV audio data.
 Therefore port over lines 130-480 from decomp.cpp
+1.) replace ->hFile and
+      SetFilePointer
+			ReadFile
+

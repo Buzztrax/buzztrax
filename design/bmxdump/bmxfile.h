@@ -57,18 +57,26 @@ struct BmxCompressionValues
 	word	wSum2;
 	word	wResult;
 
-	dword	lpwTempData;
+	word	*lpwTempData;
 };
 
 struct BmxWavData
 {
     BmxWavData();
+		BmxWavData(int len);
     ~BmxWavData();
     byte *buffer;
+		word size;
 };
 
 inline BmxWavData::BmxWavData() { 
     buffer = 0x0;
+		size = 0;
+}
+
+inline BmxWavData::BmxWavData(int len) { 
+    buffer = new byte[len];
+		size = len;
 }
 
 inline BmxWavData::~BmxWavData() {
@@ -422,5 +430,15 @@ class BmxFile
     inline void printBverSection() {
         std::cout << " -- BVER Section\n " << buzzversion << std::endl << std::endl;
     }
+		
+		dword unpackBits(dword dwAmount);
+		dword countZeroBits(void);
+		void adjustFilePointer(void);
+		
+		void zeroCompressionValues(BmxCompressionValues *lpcv,dword dwBlockSize);
+		void tidyCompressionValues(BmxCompressionValues * lpcv);
+		bool decompressSwitch(BmxCompressionValues *lpcv,word *lpwOutputBuffer,dword dwBlockSize);
+		bool decompressWave(word *lpwOutputBuffer,dword dwNumSamples,bool bStereo);
+
 };
 

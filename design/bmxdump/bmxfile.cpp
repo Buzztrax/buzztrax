@@ -92,6 +92,8 @@ void BmxFile::readBverSection()
         return;
     }
 
+    cout << " reading BVER Section\n";
+
     BmxSectionEntry *entry = &entries[section];
     fseek(file, entry->offset, SEEK_SET);
     read_asciiz(buzzversion);
@@ -101,6 +103,8 @@ void BmxFile::readBverSection()
 void BmxFile::readParaSection()
 {
     int section = getNumberOfSection("PARA");
+
+    cout << " reading PARA Section\n";
     
     if (section == -1) // There's no PARA Section in this file. Beat it!
         return;
@@ -160,6 +164,8 @@ void BmxFile::readMachSection()
         fseek(file, offset, SEEK_SET);
         numberOfMachines = static_cast<dword>(read_word());
     }
+
+    cout << " reading MACH Section\n";
 
     mach = new BmxMachSection[numberOfMachines];
     
@@ -237,7 +243,9 @@ void BmxFile::readMachSection()
 void BmxFile::readWavtSection()
 {
 		BmxSectionEntry *entry = &entries[getNumberOfSection("WAVT")];
-		
+
+    cout << " reading WAVT Section\n";
+
 		fseek(file, entry->offset, SEEK_SET);
 		numberOfWaves = static_cast<dword>(read_word());
 		
@@ -310,6 +318,8 @@ void BmxFile::readCwavSection()
     if (section == -1)
         return;
 
+    cout << " reading WAVE/CWAV Section\n";
+
     fseek(file, entries[section].offset, SEEK_SET);
   
     cwav = new BmxCwavSection;
@@ -322,30 +332,57 @@ void BmxFile::readCwavSection()
     cwav->format = new byte[cwav->numberOfWavs];
     cwav->data = new BmxWavData[cwav->numberOfWavs];
     
-    //Decomp.cpp::InitWaveUnpack()
-    cwav->dwBytesInFileRemain=entries[section].size;
-    
     for (int i = 0; i < cwav->numberOfWavs; i++) {
         cwav->index[i] = read_word();
         cwav->format[i] = read_byte();
+
+				cout << " \treading wave" << i << endl;
+
+				//Decomp.cpp::InitWaveUnpack()
+				cwav->dwMaxBytes = MAXPACKEDBUFFER;
+				cwav->dwBytesInFileRemain=entries[section].size;
+				cwav->dwCurBit = 0;
+				// set up so that call to UnpackBits() will force an immediate read from file
+				cwav->dwCurIndex = MAXPACKEDBUFFER;
+				cwav->dwBytesInBuffer = 0;
         
-        /*
-        for (int j = 0; j < wavt[i]->numberOfLevels; j++) {
-        {
+        for (int j = 0; j < wavt[i].numberOfLevels; j++) {
           dword len;
 
-          //calc size in bytes of decompressed data
-          len =  wavt[i]->levels[j].numberOfSamples * sizeof(WORD);
-          //size x2 for stereo
-          len *= (wavt[i]->flags & 8) ? 2 : 1;
-          wavt[i]->levels[j]->data.buffer = new byte[len];
+					cout << " \t\treading level" << j ;
 
-          decompressWave(wavt[i]->levels[j]->data.buffer,
-                        wavt[i]->levels[j].numberOfSamples
-                        wavt[i]->flags & 8);
+          //calc size in bytes of decompressed data
+          len =  wavt[i].levels[j].numberOfSamples * sizeof(word);
+					
+					cout << " len is " << len;
+					
+          //size x2 for stereo
+          len *= (wavt[i].flags & 8) ? 2 : 1;
+					
+					cout << ", " << ((wavt[i].flags & 8) ? "stereo":"mono");
+					
+					wavt[i].levels[j].data = new BmxWavData(len);
+          //wavt[i].levels[j].data.buffer = new byte[len];
+					
+					cout << endl;
+
+					if (cwav->format[i] == 1) {
+						// compressed data
+						decompressWave((word *)(wavt[i].levels[j].data->buffer),
+													wavt[i].levels[j].numberOfSamples,
+													((wavt[i].flags & 8)!=0));
+					}
+					else {
+						// uncompressed data
+						fread(wavt[i].levels[j].data->buffer,1,len,file);
+					}
         }
-        */
-        
+				if(cwav->format[i]==1) {
+					//reset file pointer, ready for next wave data			
+					adjustFilePointer();
+				}
+
+				/* old code        
         // compressed data
         if (cwav->format[i] == 1) {
             int len = entries[section].size - (2 * sizeof(word)) 
@@ -362,6 +399,7 @@ void BmxFile::readCwavSection()
             compressedWaveTable = false;
             break;
         }
+				*/
     }
 }
 
@@ -370,6 +408,8 @@ void BmxFile::readConnSection()
 {
     int section = getNumberOfSection("CONN");
     fseek(file, entries[section].offset, SEEK_SET);
+
+    cout << " reading CONN Section\n";
 
     numberOfMachineConnections = read_word();
 
@@ -388,7 +428,9 @@ void BmxFile::readSequSection()
 {
     int section = getNumberOfSection("SEQU");
     fseek(file, entries[section].offset, SEEK_SET);
-   
+
+    cout << " reading SEQU Section\n";
+
     endOfSong = read_dword();
     beginOfLoop = read_dword();
     endOfLoop = read_dword();
@@ -640,6 +682,10 @@ void BmxFile::printWavtSection()
 
 void BmxFile::dumpCwavSection()
 {
+		char filename[1024];
+		char basename[1024];
+		int sl;
+		
     cout << " -- CWAV Section\n";
     cout << endl;
       
@@ -652,7 +698,36 @@ void BmxFile::dumpCwavSection()
         cout << " There is no audio data in this file\n";
         return;
     }
-  
+
+		// basename=filepath without 'extension'
+		sl=filepath.length();
+		if(sl>1023) {
+        cerr << " base filename is too long\n";
+        return;
+		}
+		if(sl<5) {
+        cerr << " base filename is non-sense\n";
+        return;
+		}
+		strncpy(basename,filepath.c_str(),sl-4);basename[sl]='\0';
+		//mkdir(basename);
+		
+		for (int i = 0; i < cwav->numberOfWavs; i++) {
+			for (int j = 0; j < wavt[i].numberOfLevels; j++) {
+				// filename=dirname/samplename-level.raw
+				//sprintf(filename,"%s/%s-%02d.raw",basename,wavt[i].name.c_str(),j);
+				sprintf(filename,"%s-%s-%02d.raw",basename,wavt[i].name.c_str(),j);
+
+				FILE * file = fopen(filename, "wb");
+        if (file == 0x0) {
+					cerr << "Could not open dump file\n";
+          return;
+        }
+				fwrite(wavt[i].levels[j].data->buffer,1,wavt[i].levels[j].data->size,file),
+				fclose(file);
+			}
+		}
+		/* old code
     if (compressedWaveTable == true) {
         cout << " The CWAV section contains compressed data.\n";
         
@@ -662,7 +737,7 @@ void BmxFile::dumpCwavSection()
                 << "Dumping to " << dumpfilename << endl;
 
             FILE * dumpfile = fopen(dumpfilename.c_str(), "w");
-            if (dumpfile == NULL) {
+            if (dumpfile == 0x0) {
                 cerr << "Could not open dump file\n";
                 return;
             }
@@ -684,6 +759,7 @@ void BmxFile::dumpCwavSection()
     else if (compressedWaveTable == false)
             cout << " The CWAV section contains uncompressed data!!!\n"
                 << " Ignoring it though, for the time being...\n";
+		*/
 }
 
 
@@ -800,7 +876,7 @@ bool BmxFile::open(const char* path)
     string tmp;
     
     file = fopen(path, "r");
-    if (file == NULL) {
+    if (file == 0x0) {
         cerr << "Cannot open " << path << endl;
         return false;
     }
@@ -904,5 +980,348 @@ void BmxFile::read_asciiz(string &str)
        else 
            str += tmp;
    }
+}
+
+
+//==================================BIT UNPACKING===================================
+
+dword BmxFile::unpackBits(dword dwAmount)
+{	
+	dword dwRet,dwReadAmount,dwSize,dwMask,dwVal;
+	dword dwFileReadAmnt,dwReadFile,dwShift;
+	dword dwMax = 8;
+
+	if((cwav->dwBytesInFileRemain == 0) && (cwav->dwCurIndex == MAXPACKEDBUFFER))
+	{
+		return 0;
+	}
+	
+	dwReadAmount = dwAmount;
+	dwRet = 0;
+	dwShift = 0;
+	while(dwReadAmount > 0)
+	{
+		//check to see if we need to update buffer and/or index
+		if((cwav->dwCurBit == dwMax) || (cwav->dwBytesInBuffer == 0))
+		{	
+			cwav->dwCurBit = 0;
+			cwav->dwCurIndex++;
+			if(cwav->dwCurIndex >= cwav->dwBytesInBuffer )
+			{	//run out of buffer... read more file into buffer
+				dwFileReadAmnt= (cwav->dwBytesInFileRemain > cwav->dwMaxBytes ) ? cwav->dwMaxBytes : cwav->dwBytesInFileRemain;
+				
+				dwReadFile=fread(cwav->abtPackedBuffer,1,dwFileReadAmnt,file);
+
+				cwav->dwBytesInFileRemain -= dwReadFile;	
+				cwav->dwBytesInBuffer = dwReadFile;
+				cwav->dwCurIndex = 0;
+
+				//if we didnt read anything then exit now
+				if(dwReadFile == 0)
+				{	//make sure nothing else is read
+					cwav->dwBytesInFileRemain = 0;
+					cwav->dwCurIndex = MAXPACKEDBUFFER;
+					return 0;
+				}
+			}
+		}
+		
+		//calculate size to read from current dword
+		dwSize = ((dwReadAmount + cwav->dwCurBit) > dwMax) ? dwMax - cwav->dwCurBit : dwReadAmount;
+		
+		//calculate bitmask
+		dwMask = (1 << dwSize) - 1;
+
+		//Read value from buffer
+		dwVal = cwav->abtPackedBuffer[cwav->dwCurIndex];
+		dwVal = dwVal >> cwav->dwCurBit;
+
+		//apply mask to value
+		dwVal &= dwMask;
+
+		//shift value to correct position
+		dwVal = dwVal << dwShift;
+		
+		//update return value
+		dwRet |= dwVal;
+
+		//update info
+		cwav->dwCurBit += dwSize;
+		dwShift += dwSize;
+		dwReadAmount -= dwSize;
+	}
+
+	return dwRet;
+}
+
+
+dword BmxFile::countZeroBits(void)
+{
+	dword dwBit;
+	dword dwCount = 0;
+
+	dwBit = unpackBits(1);
+	while(dwBit == 0)
+	{
+		dwCount++;
+		dwBit = unpackBits(1);
+	}
+
+	return dwCount;
+}
+
+
+void BmxFile::adjustFilePointer(void)
+{
+	int iRemain = (cwav->dwCurIndex - cwav->dwBytesInBuffer) + 1;			
+	// skip <iRemain> bytes
+	fseek(file,iRemain,SEEK_CUR);
+}
+
+
+//==================================WAVE DECOMPRESSING===================================
+
+void BmxFile::zeroCompressionValues(BmxCompressionValues *lpcv,dword dwBlockSize)
+{
+	lpcv->wResult = 0;
+	lpcv->wSum1 = 0;
+	lpcv->wSum2 = 0;
+
+	//If block size is given, then allocate specfied temporary data
+	if (dwBlockSize > 0)
+	{
+		lpcv->lpwTempData = new word[dwBlockSize]; 
+	}
+	else
+	{
+		lpcv->lpwTempData=0x0;
+	}
+}
+
+
+void BmxFile::tidyCompressionValues(BmxCompressionValues * lpcv)
+{
+	//if there is temporary data - then free it.
+	if (lpcv->lpwTempData != 0x0)
+	{
+		delete [] lpcv->lpwTempData;
+	}
+}
+
+
+bool BmxFile::decompressSwitch(BmxCompressionValues *lpcv,word *lpwOutputBuffer,dword dwBlockSize)
+{
+	dword dwSwitchValue,dwBits,dwSize,dwZeroCount;
+	word wValue;
+	word *lpwaddress;
+	if(dwBlockSize == 0)
+	{
+		return false;
+	}
+
+	//Get compression method
+	dwSwitchValue = unpackBits(2);
+
+	//read size (in bits) of compressed values
+	dwBits = unpackBits(4);
+
+	dwSize = dwBlockSize;
+	lpwaddress = lpwOutputBuffer;
+	while(dwSize > 0)
+	{
+		//read compressed value
+		// ejp: cast added to suppress compiler warning
+		wValue = (word)unpackBits(dwBits);
+		
+		//count zeros
+		dwZeroCount = countZeroBits();
+		
+		//Construct
+		// ejp: cast added to suppress compiler warning
+		wValue = (word)((dwZeroCount << dwBits) | wValue);
+
+		//is value supposed to be positive or negative?
+		if((wValue & 1) == 0)
+		{	//its positive
+			wValue = wValue >> 1;
+		}
+		else
+		{	//its negative. Convert into a negative value.
+			wValue++;
+			wValue = wValue >> 1;
+			wValue = ~wValue; //invert bits
+			wValue++; //add one to make 2's compliment
+		}
+
+		//Now do stuff depending on which method we're using....
+		switch(dwSwitchValue )
+		{
+			case 0:
+				lpcv->wSum2 = ((wValue - lpcv->wResult) - lpcv->wSum1);
+				lpcv->wSum1 = wValue - lpcv->wResult;
+				lpcv->wResult = wValue;
+				break;
+			case 1:
+				lpcv->wSum2 = wValue - lpcv->wSum1;
+				lpcv->wSum1 = wValue;
+				lpcv->wResult += wValue;
+				break;
+			case 2:
+				lpcv->wSum2 = wValue;
+				lpcv->wSum1 += wValue;
+				lpcv->wResult += lpcv->wSum1;
+				break;
+			case 3:
+				lpcv->wSum2 += wValue;
+				lpcv->wSum1 += lpcv->wSum2;
+				lpcv->wResult += lpcv->wSum1;
+				break;
+			default: //error
+				return false;
+		}
+
+		//store value into output buffer
+		*lpwOutputBuffer = lpcv->wResult;
+		
+		//prepare for next loop...
+		lpwOutputBuffer++;
+		dwSize--;
+	}
+
+	return true;
+}
+
+
+bool BmxFile::decompressWave(word *lpwOutputBuffer,dword dwNumSamples,bool bStereo)
+{
+	dword dwZeroCount,dwShift,dwBlockSize,dwBlockCount,dwLastBlockSize;
+	dword dwResultShift,dwCount,i,ixx;
+	byte btSumChannels;
+	BmxCompressionValues cv1,cv2;
+
+	if(lpwOutputBuffer == 0x0)
+	{
+		return false;
+	}
+
+	dwZeroCount = countZeroBits();
+	if (dwZeroCount != 0)
+	{
+		//printf("Unknown compressed wave data format \n");
+		return false;
+	}
+
+	//get size shifter
+	dwShift = unpackBits(4);
+
+	//get size of compressed blocks
+	dwBlockSize = 1 << dwShift;
+
+	//get number of compressed blocks
+	dwBlockCount = dwNumSamples >> dwShift;
+
+	//get size of last compressed block
+	dwLastBlockSize = (dwBlockSize - 1) & dwNumSamples;
+
+	//get result shifter value (used to shift data after decompression)
+	dwResultShift = unpackBits(4);		
+
+	if(!bStereo)
+	{	//MONO HANDLING
+
+		//zero internal compression values
+		zeroCompressionValues(&cv1,0);
+
+		//If there's a remainder... then handle number of blocks + 1
+		dwCount = (dwLastBlockSize == 0) ? dwBlockCount : dwBlockCount +1;
+		while(dwCount > 0)
+		{
+			if (!decompressSwitch(&cv1,lpwOutputBuffer,dwBlockSize))
+			{
+				return false;
+			}
+
+			for(i=0;i<dwBlockSize;i++)
+			{	//shift end result
+				lpwOutputBuffer[i] = lpwOutputBuffer[i] << dwResultShift;
+			}
+			
+			//proceed to next block...
+			lpwOutputBuffer += dwBlockSize;
+			dwCount--;
+
+			//check to see if we are handling the last block
+			if((dwCount == 1) && (dwLastBlockSize != 0))
+			{	//we are... set block size to size of last block
+				dwBlockSize = dwLastBlockSize;
+			}
+		}		
+	}
+	else
+	{	//STEREO HANDLING
+
+		//Read "channel sum" flag
+		// ejp: cast added to suppress compiler warning
+		btSumChannels = (byte)unpackBits(1);
+		
+		//zero internal compression values and alloc some temporary space
+		zeroCompressionValues(&cv1,dwBlockSize);
+		zeroCompressionValues(&cv2,dwBlockSize);
+
+		//If there's a remainder... then handle number of blocks + 1
+		dwCount = (dwLastBlockSize == 0) ? dwBlockCount : dwBlockCount +1;
+		while(dwCount > 0)
+		{
+			//decompress both channels into temporary area
+			if(!decompressSwitch(&cv1,cv1.lpwTempData,dwBlockSize))
+			{
+				return false;
+			}
+
+			if (!decompressSwitch(&cv2,cv2.lpwTempData,dwBlockSize))
+			{
+				return false;
+			}
+			
+			for(i=0;i<dwBlockSize;i++)
+			{	
+				//store channel 1 and apply result shift
+				ixx = i * 2;
+				lpwOutputBuffer[ixx] = cv1.lpwTempData[i] << dwResultShift;
+				
+				//store channel 2
+				ixx++;
+				lpwOutputBuffer[ixx] = cv2.lpwTempData[i];
+				
+				//if btSumChannels flag is set then the second channel is
+				//the sum of both channels
+				if(btSumChannels != 0)
+				{
+					lpwOutputBuffer[ixx] += cv1.lpwTempData[i];
+				}
+				
+				//apply result shift to channel 2
+				lpwOutputBuffer[ixx] = lpwOutputBuffer[ixx] << dwResultShift;
+
+			}
+
+			//proceed to next block
+			lpwOutputBuffer += dwBlockSize * 2;
+			dwCount--;
+
+			//check to see if we are handling the last block
+			if((dwCount == 1) && (dwLastBlockSize != 0))
+			{	//we are... set block size to size of last block
+				dwBlockSize = dwLastBlockSize;
+			}
+
+		}
+		
+		//tidy
+		tidyCompressionValues(&cv1);
+		tidyCompressionValues(&cv2);
+	}
+
+	return true;
 }
 
