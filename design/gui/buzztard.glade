@@ -208,7 +208,7 @@
 	    <name>button3</name>
 	    <tooltip>New</tooltip>
 	    <label>New</label>
-	    <stock_pixmap>GNOME_STOCK_PIXMAP_NEW</stock_pixmap>
+	    <icon>stock_new.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -217,7 +217,7 @@
 	    <name>button4</name>
 	    <tooltip>Open</tooltip>
 	    <label>Open</label>
-	    <stock_pixmap>GNOME_STOCK_PIXMAP_OPEN</stock_pixmap>
+	    <icon>stock_open.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -226,7 +226,7 @@
 	    <name>button5</name>
 	    <tooltip>Save</tooltip>
 	    <label>Save</label>
-	    <stock_pixmap>GNOME_STOCK_PIXMAP_SAVE</stock_pixmap>
+	    <icon>stock_save.xpm</icon>
 	  </widget>
 	</widget>
 
@@ -253,7 +253,7 @@
 	    <width>30</width>
 	    <height>30</height>
 	    <label>Play</label>
-	    <icon>prev_t.xpm</icon>
+	    <icon>stock_media-prev.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -263,7 +263,7 @@
 	    <width>30</width>
 	    <height>30</height>
 	    <label>button7</label>
-	    <icon>rw.xpm</icon>
+	    <icon>stock_media-rew.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -273,7 +273,7 @@
 	    <width>30</width>
 	    <height>30</height>
 	    <label>button8</label>
-	    <icon>play.xpm</icon>
+	    <icon>stock_media-play.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -281,7 +281,7 @@
 	    <child_name>Toolbar:button</child_name>
 	    <name>button12</name>
 	    <label>button12</label>
-	    <stock_pixmap>GNOME_STOCK_PIXMAP_STOP</stock_pixmap>
+	    <icon>stock_media-rec.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -291,7 +291,7 @@
 	    <width>30</width>
 	    <height>30</height>
 	    <label>button13</label>
-	    <icon>ff.xpm</icon>
+	    <icon>stock_media-fwd.xpm</icon>
 	  </widget>
 
 	  <widget>
@@ -301,7 +301,7 @@
 	    <width>30</width>
 	    <height>30</height>
 	    <label>button14</label>
-	    <icon>next_t.xpm</icon>
+	    <icon>stock_media-next.xpm</icon>
 	  </widget>
 	</widget>
 
@@ -620,6 +620,7 @@
 	  <widget>
 	    <class>GtkPixmap</class>
 	    <name>pixmap2</name>
+	    <filename>stock_edit.xpm</filename>
 	    <xalign>0.5</xalign>
 	    <yalign>0.5</yalign>
 	    <xpad>0</xpad>
@@ -706,6 +707,7 @@
 	  <widget>
 	    <class>GtkPixmap</class>
 	    <name>pixmap5</name>
+	    <filename>stock_properties.xpm</filename>
 	    <xalign>0.5</xalign>
 	    <yalign>0.5</yalign>
 	    <xpad>0</xpad>
@@ -792,6 +794,7 @@
 	  <widget>
 	    <class>GtkPixmap</class>
 	    <name>pixmap6</name>
+	    <filename>stock_sequence.xpm</filename>
 	    <xalign>0.5</xalign>
 	    <yalign>0.5</yalign>
 	    <xpad>0</xpad>
@@ -863,6 +866,7 @@
 	  <widget>
 	    <class>GtkPixmap</class>
 	    <name>pixmap7</name>
+	    <filename>stock_insert-object.xpm</filename>
 	    <xalign>0.5</xalign>
 	    <yalign>0.5</yalign>
 	    <xpad>0</xpad>
@@ -1056,6 +1060,7 @@
 	  <widget>
 	    <class>GtkPixmap</class>
 	    <name>pixmap8</name>
+	    <filename>stock_insert_wave.xpm</filename>
 	    <xalign>0.5</xalign>
 	    <yalign>0.5</yalign>
 	    <xpad>0</xpad>
@@ -1097,7 +1102,7 @@
 	<widget>
 	  <class>GtkPixmap</class>
 	  <name>pixmap1</name>
-	  <filename>play.xpm</filename>
+	  <filename>stock_media-play.xpm</filename>
 	  <xalign>0.5</xalign>
 	  <yalign>0.5</yalign>
 	  <xpad>0</xpad>
@@ -1142,7 +1147,7 @@
 	<widget>
 	  <class>GtkPixmap</class>
 	  <name>pixmap3</name>
-	  <filename>pause.xpm</filename>
+	  <filename>stock_media-pause.xpm</filename>
 	  <xalign>0.5</xalign>
 	  <yalign>0.5</yalign>
 	  <xpad>0</xpad>
@@ -1187,7 +1192,7 @@
 	<widget>
 	  <class>GtkPixmap</class>
 	  <name>pixmap4</name>
-	  <filename>stop.xpm</filename>
+	  <filename>stock_media-stop.xpm</filename>
 	  <xalign>0.5</xalign>
 	  <yalign>0.5</yalign>
 	  <xpad>0</xpad>
