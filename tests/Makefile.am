@@ -11,7 +11,7 @@ buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/tests/lib/core/libbtcore.la
 
 buzztard_SOURCES= \
-	buzztard.c
+	buzztard.c buzztard.h
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

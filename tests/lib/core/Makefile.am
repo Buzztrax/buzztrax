@@ -3,7 +3,7 @@
 lib_LTLIBRARIES = libbtcore.la
 libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS) $(top_builddir)/src/lib/core/libbtcore.la
 libbtcore_la_SOURCES = \
-	core.c \
+	core.c core.h \
 	network.c
 
 INCLUDES = \
