@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.6 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: wire.c,v 1.7 2004-05-07 15:16:04 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -99,10 +99,7 @@ static void bt_wire_class_init(BtWireClass *klass) {
                                      "Set song object, the wire belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-                                           
-  g_object_class_install_property(gobject_class,
-                                 WIRE_SONG,
-                                 g_param_spec);
+  g_object_class_install_property(gobject_class,WIRE_SONG,g_param_spec);
 }
 
 GType bt_wire_get_type(void) {

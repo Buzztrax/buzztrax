@@ -1,4 +1,4 @@
-/** $Id: song-io-native.c,v 1.2 2004-05-07 11:46:57 ensonic Exp $
+/** $Id: song-io-native.c,v 1.3 2004-05-07 15:16:04 ensonic Exp $
  * class for native song input and output
  */
  
@@ -63,7 +63,8 @@ xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr cons
 
 //-- helper methods
 
-static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, const BtSongInfo *song_info, const xmlDocPtr song_doc) {
+static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
+	const BtSongInfo *song_info=bt_song_get_song_info(song);
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
 	xmlChar *elem;
@@ -106,9 +107,70 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const BtSetup *setup, const xmlDocPtr song_doc) {
+static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node) {
+	const BtSetup *setup=bt_song_get_setup(song);
+	BtMachine *machine;
+	xmlChar *id,*plugin_name;
+	
+	GST_INFO(" got setup.machines root node");
+  while(xml_node) {
+		if(!xmlNodeIsText(xml_node)) {
+			machine=NULL;
+			id=xmlGetProp(xml_node,"id");
+			plugin_name=xmlGetProp(xml_node,"pluginname");
+			if(!strncmp(xml_node->name,"sink\0",5)) {
+				GST_INFO("  new sink_machine(\"%s\",\"%s\")",id,plugin_name);
+				// parse additional params
+				// create new sink machine
+				// g_object_new(BT_SINK_MACHINE,"song",song,"id",id,"pluginname",plugin_name,NULL);
+				// ...
+			}
+			else if(!strncmp(xml_node->name,"source\0",7)) {
+				GST_INFO("  new source_machine(\"%s\",\"%s\")",id,plugin_name);
+				// create new source machine
+			}
+			else if(!strncmp(xml_node->name,"processor\0",10)) {
+				GST_INFO("  new processor_machine(\"%s\",\"%s\")",id,plugin_name);
+				// create new processor machine
+			}
+			if(machine) { // add machine to setup
+				bt_setup_add_machine(setup,machine);
+			}
+			xmlFree(id);xmlFree(plugin_name);
+		}
+		xml_node=xml_node->next;
+	}
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node) {
+	const BtSetup *setup=bt_song_get_setup(song);
+	BtWire *wire;
+	xmlChar *src,*dst;
+	
+	GST_INFO(" got setup.wires root node");
+  while(xml_node) {
+		if(!xmlNodeIsText(xml_node)) {
+			src=xmlGetProp(xml_node,"src");
+			dst=xmlGetProp(xml_node,"dst");
+			GST_INFO("  new wire(\"%s\",\"%s\")",src,dst);
+			// parse params
+			// create new wire
+			wire=g_object_new(BT_WIRE_TYPE,"song",song,NULL);
+			// src_machine=bt_setup_get_machine_by_id(setup,src);
+			// dst_machine=bt_setup_get_machine_by_id(setup,dst);
+			// bt_wire_connect(wire,src_machine,dst_machine);
+			bt_setup_add_wire(setup,wire);
+		}
+		xml_node=xml_node->next;
+	}
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
+	//const BtSetup *setup=bt_song_get_setup(song);
 	xmlXPathObjectPtr items_xpoptr;
-	xmlNodePtr xml_node,xml_child_node;
+	xmlNodePtr xml_node;
 	xmlChar *elem;
 	
 	GST_INFO("loading the setup-data from the song");
@@ -126,6 +188,39 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 		for(i=0;i<items_len;i++) {
 			xml_node=xmlXPathNodeSetItem(items,i);
 			if(!xmlNodeIsText(xml_node)) {
+				if(!strncmp(xml_node->name,"machines\0",8)) {
+					bt_song_io_native_load_setup_machines(self,song,xml_node->children);
+				}
+				else if(!strncmp(xml_node->name,"wires\0",6)) {
+					bt_song_io_native_load_setup_wires(self,song,xml_node->children);
+				}
+			}
+		}
+		xmlXPathFreeObject(items_xpoptr);
+	}
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
+	const BtSetup *setup=bt_song_get_setup(song);
+	xmlXPathObjectPtr items_xpoptr;
+	xmlNodePtr xml_node,xml_child_node;
+	xmlChar *elem;
+
+	GST_INFO("loading the pattern-data from the song");
+	// get top xml-node
+	if((items_xpoptr=xpath_type_filter(
+				cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_patterns,NULL),
+				XPATH_NODESET)))
+	{
+		gint i;
+		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
+		gint items_len=xmlXPathNodeSetGetLength(items);
+
+		GST_INFO(" got pattern root node with %d items",items_len);
+		for(i=0;i<items_len;i++) {
+			xml_node=xmlXPathNodeSetItem(items,i);
+			if(!xmlNodeIsText(xml_node)) {
 				// todo
 			}
 		}
@@ -134,9 +229,8 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-//static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, const BtXXX *patterns, const xmlDocPtr song_doc)
-
-static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, const BtSequence *sequence, const xmlDocPtr song_doc) {
+static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
+	const BtSequence *sequence=bt_song_get_sequence(song);
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
 	xmlChar *elem;
@@ -200,10 +294,10 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song, c
 			}
 			else {
 				GST_INFO("file looks good!");
-				bt_song_io_native_load_song_info(self,bt_song_get_song_info(song),song_doc);
-				bt_song_io_native_load_setup(    self,bt_song_get_setup(    song),song_doc);
-				//bt_song_io_native_load_patterns( self,bt_song_get_patterns( song),song_doc);
-				bt_song_io_native_load_sequence( self,bt_song_get_sequence( song),song_doc);
+				bt_song_io_native_load_song_info(self,song,song_doc);
+				bt_song_io_native_load_setup(    self,song,song_doc);
+				bt_song_io_native_load_patterns( self,song,song_doc);
+				bt_song_io_native_load_sequence( self,song,song_doc);
 				result=TRUE;
 			}
 		}		

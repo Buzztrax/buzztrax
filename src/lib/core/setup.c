@@ -1,4 +1,4 @@
-/** $Id: setup.c,v 1.3 2004-05-07 11:46:57 ensonic Exp $
+/** $Id: setup.c,v 1.4 2004-05-07 15:16:04 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -28,6 +28,14 @@ struct _BtSetupPrivate {
 //-- wrapper
 
 //-- class internals
+
+void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
+	self->private->machines=g_list_append(self->private->machines,g_object_ref(G_OBJECT(machine)));
+}
+
+void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
+	self->private->wires=g_list_append(self->private->wires,g_object_ref(G_OBJECT(wire)));
+}
 
 /* returns a property for the given property_id for this object */
 static void bt_setup_get_property(GObject      *object,
@@ -76,6 +84,27 @@ static void bt_setup_dispose(GObject *object) {
 
 static void bt_setup_finalize(GObject *object) {
   BtSetup *self = BT_SETUP(object);
+	GList* node;
+	// free list of wires
+	if(self->private->wires) {
+		node=g_list_first(self->private->wires);
+		while(node) {
+			g_object_unref(G_OBJECT(node->data));
+			node=g_list_next(node);
+		}
+		g_list_free(self->private->wires);
+		self->private->wires=NULL;
+	}
+	// free list of machines
+	if(self->private->machines) {
+		node=g_list_first(self->private->machines);
+		while(node) {
+			g_object_unref(G_OBJECT(node->data));
+			node=g_list_next(node);
+		}
+		g_list_free(self->private->machines);
+		self->private->wires=NULL;
+	}
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
@@ -100,10 +129,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                      "Set song object, the setup belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-                                           
-  g_object_class_install_property(gobject_class,
-                                 SETUP_SONG,
-                                 g_param_spec);
+  g_object_class_install_property(gobject_class,SETUP_SONG,g_param_spec);
 }
 
 GType bt_setup_get_type(void) {

@@ -1,4 +1,4 @@
-/** $Id: sequence.c,v 1.2 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: sequence.c,v 1.3 2004-05-07 15:16:04 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -96,10 +96,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      "Set song object, the sequence belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-                                           
-  g_object_class_install_property(gobject_class,
-                                 SEQUENCE_SONG,
-                                 g_param_spec);
+  g_object_class_install_property(gobject_class,SEQUENCE_SONG,g_param_spec);
 }
 
 GType bt_sequence_get_type(void) {

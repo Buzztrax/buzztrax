@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.8 2004-05-06 18:26:57 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.9 2004-05-07 15:16:02 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
@@ -92,12 +92,14 @@ BtSongIO<XXXX> extends BtSongIO { // external import export plugins
 }
 
 //------------------------------------------------------------------------------
+/* 
+do we store the patterns in the machines (GList) und ref() them from the sequence?
+
+*/
+//------------------------------------------------------------------------------
 
 
 BtSong *mysong=g_object_new(BT_SONG,NULL);
-//-- loading in the current version
-bt_song_load("~/songs.song.bt");
-bt_song_import("~/songs.song.bmx");
 //-- loading in the new style
 BtSongIO *song_io=g_object_new(bt_song_io_detect(fname),NULL);
 bt_song_io_load(song_io,mysong,fname);

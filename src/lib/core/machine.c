@@ -1,4 +1,4 @@
-/** $Id: machine.c,v 1.4 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: machine.c,v 1.5 2004-05-07 15:16:04 ensonic Exp $
  * cbase class for a machine
  */
  
@@ -8,7 +8,9 @@
 #include <libbtcore/core.h>
 
 enum {
-  MACHINE_SONG=1
+  MACHINE_SONG=1,
+	MACHINE_ID,
+	MACHINE_PLUGIN_NAME
 };
 
 struct _BtMachinePrivate {
@@ -17,6 +19,10 @@ struct _BtMachinePrivate {
 	
 	/* the song the machine belongs to */
 	BtSong *song;
+	/* the id, we can use to lookup the machine */
+	gchar *id;
+	/* the gst-plugin the machine is using */
+	gchar *plugin_name;
 };
 
 //-- methods
@@ -36,6 +42,12 @@ static void bt_machine_get_property(GObject      *object,
   switch (property_id) {
     case MACHINE_SONG: {
       g_value_set_object(value, G_OBJECT(self->private->song));
+    } break;
+    case MACHINE_ID: {
+      g_value_set_string(value, self->private->id);
+    } break;
+    case MACHINE_PLUGIN_NAME: {
+      g_value_set_string(value, self->private->plugin_name);
     } break;
     default: {
       g_assert(FALSE);
@@ -57,6 +69,16 @@ static void bt_machine_set_property(GObject      *object,
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_INFO("set the song for machine: %p",self->private->song);
     } break;
+    case MACHINE_ID: {
+      g_free(self->private->id);
+      self->private->id = g_value_dup_string(value);
+      GST_INFO("set the id for machine: %s",self->private->id);
+    } break;
+    case MACHINE_PLUGIN_NAME: {
+      g_free(self->private->plugin_name);
+      self->private->plugin_name = g_value_dup_string(value);
+      GST_INFO("set the plugin_name for machine: %s",self->private->plugin_name);
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -72,6 +94,8 @@ static void bt_machine_dispose(GObject *object) {
 
 static void bt_machine_finalize(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
+	g_free(self->private->plugin_name);
+	g_free(self->private->id);
 	g_object_unref(G_OBJECT(self->private->song));
   g_free(self->private);
 }
@@ -96,10 +120,21 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "Set song object, the machine belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-                                           
-  g_object_class_install_property(gobject_class,
-                                 MACHINE_SONG,
-                                 g_param_spec);
+  g_object_class_install_property(gobject_class,MACHINE_SONG,g_param_spec);
+
+  g_param_spec = g_param_spec_string("id",
+                                     "id contruct prop",
+                                     "Set machine identifier",
+                                     "unamed machine", /* default value */
+                                     G_PARAM_READWRITE);
+	g_object_class_install_property(gobject_class,MACHINE_ID,g_param_spec);
+
+  g_param_spec = g_param_spec_string("plugin_name",
+                                     "plugin_name contruct prop",
+                                     "Set the name of the gst plugin for the machine",
+                                     "unamed machine", /* default value */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
+	g_object_class_install_property(gobject_class,MACHINE_PLUGIN_NAME,g_param_spec);
 }
 
 GType bt_machine_get_type(void) {

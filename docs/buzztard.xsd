@@ -11,8 +11,8 @@
   <xsd:attribute name="pluginname" type="xsd:string"/>
   <xsd:attribute name="xpos" type="xsd:integer"/>
   <xsd:attribute name="ypos" type="xsd:integer"/>
-  <xsd:attribute name="from" type="xsd:string"/>
-  <xsd:attribute name="to" type="xsd:string"/>
+  <xsd:attribute name="src" type="xsd:string"/>
+  <xsd:attribute name="dst" type="xsd:string"/>
   <xsd:attribute name="gain" type="xsd:float"/>
   <xsd:attribute name="pan" type="xsd:integer"/>
   <xsd:attribute name="machine" type="xsd:string"/>
@@ -102,8 +102,8 @@
   
   <xsd:element name="wire">
     <xsd:complexType>
-      <xsd:attribute ref="from" use="required"/>
-      <xsd:attribute ref="to" use="required"/>
+      <xsd:attribute ref="src" use="required"/>
+      <xsd:attribute ref="dst" use="required"/>
       <xsd:attribute ref="gain" use="required"/>
       <xsd:attribute ref="pan"/>
     </xsd:complexType>

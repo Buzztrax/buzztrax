@@ -1,4 +1,4 @@
-/** $Id: song-info.c,v 1.5 2004-05-06 18:26:58 ensonic Exp $
+/** $Id: song-info.c,v 1.6 2004-05-07 15:16:04 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -111,20 +111,14 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      "Set song object, the song-info belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-                                           
-  g_object_class_install_property(gobject_class,
-                                 SONG_INFO_SONG,
-                                 g_param_spec);
+  g_object_class_install_property(gobject_class,SONG_INFO_SONG,g_param_spec);
 
   g_param_spec = g_param_spec_string("info",
                                      "freeform song info",
                                      "Set songs freeform info",
                                      "comment me!", /* default value */
                                      G_PARAM_READWRITE);
-                                           
-  g_object_class_install_property(gobject_class,
-                                 SONG_INFO_INFO,
-                                 g_param_spec);
+  g_object_class_install_property(gobject_class,SONG_INFO_INFO,g_param_spec);
 }
 
 GType bt_song_info_get_type(void) {

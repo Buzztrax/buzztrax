@@ -1,4 +1,4 @@
-/* $Id: setup-methods.h,v 1.1 2004-05-06 15:10:21 ensonic Exp $
+/* $Id: setup-methods.h,v 1.2 2004-05-07 15:16:04 ensonic Exp $
 * defines all public methods of the setup class
 */
 
@@ -7,5 +7,8 @@
 
 #include "setup.h"
 
+void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine);
+
+void bt_setup_add_wire(const BtSetup *self, const BtWire *wire);
 
 #endif // BT_SETUP_METHDOS_H
