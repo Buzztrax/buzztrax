@@ -12,4 +12,5 @@ src/ui/edit/main-pages.c
 src/ui/edit/main-statusbar.c
 src/ui/edit/main-toolbar.c
 src/ui/edit/main-window.c
+buzztard.schemas.in
 

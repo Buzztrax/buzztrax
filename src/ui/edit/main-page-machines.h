@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.5 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.6 2004-10-18 13:19:02 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -50,7 +50,7 @@ GType bt_main_page_machines_get_type(void);
 #define MACHINE_VIEW_MACHINE_SIZE_X 50.0
 #define MACHINE_VIEW_MACHINE_SIZE_Y 30.0
 
-#define MACHINE_VIEW_WIRE_PAD_SIZE 10.0
+#define MACHINE_VIEW_WIRE_PAD_SIZE 8.0
 
 #endif // BT_MAIN_PAGE_MACHINES_H
 

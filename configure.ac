@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.22 2004-10-15 15:39:26 ensonic Exp $
+# $Id: configure.ac,v 1.23 2004-10-18 13:18:55 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -126,6 +126,7 @@ PKG_CHECK_MODULES(CUSTOM_DEPS, gconf-2.0 >= 2.2.0, [
     AC_DEFINE(USE_GCONF, [1], [Define to 1 if we can use GConf])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $CUSTOM_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $CUSTOM_DEPS_LIBS"
+    AC_PATH_PROG(GCONFTOOL, gconftool-2, [#])
   ],[
     AM_CONDITIONAL(USE_GCONF, false)
     AC_DEFINE(USE_GCONF, [0], [Define to 1 if we can use GConf])

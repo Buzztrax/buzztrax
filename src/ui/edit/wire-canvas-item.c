@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.1 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.2 2004-10-18 13:19:02 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -50,7 +50,7 @@ static void wire_set_line_points(GnomeCanvasPoints *points,gdouble w,gdouble h) 
 }
 
 /**
- * add triangle pointing from src to dest at the middle of the wire
+ * add a triangle pointing from src to dest at the middle of the wire
  */
 static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble h) {
   gdouble mid_x,mid_y;
@@ -58,49 +58,48 @@ static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble
   gdouble base_x,base_y;
   gdouble base1_x,base1_y;
   gdouble base2_x,base2_y;
-  gdouble df,d1,d2,s=MACHINE_VIEW_WIRE_PAD_SIZE,sa,sb;
-
-  // @something is terribly broken with the triangle coods math, shall I go back to school?
+  gdouble df,dx,dy,s=MACHINE_VIEW_WIRE_PAD_SIZE,sa,sb;
 
   // middle of wire
   mid_x=w/2.0;
   mid_y=h/2.0;
   // normalized ascent (gradient, slope) of the wire
-  if((w!=0.0) && (h!=0.0)) {
-    d1=w/h;
-    d2=h/w;
-    df=sqrt(d1*d1+d2*d2);d1/=df;d2/=df;
+  if((fabs(w)>G_MINDOUBLE) && (fabs(h)>G_MINDOUBLE)) {
+    dx=w/h;
+    dy=h/w;
+    df=sqrt(w*w+h*h);dx=w/df;dy=h/df;
   }
-  else if(w==0.0) {
-    d1=0.0;
-    d2=1.0;
-    df=sqrt(d1*d1+d2*d2);d2/=df;
+  else if(fabs(w)>G_MINDOUBLE) {
+    dx=1.0;
+    dy=0.0;
+    df=w;
   }
-  else if(h==0.0) {
-    d1=1.0;
-    d2=0.0;
-    df=sqrt(d1*d1+d2*d2);d1/=df;
+  else if(fabs(h)>G_MINDOUBLE) {
+    dx=0.0;
+    dy=1.0;
+    df=h;
   }
   else {
-    d1=d2=df=0.0;
+    dx=dy=df=0.0;
   }
   // tip of triangle
-  tip_x=mid_x+((s+s)*d1);
-  tip_y=mid_y+((s+s)*d2);
+  tip_x=mid_x+((s+s)*dx);
+  tip_y=mid_y+((s+s)*dy);
   // intersection point of triangle base
-  base_x=mid_x-(s*d1);
-  base_y=mid_y-(s*d2);
+  base_x=mid_x-(s*dx);
+  base_y=mid_y-(s*dy);
   sa=3.0*s;
   sb=sa/sqrt(3.0);
   // point under the line
-  base1_x=base_x-(sb*d2);
-  base1_y=base_y+(sb*d1);
+  base1_x=base_x-(sb*dy);
+  base1_y=base_y+(sb*dx);
   // point over the line
-  base2_x=base_x+(sb*d2);
-  base2_y=base_y-(sb*d1);
+  base2_x=base_x+(sb*dy);
+  base2_y=base_y-(sb*dx);
   // debug
   /*
-  GST_DEBUG(" delta=%f,%f, df=%f, s=%f, sa=%f sb=%f",d1,d2,df,s,sa,sb);
+  GST_DEBUG(" delta=%f,%f, df=%f, s=%f, sa=%f sb=%f",dx,dy,df,s,sa,sb);
+  GST_DEBUG(" w/h=%f,%f",w,h);
   GST_DEBUG(" mid=%f,%f",mid_x,mid_y);
   GST_DEBUG(" tip=%f,%f",tip_x,tip_y);
   GST_DEBUG(" base=%f,%f",base_x,base_y);
