@@ -1,14 +1,18 @@
 ## Makefile.am for tests
 
 if BUILD_CHECK_TESTS
-SUBDIRS = lib ui
-TESTS = \
-  buzztard bt_cmd bt_edit \
-  xmlvalid.sh
+  SUBDIRS = lib ui
+  TESTS_BIN = buzztard bt_cmd bt_edit
 else
-TESTS = \
-  xmlvalid.sh
+  TESTS_BIN=
 endif
+
+TESTS = \
+  $(TESTS_BIN) \
+  xmlvalid.sh
+
+# prevent endless loops
+TESTS_ENVIRONMENT = ulimit -St20;
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=buzztard bt_cmd bt_edit
@@ -37,10 +41,21 @@ INCLUDES = \
 	-DDATADIR=\"$(datadir)/buzztard\" \
 	-DG_LOG_DOMAIN=\"buzztard-check\" \
 	$(BASE_DEPS_CFLAGS) \
-	$(BT_CFLAGS)
+	$(BT_CFLAGS)\
+ @VALGRIND_CFLAGS@
 endif
 
-.PHONY: splint 
+.PHONY: splint valgrind
+
+if USE_VALGRIND
+VALPREFIX = $(TESTS_ENVIRONMENT) GLIBCPP_FORCE_NEW=
+VALDEFAULT = @VALGRIND@/bin/valgrind
+VALOPTIONS = --tool=memcheck -q --show-reachable=yes --leak-check=yes --num-callers=20
+VALCMD = $(VALPREFIX) $(VALDEFAULT) $(VALOPTIONS)
+
+valgrind:: $(TESTS_BIN)
+	for i in $^; do $(VALCMD) --log-file=/tmp/$$i.valgrind ./$$i; done
+endif
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(buzztard_SOURCES) $(bt_cmd_SOURCES) $(bt_edit_SOURCES)

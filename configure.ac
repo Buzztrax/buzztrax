@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.37 2005-03-05 19:12:52 ensonic Exp $
+# $Id: configure.ac,v 1.38 2005-03-15 14:43:54 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -116,6 +116,34 @@ else
 	AM_CONDITIONAL(COVERAGE, false)
 	COVERAGE_CFLAGS=""
 fi
+
+# valgrind integration for tests
+AC_MSG_CHECKING(where Valgrind is installed on your system)
+AC_ARG_WITH([valgrind],
+        AC_HELP_STRING([--with-valgrind],
+        [where Valgrind is installed on your system (default is no)]),
+        [ac_cv_use_valgrind=$withval], [ac_cv_use_valgrind=no])dnl
+AC_MSG_RESULT($ac_cv_use_valgrind)
+VALGRIND=$ac_cv_use_valgrind
+AC_SUBST(VALGRIND)dnl
+AM_CONDITIONAL(USE_VALGRIND, test x$VALGRIND != xno)dnl
+
+VALGRIND_CPPFLAGS=
+if test $ac_cv_use_valgrind != no; then
+   AC_DEFINE(HAVE_VALGRIND, 1, [Define if valgrind is to be used.])
+   if test -f $ac_cv_use_valgrind/valgrind.h; then
+      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind
+   elif test -f $ac_cv_use_valgrind/include/valgrind.h; then
+      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/include
+   elif test -f $ac_cv_use_valgrind/valgrind/valgrind.h; then
+      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/valgrind
+   elif test -f $ac_cv_use_valgrind/include/valgrind/valgrind.h; then
+      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/include/valgrind
+   elif test -f $ac_cv_use_valgrind/valgrind/include/valgrind.h; then
+      VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/valgrind/include
+   fi
+fi
+AC_SUBST(VALGRIND_CFLAGS)dnl
 
 # define custom path for desktop files
 AC_MSG_CHECKING(where to install desktop files)

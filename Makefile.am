@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.33 2005-02-17 13:42:25 ensonic Exp $
+## $Id: Makefile.am,v 1.34 2005-03-15 14:43:54 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -80,11 +80,16 @@ install-data-local:
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)
 
-.PHONY: todo splint
+.PHONY: todo splint valgrind
 
 todo::
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
+
+if USE_VALGRIND
+valgrind::
+	$(MAKE) -C tests valgrind
+endif
 
 splint::
 	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
