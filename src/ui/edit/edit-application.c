@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.2 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: edit-application.c,v 1.3 2004-07-30 15:58:46 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -40,8 +40,85 @@ static void destroy(GtkWidget *widget, gpointer data) {
 
 //-- helper methods
 
+GtkWidget *bt_edit_application_init_menubar(const BtEditApplication *self, GtkWidget *box) {
+  GtkWidget *menubar,*item;
+  
+  // @todo make this a sub-class of menu-bar
+  menubar=gtk_menu_bar_new();
+  gtk_widget_set_name(menubar,"main menu");
+  gtk_box_pack_start(GTK_BOX(box),menubar,FALSE,FALSE,0);
+
+  item=gtk_menu_item_new_with_mnemonic("_File");
+  gtk_widget_set_name(item, "file menu");
+  gtk_container_add(GTK_CONTAINER(menubar),item);
+
+  return(menubar);
+}
+
+GtkWidget *bt_edit_application_init_toolbar(const BtEditApplication *self, GtkWidget *box) {
+  GtkWidget *handlebox,*toolbar;
+  GtkWidget *tmp_toolbar_icon;
+  GtkWidget *button;
+
+  // @todo make this a sub-class of  tool-bar
+  handlebox=gtk_handle_box_new();
+  gtk_widget_set_name(handlebox,"handlebox for toolbar");
+  gtk_box_pack_start(GTK_BOX(box),handlebox,FALSE,FALSE,0);
+
+  toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,"toolbar");
+  gtk_container_add(GTK_CONTAINER(handlebox),toolbar);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+
+  tmp_toolbar_icon=gtk_image_new_from_stock("gtk-new", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                "New",
+                                NULL,NULL,
+                                tmp_toolbar_icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,"new");
+  
+  return(handlebox);
+}
+
+GtkWidget *bt_edit_application_init_notebook(const BtEditApplication *self, GtkWidget *box) {
+  GtkWidget *notebook;
+  GtkWidget *empty_notebook_page,*label;
+
+  // @todo make this a sub-class of notebook widget
+  notebook=gtk_notebook_new();
+  gtk_widget_set_name(notebook, "song views");
+  gtk_box_pack_start(GTK_BOX(box),notebook,TRUE,TRUE,0);
+
+  empty_notebook_page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(notebook),empty_notebook_page);
+
+  label=gtk_label_new("Machine View");
+  gtk_widget_set_name(label,"Machine View");
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),0),label);
+
+  return(notebook);
+}
+
+GtkWidget *bt_edit_application_init_statusbar(const BtEditApplication *self, GtkWidget *box) {
+  GtkWidget *statusbar;
+  
+  // @todo make this a sub-class of status bar
+  statusbar=gtk_statusbar_new();
+  gtk_widget_set_name(statusbar, "statusbar");
+  gtk_box_pack_start(GTK_BOX(box),statusbar,FALSE,FALSE,0);
+
+  return(statusbar);
+}
+
 static gboolean bt_edit_application_init_ui(const BtEditApplication *self) {
   GtkWidget *box;
+  GtkWidget *menubar;
+  GtkWidget *handlebox;
+  GtkWidget *notebook;
+  GtkWidget *statusbar;
   
   // create the window
   self->private->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -54,14 +131,21 @@ static gboolean bt_edit_application_init_ui(const BtEditApplication *self) {
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self->private->window),box);
 
-  // @todo add menu-bar
-  // @todo add tool-bar
-  // @todo add notebook widget
-  // @todo add status bar
+  // add the menu-bar
+  menubar=bt_edit_application_init_menubar(self, box);
+  // add the tool-bar
+  handlebox=bt_edit_application_init_toolbar(self, box);
+  // add the notebook widget
+  notebook=bt_edit_application_init_notebook(self, box);
+  // add the status bar
+  statusbar=bt_edit_application_init_statusbar(self, box);
+
+  return(TRUE);
 }
 
 static void bt_edit_application_run_ui(const BtEditApplication *self) {
-  gtk_widget_show(self->private->window);
+  GST_INFO("show UI and start main-loop\n");
+  gtk_widget_show_all(self->private->window);
   gtk_main();
 }
 
