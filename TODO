@@ -1,4 +1,4 @@
-$Id: TODO,v 1.18 2004-09-26 01:50:06 ensonic Exp $
+$Id: TODO,v 1.19 2004-09-30 16:55:53 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -41,3 +41,6 @@ run 'make todo' to get a list of todo comments from source
     song has been reset or new song has been loaded
     -> update gui
 
+* new tests
+  * load songs and lookup te parts
+    (e.g. bt_machine_get_pattern_by_id)

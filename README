@@ -1,4 +1,4 @@
-$Id: README,v 1.5 2004-09-24 22:42:08 ensonic Exp $
+$Id: README,v 1.6 2004-09-30 16:55:53 ensonic Exp $
 
 quickinfo
   Please turn you browser to http://www.buzztard.org to learn what this project
@@ -26,3 +26,13 @@ directories
 			core : logic, e.g. connections framework, file i/o, ...
   tests : unit tests (same directory structure as src)
 
+installing localy
+  when installing the package to e.g. $HOME/buzztard remeber to set these
+  environemnt options:
+  online help: (as root)
+    export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
+    scrollkeeper-update
+  devhelp:
+    export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztard/share/gtk-doc/html"
+  pkg-config:
+    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig:

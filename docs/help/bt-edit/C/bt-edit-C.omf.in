@@ -16,7 +16,7 @@ http://scrollkeeper.sourceforge.net/documentation/writing_scrollkeeper_omf_files
       @BT_RELEASEDATE@
     </date>
     <version identifier="@BT_MAJORMINOR@" date="@BT_RELEASEDATE@" description="buzztard editor manual"/>
-    <subject category="GNOME|Applications|Multimedia|Sound|Editing"/>
+    <subject category="GNOME|Applications|Sound and Video"/>
     <description>
       User manual for the buzztard music editor
     </description>

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.35 2004-09-29 16:56:25 ensonic Exp $
+/* $Id: machine.c,v 1.36 2004-09-30 16:55:58 ensonic Exp $
  * base class for a machine
  */
  
@@ -158,15 +158,18 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   gchar *pattern_id;
 	GList* node=g_list_first(self->priv->patterns);
 	
+  g_assert(self);
+
 	while(node) {
 		pattern=BT_PATTERN(node->data);
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
-		if(!strcmp(pattern_id,"id")) found=TRUE;
+		if(!strcmp(pattern_id,id)) found=TRUE;
     g_free(pattern_id);
     // @todo return(g_object_ref(pattern));
     if(found) return(pattern);
 		node=g_list_next(node);
 	}
+  GST_DEBUG("no pattern found for id \"%s\"",id);
   return(NULL);
 }
 

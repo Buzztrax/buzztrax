@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.27 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: setup.c,v 1.28 2004-09-30 16:55:58 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -93,6 +93,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
 		if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
+    // @todo return(g_object_ref(machine));
     if(found) return(machine);
 		node=g_list_next(node);
 	}
@@ -152,6 +153,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
     g_object_get(G_OBJECT(wire),"src",&machine,NULL);
 		if(machine==src) found=TRUE;
     g_object_try_unref(machine);
+    // @todo return(g_object_ref(wire));
     if(found) return(wire);
 		node=g_list_next(node);
 	}
@@ -182,6 +184,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
     g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
 		if(machine==dst) found=TRUE;
     g_object_try_unref(machine);
+    // @todo return(g_object_ref(wire));
     if(found) return(wire);
 		node=g_list_next(node);
 	}
