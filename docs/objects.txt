@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.10 2004-05-07 18:04:12 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.11 2004-05-09 11:43:30 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
@@ -37,8 +37,8 @@ BtSong {
 	  GstBin* bt_song_get_bin(BtSongPtr song);
 	     void bt_song_set_master(BtSongPtr song, BtMachinePtr master);
 			 
-	 gboolean bt_song_play(BtSongPtr song);
-   gboolean bt_song_stop(BtSongPtr song);
+	 gboolean bt_song_play(BtSongPtr song);	// shouldn't this
+   gboolean bt_song_stop(BtSongPtr song);   // go to BtApplication ?
 }
 
 BtSequence {
@@ -90,6 +90,22 @@ BtSongIONative extends BtSongIO { // loads and saves songs in buzztard xml/zip f
 }
 
 BtSongIO<XXXX> extends BtSongIO { // external import export plugins
+}
+
+//--
+
+BtApplication {
+	GstElemnt *bin;
+	GstElement *audio_sink;
+
+   gboolean bt_application_play_song(BtApplicationPtr app,BtSongPtr song);
+   gboolean bt_application_stop_song(BtApplicationPtr app,BtSongPtr song);
+}
+
+BtCmdApplication extebds BtApplication {
+}
+
+BtGtkApplication extebds BtApplication {
 }
 
 //------------------------------------------------------------------------------
