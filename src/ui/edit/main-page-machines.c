@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.21 2004-11-04 10:38:14 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.22 2004-11-10 11:58:30 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -46,7 +46,7 @@ gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_data) {
 
 // @todo this methods probably should go to BtMachine
 void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
-  char *prop;
+  gchar *prop;
 
   *pos_x=*pos_y=0.0;
   if(properties) {
@@ -54,12 +54,14 @@ void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gd
     if(prop) {
       *pos_x=MACHINE_VIEW_ZOOM_X*g_ascii_strtod(prop,NULL);
       // do not g_free(prop);
+      //GST_DEBUG("  xpos: %+5.1f  %p=\"%s\"",*pos_x,prop,prop);
     }
     else GST_WARNING("no xpos property found");
     prop=(gchar *)g_hash_table_lookup(properties,"ypos");
     if(prop) {
       *pos_y=MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(prop,NULL);
       // do not g_free(prop);
+      //GST_DEBUG("  ypos: %+5.1f  %p=\"%s\"",*pos_y,prop,prop);
     }
     else GST_WARNING("no ypos property found");
   }
@@ -175,16 +177,22 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
-static gboolean on_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *event, gpointer user_data) {
+static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gboolean res=FALSE;
+  gdouble world_x,world_y;
 
   g_assert(user_data);
   switch(event->type) {
     case GDK_BUTTON_PRESS:
-      GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
-      if(event->button.button==3) {
-        // show context menu
-        gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+      gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&world_x,&world_y);
+      if(!gnome_canvas_get_item_at(self->priv->canvas,world_x,world_y)) {
+        GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
+        if(event->button.button==3) {
+          // show context menu
+          gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+          res=TRUE;
+        }
       }
       break;
     case GDK_MOTION_NOTIFY:
@@ -196,8 +204,8 @@ static gboolean on_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *event, gp
     default:
       break;
   }
-  /* we don't want the click falling through to the parent canvas item */
-  return TRUE;
+  /* we don't want the click falling through to the parent canvas item, if we have handled it */
+  return res;
 }
 
 //-- helper methods
@@ -273,20 +281,22 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   // generate the context menu
   self->priv->context_menu=gtk_menu_new();
 
+  menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
   menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
-  // connecting the canvas to "event" causes the canvas not to draw !?!
-  //g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_item_event),(gpointer)self);
-  // that seems to be invalid
-  //g_signal_connect(G_OBJECT(gnome_canvas_root(self->priv->canvas)),"event-after",G_CALLBACK(on_canvas_item_event),(gpointer)self);
-  // that does nothing at all
-  g_signal_connect(G_OBJECT(gnome_canvas_root(self->priv->canvas)),"event",G_CALLBACK(on_canvas_item_event),(gpointer)self);
-  // this causes both menus to apprear, when clicking on a canvas item
-  //g_signal_connect(G_OBJECT(self->priv->canvas),"event-after",G_CALLBACK(on_canvas_item_event),(gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
   return(TRUE);
 }
 

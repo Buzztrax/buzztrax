@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.5 2004-11-08 12:05:57 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.6 2004-11-10 11:58:30 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -302,6 +302,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   gdouble dx, dy, px, py;
   GdkCursor *fleur;
   gboolean res=FALSE;
+  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
 
   //GST_DEBUG("event for machine occured");
   
@@ -337,11 +338,12 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         gnome_canvas_item_move(citem, dx, dy);
         // change position properties of the machines
         g_object_get(citem,"x",&px,"y",&py,NULL);
+        //GST_DEBUG("GDK_MOTION_NOTIFY: pre  %+5.1f,%+5.1f",px,py);
         px/=MACHINE_VIEW_ZOOM_X;
         py/=MACHINE_VIEW_ZOOM_Y;
-        //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f -> %f,%f",event->button.x,event->button.y,px,py);
-        g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup_printf("%f",px));
-        g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup_printf("%f",py));
+        //GST_DEBUG("GDK_MOTION_NOTIFY: %+5.1f,%+5.1f -> %+5.1f,%+5.1f",event->button.x,event->button.y,px,py);
+        g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,px)));
+        g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,py)));
         g_signal_emit(citem,signals[POSITION_CHANGED],0);
         self->priv->dragx=event->button.x;
         self->priv->dragy=event->button.y;
@@ -362,6 +364,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       break;
   }
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
+  //if(res) {
+  //  g_signal_stop_emission_by_name(citem->canvas,"event-after");
+  //}
   return res;
 }
 
