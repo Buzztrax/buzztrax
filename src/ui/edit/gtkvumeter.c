@@ -11,8 +11,8 @@
 #include "gtkvumeter.h"
 
 #define MIN_HORIZONTAL_VUMETER_WIDTH   400
-#define HORIZONTAL_VUMETER_HEIGHT  20
-#define VERTICAL_VUMETER_WIDTH     20
+#define HORIZONTAL_VUMETER_HEIGHT  10
+#define VERTICAL_VUMETER_WIDTH     10
 #define MIN_VERTICAL_VUMETER_HEIGHT    400
 
 static void gtk_vumeter_init (GtkVUMeter *vumeter);
@@ -169,10 +169,10 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     if (GTK_WIDGET_REALIZED (widget)) {
         if (vumeter->vertical == TRUE) { /* veritcal */
             gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-                VERTICAL_VUMETER_WIDTH, MAX(allocation->height, MIN_VERTICAL_VUMETER_HEIGHT));
+                MIN(allocation->width,VERTICAL_VUMETER_WIDTH), MAX(allocation->height, MIN_VERTICAL_VUMETER_HEIGHT));
         } else { /* horizontal */
             gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-                MAX(allocation->width, MIN_HORIZONTAL_VUMETER_WIDTH), HORIZONTAL_VUMETER_HEIGHT);
+                MAX(allocation->width, MIN_HORIZONTAL_VUMETER_WIDTH), MIN(allocation->height,HORIZONTAL_VUMETER_HEIGHT));
         }
         /* Fix the colours */
         gtk_vumeter_setup_colors (vumeter);

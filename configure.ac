@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.29 2005-01-04 18:01:38 ensonic Exp $
+# $Id: configure.ac,v 1.30 2005-01-07 17:50:33 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -149,21 +149,31 @@ AC_SUBST(gtk_prefix)
 AC_SUBST(gst_prefix)
 AC_SUBST(gcanvas_prefix)
 
-PKG_CHECK_MODULES(CUSTOM_DEPS, gconf-2.0 >= 2.2.0, [
+PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, true)
     AC_DEFINE(USE_GCONF, [1], [Define to 1 if we can use GConf])
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $CUSTOM_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $CUSTOM_DEPS_LIBS"
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GCONF_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GCONF_DEPS_LIBS"
     AC_PATH_PROG(GCONFTOOL, gconftool-2, [#])
     AM_GCONF_SOURCE_2
   ],[
     AM_CONDITIONAL(USE_GCONF, false)
     AC_DEFINE(USE_GCONF, [0], [Define to 1 if we can use GConf])
-  ])
+  ]
+)
   
-# GConf schema install stuff
+# GConf schema install stuff (see above)
 #AC_PATH_PROG(GCONFTOOL, gconftool-2)
 #AM_GCONF_SOURCE_2
+
+PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
+    AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
+ ],[
+    AC_DEFINE(USE_GTKGRID, [0], [Define to 1 if we can use GtkGrid])
+  ]
+)
 
 # Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"

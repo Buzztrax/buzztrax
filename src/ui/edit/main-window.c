@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.44 2005-01-06 22:12:03 ensonic Exp $
+/* $Id: main-window.c,v 1.45 2005-01-07 17:50:53 ensonic Exp $
  * class for the editor main window
  */
 
@@ -93,7 +93,8 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   if((window_icon=gdk_pixbuf_new_from_filename("buzztard.png"))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
-  gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
+  //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
+	gtk_window_set_default_size(GTK_WINDOW(self),800,600);
   
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);

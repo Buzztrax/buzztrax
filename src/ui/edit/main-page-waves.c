@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.8 2005-01-07 11:53:27 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.9 2005-01-07 17:50:53 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -42,7 +42,7 @@ static void waves_list_refresh(const BtMainPageWaves *self) {
   GST_INFO("refresh waves list");
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
-  //-- append waves rows
+  //-- append waves rows (buzz numbers them from 0x01 to 0xC8)
 	/*
   iter=bt_wavetable_waves_iterator_new();
   while(iter) {

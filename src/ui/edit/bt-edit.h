@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.21 2005-01-06 22:12:02 ensonic Exp $
+/* $Id: bt-edit.h,v 1.22 2005-01-07 17:50:53 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -11,6 +11,11 @@
 #include <gtk/gtk.h>
 //-- libgnomecanvas
 #include <libgnomecanvas/libgnomecanvas.h>
+//-- gtkgrid
+#ifdef USE_GTKGRID
+#include <gtkgrid.h>
+#include <gtkgridcolumn.h>
+#endif
 
 #include "edit-application-methods.h"
 #include "machine-canvas-item-methods.h"

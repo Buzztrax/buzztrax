@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.31 2004-12-15 09:07:35 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.32 2005-01-07 17:50:53 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -23,7 +23,9 @@ struct _BtMainToolbarPrivate {
   
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
+	GtkScale *volume;
 
+	/* action buttons */
 	GtkToggleButton *play_button;
 	GtkButton *stop_button;
 	
@@ -45,7 +47,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 	gdk_threads_enter();
   gtk_toggle_button_set_active(self->priv->play_button,FALSE);
 	// reset level meters
-	for(i=0;i<2;i++) {
+	for(i=0;i<MAX_VUMETER;i++) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
 	}
 	// disable stop button
@@ -150,13 +152,23 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_try_unref(song);
 }
 
-static void on_song_level_change(GstElement * element, gdouble time, gint channel, gdouble rms, gdouble peak, gdouble decay, gpointer user_data) {
+static void on_song_level_change(GstElement *element, gdouble time, gint channel, gdouble rms, gdouble peak, gdouble decay, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   
   g_assert(user_data);
 
   //GST_INFO("%d  %.3f  %.3f %.3f %.3f", channel,time,rms,peak,decay);
+	gdk_threads_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
 	gtk_vumeter_set_levels(self->priv->vumeter[channel], (gint)(rms*10.0), (gint)(peak*10.0));
+	gdk_threads_leave();
+}
+
+static void on_song_volume_change(GtkRange *range,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
+  g_assert(user_data);
+	// get value from HScale and change volume
+	GST_INFO("volume has changed : %f",gtk_range_get_value(GTK_RANGE(self->priv->volume)));
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -164,6 +176,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSong *song;
   BtSinkMachine *master;
   GstElement *level;
+	gulong i;
+	gint channels=0;
 
   g_assert(user_data);
 
@@ -173,38 +187,52 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"master",&master,NULL);
 	if(master) {
+		GstPad *pad;
+		GstCaps *caps;
+		GstStructure *structure;
+		gint channels_i=0,channels_o=0;
+
 		// get the input_level property from audio_sink
 		g_object_get(G_OBJECT(master),"input-level",&level,NULL);
 		// connect to the level signal
 		g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
-		// DEBUG
-		{
-			GstPad *pad;
-			GstCaps *caps;
-			GstStructure *structure;
-			gint channels_i=0,channels_o=0;
-    
-			pad=gst_element_get_pad(level,"sink");
-			caps=gst_pad_get_caps(pad);
-			// check if it is simple caps (only one element)
-			if(GST_CAPS_IS_SIMPLE(caps)) {
-				structure = gst_caps_get_structure(caps, 0);
-				gst_structure_get_int (structure, "channels", &channels_i);
-			}
-			pad=gst_element_get_pad(level,"src");
-			caps=gst_pad_get_caps(pad);
-			// check if it is simple caps (only one element)
-			if(GST_CAPS_IS_SIMPLE(caps)) {
-				structure = gst_caps_get_structure(caps, 0);
-				gst_structure_get_int (structure, "channels", &channels_o);
-			}
-			GST_INFO("  input level analyser will process %d,%d channels",channels_i,channels_o);
+
+		// determine number of channels    
+		pad=gst_element_get_pad(level,"sink");
+		caps=gst_pad_get_caps(pad);
+		// check if it is simple caps (only one element)
+		if(GST_CAPS_IS_SIMPLE(caps)) {
+			structure=gst_caps_get_structure(caps,0);
+			gst_structure_get_int(structure,"channels",&channels_i);
+			channels_i++;
+			GST_INFO("  input level sink has %d inputs channels",channels_i);
 		}
-		// DEBUG
-		// @todo show/hide channel vumeters depending on the numer of channel
-		// release the reference
+		pad=gst_element_get_pad(level,"src");
+		caps=gst_pad_get_caps(pad);
+		// check if it is simple caps (only one element)
+		if(GST_CAPS_IS_SIMPLE(caps)) {
+			structure=gst_caps_get_structure(caps,0);
+			gst_structure_get_int(structure,"channels",&channels_o);
+			channels_o++;
+			GST_INFO("  input level sink has %d output channels",channels_o);
+		}
+		channels=(channels_i<channels_o)?channels_o:channels_i;
+		if(channels>MAX_VUMETER) channels=MAX_VUMETER;
+		// release the references
 		g_object_try_unref(level);
+		
+		// connect volumne event
+		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
+	GST_INFO("  input level analyser will process %d channels",channels);
+	// show/hide channel vumeters depending on the numer of channel
+	for(i=0;i<channels;i++) {
+		gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
+	}
+	for(i=channels;i<MAX_VUMETER;i++) {
+		gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
+	}
+
 	g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)self);
   g_object_try_unref(master);
   g_object_try_unref(song);
@@ -313,24 +341,22 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
   
   // volume level
-  box=gtk_vbox_new(FALSE,2);
-  gtk_container_set_border_width(GTK_CONTAINER(box),4);
+  box=gtk_vbox_new(FALSE,1);
+  gtk_container_set_border_width(GTK_CONTAINER(box),2);
   // add gtk_vumeter widgets and update from level_callback
-  //   how do we determine the number of channels?
-  //   irks, this can change when changing the audio-sink to use!
-  //   -> what about adding 4 VUMeter and making enough of them visible after a song_change (for now)
-  for(i=0;i<2;i++) {
+  for(i=0;i<MAX_VUMETER;i++) {
     self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
     gtk_vumeter_set_min_max(self->priv->vumeter[i], -900, 0);
     gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LOG);
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
-    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,2);
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,1);
   }
-	for(i=2;i<MAX_VUMETER;i++) {
-		self->priv->vumeter[i]=NULL;
-	}
   gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
-  // @todo add gain-control
+  // add gain-control
+	self->priv->volume=GTK_SCALE(gtk_hscale_new_with_range(0.0,1.0,0.01));
+	gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,1);
+	gtk_scale_set_draw_value(self->priv->volume,FALSE);
+	gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
 
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,

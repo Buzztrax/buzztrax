@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.37 2005-01-06 20:02:28 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.38 2005-01-07 17:50:53 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -30,7 +30,7 @@ struct _BtMainPageSequencePrivate {
   GtkComboBox *bars_menu;
 	gulong bars;
   
-  /* the pattern list */
+  /* the sequence table */
   GtkTreeView *sequence_table;
   /* the pattern list */
   GtkTreeView *pattern_list;
@@ -628,7 +628,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   //gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_NONE);
   sequence_table_init(self);
-  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_paned_pack1(GTK_PANED(box),GTK_WIDGET(scrolled_window),TRUE,TRUE);
   // add pattern list-view
@@ -641,7 +640,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Key"),renderer,"text",0,NULL);
   renderer=gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Patterns"),renderer,"text",1,NULL);
-  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_paned_pack2(GTK_PANED(box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 

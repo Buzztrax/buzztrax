@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.28 2005-01-06 20:02:27 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.29 2005-01-07 17:50:53 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -23,6 +23,11 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *machine_menu;
   /* pattern selection menu */
   GtkComboBox *pattern_menu;
+
+	/* the pattern table */
+#ifdef USE_GTKGRID
+  GtkGrid *pattern_table;
+#endif
 	
 	/* icons */
 	GdkPixbuf *source_icon,*procesor_icon,*sink_icon;
@@ -143,6 +148,18 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
 
 //-- event handler
 
+static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  g_assert(user_data);
+
+	GST_INFO("new pattern selected");
+  /* refresh pattern view
+	BtMachine *machine=bt_main_page_patterns_get_current_machine(self);
+	BtPattern *pattern=NULL;
+	*/
+}
+
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 	GtkTreeModel *store;
@@ -209,7 +226,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 //-- helper methods
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, const BtEditApplication *app) {
-  GtkWidget *toolbar;
+  GtkWidget *toolbar,*scrolled_window;
   GtkWidget *box,*menu,*button;
 	GtkCellRenderer *renderer;
 	
@@ -269,11 +286,21 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // @todo add play notes ?
   
   // @todo add list-view / grid-view
-  gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no pattern view yet"));
+	scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+#ifdef USE_GTKGRID
+  self->priv->pattern_table=GTK_GRID(gtk_grid_new());
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
+#else
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),gtk_label_new("pattern view use GtkGrid"));
+#endif
+  gtk_container_add(GTK_CONTAINER(self),scrolled_window);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", (GCallback)on_pattern_menu_changed, (gpointer)self);
 
 return(TRUE);
 }
