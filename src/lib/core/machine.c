@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.58 2004-12-15 18:30:17 ensonic Exp $
+/* $Id: machine.c,v 1.59 2004-12-18 16:09:14 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -359,7 +359,7 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
 	
 	g_assert(BT_IS_MACHINE(self));
 	
-	return(BT_PATTERN(g_list_nth_data(self->priv->patterns,index)));
+	return(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index)));
 }
 
 /**

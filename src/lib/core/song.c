@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.63 2004-12-09 11:04:52 ensonic Exp $
+/* $Id: song.c,v 1.64 2004-12-18 16:09:14 waffel Exp $
  * song 
  *   holds all song related globals
  *
@@ -312,7 +312,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   signals[PLAY_EVENT] = g_signal_new("play",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSongClass,play_event),
+                                        G_ABS_STRUCT_OFFSET(BtSongClass,play_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
@@ -329,7 +329,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   signals[STOP_EVENT] = g_signal_new("stop",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSongClass,stop_event),
+                                        G_ABS_STRUCT_OFFSET(BtSongClass,stop_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

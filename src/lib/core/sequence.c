@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.48 2004-12-14 19:16:57 waffel Exp $
+/* $Id: sequence.c,v 1.49 2004-12-18 16:09:14 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -551,7 +551,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
   signals[TICK] = g_signal_new("tick",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSequenceClass,tick),
+                                        G_ABS_STRUCT_OFFSET(BtSequenceClass,tick),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__LONG,

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.43 2004-12-03 16:29:37 ensonic Exp $
+/* $Id: core.h,v 1.44 2004-12-18 16:09:17 waffel Exp $
  */
 
 #ifndef BT_CORE_H
@@ -92,6 +92,23 @@
 #include "gconf-settings-methods.h"
 #endif
 
+//-- defines for workarounds----------------------------------------------------
+
+/**
+ * G_ABS_STRUCT_OFFSET:
+ * @struct_type: a structure type, e.g. GtkWidget.
+ * @member: a field in the structure, e.g. window.
+ * 
+ * Returns the offset, in bytes, of a member of a struct.
+ *
+ * Returns: the offset of member from the start of struct_type.
+ */	
+#define G_ABS_STRUCT_OFFSET(struct_type, member)    \
+    ((guint) ((guint8*) &((struct_type*) 0)->member))
+	
+	
+#define XML_CHAR_PTR(str) ((xmlChar *)(str))
+
 //-- global defines ------------------------------------------------------------
 
 // XML related
@@ -106,7 +123,7 @@
  *
  * default buzztard xml namespace url
  */
-#define BT_NS_URL    "http://buzztard.sourceforge.net/"
+#define BT_NS_URL "http://buzztard.sourceforge.net/"
 
 // handy shortcuts that improve readabillity
 //#define BT_SONG_GET_BIN GST_BIN(bt_g_object_get_object_property(G_OBJECT(self-private->song),"bin"))
@@ -203,4 +220,5 @@
 	extern void bt_init(int *argc, char ***argv, struct poptOption *options);
 #endif
 
+	
 #endif // BT_CORE_H

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.22 2004-12-06 20:18:46 waffel Exp $
+/* $Id: processor-machine.c,v 1.23 2004-12-18 16:09:14 waffel Exp $
  * class for a processor machine
  */
 
@@ -118,7 +118,6 @@ static void bt_processor_machine_init(GTypeInstance *instance, gpointer g_class)
 
 static void bt_processor_machine_class_init(BtProcessorMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_MACHINE);
   

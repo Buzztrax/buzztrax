@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.47 2004-12-15 11:22:42 ensonic Exp $
+/* $Id: setup.c,v 1.48 2004-12-18 16:09:14 waffel Exp $
  * class for machine and wire setup
  */
  
@@ -559,7 +559,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   signals[MACHINE_ADDED_EVENT] = g_signal_new("machine-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSetupClass,machine_added_event),
+                                        G_ABS_STRUCT_OFFSET(BtSetupClass,machine_added_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__POINTER,
@@ -578,7 +578,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   signals[WIRE_ADDED_EVENT] = g_signal_new("wire-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSetupClass,wire_added_event),
+                                        G_ABS_STRUCT_OFFSET(BtSetupClass,wire_added_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__POINTER,
@@ -597,7 +597,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   signals[MACHINE_REMOVED_EVENT] = g_signal_new("machine-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSetupClass,machine_removed_event),
+                                        G_ABS_STRUCT_OFFSET(BtSetupClass,machine_removed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__POINTER,
@@ -616,7 +616,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   signals[WIRE_REMOVED_EVENT] = g_signal_new("wire-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtSetupClass,wire_removed_event),
+                                        G_ABS_STRUCT_OFFSET(BtSetupClass,wire_removed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__POINTER,

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.49 2004-12-15 11:22:42 ensonic Exp $
+/* $Id: song-io-native.c,v 1.50 2004-12-18 16:09:14 waffel Exp $
  * class for native song input and output
  */
  
@@ -78,17 +78,28 @@ xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr cons
   //gitk_log_intro();
 	
 	if((ctxt=xmlXPathNewContext(doc))) {
-		if(root_node) ctxt->node=root_node;
-		else ctxt->node=xmlDocGetRootElement(doc);
-		if((!xmlXPathRegisterNs(ctxt,BT_NS_PREFIX,BT_NS_URL))
-		&& (!xmlXPathRegisterNs(ctxt,"dc","http://purl.org/dc/elements/1.1/"))) {
+		if(root_node) {
+			ctxt->node=root_node;
+		}	else {
+			ctxt->node=xmlDocGetRootElement(doc);
+		}
+		if( (!xmlXPathRegisterNs(ctxt,
+			                       XML_CHAR_PTR(BT_NS_PREFIX),
+		                         XML_CHAR_PTR(BT_NS_URL)))
+		    && (!xmlXPathRegisterNs(ctxt,XML_CHAR_PTR("dc"),
+		                            XML_CHAR_PTR("http://purl.org/dc/elements/1.1/")))
+		) {
 			result=xmlXPathCompiledEval(xpath_comp_expression,ctxt);
 			xmlXPathRegisteredNsCleanup(ctxt);
 		}
-		else GST_ERROR("failed to register \"buzztard\" or \"dc\" namespace");
+		else  {
+			GST_ERROR("failed to register \"buzztard\" or \"dc\" namespace");
+		}
 		xmlXPathFreeContext(ctxt);
 	}
-	else GST_ERROR("failed to get xpath context");
+	else {
+		GST_ERROR("failed to get xpath context");
+	}
   return(result);
 }
 
@@ -111,8 +122,8 @@ static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, co
       xml_subnode=xml_node->children;
       while(xml_subnode) {
         if(!xmlNodeIsText(xml_subnode)) {
-          key=xmlGetProp(xml_subnode,"key");
-          value=xmlGetProp(xml_subnode,"value");
+          key=xmlGetProp(xml_subnode,XML_CHAR_PTR("key"));
+          value=xmlGetProp(xml_subnode,XML_CHAR_PTR("value"));
           GST_DEBUG("    [%s] => [%s]",key,value);
           g_hash_table_insert(properties,key,value);
           // do not free, as the hashtable now owns the memory
@@ -190,10 +201,10 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
   while(xml_node) {
 		if(!xmlNodeIsText(xml_node)) {
 			machine=NULL;
-			id=xmlGetProp(xml_node,"id");
-			plugin_name=xmlGetProp(xml_node,"pluginname");
+			id=xmlGetProp(xml_node,XML_CHAR_PTR("id"));
+			plugin_name=xmlGetProp(xml_node,XML_CHAR_PTR("pluginname"));
 			// parse additional params
-      if(voices_str=xmlGetProp(xml_node,"voices")) {
+      if( (voices_str=xmlGetProp(xml_node,XML_CHAR_PTR("voices"))) ) {
         voices=atol(voices_str);
       }
       else voices=1;

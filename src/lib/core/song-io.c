@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.30 2004-12-09 12:57:57 ensonic Exp $
+/* $Id: song-io.c,v 1.31 2004-12-18 16:09:14 waffel Exp $
  * base class for song input and output
  */
  
@@ -46,7 +46,7 @@ static void bt_song_io_register_plugins(void) {
    */
   GST_INFO("register song-io plugins ...");
   // register internal song-io plugin
-  plugins=g_list_append(plugins,&bt_song_io_native_detect);
+  plugins=g_list_append(plugins,(gpointer)bt_song_io_native_detect);
   // registering external song-io plugins
   GST_INFO("  scanning external song-io plugins in "LIBDIR"/songio/ ...");
   if(dirp) {
@@ -67,10 +67,10 @@ static void bt_song_io_register_plugins(void) {
  			if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
         GST_INFO("    that is a shared object");
         //   3.) gets the address of GType bt_song_io_detect(const gchar *);
-        if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer *)&bt_song_io_plugin_detect)) {
+        if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer)bt_song_io_plugin_detect)) {
           GST_INFO("    and implements a songio subclass");
           //   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-          plugins=g_list_append(plugins,bt_song_io_plugin_detect);
+          plugins=g_list_append(plugins,(gpointer)bt_song_io_plugin_detect);
         }
         else g_module_close(plugin);
       }
