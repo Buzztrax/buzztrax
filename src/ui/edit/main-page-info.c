@@ -1,5 +1,5 @@
-/* $Id: main-page-info.c,v 1.3 2004-08-18 16:55:09 ensonic Exp $
- * class for the editor main pages
+/* $Id: main-page-info.c,v 1.4 2004-08-19 17:03:44 ensonic Exp $
+ * class for the editor main info page
  */
 
 #define BT_EDIT

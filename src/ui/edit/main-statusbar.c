@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.4 2004-08-18 16:55:09 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.5 2004-08-19 17:03:44 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -80,17 +80,20 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   self->private->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
   self->private->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->elapsed),_("default"));
   gtk_statusbar_set_has_resize_grip(self->private->elapsed,FALSE);
+  gtk_widget_set_size_request(GTK_WIDGET(self->private->elapsed),50,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->private->elapsed),self->private->elapsed_context_id,msg);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->elapsed),TRUE,TRUE,1);
 
   self->private->current=GTK_STATUSBAR(gtk_statusbar_new());
   self->private->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->current),_("default"));
   gtk_statusbar_set_has_resize_grip(self->private->current,FALSE);
+  gtk_widget_set_size_request(GTK_WIDGET(self->private->current),50,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->private->current),self->private->current_context_id,msg);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->current),TRUE,TRUE,1);
 
   self->private->loop=GTK_STATUSBAR(gtk_statusbar_new());
   self->private->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->loop),_("default"));
+  gtk_widget_set_size_request(GTK_WIDGET(self->private->loop),50,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->private->loop),self->private->loop_context_id,msg);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->loop),TRUE,TRUE,1);
 

@@ -15,6 +15,9 @@ libbtedit_la_SOURCES   = \
 	main-menu.c main-menu.h main-menu-methods.h \
 	main-toolbar.c main-toolbar.h main-toolbar-methods.h \
 	main-pages.c main-pages.h main-pages-methods.h \
+	main-page-machines.c main-page-machines.h main-page-machines-methods.h \
+	main-page-patterns.c main-page-patterns.h main-page-patterns-methods.h \
+	main-page-sequence.c main-page-sequence.h main-page-patterns-sequence.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	tools.c tools.h

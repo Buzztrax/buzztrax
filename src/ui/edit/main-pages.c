@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.2 2004-08-13 18:58:11 ensonic Exp $
+/* $Id: main-pages.c,v 1.3 2004-08-19 17:03:44 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -19,6 +19,12 @@ struct _BtMainPagesPrivate {
   /* the application */
   BtEditApplication *app;
   
+  /* the machines tab */
+  BtMainPageMachines *machines_page;
+  /* the patterns tab */
+  BtMainPagePatterns *patterns_page;
+  /* the sequence tab */
+  BtMainPageSequence *sequence_page;
   /* the information tab */
   BtMainPageInfo *info_page;
 };
@@ -28,36 +34,29 @@ struct _BtMainPagesPrivate {
 //-- helper methods
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditApplication *app) {
-  GtkWidget *page,*label,*frame;
-  GtkWidget *table,*entry;
-  GtkWidget *scrolledwindow,*textfield;
+  GtkWidget *label;
 
-  // @todo split pages into separate classes
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
-  // @todo add real wigets for machine view
-  // (canvas)
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(self),page);
+  // add wigets for machine view
+  self->private->machines_page=bt_main_page_machines_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->machines_page));
 
   label=gtk_label_new(_("machine view"));
   gtk_widget_set_name(label,_("machine view"));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),0),label);
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("nothing here"));
 
-  // @todo add real wigets for pattern view
-  // table ?
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(self),page);
+  // add wigets for pattern view
+  self->private->patterns_page=bt_main_page_patterns_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->patterns_page));
 
   label=gtk_label_new(_("pattern view"));
   gtk_widget_set_name(label,_("pattern view"));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),1),label);
 
-  // @todo add real wigets for sequence view
-  // table ?
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(self),page);
+  // add wigets for sequence view
+  self->private->sequence_page=bt_main_page_sequence_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->private->sequence_page));
 
   label=gtk_label_new(_("sequence view"));
   gtk_widget_set_name(label,_("sequence view"));

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.15 2004-08-18 17:57:07 ensonic Exp $
+/* $Id: main-window.c,v 1.16 2004-08-19 17:03:44 ensonic Exp $
  * class for the editor main window
  */
 
@@ -35,12 +35,15 @@ struct _BtMainWindowPrivate {
 //-- event handler
 
 static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
+  BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gboolean res=TRUE;
   
   GST_INFO("delete event occurred\n");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(BT_MAIN_WINDOW(user_data))) {
     res=FALSE;
+    //GST_INFO("  prepare to exit\n");
+    //gtk_object_destroy(G_OBJECT(self));
   }
   return(res);
 }

@@ -1,5 +1,5 @@
-/* $Id: main-page-info-methods.h,v 1.1 2004-08-13 18:58:11 ensonic Exp $
- * defines all public methods of the main page info class
+/* $Id: main-page-info-methods.h,v 1.2 2004-08-19 17:03:44 ensonic Exp $
+ * defines all public methods of the main info page class
  */
 
 #ifndef BT_MAIN_PAGE_INFO_METHODS_H
