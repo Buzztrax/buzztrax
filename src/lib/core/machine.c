@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.17 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: machine.c,v 1.18 2004-07-19 17:37:47 ensonic Exp $
  * base class for a machine
  */
  
@@ -26,6 +26,7 @@ struct _BtMachinePrivate {
 	gchar *id;
 	/* the gst-plugin the machine is using */
 	gchar *plugin_name;
+
   /* the number of voices the machine provides */
   glong voices;
   /* the number of dynamic params the machine provides per instance */
@@ -105,6 +106,28 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
  */
 void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
 	self->private->patterns=g_list_append(self->private->patterns,g_object_ref(G_OBJECT(pattern)));
+}
+
+/**
+ * bt_machine_get_pattern_by_id:
+ * @self: the machine to search for the pattern
+ * @id: the identifier of the pattern
+ *
+ * search the machine for a pattern by the supplied id.
+ * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
+ *
+ * Returns: BtPattern instance or NULL if not found
+ */
+BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
+	BtPattern *pattern;
+	GList* node=g_list_first(self->private->patterns);
+	
+	while(node) {
+		pattern=BT_PATTERN(node->data);
+		if(!strcmp(bt_g_object_get_string_property(G_OBJECT(pattern),"id"),id)) return(pattern);
+		node=g_list_next(node);
+	}
+  return(NULL);
 }
 
 /**
@@ -271,8 +294,8 @@ static void bt_machine_finalize(GObject *object) {
   GList* node;
 
   g_object_unref(G_OBJECT(self->private->song));
-	g_free(self->private->plugin_name);
 	g_free(self->private->id);
+	g_free(self->private->plugin_name);
   g_free(self->private->voice_types);
   g_free(self->private->voice_dparams);
   g_free(self->private->global_types);

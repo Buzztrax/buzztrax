@@ -3,6 +3,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 >
 
+  <xsd:attribute name="comand" type="xsd:string"/>
   <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
@@ -185,7 +186,9 @@
   <xsd:element name="position">
     <xsd:complexType>
       <xsd:attribute ref="time" use="required"/>
-      <xsd:attribute ref="pattern" use="required"/>
+      <!-- we need either one, pattern or command -->
+      <xsd:attribute ref="pattern" minOccurse="0" maxOccurs="1"/>
+      <xsd:attribute ref="comand" minOccurse="0" maxOccurs="1"/>
     </xsd:complexType>
   </xsd:element>
   

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.5 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: pattern.c,v 1.6 2004-07-19 17:37:47 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -9,6 +9,8 @@
 
 enum {
   PATTERN_SONG=1,
+  PATTERN_ID,
+	PATTERN_NAME,
   PATTERN_LENGTH,
   PATTERN_VOICES,
   PATTERN_MACHINE
@@ -20,6 +22,10 @@ struct _BtPatternPrivate {
 	
 	/* the song the pattern belongs to */
 	BtSong *song;
+	/* the id, we can use to lookup the pattern */
+	gchar *id;
+	/* the display name of the pattern */
+	gchar *name;
 
   /* the number of ticks */
   glong length;
@@ -214,6 +220,12 @@ static void bt_pattern_get_property(GObject      *object,
     case PATTERN_SONG: {
       g_value_set_object(value, G_OBJECT(self->private->song));
     } break;
+    case PATTERN_ID: {
+      g_value_set_string(value, self->private->id);
+    } break;
+    case PATTERN_NAME: {
+      g_value_set_string(value, self->private->name);
+    } break;
     case PATTERN_LENGTH: {
       g_value_set_long(value, self->private->length);
     } break;
@@ -244,6 +256,16 @@ static void bt_pattern_set_property(GObject      *object,
     case PATTERN_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
       //GST_DEBUG("set the song for pattern: %p",self->private->song);
+    } break;
+    case PATTERN_ID: {
+      g_free(self->private->id);
+      self->private->id = g_value_dup_string(value);
+      GST_DEBUG("set the id for pattern: %s",self->private->id);
+    } break;
+    case PATTERN_NAME: {
+      g_free(self->private->name);
+      self->private->name = g_value_dup_string(value);
+      GST_DEBUG("set the display name for the pattern: %s",self->private->name);
     } break;
     case PATTERN_LENGTH: {
       length=self->private->length;
@@ -283,6 +305,8 @@ static void bt_pattern_finalize(GObject *object) {
   BtPattern *self = BT_PATTERN(object);
   
 	g_object_unref(G_OBJECT(self->private->song));
+	g_free(self->private->id);
+	g_free(self->private->name);
   g_free(self->private->data);
   g_free(self->private);
 }
@@ -311,7 +335,21 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,PATTERN_LENGTH,
+  g_object_class_install_property(gobject_class,PATTERN_ID,
+                                  g_param_spec_string("id",
+                                     "id contruct prop",
+                                     "pattern identifier",
+                                     "unamed pattern", /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,PATTERN_NAME,
+                                  g_param_spec_string("name",
+                                     "name contruct prop",
+                                     "the display-name of the pattern",
+                                     "unamed", /* default value */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+ 	g_object_class_install_property(gobject_class,PATTERN_LENGTH,
 																	g_param_spec_long("length",
                                      "length prop",
                                      "length of the pattern in ticks",

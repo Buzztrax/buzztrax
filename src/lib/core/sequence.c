@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.12 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: sequence.c,v 1.13 2004-07-19 17:37:47 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -83,12 +83,9 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
   if(self->private->timelines) {
     if(self->private->length && self->private->tracks) {
       glong i;
-      GValue lval={0,};
 
-      g_value_init(&lval,G_TYPE_LONG);
-      g_value_set_long(&lval, self->private->tracks);
       for(i=0;i<self->private->length;i++) {
-        g_object_set_property(G_OBJECT(self->private->timelines[i]),"tracks", &lval);
+        bt_g_object_set_long_property(G_OBJECT(self->private->timelines[i]),"tracks",self->private->tracks);
       }
     }
   }
@@ -97,25 +94,22 @@ static void bt_sequence_init_timelinetracks(const BtSequence *self) {
 //-- methods
 
 /**
- * bt_sequence_get_timeline:
- * @self: the #Sequence that holds the #TimeLine objects
+ * bt_sequence_get_timeline_by_time:
+ * @self: the #BtSequence that holds the #BtTimeLine objects
  * @time: the requested index
  *
  * fetches the required timeline.
  *
- * Returns: the object pointer or NULL in case of an error
+ * Returns: the #BtTimeLine pointer or NULL in case of an error
  */
-BtTimeLine *bt_sequence_get_timeline(const BtSequence *self,const glong time) {
-  BtTimeLine *tl=NULL;
-  
+BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time) {
   if(time<self->private->length) {
-    GST_DEBUG("  fetching timeline object for index %d",time);
-    tl=self->private->timelines[time];
+    return(self->private->timelines[time]);
   }
   else {
-    GST_ERROR(" index out of bounds %d should be < %d",time,self->private->length);
+    GST_ERROR("index out of bounds, %d should be < %d",time,self->private->length);
   }
-  return(tl);
+  return(NULL);
 }
 
 /**

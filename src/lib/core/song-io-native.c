@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.14 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: song-io-native.c,v 1.15 2004-07-19 17:37:47 ensonic Exp $
  * class for native song input and output
  */
  
@@ -67,11 +67,8 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node,xml_child_node;
 	xmlChar *elem;
-  GValue val={0,};
 	
 	GST_INFO("loading the meta-data from the song");
-
-	g_value_init(&val,G_TYPE_STRING);
 
 	// get top xml-node
 	if((items_xpoptr=xpath_type_filter(
@@ -93,8 +90,7 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
 						if((elem=xmlNodeGetContent(xml_child_node))) {
 							GST_DEBUG("  %2d : \"%s\"=\"%s\"",i,xml_node->name,elem);
 							// maybe we need a hashmap based mapping from xml-tag names to class properties
-							g_value_set_string(&val,elem);
-							g_object_set_property(G_OBJECT(song_info),xml_node->name, &val);
+              bt_g_object_set_string_property(G_OBJECT(song_info),xml_node->name,elem);
 							xmlFree(elem);
 						}
 					}
@@ -264,7 +260,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     voices=bt_g_object_get_long_property(G_OBJECT(machine),"voices");
     // create pattern and load data
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
-    pattern=g_object_new(BT_TYPE_PATTERN,"song",song,"length",length,"voices",voices,"machine",machine,NULL);
+    pattern=g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",pattern_name,"length",length,"voices",voices,"machine",machine,NULL);
     bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
     // add to machine's pattern-list
     bt_machine_add_pattern(machine,pattern);
@@ -315,7 +311,6 @@ static gboolean bt_song_io_native_get_sequence_length(const BtSongIONative *self
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
     glong maxtime=0,curtime;
-    GValue lval={0,};
 
     for(i=0;i<items_len;i++) {
       curtime=atol(xmlNodeGetContent(xmlXPathNodeSetItem(items,i)));
@@ -323,9 +318,7 @@ static gboolean bt_song_io_native_get_sequence_length(const BtSongIONative *self
 		}
     maxtime++;  // time values start with 0
     GST_INFO(" got %d sequence.length with a max time of %d",items_len,maxtime);
-    g_value_init(&lval,G_TYPE_LONG);
-    g_value_set_long(&lval, maxtime);
-    g_object_set_property(G_OBJECT(sequence),"length", &lval);
+    bt_g_object_set_long_property(G_OBJECT(sequence),"length",maxtime);
     xmlXPathFreeObject(items_xpoptr);
 	}
   return(TRUE);
@@ -343,21 +336,18 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
     BtTimeLine *timeline;
     xmlChar *time_str,*name;
 		gint i;
-    GValue sval={0,};
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
 
     GST_INFO(" got sequence.labels root node with %d items",items_len);
-    g_value_init(&sval,G_TYPE_STRING);
     for(i=0;i<items_len;i++) {
       xml_node=xmlXPathNodeSetItem(items,i);
       if(!xmlNodeIsText(xml_node)) {
         time_str=xmlGetProp(xml_node,"time");
         name=xmlGetProp(xml_node,"name");
-        if((timeline=bt_sequence_get_timeline(sequence,atol(time_str)))) {
+        if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
           GST_INFO("  new timeline.label(%s,\"%s\")",time_str,name);
-          g_value_set_string(&sval, name);
-          g_object_set_property(G_OBJECT(timeline),"label", &sval);
+          bt_g_object_set_string_property(G_OBJECT(timeline),"label",name);
         }
         xmlFree(time_str);xmlFree(name);
       }
@@ -367,17 +357,38 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
   return(TRUE);
 }
 
-static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative *self, const BtMachine *machine, glong index, xmlNodePtr xml_node) {
-  xmlChar *time_str,*pattern_name;
+static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative *self, const BtSong *song, const BtMachine *machine, glong index, xmlNodePtr xml_node) {
+  const BtSequence *sequence=bt_song_get_sequence(song);
+  BtPattern *pattern;
+  BtTimeLine *timeline;
+  BtTimeLineTrack *timelinetrack;
+  xmlChar *time_str,*pattern_id;
+  GValue pattern_type={0,};
+  
+  g_value_init(&pattern_type,BT_TYPE_TIMELINETRACK_TYPE);
+  g_value_set_enum(&pattern_type,BT_TIMELINETRACK_TYPE_PATTERN);
   
   while(xml_node) {
 		if(!xmlNodeIsText(xml_node)) {
-      pattern_name=xmlGetProp(xml_node,"pattern");
       time_str=xmlGetProp(xml_node,"time");
-      GST_DEBUG("  at %s pattern \"%s\"",time_str,pattern_name);
-      // @todo get pattern by name from machine
-      // @todo store in timelinetrack
-      xmlFree(pattern_name);xmlFree(time_str);
+      pattern_id=xmlGetProp(xml_node,"pattern");
+      // @todo comand=xmlGetProp(xml_node,"comand");
+      GST_DEBUG("  at %s pattern \"%s\"",time_str,pattern_id);
+      // get pattern by name from machine
+      if((pattern=bt_machine_get_pattern_by_id(machine,pattern_id))) {
+        // get timeline from sequence
+        if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
+          // get timelinetrack from timeline
+          if((timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,index))) {
+            bt_g_object_set_object_property(G_OBJECT(timelinetrack),"pattern",G_OBJECT(pattern));
+            g_object_set_property(G_OBJECT(timelinetrack),"type", &pattern_type);
+          }
+          else GST_ERROR("  unknown timelinetrack index \"%d\"",index);
+        }
+        else GST_ERROR("  unknown timeline index \"%s\"",time_str);
+      }
+      else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
+      xmlFree(pattern_id);xmlFree(time_str);
 		}
 		xml_node=xml_node->next;
 	}
@@ -399,11 +410,8 @@ static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *sel
 		gint i;
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
-    GValue lval={0,};
     
-    g_value_init(&lval,G_TYPE_LONG);
-    g_value_set_long(&lval, (glong)items_len);
-    g_object_set_property(G_OBJECT(sequence),"tracks", &lval);
+    bt_g_object_set_long_property(G_OBJECT(sequence),"tracks",(glong)items_len);
 
     GST_INFO(" got sequence.tracks root node with %d items",items_len);
     for(i=0;i<items_len;i++) {
@@ -413,7 +421,7 @@ static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *sel
         index_str=xmlGetProp(xml_node,"index");
         if((machine=bt_setup_get_machine_by_id(setup, machine_name))) {
           GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_name);
-          bt_song_io_native_load_sequence_track_data(self,machine,atol(index_str),xml_node->children);
+          bt_song_io_native_load_sequence_track_data(self,song,machine,atol(index_str),xml_node->children);
         }
         else {
           GST_ERROR("invalid machine referenced");
