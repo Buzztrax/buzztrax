@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.5 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.6 2004-08-25 16:25:22 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -95,7 +95,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMachine *machine;
 
   GST_INFO("song has changed : app=%p, window=%p",song,user_data);
-  // get song from app and then setup
+  // get song from app and then setup from song
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   setup=bt_song_get_setup(song);
   // update page
@@ -197,7 +197,8 @@ Error:
  * bt_main_page_patterns_get_current_machine:
  * @self: the pattern subpage
  *
- * Get the currently active #BtMachine.
+ * Get the currently active #BtMachine as determined by the machine option menu
+ * in the toolbar.
  *
  * Returns: the #BtMachine instance or NULL in case of an error
  */

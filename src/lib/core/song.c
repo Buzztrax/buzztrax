@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.38 2004-08-18 17:57:05 ensonic Exp $
+/* $Id: song.c,v 1.39 2004-08-25 16:25:22 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -44,6 +44,9 @@ BtSong *bt_song_new(const GstBin *bin) {
   if(bin) {
     self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
   }
+  else {
+     GST_ERROR("app has no bin");
+  }
   return(self);
 }
 
@@ -61,6 +64,9 @@ BtSong *bt_song_new(const GstBin *bin) {
  */
 gboolean bt_song_play(const BtSong *self) {
   gboolean res;
+
+  g_assert(self);
+
   // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->play_signal_id, 0);
   res=bt_sequence_play(self->private->sequence);
@@ -80,6 +86,8 @@ gboolean bt_song_play(const BtSong *self) {
  */
 gboolean bt_song_stop(const BtSong *self) {
   gboolean res;
+
+  g_assert(self);
   
   res=bt_sequence_stop(self->private->sequence);
   return(res);
@@ -95,6 +103,7 @@ gboolean bt_song_stop(const BtSong *self) {
  *
  */
 gboolean bt_song_pause(const BtSong *self) {
+  g_assert(self);
   // @todo remember play position
   return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
 }
@@ -109,6 +118,7 @@ gboolean bt_song_pause(const BtSong *self) {
  *
  */
 gboolean bt_song_continue(const BtSong *self) {
+  g_assert(self);
   // @todo reuse play position
   return(gst_element_set_state(GST_ELEMENT(self->private->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
 }
@@ -124,6 +134,7 @@ gboolean bt_song_continue(const BtSong *self) {
  * Returns: the #BtSongInfo instance
  */
 BtSongInfo *bt_song_get_song_info(const BtSong *self) {
+  g_assert(self);
 	return(self->private->song_info);
 }
 
@@ -136,6 +147,7 @@ BtSongInfo *bt_song_get_song_info(const BtSong *self) {
  * Returns: the #BtSetup instance
  */
 BtSetup *bt_song_get_setup(const BtSong *self) {
+  g_assert(self);
 	return(self->private->setup);
 }
 
@@ -148,7 +160,8 @@ BtSetup *bt_song_get_setup(const BtSong *self) {
  * Returns: the #BtSequence instance
  */
 BtSequence *bt_song_get_sequence(const BtSong *self) {
-	return(self->private->sequence);
+  g_assert(self);
+  return(self->private->sequence);
 }
 
 //-- class internals

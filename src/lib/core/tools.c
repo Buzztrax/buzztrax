@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.4 2004-07-19 17:37:47 ensonic Exp $
+/* $Id: tools.c,v 1.5 2004-08-25 16:25:22 ensonic Exp $
  */
  
 #define BT_CORE
@@ -16,6 +16,9 @@
  */
 GObject* bt_g_object_get_object_property(GObject *object, const gchar *property_name) {
   static GValue *val=NULL;
+  
+  g_assert(object);
+  g_assert(property_name);
   
   if(val==NULL) {
     val=g_new0(GValue,1);
@@ -37,6 +40,9 @@ GObject* bt_g_object_get_object_property(GObject *object, const gchar *property_
 const gchar* bt_g_object_get_string_property(GObject *object, const gchar *property_name) {
   static GValue *val=NULL;
   
+  g_assert(object);
+  g_assert(property_name);
+
   if(val==NULL) {
     val=g_new0(GValue,1);
     g_value_init(val,G_TYPE_STRING);
@@ -57,6 +63,9 @@ const gchar* bt_g_object_get_string_property(GObject *object, const gchar *prope
 glong bt_g_object_get_long_property(GObject *object, const gchar *property_name) {
   static GValue *val=NULL;
   
+  g_assert(object);
+  g_assert(property_name);
+
   if(val==NULL) {
     val=g_new0(GValue,1);
     g_value_init(val,G_TYPE_LONG);
@@ -78,6 +87,9 @@ glong bt_g_object_get_long_property(GObject *object, const gchar *property_name)
 void bt_g_object_set_object_property(GObject *object, const gchar *property_name, GObject *data) {
   static GValue *val;
   
+  g_assert(object);
+  g_assert(property_name);
+
   if(val==NULL) {
     val=g_new0(GValue,1);
     g_value_init(val,G_TYPE_OBJECT);
@@ -98,6 +110,9 @@ void bt_g_object_set_object_property(GObject *object, const gchar *property_name
 void bt_g_object_set_string_property(GObject *object, const gchar *property_name, const gchar *data) {
   static GValue *val;
   
+  g_assert(object);
+  g_assert(property_name);
+
   if(val==NULL) {
     val=g_new0(GValue,1);
     g_value_init(val,G_TYPE_STRING);
@@ -118,6 +133,9 @@ void bt_g_object_set_string_property(GObject *object, const gchar *property_name
 void bt_g_object_set_long_property(GObject *object, const gchar *property_name, glong data) {
   static GValue *val;
   
+  g_assert(object);
+  g_assert(property_name);
+
   if(val==NULL) {
     val=g_new0(GValue,1);
     g_value_init(val,G_TYPE_LONG);

@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.10 2004-08-24 17:07:51 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.11 2004-08-25 16:25:22 ensonic Exp $
  * defines all public methods of the sequence class
  */
 
@@ -6,6 +6,7 @@
 #define BT_SEQUENCE_METHODS_H
 
 #include "sequence.h"
+#include "timeline.h"
 
 extern BtSequence *bt_sequence_new(const BtSong *song);
 

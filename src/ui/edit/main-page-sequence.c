@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.5 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.6 2004-08-25 16:25:22 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -21,19 +21,127 @@ struct _BtMainPageSequencePrivate {
   
   /* bars selection menu */
   GtkOptionMenu *bars_menu;
+  
+  /* the pattern list */
+  GtkTreeView *sequence_list;
+  /* the pattern list */
+  GtkTreeView *pattern_list;
 };
+
+//-- event handler helper
+
+static void sequence_table_init(const BtMainPageSequence *self) {
+  GtkCellRenderer *renderer;
+  GList *columns,*node;
+  
+  columns=gtk_tree_view_get_columns(self->private->sequence_list);
+  node=g_list_first(columns);
+	while(node) {
+    gtk_tree_view_remove_column(self->private->sequence_list,GTK_TREE_VIEW_COLUMN(node->data));
+    node=g_list_next(node);
+  }
+  g_list_free(columns);
+  
+  renderer=gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,_("Labels"),renderer,"text",0,NULL);
+ 
+}
+
+static void sequence_table_refresh(const BtMainPageSequence *self,const BtSetup *setup,const BtSequence *sequence) {
+  BtMachine *machine;
+  BtTimeLine *timeline;
+  GtkCellRenderer *renderer;
+  gpointer *iter;
+  gchar *str;
+  gulong i,j,col_ct=1,timeline_ct;
+  GtkListStore *store;
+  GType *store_types;
+  GtkTreeIter tree_iter;
+
+  GST_INFO("refresh sequence table");
+  
+  // reset columns
+  sequence_table_init(self);
+  // add column for each machine
+  iter=bt_setup_machine_iterator_new(setup);
+  while(iter) {
+    machine=bt_setup_machine_iterator_get_machine(iter);
+    str=bt_g_object_get_string_property(G_OBJECT(machine),"id");
+    renderer=gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(self->private->sequence_list,-1,str,renderer,"text",0,NULL);
+    iter=bt_setup_machine_iterator_next(iter);col_ct++;
+  }
+  store_types=g_new(GType *,col_ct++);
+  for(i=0;i<col_ct;i++) store_types[i]=G_TYPE_STRING;
+  store=gtk_list_store_newv(col_ct,store_types);
+  // @todo add patterns
+  timeline_ct=bt_g_object_get_long_property(G_OBJECT(sequence),"length");
+  for(i=0;i<timeline_ct;i++) {
+    timeline=bt_sequence_get_timeline_by_time(sequence,i);
+    gtk_list_store_append(store, &tree_iter);
+
+    if((str=bt_g_object_get_string_property(G_OBJECT(timeline),"label"))) {
+      gtk_list_store_set(store,&tree_iter,0,str,-1);
+    }
+    j=1;
+    // foreach(timelinetrack) {
+    //    switch(timelinetrack->type) {
+    //      ...
+    //      gtk_list_store_set(store,&tree_iter,j,str,-1);
+    //    }
+    //    j++;
+    // }
+  }
+  gtk_tree_view_set_model(self->private->sequence_list,GTK_TREE_MODEL(store));
+}
+
+static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine *machine) {
+  BtPattern *pattern=NULL;
+  GtkListStore *store;
+  GtkTreeIter tree_iter;
+  gpointer *iter;
+  gchar *str;
+
+  GST_INFO("refresh pattern list");
+  
+  store=gtk_list_store_new(1,G_TYPE_STRING);
+
+  //-- append default rows
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,0,_("  mute"),-1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,0,_("  break"),-1);
+  if(machine) {
+    //-- append pattern rows
+    iter=bt_machine_pattern_iterator_new(machine);
+    while(iter) {
+      pattern=bt_machine_pattern_iterator_get_pattern(iter);
+      str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+      GST_INFO("  adding \"%s\"",str);
+      gtk_list_store_append(store, &tree_iter);
+      gtk_list_store_set(store,&tree_iter,0,str,-1);
+      iter=bt_machine_pattern_iterator_next(iter);
+    }
+  }
+  gtk_tree_view_set_model(self->private->pattern_list,GTK_TREE_MODEL(store));
+}
 
 //-- event handler
 
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
+  BtSetup *setup;
+  BtSequence *sequence;
   glong index,bars;
 
   GST_INFO("song has changed : app=%p, window=%p",song,user_data);
-  // get song from app
+  // get song from app and then setup from song
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  setup=bt_song_get_setup(song);
+  sequence=bt_song_get_sequence(song);
   // update page
+  // update toolbar
   bars=bt_g_object_get_long_property(G_OBJECT(bt_song_get_song_info(song)),"bars");
   // find out to which entry it belongs and set the index
   // 1 -> 0, 2 -> 1, 4 -> 2 , 8 -> 3
@@ -45,13 +153,17 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   }
   //GST_INFO("  bars=%d, index=%d",bars,index);
   gtk_option_menu_set_history(GTK_OPTION_MENU(self->private->bars_menu),index);
+  // update sequence and pattern list
+  sequence_table_refresh(self,setup,sequence);
+  pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
 }
 
 //-- helper methods
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
-  GtkWidget *box,*menu,*menu_item,*button;
+  GtkWidget *box,*menu,*menu_item,*button,*scrolled_window;
+  GtkCellRenderer *renderer;
   glong i;
   gchar str[4];
 
@@ -91,8 +203,27 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   gtk_widget_set_name(button,_("Steps"));
 
   
-  // @todo add list-view
-  gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no sequence view yet"));
+  // add a hbox
+  box=gtk_hbox_new(FALSE,2);
+  gtk_container_add(GTK_CONTAINER(self),box);
+  // add sequence list-view
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+  self->private->sequence_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  gtk_tree_view_set_rules_hint(self->private->sequence_list,TRUE);
+  sequence_table_init(self);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->private->sequence_list));
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),TRUE,TRUE,0);
+  // add pattern list-view
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_NEVER);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+  self->private->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  renderer=gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(self->private->pattern_list,-1,_("Patterns"),renderer,"text",0,NULL);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->private->pattern_list));
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),FALSE,FALSE,0);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
@@ -126,6 +257,31 @@ Error:
 }
 
 //-- methods
+
+/**
+ * bt_main_page_sequence_get_current_machine:
+ * @self: the pattern subpage
+ *
+ * Get the currently active #BtMachine as determined by the cursor position in
+ * the sequence table.
+ *
+ * Returns: the #BtMachine instance or NULL in case of an error
+ */
+BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
+  //glong index;
+  BtSong *song;
+  BtSetup *setup;
+
+  GST_INFO("get active machine");
+  
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  setup=bt_song_get_setup(song);
+
+  //@todo index= get table column
+  // column 0 is for labels
+
+  return(bt_setup_get_machine_by_index(setup,0));
+}
 
 //-- wrapper
 
