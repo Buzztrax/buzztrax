@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.14 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.15 2004-10-06 17:26:30 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -11,6 +11,8 @@ enum {
   MAIN_PAGE_MACHINES_APP=1,
 };
 
+#define ZOOM_X 100.0
+#define ZOOM_Y  80.0
 
 struct _BtMainPageMachinesPrivate {
   /* used to validate if dispose has run */
@@ -23,22 +25,177 @@ struct _BtMainPageMachinesPrivate {
   GnomeCanvas *canvas;
   /* the zoomration in pixels/per unit */
   double zoom;
+
+  /* we probably need a list of canvas items that we have drawn, so that we can
+   * easily clear them later
+   */
 };
 
 static GtkVBoxClass *parent_class=NULL;
+
+//-- graphics helpers
+
+// @todo this needs more parameters
+/**
+ * bt_main_page_machines_draw_machine:
+ * @self: the machine-view page to draw
+ *
+ * draw something that looks a bit like a buzz-machine
+ */
+static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self, gdouble pos_x, gdouble pos_y, guint bg_color, gchar *name) {
+  GnomeCanvasItem *item;
+  GnomeCanvasGroup *group;
+  gdouble w=25.0,h=15.0;
+
+  GST_INFO("  draw machine \"%s\" at %lf,%lf",name,pos_x,pos_y);
+  
+  group=GNOME_CANVAS_GROUP(gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           GNOME_TYPE_CANVAS_GROUP,
+                           "x", pos_x-(w/2.0),
+                           "y", pos_y-(h/2.0),
+                           NULL));
+
+  // add machine visualisation components
+  item=gnome_canvas_item_new(group,
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", 0.0,
+                           "y1", 0.0,
+                           "x2", w,
+                           "y2", h,
+                           "fill-color-rgba", bg_color,
+                           /*"fill-color", "gray",*/
+                           "outline_color", "black",
+                           "width-pixels", 1,
+                           NULL);
+  item=gnome_canvas_item_new(group,
+                           GNOME_TYPE_CANVAS_TEXT,
+                           "x", (w/2.0),
+                           "y", 4.0,
+                           "justification", GTK_JUSTIFY_CENTER,
+                           "size-points", 10.0,
+                           "size-set", TRUE,
+                           "text", name,
+                           "fill-color", "black",
+                           NULL);
+}
+
+static void bt_main_page_machines_draw_wire(const BtMainPageMachines *self, gdouble pos_xs, gdouble pos_ys,gdouble pos_xe, gdouble pos_ye) {
+  GnomeCanvasItem *item;
+  GnomeCanvasPoints *points;
+  
+  GST_INFO("  draw wire from %lf,%lf to %lf,%lf",pos_xs,pos_ys,pos_xe,pos_ye);
+  
+  points=gnome_canvas_points_new(2);
+  /* fill out the points */
+  points->coords[0]=pos_xs;
+  points->coords[1]=pos_ys;
+  points->coords[2]=pos_xe;
+  points->coords[3]=pos_ye;
+  item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           GNOME_TYPE_CANVAS_LINE,
+                           "points", points,
+                           "fill-color", "black",
+                           "width-pixels", 1,
+                           NULL);
+  gnome_canvas_points_free(points);
+}
+
+//-- event handler helper
+
+static void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
+  char *prop;
+
+  *pos_x=*pos_y=0.0;
+  if(properties) {
+    prop=(gchar *)g_hash_table_lookup(properties,"xpos");
+    if(prop) {
+      *pos_x=ZOOM_X*g_ascii_strtod(prop,NULL);
+      // do not g_free(prop);
+    }
+    else GST_WARNING("no xpos property found");
+    prop=(gchar *)g_hash_table_lookup(properties,"ypos");
+    if(prop) {
+      *pos_y=ZOOM_Y*g_ascii_strtod(prop,NULL);
+      // do not g_free(prop);
+    }
+    else GST_WARNING("no ypos property found");
+  }
+  else GST_WARNING("no properties supplied");
+}
+
+static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
+  gpointer iter;
+  GHashTable *properties;
+  BtMachine *machine;
+  BtWire *wire;
+  char *id,*prop;
+  guint bg_color=0xFFFFFFFF;
+  gdouble pos_x,pos_y;
+  gdouble pos_xs,pos_ys,pos_xe,pos_ye;
+  
+  // @todo clear the canvas
+  // a.) each group-item has an item_list member
+  // b.) store all items in a local list below
+  
+  // draw all wires
+  iter=bt_setup_wire_iterator_new(setup);
+  while(iter) {
+    wire=bt_setup_wire_iterator_get_wire(iter);
+    // get positions of source and dest
+    g_object_get(wire,"src",&machine,NULL);
+    g_object_get(machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
+    GST_DEBUG("src-machine is %p",machine);
+    g_object_try_unref(machine);
+    g_object_get(wire,"dst",&machine,NULL);
+    g_object_get(machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
+    GST_DEBUG("dst-machine is %p",machine);
+    g_object_try_unref(machine);
+    // draw wire
+    bt_main_page_machines_draw_wire(self,pos_xs,pos_ys,pos_xe,pos_ye);
+    iter=bt_setup_wire_iterator_next(iter);
+  }
+
+  // draw all machines
+  iter=bt_setup_machine_iterator_new(setup);
+  while(iter) {
+    machine=bt_setup_machine_iterator_get_machine(iter);
+    // get position, name and machine type
+    g_object_get(machine,"properties",&properties,"id",&id,NULL);
+    GST_DEBUG("machine is %p",machine);
+    machine_view_get_machine_position(properties,&pos_x,&pos_y);
+    if(BT_IS_SOURCE_MACHINE(machine)) {
+      bg_color=0xFFAFAFFF;
+    }
+    if(BT_IS_PROCESSOR_MACHINE(machine)) {
+      bg_color=0xAFFFAFFF;
+    }
+    if(BT_IS_SINK_MACHINE(machine)) {
+      bg_color=0xAFAFFFFF;
+    }
+    // draw machine
+    bt_main_page_machines_draw_machine(self,pos_x,pos_y,bg_color,id);
+    g_free(id);
+    iter=bt_setup_machine_iterator_next(iter);
+  }
+}
 
 //-- event handler
 
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
+  BtSetup *setup;
 
   g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
+  machine_view_refresh(self,setup);
   // release the reference
   g_object_try_unref(song);
 }
@@ -48,8 +205,8 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  GST_INFO("toolbar zoom_in event occurred");
   self->priv->zoom*=1.75;
+  GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
@@ -58,54 +215,13 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  GST_INFO("toolbar zoom_out event occurred");
   self->priv->zoom/=1.75;
+  GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
 
 //-- helper methods
-
-// @todo this needs parameters
-/**
- * bt_main_page_machines_draw_machine:
- * @self: the machine-view page to draw
- *
- * draw something that looks a bit like a buzz-machine
- */
-static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
-  GnomeCanvasItem *item;
-  GnomeCanvasGroup *group;
-  float x=30.0,y=30.0,w=25.0,h=15.0;
-
-  group = GNOME_CANVAS_GROUP(gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           GNOME_TYPE_CANVAS_GROUP,
-                           "x", x,
-                           "y", y,
-                           NULL));
-
-  // add machine visualisation components
-  item = gnome_canvas_item_new(group,
-                           GNOME_TYPE_CANVAS_RECT,
-                           "x1", 0.0,
-                           "y1", 0.0,
-                           "x2", w,
-                           "y2", h,
-                           "fill_color", "gray",
-                           "outline_color", "black",
-                           "width_pixels", 1,
-                           NULL);
-  item = gnome_canvas_item_new(group,
-                           GNOME_TYPE_CANVAS_TEXT,
-                           "x", (w/2.0),
-                           "y", 4.0,
-                           "justification", GTK_JUSTIFY_CENTER,
-                           "size-points", 10.0,
-                           "size-set", TRUE,
-                           "text", "sine1",
-                           "fill_color", "black",
-                           NULL);
-}
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
@@ -165,15 +281,13 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
-  gnome_canvas_set_scroll_region(self->priv->canvas,0.0,0.0,100.0,100.0);
+  gnome_canvas_set_scroll_region(self->priv->canvas,-ZOOM_X,-ZOOM_Y,ZOOM_X,ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   //gtk_widget_pop_colormap();
   gtk_widget_pop_visual();
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
-  // add an example item (just so that we see something)
-  bt_main_page_machines_draw_machine(self);
-
+  
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
@@ -276,7 +390,7 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   self->priv = g_new0(BtMainPageMachinesPrivate,1);
   self->priv->dispose_has_run = FALSE;
 
-  self->priv->zoom=10.0;
+  self->priv->zoom=5.0;
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

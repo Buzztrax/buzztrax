@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.18 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.19 2004-10-06 17:26:30 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -359,7 +359,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Steps"));
 
-  // allocate out colors
+  // allocate our colors
   colormap=gdk_colormap_get_system();
   self->priv->source_bg1.red=  (guint16)(1.0*65535);
   self->priv->source_bg1.green=(guint16)(0.9*65535);

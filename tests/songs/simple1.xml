@@ -25,8 +25,8 @@
       </sink>
       <source id="sine1" pluginname="sinesrc" voices="0">
         <properties>
-          <property key="xpos" value="0.2"/>
-          <property key="ypos" value="0.2"/>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>

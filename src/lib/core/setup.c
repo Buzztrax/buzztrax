@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.30 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: setup.c,v 1.31 2004-10-06 17:26:30 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -244,6 +244,56 @@ gpointer bt_setup_machine_iterator_next(gpointer iter) {
 BtMachine *bt_setup_machine_iterator_get_machine(gpointer iter) {
   g_assert(iter);
 	return(BT_MACHINE(((GList *)iter)->data));
+}
+
+/**
+ * bt_setup_wire_iterator_new:
+ * @self: the setup to generate the wire iterator from
+ *
+ * Builds an iterator handle, one can use to traverse the #BtWire list of the
+ * setup.
+ * The new iterator already points to the first element in the list.
+ * Advance the iterator with bt_setup_wire_iterator_next() and
+ * read from the iterator with bt_setup_wire_iterator_get_wire().
+ *
+ * Returns: the iterator or NULL
+ */
+gpointer bt_setup_wire_iterator_new(const BtSetup *self) {
+  gpointer res=NULL;
+
+  g_assert(self);
+
+  if(self->priv->machines) {
+    res=g_list_first(self->priv->wires);
+  }
+  return(res);
+}
+
+/**
+ * bt_setup_wire_iterator_next:
+ * @iter: the iterator handle as returned by bt_setup_wire_iterator_new()
+ *
+ * Advances the iterator for one element. Read data with bt_setup_wire_iterator_get_wire().
+ * 
+ * Returns: the new iterator or NULL for end-of-list
+ */
+gpointer bt_setup_wire_iterator_next(gpointer iter) {
+  g_assert(iter);
+	return(g_list_next((GList *)iter));
+}
+
+/**
+ * bt_setup_wire_iterator_get_wire:
+ * @iter: the iterator handle as returned by bt_setup_wire_iterator_new()
+ *
+ * Retrieves the #BtWire from the current list position determined by the iterator.
+ * Advance the iterator with bt_setup_wire_iterator_next().
+ *
+ * Returns: the #BtWire instance
+ */
+BtWire *bt_setup_wire_iterator_get_wire(gpointer iter) {
+  g_assert(iter);
+	return(BT_WIRE(((GList *)iter)->data));
 }
 
 //-- wrapper

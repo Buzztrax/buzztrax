@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.34 2004-10-06 16:59:50 waffel Exp $
+/* $Id: song-io-native.c,v 1.35 2004-10-06 17:26:30 ensonic Exp $
  * class for native song input and output
  */
  
@@ -113,9 +113,10 @@ static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, co
         if(!xmlNodeIsText(xml_subnode)) {
           key=xmlGetProp(xml_subnode,"key");
           value=xmlGetProp(xml_subnode,"value");
-          GST_DEBUG("    %s => %s",key,value);
+          GST_DEBUG("    [%s] => [%s]",key,value);
           g_hash_table_insert(properties,(gchar *)key,(gchar *)value);
-          xmlFree(key);xmlFree(value);
+          // do not free, as the hashtable now owns the memory
+          //xmlFree(key);xmlFree(value);
         }
         xml_subnode=xml_subnode->next;
       }
@@ -586,7 +587,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   g_free(status);
   
   //DEBUG
-  sleep(1);
+  //sleep(1);
   //DEBUG
   
 	// @todo add gnome-vfs detection method. This method should detect the
@@ -638,7 +639,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	if(song_doc) xmlFreeDoc(song_doc);
   g_free(filename);
   //DEBUG
-  sleep(1);
+  //sleep(1);
   //DEBUG
   g_object_set((gpointer)self,"status",NULL,NULL);
 	return(result);

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.17 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: sink-machine.c,v 1.18 2004-10-06 17:26:30 ensonic Exp $
  * class for a sink machine
  */
  
@@ -33,8 +33,13 @@ static BtMachineClass *parent_class=NULL;
 BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name) {
   BtSinkMachine *self;
   
+  // @todo get plugin_name from settings
+  // gchar *audiosink_name;
+  // g_object_get(self->priv->settings,"audiosink",&audiosink_name,NULL);
+
   g_assert(song);
   g_assert(id);
+  // @todo we don't need that after the above change
   g_assert(plugin_name);
   
   self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL));
