@@ -6,7 +6,7 @@
 
 	<meta>
 		<info>what a lovely tune</info>
-    <name>simple 1</name>
+    <name>simple 2</name>
 		<genre>dark-wave</genre>
 	</meta>
 	
@@ -17,6 +17,11 @@
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
       </sink>
+      
+      <processor id="amp1" pluginname="volume">
+        <machineui xpos="50" ypos="30"/>
+      </processor>
+      
       <source id="sine1" pluginname="sinesrc" voices="0">
         <machineui xpos="20" ypos="80"/>
         <globaldata name="volume" value="1.0"/>
@@ -24,7 +29,8 @@
     </machines>
     
     <wires>
-      <wire src="sine1" dst="audio_sink" gain="1.0"/>
+      <wire src="sine1" dst="amp1" gain="1.5"/>
+      <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
   
@@ -43,6 +49,32 @@
 				<globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
+    <pattern id="amp1_fade" machine="amp1" name="fade" length="8">
+      <tick time="0">
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="1">
+				<globaldata name="volume" value="0,5"/>
+      </tick>
+      <tick time="2">
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="3">
+				<globaldata name="volume" value="0,5"/>
+      </tick>
+      <tick time="4">
+				<globaldata name="volume" value="1,0"/>
+      </tick>
+      <tick time="5">
+				<globaldata name="volume" value="0,5"/>
+      </tick>
+      <tick time="6">
+				<globaldata name="volume" value="0,25"/>
+      </tick>
+      <tick time="7">
+				<globaldata name="volume" value="0,0"/>
+      </tick>
+    </pattern>
   </patterns>
   
   <sequence>
@@ -54,6 +86,10 @@
       <track index="0" machine="sine1">
         <position time="0" pattern="sine1_beep"/>
         <position time="2" pattern="sine1_beep"/>
+      </track>
+      <track index="1" machine="amp1">
+        <position time="0" pattern="amp1_fade"/>
+        <position time="2" pattern="amp1_fade"/>
       </track>
     </tracks>
   </sequence>
