@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.19 2004-08-07 23:48:02 ensonic Exp $
+/* $Id: cmd-application.c,v 1.20 2004-08-08 01:04:46 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -121,7 +121,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 	//if(bt_song_load(song,filename)) {
 	if(bt_song_io_load(loader,song,input_file_name)) {
 		/* print some info about the song */
-    g_print("song.name: \"%s\"\n",           bt_g_object_get_string_property(G_OBJECT(song),"name"));
+    g_print("song.song_info.name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
 		g_print("song.song_info.info: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"));
 		g_print("song.sequence.length: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"length"));
 		g_print("song.sequence.tracks: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"tracks"));

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.33 2004-08-07 23:29:02 ensonic Exp $
+/* $Id: song.c,v 1.34 2004-08-08 01:04:46 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -10,8 +10,7 @@
 #include <libbtcore/core.h>
 
 enum {
-  SONG_NAME=1,
-	SONG_BIN,
+	SONG_BIN=1,
   SONG_MASTER
 };
 
@@ -19,9 +18,6 @@ struct _BtSongPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   
-  /* the name for the song */
-  gchar *name;
-	
 	BtSongInfo* song_info; 
 	BtSequence* sequence;
 	BtSetup*    setup;
@@ -48,25 +44,6 @@ BtSong *bt_song_new(const GstBin *bin) {
   if(bin) {
     self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
   }
-  return(self);
-}
-
-/**
- * bt_song_new_with_name:
- * @bin: the gst root elemnt to hold the song
- * @name: the name of the new song
- *
- * Create a new instance with a initial name. The bin object can be retrieved
- * from the bin property of an #BtApplication instance
- *
- * Returns: the new instance or NULL in case of an error
- */
-BtSong *bt_song_new_with_name(const GstBin *bin, const gchar *name) {
-  BtSong *self = NULL;
-	
-	if(bin && is_string(name)) {
-		self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,"name",name,NULL));
-  } 
   return(self);
 }
 
@@ -180,9 +157,6 @@ static void bt_song_get_property(GObject      *object,
   BtSong *self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
-    case SONG_NAME: {
-      g_value_set_string(value, self->private->name);
-    } break;
     case SONG_BIN: {
       g_value_set_object(value, G_OBJECT(self->private->bin));
     } break;
@@ -205,11 +179,6 @@ static void bt_song_set_property(GObject      *object,
   BtSong *self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
-    case SONG_NAME: {
-      g_free(self->private->name);
-      self->private->name = g_value_dup_string(value);
-      GST_DEBUG("set the name for the song: %s",self->private->name);
-    } break;
 		case SONG_BIN: {
 			self->private->bin = g_object_ref(G_OBJECT(g_value_get_object(value)));
       GST_DEBUG("set the bin for the song: %p",self->private->bin);
@@ -239,14 +208,13 @@ static void bt_song_finalize(GObject *object) {
 	g_object_unref(G_OBJECT(self->private->setup));
   gst_object_unref(GST_OBJECT(self->private->master));
 	gst_object_unref(GST_OBJECT(self->private->bin));
-	g_free(self->private->name);
   g_free(self->private);
 }
 
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
 	
-  //GST_DEBUG("song_init self=%p",self);
+  GST_DEBUG("song_init self=%p",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
   self->private->song_info = bt_song_info_new(self);
@@ -278,13 +246,6 @@ static void bt_song_class_init(BtSongClass *klass) {
                                         0, // n_params
                                         NULL /* param data */ );
   
-  g_object_class_install_property(gobject_class,SONG_NAME,
-																	g_param_spec_string("name",
-                                     "name contsruct prop",
-                                     "the name of a song",
-                                     "unnamed song", /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
-
 	g_object_class_install_property(gobject_class,SONG_BIN,
 																	g_param_spec_object("bin",
                                      "bin construct prop",

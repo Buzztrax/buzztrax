@@ -1,4 +1,4 @@
-/* $Id: song-methods.h,v 1.12 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: song-methods.h,v 1.13 2004-08-08 01:04:46 ensonic Exp $
  * defines all public methods of the song class
  */
 
@@ -11,7 +11,6 @@
 #include "sequence.h"
 
 extern BtSong *bt_song_new(const GstBin *bin);
-extern BtSong *bt_song_new_with_name(const GstBin *bin, const gchar *name);
 
 extern gboolean bt_song_play(const BtSong *self);
 extern gboolean bt_song_stop(const BtSong *self);

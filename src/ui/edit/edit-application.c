@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.4 2004-08-06 19:42:45 ensonic Exp $
+/* $Id: edit-application.c,v 1.5 2004-08-08 01:04:46 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -63,7 +63,7 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 
 	GST_INFO("application.play launched");
 
-	self->private->song=bt_song_new_with_name(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")),"empty song");
+	self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")));
 	
 	GST_INFO("objects initialized");
   
