@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: setup.h,v 1.5 2004-07-20 18:24:18 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -13,10 +13,10 @@
  *
  * #GType for BtSetup instances
  */
-#define BT_TYPE_SETUP		        (bt_setup_get_type ())
-#define BT_SETUP(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SETUP, BtSetup))
-#define BT_SETUP_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SETUP, BtSetupClass))
-#define BT_IS_SETUP(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_SETUP))
+#define BT_TYPE_SETUP		         (bt_setup_get_type ())
+#define BT_SETUP(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SETUP, BtSetup))
+#define BT_SETUP_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SETUP, BtSetupClass))
+#define BT_IS_SETUP(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SETUP))
 #define BT_IS_SETUP_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SETUP))
 #define BT_SETUP_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SETUP, BtSetupClass))
 

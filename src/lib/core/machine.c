@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.18 2004-07-19 17:37:47 ensonic Exp $
+/* $Id: machine.c,v 1.19 2004-07-20 18:24:18 ensonic Exp $
  * base class for a machine
  */
  
@@ -89,6 +89,12 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
       g_assert(self->machine!=NULL);
       g_assert(self->src_elem!=NULL);
       g_assert(self->dst_elem!=NULL);
+
+      if(BT_IS_SINK_MACHINE(self)) {
+        GST_DEBUG("this will be the master for the song");
+        bt_g_object_set_object_property(G_OBJECT(self->private->song),"master",G_OBJECT(self->machine));
+      }
+
       return(TRUE);
 		}
 	}
@@ -203,6 +209,35 @@ GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
   return(self->private->voice_types[index]);
 }
 
+/**
+ * bt_machine_set_global_dparam_value:
+ * @self: the machine to set the global dparam value
+ * @index: the offset in the list of global dparams
+ * @event: the new value
+ *
+ * Sets a the specified global dparam to the give data value.
+ *
+ */
+void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event) {
+  GstDParam *dparam;
+  
+  g_assert(index<self->private->global_params);
+  
+  dparam=self->private->global_dparams[index];
+  // depending on the type, set the GValue
+  // @todo use a function pointer here, like e.g. self->private->global_param_set(dparam,event)
+  switch(G_VALUE_TYPE(event)) {
+    case G_TYPE_DOUBLE: {
+      gchar *str=g_strdup_value_contents(event);
+      GST_INFO("events for %s at track %d : \"%s\"",self->private->id,index,str);
+      g_object_set_property(G_OBJECT(dparam),"value_double",event);
+      g_free(str);
+    }  break;
+    default:
+      GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));
+  }
+}
+
 //-- wrapper
 
 //-- class internals
@@ -253,7 +288,7 @@ static void bt_machine_set_property(GObject      *object,
   switch (property_id) {
     case MACHINE_SONG: {
       self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      //GST_DEBUG("set the song for machine: %p",self->private->song);
+      GST_DEBUG("set the song for machine: %p",self->private->song);
     } break;
     case MACHINE_ID: {
       g_free(self->private->id);

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.13 2004-07-19 17:37:47 ensonic Exp $
+/* $Id: sequence.c,v 1.14 2004-07-20 18:24:18 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -118,21 +118,33 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  *
  * starts playback for the sequence
  *
+ * Return: TRUE for success
+ *
  */
-void bt_sequence_play(const BtSequence *self) {
-  // @todo where get the length from (the song?)
-  BtPlayLine *playline=g_object_new(BT_TYPE_PLAYLINE,"song",self->private->song,"tracks",self->private->tracks,"length",16,NULL);
+gboolean bt_sequence_play(const BtSequence *self) {
   glong i;
   BtTimeLine **timeline=self->private->timelines;
+  GstElement *master=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
+  GstBin *bin=GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
+  // @todo where get the length from (the song?)
+  BtPlayLine *playline=g_object_new(BT_TYPE_PLAYLINE,"song",self->private->song,"master",master,"tracks",self->private->tracks,"length",16,NULL);
+  gboolean res=TRUE;
 
-  for(i=0;i<self->private->length;i++,timeline++) {
-    GST_INFO("Playing sequence position : %d",i);
-    // enter new patterns into the playline and stop or mute patterns
-    bt_timeline_update_playline(*timeline,playline);
-    // play the patterns in the cursor
-    bt_playline_play(playline);
+  if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
+    for(i=0;i<self->private->length;i++,timeline++) {
+      GST_INFO("Playing sequence position : %d",i);
+      // enter new patterns into the playline and stop or mute patterns
+      bt_timeline_update_playline(*timeline,playline);
+      // play the patterns in the cursor
+      bt_playline_play(playline);
+    }
+    gst_element_set_state(bin,GST_STATE_NULL);
+  }
+  else {
+    GST_ERROR("can't start playing");res=FALSE;
   }
   g_object_unref(G_OBJECT(playline));
+  return(res);
 }
 
 //-- wrapper

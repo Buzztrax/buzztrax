@@ -9,7 +9,7 @@
 		<genre>dark-wave</genre>
 	</meta>
 	
-  <setup zoom="1.0">    
+  <setup zoom="1.0">
     <machines>
       <sink id="audio_sink" pluginname="esdsink">
         <machineui xpos="20" ypos="10"/>

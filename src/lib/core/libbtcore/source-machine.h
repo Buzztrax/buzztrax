@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.7 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: source-machine.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
  * class for a source machine
  */
 
@@ -16,7 +16,7 @@
 #define BT_TYPE_SOURCE_MACHINE		        (bt_source_machine_get_type ())
 #define BT_SOURCE_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SOURCE_MACHINE, BtSourceMachine))
 #define BT_SOURCE_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SOURCE_MACHINE, BtSourceMachineClass))
-#define BT_IS_SOURCE_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_SONG_IO_SOURCE_MACHINE))
+#define BT_IS_SOURCE_MACHINE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SOURCE_MACHINE))
 #define BT_IS_SOURCE_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SOURCE_MACHINE))
 #define BT_SOURCE_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SOURCE_MACHINE, BtSourceMachineClass))
 

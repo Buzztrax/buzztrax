@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.6 2004-07-19 17:37:47 ensonic Exp $
+/* $Id: pattern.c,v 1.7 2004-07-20 18:24:18 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -63,6 +63,7 @@ static void bt_pattern_init_data(const BtPattern *self) {
   GST_DEBUG("bt_pattern_init_data : %d*(%d+%d*%d)=%d",self->private->length,self->private->global_params,self->private->voices,self->private->voice_params,data_count);
   self->private->data=g_new0(GValue,data_count);
   // initialize the GValues (can we use memcpy for the tick-lines)
+  /*
   data=self->private->data;
   for(i=0;i<self->private->length;i++) {
     for(k=0;k<self->private->global_params;k++) {
@@ -76,6 +77,7 @@ static void bt_pattern_init_data(const BtPattern *self) {
       }
     }
   }
+  */
 }
 
 static void bt_pattern_resize_data_length(const BtPattern *self, glong length) {
@@ -177,13 +179,43 @@ glong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name
   return(bt_machine_get_voice_dparam_index(self->private->machine,name));
 }
 
+
+/**
+ * bt_pattern_init_global_event:
+ * @self: the pattern that holds the cell
+ * @event: the pattern-cell to initialise
+ * @param: the index of the global dparam
+ *
+ * Initialises a pattern cell with the type of the n-th global param of the
+ * machine.
+ *
+ */
+void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong param) {
+  g_value_init(event,bt_machine_get_global_dparam_type(self->private->machine,param));
+}
+
+/**
+ * bt_pattern_init_voice_event:
+ * @self: the pattern that holds the cell
+ * @event: the pattern-cell to initialise
+ * @param: the index of the voice dparam
+ *
+ * Initialises a pattern cell with the type of the n-th voice param of the
+ * machine.
+ *
+ */
+void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, glong param) {
+  g_value_init(event,bt_machine_get_voice_dparam_type(self->private->machine,param));
+}
+
+
 /**
  * bt_pattern_set_event:
  * @self: the pattern the cell belongs to
  * @event: the event cell
  * @value: the string representation of the value to store
  *
- * Stores the supplied value into the given pattern cell 
+ * Stores the supplied value into the given pattern cell.
  *
  * Returns: TRUE for success
  */
@@ -196,12 +228,40 @@ gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar 
     case G_TYPE_DOUBLE: {
       gdouble val=atof(value);
       g_value_set_double(event,val);
+      GST_INFO("store double event %s",value);
     } break;
     default:
       GST_ERROR("unsupported GType=%d for value=\"%s\"",G_VALUE_TYPE(event),value);
       return(FALSE);
   }
   return(TRUE);
+}
+
+/**
+ * bt_pattern_play_tick:
+ * @self: the pattern the cell belongs to
+ * @index: the tick index in the pattern
+ *
+ * Sets all dparams from this pattern-row into the #BtMachine.
+ *
+ */
+void bt_pattern_play_tick(const BtPattern *self, glong index) {
+  glong j,k;
+  GValue *data;
+
+  data=&self->private->data[index*(self->private->global_params+self->private->voices*self->private->voice_params)];
+  for(k=0;k<self->private->global_params;k++) {
+    if(G_IS_VALUE(data)) {
+      bt_machine_set_global_dparam_value(self->private->machine,k,data);
+    }
+    data++;
+  }
+  for(j=0;j<self->private->voices;j++) {
+    for(k=0;k<self->private->voice_params;k++) {
+      // @set voice events
+      data++;
+    }
+  }
 }
 
 //-- wrapper

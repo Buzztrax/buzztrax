@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.15 2004-07-19 17:37:47 ensonic Exp $
+/* $Id: song-io-native.c,v 1.16 2004-07-20 18:24:18 ensonic Exp $
  * class for native song input and output
  */
  
@@ -220,6 +220,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
           if(!strncmp(xml_subnode->name,"globaldata\0",11)) {
             param=bt_pattern_get_global_dparam_index(pattern,name);
             if((event=bt_pattern_get_global_event_data(pattern,tick,param))) {
+              bt_pattern_init_global_event(pattern,event,param);
               bt_pattern_set_event(pattern,event,value);
             }
           }
@@ -228,6 +229,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
             voice=atol(voice_str);
             param=bt_pattern_get_voice_dparam_index(pattern,name);
             if((event=bt_pattern_get_voice_event_data(pattern,tick,voice,param))) {
+              bt_pattern_init_voice_event(pattern,event,param);
               bt_pattern_set_event(pattern,event,value);
             }
             xmlFree(voice_str);

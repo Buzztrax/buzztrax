@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.10 2004-07-12 16:38:50 ensonic Exp $
+/* $Id: cmd-application.c,v 1.11 2004-07-20 18:24:18 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -84,13 +84,14 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 		
 		/* connection play signal and invoking the play_event function */
 		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);
-		bt_song_start_play(song);
+		bt_song_play(song);
 		res=TRUE;
 	}
 	else {
 		GST_ERROR("could not load song \"%s\"",filename);
 		res=FALSE;
 	}
+  g_object_unref(G_OBJECT(song));
 	return(res);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.h,v 1.7 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: sink-machine.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
  * class for a sink machine
  */
 
@@ -16,7 +16,7 @@
 #define BT_TYPE_SINK_MACHINE		        (bt_sink_machine_get_type ())
 #define BT_SINK_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SINK_MACHINE, BtSinkMachine))
 #define BT_SINK_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SINK_MACHINE, BtSinkMachineClass))
-#define BT_IS_SINK_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_SONG_IO_SINK_MACHINE))
+#define BT_IS_SINK_MACHINE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SINK_MACHINE))
 #define BT_IS_SINK_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SINK_MACHINE))
 #define BT_SINK_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SINK_MACHINE, BtSinkMachineClass))
 

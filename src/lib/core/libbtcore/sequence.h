@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.6 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: sequence.h,v 1.7 2004-07-20 18:24:18 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -16,7 +16,7 @@
 #define BT_TYPE_SEQUENCE		        (bt_sequence_get_type ())
 #define BT_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE, BtSequence))
 #define BT_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE, BtSequenceClass))
-#define BT_IS_SEQUENCE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_SEQUENCE))
+#define BT_IS_SEQUENCE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE))
 #define BT_IS_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE))
 #define BT_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE, BtSequenceClass))
 

@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.6 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: wire.h,v 1.7 2004-07-20 18:24:18 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -16,7 +16,7 @@
 #define BT_TYPE_WIRE		        (bt_wire_get_type ())
 #define BT_WIRE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_WIRE, BtWire))
 #define BT_WIRE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_WIRE, BtWireClass))
-#define BT_IS_WIRE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_WIRE))
+#define BT_IS_WIRE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_WIRE))
 #define BT_IS_WIRE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_WIRE))
 #define BT_WIRE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_WIRE, BtWireClass))
 

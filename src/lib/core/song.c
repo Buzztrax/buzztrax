@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.25 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: song.c,v 1.26 2004-07-20 18:24:18 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -11,7 +11,8 @@
 
 enum {
   SONG_NAME=1,
-	SONG_BIN
+	SONG_BIN,
+  SONG_MASTER
 };
 
 struct _BtSongPrivate {
@@ -26,26 +27,70 @@ struct _BtSongPrivate {
 	BtSetup*    setup;
 
 	/* the main gstreamer container element */
-	GstElement *bin;
+	GstBin *bin;
+  /* the element that has the clock */
+  GstElement *master;
 };
 
 //-- methods
 
-/** @todo add playback code from design/gst/play_sequence */
-
 /** 
- * bt_song_start_play:
+ * bt_song_play:
  * @self: the song that should be played
  *
  * Starts to play the specified song instance from beginning.
  * This methods emits the "play" signal.
+ *
+ * Return: TRUE for success
+ *
  */
-void bt_song_start_play(const BtSong *self) {
+gboolean bt_song_play(const BtSong *self) {
   // emitting signal if we start play
   g_signal_emit(G_OBJECT(self), 
                 BT_SONG_GET_CLASS(self)->play_signal_id,
                 0);
-  bt_sequence_play(self->private->sequence);
+  return(bt_sequence_play(self->private->sequence));
+}
+
+/**
+ * bt_song_stop:
+ * @self: the song that should be stopped
+ *
+ * Stops the playback of the specified song instance.
+ *
+ * Return: TRUE for success
+ *
+ */
+gboolean bt_song_stop(const BtSong *self) {
+  return(gst_element_set_state(self->private->bin,GST_STATE_NULL)!=GST_STATE_FAILURE);
+}
+
+/**
+ * bt_song_pause:
+ * @self: the song that should be paused
+ *
+ * Pauses the playback of the specified song instance
+ *
+ * Return: TRUE for success
+ *
+ */
+gboolean bt_song_pause(const BtSong *self) {
+  // @todo remember play position
+  return(gst_element_set_state(self->private->bin,GST_STATE_PAUSED)!=GST_STATE_FAILURE);
+}
+
+/**
+ * bt_song_continue:
+ * @self: the song that should be paused
+ *
+ * Continues the playback of the specified song instance
+ *
+ * Return: TRUE for success
+ *
+ */
+gboolean bt_song_continue(const BtSong *self) {
+  // @todo reuse play position
+  return(gst_element_set_state(self->private->bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE);
 }
 
 //-- wrapper
@@ -103,6 +148,9 @@ static void bt_song_get_property(GObject      *object,
     case SONG_BIN: {
       g_value_set_object(value, G_OBJECT(self->private->bin));
     } break;
+    case SONG_MASTER: {
+      g_value_set_object(value, G_OBJECT(self->private->master));
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -122,11 +170,15 @@ static void bt_song_set_property(GObject      *object,
     case SONG_NAME: {
       g_free(self->private->name);
       self->private->name = g_value_dup_string(value);
-      GST_DEBUG("set the name for song: %s",self->private->name);
+      GST_DEBUG("set the name for the song: %s",self->private->name);
     } break;
 		case SONG_BIN: {
 			self->private->bin = g_object_ref(G_OBJECT(g_value_get_object(value)));
-      GST_DEBUG("set the master bin for song: %p",self->private->bin);
+      GST_DEBUG("set the bin for the song: %p",self->private->bin);
+		} break;
+		case SONG_MASTER: {
+			self->private->master = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      GST_DEBUG("set the master for the song: %p",self->private->master);
 		} break;
     default: {
       g_assert(FALSE);
@@ -145,6 +197,10 @@ static void bt_song_finalize(GObject *object) {
   BtSong *self = BT_SONG(object);
 
 	g_object_unref(G_OBJECT(self->private->song_info));
+	g_object_unref(G_OBJECT(self->private->sequence));
+	g_object_unref(G_OBJECT(self->private->setup));
+  gst_object_unref(GST_OBJECT(self->private->master));
+	gst_object_unref(GST_OBJECT(self->private->bin));
 	g_free(self->private->name);
   g_free(self->private);
 }
@@ -197,6 +253,13 @@ static void bt_song_class_init(BtSongClass *klass) {
                                      "songs top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_MASTER,
+																	g_param_spec_object("master",
+                                     "master prop",
+                                     "songs clocking GstElement",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READWRITE));
 }
 
 /**

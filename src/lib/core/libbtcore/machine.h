@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.7 2004-07-13 16:52:11 ensonic Exp $
+/* $Id: machine.h,v 1.8 2004-07-20 18:24:18 ensonic Exp $
  * base class for a machine
  */
 
@@ -13,10 +13,10 @@
  *
  * #GType for BtMachine instances
  */
-#define BT_TYPE_MACHINE		        (bt_machine_get_type ())
-#define BT_MACHINE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
-#define BT_MACHINE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE, BtMachineClass))
-#define BT_IS_MACHINE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_MACHINE))
+#define BT_TYPE_MACHINE		         (bt_machine_get_type ())
+#define BT_MACHINE(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
+#define BT_MACHINE_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE, BtMachineClass))
+#define BT_IS_MACHINE(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE))
 #define BT_IS_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE))
 #define BT_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE, BtMachineClass))
 

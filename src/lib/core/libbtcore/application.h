@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.3 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: application.h,v 1.4 2004-07-20 18:24:18 ensonic Exp $
  * base class for a buzztard based application
  */
 
@@ -13,10 +13,10 @@
  *
  * #GType for BtApplication instances
  */
-#define BT_TYPE_APPLICATION		        (bt_application_get_type ())
-#define BT_APPLICATION(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_APPLICATION, BtApplication))
-#define BT_APPLICATION_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_APPLICATION, BtApplicationClass))
-#define BT_IS_APPLICATION(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_APPLICATION))
+#define BT_TYPE_APPLICATION		         (bt_application_get_type ())
+#define BT_APPLICATION(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_APPLICATION, BtApplication))
+#define BT_APPLICATION_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_APPLICATION, BtApplicationClass))
+#define BT_IS_APPLICATION(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_APPLICATION))
 #define BT_IS_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_APPLICATION))
 #define BT_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_APPLICATION, BtApplicationClass))
 
