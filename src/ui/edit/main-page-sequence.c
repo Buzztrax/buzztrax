@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.2 2004-08-20 16:35:52 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.3 2004-08-23 11:33:48 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -43,6 +43,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   else {
     index=1+(bars>>2);
   }
+  //GST_INFO("  bars=%d, index=%d\n",bars,index);
   gtk_option_menu_set_history(GTK_OPTION_MENU(self->private->bars_menu),index);
 }
 

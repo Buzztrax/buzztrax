@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.17 2004-08-20 16:35:52 ensonic Exp $
+/* $Id: main-window.c,v 1.18 2004-08-23 11:33:48 ensonic Exp $
  * class for the editor main window
  */
 
@@ -32,19 +32,21 @@ struct _BtMainWindowPrivate {
   GtkAccelGroup *accel_group;
 };
 
+static GtkWindowClass *parent_class=NULL;
+
 //-- event handler
 
 static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  //BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+  BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gboolean res=TRUE;
   
   GST_INFO("delete event occurred\n");
   // returning TRUE means, we don't want the window to be destroyed
-  if(bt_main_window_check_quit(BT_MAIN_WINDOW(user_data))) {
+  if(bt_main_window_check_quit(self)) {
+    BtMainWindowClass *klass=BT_MAIN_WINDOW_GET_CLASS(self);
+    GtkObjectClass *gtk_klass=GTK_OBJECT_CLASS(klass);
+    GObjectClass *g_klass=G_OBJECT_CLASS(klass);
     res=FALSE;
-    GST_INFO("  prepare to exit\n");
-    //gtk_object_destroy(G_OBJECT(self));
-    gtk_widget_destroy(widget);
   }
   return(res);
 }
@@ -292,6 +294,12 @@ static void bt_main_window_dispose(GObject *object) {
   BtMainWindow *self = BT_MAIN_WINDOW(object);
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
+
+  GST_INFO(" someone is disposing me");
+  
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_main_window_finalize(GObject *object) {
@@ -300,12 +308,6 @@ static void bt_main_window_finalize(GObject *object) {
   g_object_unref(G_OBJECT(self->private->app));
   g_free(self->private);
 }
-
-//static void bt_main_window_destroy(GtkObject *object) {
-//  BtMainWindow *self = BT_MAIN_WINDOW(object);
-//  
-//  GST_INFO(" someone is killing me");
-//}
 
 static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
   BtMainWindow *self = BT_MAIN_WINDOW(instance);
@@ -317,13 +319,13 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
+
+  parent_class=g_type_class_ref(GTK_TYPE_WINDOW);
   
   gobject_class->set_property = bt_main_window_set_property;
   gobject_class->get_property = bt_main_window_get_property;
   gobject_class->dispose      = bt_main_window_dispose;
   gobject_class->finalize     = bt_main_window_finalize;
-  
-  //gtkobject_class->destroy      = bt_main_window_destroy;
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_APP,
                                   g_param_spec_object("app",
