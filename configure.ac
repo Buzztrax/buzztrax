@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.32 2005-01-11 16:50:37 ensonic Exp $
+# $Id: configure.ac,v 1.33 2005-01-12 17:15:32 waffel Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -169,6 +169,8 @@ PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
     AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
+ ],[
+   AM_CONDITIONAL(USE_GTKGRID,false)
  ]
 )
 
