@@ -1,4 +1,4 @@
-/** $Id: t-song-io.c,v 1.3 2004-09-16 16:24:39 waffel Exp $
+/** $Id: t-song-io.c,v 1.4 2004-09-24 11:48:10 waffel Exp $
 **/
 
 #include "t-song.h"
@@ -42,12 +42,27 @@ START_TEST(test_btsong_io_obj3) {
 }
 END_TEST
 
+// try to create a songIO object with a nativ file name
+// this test is a positiv test
+START_TEST(test_btsong_io_obj4) {
+	BtSongIO *songIO;
+	
+	songIO=bt_song_io_new("test.xml");
+	// check if the type of songIO is nativ
+	fail_unless(BT_IS_SONG_IO_NATIVE(songIO), NULL);
+	fail_unless(songIO!=NULL, NULL);
+	g_object_unref(songIO);
+	fail_unless(G_IS_OBJECT(songIO) == FALSE, NULL);
+}
+END_TEST
+
 TCase *bt_song_io_obj_tcase(void) {
   TCase *tc = tcase_create("bt_song_io case");
 
   tcase_add_test(tc,test_btsong_io_obj1);
 	tcase_add_test(tc,test_btsong_io_obj2);
 	tcase_add_test(tc,test_btsong_io_obj3);
+	tcase_add_test(tc,test_btsong_io_obj4);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

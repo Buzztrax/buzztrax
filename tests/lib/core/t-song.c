@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.1 2004-08-17 17:02:17 waffel Exp $
+/** $Id: t-song.c,v 1.2 2004-09-24 11:48:10 waffel Exp $
 **/
 
 #include "t-song.h"
@@ -81,7 +81,26 @@ START_TEST(test_btsong_play2) {
 	bt_song_play(song);
 	fail_unless(play_signal_invoke, NULL);
 	g_object_unref(G_OBJECT(song));
+	fail_unless(G_IS_OBJECT(song) == FALSE, NULL);
+}
+END_TEST
+
+// test if we can get a empty setup from an empty song
+START_TEST(test_btsong_setup1) {
+	BtSong *song=NULL;
+	GstElement *bin=NULL;
+	BtSetup *setup=NULL;
 	
+	bin = gst_thread_new("thread");
+	song=bt_song_new(GST_BIN(bin));
+	fail_unless(song != NULL, "failed to get song");
+	
+	setup=bt_song_get_setup(song);
+	fail_unless(setup!=NULL, NULL);
+	
+	g_object_unref(G_OBJECT(song));
+	fail_unless(G_IS_OBJECT(song) == FALSE, NULL);
+	fail_unless(G_IS_OBJECT(setup) == FALSE, NULL);
 }
 END_TEST
 
@@ -92,6 +111,7 @@ TCase *bt_song_obj_tcase(void) {
 	tcase_add_test(tc,test_btsong_obj2);
 	tcase_add_test(tc,test_btsong_play1);
 	tcase_add_test(tc,test_btsong_play2);
+	tcase_add_test(tc,test_btsong_setup1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
