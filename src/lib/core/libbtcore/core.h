@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.41 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: core.h,v 1.42 2004-11-26 18:32:06 waffel Exp $
  */
 
 #ifndef BT_CORE_H
@@ -134,7 +134,7 @@
  * This macro is handy to use at the start of all class routines
  * such as _get_property(), _set_property(), _dispose().
  */
-#define return_if_disposed(a) if(self->priv->dispose_has_run) return a
+#define return_if_disposed() if(self->priv->dispose_has_run) return 
 
 /**
  * is_string:
@@ -195,4 +195,3 @@
 #endif
 
 #endif // BT_CORE_H
-
