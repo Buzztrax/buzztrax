@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.18 2004-12-18 14:44:27 ensonic Exp $
+/* $Id: main-page-info.c,v 1.19 2004-12-19 21:13:49 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -19,13 +19,13 @@ struct _BtMainPageInfoPrivate {
   /* the application */
   BtEditApplication *app;
   
-  /* name of the song */
-  GtkEntry *name;
-  /* genre of the song  */
-  GtkEntry *genre;
-  /* author of the song */
-  GtkEntry *author;
-  /* freeform info anout the song */
+  /* name, genre, author of the song */
+  GtkEntry *name,*genre,*author;
+
+  /* bpm,tpb of the song */
+  GtkSpinButton *bpm,*tpb;
+
+  /* freeform info about the song */
   GtkTextView *info;
 };
 
@@ -37,7 +37,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   BtSongInfo *song_info;
-  gchar *name,*genre,*author,*info;
+  gchar *name,*genre,*author;
+	gulong bpm,tpb;
+	gchar *info;
 
   g_assert(user_data);
 
@@ -46,10 +48,15 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
-  g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"author",&author,"info",&info,NULL);
+  g_object_get(G_OBJECT(song_info),
+		"name",&name,"genre",&genre,"author",&author,"info",&info,
+		"bpm",&bpm,"tpb",&tpb,
+		NULL);
   gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
   gtk_entry_set_text(self->priv->genre,safe_string(genre));g_free(genre);
   gtk_entry_set_text(self->priv->author,safe_string(author));g_free(author);
+  gtk_spin_button_set_value(self->priv->bpm,(gdouble)bpm);
+  gtk_spin_button_set_value(self->priv->tpb,(gdouble)tpb);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->priv->info),safe_string(info),-1);g_free(info);
   // release the references
   g_object_try_unref(song_info);
@@ -57,8 +64,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 }
 
 void on_name_changed(GtkEditable *editable,gpointer user_data) {
-  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
+	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+	BtSong *song;
   BtSongInfo *song_info;
 
   g_assert(user_data);
@@ -75,8 +82,8 @@ void on_name_changed(GtkEditable *editable,gpointer user_data) {
 }
 
 void on_genre_changed(GtkEditable *editable,gpointer user_data) {
-  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
+	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+	BtSong *song;
   BtSongInfo *song_info;
 
   g_assert(user_data);
@@ -93,8 +100,8 @@ void on_genre_changed(GtkEditable *editable,gpointer user_data) {
 }
 
 void on_author_changed(GtkEditable *editable,gpointer user_data) {
-  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
+	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+	BtSong *song;
   BtSongInfo *song_info;
 
   g_assert(user_data);
@@ -110,14 +117,48 @@ void on_author_changed(GtkEditable *editable,gpointer user_data) {
   g_object_try_unref(song);
 }
 
+void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+	BtSong *song;
+  BtSongInfo *song_info;
+
+  g_assert(user_data);
+
+  GST_INFO("bpm changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+	g_object_set(G_OBJECT(song_info),"bpm",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
+void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+	BtSong *song;
+  BtSongInfo *song_info;
+
+  g_assert(user_data);
+
+  GST_INFO("tpb changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+	g_object_set(G_OBJECT(song_info),"tpb",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
 void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
-  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
+	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+	BtSong *song;
   BtSongInfo *song_info;
 	gchar *str;
 	GtkTextIter beg_iter,end_iter;
-
-  g_assert(user_data);
 
   GST_INFO("info changed : self=%p",self);
   // get song from app
@@ -138,19 +179,22 @@ void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEditApplication *app) {
-  GtkWidget *label,*frame;
+  GtkWidget *label,*frame,*box;
   GtkWidget *table,*entry;
   GtkWidget *scrolledwindow;
-
-  // @todo display all properties from BTSongInfo
+	GtkAdjustment *spin_adjustment;
   
-  // first row of hbox
+  // first row of vbox
   frame=gtk_frame_new(_("song meta data"));
   gtk_widget_set_name(frame,_("song meta data"));
   gtk_box_pack_start(GTK_BOX(self),frame,FALSE,TRUE,0);
+	
+	box=gtk_hbox_new(FALSE,6);
+	gtk_container_add(GTK_CONTAINER(frame),box);
 
-  table=gtk_table_new(2,2,FALSE);
-  gtk_container_add(GTK_CONTAINER(frame),table);
+	// first column
+  table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+  gtk_box_pack_start(GTK_BOX(box),table,TRUE,TRUE,0);
 
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -173,6 +217,28 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->genre), "changed", (GCallback)on_author_changed, (gpointer)self);
 
+	// second column
+  table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+  gtk_box_pack_start(GTK_BOX(box),table,TRUE,TRUE,0);
+
+  label=gtk_label_new(_("beats per minute"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(130.0, 20.0, 300.0, 1.0, 5.0, 5.0));
+  self->priv->bpm=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	g_signal_connect(G_OBJECT(self->priv->bpm), "value-changed", (GCallback)on_bpm_changed, (gpointer)self);
+
+  label=gtk_label_new(_("tick per beat"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 4.0));
+  self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", (GCallback)on_tpb_changed, (gpointer)self);
+	
+	gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+
   // second row of hbox
   frame=gtk_frame_new(_("free text info"));
   gtk_widget_set_name(frame,_("free text info"));
@@ -192,7 +258,8 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
-  return(TRUE);
+
+	return(TRUE);
 }
 
 //-- constructor methods
@@ -208,7 +275,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
 BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app) {
   BtMainPageInfo *self;
 
-  if(!(self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"app",app,NULL)))) {
+  if(!(self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"app",app,"spacing",6,NULL)))) {
     goto Error;
   }
   // generate UI

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.7 2004-12-01 20:44:28 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.8 2004-12-19 21:13:49 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -46,6 +46,8 @@ GType bt_main_page_machines_get_type(void);
 #define MACHINE_VIEW_ZOOM_X 400.0
 #define MACHINE_VIEW_ZOOM_Y 300.0
 #define MACHINE_VIEW_ZOOM_FC  1.0
+
+#define MACHINE_VIEW_GRID_FC  4.0
 
 #define MACHINE_VIEW_MACHINE_SIZE_X 35.0
 #define MACHINE_VIEW_MACHINE_SIZE_Y 23.0

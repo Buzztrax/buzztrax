@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.40 2004-12-15 09:07:35 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.41 2004-12-19 21:13:49 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -43,6 +43,9 @@ struct _BtMainPageMachinesPrivate {
    */
   GHashTable *machines;	// each entry points to BtMachineCanvasItem
 	GHashTable *wires;			// each entry points to BtWireCanvasItem
+	
+	/* mouse coodinates on context menu invokation (used for placing machines there */
+	gdouble mouse_x,mouse_y;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -162,6 +165,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
 static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 	GnomeCanvasPoints *points;
 	gdouble s,step;
+	gulong color;
 	
 	GST_INFO("redrawing grid : density=%d  canvas=%p",self->priv->grid_density,self->priv->canvas);
 	
@@ -175,28 +179,31 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 	
 	points=gnome_canvas_points_new(2);
 	
-	// @todo check zoom and window sizes to draw a wider range ?
-	
   // low=1->2, mid=2->4, high=3->8
   step=(MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X)/(gdouble)(1<<self->priv->grid_density);
-  for(s=-MACHINE_VIEW_ZOOM_X;s<=MACHINE_VIEW_ZOOM_X;s+=step) {
-	  points->coords[0]=s;points->coords[1]=-MACHINE_VIEW_ZOOM_Y;
-  	points->coords[2]=s;points->coords[3]= MACHINE_VIEW_ZOOM_Y;
+  for(s=-(MACHINE_VIEW_ZOOM_X*MACHINE_VIEW_GRID_FC);s<=(MACHINE_VIEW_ZOOM_X*MACHINE_VIEW_GRID_FC);s+=step) {
+	  points->coords[0]=s;points->coords[1]=-(MACHINE_VIEW_ZOOM_Y*MACHINE_VIEW_GRID_FC);
+  	points->coords[2]=s;points->coords[3]= (MACHINE_VIEW_ZOOM_Y*MACHINE_VIEW_GRID_FC);
+		color=(((gdouble)((glong)(s/MACHINE_VIEW_ZOOM_X)))==(s/MACHINE_VIEW_ZOOM_X))?0xAAAAAAFF:0xCCCCCCFF;
+		//GST_INFO("grid : s= %lf - %lf",s,s/MACHINE_VIEW_ZOOM_X);
 		gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
     	                      GNOME_TYPE_CANVAS_LINE,
       	                    "points", points,
-        	                  "fill-color", "gray",
+        	                  /*"fill-color", "gray",*/
+														"fill-color-rgba",color,
           	                "width-pixels", 1,
             	              NULL);
 	}
   step=(MACHINE_VIEW_ZOOM_Y+MACHINE_VIEW_ZOOM_Y)/(gdouble)(1<<self->priv->grid_density);
-  for(s=-MACHINE_VIEW_ZOOM_Y;s<=MACHINE_VIEW_ZOOM_Y;s+=step) {
-	  points->coords[0]=-MACHINE_VIEW_ZOOM_X;points->coords[1]=s;
-  	points->coords[2]= MACHINE_VIEW_ZOOM_X;points->coords[3]=s;
+  for(s=-(MACHINE_VIEW_ZOOM_Y*MACHINE_VIEW_GRID_FC);s<=(MACHINE_VIEW_ZOOM_Y*MACHINE_VIEW_GRID_FC);s+=step) {
+	  points->coords[0]=-(MACHINE_VIEW_ZOOM_X*MACHINE_VIEW_GRID_FC);points->coords[1]=s;
+  	points->coords[2]= (MACHINE_VIEW_ZOOM_X*MACHINE_VIEW_GRID_FC);points->coords[3]=s;
+		color=(((gdouble)((glong)(s/MACHINE_VIEW_ZOOM_Y)))==(s/MACHINE_VIEW_ZOOM_Y))?0xAAAAAAFF:0xCCCCCCFF;
 		gnome_canvas_item_new(GNOME_CANVAS_GROUP(self->priv->grid),
     	                      GNOME_TYPE_CANVAS_LINE,
       	                    "points", points,
-        	                  "fill-color", "gray",
+        	                  /*"fill-color", "gray",*/
+														"fill-color-rgba",color,
           	                "width-pixels", 1,
             	              NULL);
 	}
@@ -301,7 +308,6 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 	BtSetup *setup;
 	BtMachine *machine;
 	gchar *name,*id;
-	gdouble xpos=0.0,ypos=0.0;
 
   g_assert(user_data);
 	name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
@@ -313,26 +319,17 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 	id=bt_setup_get_unique_machine_id(setup,name);
 	if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,1)))) {
 		GHashTable *properties;
-		gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-		//GdkWindow *window=GTK_WIDGET(main_window)->window;
-		//gint x,y;
-		//gdouble xp,yp;
 		
-		// where to put the new machine to ?
-		//gdk_window_get_pointer(window,&x,&y,NULL);
-		//gnome_canvas_window_to_world(self->priv->canvas,(gdouble)x,(gdouble)y,&xp,&yp);
-		//gnome_canvas_c2w(self->priv->canvas,(int)xp,(int)yp,&xpos,&ypos);
-		//GST_DEBUG("pointer location is %d %d -> %f,%f -> %f,%f",x,y,xp,yp,xpos,ypos);
-
 		g_object_get(machine,"properties",&properties,NULL);
 		if(properties) {
-			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
-			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
+			gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
+			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
 		}
 		bt_setup_add_machine(setup,machine);
 
 		// draw machine
-		machine_item_new(self,machine,xpos,ypos);
+		machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
     g_object_unref(machine);
 	}
 	g_free(id);
@@ -348,7 +345,6 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 	BtSetup *setup;
 	BtMachine *machine;
 	gchar *name,*id;
-	gdouble xpos=0.0,ypos=0.0;
 	
   g_assert(user_data);
 	name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
@@ -361,26 +357,17 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 	id=bt_setup_get_unique_machine_id(setup,name);
 	if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,1)))) {
 		GHashTable *properties;
-		gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-		//GdkWindow *window=GTK_WIDGET(main_window)->window;
-		//gint x,y;
-		//gdouble xp,yp;
-		
-		// where to put the new machine to ?
-		//gdk_window_get_pointer(window,&x,&y,NULL);
-		//gnome_canvas_window_to_world(self->priv->canvas,(gdouble)x,(gdouble)y,&xp,&yp);
-		//gnome_canvas_c2w(self->priv->canvas,(int)xp,(int)yp,&xpos,&ypos);
-		//GST_DEBUG("pointer location is %d %d -> %f,%f -> %f,%f",x,y,xp,yp,xpos,ypos);
 
 		g_object_get(machine,"properties",&properties,NULL);
 		if(properties) {
-			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
-			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
+			gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
+			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
 		}
 		bt_setup_add_machine(setup,machine);
 
 		// draw machine
-		machine_item_new(self,machine,xpos,ypos);
+		machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
     g_object_unref(machine);
 	}
 	g_free(id);
@@ -392,14 +379,17 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
-  gdouble world_x,world_y;
 
   g_assert(user_data);
   switch(event->type) {
     case GDK_BUTTON_PRESS:
-      gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&world_x,&world_y);
-      if(!gnome_canvas_get_item_at(self->priv->canvas,world_x,world_y)) {
-        GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
+			// @todo store mouse coordinates, so that we can later place a newly added machine there
+      gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
+      if(!gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y)) {
+        GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);				
+        //GST_DEBUG("  win.x/y: %f/%f  world.x/y: %f/%f",event->button.x,event->button.y,self->priv->mouse_x,self->priv->mouse_y);
+        GST_DEBUG("  zoom: %f  norm.x/y: %f/%f",self->priv->zoom,
+					self->priv->mouse_x/MACHINE_VIEW_ZOOM_X,self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y);
         if(event->button.button==3) {
           // show context menu
           gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
@@ -493,10 +483,17 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
-  gtk_widget_push_visual(gdk_imlib_get_visual());
-  // @todo try gtk_widget_push_colormap(gdk_colormap_get_system());
-  //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
+	// generate an antialiased canvas
+  gtk_widget_push_visual(gdk_rgb_get_visual());
+  gtk_widget_push_colormap(gdk_rgb_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
+	/* the non antialisaed (and fater) version 
+  gtk_widget_push_visual(gdk_imlib_get_visual());
+  gtk_widget_push_colormap(gdk_imlib_get_colormap());
+  self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
+	*/
+  gtk_widget_pop_colormap();
+  gtk_widget_pop_visual();
 	// seems to be ignored
 	//gtk_widget_add_events(GTK_WIDGET(self->priv->canvas),GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
@@ -504,8 +501,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  //gtk_widget_pop_colormap();
-  gtk_widget_pop_visual();
 	
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
