@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.25 2004-10-13 16:05:14 ensonic Exp $
+/* $Id: song-info.c,v 1.26 2004-11-03 09:35:16 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -37,6 +37,8 @@ struct _BtSongInfoPrivate {
   /* how many bars per beat */
   glong bars;
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- constructor methods
 
@@ -155,6 +157,10 @@ static void bt_song_info_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 	g_object_try_weak_unref(self->priv->song);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_song_info_finalize(GObject *object) {
@@ -166,6 +172,10 @@ static void bt_song_info_finalize(GObject *object) {
 	g_free(self->priv->name);
 	g_free(self->priv->genre);
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
@@ -183,6 +193,8 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
 
   gobject_class->set_property = bt_song_info_set_property;
   gobject_class->get_property = bt_song_info_get_property;

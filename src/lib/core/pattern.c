@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.17 2004-10-13 16:05:14 ensonic Exp $
+/* $Id: pattern.c,v 1.18 2004-11-03 09:35:16 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -43,6 +43,8 @@ struct _BtPatternPrivate {
    */
 	GValue  *data;
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- helper methods
 
@@ -426,6 +428,10 @@ static void bt_pattern_dispose(GObject *object) {
 
 	g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_pattern_finalize(GObject *object) {
@@ -437,6 +443,10 @@ static void bt_pattern_finalize(GObject *object) {
 	g_free(self->priv->name);
   g_free(self->priv->data);
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
@@ -449,7 +459,9 @@ static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_pattern_class_init(BtPatternClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+
   gobject_class->set_property = bt_pattern_set_property;
   gobject_class->get_property = bt_pattern_get_property;
   gobject_class->dispose      = bt_pattern_dispose;

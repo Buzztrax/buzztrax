@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.38 2004-11-02 13:18:16 ensonic Exp $
+/* $Id: sequence.c,v 1.39 2004-11-03 09:35:16 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -19,7 +19,10 @@ enum {
 enum {
   SEQUENCE_SONG=1,
   SEQUENCE_LENGTH,
-  SEQUENCE_TRACKS
+  SEQUENCE_TRACKS,
+  SEQUENCE_LOOP,
+  SEQUENCE_LOOP_START,
+  SEQUENCE_LOOP_END
 };
 
 struct _BtSequencePrivate {
@@ -30,10 +33,18 @@ struct _BtSequencePrivate {
 	BtSong *song;
 
   /* the number of timeline entries */
-  glong length;
+  gulong length;
 
   /* the number of tracks */
-  glong tracks;
+  gulong tracks;
+
+  /* loop mode on ? */
+  gboolean loop;
+  
+  /* the timeline entries where the loop starts and ends
+   * -1 for both mean to use 0...length
+   */
+  glong loop_start,loop_end;
 
   /* <tracks> machine entries that are the heading of the sequence */
   BtMachine **machines;
@@ -45,6 +56,8 @@ struct _BtSequencePrivate {
   GMutex *is_playing_mutex;
   gboolean is_playing;
 };
+
+static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
 
@@ -294,7 +307,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
 
   if((!self->priv->tracks) || (!self->priv->length)) return(res);
   else {
-    BtTimeLine **timeline=self->priv->timelines;
+    BtTimeLine **timeline;
     BtSongInfo *song_info;
     GstElement *bin;
     BtPlayLine *playline;
@@ -329,17 +342,21 @@ gboolean bt_sequence_play(const BtSequence *self) {
       timer=g_timer_new();
       g_timer_start(timer);
       // }
-      for(i=0;((i<self->priv->length) && (self->priv->is_playing));i++,timeline++) {
-        // DEBUG {
-        GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
-        // }
-        // emit a tick signal
-        g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
-        // enter new patterns into the playline and stop or mute patterns
-        bt_timeline_update_playline(*timeline,playline);
-        // play the patterns in the cursor
-        bt_playline_play(playline);
-      }
+      do {
+        // @todo handle loop-start/end
+        timeline=self->priv->timelines;
+        for(i=0;((i<self->priv->length) && (self->priv->is_playing));i++,timeline++) {
+          // DEBUG {
+          GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
+          // }
+          // emit a tick signal
+          g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
+          // enter new patterns into the playline and stop or mute patterns
+          bt_timeline_update_playline(*timeline,playline);
+          // play the patterns in the cursor
+          bt_playline_play(playline);
+        }
+      } while(self->priv->loop);
       // DEBUG {
       g_timer_destroy(timer);
       // }
@@ -403,6 +420,15 @@ static void bt_sequence_get_property(GObject      *object,
     case SEQUENCE_TRACKS: {
       g_value_set_ulong(value, self->priv->tracks);
     } break;
+    case SEQUENCE_LOOP: {
+      g_value_set_boolean(value, self->priv->loop);
+    } break;
+    case SEQUENCE_LOOP_START: {
+      g_value_set_long(value, self->priv->loop_start);
+    } break;
+    case SEQUENCE_LOOP_END: {
+      g_value_set_long(value, self->priv->loop_end);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -437,6 +463,18 @@ static void bt_sequence_set_property(GObject      *object,
       bt_sequence_init_machines(self);
       bt_sequence_init_timelinetracks(self);
     } break;
+    case SEQUENCE_LOOP: {
+      self->priv->loop = g_value_get_boolean(value);
+      GST_DEBUG("set the loop for sequence: %d",self->priv->loop);
+    } break;
+    case SEQUENCE_LOOP_START: {
+      self->priv->loop_start = g_value_get_long(value);
+      GST_DEBUG("set the loop-start for sequence: %d",self->priv->loop_start);
+    } break;
+    case SEQUENCE_LOOP_END: {
+      self->priv->loop_end = g_value_get_long(value);
+      GST_DEBUG("set the loop-end for sequence: %d",self->priv->loop_end);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -453,6 +491,10 @@ static void bt_sequence_dispose(GObject *object) {
 	g_object_try_weak_unref(self->priv->song);
   bt_sequence_unref_timelines(self);
   // @todo unref the machines
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_sequence_finalize(GObject *object) {
@@ -461,8 +503,12 @@ static void bt_sequence_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv->machines);
-  g_free(self->priv);
   g_free(self->priv->timelines);
+  g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
@@ -470,12 +516,16 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = g_new0(BtSequencePrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->length=1;
+  self->priv->loop_start=-1;
+  self->priv->loop_end=-1;
   self->priv->is_playing_mutex=g_mutex_new();
 
 }
 
 static void bt_sequence_class_init(BtSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
   
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;
@@ -527,6 +577,31 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      0,
                                      G_MAXLONG,
                                      0,
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SEQUENCE_LOOP,
+																	g_param_spec_boolean("loop",
+                                     "loop prop",
+                                     "is loop activated",
+                                     FALSE,
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SEQUENCE_LOOP_START,
+																	g_param_spec_ulong("loop-start",
+                                     "loop-start prop",
+                                     "start of the repeat sequence on the timeline",
+                                     -1,
+                                     G_MAXLONG,
+                                     -1,
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SEQUENCE_LOOP_END,
+																	g_param_spec_ulong("loop-end",
+                                     "loop-end prop",
+                                     "end of the repeat sequence on the timeline",
+                                     -1,
+                                     G_MAXLONG,
+                                     -1,
                                      G_PARAM_READWRITE));
 
 }

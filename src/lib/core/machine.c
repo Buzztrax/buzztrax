@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.47 2004-11-02 13:18:16 ensonic Exp $
+/* $Id: machine.c,v 1.48 2004-11-03 09:35:16 ensonic Exp $
  * base class for a machine
  */
  
@@ -73,6 +73,8 @@ struct _BtMachinePrivate {
 	GstElement *dst_elem,*src_elem;
   */
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- constructor methods
 
@@ -648,6 +650,10 @@ static void bt_machine_dispose(GObject *object) {
 			node=g_list_next(node);
 		}
 	}
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_machine_finalize(GObject *object) {
@@ -668,6 +674,10 @@ static void bt_machine_finalize(GObject *object) {
 		self->priv->patterns=NULL;
 	}
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
@@ -682,6 +692,8 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_machine_class_init(BtMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
   
   gobject_class->set_property = bt_machine_set_property;
   gobject_class->get_property = bt_machine_get_property;

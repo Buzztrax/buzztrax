@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.38 2004-11-02 13:18:16 ensonic Exp $
+/* $Id: setup.c,v 1.39 2004-11-03 09:35:16 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -26,6 +26,8 @@ struct _BtSetupPrivate {
 	GList *machines;	// each entry points to BtMachine
 	GList *wires;			// each entry points to BtWire
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- constructor methods
 
@@ -411,6 +413,10 @@ static void bt_setup_dispose(GObject *object) {
 			node=g_list_next(node);
 		}
 	}
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_setup_finalize(GObject *object) {
@@ -429,6 +435,10 @@ static void bt_setup_finalize(GObject *object) {
 		self->priv->wires=NULL;
   }
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {
@@ -439,7 +449,9 @@ static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_setup_class_init(BtSetupClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+
   gobject_class->set_property = bt_setup_set_property;
   gobject_class->get_property = bt_setup_get_property;
   gobject_class->dispose      = bt_setup_dispose;

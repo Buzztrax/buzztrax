@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.56 2004-11-02 13:18:16 ensonic Exp $
+/* $Id: song.c,v 1.57 2004-11-03 09:35:16 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -43,6 +43,8 @@ struct _BtSongPrivate {
   /* the element that has the clock */
   BtMachine *master;
 };
+
+static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
 
@@ -242,6 +244,10 @@ static void bt_song_dispose(GObject *object) {
 	g_object_try_unref(self->priv->setup);
 	g_object_try_unref(self->priv->bin);
 	g_object_try_unref(self->priv->app);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_song_finalize(GObject *object) {
@@ -250,6 +256,10 @@ static void bt_song_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
@@ -265,7 +275,9 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_song_class_init(BtSongClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  
+ 
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+ 
   gobject_class->set_property = bt_song_set_property;
   gobject_class->get_property = bt_song_get_property;
   gobject_class->dispose      = bt_song_dispose;

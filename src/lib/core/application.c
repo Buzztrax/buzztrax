@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.17 2004-10-21 15:23:04 ensonic Exp $
+/* $Id: application.c,v 1.18 2004-11-03 09:35:16 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -21,6 +21,8 @@ struct _BtApplicationPrivate {
   /* a reference to the buzztard settings object */
   BtSettings *settings;
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- constructor methods
 
@@ -113,8 +115,11 @@ static void bt_application_dispose(GObject *object) {
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
 	g_object_try_unref(self->priv->bin);
-  
   g_object_try_unref(self->priv->settings);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_application_finalize(GObject *object) {
@@ -123,6 +128,10 @@ static void bt_application_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
@@ -135,6 +144,8 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_application_class_init(BtApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
 
   gobject_class->set_property = bt_application_set_property;
   gobject_class->get_property = bt_application_get_property;

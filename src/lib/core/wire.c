@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.36 2004-10-28 11:16:29 ensonic Exp $
+/* $Id: wire.c,v 1.37 2004-11-03 09:35:16 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -42,6 +42,8 @@ struct _BtWirePrivate {
   GstElement *spectrum;
   
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- helper methods
 
@@ -363,6 +365,10 @@ static void bt_wire_dispose(GObject *object) {
   //g_object_try_unref(self->priv->gain);
   //g_object_try_unref(self->priv->level);
   //g_object_try_unref(self->priv->spectrum);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_wire_finalize(GObject *object) {
@@ -371,6 +377,10 @@ static void bt_wire_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
@@ -381,6 +391,8 @@ static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_wire_class_init(BtWireClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
   
   gobject_class->set_property = bt_wire_set_property;
   gobject_class->get_property = bt_wire_get_property;

@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.24 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: song-io.c,v 1.25 2004-11-03 09:35:16 ensonic Exp $
  * base class for song input and output
  */
  
@@ -31,6 +31,8 @@ struct _BtSongIOPrivate {
 	/* informs about the progress of the loader */
 	gchar *status;
 };
+
+static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
 
@@ -221,6 +223,10 @@ static void bt_song_io_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_song_io_finalize(GObject *object) {
@@ -229,6 +235,10 @@ static void bt_song_io_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_song_io_init(GTypeInstance *instance, gpointer g_class) {
@@ -239,6 +249,8 @@ static void bt_song_io_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_song_io_class_init(BtSongIOClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
   
   gobject_class->set_property = bt_song_io_set_property;
   gobject_class->get_property = bt_song_io_get_property;

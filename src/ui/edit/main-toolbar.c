@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.21 2004-11-02 13:18:17 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.22 2004-11-03 09:35:20 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -101,6 +101,26 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   bt_song_stop(song);
   // release the reference
+  g_object_try_unref(song);
+}
+
+static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  BtSong *song;
+  BtSequence *sequence;
+  gboolean loop;
+
+  g_assert(user_data);
+
+  //loop=gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button));
+  loop=gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+  GST_INFO("toolbar loop toggle event occurred, new-state=%d",loop);
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  g_object_set(G_OBJECT(sequence),"loop",loop,NULL);
+  // release the references
+  g_object_try_unref(sequence);
   g_object_try_unref(song);
 }
 
@@ -247,6 +267,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Loop"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Toggle looping of playback"),NULL);
+  g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
   

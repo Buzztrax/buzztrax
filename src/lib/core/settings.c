@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.8 2004-10-21 15:23:04 ensonic Exp $
+/* $Id: settings.c,v 1.9 2004-11-03 09:35:16 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -12,6 +12,8 @@ struct _BtSettingsPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+static GObjectClass *parent_class=NULL;
 
 //-- methods
 
@@ -54,6 +56,10 @@ static void bt_settings_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  if(G_OBJECT_CLASS(parent_class)->dispose) {
+    (G_OBJECT_CLASS(parent_class)->dispose)(object);
+  }
 }
 
 static void bt_settings_finalize(GObject *object) {
@@ -62,6 +68,10 @@ static void bt_settings_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
+
+  if(G_OBJECT_CLASS(parent_class)->finalize) {
+    (G_OBJECT_CLASS(parent_class)->finalize)(object);
+  }
 }
 
 static void bt_settings_init(GTypeInstance *instance, gpointer g_class) {
@@ -72,6 +82,8 @@ static void bt_settings_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_settings_class_init(BtSettingsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  parent_class=g_type_class_ref(G_TYPE_OBJECT);
 
   gobject_class->set_property = bt_settings_set_property;
   gobject_class->get_property = bt_settings_get_property;
