@@ -2,7 +2,12 @@
 
 if BUILD_CHECK_TESTS
 SUBDIRS = lib ui
-TESTS = buzztard bt_cmd bt_edit
+TESTS = \
+  buzztard bt_cmd bt_edit \
+  xmlvalid.sh
+else
+TESTS = \
+  xmlvalid.sh
 endif
 
 if BUILD_CHECK_TESTS
