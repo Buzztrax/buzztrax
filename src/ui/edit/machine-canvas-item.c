@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.12 2004-11-26 18:53:27 waffel Exp $
+/* $Id: machine-canvas-item.c,v 1.13 2004-12-01 20:44:28 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -229,13 +229,13 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       self->priv->machine = g_object_try_ref(g_value_get_object(value));
       if(self->priv->machine) {
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
-        GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
+        //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
       }
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
       self->priv->zoom=g_value_get_double(value);
-      GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
+      //GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
 			if(self->priv->label) {
 				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",10.0*self->priv->zoom,NULL);
 			}
