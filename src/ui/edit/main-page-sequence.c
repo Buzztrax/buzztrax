@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.60 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.61 2005-02-16 19:29:04 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -801,6 +801,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
 	GtkTreeViewColumn *tree_col;
+	GtkTreeSelection *tree_sel;
 	gint col_index;
 
 	GST_DEBUG("!!!! self=%p",self);
@@ -882,9 +883,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   //self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
 	self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
 	g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column 
-  //gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
-	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_NONE);
+	tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
+	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column
+	// we can set a gtk_tree_selection_set_select_function() to select ranges
+	gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_paned_pack1(GTK_PANED(box),GTK_WIDGET(scrolled_window),TRUE,TRUE);

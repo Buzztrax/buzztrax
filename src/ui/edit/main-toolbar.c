@@ -1,7 +1,12 @@
-/* $Id: main-toolbar.c,v 1.45 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.46 2005-02-16 19:29:08 ensonic Exp $
  * class for the editor main toolbar
  */
 
+/* @todo: should we have separate the tolbars into several ones?
+ * - common - load, save, ...
+ * - volume - gain, levels
+ * - load - cpu load
+ */
 #define BT_EDIT
 #define BT_MAIN_TOOLBAR_C
 
