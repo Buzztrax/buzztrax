@@ -48,7 +48,7 @@ body {
 	line-height: 150%;
 }
 
-h3 {
+h2,h3 {
 	padding: 2px;
 	background: #F9F9F9;
 	border-style: solid none solid solid;

@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.4 2004-05-04 13:47:25 ensonic Exp $
+/** $Id: song.c,v 1.5 2004-05-04 14:21:37 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -21,7 +21,13 @@ struct _BtSongPrivate {
   gchar *name;
 };
 
-static void bt_song_real_start_play(BtSong *self) {
+//-- methods
+
+static void bt_song_real_load(const BtSong *self, const gchar *filename) {
+	
+}
+
+static void bt_song_real_start_play(const BtSong *self) {
   /* emitting signal if we start play */
   g_signal_emit(self, 
                 BT_SONG_GET_CLASS(self)->play_signal_id,
@@ -29,10 +35,20 @@ static void bt_song_real_start_play(BtSong *self) {
                 NULL);
 }
 
-/* play method from song */
-void bt_song_start_play(BtSong *self) {
+//-- wrapper
+
+void bt_song_load(const BtSong *self, const gchar *filename) {
+	BT_SONG_GET_CLASS(self)->load(self,filename);
+}
+
+/* wrapper method from song
+ * @todo inline the wrapper?
+ */
+void bt_song_start_play(const BtSong *self) {
   BT_SONG_GET_CLASS(self)->start_play(self);
 }
+
+//-- class internals
 
 /* returns a property for the given property_id for this song */
 static void song_get_property (GObject      *object,
@@ -98,9 +114,10 @@ static void bt_song_class_init(BtSongClass *klass) {
   
   gobject_class->set_property = song_set_property;
   gobject_class->get_property = song_get_property;
-  gobject_class->dispose = song_dispose;
-  gobject_class->finalize = song_finalize;
+  gobject_class->dispose      = song_dispose;
+  gobject_class->finalize     = song_finalize;
   
+  klass->load       = bt_song_real_load;
   klass->start_play = bt_song_real_start_play;
   
   /* adding simple signal */
@@ -140,9 +157,7 @@ GType bt_song_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_init, // instance_init
     };
-  type = g_type_register_static(G_TYPE_OBJECT,
-                                "BtSongType",
-                                &info, 0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtSongType",&info,0);
   }
   return type;
 }

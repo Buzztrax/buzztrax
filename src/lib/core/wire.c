@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.1 2004-05-04 13:47:25 ensonic Exp $
+/** $Id: wire.c,v 1.2 2004-05-04 14:21:38 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -19,7 +19,11 @@ struct _BtWirePrivate {
 	BtSong *song;
 };
 
+//-- methods
 
+//-- wrapper
+
+//-- class internals
 
 /* returns a property for the given property_id for this wire */
 static void wire_get_property (GObject      *object,
@@ -85,8 +89,8 @@ static void bt_wire_class_init(BtWireClass *klass) {
   
   gobject_class->set_property = wire_set_property;
   gobject_class->get_property = wire_get_property;
-  gobject_class->dispose = wire_dispose;
-  gobject_class->finalize = wire_finalize;
+  gobject_class->dispose      = wire_dispose;
+  gobject_class->finalize     = wire_finalize;
 
   g_param_spec = g_param_spec_string("song",
                                      "song contruct prop",
@@ -113,9 +117,7 @@ GType bt_wire_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_wire_init, // instance_init
     };
-  type = g_type_register_static(G_TYPE_OBJECT,
-                                "BtWireType",
-                                &info, 0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtWireType",&info,0);
   }
   return type;
 }
