@@ -1,4 +1,4 @@
-/** $Id: song-info.c,v 1.1 2004-05-05 12:46:03 ensonic Exp $
+/** $Id: song-info.c,v 1.2 2004-05-05 13:53:15 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -21,10 +21,16 @@ struct _BtSongInfoPrivate {
 
 //-- methods
 
-//static gboolean bt_song_info_connect(const BtSongInfo *self, const BtMachine *src, const BtMachine *dst) {
-//}
+static gboolean bt_song_info_real_load(const BtSongInfo *self, const xmlNodePtr xml_node) {
+	g_print("loading the meta-data from the song\n");
+	return(TRUE);
+}
 
 //-- wrapper
+
+gboolean bt_song_info_load(const BtSongInfo *self, const xmlNodePtr xml_node) {
+	return(BT_SONG_INFO_GET_CLASS(self)->load(self,xml_node));
+}
 
 //-- class internals
 
@@ -95,7 +101,9 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   gobject_class->get_property = bt_song_info_get_property;
   gobject_class->dispose      = bt_song_info_dispose;
   gobject_class->finalize     = bt_song_info_finalize;
-
+	
+  klass->load       = bt_song_info_real_load;
+	
   g_param_spec = g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the song-info belongs to",

@@ -1,4 +1,4 @@
-/** $Id: song.c,v 1.9 2004-05-05 12:46:03 ensonic Exp $
+/** $Id: song.c,v 1.10 2004-05-05 13:53:15 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -62,12 +62,16 @@ static gboolean bt_song_real_load(const BtSong *self, const gchar *filename) {
 				GST_WARNING("wrong document type root node in xmlDoc src");
 			}
 			else {
+				xmlNodePtr *xml_node;
 				GST_INFO("file looks good!");
+				// get meta-node
+				// xml_node=("//buzztard/meta");
+				bt_song_info_load(self->private->song_info,xml_node);
 				// get setup-node
 				// bt_setup_load(self->setup,xml_node);
 				// get sequence-node
 				// bt_sequence_load(self->sequence,xml_node);
-				// ... meta-data, patterns
+				// ... patterns
 				result=TRUE;
 			}
 		}		
@@ -177,15 +181,15 @@ static void bt_song_class_init(BtSongClass *klass) {
   
   /* adding simple signal */
   klass->play_signal_id = g_signal_newv("play",
-                                       G_TYPE_FROM_CLASS (gobject_class),
-                                       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                       NULL, // class closure
-                                       NULL, // accumulator
-                                       NULL, // acc data
-                                       g_cclosure_marshal_VOID__VOID,
-                                       G_TYPE_NONE, // return type
-                                       0, // n_params
-                                       NULL /* param data */ );
+                                        G_TYPE_FROM_CLASS (gobject_class),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        NULL, // class closure
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0, // n_params
+                                        NULL /* param data */ );
   
   g_param_spec = g_param_spec_string("name",
                                      "name contruct prop",
