@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.17 2004-10-12 17:41:02 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.18 2004-10-13 14:04:22 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -245,6 +245,63 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
+static gboolean on_machine_event(GnomeCanvasItem *citem, GdkEvent *event) {
+  gdouble dx, dy;
+  GdkCursor *fleur;
+
+  switch (event->type) {
+    case GDK_BUTTON_PRESS:
+      if(event->button.button == 1) {
+        /*
+        g_object_set (citem->canvas, "selection", element, NULL);
+
+        if(element->moveable) {
+          // dragxy coords are world coords of button press
+          element->dragx = event->button.x;
+          element->dragy = event->button.y;
+          // set some flags
+          element->dragging = TRUE;
+          element->moved = FALSE;
+          fleur=gdk_cursor_new(GDK_FLEUR);
+          gnome_canvas_item_grab (citem, GDK_POINTER_MOTION_MASK |
+//                             GDK_ENTER_NOTIFY_MASK |
+//                             GDK_LEAVE_NOTIFY_MASK |
+              GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
+        }
+*/
+        return TRUE;
+      }
+      break;
+    case GDK_MOTION_NOTIFY:
+      /*
+      if(element->dragging) {
+        dx = event->button.x - element->dragx;
+        dy = event->button.y - element->dragy;
+        gst_editor_element_move (element, dx, dy);
+        element->dragx = event->button.x;
+        element->dragy = event->button.y;
+        element->moved = TRUE;
+      }
+      */
+      return TRUE;
+    case GDK_BUTTON_RELEASE:
+      /*
+      if(element->dragging) {
+        element->dragging = FALSE;
+        gnome_canvas_item_ungrab(citem, event->button.time);
+        return TRUE;
+      }
+      */
+      break;
+    default:
+      break;
+  }
+  /*
+  if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) 
+    return GNOME_CANVAS_ITEM_CLASS(parent_class)->event(citem, event);
+  */
+  return FALSE;
+}
 
 //-- helper methods
 

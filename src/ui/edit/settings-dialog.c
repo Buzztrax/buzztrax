@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.2 2004-10-12 17:41:02 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.3 2004-10-13 14:04:22 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -68,9 +68,11 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   GtkListStore *store;
   GtkTreeIter tree_iter;
   gchar *audio_sink_name,*str;
+  GList *audio_sink_names,*node;
   
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audio_sink_name,NULL);
+  audio_sink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
 
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   gtk_window_set_title(GTK_WINDOW(self), _("buzztard settings"));
@@ -124,17 +126,24 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   g_free(str);
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 3, 0, 1,  GTK_FILL|GTK_EXPAND, GTK_FILL|GTK_EXPAND, 2,1);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),spacer, 0, 1, 1, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   label=gtk_label_new(_("Sink"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_option_menu_new();
   menu=gtk_menu_new();
-  menu_item=gtk_menu_item_new_with_label(g_strdup_printf(_("system default (%s)"),audio_sink_name));g_free(audio_sink_name);
+  menu_item=gtk_menu_item_new_with_label(g_strdup_printf(_("system default (%s)"),audio_sink_name));
   gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  // @todo add audio sinks gstreamer provides
   gtk_widget_show(menu_item);
+  // add audio sinks gstreamer provides
+  node=audio_sink_names;
+  while(node) {
+    menu_item=gtk_menu_item_new_with_label(g_strdup(node->data));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+    gtk_widget_show(menu_item);
+    node=g_list_next(node);
+  }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(widget),menu);
   gtk_option_menu_set_history(GTK_OPTION_MENU(widget),0);
   gtk_table_attach(GTK_TABLE(table),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
@@ -154,6 +163,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   
+  g_list_free(audio_sink_names);
+  g_free(audio_sink_name);
   g_object_try_unref(settings);
   return(TRUE);
 }

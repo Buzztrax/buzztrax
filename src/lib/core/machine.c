@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.39 2004-10-08 14:28:08 ensonic Exp $
+/* $Id: machine.c,v 1.40 2004-10-13 14:04:22 ensonic Exp $
  * base class for a machine
  */
  
@@ -169,11 +169,12 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   gboolean found=FALSE;
 	BtPattern *pattern;
   gchar *pattern_id;
-	GList* node=g_list_first(self->priv->patterns);
+	GList* node;
 	
   g_assert(BT_IS_MACHINE(self));
   g_assert(id);
-
+  
+  node=self->priv->patterns;
 	while(node) {
 		pattern=BT_PATTERN(node->data);
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
@@ -319,7 +320,7 @@ gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
   g_assert(BT_IS_MACHINE(self));
 
   if(self->priv->patterns) {
-    res=g_list_first(self->priv->patterns);
+    res=self->priv->patterns;
   }
   return(res);
 }
@@ -470,12 +471,8 @@ static void bt_machine_dispose(GObject *object) {
 
   // unref list of patterns
 	if(self->priv->patterns) {
-    GList* node=g_list_first(self->priv->patterns);
+    GList* node=self->priv->patterns;
 		while(node) {
-      {
-        GObject *obj=node->data;
-        GST_DEBUG("  free pattern : %p (%d)",obj,obj->ref_count);
-      }
 			g_object_try_unref(node->data);
       node->data=NULL;
 			node=g_list_next(node);

@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.23 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: song-io.c,v 1.24 2004-10-13 14:04:22 ensonic Exp $
  * base class for song input and output
  */
  
@@ -96,7 +96,7 @@ static void bt_song_io_register_plugins(void) {
  */
 static GType bt_song_io_detect(const gchar *file_name) {
   GType type=0;
-  GList *node=g_list_first(plugins);
+  GList *node;
   BtSongIODetect detect;
   
   GST_INFO("detecting loader for file \"%s\"",file_name);
@@ -104,7 +104,7 @@ static GType bt_song_io_detect(const gchar *file_name) {
   if(!plugins) bt_song_io_register_plugins();
   
   // try all registered plugins
-  node=g_list_first(plugins);
+  node=plugins;
   while(node) {
     detect=(BtSongIODetect)node->data;
     GST_INFO("  trying ...");

@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.32 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: setup.c,v 1.33 2004-10-13 14:04:22 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -96,11 +96,12 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   gboolean found=FALSE;
 	BtMachine *machine;
   gchar *machine_id;
-	GList* node=g_list_first(self->priv->machines);
+	GList* node;
 
   g_assert(BT_IS_SETUP(self));
   g_assert(id);
 	
+  node=self->priv->machines;
 	while(node) {
 		machine=BT_MACHINE(node->data);
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
@@ -162,7 +163,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
   g_assert(BT_IS_SETUP(self));
   g_assert(BT_IS_MACHINE(src));
 	
-  node=g_list_first(self->priv->wires);
+  node=self->priv->wires;
 	while(node) {
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&machine,NULL);
@@ -195,7 +196,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
   g_assert(BT_IS_SETUP(self));
   g_assert(BT_IS_MACHINE(dst));
 	
-  node=g_list_first(self->priv->wires);
+  node=self->priv->wires;
 	while(node) {
 		wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"dst",&machine,NULL);
@@ -227,7 +228,7 @@ gpointer bt_setup_machine_iterator_new(const BtSetup *self) {
   g_assert(BT_IS_SETUP(self));
 
   if(self->priv->machines) {
-    res=g_list_first(self->priv->machines);
+    res=self->priv->machines;
   }
   return(res);
 }
@@ -277,7 +278,7 @@ gpointer bt_setup_wire_iterator_new(const BtSetup *self) {
   g_assert(self);
 
   if(self->priv->machines) {
-    res=g_list_first(self->priv->wires);
+    res=self->priv->wires;
   }
   return(res);
 }
@@ -364,7 +365,7 @@ static void bt_setup_dispose(GObject *object) {
 	g_object_try_weak_unref(self->priv->song);
 	// unref list of wires
 	if(self->priv->wires) {
-		node=g_list_first(self->priv->wires);
+		node=self->priv->wires;
 		while(node) {
       {
         GObject *obj=node->data;
@@ -377,7 +378,7 @@ static void bt_setup_dispose(GObject *object) {
 	}
 	// unref list of machines
 	if(self->priv->machines) {
-		node=g_list_first(self->priv->machines);
+		node=self->priv->machines;
 		while(node) {
       {
         GObject *obj=node->data;

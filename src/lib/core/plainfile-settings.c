@@ -1,6 +1,16 @@
-/* $Id: plainfile-settings.c,v 1.4 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.5 2004-10-13 14:04:22 ensonic Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
+
+/*
+idea is to use a XML file liek below
+<settings>
+  <setting name="" value=""/>
+  ...
+</settings>
+at init the whole document is loaded and
+get/set methods use xpath expr to get the nodes.
+*/
 
 #define BT_CORE
 #define BT_PLAINFILE_SETTINGS_C
@@ -13,7 +23,8 @@ struct _BtPlainfileSettingsPrivate {
   gboolean dispose_has_run;
   
   /* key=value list, keys are defined in BtSettings */
-  GHashTable *settings;
+  //GHashTable *settings;
+  //xmlDoc *settings;
 };
 
 static BtSettingsClass *parent_class=NULL;
@@ -100,7 +111,7 @@ static void bt_plainfile_settings_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_hash_table_destroy(self->priv->settings);
+  //g_hash_table_destroy(self->priv->settings);
   g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -111,7 +122,7 @@ static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(instance);
   self->priv = g_new0(BtPlainfileSettingsPrivate,1);
   self->priv->dispose_has_run = FALSE;
-  self->priv->settings=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+  //self->priv->settings=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
 static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {
