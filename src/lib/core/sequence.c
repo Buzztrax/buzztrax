@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.19 2004-08-17 13:11:35 ensonic Exp $
+/* $Id: sequence.c,v 1.20 2004-08-18 11:23:22 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -147,10 +147,11 @@ gboolean bt_sequence_play(const BtSequence *self) {
   GstElement *master=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"master"));
   GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin"));
   BtPlayLine *playline;
-  glong playline_length, wait_per_position,bars;
-  glong beats_per_minute, ticks_per_beat;
+  glong playline_length,wait_per_position,bars;
+  glong beats_per_minute,ticks_per_beat;
   gdouble ticks_per_minute;
   gboolean res=TRUE;
+  time_t tm1,tm2;
   
   if(!self->private->tracks) return(res);
   if(!self->private->length) return(res);
@@ -163,14 +164,20 @@ gboolean bt_sequence_play(const BtSequence *self) {
    * for 4/4 bars it is 16 (standart dance rhythm)
    * for 3/4 bars it is 12 (walz)
    */
-  playline_length=ticks_per_beat*bars;
+  //playline_length=ticks_per_beat*bars;
+  playline_length=bars;
   ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
   wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
   playline=bt_playline_new(self->private->song,master,self->private->tracks,playline_length,wait_per_position);
+  
+  GST_INFO("pattern.duration = %d * %d usec = %ld sec",playline_length,wait_per_position,(gulong)(((guint64)playline_length*(guint64)wait_per_position)/GST_SECOND));
+  GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->private->length, playline_length,wait_per_position,(gulong)(((guint64)self->private->length*(guint64)playline_length*(guint64)wait_per_position)/GST_SECOND));
 
   if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
+    tm1=time(NULL);
     for(i=0;i<self->private->length;i++,timeline++) {
-      GST_INFO("Playing sequence position : %d",i);
+      tm2=time(NULL);
+      GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,difftime(tm2,tm1));
       // enter new patterns into the playline and stop or mute patterns
       bt_timeline_update_playline(*timeline,playline);
       // play the patterns in the cursor
