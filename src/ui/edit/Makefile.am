@@ -24,7 +24,9 @@ libbtedit_la_SOURCES   = \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	tools.c tools.h \
-	wire-canvas-item.c wire-canvas-item.h
+	wire-canvas-item.c wire-canvas-item.h \
+	\
+	gtkvumeter.c gtkvumeter.h
 	
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

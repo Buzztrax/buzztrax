@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.20 2004-11-01 12:05:37 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.21 2004-11-02 13:18:17 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -6,6 +6,7 @@
 #define BT_MAIN_TOOLBAR_C
 
 #include "bt-edit.h"
+#include "gtkvumeter.h"
 
 enum {
   MAIN_TOOLBAR_APP=1,
@@ -18,6 +19,9 @@ struct _BtMainToolbarPrivate {
 
   /* the application */
   BtEditApplication *app;
+  
+  /* the level meters */
+  GtkVUMeter *vumeter[4];
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
@@ -100,12 +104,64 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   g_object_try_unref(song);
 }
 
+static void on_song_level_change(GstElement * element, gdouble time, gint channel, gdouble rms, gdouble peak, gdouble decay, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  
+  g_assert(user_data);
+
+  //GST_INFO("%d  %.3f  %.3f %.3f %.3f", channel,time,rms,peak,decay);
+	gtk_vumeter_set_levels(self->priv->vumeter[channel], (gint)(rms*10.0), (gint)(peak*10.0));
+}
+
+static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  BtSong *song;
+  BtSinkMachine *master;
+  GstElement *level;
+
+  g_assert(user_data);
+
+  GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
+  
+  // get the audio_sink (song->master is a bt_sink_machine)
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"master",&master,NULL);
+  // get the input_level property from audio_sink
+  g_object_get(G_OBJECT(master),"input-level",&level,NULL);
+  // connect to the level signal
+  g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
+  // DEBUG
+  {
+    GstPad *pad;
+    GstCaps *caps;
+    GstStructure *structure;
+    gint channels_i,channels_o;
+    
+    pad=gst_element_get_pad(level,"sink");
+    caps=gst_pad_get_caps(pad);
+    structure = gst_caps_get_structure(caps, 0);
+    gst_structure_get_int (structure, "channels", &channels_i);
+    pad=gst_element_get_pad(level,"src");
+    caps=gst_pad_get_caps(pad);
+    structure = gst_caps_get_structure(caps, 0);
+    gst_structure_get_int (structure, "channels", &channels_o);
+    GST_INFO("  input level analyser will process %d,%d channels",channels_i,channels_o);
+  }
+  // DEBUG  // release the reference
+  g_object_try_unref(level);
+  g_object_try_unref(master);
+  g_object_try_unref(song);
+
+}
+
 //-- helper methods
 
 static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image;
   GtkTooltips *tips;
+  GtkWidget *box;
+  gulong i;
    
   tips=gtk_tooltips_new();
 
@@ -195,13 +251,34 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
   
   // @todo volume level and gain control
-  // somehow get the audio_sink
-  //   (song->master is the audio-sink, but we need the bt-machine for that one)
-  // get the input_level property from audio_sink
-  // connect to the level signal
-  // g_signal_connect(song_level, "level", G_CALLBACK (level_callback), user_data);
+  box=gtk_vbox_new(FALSE,2);
+  gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // add gtk_vumeter widgets and update from level_callback
+  //   how do we determine the number of channels?
+  //   irks, this can change when changing the audio-sink to use!
+  //   -> what about adding 4 VUMeter and making enough of them visible after a song_change (for now)
+  for(i=0;i<2;i++) {
+    self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
+    gtk_vumeter_set_min_max(self->priv->vumeter[i], -900, 0);
+    gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LOG);
+    gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
+    gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,2);
+  }
+  gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
   // add gain-control
+
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                box,
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Volume"));
+
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+  
+  g_signal_connect(G_OBJECT(self->priv->app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
 
   return(TRUE);
 }

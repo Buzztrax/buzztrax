@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.55 2004-10-29 16:45:54 waffel Exp $
+/* $Id: song.c,v 1.56 2004-11-02 13:18:16 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -41,7 +41,7 @@ struct _BtSongPrivate {
 	/* the main gstreamer container element */
 	GstBin *bin;
   /* the element that has the clock */
-  GstElement *master;
+  BtMachine *master;
 };
 
 static guint signals[LAST_SIGNAL]={0,};
@@ -218,7 +218,7 @@ static void bt_song_set_property(GObject      *object,
 		} break;
 		case SONG_MASTER: {
       g_object_try_weak_unref(self->priv->master);
-			self->priv->master = GST_ELEMENT(g_value_get_object(value));
+			self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->master);
       GST_DEBUG("set the master for the song: %p",self->priv->master);
 		} break;
@@ -324,8 +324,8 @@ static void bt_song_class_init(BtSongClass *klass) {
   g_object_class_install_property(gobject_class,SONG_MASTER,
 																	g_param_spec_object("master",
                                      "master prop",
-                                     "songs clocking GstElement",
-                                     GST_TYPE_ELEMENT, /* object type */
+                                     "songs audio_sink",
+                                     BT_TYPE_SINK_MACHINE, /* object type */
                                      G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,SONG_SONG_INFO,

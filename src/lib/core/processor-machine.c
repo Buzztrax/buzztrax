@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.19 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: processor-machine.c,v 1.20 2004-11-02 13:18:16 ensonic Exp $
  * class for a processor machine
  */
 
@@ -41,7 +41,6 @@ BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id
   if(!(self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)))) {
     goto Error;
   }
-  // @todo we need to make sure the machine is really a processor (effect)
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }

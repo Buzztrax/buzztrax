@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.37 2004-10-13 16:05:14 ensonic Exp $
+/* $Id: sequence.c,v 1.38 2004-11-02 13:18:16 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -296,7 +296,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
   else {
     BtTimeLine **timeline=self->priv->timelines;
     BtSongInfo *song_info;
-    GstElement *master,*bin;
+    GstElement *bin;
     BtPlayLine *playline;
     glong i;
     glong wait_per_position,bars;
@@ -306,8 +306,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
     GTimer *timer;
     // }
     
-    g_object_get(G_OBJECT(self->priv->song),"master",&master,"bin",&bin,NULL);
-    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    g_object_get(G_OBJECT(self->priv->song),"bin",&bin,"song-info",&song_info,NULL);
     g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
     /* the number of pattern-events for one playline-step,
      * when using 4 ticks_per_beat then
@@ -317,7 +316,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
     //ticks_per_minute=((gdouble)beats_per_minute*(gdouble)ticks_per_beat)/(gdouble)bars;
     ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
     wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
-    playline=bt_playline_new(self->priv->song,master,self->priv->tracks,bars,wait_per_position);
+    playline=bt_playline_new(self->priv->song,self->priv->tracks,bars,wait_per_position);
     
     GST_INFO("pattern.duration = %d * %d usec = %ld sec",bars,wait_per_position,(gulong)(((guint64)bars*(guint64)wait_per_position)/GST_SECOND));
     GST_INFO("song.duration = %d * %d * %d usec = %ld sec",self->priv->length,bars,wait_per_position,(gulong)(((guint64)self->priv->length*(guint64)bars*(guint64)wait_per_position)/GST_SECOND));
@@ -356,7 +355,6 @@ gboolean bt_sequence_play(const BtSequence *self) {
     // release the references
     g_object_try_unref(playline);
     g_object_try_unref(bin);
-    g_object_try_unref(master);
     g_object_try_unref(song_info);
   }
   return(res);

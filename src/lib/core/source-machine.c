@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.18 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: source-machine.c,v 1.19 2004-11-02 13:18:16 ensonic Exp $
  * class for a source machine
  */
  
@@ -41,7 +41,6 @@ BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, cons
   if(!(self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)))) {
     goto Error;
   }
-  // @todo we need to make sure the machine is really a source
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }

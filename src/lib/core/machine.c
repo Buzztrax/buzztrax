@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.46 2004-11-01 12:05:36 ensonic Exp $
+/* $Id: machine.c,v 1.47 2004-11-02 13:18:16 ensonic Exp $
  * base class for a machine
  */
  
@@ -15,6 +15,7 @@ enum {
   MACHINE_VOICES,
   MACHINE_GLOBAL_PARAMS,
   MACHINE_VOICE_PARAMS,
+  MACHINE_MACHINE,
   MACHINE_INPUT_LEVEL
 };
 
@@ -97,6 +98,31 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
   }
+  // we need to make sure the machine is out of the right class
+  {
+    GstElementFactory *element_factory=gst_element_get_factory(self->priv->machine);
+    gchar *element_class=gst_element_factory_get_klass(element_factory);
+    GST_INFO("checking machine class \"%s\"",element_class);
+    if(BT_IS_SINK_MACHINE(self)) {
+      if(g_ascii_strncasecmp(element_class,"Sink/",5)) {
+        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Sink/...\"",self->priv->plugin_name,element_class);
+        return(FALSE);
+      }
+    }
+    else if(BT_IS_SOURCE_MACHINE(self)) {
+      if(g_ascii_strncasecmp(element_class,"Source/",7)) {
+        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Source/...\"",self->priv->plugin_name,element_class);
+        return(FALSE);
+      }
+    }
+    else if(BT_IS_PROCESSOR_MACHINE(self)) {
+      if(g_ascii_strncasecmp(element_class,"Filter/",7)) {
+        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Filter/...\"",self->priv->plugin_name,element_class);
+        return(FALSE);
+      }
+    }
+  }
+
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machine;
   GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machine)->ref_count);
@@ -133,8 +159,8 @@ gboolean bt_machine_new(BtMachine *self) {
   g_assert(self->dst_elem!=NULL);
 
   if(BT_IS_SINK_MACHINE(self)) {
-    GST_DEBUG("this will be the master for the song");
-    g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self->priv->machine),NULL);
+    GST_DEBUG("  this will be the master for the song");
+    g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
   return(TRUE);
 }
@@ -160,8 +186,8 @@ gboolean bt_machine_add_input_level(BtMachine *self) {
 		GST_ERROR("failed to link the machines input level analyser");goto Error;
 	}
   self->dst_elem=self->priv->input_level;
-  //g_signal_connect(song_level, "level", G_CALLBACK (level_callback), user_data);
   GST_INFO("sucessfully added input level analyser %p",self->priv->input_level);
+  
   res=TRUE;
 Error:
   return(res);
@@ -505,6 +531,9 @@ static void bt_machine_get_property(GObject      *object,
     case MACHINE_VOICE_PARAMS: {
       g_value_set_ulong(value, self->priv->voice_params);
     } break;
+    case MACHINE_MACHINE: {
+      g_value_set_object(value, self->priv->machine);
+    } break;
     case MACHINE_INPUT_LEVEL: {
       g_value_set_object(value, self->priv->input_level);
     } break;
@@ -713,9 +742,16 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      0,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
+  g_object_class_install_property(gobject_class,MACHINE_MACHINE,
+                                  g_param_spec_object("machine",
+                                     "machine element prop",
+                                     "the machine element, if any",
+                                     GST_TYPE_ELEMENT, /* object type */
+                                     G_PARAM_READABLE));
+  
   g_object_class_install_property(gobject_class,MACHINE_INPUT_LEVEL,
                                   g_param_spec_object("input-level",
-                                     "input-lelve prop",
+                                     "input-level prop",
                                      "the input-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE));
