@@ -36,6 +36,8 @@ libbtcore_la_SOURCES = \
 	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
 	timelinetrack.c libbtcore/timelinetrack.h libbtcore/timelinetrack-methods.h \
 	wavetable.c libbtcore/wavetable.h libbtcore/wavetable-methods.h \
+	wave.c libbtcore/wave.h libbtcore/wave-methods.h \
+	wavelevel.c libbtcore/wavelevel.h libbtcore/wavelevel-methods.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h
 
 INCLUDES = \

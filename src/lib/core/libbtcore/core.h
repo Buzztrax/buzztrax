@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.45 2004-12-18 17:53:19 ensonic Exp $
+/* $Id: core.h,v 1.46 2004-12-18 20:43:20 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -85,6 +85,8 @@
 #include "settings-methods.h"
 #include "plainfile-settings-methods.h"
 #include "application-methods.h"
+#include "wave-methods.h"
+#include "wavelevel-methods.h"
 #include "wavetable-methods.h"
 #include "tools.h"
 #include "version.h"

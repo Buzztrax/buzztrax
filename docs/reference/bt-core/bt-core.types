@@ -18,5 +18,7 @@ bt_song_io_native_get_type
 bt_source_machine_get_type
 bt_timeline_get_type
 bt_timelinetrack_get_type
+bt_wave_get_type
+bt_wavelevel_get_type
 bt_wavetable_get_type
 bt_wire_get_type

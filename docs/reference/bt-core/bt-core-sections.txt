@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.13 2004-12-18 17:53:14 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.14 2004-12-18 20:43:15 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -392,6 +392,42 @@ BT_TYPE_TIMELINETRACK_TYPE
 bt_timelinetrack_get_type
 BtTimeLineTrackPrivate
 bt_timelinetrack_type_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btwave</FILE>
+<TITLE>BtWave</TITLE>
+BtWave
+bt_wave_new
+<SUBSECTION Standard>
+BtWaveClass
+BT_WAVE
+BT_IS_WAVE
+BT_WAVE_CLASS
+BT_IS_WAVE_CLASS
+BT_WAVE_GET_CLASS
+BT_TYPE_WAVE
+<SUBSECTION Private>
+bt_wave_get_type
+BtWavePrivate
+</SECTION>
+
+<SECTION>
+<FILE>btwavelevel</FILE>
+<TITLE>BtWavelevel</TITLE>
+BtWavelevel
+bt_wavelevel_new
+<SUBSECTION Standard>
+BtWavelevelClass
+BT_WAVELEVEL
+BT_IS_WAVELEVEL
+BT_WAVELEVEL_CLASS
+BT_IS_WAVELEVEL_CLASS
+BT_WAVELEVEL_GET_CLASS
+BT_TYPE_WAVELEVEL
+<SUBSECTION Private>
+bt_wavelevel_get_type
+BtWavelevelPrivate
 </SECTION>
 
 <SECTION>
