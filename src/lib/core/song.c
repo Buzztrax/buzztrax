@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.20 2004-05-12 17:34:07 ensonic Exp $
+/* $Id: song.c,v 1.21 2004-05-13 09:35:29 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -86,18 +86,6 @@ BtSequence *bt_song_get_sequence(const BtSong *self) {
 	return(self->private->sequence);
 }
 
-/**
- * bt_song_get_bin:
- *
- * get the root #GstBin for the song
- *
- * Returns: the root #GstBin to insert #GstElements for this song
- */
-GstElement *bt_song_get_bin(const BtSong *self) {
-	GST_WARNING("implement me!");
-	return(NULL);
-}
-
 //-- class internals
 
 /* returns a property for the given property_id for this object */
@@ -181,7 +169,11 @@ static void bt_song_class_init(BtSongClass *klass) {
   
   klass->start_play = bt_song_real_start_play;
   
-  /* adding simple signal */
+  /** 
+	 * BtSong::play:
+	 *
+	 * signals that this song has started to play
+	 */
   klass->play_signal_id = g_signal_newv("play",
                                         G_TYPE_FROM_CLASS (gobject_class),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -205,7 +197,7 @@ static void bt_song_class_init(BtSongClass *klass) {
                                      "bin construct prop",
                                      "songs top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READABLE));
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 }
 
 /**

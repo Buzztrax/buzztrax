@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.7 2004-05-11 20:01:23 ensonic Exp $
+/* $Id: setup.c,v 1.8 2004-05-13 09:35:29 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -25,14 +25,38 @@ struct _BtSetupPrivate {
 
 //-- methods
 
+/**
+ * bt_setup_add_machine:
+ * @self: the setup to add the machine to
+ * @machine: the new machine instance
+ *
+ * let the setup know that the suplied machine is now part of the song.
+ */
 void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 	self->private->machines=g_list_append(self->private->machines,g_object_ref(G_OBJECT(machine)));
 }
 
+/**
+ * bt_setup_add_wire:
+ * @self: the setup to add the wire to
+ * @wire: the new wire instance
+ *
+ * let the setup know that the suplied wire is now part of the song.
+ */
 void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 	self->private->wires=g_list_append(self->private->wires,g_object_ref(G_OBJECT(wire)));
 }
 
+/**
+ * bt_setup_get_machine_by_id:
+ * @self: the setup to search for the machine
+ * @id: the identifier of the machine
+ *
+ * search the setup for a machine by the supplied id.
+ * The machine must have been added previously to this setup with #bt_setup_add_machine().
+ *
+ * Returns: BtMachine instance or NULL if not found
+ */
 BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 	BtMachine *machine;
 	GList* node=g_list_first(self->private->machines);
@@ -48,6 +72,20 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 	return(NULL);
 }
 
+BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
+	BtWire *wire;
+	GList *node=g_list_first(self->private->wires);
+	GValue val={0,};
+	g_value_init(&val,G_TYPE_OBJECT);
+	
+	while(node) {
+		wire=BT_WIRE(node->data);
+		g_object_get_property(G_OBJECT(wire),"src", &val);
+		if(g_value_get_object(&val)==src) return(wire);
+		node=g_list_next(node);
+	}
+	return(NULL);
+}
 //-- wrapper
 
 //-- class internals

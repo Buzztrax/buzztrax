@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.18 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: core.h,v 1.19 2004-05-13 09:35:29 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -37,19 +37,42 @@
 
 //-- global defines ------------------------------------------------------------
 
-/** @brief default buzztard xml namespace prefix */
+/**
+ * BT_NS_PREFIX:
+ *
+ * default buzztard xml namespace prefix
+ */
 #define BT_NS_PREFIX "bt"
-/** @brief default buzztard xml namespace url */
+/**
+ * BT_NS_URL:
+ *
+ * default buzztard xml namespace url
+ */
 #define BT_NS_URL    "http://buzztard.sourceforge.net/"
 
 //-- misc
 #ifdef BT_CORE
+	/**
+	 * GST_CAT_DEFAULT:
+	 *
+	 * default loging category. We use gstreamers logging facillities as we use
+	 * gstreamer anyway. All buzztard logging categories are prefixed with "bt_".
+	 */
 	#define GST_CAT_DEFAULT bt_core_debug
 	#ifndef BT_CORE_C
 		GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 	#endif
 #endif
 
+/**
+ * return_if_disposed:
+ * @a: return value or nothing
+ *
+ * checks <code>self->private->dispose_has_run</code> and
+ * if true returns with the supplied arg.
+ * This macro is handy to use at the start of all class routines
+ * such as _get_property(), _set_property(), _dispose().
+ */
 #define return_if_disposed(a) if(self->private->dispose_has_run) return a
 
 #ifndef BT_CORE_C

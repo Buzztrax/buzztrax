@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.3 2004-05-12 21:05:47 ensonic Exp $
+/* $Id: cmd-application.c,v 1.4 2004-05-13 09:35:29 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -37,9 +37,10 @@ static void play_event(void) {
 //-- methods
 
 gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **argv) {
+	gboolean res;
 	BtSong *song;
 	BtSongIO *loader;
-	GValue sval={0,},oval={0,};
+	GValue *sval,*oval;
 	gchar *filename;
 
 	if(argc==1) {
@@ -48,11 +49,14 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 	}
 	filename=argv[1];
 
-	g_value_init(&oval,G_TYPE_OBJECT);
-	g_object_get_property(G_OBJECT(app),"bin", &oval);
-		
-	// @todo we need to pass the "bin" object from the app to the song
-	song = (BtSong *)g_object_new(BT_SONG_TYPE,"name","first buzztard song", NULL);
+	GST_INFO("application launched");
+
+	sval=g_new0(GValue,1);g_value_init(sval,G_TYPE_STRING);
+	oval=g_new0(GValue,1);g_value_init(oval,G_TYPE_OBJECT);
+
+	g_object_get_property(G_OBJECT(app),"bin",oval);
+	
+	song = (BtSong *)g_object_new(BT_SONG_TYPE,"bin",g_value_get_object(oval),"name","first buzztard song", NULL);
 	loader = (BtSongIO *)g_object_new(bt_song_io_detect(filename),NULL);
 	
 	GST_INFO("objects initialized");
@@ -60,21 +64,23 @@ gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **ar
 	//if(bt_song_load(song,filename)) {
 	if(bt_song_io_load(loader,song,filename)) {
 		/* print some info about the song */
-		g_value_init(&sval,G_TYPE_STRING);
-		g_object_get_property(G_OBJECT(song),"name", &sval);
-		g_print("song.name: \"%s\"\n", g_value_get_string(&sval));
-		g_object_get_property(G_OBJECT(bt_song_get_song_info(song)),"info", &sval);
-		g_print("song.song_info.info: \"%s\"\n", g_value_get_string(&sval));
+		g_object_get_property(G_OBJECT(song),"name",sval);
+		g_print("song.name: \"%s\"\n", g_value_get_string(sval));
+		g_object_get_property(G_OBJECT(bt_song_get_song_info(song)),"info", sval);
+		g_print("song.song_info.info: \"%s\"\n", g_value_get_string(sval));
 		
 		/* connection play signal and invoking the play_event function */
 		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);
 		bt_song_start_play(song);
-		return(TRUE);
+		res=TRUE;
 	}
 	else {
 		GST_ERROR("could not load song \"%s\"",filename);
-		return(FALSE);
+		res=FALSE;
 	}
+	g_free(sval);
+	g_free(oval);
+	return(res);
 }
 
 //-- wrapper

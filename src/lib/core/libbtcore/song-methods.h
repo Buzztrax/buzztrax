@@ -1,4 +1,4 @@
-/* $Id: song-methods.h,v 1.8 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: song-methods.h,v 1.9 2004-05-13 09:35:29 ensonic Exp $
  * defines all public methods of the song class
  */
 
@@ -17,7 +17,5 @@ BtSongInfo *bt_song_get_song_info(const BtSong *self);
 BtSetup *bt_song_get_setup(const BtSong *self);
 
 BtSequence *bt_song_get_sequence(const BtSong *self);
-
-GstElement *bt_song_get_bin(const BtSong *self);
 
 #endif // BT_SONG_METHDOS_H 

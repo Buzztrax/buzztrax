@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.2 2004-05-12 17:34:07 ensonic Exp $
+/* $Id: application.c,v 1.3 2004-05-13 09:35:29 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -93,7 +93,7 @@ static void bt_application_class_init(BtApplicationClass *klass) {
 																	g_param_spec_object("bin",
                                      "bin ro prop",
                                      "applications top-level GstElement container",
-                                     BT_SONG_TYPE, /* object type */
+                                     GST_TYPE_BIN, /* object type */
                                      G_PARAM_READABLE));
 }
 

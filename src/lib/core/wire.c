@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.13 2004-05-12 17:34:07 ensonic Exp $
+/* $Id: wire.c,v 1.14 2004-05-13 09:35:29 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -8,7 +8,9 @@
 #include <libbtcore/core.h>
 
 enum {
-  WIRE_SONG=1
+  WIRE_SONG=1,
+	WIRE_SRC,
+	WIRE_DST
 };
 
 struct _BtWirePrivate {
@@ -19,6 +21,10 @@ struct _BtWirePrivate {
 	BtSong *song;
 	/* which machines are linked */
 	BtMachine *src,*dst;
+	// wire type adapter elements
+	GstElement *convert,*scale;
+	// convinience pointer
+	GstElement *dst_elem,*src_elem;
 };
 
 //-- methods
@@ -61,6 +67,12 @@ static void bt_wire_get_property(GObject      *object,
   switch (property_id) {
     case WIRE_SONG: {
       g_value_set_object(value, G_OBJECT(self->private->song));
+    } break;
+    case WIRE_SRC: {
+      g_value_set_object(value, G_OBJECT(self->private->src));
+    } break;
+    case WIRE_DST: {
+      g_value_set_object(value, G_OBJECT(self->private->dst));
     } break;
     default: {
       g_assert(FALSE);
@@ -119,10 +131,22 @@ static void bt_wire_class_init(BtWireClass *klass) {
 
   g_object_class_install_property(gobject_class,WIRE_SONG,
 																	g_param_spec_object("song",
-                                     "song contruct prop",
+                                     "song construct prop",
                                      "the song object, the wire belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class,WIRE_SRC,
+																	g_param_spec_object("src",
+                                     "src ro prop",
+                                     "src machine object, the wire links to",
+                                     BT_MACHINE_TYPE, /* object type */
+                                     G_PARAM_READABLE));
+  g_object_class_install_property(gobject_class,WIRE_DST,
+																	g_param_spec_object("dst",
+                                     "dst ro prop",
+                                     "dst machine object, the wire links to",
+                                     BT_MACHINE_TYPE, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_wire_get_type(void) {

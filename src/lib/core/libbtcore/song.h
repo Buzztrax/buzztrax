@@ -1,5 +1,5 @@
-/* $Id: song.h,v 1.10 2004-05-11 16:16:38 ensonic Exp $
- * Class for a basic buzztard song
+/* $Id: song.h,v 1.11 2004-05-13 09:35:29 ensonic Exp $
+ * class for a basic buzztard song
  */
  
 #ifndef BT_SONG_H
@@ -21,13 +21,23 @@ typedef struct _BtSong BtSong;
 typedef struct _BtSongClass BtSongClass;
 typedef struct _BtSongPrivate BtSongPrivate;
 
+/**
+ * BtSong:
+ *
+ * song project object
+ * (contains #BtSongInfo, #BtSetup and #BtSequence)
+ */
 struct _BtSong {
   GObject parent;
   
   /* private */
   BtSongPrivate *private;
 };
-/* structure of the song class */
+/**
+ * BtSongClass:
+ *
+ * class of a song project object
+ */
 struct _BtSongClass {
   GObjectClass parent;
   

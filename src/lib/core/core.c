@@ -1,16 +1,39 @@
-/* $Id: core.c,v 1.6 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: core.c,v 1.7 2004-05-13 09:35:29 ensonic Exp $
  */
 
 #define BT_CORE
 #define BT_CORE_C
 #include <libbtcore/core.h>
 
+/**
+ * bt_major_version:
+ *
+ * buzztard version stamp, major part; determined from #BT_MAJOR_VERSION
+ */
 const unsigned int bt_major_version=BT_MAJOR_VERSION;
+/**
+ * bt_minor_version:
+ *
+ * buzztard version stamp, minor part; determined from #BT_MINOR_VERSION
+ */
 const unsigned int bt_minor_version=BT_MINOR_VERSION;
+/**
+ * bt_micro_version:
+ *
+ * buzztard version stamp, micro part; determined from #BT_MICRO_VERSION
+ */
 const unsigned int bt_micro_version=BT_MICRO_VERSION;
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
+/**
+ * bt_init:
+ * @argc: pointer to commandline argument count
+ * @argv: pointer to commandline arguments
+ *
+ * initialize the libbtcore usage.
+ * This function prepares gstreamer and libxml. 
+ */
 void bt_init(int *argc, char ***argv) {
 
 	//-- init gobject

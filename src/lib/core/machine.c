@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.9 2004-05-11 20:01:22 ensonic Exp $
+/* $Id: machine.c,v 1.10 2004-05-13 09:35:29 ensonic Exp $
  * base class for a machine
  */
  
@@ -29,10 +29,12 @@ struct _BtMachinePrivate {
 
 static gboolean bt_machine_init_gst_element(BtMachine *self) {
 	if(self->machine) {
-		/** @todo change id of machine in gst */
+		/* @todo change id of machine in gst */
 	}
 	else {
 		if(self->private->id && self->private->plugin_name) {
+			GValue *oval;
+			
 		  self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
 			if(!self->machine) {
 				GST_INFO("  failed to instantiate machine \"%s\"",self->private->plugin_name);
@@ -63,8 +65,9 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
 					GST_INFO("    added param \"%s\"",g_param_spec_get_name(specs[i]));
 				}
 			}
-			/** @todo song needs a bin element */
-			//gst_bin_add(bt_song_get_bin(song), self->machine);
+			oval=g_new0(GValue,1);g_value_init(oval,G_TYPE_OBJECT);
+			g_object_get_property(G_OBJECT(self->private->song),"bin",oval);
+			gst_bin_add(g_value_get_object(oval), self->machine);
 		}
 	}
 }
