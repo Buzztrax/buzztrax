@@ -322,10 +322,8 @@ void BmxFile::readCwavSection()
     cwav->format = new byte[cwav->numberOfWavs];
     cwav->data = new BmxWavData[cwav->numberOfWavs];
     
-    //cwav->dwBytesInFileRemain=entries[section].size;
-    //
-    //WAVEUNPACK unpackinfo;
-    //InitWaveUnpack(&unpackinfo,hFile,dwSectionSize);
+    //Decomp.cpp::InitWaveUnpack()
+    cwav->dwBytesInFileRemain=entries[section].size;
     
     for (int i = 0; i < cwav->numberOfWavs; i++) {
         cwav->index[i] = read_word();
@@ -341,6 +339,7 @@ void BmxFile::readCwavSection()
           //size x2 for stereo
           len *= (wavt[i]->flags & 8) ? 2 : 1;
           wavt[i]->levels[j]->data.buffer = new byte[len];
+
           decompressWave(wavt[i]->levels[j]->data.buffer,
                         wavt[i]->levels[j].numberOfSamples
                         wavt[i]->flags & 8);

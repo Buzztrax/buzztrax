@@ -262,8 +262,7 @@ void TidyCompressionValues(COMPRESSIONVALUES * lpcv)
 }
 
 
-BOOL DecompressSwitch(WAVEUNPACK * unpackinfo,COMPRESSIONVALUES * lpcv,
-					  LPWORD lpwOutputBuffer,DWORD dwBlockSize)
+BOOL DecompressSwitch(WAVEUNPACK * unpackinfo,COMPRESSIONVALUES * lpcv,LPWORD lpwOutputBuffer,DWORD dwBlockSize)
 {
 	DWORD dwSwitchValue,dwBits,dwSize,dwZeroCount;
 	WORD wValue;
@@ -346,8 +345,7 @@ BOOL DecompressSwitch(WAVEUNPACK * unpackinfo,COMPRESSIONVALUES * lpcv,
 }
 
 
-BOOL DecompressWave(WAVEUNPACK * unpackinfo,LPWORD lpwOutputBuffer,
-					  DWORD dwNumSamples,BOOL bStereo)
+BOOL DecompressWave(WAVEUNPACK * unpackinfo,LPWORD lpwOutputBuffer,DWORD dwNumSamples,BOOL bStereo)
 {
 	DWORD dwZeroCount,dwShift,dwBlockSize,dwBlockCount,dwLastBlockSize;
 	DWORD dwResultShift,dwCount,i,ixx;
