@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.2 2004-08-12 14:02:59 ensonic Exp $
+/* $Id: main-menu.c,v 1.3 2004-08-12 14:34:20 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -124,9 +124,13 @@ BtMainMenu *bt_main_menu_new(const BtEditApplication *app,GtkAccelGroup *accel_g
   if(!(self=BT_MAIN_MENU(g_object_new(BT_TYPE_MAIN_MENU,"app",app,NULL)))) {
     goto Error;
   }
-  bt_main_menu_init_ui(self,accel_group);
+  // generate UI
+  if(!bt_main_menu_init_ui(self,accel_group)) {
+    goto Error;
+  }
   return(self);
 Error:
+  if(self) g_object_unref(self);
   return(NULL);
 }
 

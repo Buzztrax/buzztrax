@@ -14,6 +14,7 @@ libbtedit_la_SOURCES   = \
 	main-window.c main-window.h main-window-methods.h \
 	main-menu.c main-menu.h main-menu-methods.h \
 	main-toolbar.c main-toolbar.h main-toolbar-methods.h \
+	main-pages.c main-pages.h main-pages-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h
 	
 INCLUDES = \

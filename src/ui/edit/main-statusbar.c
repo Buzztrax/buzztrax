@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.1 2004-08-12 14:02:59 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.2 2004-08-12 14:34:20 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -46,9 +46,13 @@ BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
   if(!(self=BT_MAIN_STATUSBAR(g_object_new(BT_TYPE_MAIN_STATUSBAR,"app",app,NULL)))) {
     goto Error;
   }
-  bt_main_statusbar_init_ui(self);
+  // generate UI
+  if(!bt_main_statusbar_init_ui(self)) {
+    goto Error;
+  }
   return(self);
 Error:
+  if(self) g_object_unref(self);
   return(NULL);
 }
 

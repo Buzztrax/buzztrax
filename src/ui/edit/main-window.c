@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.9 2004-08-12 14:02:59 ensonic Exp $
+/* $Id: main-window.c,v 1.10 2004-08-12 14:34:20 ensonic Exp $
  * class for the editor main window
  */
 
@@ -23,6 +23,8 @@ struct _BtMainWindowPrivate {
   BtMainMenu *menu;
   /* the toolbar of the window */
   BtMainToolbar *toolbar;
+  /* the content pages of the window */
+  BtMainPages *pages;
   /* the statusbar of the window */
   BtMainStatusbar *statusbar;
   
@@ -57,93 +59,6 @@ static void destroy(GtkWidget *widget, gpointer data) {
 
 //-- helper methods
 
-static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box) {
-  GtkWidget *notebook;
-  GtkWidget *page,*label,*frame;
-  GtkWidget *table,*entry;
-  GtkWidget *scrolledwindow,*textfield;
-
-  // @todo make this a sub-class of notebook widget
-  notebook=gtk_notebook_new();
-  gtk_widget_set_name(notebook,_("song views"));
-  gtk_box_pack_start(GTK_BOX(box),notebook,TRUE,TRUE,0);
-
-  // @todo add real wigets for machine view
-  //(canvas)
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(notebook),page);
-
-  label=gtk_label_new(_("machine view"));
-  gtk_widget_set_name(label,_("machine view"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),0),label);
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("nothing here"));
-
-  // @todo add real wigets for pattern view
-  // table ?
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(notebook),page);
-
-  label=gtk_label_new(_("pattern view"));
-  gtk_widget_set_name(label,_("pattern view"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),1),label);
-
-  // @todo add real wigets for sequence view
-  // table ?
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(notebook),page);
-
-  label=gtk_label_new(_("sequence view"));
-  gtk_widget_set_name(label,_("sequence view"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),2),label);
-  
-  // @todo add real wigets for song info view
-  // display all properties from BTSongInfo
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(notebook),page);
-
-  label=gtk_label_new(_("song information"));
-  gtk_widget_set_name(label,_("song information"));
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),3),label);
-
-  // first row of hbox
-  frame=gtk_frame_new(_("song meta data"));
-  gtk_widget_set_name(label,_("song meta data"));
-  gtk_box_pack_start(GTK_BOX(page),frame,FALSE,TRUE,0);
-
-  table=gtk_table_new(2,2,FALSE);
-  gtk_container_add(GTK_CONTAINER(frame),table);
-
-  label=gtk_label_new(_("name"));
-  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
-  entry=gtk_entry_new();
-  gtk_table_attach(GTK_TABLE(table),entry, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-
-  label=gtk_label_new(_("genre"));
-  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, 0,0, 2,1);
-  entry=gtk_entry_new();
-  gtk_table_attach(GTK_TABLE(table),entry, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-
-  // second row of hbox
-  frame=gtk_frame_new(_("free text info"));
-  gtk_widget_set_name(label,_("free text info"));
-  gtk_box_pack_start(GTK_BOX(page),frame,TRUE,TRUE,0);
-
-  scrolledwindow=gtk_scrolled_window_new(NULL, NULL);
-  gtk_widget_set_name(scrolledwindow,"scrolledwindow");
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),GTK_SHADOW_IN);
-  gtk_container_add(GTK_CONTAINER(frame),scrolledwindow);
-
-  textfield=gtk_text_view_new();
-  gtk_widget_set_name(textfield,_("free text info"));
-  //gtk_container_set_border_width(GTK_CONTAINER(textfield),1);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(textfield),GTK_WRAP_WORD);
-  gtk_container_add(GTK_CONTAINER(scrolledwindow),textfield);
-
-  return(notebook);
-}
-
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GtkWidget *notebook;
@@ -164,10 +79,9 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   // add the tool-bar
   self->private->toolbar=bt_main_toolbar_new(self->private->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->toolbar),FALSE,FALSE,0);
-  
-  // add the notebook widget
-  notebook=bt_main_window_init_notebook(self, box);
-  
+  // add the window content pages
+  self->private->pages=bt_main_pages_new(self->private->app);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->pages),TRUE,TRUE,0);
   // add the status bar
   self->private->statusbar=bt_main_statusbar_new(self->private->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->private->statusbar),FALSE,FALSE,0);
@@ -233,6 +147,14 @@ gboolean bt_main_window_show_and_run(const BtMainWindow *self) {
   return(res);
 }
 
+/**
+ * bt_main_window_check_quit:
+ * @self: the main window instance
+ *
+ * Displays a dialog box, that asks the user to confirm exiting the application.
+ *
+ * Return: TRUE if the user has confirmed to exit
+ */
 gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean quit=FALSE;
   gint result;
@@ -270,6 +192,12 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   return(quit);
 }
 
+/**
+ * bt_main_window_new_song:
+ * @self: the main window instance
+ *
+ * Prepares a new song. Triggers cleaning up the old song and refreshes the ui.
+ */
 void bt_main_window_new_song(const BtMainWindow *self) {
   // @todo if unsaved ask the use, if we should save the song
   if(bt_edit_application_new_song(self->private->app)) {
@@ -277,6 +205,14 @@ void bt_main_window_new_song(const BtMainWindow *self) {
   }
 }
 
+/**
+ * bt_main_window_open_song:
+ * @self: the main window instance
+ *
+ * Opens a dialog box, where the user can choose a song to load.
+ * If the dialog is not canceld, the old song will be freed, the new song will
+ * be loaded and the ui will be refreshed upon success.
+ */
 void bt_main_window_open_song(const BtMainWindow *self) {
   GtkWidget *dialog=gtk_file_selection_new(_("Choose a song"));
   gint result;

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.1 2004-08-12 14:02:59 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.2 2004-08-12 14:34:20 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -99,9 +99,13 @@ BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
   if(!(self=BT_MAIN_TOOLBAR(g_object_new(BT_TYPE_MAIN_TOOLBAR,"app",app,NULL)))) {
     goto Error;
   }
-  bt_main_toolbar_init_ui(self);
+  // generate UI
+  if(!bt_main_toolbar_init_ui(self)) {
+    goto Error;
+  }
   return(self);
 Error:
+  if(self) g_object_unref(self);
   return(NULL);
 }
 
