@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.6 2004-10-22 16:15:58 ensonic Exp $
+/** $Id: t-setup.c,v 1.7 2004-10-27 16:40:38 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -103,11 +103,446 @@ START_TEST(test_btsetup_obj2){
 }
 END_TEST
 
+/**
+* try to create a new setup with a NULL song object
+*/
+START_TEST(test_btsetup_obj3) {
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	check_init_error_trapp("bt_setup_new","BT_IS_SONG(song)");
+	setup=bt_setup_new(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_add_machine with NULL object for self
+*/
+START_TEST(test_btsetup_obj4) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+
+	check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
+	bt_setup_add_machine(NULL,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_add_machine with NULL object for machine
+*/
+START_TEST(test_btsetup_obj5) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+
+	check_init_error_trapp("bt_setup_add_machine","BT_IS_MACHINE(machine)");
+	bt_setup_add_machine(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_add_wire with NULL object for self
+*/
+START_TEST(test_btsetup_obj6) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+
+	check_init_error_trapp("bt_setup_add_wire","BT_IS_SETUP(self)");
+	bt_setup_add_wire(NULL,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_add_wire with NULL object for wire
+*/
+START_TEST(test_btsetup_obj7) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+
+	check_init_error_trapp("bt_setup_add_wire","BT_IS_WIRE(wire)");
+	bt_setup_add_wire(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_get_machine_by_id with NULL object for self
+*/
+START_TEST(test_btsetup_obj8) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+
+	check_init_error_trapp("bt_setup_get_machine_by_id","BT_IS_SETUP(self)");
+	bt_setup_get_machine_by_id(NULL,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_get_machine_by_id with NULL object for id
+*/
+START_TEST(test_btsetup_obj9) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+
+	check_init_error_trapp("bt_setup_get_machine_by_id",NULL);
+	bt_setup_get_machine_by_id(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call get_machine_by_index with NULL for setup parameter
+*/
+START_TEST(test_btsetup_obj10) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_get_machine_by_index","BT_IS_SETUP(self)");
+	bt_setup_get_machine_by_index(NULL,0);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_get_wire_by_src_machine with NULL for setup parameter 
+*/
+START_TEST(test_btsetup_obj11) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_SETUP(self)");
+	bt_setup_get_wire_by_src_machine(NULL,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_get_wire_by_src_machine with NULL for machine parameter 
+*/
+START_TEST(test_btsetup_obj12) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_MACHINE(src)");
+	bt_setup_get_wire_by_src_machine(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_machine_iterator_new with NULL for self parameter 
+*/
+START_TEST(test_btsetup_obj13) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_machine_iterator_new","BT_IS_SETUP(self)");
+	bt_setup_machine_iterator_new(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_machine_iterator_next with NULL for iterator parameter 
+*/
+START_TEST(test_btsetup_obj14) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_machine_iterator_next",NULL);
+	bt_setup_machine_iterator_next(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_machine_iterator_get_machine with NULL for iterator parameter 
+*/
+START_TEST(test_btsetup_obj15) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_machine_iterator_get_machine",NULL);
+	bt_setup_machine_iterator_get_machine(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_wire_iterator_new with NULL for self parameter 
+*/
+START_TEST(test_btsetup_obj16) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_wire_iterator_new","BT_IS_SETUP(self)");
+	bt_setup_wire_iterator_new(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_wire_iterator_next with NULL for iterator parameter 
+*/
+START_TEST(test_btsetup_obj17) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_wire_iterator_next",NULL);
+	bt_setup_wire_iterator_next(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_wire_iterator_get_wire with NULL for iterator parameter 
+*/
+START_TEST(test_btsetup_obj18) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_wire_iterator_get_wire",NULL);
+	bt_setup_wire_iterator_get_wire(NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
 TCase *bt_setup_obj_tcase(void) {
   TCase *tc = tcase_create("bt_setup case");
 
   tcase_add_test(tc,test_btsetup_obj1);
 	tcase_add_test(tc,test_btsetup_obj2);
+	tcase_add_test(tc,test_btsetup_obj3);
+	tcase_add_test(tc,test_btsetup_obj4);
+	tcase_add_test(tc,test_btsetup_obj5);
+	tcase_add_test(tc,test_btsetup_obj6);
+	tcase_add_test(tc,test_btsetup_obj7);
+	tcase_add_test(tc,test_btsetup_obj8);
+	tcase_add_test(tc,test_btsetup_obj9);
+	tcase_add_test(tc,test_btsetup_obj10);
+	tcase_add_test(tc,test_btsetup_obj11);
+	tcase_add_test(tc,test_btsetup_obj12);
+	tcase_add_test(tc,test_btsetup_obj13);
+	tcase_add_test(tc,test_btsetup_obj14);
+	tcase_add_test(tc,test_btsetup_obj15);
+	tcase_add_test(tc,test_btsetup_obj16);
+	tcase_add_test(tc,test_btsetup_obj17);
+	tcase_add_test(tc,test_btsetup_obj18);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
