@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.25 2005-01-16 14:20:40 waffel Exp $
+/* $Id: processor-machine.c,v 1.26 2005-02-16 19:10:03 waffel Exp $
  * class for a processor machine
  */
 
@@ -26,8 +26,8 @@ static BtMachineClass *parent_class=NULL;
  * @voices: the number of voices the machine should initially have
  *
  * Create a new instance.
- * A machine should be added to a songs setup using
- * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
+ * The machine is automaticly added to the setup of the given song. You don't 
+ * need to call <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
  * Returns: the new instance or %NULL in case of an error
  */

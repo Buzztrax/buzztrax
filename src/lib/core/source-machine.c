@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.22 2005-01-15 22:02:52 ensonic Exp $
+/* $Id: source-machine.c,v 1.23 2005-02-16 19:10:06 waffel Exp $
  * class for a source machine
  */
  
@@ -26,7 +26,8 @@ static BtMachineClass *parent_class=NULL;
  * @voices: the number of voices the machine should initially have
  *
  * Create a new instance
- * A machine should be added to a songs setup using
+ * The machine is automaticly added to the setup from the given song object. You
+ * don't need to add the machine with
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
  * Returns: the new instance or %NULL in case of an error

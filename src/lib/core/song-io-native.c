@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.56 2005-02-03 16:13:39 ensonic Exp $
+/* $Id: song-io-native.c,v 1.57 2005-02-16 19:10:05 waffel Exp $
  * class for native song input and output
  */
  
@@ -243,7 +243,6 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 
 static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node) {
 	BtSetup *setup;
-	BtWire *wire;
 	BtMachine *src_machine,*dst_machine;
 	xmlChar *src,*dst;
 
@@ -257,10 +256,7 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 			dst_machine=bt_setup_get_machine_by_id(setup,dst);
 			GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
 			// create new wire
-			if((wire=bt_wire_new(song,src_machine,dst_machine))) {
-        bt_setup_add_wire(setup,wire);
-        g_object_unref(wire);
-      }
+			bt_wire_new(song,src_machine,dst_machine);
       xmlFree(src);xmlFree(dst);
 			g_object_unref(src_machine);
 			g_object_unref(dst_machine);

@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.16 2005-01-31 19:05:05 waffel Exp $
+/** $Id: e-setup.c,v 1.17 2005-02-16 19:10:26 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -50,9 +50,6 @@ START_TEST(test_btsetup_obj1){
 	/* try to craete generator1 with sinesrc */
   gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(gen1!=NULL, NULL);
-	
-	/* try to add the machine to the setup (and therewith to the song) */
-	bt_setup_add_machine(setup,BT_MACHINE(gen1));
 	
 	g_object_get(G_OBJECT(setup),"machines",&list,NULL);
 	/* the list should not be null */
@@ -111,13 +108,7 @@ START_TEST(test_btsetup_obj2) {
 	/* try to create the wire */
 	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
 	fail_unless(wire!=NULL, NULL);
-	
-	/* try to add the machines to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
-	bt_setup_add_machine(setup, BT_MACHINE(sink));
-	
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup, wire);
+		
 	/* try to get the list of wires in the setup */
   g_object_get(G_OBJECT(setup),"wires",&list,NULL);
   /* the list should not null */
@@ -176,9 +167,6 @@ START_TEST(test_btsetup_obj3) {
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	
-	/* try to add the machine to the setup. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
-	
   /* try to get the machine back from the setup */
 	ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
 	fail_unless(ref_machine!=NULL, NULL);
@@ -231,13 +219,6 @@ START_TEST(test_btsetup_obj4) {
 	/* try to create the wire */
 	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
 	fail_unless(wire!=NULL, NULL);
-	
-	/* try to add the machines to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
-	bt_setup_add_machine(setup, BT_MACHINE(sink));
-	
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup, wire);
 	
 	/* check if we can get the wire from the setup */
 	ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
@@ -293,13 +274,6 @@ START_TEST(test_btsetup_wire1) {
 	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
 	fail_unless(wire!=NULL, NULL);
 	
-	/* try to add the machines to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
-	bt_setup_add_machine(setup, BT_MACHINE(sink));
-	
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup, wire);
-	
 	/* try to get the list of wires */
 	wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(source));
 	fail_unless(wire_list!=NULL,NULL);
@@ -352,13 +326,6 @@ START_TEST(test_btsetup_wire2) {
 	wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
 	fail_unless(wire!=NULL, NULL);
 	
-	/* try to add the machines to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
-	bt_setup_add_machine(setup, BT_MACHINE(sink));
-	
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup, wire);
-	
 	/* try to get the list of wires */
 	wire_list=bt_setup_get_wires_by_dst_machine(setup,BT_MACHINE(sink));
 	fail_unless(wire_list!=NULL,NULL);
@@ -398,9 +365,6 @@ START_TEST(test_btsetup_machine1) {
 	/* try to craete generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
-	
-	/* try to add the machine to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
 	
 	/* now try to get the machine back via bt_setup_get_machine_by_type */
 	machine_type=G_OBJECT_TYPE(source);

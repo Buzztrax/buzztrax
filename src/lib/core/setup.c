@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.62 2005-02-15 18:32:12 ensonic Exp $
+/* $Id: setup.c,v 1.63 2005-02-16 19:10:03 waffel Exp $
  * class for machine and wire setup
  */
  
@@ -124,7 +124,7 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMac
 
 //-- public methods
 
-/**
+/*
  * bt_setup_add_machine:
  * @self: the setup to add the machine to
  * @machine: the new machine instance
@@ -154,7 +154,7 @@ gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 	return ret;
 }
 
-/**
+/*
  * bt_setup_add_wire:
  * @self: the setup to add the wire to
  * @wire: the new wire instance

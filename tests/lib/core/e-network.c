@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.9 2005-01-14 15:15:01 ensonic Exp $
+/** $Id: e-network.c,v 1.10 2005-02-16 19:10:24 waffel Exp $
  */
 
 #include "t-core.h"
@@ -57,10 +57,6 @@ START_TEST(test_btcore_net_example1) {
   /* try to craete generator1 with sinesrc */
   gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(gen1!=NULL, NULL);
-
-	/* try to add all machines to the setup (and therewith to the song) */
-  bt_setup_add_machine(setup,BT_MACHINE(sink));
-  bt_setup_add_machine(setup,BT_MACHINE(gen1));
   
   /* check if we can retrieve the machine via the id */
   machine=bt_setup_get_machine_by_id(setup,"master");
@@ -73,9 +69,6 @@ START_TEST(test_btcore_net_example1) {
   /* try to link machines */
 	wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
   fail_unless(wire1!=NULL, NULL);
-  
-	/* add wire to song setup */
-	bt_setup_add_wire(setup, wire1);
 
   /* check if we can retrieve the wire via the source machine */
   wire=bt_setup_get_wire_by_src_machine(setup,BT_MACHINE(gen1));
@@ -143,24 +136,13 @@ START_TEST(test_btcore_net_example2) {
   gen2 = bt_source_machine_new(song,"generator2","sinesrc",0);
   fail_unless(gen2!=NULL, NULL);
   
-	/* try to add all machines to the setup (and therewith to the song) */
-  bt_setup_add_machine(setup,BT_MACHINE(sink));
-  bt_setup_add_machine(setup,BT_MACHINE(gen1));
-  bt_setup_add_machine(setup,BT_MACHINE(gen2));
-  
 	/* try to create a wire from gen1 to sink */
   wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
 	fail_unless(wire1!=NULL, NULL);
-
-	/* try to add the wire to the setup (and therewith to the song) */
-	bt_setup_add_wire(setup, wire1);
 	
 	/* try to create a wire from gen2 to sink */ 
 	wire2=bt_wire_new(song, BT_MACHINE(gen2), BT_MACHINE(sink));
 	fail_unless(wire2!=NULL, NULL);
-	
-	/* try to add the wire to the setup (and therewith to the song) */
-	bt_setup_add_wire(setup, wire2);
 	
   /* try to start playing the song */
   if(bt_song_play(song)) {

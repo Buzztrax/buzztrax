@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.88 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: machine.c,v 1.89 2005-02-16 19:10:00 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -417,6 +417,16 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_DEBUG("  this will be the master for the song");
     g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
+	// getting the setup from the current assigned song
+	// @todo the method should get the song as an paramter. All subclasses calling
+	// this method and it is ugly to use this in that way
+	{
+		BtSetup *setup=NULL;
+		g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+		g_assert(setup!=NULL);
+		bt_setup_add_machine(setup,BT_MACHINE(G_OBJECT(self)));
+		g_object_try_unref(setup);
+	}
   return(TRUE);
 }
 

@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.12 2005-01-28 18:27:58 waffel Exp $
+/** $Id: t-setup.c,v 1.13 2005-02-16 19:10:27 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -63,12 +63,6 @@ START_TEST(test_btsetup_obj1){
 	
 	/* try to create the machine */
 	machine=bt_source_machine_new(song,"generator1","sinesrc",1);
-	
-	/* try to add the machine to the setup */
-	bt_setup_add_machine(setup,BT_MACHINE(machine));
-	
-	/* try to add the same machine again */
-	bt_setup_add_machine(setup, BT_MACHINE(machine));
   
   /* try to free the ressources */
   g_object_unref(setup);
@@ -104,18 +98,11 @@ START_TEST(test_btsetup_obj2){
 	/*  try to create the sink machine */
 	sink=bt_sink_machine_new(song,"sink1");
 	
-	/* try to add the machines to the setup */
-	bt_setup_add_machine(setup,BT_MACHINE(source));
-	bt_setup_add_machine(setup,BT_MACHINE(sink));
-	
 	/* try to create the wire */
 	wire=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
 	
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup,wire);
-	
 	/* try to add again the same wire */
-	bt_setup_add_wire(setup,wire);
+	wire=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
 
   /* try to free the ressources */
   g_object_unref(setup);
@@ -595,27 +582,18 @@ START_TEST(test_btsetup_wire1) {
 	/* try to craete volume machine */
   source = bt_processor_machine_new(song,"src","volume",0);
   fail_unless(source!=NULL, NULL);
-	bt_setup_add_machine(setup,BT_MACHINE(source));
 	
 	/* try to create volume machine */
 	dst = bt_processor_machine_new(song,"dst","volume",0);
 	fail_unless(dst!=NULL, NULL);
-	bt_setup_add_machine(setup, BT_MACHINE(dst));
 	
 	/* try to create the wire one */
 	wire_one = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(dst));
 	fail_unless(wire_one!=NULL, NULL);
 	
-	/* try to add wire to setup */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_one));
-	fail_unless(ret==TRUE,NULL);
-	
+	/* this should fail */
 	wire_two = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(source));
 	fail_unless(wire_two!=NULL,NULL);
-	
-	/* try to add wire_two to setup. This should fail */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_two));
-	fail_unless(ret==FALSE,NULL);
 	
 }
 END_TEST
@@ -651,27 +629,18 @@ START_TEST(test_btsetup_wire2) {
 	/* try to craete volume machine */
   source = bt_processor_machine_new(song,"src","volume",0);
   fail_unless(source!=NULL, NULL);
-	bt_setup_add_machine(setup,BT_MACHINE(source));
 	
 	/* try to create volume machine */
 	dst = bt_processor_machine_new(song,"dst","volume",0);
 	fail_unless(dst!=NULL, NULL);
-	bt_setup_add_machine(setup, BT_MACHINE(dst));
 	
 	/* try to create the wire one */
 	wire_one = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(source));
 	fail_unless(wire_one!=NULL, NULL);
 	
-	/* try to add wire to setup */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_one));
-	fail_unless(ret==TRUE,NULL);
-	
+	/* this should fail */	
 	wire_two = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(dst));
 	fail_unless(wire_two!=NULL,NULL);
-	
-	/* try to add wire_two to setup. This should fail */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_two));
-	fail_unless(ret==FALSE,NULL);	
 	
 }
 END_TEST
@@ -710,39 +679,52 @@ START_TEST(test_btsetup_wire3) {
 		/* try to craete volume machine */
   src1 = bt_processor_machine_new(song,"src1","volume",0);
   fail_unless(src1!=NULL, NULL);
-	bt_setup_add_machine(setup,BT_MACHINE(src1));
 	
 	/* try to craete volume machine */
   src2 = bt_processor_machine_new(song,"src2","volume",0);
   fail_unless(src2!=NULL, NULL);
-	bt_setup_add_machine(setup,BT_MACHINE(src2));
 
 	/* try to create volume machine */
 	dst = bt_processor_machine_new(song,"dst","volume",0);
 	fail_unless(dst!=NULL, NULL);
-	bt_setup_add_machine(setup, BT_MACHINE(dst));
 	
 	/* try to create the wire one */
 	wire_one = bt_wire_new(song, BT_MACHINE(src1), BT_MACHINE(dst));
 	fail_unless(wire_one!=NULL, NULL);
 	
-	/* try to add wire to setup */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_one));
-	fail_unless(ret==TRUE,NULL);
-	
 	wire_two = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(src2));
 	fail_unless(wire_two!=NULL,NULL);
 	
-	/* try to add wire_two to setup. This should be ok */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_two));
-	fail_unless(ret==TRUE,NULL);
-	
+	/* this should fail */
 	wire_three = bt_wire_new(song, BT_MACHINE(src2), BT_MACHINE(src1));
 	fail_unless(wire_three!=NULL,NULL);
 	
-	/* try to add wire_two to setup. This should fail */
-	ret=bt_setup_add_wire(setup, BT_WIRE(wire_three));
-	fail_unless(ret==FALSE,NULL);
+}
+END_TEST
+
+START_TEST(test_btsetup_get1) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	// machines
+	BtSourceMachine *source=NULL;
+	BtSinkMachine *sink=NULL;
+	// wire
+	BtWire *wire=NULL;
+	BtWire *ref_wire=NULL;
+	/* wire list */
+	GList* wire_list=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	
 	
 }
 END_TEST

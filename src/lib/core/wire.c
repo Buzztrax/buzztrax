@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.49 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: wire.c,v 1.50 2005-02-16 19:10:06 waffel Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -166,7 +166,6 @@ static void bt_wire_unlink_machines(const BtWire *self) {
  * transparently add spreader or adder elements in such cases. It further
  * inserts elemnts for data-type conversion if neccesary.
  *
- * The machines must have been previously added to the setup using #bt_setup_add_machine().
  * Same way the resulting wire should be added to the setup using #bt_setup_add_wire().
  *
  * Returns: true for success
@@ -254,9 +253,6 @@ Error:
  * Create a new instance.
  * A wire should be added to a songs setup using
  * <code>#bt_setup_add_wire(setup,wire);</code>.
- * Both #BtMachine instances have to be added
- * (using <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>)
- * to the setup before as well
  *
  * Returns: the new instance or %NULL in case of an error
  */
@@ -276,6 +272,14 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   if(!bt_wire_connect(self)) {
     goto Error;
   }
+	// add the wire to the setup of the song
+	{
+		BtSetup *setup=NULL;
+		g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+		g_assert(setup!=NULL);
+		bt_setup_add_wire(setup,BT_WIRE(self));
+		g_object_try_unref(setup);
+	}
   return(self);
 Error:
 	g_object_try_unref(self);

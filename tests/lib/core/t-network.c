@@ -1,4 +1,4 @@
-/** $Id: t-network.c,v 1.9 2004-10-22 16:15:58 ensonic Exp $
+/** $Id: t-network.c,v 1.10 2005-02-16 19:10:27 waffel Exp $
  */
 
 #include "t-core.h"
@@ -44,9 +44,6 @@ START_TEST(test_btcore_net1) {
 	fail_unless(setup!=NULL, NULL);
 	
   GST_DEBUG("test");
-
-	/* try to add a NULL machine to the setup */
-	bt_setup_add_machine(setup, NULL);
   
 	/* try to add a NULL wire to the setup */
 	bt_setup_add_wire(setup, NULL);
@@ -78,4 +75,3 @@ Suite *bt_network_suite(void) {
   suite_add_tcase(s,bt_network_obj_tcase());
   return(s);
 }
-

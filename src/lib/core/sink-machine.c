@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.34 2005-02-07 21:45:25 ensonic Exp $
+/* $Id: sink-machine.c,v 1.35 2005-02-16 19:10:03 waffel Exp $
  * class for a sink machine
  */
  
@@ -24,7 +24,8 @@ static BtMachineClass *parent_class=NULL;
  * @id: the id, we can use to lookup the machine
  *
  * Create a new instance.
- * A machine should be added to a songs setup using
+ * The machine is automaticly added to the setup from the given song object. You
+ * don't need to add the machine with
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  * The plugin used for this machine is taken from the #BtSettings.
  *

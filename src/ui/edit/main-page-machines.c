@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.51 2005-02-02 16:35:56 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.52 2005-02-16 19:10:23 waffel Exp $
  * class for the editor main machines page
  */
 
@@ -237,8 +237,6 @@ static void bt_main_page_machine_add_wire(const BtMainPageMachines *self) {
 
 	// try to establish a new connection
 	if((wire=bt_wire_new(song,src_machine,dst_machine))) {
-    bt_setup_add_wire(setup,wire);
-
     g_object_get(src_machine,"properties",&properties,NULL);
     machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
     g_object_get(dst_machine,"properties",&properties,NULL);
@@ -426,7 +424,6 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
 			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
 			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
 		}
-		bt_setup_add_machine(setup,machine);
 
 		// draw machine
 		machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
@@ -462,7 +459,6 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
 			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
 		}
-		bt_setup_add_machine(setup,machine);
 
 		// draw machine
 		machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);

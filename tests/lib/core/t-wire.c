@@ -1,4 +1,4 @@
-/** $Id: t-wire.c,v 1.5 2005-01-04 18:02:17 ensonic Exp $
+/** $Id: t-wire.c,v 1.6 2005-02-16 19:10:28 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -87,26 +87,16 @@ START_TEST(test_btwire_obj2){
   sink2=bt_processor_machine_new(song,"volume2","volume",1);
   fail_unless(sink2!=NULL,NULL);
 
-	/* try to add the machines to the setup. We must do this. */
-	bt_setup_add_machine(setup, BT_MACHINE(source));
-	bt_setup_add_machine(setup, BT_MACHINE(sink1));
-	bt_setup_add_machine(setup, BT_MACHINE(sink2));
-
   /* try to connect processor machine to volume1 */
   wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink1));
   mark_point();
   fail_unless(wire1!=NULL,NULL);
-	
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup, wire1);
   
   /* try to connect processor machine to volume2 */
   wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink2));
   mark_point();
   fail_unless(wire2!=NULL,NULL);
 
-	/* try to add the wire to the setup */
-	bt_setup_add_wire(setup, wire2);
 }
 END_TEST
 
