@@ -1,4 +1,4 @@
-/** $Id: t-network.c,v 1.6 2004-10-01 13:24:02 waffel Exp $
+/** $Id: t-network.c,v 1.7 2004-10-05 08:10:59 waffel Exp $
  */
 
 #include "t-core.h"
@@ -59,14 +59,6 @@ START_TEST(test_btcore_net1) {
 	g_object_checked_unref(song);
 }
 END_TEST
-
-/**
- * @todo test creating wires with args beeing NULL
- * @todo test creating machines with wrong names (not existing)
- * @todo test creating machines of the wrong typ (sink that is a source)
- * @todo test adding machines/wires twice
- */
-
 
 TCase *bt_network_obj_tcase(void) {
   TCase *tc = tcase_create("Network");
