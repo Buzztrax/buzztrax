@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.54 2005-01-11 11:03:45 ensonic Exp $
+/* $Id: setup.c,v 1.55 2005-01-14 15:14:59 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -89,8 +89,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
 		if(search_machine==machine) found=TRUE;
     g_object_try_unref(search_machine);
-    // @todo return(g_object_ref(wire));
-    if(found) return(wire);
+    if(found) return(g_object_ref(wire));
 	}
 	GST_DEBUG("no wire found for %s-machine %p",type,machine);
 	return(NULL);
@@ -103,7 +102,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
  * @self: the setup to add the machine to
  * @machine: the new machine instance
  *
- * let the setup know that the suplied machine is now part of the song.
+ * Let the setup know that the suplied machine is now part of the song.
  */
 void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 	g_return_if_fail(BT_IS_SETUP(self));
@@ -123,7 +122,7 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
  * @self: the setup to add the wire to
  * @wire: the new wire instance
  *
- * let the setup know that the suplied wire is now part of the song.
+ * Let the setup know that the suplied wire is now part of the song.
  */
 void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 	g_return_if_fail(BT_IS_SETUP(self));
@@ -144,7 +143,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
  * @self: the setup to remove the machine from
  * @machine: the machine instance to remove
  *
- * let the setup know that the suplied machine is removed from the song.
+ * Let the setup know that the suplied machine is removed from the song.
  */
 void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
 	g_return_if_fail(BT_IS_SETUP(self));
@@ -165,7 +164,7 @@ void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
  * @self: the setup to remove the wire from
  * @wire: the wire instance to remove
  *
- * let the setup know that the suplied wire is removed from the song.
+ * Let the setup know that the suplied wire is removed from the song.
  */
 void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
 	g_return_if_fail(BT_IS_SETUP(self));
@@ -186,8 +185,9 @@ void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
  * @self: the setup to search for the machine
  * @id: the identifier of the machine
  *
- * search the setup for a machine by the supplied id.
+ * Search the setup for a machine by the supplied id.
  * The machine must have been added previously to this setup with bt_setup_add_machine().
+ * Unref the machine, when done with it.
  *
  * Returns: #BtMachine instance or NULL if not found
  */
@@ -229,8 +229,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
 		if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
-    // @todo return(g_object_ref(machine));
-    if(found) return(machine);
+    if(found) return(g_object_ref(machine));
 	}
 	GST_DEBUG("no machine found for id \"%s\"",id);
 	return(NULL);
@@ -243,14 +242,14 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
  *
  * search the setup for a machine by the supplied index position.
  * The machine must have been added previously to this setup with bt_setup_add_machine().
+ * Unref the machine, when done with it.
  *
  * Returns: #BtMachine instance or NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
 	
-  // @todo return(g_object_ref(machine));
-	return(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index)));
+	return(g_object_ref(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index))));
 }
 
  
@@ -261,6 +260,7 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
  *
  * Searches for the first wire in setup that uses the given #BtMachine as a source.
  * In other words - it returns the first wire that starts at the given #BtMachine.
+ * Unref the wire, when done with it.
  *
  * Returns: the #BtWire or NULL 
  */
@@ -277,6 +277,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
  *
  * Searches for the first wire in setup that uses the given #BtMachine as a target.
  * In other words - it returns the first wire that ends at the given #BtMachine.
+ * Unref the wire, when done with it.
  *
  * Returns: the #BtWire or NULL 
  */
@@ -294,6 +295,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
  *
  * Searches for a wire in setup that uses the given #BtMachine instances as a
  * source and dest.
+ * Unref the wire, when done with it.
  *
  * Returns: the #BtWire or NULL
  */
@@ -313,8 +315,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
 		if((src_machine==src) && (dst_machine==dst))found=TRUE;
     g_object_try_unref(src_machine);
 		g_object_try_unref(dst_machine);
-    // @todo return(g_object_ref(wire));
-    if(found) return(wire);
+    if(found) return(g_object_ref(wire));
 	}
 	GST_DEBUG("no wire found for machines %p %p",src,dst);
 	return(NULL);
@@ -331,18 +332,25 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
  * Returns: the newly allocated unique name
  */
 gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
+	BtMachine *machine;
 	gchar *id,*ptr;
 	guint8 i=0;
 	
-	if(!bt_setup_get_machine_by_id(self,base_name)) {
+	if(!(machine=bt_setup_get_machine_by_id(self,base_name))) {
 		return(g_strdup(base_name));
+	}
+	else {
+		g_object_unref(machine);
+		machine=NULL;
 	}
 
 	id=g_strdup_printf("%s 00",base_name);
 	ptr=&id[strlen(base_name)+1];
 	do {
 		(void)g_sprintf(ptr,"%u",i++);
-	} while(bt_setup_get_machine_by_id(self,id) && (i<100));
+		g_object_try_unref(machine);
+	} while((machine=bt_setup_get_machine_by_id(self,id)) && (i<100));
+	g_object_try_unref(machine);
 	return(id);
 }
 

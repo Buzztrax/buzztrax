@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.40 2005-01-10 12:22:08 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.41 2005-01-14 15:15:00 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -285,7 +285,9 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       //GST_INFO("  %2d,%2d : adding \"%s\"",i,j,str);
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
       if(free_str) g_free(str);
+      g_object_unref(timelinetrack);
     }
+    g_object_unref(timeline);
   }
 	// create a filterd model to realize step filtering
 	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
@@ -338,6 +340,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     	}
 		}
 		else GST_WARNING("can't get treeview column");
+    g_object_unref(machine);
   }
   GST_INFO("    number of columns : %d",col_index);
 
@@ -351,14 +354,14 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 /**
  * pattern_list_refresh:
  * @self: the sequence page
- * @machine: the machine that now has the focus
  *
  * When the user moves the cursor in the sequence, update the list of patterns
  * so that it shows the patterns that belong to the machine in the current
  * sequence row.
  */
-static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine *machine) {
+static void pattern_list_refresh(const BtMainPageSequence *self) {
   BtPattern *pattern;
+  BtMachine *machine;
   GtkListStore *store;
   GtkTreeIter tree_iter;
   GList *node,*list;
@@ -374,7 +377,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
   gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
-  if(machine) {
+  if((machine=bt_main_page_sequence_get_current_machine(self))) {
     //-- append pattern rows
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
@@ -391,6 +394,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 			index++;
     }
 		g_list_free(list);
+    g_object_unref(machine);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
@@ -467,17 +471,18 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
   g_assert(user_data);
 
   GST_INFO("sequence_table cursor has changed : treeview=%p, page=%p",treeview,user_data);
-  pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
+  pattern_list_refresh(self);
 }
 
 static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtMachine *machine;
 
   g_assert(user_data);
 
   GST_INFO("sequence_table cursor has moved : treeview=%p, page=%p, arg1=%d, arg2=%d",treeview,user_data,arg1,arg2);
   if(arg1==GTK_MOVEMENT_VISUAL_POSITIONS) {
-    pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
+    pattern_list_refresh(self);
   }
 }
 
@@ -497,7 +502,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
-  pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
+  pattern_list_refresh(self);
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   // find out to which entry it belongs and set the index
@@ -675,6 +680,7 @@ Error:
  *
  * Get the currently active #BtMachine as determined by the cursor position in
  * the sequence table.
+ * Unref the machine, when done with it.
  *
  * Returns: the #BtMachine instance or NULL in case of an error
  */

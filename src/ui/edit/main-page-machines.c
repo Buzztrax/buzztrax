@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.43 2005-01-10 12:22:08 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.44 2005-01-14 15:15:00 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -274,6 +274,7 @@ static gboolean bt_main_page_machine_check_wire(const BtMainPageMachines *self) 
 	gboolean ret=FALSE;
 	BtSong *song;
 	BtSetup *setup;
+	BtWire *wire;
 	BtMachine *src_machine,*dst_machine;
 	
 	GST_INFO("can we link to it ?");
@@ -289,9 +290,10 @@ static gboolean bt_main_page_machine_check_wire(const BtMainPageMachines *self) 
 	// if the citem->machine is a sink/processor-machine
 	if(BT_IS_SINK_MACHINE(dst_machine) || BT_IS_PROCESSOR_MACHINE(dst_machine)) {
 		// check if these machines are not yet connected
-		if(!bt_setup_get_wire_by_machines(setup,src_machine,dst_machine)) {
+		if(!(wire=bt_setup_get_wire_by_machines(setup,src_machine,dst_machine))) {
 			ret=TRUE;
 			GST_INFO("  yes!");
+			g_object_unref(wire);
 		}
 	}
 	g_object_try_unref(dst_machine);

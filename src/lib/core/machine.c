@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.68 2005-01-11 11:03:44 ensonic Exp $
+/* $Id: machine.c,v 1.69 2005-01-14 15:14:59 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -323,6 +323,7 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
  *
  * Search the machine for a pattern by the supplied id.
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
+ * Unref the pattern, when done with it.
  *
  * Returns: #BtPattern instance or NULL if not found
  */
@@ -340,8 +341,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
 		if(!strcmp(pattern_id,id)) found=TRUE;
     g_free(pattern_id);
-    // @todo return(g_object_ref(pattern));
-    if(found) return(pattern);
+    if(found) return(g_object_ref(pattern));
 	}
   GST_DEBUG("no pattern found for id \"%s\"",id);
   return(NULL);
@@ -354,13 +354,15 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
  *
  * Fetches the machine from the given position of the machines pattern list.
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
+ * Unref the pattern, when done with it.
  *
  * Returns: #BtPattern instance or NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
 	g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-	// @todo return(g_object_ref(pattern));
-	return(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index)));
+	g_return_val_if_fail(index>g_list_length(self->priv->patterns),NULL);
+
+	return(g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index))));
 }
 
 /**

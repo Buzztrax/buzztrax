@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.49 2004-12-18 16:09:14 waffel Exp $
+/* $Id: sequence.c,v 1.50 2005-01-14 15:14:59 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -179,16 +179,15 @@ Error:
  * @self: the #BtSequence that holds the #BtTimeLine objects
  * @time: the requested index
  *
- * fetches the required timeline.
+ * Fetches the timeline by its index from the sequence.
+ * Unref the timeline, when done with it.
  *
  * Returns: the #BtTimeLine pointer or NULL in case of an error
  */
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const gulong time) {
-	
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
-  /* @todo check if not better initialize self->priv->length with -1 or 0 */
   if(time<self->priv->length) {
-    return(self->priv->timelines[time]);
+    return(g_object_ref(self->priv->timelines[time]));
   }
   else {
     GST_ERROR("index out of bounds, %d should be < %d",time,self->priv->length);
@@ -210,7 +209,7 @@ BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const gulong 
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
 
   if(track<self->priv->tracks) {
-    return(self->priv->machines[track]);
+    return(g_object_try_ref(self->priv->machines[track]));
   }
   else {
     GST_ERROR("index out of bounds, %d should be < %d",track,self->priv->tracks);
@@ -236,8 +235,7 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const gulong track,
   
   if(track<self->priv->tracks) {
     if(!self->priv->machines[track]) {
-      // @todo ref the machine
-      self->priv->machines[track]=(BtMachine *)machine;
+      self->priv->machines[track]=g_object_ref((gpointer)machine);
     }
     else {
       GST_ERROR("machine has already be set!");
@@ -489,6 +487,7 @@ static void bt_sequence_set_property(GObject      *object,
 
 static void bt_sequence_dispose(GObject *object) {
   BtSequence *self = BT_SEQUENCE(object);
+  gulong i;
 
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -496,7 +495,10 @@ static void bt_sequence_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 	g_object_try_weak_unref(self->priv->song);
   bt_sequence_unref_timelines(self);
-  // @todo unref the machines ?
+  // unref the machines
+  for(i=0;i<self->priv->tracks;i++) {
+    g_object_try_unref(self->priv->machines[i]);
+  }
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -521,6 +523,9 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtSequence *self = BT_SEQUENCE(instance);
   self->priv = g_new0(BtSequencePrivate,1);
   self->priv->dispose_has_run = FALSE;
+  /* @todo check if not better initialize length with 0,
+   * and only in the editor create new songs with one timeline
+   */
   self->priv->length=1;
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;

@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.8 2004-10-29 16:46:04 waffel Exp $
+/** $Id: e-network.c,v 1.9 2005-01-14 15:15:01 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -65,8 +65,10 @@ START_TEST(test_btcore_net_example1) {
   /* check if we can retrieve the machine via the id */
   machine=bt_setup_get_machine_by_id(setup,"master");
   fail_unless(machine==BT_MACHINE(sink), NULL);
+	g_object_unref(machine);
   machine=bt_setup_get_machine_by_id(setup,"generator1");
   fail_unless(machine==BT_MACHINE(gen1), NULL);
+	g_object_unref(machine);
   
   /* try to link machines */
 	wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
@@ -78,10 +80,12 @@ START_TEST(test_btcore_net_example1) {
   /* check if we can retrieve the wire via the source machine */
   wire=bt_setup_get_wire_by_src_machine(setup,BT_MACHINE(gen1));
   fail_unless(wire==wire1, NULL);
+	g_object_try_unref(wire);
 
   /* check if we can retrieve the wire via the dest machine */
   wire=bt_setup_get_wire_by_dst_machine(setup,BT_MACHINE(sink));
   fail_unless(wire==wire1, NULL);
+	g_object_try_unref(wire);
 	
   /* try to start playing the song */
   if(bt_song_play(song)) {

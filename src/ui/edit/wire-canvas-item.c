@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.13 2004-12-15 14:29:35 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.14 2005-01-14 15:15:00 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -213,6 +213,7 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
 /**
  * bt_wire_canvas_item_new:
  * @main_page_machines: the machine page the new item belongs to
+ * @wire: the wire for which a canvas item should be created
  * @pos_xs: the horizontal start location
  * @pos_ys: the vertical start location
  * @pos_xe: the horizontal end location

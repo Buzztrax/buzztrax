@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.43 2004-12-29 12:07:52 ensonic Exp $
+/* $Id: wire.c,v 1.44 2005-01-14 15:14:59 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -208,6 +208,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		//if(!gst_element_link(other_wire->src->src_elem, other_wire->dst_elem)) {
 			GST_ERROR("failed to re-link the machines after inserting internal spreaker");goto Error;
 		}
+		g_object_unref(other_wire);
 	}
 	
 	// if there is already a wire to dst and dst has not yet an adder (in use)
@@ -230,6 +231,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 		//if(!gst_element_link(other_wire->src_elem, other_wire->dst->dst_elem)) {
 			GST_ERROR("failed to re-link the machines after inserting internal adder");goto Error;
 		}
+		g_object_unref(other_wire);
 	}
 	
 	if(!bt_wire_link_machines(self)) {

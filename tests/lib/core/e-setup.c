@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.10 2005-01-12 17:41:04 waffel Exp $
+/** $Id: e-setup.c,v 1.11 2005-01-14 15:15:01 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -127,24 +127,25 @@ START_TEST(test_btsetup_obj2) {
   ref_wire=list->data;
   fail_unless(ref_wire!=NULL,NULL);
   fail_unless(wire==BT_WIRE(ref_wire),NULL);
-  /* setting ref_wire back to NULL for next check */
-  ref_wire=NULL;
-  
+
+	/* the list should contain only one element */
+	fail_unless(g_list_length(list)==1, NULL);
+	
+	g_list_free(list);
+
 	/* try to get the current added wire by the source machine. In this case the 
 	source of the wire is our source machine.*/
 	ref_wire = bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
 	fail_unless(ref_wire!=NULL, NULL);
 	fail_unless(ref_wire==wire, NULL);
-	
-	/* setting the ref wire back to NULL for next check. */
-	ref_wire = NULL;
+	g_object_try_unref(ref_wire);
 	
 	/* try to get the current added wire by the dest machine. In this case the
 	destination of the wire is our sink machine. */
 	ref_wire = bt_setup_get_wire_by_dst_machine(setup, BT_MACHINE(sink));
 	fail_unless(ref_wire!=NULL, NULL);
 	fail_unless(ref_wire==wire, NULL);
-	
+	g_object_try_unref(ref_wire);	
 }
 END_TEST
 
@@ -181,6 +182,7 @@ START_TEST(test_btsetup_obj3) {
   /* try to get the machine back from the setup */
 	ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
 	fail_unless(ref_machine!=NULL, NULL);
+	g_object_unref(ref_machine);
 	
 	/* now we try to remove the same machine from the setup */
 	bt_setup_remove_machine(setup, BT_MACHINE(source));
@@ -240,6 +242,7 @@ START_TEST(test_btsetup_obj4) {
 	/* check if we can get the wire from the setup */
 	ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
 	fail_unless(ref_wire!=NULL,NULL);
+	g_object_try_unref(ref_wire);
 	
 	/* try to remove the wire from the setup */
 	bt_setup_remove_wire(setup, wire);

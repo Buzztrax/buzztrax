@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.35 2005-01-13 18:42:19 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.36 2005-01-14 15:15:00 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -122,8 +122,9 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
 	g_object_unref(store); // drop with comboxbox
 }
 
-static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine *machine) {
+static void pattern_menu_refresh(const BtMainPagePatterns *self) {
   BtPattern *pattern=NULL;
+  BtMachine *machine;
   GList *node,*list;
   gchar *str;
 	GtkListStore *store;
@@ -131,7 +132,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
 
   // update pattern menu
   store=gtk_list_store_new(1,G_TYPE_STRING);
-  if(machine) {
+  if((machine=bt_main_page_patterns_get_current_machine(self))) {
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
@@ -142,6 +143,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
 			g_free(str);
     }
 		g_list_free(list);
+    g_object_unref(machine);
   }
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
 	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
@@ -254,10 +256,13 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	BtPattern *pattern;
 
   g_assert(user_data);
   // refresh pattern view
-	pattern_table_refresh(self,bt_main_page_patterns_get_current_pattern(self));
+	pattern=bt_main_page_patterns_get_current_pattern(self);
+	pattern_table_refresh(self,pattern);
+	g_object_try_unref(pattern);
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -298,7 +303,7 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   g_assert(user_data);
 	// show new list of pattern in pattern menu
-  pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
+  pattern_menu_refresh(self);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -315,7 +320,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_menu_refresh(self,setup);
-  pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
+  pattern_menu_refresh(self);
 	g_signal_connect(G_OBJECT(setup),"machine-added",(GCallback)on_machine_added,(gpointer)self);
 	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
   // release the references
@@ -440,6 +445,7 @@ Error:
  *
  * Get the currently active #BtMachine as determined by the machine option menu
  * in the toolbar.
+ * Unref the machine, when done with it.
  *
  * Returns: the #BtMachine instance or NULL in case of an error
  */
@@ -469,6 +475,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
  *
  * Get the currently active #BtPattern as determined by the pattern option menu
  * in the toolbar.
+ * Unref the pattern, when done with it.
  *
  * Returns: the #BtPattern instance or NULL in case of an error
  */
@@ -490,6 +497,7 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
 	pattern=bt_machine_get_pattern_by_index(machine,index);
 
   //-- release the reference
+	g_object_try_unref(machine);
   g_object_try_unref(setup);
   g_object_try_unref(song);
   return(pattern);

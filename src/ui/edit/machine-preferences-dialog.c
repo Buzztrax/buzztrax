@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.3 2005-01-07 15:02:08 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.4 2005-01-14 15:15:00 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -137,6 +137,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 /**
  * bt_machine_preferences_dialog_new:
  * @app: the application the dialog belongs to
+ * @machine: the machine to create the dialog for
  *
  * Create a new instance
  *

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.52 2004-12-18 18:44:27 ensonic Exp $
+/* $Id: song-io-native.c,v 1.53 2005-01-14 15:14:59 ensonic Exp $
  * class for native song input and output
  */
  
@@ -241,6 +241,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node) {
 	BtSetup *setup;
 	BtWire *wire;
+	BtMachine *src_machine,*dst_machine;
 	xmlChar *src,*dst;
 
 	GST_INFO(" got setup.wires root node");
@@ -249,14 +250,17 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 		if(!xmlNodeIsText(xml_node)) {
 			src=xmlGetProp(xml_node,"src");
 			dst=xmlGetProp(xml_node,"dst");
+			src_machine=bt_setup_get_machine_by_id(setup,src);
+			dst_machine=bt_setup_get_machine_by_id(setup,dst);
 			GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
 			// create new wire
-			wire=bt_wire_new(song,bt_setup_get_machine_by_id(setup,src),bt_setup_get_machine_by_id(setup,dst));
-      if(wire) {
+			if((wire=bt_wire_new(song,src_machine,dst_machine))) {
         bt_setup_add_wire(setup,wire);
         g_object_unref(wire);
       }
       xmlFree(src);xmlFree(dst);
+			g_object_unref(src_machine);
+			g_object_unref(dst_machine);
 		}
 		xml_node=xml_node->next;
 	}
@@ -363,10 +367,12 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     g_object_get(G_OBJECT(machine),"voices",&voices,NULL);
     // create pattern, add to machine's pattern-list and load data
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
-    pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine);
-    //bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
-    bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children,NULL);
-    g_object_unref(pattern);
+    if((pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine))) {
+    	//bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
+    	bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children,NULL);
+    	g_object_unref(pattern);
+		}
+		g_object_unref(machine);
   }
   else {
     GST_ERROR("invalid machine-id=\"%s\"",machine_id);
@@ -457,6 +463,7 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
         if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
           GST_INFO("  new timeline.label(%s,\"%s\")",time_str,name);
           g_object_set(G_OBJECT(timeline),"label",name,NULL);
+          g_object_unref(timeline);
         }
         xmlFree(time_str);xmlFree(name);
       }
@@ -491,10 +498,13 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
           // get timelinetrack from timeline
           if((timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,index))) {
             g_object_set(timelinetrack,"pattern",pattern,"type",BT_TIMELINETRACK_TYPE_PATTERN,NULL);
+            g_object_unref(timelinetrack);
           }
           else GST_ERROR("  unknown timelinetrack index \"%d\"",index);
+          g_object_unref(timeline);
         }
         else GST_ERROR("  unknown timeline index \"%s\"",time_str);
+				g_object_unref(pattern);
       }
       else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
       xmlFree(pattern_id);xmlFree(time_str);
@@ -534,6 +544,7 @@ static gboolean bt_song_io_native_load_sequence_tracks(const BtSongIONative *sel
         if((machine=bt_setup_get_machine_by_id(setup, machine_name))) {
           GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_name);
           bt_song_io_native_load_sequence_track_data(self,song,machine,atol(index_str),xml_node->children);
+					g_object_unref(machine);
         }
         else {
           GST_ERROR("invalid machine referenced");

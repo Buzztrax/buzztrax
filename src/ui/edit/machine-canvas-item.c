@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.28 2005-01-10 17:25:50 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.29 2005-01-14 15:14:59 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -305,6 +305,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 /**
  * bt_machine_canvas_item_new:
  * @main_page_machines: the machine page the new item belongs to
+ * @machine: the machine for which a canvas item should be created
  * @xpos: the horizontal location
  * @ypos: the vertical location
  * @zoom: the zoom ratio
