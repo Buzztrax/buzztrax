@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.2 2004-10-15 15:39:32 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.3 2004-11-03 12:10:54 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -29,6 +29,9 @@ struct _BtMachineCanvasItemPrivate {
   BtMachine *machine;
   /* and its properties */
   GHashTable *properties;
+  
+  /* machine context_menu */
+  GtkMenu *context_menu;
 
   /* interaction state */
   gboolean dragging,moved;
@@ -99,7 +102,9 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   g_object_try_unref(self->priv->machine);
-  // this disposes the pages for us
+  
+  g_object_unref(self->priv->context_menu);
+  
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
@@ -193,6 +198,10 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
                               /* GDK_LEAVE_NOTIFY_MASK | */
             GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
       }
+      else if(event->button.button==3) {
+        // show context menu
+        gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+      }
       break;
     case GDK_MOTION_NOTIFY:
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
@@ -230,8 +239,26 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 
 static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_class) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(instance);
+  GtkWidget *menu_item;
+  
   self->priv = g_new0(BtMachineCanvasItemPrivate,1);
   self->priv->dispose_has_run = FALSE;
+
+  // generate the context menu  
+  self->priv->context_menu=gtk_menu_new();
+
+  menu_item=gtk_menu_item_new_with_label(_("Properties"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_menu_item_new_with_label(_("About"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
 }
 
 static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.57 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: song.c,v 1.58 2004-11-03 12:10:54 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -41,7 +41,7 @@ struct _BtSongPrivate {
 	/* the main gstreamer container element */
 	GstBin *bin;
   /* the element that has the clock */
-  BtMachine *master;
+  BtSinkMachine *master;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -67,7 +67,7 @@ BtSong *bt_song_new(const BtApplication *app) {
 	
   g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
-  g_object_get(app,"bin",&bin,NULL);
+  g_object_get(G_OBJECT(app),"bin",&bin,NULL);
   self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL));
   g_object_try_unref(bin);
   return(self);
@@ -157,7 +157,7 @@ void bt_song_write_to_xml_file(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
   
   if((out=fopen("/tmp/buzztard-song.xml","wb"))) {
-    gst_xml_write_file(self->priv->bin,out);
+    gst_xml_write_file(GST_ELEMENT(self->priv->bin),out);
     fclose(out);
   }
 }

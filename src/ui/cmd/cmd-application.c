@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.38 2004-10-22 16:15:58 ensonic Exp $
+/* $Id: cmd-application.c,v 1.39 2004-11-03 12:10:54 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -68,7 +68,6 @@ BtCmdApplication *bt_cmd_application_new(void) {
  *
  * Returns: true for success
  */
-// @todo check if the self pointer is not NULL
 gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
   gboolean res=FALSE;
 	BtSong *song=NULL;

@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.22 2004-10-28 11:16:29 ensonic Exp $
+/* $Id: sink-machine.c,v 1.23 2004-11-03 12:10:54 ensonic Exp $
  * class for a sink machine
  */
  
@@ -38,7 +38,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   gchar *plugin_name=NULL;
   
   // get plugin_name from song->app->settings
-  g_object_get(song,"app",&app,NULL);
+  g_object_get(G_OBJECT(song),"app",&app,NULL);
   g_object_get(app,"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
   if(is_string(audiosink_name)) plugin_name=audiosink_name;
