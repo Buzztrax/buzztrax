@@ -7,6 +7,7 @@ libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \
+	application.c libbtcore/application.h libbtcore/application-methods.h \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
 	processor-machine.c libbtcore/processor-machine.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \

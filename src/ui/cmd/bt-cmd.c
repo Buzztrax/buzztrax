@@ -1,18 +1,18 @@
-/* $Id: bt-cmd.c,v 1.5 2004-05-11 20:01:24 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.6 2004-05-12 09:35:14 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd <filename>
  * to enable debugging add e.g. --gst-debug="*:2,bt-*:3"
 */
 
-#include <stdio.h>
+#include "bt-cmd.h"
 
-#include <libbtcore/core.h>
-#include <glib.h>
-#include <glib-object.h>
-
-#define GST_CAT_DEFAULT bt_cmd_debug
 GST_DEBUG_CATEGORY_STATIC(GST_CAT_DEFAULT);
 
+/**
+ * print_usage:
+ *
+ * give short commandline help when no arg has been supplied
+ */
 static void print_usage(void) {
 	puts("Usage: bt-cmd <song-filename>");
 	exit(1);
@@ -20,6 +20,7 @@ static void print_usage(void) {
 
 /**
  * play_event:
+ *
  * signal callback funktion
  */
 static void play_event(void) {

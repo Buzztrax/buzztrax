@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.17 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: core.h,v 1.18 2004-05-12 09:35:14 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -32,6 +32,7 @@
 #include "sequence-methods.h"
 #include "song-io-methods.h"
 #include "song-io-native.h"
+#include "application-methods.h"
 #include "version.h"
 
 //-- global defines ------------------------------------------------------------
@@ -46,9 +47,10 @@
 	#define GST_CAT_DEFAULT bt_core_debug
 	#ifndef BT_CORE_C
 		GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
-		#define return_if_disposed(a) if(self->private->dispose_has_run) return a
 	#endif
 #endif
+
+#define return_if_disposed(a) if(self->private->dispose_has_run) return a
 
 #ifndef BT_CORE_C
 	extern void bt_init(int *argc, char ***argv);

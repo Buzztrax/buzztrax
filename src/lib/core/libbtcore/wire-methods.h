@@ -1,4 +1,4 @@
-/* $Id: wire-methods.h,v 1.6 2004-05-11 16:16:38 ensonic Exp $
+/* $Id: wire-methods.h,v 1.7 2004-05-12 09:35:14 ensonic Exp $
  * defines all public methods of the wire class
  */
 
@@ -7,7 +7,6 @@
 
 #include "wire.h"
 
-/** connect two machines */
 gboolean bt_wire_connect(const BtWire *self, const BtMachine *src, const BtMachine *dst);
 
 #endif // BT_WIRE_METHDOS_H

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.7 2004-05-11 20:01:23 ensonic Exp $
+/* $Id: song-io-native.c,v 1.8 2004-05-12 09:35:14 ensonic Exp $
  * class for native song input and output
  */
  
@@ -14,7 +14,7 @@ struct _BtSongIONativePrivate {
 
 //-- xml helper methods
 
-/** @brief test if the given XPathObject is of the expected type, otherwise discard the object
+/* @brief test if the given XPathObject is of the expected type, otherwise discard the object
  * @param xpath_optr the xpath object to test
  * @param type the required type
  * @return the supplied xpath object or NULL is types do not match
@@ -29,7 +29,7 @@ xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathO
 }
 
 
-/** @brief return the result as xmlXPathObjectPtr of the evaluation of the supplied compiled xpath expression agains the given document
+/* @brief return the result as xmlXPathObjectPtr of the evaluation of the supplied compiled xpath expression agains the given document
  * @param dialog gitk dialog
  * @param access_type how to access the dialog
  * @param xpath_comp_expression compiled xpath expression to use
