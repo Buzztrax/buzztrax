@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.38 2004-10-15 15:39:32 ensonic Exp $
+/* $Id: song-io-native.c,v 1.39 2004-10-22 12:01:07 ensonic Exp $
  * class for native song input and output
  */
  
@@ -198,9 +198,9 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
       }
       else voices=1;
 			if(!strncmp(xml_node->name,"sink\0",5)) {
-				GST_INFO("  new sink_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
+				GST_INFO("  new sink_machine(\"%s\") -----------------",id);
 				// create new sink machine
-				machine=BT_MACHINE(bt_sink_machine_new(song,id,plugin_name));
+				machine=BT_MACHINE(bt_sink_machine_new(song,id));
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
 				GST_INFO("  new source_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);

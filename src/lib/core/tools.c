@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.9 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: tools.c,v 1.10 2004-10-22 12:01:07 ensonic Exp $
  */
  
 #define BT_CORE
@@ -30,7 +30,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
 
     //GST_DEBUG("  %s: %s", GST_OBJECT_NAME(element),gst_element_factory_get_klass(element));
     if(!g_ascii_strncasecmp(gst_element_factory_get_klass(element),class_filter,sl)) {
-      res=g_list_append(res,gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(element)));
+      res=g_list_append(res,(gchar *)gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(element)));
     }
     node=g_list_next(node);
   }

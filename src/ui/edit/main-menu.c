@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.19 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: main-menu.c,v 1.20 2004-10-22 12:01:16 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -72,7 +72,7 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
   GST_INFO("menu settings event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   
-  dialog = bt_settings_dialog_new(self->priv->app/*,main_window*/);
+  dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app/*,main_window*/));
   
   gtk_widget_show_all(dialog);
                                                   

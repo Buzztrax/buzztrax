@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.5 2004-10-08 14:28:20 ensonic Exp $
+/** $Id: e-network.c,v 1.6 2004-10-22 12:01:16 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -46,12 +46,8 @@ START_TEST(test_btcore_net_example1) {
 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
 
-  /* try to create the esd sink */
-	sink=bt_sink_machine_new(song,"master","esdsink");
-  if (sink == NULL) {
-    /* try to create an alsa sink */
-    sink=bt_sink_machine_new(song,"master","alsasink");
-  }
+  /* try to create the sink */
+	sink=bt_sink_machine_new(song,"master");
   fail_unless(sink!=NULL, NULL);
   
   /* try to craete generator1 with sinesrc */
@@ -122,12 +118,8 @@ START_TEST(test_btcore_net_example2) {
 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
 
-  /* try to create the esd sink */
-	sink=bt_sink_machine_new(song,"master","esdsink");
-  if (sink == NULL) {
-    /* try to create an alsa sink */
-    sink=bt_sink_machine_new(song,"master","alsasink");
-  }
+  /* try to create the sink */
+	sink=bt_sink_machine_new(song,"master");
 	fail_unless(sink!=NULL, NULL);
   
   /* try to craete generator1 with sinesrc */

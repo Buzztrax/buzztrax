@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.7 2004-10-18 18:03:29 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.8 2004-10-22 12:01:16 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -117,7 +117,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // @todo move pages into separate classes (settings-page-audiodevices, settings-page-colors, settings-page-shortcuts, ...)
   self->priv->audiodevices_page=bt_settings_page_audiodevices_new(self->priv->app);
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),self->priv->audiodevices_page);
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),0),
     gtk_label_new(_("Audio Device")));

@@ -1,4 +1,4 @@
-/* $Id: sink-machine-methods.h,v 1.1 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: sink-machine-methods.h,v 1.2 2004-10-22 12:01:16 ensonic Exp $
  * defines all public methods of the sink machine class
  */
 
@@ -7,6 +7,6 @@
 
 #include "sink-machine.h"
 
-extern BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name);
+extern BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id);
 
 #endif // BT_SINK_MACHINE_METHDOS_H

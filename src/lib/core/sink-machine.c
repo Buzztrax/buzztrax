@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.19 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: sink-machine.c,v 1.20 2004-10-22 12:01:06 ensonic Exp $
  * class for a sink machine
  */
  
@@ -30,27 +30,37 @@ static BtMachineClass *parent_class=NULL;
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name) {
+BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   BtSinkMachine *self;
+  BtSettings *settings;
+  gchar *audiosink_name,*system_audiosink_name;
+  gchar *plugin_name;
   
   // @todo get plugin_name from settings
-  // gchar *audiosink_name;
-  // g_object_get(self->priv->settings,"audiosink",&audiosink_name,NULL);
+  g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+  if(is_string(audiosink_name)) plugin_name=audiosink_name;
+  else if(is_string(system_audiosink_name)) plugin_name=system_audiosink_name;
+  else {
+     GST_ERROR("no audiosink configured");
+     goto Error;
+  }
 
   g_assert(BT_IS_SONG(song));
   g_assert(id);
-  // @todo we don't need that after the above change
-  g_assert(plugin_name);
   
   if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL)))) {
     goto Error;
   }
-  // @todo we need to make sure the machine is really a sink
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
+  g_free(system_audiosink_name);
+  g_free(audiosink_name);
+  g_object_try_unref(settings);
   return(self);
 Error:
+  g_free(system_audiosink_name);
+  g_object_try_unref(settings);
   g_object_try_unref(self);
   return(NULL);
 }

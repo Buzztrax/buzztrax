@@ -15,7 +15,7 @@
 	
   <setup zoom="1.0">
     <machines>
-      <sink id="audio_sink" pluginname="esdsink">
+      <sink id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>

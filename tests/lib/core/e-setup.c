@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.3 2004-10-04 16:09:47 waffel Exp $
+/** $Id: e-setup.c,v 1.4 2004-10-22 12:01:16 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -99,7 +99,7 @@ START_TEST(test_btsetup_obj2) {
   fail_unless(source!=NULL, NULL);
 	
 	/* try to create sink machine with esd sink */
-	sink = bt_sink_machine_new(song,"sink1","esdsink");
+	sink = bt_sink_machine_new(song,"sink1");
 	fail_unless(sink!=NULL, NULL);
 	
 	/* try to create the wire */

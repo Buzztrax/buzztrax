@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.4 2004-10-08 13:50:04 ensonic Exp $
+/** $Id: t-setup.c,v 1.5 2004-10-22 12:01:16 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -74,7 +74,7 @@ START_TEST(test_btsetup_obj2){
 	source=bt_source_machine_new(song,"generator1","sinesrc",1);
 	
 	/*  try to create the sink machine */
-	sink=bt_sink_machine_new(song,"sink1","esdsink");
+	sink=bt_sink_machine_new(song,"sink1");
 	
 	/* try to add the machines to the setup */
 	bt_setup_add_machine(setup,BT_MACHINE(source));

@@ -15,7 +15,7 @@
 	
   <setup>
     <machines>
-      <sink id="audio_sink" pluginname="esdsink">
+      <sink id="audio_sink">
       </sink>
       <source id="sine1" pluginname="sinesrc" voices="0">
       </source>
