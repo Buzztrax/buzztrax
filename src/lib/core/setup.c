@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.61 2005-01-26 17:29:50 ensonic Exp $
+/* $Id: setup.c,v 1.62 2005-02-15 18:32:12 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -270,7 +270,8 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 	    //     G_TYPE_STRING: strcmp(value,data.compare_value);
 	    //     default: value==data.compare_value;
 	    //   }
-		  //-> use gst_value_compare()
+		  //-> what about: gst_value_compare()
+		  //-> what about: g_param_values_cmp()
     }	
 	 
 	  struct {

@@ -6,8 +6,8 @@
 	xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
 	<meta>
-		<info>a sine followed by an amp, both playing patterns</info>
-    <name>simple 2</name>
+		<info>one buzz generator</info>
+    <name>buzz 1</name>
 		<genre>dark-wave</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>
@@ -25,7 +25,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <source id="gen" pluginname="bml-Noise" voices="0">
+      <source id="gen" pluginname="bml-DTMF-1" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -42,13 +42,15 @@
   <patterns>
     <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
       <tick time="0">
-        <globaldata name="Color" value="1024"/>
+        <globaldata name="Dial-Number" value="1"/>
+				<globaldata name="Sustain" value="200"/>
+				<globaldata name="Volume" value="200"/>
       </tick>
       <tick time="4">
-        <globaldata name="Color" value="2048"/>
+        <globaldata name="Dial-Number" value="2"/>
       </tick>
       <tick time="8">
-        <globaldata name="Color" value="4096"/>
+        <globaldata name="Dial-Number" value="3"/>
       </tick>
     </pattern>
   </patterns>
