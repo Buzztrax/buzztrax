@@ -1,4 +1,4 @@
-* $Id: gui.txt,v 1.2 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: gui.txt,v 1.3 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * mimic the apperance and behaviour of buzz
@@ -28,3 +28,4 @@
 		- initial blabla page
 		- some initial machines
 		? does it make sense to provide "new from..."
+*

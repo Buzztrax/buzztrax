@@ -1,4 +1,4 @@
-* $Id: use-case.txt,v 1.3 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: use-case.txt,v 1.4 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * purpose
@@ -32,4 +32,4 @@
 	
 	**
 		Sm -> mEq -> ?  sP
-
+*

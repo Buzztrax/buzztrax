@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.8 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.9 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture (two main modules)
@@ -146,4 +146,4 @@
 		(useful for keeping a few things static for multiple voices)
 		- sources: play multiple notes
 		- effects: delay=multi-tap-delay, pitchshift=make-chords
-
+*

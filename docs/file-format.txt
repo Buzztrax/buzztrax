@@ -1,4 +1,4 @@
-* $Id: file-format.txt,v 1.2 2004-02-17 14:27:01 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: file-format.txt,v 1.3 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * multi-file archive (like zip/tat/lha/lzx/jar)
@@ -109,4 +109,4 @@
 				...
 			</wavetable>
 		</buzztard>
-
+*
