@@ -18,7 +18,7 @@ m4_divert`'m4_dnl
 			<p align="justify">
 				Development takes place at <a href="http://sourceforge.net/projects/buzztard/">http://sourceforge.net/projects/buzztard/</a>.
 			</p>
-	
+
 			<h3><acronym title="Concurrent Versioning System">CVS</acronym></h3>
 			<!--p align="justify"-->
 				To login, do:<br>

@@ -4,6 +4,8 @@ SUFFIXES=.html .m4
 
 DEPS=$(shell ( find . -maxdepth 1 -name "*.m4" -printf "%f "))
 
+USER=$(shell cat CVS/Root | cut -d: -f3 | cut -d@ -f1)
+
 html:
 	for file in $(DEPS); do \
 		outfile=`echo "$$file" | sed -e 's/.m4/.html/g'`; \
@@ -14,6 +16,6 @@ html:
 all: html
 
 ftp:
-	@scp -r *.html *.css ensonic@shell.sourceforge.net:/home/groups/b/bu/buzztard/htdocs/
-#	@scp -r *.html *.css buzztard.gif favicon.ico gfx ensonic@shell.sourceforge.net:/home/groups/b/bu/buzztard/htdocs/
+	@scp -r *.html *.css $(USER)@shell.sourceforge.net:/home/groups/b/bu/buzztard/htdocs/
+#	@scp -r *.html *.css buzztard.gif favicon.ico gfx $(USER)@shell.sourceforge.net:/home/groups/b/bu/buzztard/htdocs/
 
