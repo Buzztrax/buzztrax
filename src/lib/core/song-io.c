@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.25 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: song-io.c,v 1.26 2004-11-15 15:06:54 ensonic Exp $
  * base class for song input and output
  */
  
@@ -152,9 +152,14 @@ BtSongIO *bt_song_io_new(const gchar *file_name) {
 
 //-- methods
 
-gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song) {
+static gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song) {
 	GST_ERROR("virtual method bt_song_io_real_load(self,song) called");
 	return(FALSE);	// this is a base class that can't load anything
+}
+
+static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
+	GST_ERROR("virtual method bt_song_io_real_save(self,song) called");
+	return(FALSE);	// this is a base class that can't save anything
 }
 
 //-- wrapper
@@ -170,6 +175,19 @@ gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song) {
  */
 gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
 	return(BT_SONG_IO_GET_CLASS(self)->load(self,song));
+}
+
+/**
+ * bt_song_io_save:
+ * @self: the #SongIO instance to use
+ * @song: the #Song instance that should stored
+ *
+ * save the song to a file.  The file ist set in the constructor
+ *
+ * Returns: true for success
+ */
+gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
+	return(BT_SONG_IO_GET_CLASS(self)->save(self,song));
 }
 
 //-- class internals
@@ -257,7 +275,8 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
   gobject_class->dispose      = bt_song_io_dispose;
   gobject_class->finalize     = bt_song_io_finalize;
 	
-	klass->load           = bt_song_io_real_load;
+  klass->load           = bt_song_io_real_load;
+  klass->save           = bt_song_io_real_save;
   klass->status_changed = NULL;
 
   /** 
@@ -312,4 +331,3 @@ GType bt_song_io_get_type(void) {
   }
   return type;
 }
-

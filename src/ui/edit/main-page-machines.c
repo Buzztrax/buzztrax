@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.23 2004-11-12 09:30:59 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.24 2004-11-15 15:06:55 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -268,7 +268,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   // @todo try gtk_widget_push_colormap(gdk_colormap_get_system());
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
-	gtk_widget_add_events(GTK_WIDGET(self->priv->canvas),GDK_KEY_PRESS|GDK_KEY_RELEASE);
+	// seems to be ignored
+	//gtk_widget_add_events(GTK_WIDGET(self->priv->canvas),GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
   gnome_canvas_set_scroll_region(self->priv->canvas,
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,

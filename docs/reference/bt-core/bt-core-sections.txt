@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.8 2004-10-29 13:12:15 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.9 2004-11-15 15:06:53 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -300,6 +300,7 @@ BtSongIO
 BtSongIOClass
 bt_song_io_new
 bt_song_io_load
+bt_song_io_save
 BtSongIODetect
 <SUBSECTION Standard>
 BT_SONG_IO
@@ -429,4 +430,3 @@ bt_major_version
 bt_minor_version
 bt_micro_version
 </SECTION>
-

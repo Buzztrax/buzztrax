@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.12 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: song-io.h,v 1.13 2004-11-15 15:06:54 ensonic Exp $
  * base class for song input and output
  */
 
@@ -43,6 +43,7 @@ struct _BtSongIOClass {
 
   /* class methods */
 	gboolean (*load)(const gpointer self, const BtSong *song);
+	gboolean (*save)(const gpointer self, const BtSong *song);
 
   void (*status_changed)(const BtSongIO *songio, gpointer user_data);
 };
@@ -62,4 +63,3 @@ GType bt_song_io_get_type(void);
 typedef GType (*BtSongIODetect)(const gchar *file_name);
 
 #endif // BT_SONG_IO_H
-

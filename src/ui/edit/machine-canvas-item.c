@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.7 2004-11-12 09:30:59 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.8 2004-11-15 15:06:55 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -37,8 +37,11 @@ struct _BtMachineCanvasItemPrivate {
   /* machine context_menu */
   GtkMenu *context_menu;
 
+	/* the parameter dialog */
+	GtkWidget *parameter_dialog;
+
   /* interaction state */
-  gboolean dragging,moved;
+  gboolean dragging,moved,connecting;
   gdouble offx,offy,dragx,dragy;
   
 };
@@ -307,22 +310,32 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   //GST_DEBUG("event for machine occured");
   
   switch (event->type) {
+		case GDK_2BUTTON_PRESS:
+			GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
+			if(!self->priv->parameter_dialog) {
+				// @todo pass machine instance to GUI
+				self->priv->parameter_dialog=GTK_WIDGET(bt_machine_dialog_new(self->priv->app/*,self->private->machine*/));
+  		  gtk_widget_show_all(self->priv->parameter_dialog);
+				// @todo we need to listen to destroy so that we can NULLify self->priv->parameter_dialog then
+			}
+			res=TRUE;
+			break;
     case GDK_BUTTON_PRESS:
-      GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
+      GST_DEBUG("GDK_BUTTON_PRESS: %d, 0x%x",event->button.button,event->button.state);
       if(event->button.button==1) {
-        /* dragxy coords are world coords of button press */
-        self->priv->dragx=event->button.x;
-        self->priv->dragy=event->button.y;
-        /* set some flags */
-        self->priv->dragging=TRUE;
-        self->priv->moved=FALSE;
-        gnome_canvas_item_raise_to_top(citem);
-        fleur=gdk_cursor_new(GDK_FLEUR);
-        gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
-                              /* GDK_ENTER_NOTIFY_MASK | */
-                              /* GDK_LEAVE_NOTIFY_MASK | */
-            GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
-        res=TRUE;
+				if(event->button.state&GDK_SHIFT_MASK) {
+					// @todo handle drawing a new wire (if the citem->machine is a source/processor-machine)
+					self->priv->connecting=TRUE;
+				}
+				else {
+        	// dragx/y coords are world coords of button press
+        	self->priv->dragx=event->button.x;
+        	self->priv->dragy=event->button.y;
+        	// set some flags
+        	self->priv->dragging=TRUE;
+        	self->priv->moved=FALSE;
+				}
+       	res=TRUE;
       }
       else if(event->button.button==3) {
         // show context menu
@@ -333,6 +346,14 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
     case GDK_MOTION_NOTIFY:
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
       if(self->priv->dragging) {
+				if(!self->priv->moved) {
+        	gnome_canvas_item_raise_to_top(citem);
+        	fleur=gdk_cursor_new(GDK_FLEUR);
+        	gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
+          	                    /* GDK_ENTER_NOTIFY_MASK | */
+            	                  /* GDK_LEAVE_NOTIFY_MASK | */
+          GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);					
+				}
         dx=event->button.x-self->priv->dragx;
         dy=event->button.y-self->priv->dragy;
         gnome_canvas_item_move(citem, dx, dy);
@@ -350,22 +371,23 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         self->priv->moved=TRUE;
         res=TRUE;
       }
+			else if(self->priv->connecting) {
+				// @todo handle setting the coords of the connection line
+			}
       break;
     case GDK_BUTTON_RELEASE:
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
       if(self->priv->dragging) {
         self->priv->dragging=FALSE;
-        gnome_canvas_item_ungrab(citem,event->button.time);
-        //g_signal_emit(citem,signals[POSITION_CHANGED],0);
+				if(self->priv->moved) {
+        	gnome_canvas_item_ungrab(citem,event->button.time);
+				}
         res=TRUE;
       }
+			else if(self->priv->connecting) {
+				// @todo try to establish a new connection (if there is a sink/processor-machine under mouse pointer)
+			}
       break;
-    case GDK_KEY_PRESS:
-      GST_DEBUG("GDK_KEY_PRESS: %d,%d",event->key.keyval,event->key.state);
-			break;
-    case GDK_KEY_RELEASE:
-      GST_DEBUG("GDK_KEY_RELEASE: %d,%d",event->key.keyval,event->key.state);
-			break;
     default:
       break;
   }
@@ -373,6 +395,11 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   //if(res) {
   //  g_signal_stop_emission_by_name(citem->canvas,"event-after");
   //}
+	if(!res) {
+		if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
+			res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
+		}
+	}
   return res;
 }
 

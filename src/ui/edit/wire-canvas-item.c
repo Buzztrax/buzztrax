@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.5 2004-11-10 11:58:30 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.6 2004-11-15 15:06:55 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -344,6 +344,11 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
       break;
   }
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
+	if(!res) {
+		if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
+			res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
+		}
+	}
   return res;
 }
 
@@ -463,4 +468,3 @@ GType bt_wire_canvas_item_get_type(void) {
   }
   return type;
 }
-

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.16 2004-11-08 12:05:57 ensonic Exp $
+/* $Id: bt-edit.h,v 1.17 2004-11-15 15:06:55 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -14,6 +14,7 @@
 
 #include "edit-application-methods.h"
 #include "machine-canvas-item.h"
+#include "machine-dialog-methods.h"
 #include "main-menu-methods.h"
 #include "main-pages-methods.h"
 #include "main-page-machines-methods.h"
