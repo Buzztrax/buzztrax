@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.24 2004-10-18 18:03:19 ensonic Exp $
+# $Id: configure.ac,v 1.25 2004-10-21 15:22:59 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -99,6 +99,17 @@ else
 	AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
 	AM_CONDITIONAL(DEBUG, false)
 fi
+
+# define custom path for desktop files
+AC_MSG_CHECKING(where to install desktop files)
+AC_ARG_WITH(
+	desktop_dir,
+	AC_HELP_STRING([--with-desktop-dir],[install desktop files to DIR/applications (default=$prefix/share/)]),
+	,
+	[with_desktop_dir="$prefix/share/"])
+AC_MSG_RESULT($with_desktop_dir)
+AC_SUBST(with_desktop_dir)
+
 
 # gstreamer-libs not required, while there are only provided from gstreamer-plugins
 #	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \

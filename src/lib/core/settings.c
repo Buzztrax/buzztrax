@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.7 2004-09-29 16:56:26 ensonic Exp $
+/* $Id: settings.c,v 1.8 2004-10-21 15:23:04 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -87,6 +87,14 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
                                      "audio output device",
                                      "esdsink", /* default value */
                                      G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,
+                                  g_param_spec_string("system-audiosink",
+                                     "system-audiosink prop",
+                                     "system audio output device",
+                                     "esdsink", /* default value */
+                                     G_PARAM_READABLE));
+
 }
 
 GType bt_settings_get_type(void) {

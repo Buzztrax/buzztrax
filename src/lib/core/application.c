@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.16 2004-10-08 14:28:08 ensonic Exp $
+/* $Id: application.c,v 1.17 2004-10-21 15:23:04 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -44,13 +44,17 @@ gboolean bt_application_new(BtApplication *self) {
   self->priv->settings=BT_SETTINGS(bt_plainfile_settings_new());
 #endif
   { // DEBUG
-    gchar *audiosink_name;
-    g_object_get(self->priv->settings,"audiosink",&audiosink_name,NULL);
+    gchar *audiosink_name,*system_audiosink_name;
+    g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+    if(system_audiosink_name) {
+      GST_INFO("default audiosink is \"%s\"",system_audiosink_name);
+      g_free(system_audiosink_name);
+    }
     if(audiosink_name) {
-      GST_INFO("default audiosink is \"%s\"",audiosink_name);
+      GST_INFO("buzztard audiosink is \"%s\"",audiosink_name);
       g_free(audiosink_name);
     }
-  }
+  } // DEBUG
   if(!self->priv->settings) goto Error;
   res=TRUE;
 Error:

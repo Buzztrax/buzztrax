@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.16 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.17 2004-10-21 15:23:04 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -210,7 +210,7 @@ Error:
  * Returns: the #BtMachine instance or NULL in case of an error
  */
 BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
-  glong index;
+  gulong index;
   BtSong *song;
   BtSetup *setup;
   BtMachine *machine;

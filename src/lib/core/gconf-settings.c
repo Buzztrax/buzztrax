@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.5 2004-09-29 16:56:25 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.6 2004-10-21 15:23:04 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -56,8 +56,14 @@ static void bt_gconf_settings_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"audiosink",NULL);
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"audiosink",NULL);
       GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
+      g_value_set_string(value, prop);
+      g_free(prop);
+    } break;
+    case BT_SETTINGS_SYSTEM_AUDIOSINK: {
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"audiosink",NULL);
+      GST_DEBUG("application reads system audiosink gconf_settings : %s",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
@@ -79,7 +85,7 @@ static void bt_gconf_settings_set_property(GObject      *object,
     case BT_SETTINGS_AUDIOSINK: {
       gchar *prop=g_value_dup_string(value);
       GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
-      // @todo set property value
+      gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"audiosink",prop,NULL);
       g_free(prop);
     } break;
     default: {

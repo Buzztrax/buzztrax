@@ -35,7 +35,7 @@ INCLUDES = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
-desktopdir = ${datadir}/applications
+desktopdir = ${with_desktop_dir}/applications
 desktop_in_files = bt-edit.desktop.in
 desktop_DATA = bt-edit.desktop
 @INTLTOOL_DESKTOP_RULE@
