@@ -1,4 +1,4 @@
-$Id: TODO,v 1.22 2005-02-07 11:01:46 ensonic Exp $
+$Id: TODO,v 1.23 2005-02-20 13:27:31 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -8,7 +8,9 @@ run 'make todo' to get a list of todo comments from source
     audio-generators (and implement the instrument interface)
     audio-effects
   * bt-edit
-    * show play-position with graphicaly
+    * have a ui_ressource singleton
+		  GdkColors
+			GdkPixbuf, GtkImage
 
 * how do we implement multiple voices per machine?
   * simulate
@@ -40,6 +42,7 @@ run 'make todo' to get a list of todo comments from source
 * new tests
   * load songs and lookup the parts
     (e.g. bt_machine_get_pattern_by_id)
+	* try gtk_main_do_event() in GUI tests
 
 * code enhancement
   * use G_CONST_RETURN

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.52 2005-02-16 19:10:23 waffel Exp $
+/* $Id: main-page-machines.c,v 1.53 2005-02-20 13:27:39 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -576,10 +576,70 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 
 //-- helper methods
 
+static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachines *self) {
+	GtkWidget *menu_item,*menu,*submenu,*image;
+	// @todo make it a new class that derives from gtk_menu and that hides the complexity of the machine sub menu
+  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+
+  //menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
+	menu_item=gtk_image_menu_item_new_with_label(_("Add nachine"));
+	image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+	// add sub-menu	
+	menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("add menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
+
+  menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+  image=gtk_image_new_from_filename("menu_source_machine.png");
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_widget_show(menu_item);
+	// add another submenu
+	submenu=gtk_menu_new();
+  gtk_widget_set_name(submenu,_("generators menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
+
+  menu_item=gtk_menu_item_new_with_label("Sine");
+	gtk_widget_set_name(menu_item,"sinesrc");
+  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_source_machine_add_activated),(gpointer)self);
+	
+  menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+  image=gtk_image_new_from_filename("menu_processor_machine.png");
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_widget_show(menu_item);
+	// add another submenu
+	submenu=gtk_menu_new();
+  gtk_widget_set_name(submenu,_("effects menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
+
+  menu_item=gtk_menu_item_new_with_label("Volume");
+	gtk_widget_set_name(menu_item,"volume");
+  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_processor_machine_add_activated),(gpointer)self);
+
+	// continue with main menu
+  menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+}
+
+
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image,*scrolled_window;
-  GtkWidget *menu_item,*menu,*submenu;
+  GtkWidget *menu_item,*menu;
   GtkTooltips *tips;
 
 	GST_DEBUG("!!!! self=%p",self);
@@ -653,7 +713,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   gtk_widget_push_visual(gdk_rgb_get_visual());
   gtk_widget_push_colormap(gdk_rgb_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
-	/* the non antialisaed (and fater) version 
+	/* the non antialisaed (and faster) version 
   gtk_widget_push_visual(gdk_imlib_get_visual());
   gtk_widget_push_colormap(gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
@@ -705,58 +765,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
 
   // create the context menu
-	// @todo make it a new class that derives from gtk_menu and that hides the complexity of the machine sub menu
-  self->priv->context_menu=GTK_MENU(gtk_menu_new());
-
-  menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
-	// add sub-menu	
-	menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("add menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
-
-  menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=gtk_image_new_from_filename("menu_source_machine.png");
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_widget_show(menu_item);
-	// add another submenu
-	submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("generators menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
-
-  menu_item=gtk_menu_item_new_with_label("Sine");
-	gtk_widget_set_name(menu_item,"sinesrc");
-  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-  gtk_widget_show(menu_item);
-	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_source_machine_add_activated),(gpointer)self);
-	
-  menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=gtk_image_new_from_filename("menu_processor_machine.png");
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_widget_show(menu_item);
-	// add another submenu
-	submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("effects menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
-
-  menu_item=gtk_menu_item_new_with_label("Volume");
-	gtk_widget_set_name(menu_item,"volume");
-  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-  gtk_widget_show(menu_item);
-	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_processor_machine_add_activated),(gpointer)self);
-
-	// continue with main menu
-  menu_item=gtk_separator_menu_item_new();
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_set_sensitive(menu_item,FALSE);
-  gtk_widget_show(menu_item);
-
-  menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
+	bt_main_page_machines_init_main_context_menu(self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);

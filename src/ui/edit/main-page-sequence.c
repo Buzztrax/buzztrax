@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.62 2005-02-17 18:31:17 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.63 2005-02-20 13:27:39 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -46,6 +46,7 @@ struct _BtMainPageSequencePrivate {
 
   /* pattern context_menu */
   GtkMenu *context_menu;
+  GtkMenuItem *context_menu_add;
 
   /* colors */
   GdkColor source_bg1,source_bg2;
@@ -70,6 +71,12 @@ enum {
 };
 
 #define IS_SEQUENCE_POS_VISIBLE(pos,bars) ((pos&((bars)-1))==0)
+#define SEQUENCE_CELL_WIDTH 100
+#define SEQUENCE_CELL_HEIGHT 28
+#define SEQUENCE_CELL_XPAD 0
+#define SEQUENCE_CELL_YPAD 0
+// when setting the HEIGHT for one column, then the focus rect is visible for
+// the other (smaller) columns
 
 static gchar *pattern_keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -90,6 +97,20 @@ static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoint
 }
 
 //-- tree model helper
+
+static glong sequence_view_get_cursor_column(GtkTreeView *tree_view) {
+	glong res=-1;
+  GtkTreeViewColumn *column;
+
+  // get table column number (column 0 is for labels)
+  gtk_tree_view_get_cursor(tree_view,NULL,&column);
+  if(column) {
+    GList *columns=gtk_tree_view_get_columns(tree_view);
+    res=g_list_index(columns,(gpointer)column);
+    g_list_free(columns);
+  }
+	return(res);
+}
 
 static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gulong *col,gulong *row) {
 	gboolean res=FALSE;
@@ -190,6 +211,10 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	g_free(str);
 }
 
+static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
+	// @todo resize the tree-model
+}
+
 //-- event handler helper
 
 /**
@@ -224,25 +249,55 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,"xalign",1.0,"foreground","blue",NULL);
+  g_object_set(G_OBJECT(renderer),
+		"mode",GTK_CELL_RENDERER_MODE_INERT,
+		"xalign",1.0,
+		"yalign",0.5,
+		"foreground","blue",
+		/*
+		"width",40-4,
+		*/
+		"height",SEQUENCE_CELL_HEIGHT-4,
+		/*
+	  "xpad",SEQUENCE_CELL_XPAD,
+		"ypad",SEQUENCE_CELL_YPAD,
+		*/
+		NULL);
 	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
 	) {
-		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",40,NULL);
+		g_object_set(tree_col,
+			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+			"fixed-width",40,
+			NULL);
 		gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
 	}
 	else GST_WARNING("can't create treeview column");
 		
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,"xalign",1.0,"foreground","blue","width",80,NULL);
+  g_object_set(G_OBJECT(renderer),
+		"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+		"xalign",1.0,
+		"yalign",0.5,
+		"foreground","blue",
+		/*
+		"width",80-4,
+		"height",SEQUENCE_CELL_HEIGHT-4,
+	  "xpad",SEQUENCE_CELL_XPAD,
+		"ypad",SEQUENCE_CELL_YPAD,
+		*/
+		NULL);
 	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
 	) {
-		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",80,NULL);
+		g_object_set(tree_col,
+			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+			"fixed-width",80,
+			NULL);
 		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
 	}
 	else GST_WARNING("can't create treeview column");
@@ -365,7 +420,17 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     machine=bt_sequence_get_machine_by_track(sequence,j);
     renderer=gtk_cell_renderer_text_new();
     //g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
-		g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,"width",100,NULL);
+		g_object_set(G_OBJECT(renderer),
+			"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+			"xalign",0.0,
+			"yalign",0.5,
+			/*
+			"width",SEQUENCE_CELL_WIDTH-4,
+			"height",SEQUENCE_CELL_HEIGHT-4,
+			"xpad",SEQUENCE_CELL_XPAD,
+			"ypad",SEQUENCE_CELL_YPAD,
+			*/
+			NULL);
 
     // set machine name as column header
 		if(machine) {
@@ -384,7 +449,11 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       "text",SEQUENCE_TABLE_PRE_CT+j,
       NULL))
 		) {
-			g_object_set(tree_col,"widget",label,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",100,NULL);
+			g_object_set(tree_col,
+				"widget",label,
+				"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+				"fixed-width",SEQUENCE_CELL_WIDTH,
+				NULL);
 			gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
     			
 			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
@@ -405,9 +474,13 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   }
 	// add a final column that eats remaining space
 	renderer=gtk_cell_renderer_text_new();
-	g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,NULL);
+	g_object_set(G_OBJECT(renderer),
+		"mode",GTK_CELL_RENDERER_MODE_INERT,
+		NULL);
 	if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
-		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,NULL);
+		g_object_set(tree_col,
+			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+			NULL);
 		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
 		GST_DEBUG("    number of columns : %d",col_index);
 	}
@@ -466,6 +539,46 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
+}
+
+/*
+ * machine_menu_refresh:
+ * add all machines from setup to self->priv->context_menu_add
+ */
+static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *setup) {
+  BtMachine *machine=NULL;
+	GList *node,*list;
+	GtkWidget *menu_item,*submenu,*image;
+	gchar *str;
+
+	// create a new menu
+	submenu=gtk_menu_new();
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->context_menu_add),submenu);
+	
+  // fill machine menu
+  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+	for(node=list;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+		g_object_get(G_OBJECT(machine),"id",&str,NULL);
+		
+		menu_item=gtk_image_menu_item_new_with_label(str);
+		if(BT_IS_SOURCE_MACHINE(machine)) {
+			image=gtk_image_new_from_filename("menu_source_machine.png");
+		}
+		else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+			image=gtk_image_new_from_filename("menu_processor_machine.png");
+		}
+		else if(BT_IS_SINK_MACHINE(machine)) {
+			image=gtk_image_new_from_filename("menu_sink_machine.png");
+		}
+		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+		gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+		gtk_widget_show(menu_item);
+		//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
+		// there is not method to set the label of a menu item
+		//g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)self);
+  }
+	g_list_free(list);
 }
 
 //-- event handler
@@ -556,22 +669,33 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
 
 static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	glong cursor_column;
 
   g_assert(user_data);
 
-  GST_INFO("sequence_table cursor has changed : treeview=%p, page=%p",treeview,user_data);
-  pattern_list_refresh(self);
+	cursor_column=sequence_view_get_cursor_column(treeview);
+	GST_INFO("sequence_table cursor has changed : treeview=%p, page=%p",treeview,user_data);
+	
+	// @todo if cursor_column is 0 or last push it back
+	if(cursor_column!=self->priv->cursor_column) {
+		self->priv->cursor_column=cursor_column;
+		pattern_list_refresh(self);
+	}
 }
 
 static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtMachine *machine;
+	glong cursor_column;
 
   g_assert(user_data);
 
   GST_INFO("sequence_table cursor has moved : treeview=%p, page=%p, arg1=%d, arg2=%d",treeview,user_data,arg1,arg2);
   if(arg1==GTK_MOVEMENT_VISUAL_POSITIONS) {
-    pattern_list_refresh(self);
+		cursor_column=sequence_view_get_cursor_column(treeview);
+		// @todo if cursor_column is 0 or last push it back
+		if(cursor_column!=self->priv->cursor_column) {
+			pattern_list_refresh(self);
+		}
   }
 }
 
@@ -693,7 +817,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 						g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 						g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 						gdk_threads_try_enter();
-						// @idea use qualifier to set loop_start and end?
+						// @idea use a keyboard qualifier to set loop_start and end?
 						// adjust play pointer
 						g_object_set(sequence,"play-pos",row,NULL);
 						gdk_threads_try_leave();
@@ -702,6 +826,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 					}
 					else {
 						gtk_tree_view_set_cursor_on_cell(self->priv->sequence_table,path,column,NULL,FALSE);
+						gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
 					}
 					res=TRUE;
 				}
@@ -716,10 +841,29 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
 	return(res);
 }
 
+static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	
+  g_assert(user_data);
+	
+	GST_INFO("new machine has been added");
+  machine_menu_refresh(self,setup);
+}
+
+static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	
+  g_assert(user_data);
+	
+	GST_INFO("machine has been removed");
+  machine_menu_refresh(self,setup);
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
   BtSongInfo *song_info;
+  BtSetup *setup;
 	BtSequence *sequence;
   glong index,bars;
 	glong loop_start_pos,loop_end_pos;
@@ -733,11 +877,14 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 	if(!song) return;
 
-  g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&sequence,NULL);
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
   pattern_list_refresh(self);
+	machine_menu_refresh(self,setup);
+	g_signal_connect(G_OBJECT(setup),"machine-added",(GCallback)on_machine_added,(gpointer)self);
+	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   // find out to which entry it belongs and set the index
@@ -764,6 +911,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 	g_signal_connect(G_OBJECT(sequence), "notify::play-pos", (GCallback)on_sequence_tick, (gpointer)self);
   //-- release the references
   g_object_try_unref(song_info);
+  g_object_try_unref(setup);
 	g_object_try_unref(sequence);
   g_object_try_unref(song);
 }
@@ -798,7 +946,7 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *toolbar;
   GtkWidget *box,*button,*scrolled_window;
-  GtkWidget *menu_item;
+  GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
 	GtkTreeViewColumn *tree_col;
@@ -864,14 +1012,19 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
 
   // generate the context menu  
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
+	self->priv->context_menu_add=GTK_MENU_ITEM(gtk_image_menu_item_new_with_label(_("Add track")));
+	image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_add),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_add));
+  gtk_widget_show(GTK_WIDGET(self->priv->context_menu_add));
 
-	// @todo add more items (Machine for Add Track) and disable Remove Track when tracks=0
-  menu_item=gtk_menu_item_new_with_label(_("Add Track"));
+  // should that be in the context menu of table hheaders?
+	menu_item=gtk_image_menu_item_new_with_label(_("Remove track"));
+	image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  menu_item=gtk_menu_item_new_with_label(_("Remove Track"));
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
+	//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
 
   // add a hpaned
   box=gtk_hpaned_new();
@@ -968,32 +1121,23 @@ Error:
  */
 BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
   BtMachine *machine=NULL;
-  BtSong *song;
-  BtSequence *sequence;
-  GtkTreePath *path;
-  GtkTreeViewColumn *column;
+	glong track;
 
   GST_INFO("get active machine");
   
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  // get table column number (col 0 is for positions and col 1 for labels)
+	if((track=sequence_view_get_cursor_column(self->priv->sequence_table))>1) {
+		BtSong *song;
+		BtSequence *sequence;
 
-  // get table column number (column 0 is for labels)
-  gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
-  if(column) {
-    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-    glong track=g_list_index(columns,(gpointer)column);
-
-    g_list_free(columns);
-    GST_INFO("  active track is %d",track);
-    if(track>1) { // first two tracks are pos and label
-      machine=bt_sequence_get_machine_by_track(sequence,track-2);
-    }
+    GST_DEBUG("  active track is %d",track);
+		g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+		g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+    machine=bt_sequence_get_machine_by_track(sequence,track-2);
+		// release the references
+		g_object_try_unref(sequence);
+		g_object_try_unref(song);
   }
-	if(path) gtk_tree_path_free(path);
-  // release the references
-  g_object_try_unref(sequence);
-  g_object_try_unref(song);
   return(machine);
 }
 
@@ -1038,7 +1182,7 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
 				gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
 				if(timeline=bt_sequence_get_timeline_by_time(sequence,row)) {
 					timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,track-2);
-					GST_INFO("  found one at %d,%d",track-2,row);
+					GST_DEBUG("  found one at %d,%d",track-2,row);
 					g_object_unref(timeline);
 				}
 			}
