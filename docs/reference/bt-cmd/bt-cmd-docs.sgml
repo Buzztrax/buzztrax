@@ -3,6 +3,7 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
+<!ENTITY btcmd SYSTEM "xml/btcmd.xml">
 <!ENTITY BtCmdApplication SYSTEM "xml/btcmdapplication.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
@@ -33,6 +34,7 @@
       Please make sure you have read section <ulink url="../bt-core/conventions.html">conventions</ulink>
       before reading further.
     </para>
+    &btcmd;
     &BtCmdApplication;
   </chapter>
 
