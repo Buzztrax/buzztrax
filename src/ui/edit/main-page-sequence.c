@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
 
-/* $Id: main-page-sequence.c,v 1.46 2005-01-27 12:55:16 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.47 2005-01-27 17:17:30 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -498,6 +498,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	gboolean res=FALSE;
 	BtTimeLineTrack *timelinetrack;
+	gchar *str=NULL;
+	gboolean free_str=FALSE;
 
   g_assert(user_data);
 	
@@ -507,14 +509,17 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 		// look up pattern for key
 		if(event->keyval=='-') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,"pattern",NULL,NULL);
+			str="---";
 			res=TRUE;
 		}
 		else if(event->keyval==',') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,"pattern",NULL,NULL);
+      str="===";
 			res=TRUE;
 		}
 		else if(event->keyval==' ') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_EMPTY,"pattern",NULL,NULL);
+			str=" ";
 			res=TRUE;
 		}
 		else {
@@ -528,12 +533,38 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 				
 					if((pattern=bt_machine_get_pattern_by_index(machine,((gulong)pos-(gulong)pattern_keys)))) {
 						g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_PATTERN,"pattern",pattern,NULL);
-						// @todo irks, we need to change model as well! (means in fact we need an own model class)
+						g_object_get(G_OBJECT(pattern),"name",&str,NULL);
+          	g_object_try_unref(pattern);
+          	free_str=TRUE;
 						res=TRUE;
-						g_object_unref(pattern);
 					}
 					g_object_unref(machine);
 				}
+			}
+		}
+		// update tree-view model
+		if(res) {
+			GtkTreeModelFilter *filtered_store;
+			GtkTreeModel *store;
+			GtkTreePath *path;
+			GtkTreeViewColumn *column;
+			GtkTreeIter iter;
+
+			if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
+				&& (store=gtk_tree_model_filter_get_model(filtered_store))
+			)	{
+				gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
+				if(path && column && gtk_tree_model_get_iter(store,&iter,path)) {
+			    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
+		  	  glong row,track=g_list_index(columns,(gpointer)column)-2;
+				
+					g_list_free(columns);
+					//gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
+					//GST_INFO("  position is %d,%d -> ",row,track,SEQUENCE_TABLE_PRE_CT+track);
+					
+					gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+track,str,-1);
+				}
+				if(free_str) g_free(str);
 			}
 		}
 	}
