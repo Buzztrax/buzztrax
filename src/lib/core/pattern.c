@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.28 2005-01-17 18:02:12 ensonic Exp $
+/* $Id: pattern.c,v 1.29 2005-01-20 16:18:27 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -319,7 +319,7 @@ gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar 
       //gdouble val=atof(value); // this is dependend on the locale
 			gdouble val=g_ascii_strtod(value,NULL);
       g_value_set_double(event,val);
-      GST_INFO("store double event %s",value);
+      GST_DEBUG("store double event %s",value);
     } break;
     default:
       GST_ERROR("unsupported GType=%d for value=\"%s\"",G_VALUE_TYPE(event),value);

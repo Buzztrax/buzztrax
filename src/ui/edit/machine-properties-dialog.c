@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.6 2005-01-17 18:02:40 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.7 2005-01-20 16:18:53 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -39,6 +39,15 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
 	
 	g_object_get(G_OBJECT(machine),property->name,&value,NULL);
 	gtk_range_set_value(GTK_RANGE(widget),value);
+}
+
+static void on_range_property_changed(GtkRange *range,gpointer user_data) {
+	GstDParam *dparam=GST_DPARAM(user_data);
+	
+	g_assert(user_data);
+
+	//GST_INFO("property value change received");
+	g_object_set(dparam,"value_double",gtk_range_get_value(range),NULL);
 }
 
 //-- helper methods
@@ -103,7 +112,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 			// get name
 			label=gtk_label_new(GST_DPARAM_NAME(dparam));
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_SHRINK,GTK_SHRINK, 2,1);
 			// @todo choose proper widgets
 			param_type=bt_machine_get_global_dparam_type(self->priv->machine,i);
 			if(param_type==G_TYPE_STRING) {
@@ -120,6 +129,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				gtk_range_set_value(GTK_RANGE(widget),value);
 				// @todo add numerical entry as well ?
 				g_signal_connect(G_OBJECT(dparam), "notify::value_double", (GCallback)on_range_property_notify, (gpointer)widget);
+				g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_range_property_changed, (gpointer)dparam);
 			}
 			else {
 				gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));

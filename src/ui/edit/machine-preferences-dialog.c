@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.5 2005-01-17 18:02:40 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.6 2005-01-20 16:18:53 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -47,7 +47,7 @@ static void on_range_property_changed(GtkRange *range,gpointer user_data) {
 	
 	g_assert(user_data);
 
-	GST_INFO("preferences value change received for: '%s'",name);
+	//GST_INFO("preferences value change received for: '%s'",name);
 	g_object_set(machine,name,gtk_range_get_value(range),NULL);
 }
 
@@ -106,7 +106,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 			// get name
 			label=gtk_label_new(property->name);
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_SHRINK,GTK_SHRINK, 2,1);
 			// @todo choose proper widgets
 			param_type=G_PARAM_SPEC_TYPE(property);
 			if(param_type==G_TYPE_PARAM_STRING) {

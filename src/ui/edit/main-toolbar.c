@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.36 2005-01-19 18:22:34 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.37 2005-01-20 16:18:53 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -34,6 +34,34 @@ struct _BtMainToolbarPrivate {
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
+
+//-- helper
+
+static gint gst_caps_get_channels(GstCaps *caps) {
+	GstStructure *structure;
+	gint channels=0,size,i;
+
+	g_assert(caps);
+	
+	if(GST_CAPS_IS_SIMPLE(caps)) {
+		if((structure=gst_caps_get_structure(caps,0))) {
+			gst_structure_get_int(structure,"channels",&channels);
+			channels++;
+			GST_DEBUG("---    simple caps with channels=%d",channels);
+		}
+	}
+	else {
+		size=gst_caps_get_size(caps);
+		for(i=0;i<size;i++) {
+			if((structure=gst_caps_get_structure(caps,i))) {
+				gst_structure_get_int(structure,"channels",&channels);
+				channels++;
+				GST_DEBUG("---    caps %d with channels=%d",i,channels);
+			}
+		}
+	}
+	return(channels);
+}
 
 //-- event handler
 
@@ -197,25 +225,16 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		// connect to the level signal
 		g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
 
-		// determine number of channels    
-		pad=gst_element_get_pad(level,"sink");
-		caps=gst_pad_get_caps(pad);
-		// @todo add complex caps parsing
-		// check if it is simple caps (only one element)
-		if(GST_CAPS_IS_SIMPLE(caps)) {
-			structure=gst_caps_get_structure(caps,0);
-			gst_structure_get_int(structure,"channels",&channels_i);
-			channels_i++;
-			GST_INFO("  input level sink has %d inputs channels",channels_i);
+		// determine number of channels (seems to be not negotiated yet!)
+		if((pad=gst_element_get_pad(level,"sink")) && (caps=gst_pad_get_caps(pad))) {
+			channels_i=gst_caps_get_channels(caps);
+			GST_INFO("!!!  input level sink has %d inputs channels",channels_i);
+			gst_caps_free(caps);
 		}
-		pad=gst_element_get_pad(level,"src");
-		caps=gst_pad_get_caps(pad);
-		// check if it is simple caps (only one element)
-		if(GST_CAPS_IS_SIMPLE(caps)) {
-			structure=gst_caps_get_structure(caps,0);
-			gst_structure_get_int(structure,"channels",&channels_o);
-			channels_o++;
-			GST_INFO("  input level sink has %d output channels",channels_o);
+		if((pad=gst_element_get_pad(level,"src")) && (caps=gst_pad_get_caps(pad))) {
+			channels_o=gst_caps_get_channels(caps);
+			GST_INFO("!!!  input level sink has %d output channels",channels_o);
+			gst_caps_free(caps);
 		}
 		channels=(channels_i<channels_o)?channels_o:channels_i;
 		if(channels>MAX_VUMETER) channels=MAX_VUMETER;
@@ -225,7 +244,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		// connect volumne event
 		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
-	GST_INFO("  input level analyser will process %d channels",channels);
+	GST_INFO("!!!  input level analyser will process %d channels",channels);
 	// show/hide channel vumeters depending on the numer of channel
 	for(i=0;i<channels;i++) {
 		gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));

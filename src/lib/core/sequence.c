@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.52 2005-01-18 16:38:35 ensonic Exp $
+/* $Id: sequence.c,v 1.53 2005-01-20 16:18:40 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -323,7 +323,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
     gulong beats_per_minute,ticks_per_beat;
     gdouble ticks_per_minute;
     // DEBUG {
-    GTimer *timer;
+    //GTimer *timer;
     // }
 
     g_object_get(G_OBJECT(self->priv->song),"bin",&bin,"song-info",&song_info,NULL);
@@ -345,15 +345,15 @@ gboolean bt_sequence_play(const BtSequence *self) {
       self->priv->is_playing=TRUE;
       g_mutex_unlock(self->priv->is_playing_mutex);
       // DEBUG {
-      timer=g_timer_new();
-			g_timer_start(timer);
+      //timer=g_timer_new();
+			//g_timer_start(timer);
       // }
       do {
         // @todo handle loop-start/end
         timeline=self->priv->timelines;
         for(i=0;((i<self->priv->length) && (self->priv->is_playing));i++,timeline++) {
           // DEBUG {
-          GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
+          //GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
           // }
           // emit a tick signal
           g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
@@ -364,7 +364,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
         }
       } while((self->priv->loop) && (self->priv->is_playing));
       // DEBUG {
-      g_timer_destroy(timer);
+      //g_timer_destroy(timer);
       // }
       // emit a tick signal
       g_signal_emit(G_OBJECT(self), signals[TICK], 0, i);
