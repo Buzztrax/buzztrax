@@ -243,35 +243,61 @@ void BmxFile::readWavtSection()
 		
 		wavt = new BmxWavtSection[numberOfWaves];
     for (unsigned int i = 0; i < numberOfMachines; i++) {
-       BmxWavtSection *wavtable = &wavt[i];
+      BmxWavtSection *wavtable = &wavt[i];
        
-			 // reader header
-       wavtable->index = read_word();
-       read_asciiz(wavtable->filename);
-       read_asciiz(wavtable->name);
-       wavtable->volume = read_float();
-       wavtable->flags = read_byte();
-			 if(wavtable->flags&0x80) {
-				 // read envelopes
-				 wavtable->numberOfEnvelopes = read_word();
-				 wavtable->envelopes = new BmxWavtableEnvelope[wavtable->numberOfEnvelopes];
+			// reader header
+      wavtable->index = read_word();
+      read_asciiz(wavtable->filename);
+      read_asciiz(wavtable->name);
+      wavtable->volume = read_float();
+      wavtable->flags = read_byte();
+			if(wavtable->flags&0x80) {
+        // read envelopes
+				wavtable->numberOfEnvelopes = read_word();
+				wavtable->envelopes = new BmxWavtableEnvelope[wavtable->numberOfEnvelopes];
 
-				 for (unsigned int j = 0; j < wavtable->numberOfEnvelopes; j++) {
-					 	BmxWavtableEnvelope *envelope = &wavtable->envelopes[j];
+				for (unsigned int j = 0; j < wavtable->numberOfEnvelopes; j++) {
+          BmxWavtableEnvelope *envelope = &wavtable->envelopes[j];
 						
-						envelope->attack = read_word();
-						envelope->decay = read_word();
-						envelope->sustain = read_word();
-						envelope->release = read_word();
-						envelope->subdiv = read_byte();
-						envelope->flags = read_byte();
-						envelope->numberOfPoints = read_word();
-				 }
-			 }
-			 // read levels
-			 //wavtable->numberOfLevels = read_word();
-			 //wavtable->levels = new BmxWavtableLevel[wavtable->numberOfLevels];
-		}
+					envelope->attack = read_word();
+          envelope->decay = read_word();
+          envelope->sustain = read_word();
+          envelope->release = read_word();
+          envelope->subdiv = read_byte();
+          envelope->flags = read_byte();
+          envelope->numberOfPoints = read_word();
+          envelope->disabled=(envelope->numberOfPoints&0x8000)?1:0;
+          
+          envelope->numberOfPoints&=0x7FFF;
+          
+          if(envelope->numberOfPoints) {
+            envelope->points = new BmxWavtableEnvelopePoints[envelope->numberOfPoints];
+
+            for (unsigned int k = 0; k < envelope->numberOfPoints; k++) {
+              BmxWavtableEnvelopePoints *point = &envelope->points[k];
+          
+              point->x = read_word();
+              point->y = read_word();
+              point->flags = read_byte();
+            }
+          }
+          else envelope->points=0x0;
+				}
+			}
+			// read levels
+			wavtable->numberOfLevels = read_byte();
+			wavtable->levels = new BmxWavtableLevel[wavtable->numberOfLevels];
+
+      for (unsigned int j = 0; j < wavtable->numberOfLevels; j++) {
+        BmxWavtableLevel *level = &wavtable->levels[j];
+
+				level->numberOfSamples = read_dword();
+				level->loopBegin = read_dword();
+				level->loopEnd = read_dword();
+				level->samplesPerSec = read_dword();
+				level->rootNote = read_byte();
+      }
+    }
 }
 
 
@@ -300,7 +326,8 @@ void BmxFile::readCwavSection()
     for (int i = 0; i < cwav->numberOfWavs; i++) {
         cwav->index[i] = read_word();
         cwav->format[i] = read_byte();
-    
+        
+        // compressed data
         if (cwav->format[i] == 1) {
             int len = entries[section].size - (2 * sizeof(word)) 
                 - sizeof(byte);
@@ -311,6 +338,7 @@ void BmxFile::readCwavSection()
             break;
         }
         
+        // uncompressed data
         if (cwav->format[i] == 0) {
             compressedWaveTable = false;
             break;
@@ -557,11 +585,11 @@ void BmxFile::printWavtSection()
 				cout << " Volume: " << wavetable->volume << endl;
 				cout << " Flags: " << static_cast<int>(wavetable->flags) << endl;
 				cout << " Envelopes: " << wavetable->numberOfEnvelopes << endl;
-				cout << " Levels: " << wavetable->numberOfLevels << endl;
+				cout << " Levels: " << static_cast<int>(wavetable->numberOfLevels) << endl;
 				cout << endl;
 
 				for (unsigned int j = 0; j < wavetable->numberOfEnvelopes; j++) {
-					BmxWavtableEnvelope *envelope=&wavetable->envelope[j];
+					BmxWavtableEnvelope *envelope=&wavetable->envelopes[j];
 					
 					cout << " \tEnvelope " << j << endl;
 					cout << " \tADSR: " << envelope->attack
@@ -569,13 +597,22 @@ void BmxFile::printWavtSection()
 					     << ","  << envelope->sustain
 					     << ","  << envelope->release
 							 << endl;
+          cout << " \tSubdiv: " << static_cast<int>(envelope->subdiv) << endl;
+          cout << " \tFlags: " << static_cast<int>(envelope->flags) << endl;
+          cout << " \tDisabled: " << static_cast<int>(envelope->disabled) << endl;
+          cout << " \tPoints: " << envelope->numberOfPoints << endl;
 					cout << endl;
 				}
 
 				for (unsigned int j = 0; j < wavetable->numberOfLevels; j++) {
-					BmxWavtableLevel *level=&wavetable->level[j];
+					BmxWavtableLevel *level=&wavetable->levels[j];
 					
 					cout << " \tLevel " << j << endl;
+          cout << " \tSamples: " << level->numberOfSamples << endl;
+          cout << " \tLoopBeg: " << level->loopBegin << endl;
+          cout << " \tLoopEnd: " << level->loopEnd << endl;
+          cout << " \tSamplesPerSec: " << level->samplesPerSec << endl;
+          cout << " \tRootNote: " << static_cast<int>(level->rootNote) << endl;
 					cout << endl;
 				}
 		}

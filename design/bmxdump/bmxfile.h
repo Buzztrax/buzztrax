@@ -102,6 +102,7 @@ struct BmxWavtableEnvelope {
 		byte subdiv;
 		byte flags;
 		word numberOfPoints;
+    byte disabled;
 		BmxWavtableEnvelopePoints *points;
 };
 
@@ -124,9 +125,9 @@ struct BmxWavtSection
 		byte flags;
 		
 		word	numberOfEnvelopes;
-		BmxWavtableEnvelope *envleopes;
+		BmxWavtableEnvelope *envelopes;
 		
-		word	numberOfLevels;
+		byte	numberOfLevels;
 		BmxWavtableLevel *levels;
 };
 
@@ -136,6 +137,11 @@ inline BmxWavtSection::BmxWavtSection() {
 }
 
 inline BmxWavtSection::~BmxWavtSection() {
+    for (unsigned int i = 0; i < numberOfEnvelopes; i++) {
+      BmxWavtableEnvelope *envelope=&envelopes[i];
+
+      if(envelope->points) delete [] envelope->points;
+    }
 		DELARR(envelopes);
 		DELARR(levels);
 }
