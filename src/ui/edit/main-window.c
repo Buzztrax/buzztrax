@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.48 2005-01-18 16:38:37 ensonic Exp $
+/* $Id: main-window.c,v 1.49 2005-01-28 11:12:00 ensonic Exp $
  * class for the editor main window
  */
 
@@ -145,8 +145,10 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   }
 	GST_INFO("new main_window created");
   gtk_widget_show_all(GTK_WIDGET(self));
+	GST_INFO("new main_window shown");
   return(self);
 Error:
+	GST_WARNING("new main_window failed");
   g_object_try_unref(self);
   return(NULL);
 }
@@ -387,9 +389,10 @@ static void bt_main_window_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case MAIN_WINDOW_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for main_window: %p",self->priv->app);
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
+			g_object_try_weak_ref(self->priv->app);
+      GST_DEBUG("set the app for main_window: %p",self->priv->app);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -403,7 +406,7 @@ static void bt_main_window_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  g_object_try_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

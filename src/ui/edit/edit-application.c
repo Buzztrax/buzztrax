@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.48 2005-01-28 09:31:47 ensonic Exp $
+/* $Id: edit-application.c,v 1.49 2005-01-28 11:12:00 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -97,6 +97,7 @@ BtEditApplication *bt_edit_application_new(void) {
 	GST_INFO("new edit app window created");
   return(self);
 Error:
+	GST_WARNING("new edit app failed");
 	g_object_try_unref(self);
 	return(NULL);
 }
@@ -367,13 +368,14 @@ static void bt_edit_application_dispose(GObject *object) {
 
 	/* I don't get it! This should destory the window as this is a child of the app.
 	 * On the other hand, this *NEVER* gats called as long as the window keeps its
-	 * strong reference to the app
+	 * strong reference to the app.
+	 * Solution: Only use weak refs when reffing upstream objects
 	 */
 	
   GST_DEBUG("!!!! self=%p",self);
 
   if(self->priv->song) {
-    GST_INFO("1. song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+    GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
     bt_song_stop(self->priv->song);
   }
   g_object_try_unref(self->priv->song);
@@ -381,6 +383,7 @@ static void bt_edit_application_dispose(GObject *object) {
 	if(self->priv->main_window) {
 		GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
 	}
+	g_object_try_unref(self->priv->main_window);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
