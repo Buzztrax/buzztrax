@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.41 2004-11-18 17:58:16 ensonic Exp $
+/* $Id: song-io-native.c,v 1.42 2004-11-18 18:37:04 ensonic Exp $
  * class for native song input and output
  */
  
@@ -460,7 +460,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
   BtTimeLineTrack *timelinetrack;
   xmlChar *time_str,*pattern_id;
 
-  g_object_get(BT_SONG(song),"sequence",&sequence,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 
   bt_sequence_set_machine_by_track(sequence,index,machine);
   while(xml_node) {
@@ -577,11 +577,11 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	xmlNsPtr ns=NULL;
   gchar *file_name,*status;
   
-	g_object_get(BT_SONG(self),"file-name",&file_name,NULL);
+	g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
 	GST_INFO("native io will now load song from \"%s\"",file_name);
 
   status=g_strdup_printf(_("Loading file \"%s\""),file_name);
-  g_object_set(BT_SONG(self),"status",status,NULL);
+  g_object_set(G_OBJECT(self),"status",status,NULL);
   g_free(status);
   
   //DEBUG
@@ -642,7 +642,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   //DEBUG
   //sleep(1);
   //DEBUG
-  g_object_set((gpointer)self,"status",NULL,NULL);
+  g_object_set(G_OBJECT(self),"status",NULL,NULL);
 	return(result);
 }
 
@@ -654,16 +654,17 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 
   gchar *file_name,*status;
   
-	g_object_get((gpointer)self,"file-name",&file_name,NULL);
+	g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
 	GST_INFO("native io will now save song to \"%s\"",file_name);
 
   status=g_strdup_printf(_("Saving file \"%s\""),file_name);
-  g_object_set((gpointer)self,"status",status,NULL);
+  g_object_set(G_OBJECT(self),"status",status,NULL);
   g_free(status);
 
 	if((song_doc=xmlNewDoc("1.0"))) {
 		// create the root-node
     root_node = xmlNewNode(NULL,"buzztard");
+		xmlNewProp(root_node,"xmlns",(const xmlChar *)BT_NS_URL);
     xmlDocSetRootElement(song_doc, root_node);
 		// @todo build the xml document tree
 		
@@ -674,7 +675,7 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 	
 	g_free(file_name);
 
-  g_object_set((gpointer)self,"status",NULL,NULL);
+  g_object_set(G_OBJECT(self),"status",NULL,NULL);
 	return(result);
 }
 
