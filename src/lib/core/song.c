@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.34 2004-08-08 01:04:46 ensonic Exp $
+/* $Id: song.c,v 1.35 2004-08-12 14:47:40 waffel Exp $
  * song 
  *   holds all song related globals
  *
@@ -234,6 +234,7 @@ static void bt_song_class_init(BtSongClass *klass) {
 	 * BtSong::play:
 	 *
 	 * signals that this song has started to play
+	 * @todo give the play signal the self pointer, thus the user can find out, which song has start play
 	 */
   klass->play_signal_id = g_signal_newv("play",
                                         G_TYPE_FROM_CLASS (gobject_class),
