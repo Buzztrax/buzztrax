@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.32 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: core.h,v 1.33 2004-09-16 17:00:22 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -10,7 +10,6 @@
 
 //-- ansi c
 #include <dirent.h>
-#include <time.h>
 //-- locale
 #ifdef HAVE_X11_XLOCALE_H
 	/* defines a more portable setlocale for X11 (_Xsetlocale) */

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.25 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: sequence.c,v 1.26 2004-09-16 17:00:03 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -176,7 +176,7 @@ BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong t
     return(self->private->machines[track]);
   }
   else {
-    GST_ERROR("index out of bounds, %d should be < %d",time,self->private->tracks);
+    GST_ERROR("index out of bounds, %d should be < %d",track,self->private->tracks);
   }
   return(NULL);
 }
@@ -198,6 +198,7 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,c
   
   if(track<self->private->tracks) {
     if(!self->private->machines[track]) {
+      // @todo ref the machine
       self->private->machines[track]=machine;
     }
     else {
@@ -205,7 +206,7 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,c
     }
   }
   else {
-    GST_ERROR("index out of bounds, %d should be < %d",time,self->private->tracks);
+    GST_ERROR("index out of bounds, %d should be < %d",track,self->private->tracks);
   }
 }
 
@@ -272,7 +273,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
   glong beats_per_minute,ticks_per_beat;
   gdouble ticks_per_minute;
   gboolean res=TRUE;
-  time_t tm1,tm2;
+  // DEBUG {
+  GTimer *timer;
+  // }
   
   if(!self->private->tracks) return(res);
   if(!self->private->length) return(res);
@@ -298,12 +301,12 @@ gboolean bt_sequence_play(const BtSequence *self) {
     self->private->is_playing=TRUE;
     g_mutex_unlock(self->private->is_playing_mutex);
     // DEBUG {
-    tm1=time(NULL);
+    timer=g_timer_new();
+    g_timer_start(timer);
     // }
     for(i=0;((i<self->private->length) && (self->private->is_playing));i++,timeline++) {
       // DEBUG {
-      tm2=time(NULL);
-      GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,difftime(tm2,tm1));
+      GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
       // }
       // emit a tick signal
       g_signal_emit(G_OBJECT(self), BT_SEQUENCE_GET_CLASS(self)->tick_signal_id, 0, i);
@@ -312,6 +315,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
       // play the patterns in the cursor
       bt_playline_play(playline);
     }
+    // DEBUG {
+    g_timer_destroy(timer);
+    // }
     // emit a tick signal
     g_signal_emit(G_OBJECT(self), BT_SEQUENCE_GET_CLASS(self)->tick_signal_id, 0, i);
     if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
@@ -414,6 +420,7 @@ static void bt_sequence_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 	g_object_try_unref(self->private->song);
   bt_sequence_unref_timelines(self);
+  // @todo unref the machines
 }
 
 static void bt_sequence_finalize(GObject *object) {

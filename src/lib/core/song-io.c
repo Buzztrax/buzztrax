@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.14 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: song-io.c,v 1.15 2004-09-16 17:00:03 ensonic Exp $
  * base class for song input and output
  */
  
@@ -109,14 +109,17 @@ static GType bt_song_io_detect(const gchar *file_name) {
  * Returns: the new instance or NULL in case of an error
  */
 BtSongIO *bt_song_io_new(const gchar *file_name) {
-  BtSongIO *self;
+  BtSongIO *self=NULL;
+  GType type=NULL;
 	
-	if (!is_string(file_name)) {
+	if(!is_string(file_name)) {
 		return NULL;
 	}
 	
-  self=BT_SONG_IO(g_object_new(bt_song_io_detect(file_name),NULL));
-  self->private->file_name=(gchar *)file_name;
+  if(type=bt_song_io_detect(file_name)) {
+    self=BT_SONG_IO(g_object_new(type,NULL));
+    self->private->file_name=(gchar *)file_name;
+  }
   return(self);
 }
 
