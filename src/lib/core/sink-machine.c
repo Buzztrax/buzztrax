@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.33 2005-01-26 17:29:50 ensonic Exp $
+/* $Id: sink-machine.c,v 1.34 2005-02-07 21:45:25 ensonic Exp $
  * class for a sink machine
  */
  
@@ -22,11 +22,11 @@ static BtMachineClass *parent_class=NULL;
  * bt_sink_machine_new:
  * @song: the song the new instance belongs to
  * @id: the id, we can use to lookup the machine
- * @plugin_name: the name of the gst-plugin the machine is using
  *
- * Create a new instance
+ * Create a new instance.
  * A machine should be added to a songs setup using
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
+ * The plugin used for this machine is taken from the #BtSettings.
  *
  * Returns: the new instance or %NULL in case of an error
  */
@@ -100,6 +100,22 @@ Error:
   g_object_try_unref(self);
   return(NULL);
 }
+
+/*
+ * bt_sink_machine_new_recorder:
+ * @song: the song the new instance belongs to
+ * @id: the id, we can use to lookup the machine
+ * @format: specify the file format to record in
+ *
+ *
+BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id, const gchar *format) {
+ 	// get gst mimetype from the extension
+  // and then look at all encoders which supply that mimetype
+	// check elements in "codec/encoder/audio", "codec/muxer/audio"
+	// build caps using this mimetype
+	// gst_element_factory_can_src_caps()
+}
+*/
 
 //-- methods
 

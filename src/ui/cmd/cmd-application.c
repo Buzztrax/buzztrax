@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.51 2005-02-05 16:28:31 ensonic Exp $
+// $Id: cmd-application.c,v 1.52 2005-02-07 21:45:42 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -306,13 +306,10 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
     goto Error;
   }
 
-  /* @todo implement me like play, with a different sink (determine by output file name ?)
-	 * instead of waiting for the clock with gst_element_wait(), we need to use gst_bin_iterate();
-	 * - that means we need to have an abstract base class BtTimelineCursor and have two subclasses:
-   *   BtPlayline (uses gst_element_wait()), BtRenderline (uses gst_bin_iterate())
-	 * - the play methods need refactoring, as the caller needs to pass the BtTimelineCursor
-	 *   maybe rename bt_sequence_play -> bt_sequence_run
-	 * can we enforce a certain buffersize, so that we can push new events after each iterate?
+  /* @todo implement this like play, with a different sink (determine by output file name ?)
+	 * we can use the playline like normal play does, as gst_clock_wait() waits
+   * for stream time not real time.
+	 * Only open question is how to use a different audiosink
 	 */
   g_printf("sorry this is not yet implemented\n");
 

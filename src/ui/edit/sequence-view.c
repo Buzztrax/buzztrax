@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.2 2005-02-07 14:57:55 ensonic Exp $
+/* $Id: sequence-view.c,v 1.3 2005-02-07 21:45:42 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -22,6 +22,10 @@ struct _BtSequenceViewPrivate {
 	
 	/* position of playing pointer from 0.0 ... 1.0 */
 	gdouble play_pos;
+	
+	/* cache some ressources */
+	GdkWindow *window;
+	GdkGC *play_pos_gc;
 };
 
 static GtkTreeViewClass *parent_class=NULL;
@@ -62,9 +66,25 @@ Error:
 
 //-- class internals
 
+static void bt_sequence_view_realize(GtkWidget *widget) {
+	BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
+	GdkColor color;
+
+  // first let the parent realize itslf
+  if(GTK_WIDGET_CLASS(parent_class)->realize) {
+    (GTK_WIDGET_CLASS(parent_class)->realize)(widget);
+  }
+	self->priv->window=gtk_tree_view_get_bin_window(GTK_TREE_VIEW(self));
+
+	color.red = 0;
+	color.green = 0;
+	color.blue = 65535;
+	self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
+	gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);	
+}
+
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
 	BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
-	GdkWindow *window;
 
 	//GST_INFO("!!!! self=%p",self);
 	
@@ -73,29 +93,23 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     (GTK_WIDGET_CLASS(parent_class)->expose_event)(widget,event);
   }
 
-	/* We need to check to make sure that the expose event is actually
-   * occuring on the window where the table data is being drawn.  If
-   * we don't do this check, row zero spanners can be drawn on top
-   * of the column headers.
+	/* We need to check to make sure that the expose event is actually occuring on
+   * the window where the table data is being drawn.  If we don't do this check,
+   * row zero spanners can be drawn on top of the column headers.
  	 */
-  window=gtk_tree_view_get_bin_window(GTK_TREE_VIEW(widget));
-  if(window==event->window) {
+  if(self->priv->window==event->window) {
 		gint w,h;
-		GdkGC *gc;
-		GdkColor color;
+		GdkRectangle vr;
+		
+		gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
+		GST_INFO(" tree view visible rect: %d x %d, %d x %d",vr.x,vr.y,vr.width,vr.height);
+		GST_INFO(" tree view allocation: %d x %d",widget->allocation.width,widget->allocation.height);
 
-		//GST_INFO(" draw line %d x %d",widget->allocation.width,widget->allocation.height);
-
-		gc=gdk_gc_new(window);
-		color.red = 0;
-		color.green = 0;
-		color.blue = 65535;
-		gdk_gc_set_rgb_fg_color(gc,&color);
-	
-		w=widget->allocation.width;
-		h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
-  	gdk_draw_line(window,gc,0,h,w,h);
-		g_object_unref(gc);
+		//w=widget->allocation.width;
+		//h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
+		w=vr.width;
+		h=(gint)(self->priv->play_pos*(double)vr.height);
+  	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,h,w,h);
 	}
 	return(FALSE);
 }
@@ -151,6 +165,9 @@ static void bt_sequence_view_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
+	
+	g_object_try_unref(self->priv->play_pos_gc);
+
   // this disposes the pages for us
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -170,6 +187,7 @@ static void bt_sequence_view_finalize(GObject *object) {
 
 static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(instance);
+	
   self->priv = g_new0(BtSequenceViewPrivate,1);
   self->priv->dispose_has_run = FALSE;
 }
@@ -186,6 +204,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   gobject_class->finalize     = bt_sequence_view_finalize;
 	
 	// override some gtkwidget methods
+	gtkwidget_class->realize = bt_sequence_view_realize;
 	gtkwidget_class->expose_event = bt_sequence_view_expose_event;
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_APP,
