@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.4 2004-08-13 20:44:07 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.5 2004-08-14 08:12:23 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -85,7 +85,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   //-- media controls
   
-  image=create_pixmap("stock_media-play.xpm");
+  image=create_pixmap("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -95,7 +95,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Play"));
 
-  image=create_pixmap("stock_media-stop.xpm");
+  image=create_pixmap("stock_media-stop.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -104,6 +104,16 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
                                 image, NULL, NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Stop"));
+
+  image=create_pixmap("stock_repeat.png");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Loop"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Loop"));
 
   return(TRUE);
 }
