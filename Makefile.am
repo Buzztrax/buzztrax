@@ -1,6 +1,7 @@
-## $Id: Makefile.am,v 1.22 2004-11-25 21:09:28 ensonic Exp $
+## $Id: Makefile.am,v 1.23 2004-11-26 18:30:54 waffel Exp $
 
-SUBDIRS = src po tests docs
+SRCDIRS = src tests
+SUBDIRS = $(SRCDIRS) po docs
 
 if DEBUG
 AM_CFLAGS = -pipe -O0 -Werror -g
@@ -71,8 +72,11 @@ install-data-local:
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)
 
-.PHONY: todo
+.PHONY: todo splint
 
 todo::
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
+
+splint::
+	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done

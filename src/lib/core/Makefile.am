@@ -52,3 +52,7 @@ pkgconfig_DATA = libbtcore.pc
 EXTRA_DIST = \
 	libbtcore.pc.in
 
+.PHONY: splint
+
+splint::
+	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_la_SOURCES)

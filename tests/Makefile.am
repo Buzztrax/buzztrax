@@ -29,3 +29,9 @@ INCLUDES = \
 	$(BT_CFLAGS)
 endif
 
+.PHONY: splint 
+
+splint::
+	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(buzztard_SOURCES)
+	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(bt_cmd_SOURCES)
+	for dir in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done

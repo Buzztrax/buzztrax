@@ -21,3 +21,7 @@ INCLUDES = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
+.PHONY: splint
+
+splint::
+	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcmd_la_SOURCES)

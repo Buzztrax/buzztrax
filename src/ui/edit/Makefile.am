@@ -47,3 +47,8 @@ EXTRA_DIST = $(desktop_DATA)
 
 clean-local:
 	rm -f bt-edit.desktop
+
+.PHONY: splint
+
+splint::
+	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtedit_la_SOURCES)
