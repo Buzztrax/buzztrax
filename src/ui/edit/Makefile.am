@@ -20,6 +20,7 @@ libbtedit_la_SOURCES   = \
 	main-page-machines.c main-page-machines.h main-page-machines-methods.h \
 	main-page-patterns.c main-page-patterns.h main-page-patterns-methods.h \
 	main-page-sequence.c main-page-sequence.h main-page-patterns-sequence.h \
+	main-page-waves.c main-page-waves.h main-page-patterns-waves.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \

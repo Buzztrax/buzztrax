@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.11 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-pages.c,v 1.12 2004-12-02 10:45:33 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -25,6 +25,8 @@ struct _BtMainPagesPrivate {
   BtMainPagePatterns *patterns_page;
   /* the sequence tab */
   BtMainPageSequence *sequence_page;
+  /* the waves tab */
+  BtMainPageWaves *waves_page;
   /* the information tab */
   BtMainPageInfo *info_page;
 };
@@ -35,8 +37,30 @@ static GtkNotebookClass *parent_class=NULL;
 
 //-- helper methods
 
+static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,guint index,gchar *str,gchar *icon,gchar *tip) {
+	GtkWidget *label,*event_box,*box,*image;
+
+  label=gtk_label_new(str);
+  gtk_widget_set_name(label,str);
+  gtk_widget_show(label);
+
+	image=create_pixmap(icon);
+	gtk_widget_show(image);
+	
+	box=gtk_hbox_new(FALSE,6);
+	gtk_widget_show(box);
+	gtk_container_add(GTK_CONTAINER(box),image);
+  gtk_container_add(GTK_CONTAINER(box),label);
+	
+  event_box=gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(event_box),box);
+	
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),index),event_box);
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,tip,NULL);
+}
+
 static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditApplication *app) {
-  GtkWidget *label,*event_box;
+  GtkWidget *label,*event_box,*box,*image;
   GtkTooltips *tips;
 
   tips=gtk_tooltips_new();
@@ -46,50 +70,27 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self, const BtEditAppli
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
-
-  label=gtk_label_new(_("machine view"));
-  gtk_widget_set_name(label,_("machine view"));
-  gtk_widget_show(label);
-  event_box=gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(event_box),label);
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),0),event_box);
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("machines used in the song and their wires"),NULL);
+	bt_main_pages_init_tab(self,tips,0,_("machine view"),"stock_media-play.png",_("machines used in the song and their wires"));
 
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
-
-  label=gtk_label_new(_("pattern view"));
-  gtk_widget_set_name(label,_("pattern view"));
-  gtk_widget_show(label);
-  event_box=gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(event_box),label);
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),1),event_box);
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("event pattern editor"),NULL);
+	bt_main_pages_init_tab(self,tips,1,_("pattern view"),"stock_media-play.png",_("event pattern editor"));
 
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
+	bt_main_pages_init_tab(self,tips,2,_("sequence view"),"stock_media-play.png",_("song sequence editor"));
 
-  label=gtk_label_new(_("sequence view"));
-  gtk_widget_set_name(label,_("sequence view"));
-  gtk_widget_show(label);
-  event_box=gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(event_box),label);
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),2),event_box);
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("song sequence editor"),NULL);
+  // add wigets for waves view
+  self->priv->waves_page=bt_main_page_waves_new(app);
+  gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
+	bt_main_pages_init_tab(self,tips,3,_("wave table view"),"stock_media-play.png",_("sample wave table editor"));
 
   // add widgets for song info view
   self->priv->info_page=bt_main_page_info_new(app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
-
-  label=gtk_label_new(_("song information"));
-  gtk_widget_set_name(label,_("song information"));
-  gtk_widget_show(label);
-  event_box=gtk_event_box_new();
-  gtk_container_add(GTK_CONTAINER(event_box),label);
-  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),3),event_box);
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,_("song meta data editor"),NULL);
+	bt_main_pages_init_tab(self,tips,4,_("song information"),"stock_media-play.png",_("song meta data editor"));
 
   return(TRUE);
 }

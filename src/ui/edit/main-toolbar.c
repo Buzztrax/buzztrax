@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.25 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-toolbar.c,v 1.26 2004-12-02 10:45:33 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -172,6 +172,7 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
     
 			pad=gst_element_get_pad(level,"sink");
 			caps=gst_pad_get_caps(pad);
+			// @todo check if it is simple caps (only one element)
 			structure = gst_caps_get_structure(caps, 0);
 			gst_structure_get_int (structure, "channels", &channels_i);
 			pad=gst_element_get_pad(level,"src");

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.17 2004-11-15 15:06:55 ensonic Exp $
+/* $Id: bt-edit.h,v 1.18 2004-12-02 10:45:33 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -20,6 +20,7 @@
 #include "main-page-machines-methods.h"
 #include "main-page-patterns-methods.h"
 #include "main-page-sequence-methods.h"
+#include "main-page-waves-methods.h"
 #include "main-page-info-methods.h"
 #include "main-statusbar-methods.h"
 #include "main-toolbar-methods.h"
