@@ -28,9 +28,14 @@ struct _BtSong {
 struct _BtSongClass {
   GObjectClass parent;
   
+  void (*start_play) (BtSong *self);
 };
 
 struct _BtSongPrivate {
+  /* used to validate if dispose has run */
+  gboolean dispose_has_run;
+  
+  /* the name for the song */
   gchar *name;
   gpointer data;
 };
@@ -38,5 +43,7 @@ struct _BtSongPrivate {
 /* used by SONG_TYPE */
 GType bt_song_get_type(void);
 
+/* play method of the song class */
+void bt_song_start_play(BtSong *self);
 
 #endif //SONG_H

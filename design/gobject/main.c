@@ -17,5 +17,9 @@ int main(void) {
   g_object_get_property(G_OBJECT(song2),"name", &val);
   g_print("song2 has name: %s\n", g_value_get_string(&val));
   
+  bt_song_start_play(song2);
+  
+  g_object_unref(G_OBJECT(song1));
+  g_object_unref(G_OBJECT(song2));
   return (0);
 }
