@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.7 2004-07-20 18:24:18 ensonic Exp $
+/* $Id: sequence.h,v 1.8 2004-08-24 17:07:51 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -42,7 +42,8 @@ struct _BtSequence {
 /* structure of the sequence class */
 struct _BtSequenceClass {
   GObjectClass parent_class;
-  
+
+  guint tick_signal_id;
 };
 
 /* used by SEQUENCE_TYPE */

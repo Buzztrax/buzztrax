@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.4 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.5 2004-08-24 17:07:51 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -55,19 +55,19 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
   gpointer *iter;
   gchar *str;
 
-  g_assert(machine);
-
   // update pattern menu
   menu=gtk_menu_new();
-  iter=bt_machine_pattern_iterator_new(machine);
-  while(iter) {
-    pattern=bt_machine_pattern_iterator_get_pattern(iter);
-    str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
-    GST_INFO("  adding \"%s\"",str);
-    menu_item=gtk_menu_item_new_with_label(str);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-    gtk_widget_show(menu_item);
-    iter=bt_machine_pattern_iterator_next(iter);
+  if(machine) {
+    iter=bt_machine_pattern_iterator_new(machine);
+    while(iter) {
+      pattern=bt_machine_pattern_iterator_get_pattern(iter);
+      str=bt_g_object_get_string_property(G_OBJECT(pattern),"name");
+      GST_INFO("  adding \"%s\"",str);
+      menu_item=gtk_menu_item_new_with_label(str);
+      gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+      gtk_widget_show(menu_item);
+      iter=bt_machine_pattern_iterator_next(iter);
+    }
   }
   if(!pattern) { // generate an empty item
     menu_item=gtk_menu_item_new_with_label("---");

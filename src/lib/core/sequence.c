@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.21 2004-08-18 16:55:08 ensonic Exp $
+/* $Id: sequence.c,v 1.22 2004-08-24 17:07:51 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -136,15 +136,15 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
 }
 
 /**
- * bt_sequence_get_loop_time:
+ * bt_sequence_get_bar_time:
  * @self: the #BtSequence of the song
  *
- * calculates the length of the song loop in milliseconds
+ * calculates the length of one sequence bar in milliseconds
  *
- * Returns: the length of the song loop in milliseconds
+ * Returns: the length of one sequence bar in milliseconds
  *
  */
-gulong bt_sequence_get_loop_time(const BtSequence *self) {
+gulong bt_sequence_get_bar_time(const BtSequence *self) {
   BtSongInfo *song_info=bt_song_get_song_info(self->private->song);
   glong wait_per_position,bars;
   glong beats_per_minute,ticks_per_beat;
@@ -158,7 +158,23 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
   ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
   wait_per_position=(glong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
 
-  res=(gulong)(((guint64)self->private->length*(guint64)bars*(guint64)wait_per_position)/G_USEC_PER_SEC);
+  res=(gulong)(((guint64)bars*(guint64)wait_per_position)/G_USEC_PER_SEC);
+  return(res);
+}
+
+/**
+ * bt_sequence_get_loop_time:
+ * @self: the #BtSequence of the song
+ *
+ * calculates the length of the song loop in milliseconds
+ *
+ * Returns: the length of the song loop in milliseconds
+ *
+ */
+gulong bt_sequence_get_loop_time(const BtSequence *self) {
+  gulong res;
+
+  res=(gulong)(self->private->length*bt_sequence_get_bar_time(self));
   return(res);
 }
 
@@ -207,15 +223,23 @@ gboolean bt_sequence_play(const BtSequence *self) {
     g_mutex_lock(self->private->is_playing_mutex);
     self->private->is_playing=TRUE;
     g_mutex_unlock(self->private->is_playing_mutex);
+    // DEBUG {
     tm1=time(NULL);
+    // }
     for(i=0;((i<self->private->length) && (self->private->is_playing));i++,timeline++) {
+      // DEBUG {
       tm2=time(NULL);
       GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,difftime(tm2,tm1));
+      // }
+      // emit a tick signal
+      g_signal_emit(G_OBJECT(self), BT_SEQUENCE_GET_CLASS(self)->tick_signal_id, 0, i);
       // enter new patterns into the playline and stop or mute patterns
       bt_timeline_update_playline(*timeline,playline);
       // play the patterns in the cursor
       bt_playline_play(playline);
     }
+    // emit a tick signal
+    g_signal_emit(G_OBJECT(self), BT_SEQUENCE_GET_CLASS(self)->tick_signal_id, 0, i);
     if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
       GST_ERROR("can't stop playing");res=FALSE;
     }
@@ -335,6 +359,26 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
   gobject_class->get_property = bt_sequence_get_property;
   gobject_class->dispose      = bt_sequence_dispose;
   gobject_class->finalize     = bt_sequence_finalize;
+
+  /** 
+	 * BtSequence::tick:
+   * @self: the sequence object that emitted the signal
+   * @pos: the postion in the sequence
+	 *
+	 * This sequence has reached a new play position (with the number of ticks
+   * determined by the bars-property) during playback
+	 */
+  klass->tick_signal_id = g_signal_new("tick",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        NULL, // class closure
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__LONG,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        G_TYPE_LONG // param data
+                                        );
 
   g_object_class_install_property(gobject_class,SEQUENCE_SONG,
                                   g_param_spec_object("song",

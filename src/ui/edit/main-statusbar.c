@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.7 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.8 2004-08-24 17:07:51 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -42,6 +42,33 @@ struct _BtMainStatusbarPrivate {
 
 //-- event handler
 
+static void on_song_stop(const BtSong *song, gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  gchar *str="00:00.000";
+
+  // update statusbar fields
+  gtk_statusbar_pop(self->private->elapsed,self->private->elapsed_context_id); 
+	gtk_statusbar_push(self->private->elapsed,self->private->elapsed_context_id,str);
+}
+
+static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  BtSong *song;
+  gchar *str;
+  gulong msec,sec,min;
+  
+  GST_INFO("sequence tick received : %d",pos);
+  // update elapsed statusbar
+  msec=pos*bt_sequence_get_bar_time(sequence);
+  min=(gulong)(msec/60000);msec-=(min*60000);
+  sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+	str=g_strdup_printf("%02d:%02d.%03d",min,sec,msec);
+  // update statusbar fields
+  gtk_statusbar_pop(self->private->elapsed,self->private->elapsed_context_id); 
+	gtk_statusbar_push(self->private->elapsed,self->private->elapsed_context_id,str);
+ 	g_free(str);
+}
+
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   BtSong *song;
@@ -61,12 +88,15 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   gtk_statusbar_pop(self->private->loop,self->private->loop_context_id); 
 	gtk_statusbar_push(self->private->loop,self->private->loop_context_id,str);
  	g_free(str);
+  // subscribe to tick signal of song->sequence
+  g_signal_connect(G_OBJECT(bt_song_get_sequence(song)), "tick", (GCallback)on_sequence_tick, (gpointer)self);
+  g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
 }
 
 //-- helper methods
 
 static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
-  gchar *msg="00:00.000";
+  gchar *str="00:00.000";
   
   gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
   //gtk_box_set_spacing(GTK_BOX(self),1);
@@ -80,21 +110,21 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   self->private->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
   self->private->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->elapsed),_("default"));
   gtk_statusbar_set_has_resize_grip(self->private->elapsed,FALSE);
-  gtk_widget_set_size_request(GTK_WIDGET(self->private->elapsed),75,-1);
-  gtk_statusbar_push(GTK_STATUSBAR(self->private->elapsed),self->private->elapsed_context_id,msg);
+  gtk_widget_set_size_request(GTK_WIDGET(self->private->elapsed),100,-1);
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->elapsed),self->private->elapsed_context_id,str);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->elapsed),FALSE,FALSE,1);
 
   self->private->current=GTK_STATUSBAR(gtk_statusbar_new());
   self->private->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->current),_("default"));
   gtk_statusbar_set_has_resize_grip(self->private->current,FALSE);
-  gtk_widget_set_size_request(GTK_WIDGET(self->private->current),75,-1);
-  gtk_statusbar_push(GTK_STATUSBAR(self->private->current),self->private->current_context_id,msg);
+  gtk_widget_set_size_request(GTK_WIDGET(self->private->current),100,-1);
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->current),self->private->current_context_id,str);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->current),FALSE,FALSE,1);
 
   self->private->loop=GTK_STATUSBAR(gtk_statusbar_new());
   self->private->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->private->loop),_("default"));
-  gtk_widget_set_size_request(GTK_WIDGET(self->private->loop),75,-1);
-  gtk_statusbar_push(GTK_STATUSBAR(self->private->loop),self->private->loop_context_id,msg);
+  gtk_widget_set_size_request(GTK_WIDGET(self->private->loop),100,-1);
+  gtk_statusbar_push(GTK_STATUSBAR(self->private->loop),self->private->loop_context_id,str);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->private->loop),FALSE,FALSE,1);
 
   // register event handlers

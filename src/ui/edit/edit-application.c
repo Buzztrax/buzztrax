@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.12 2004-08-24 14:10:04 ensonic Exp $
+/* $Id: edit-application.c,v 1.13 2004-08-24 17:07:51 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -87,7 +87,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 /**
  * bt_edit_application_load_song:
  * @self: the application instance to load a new song in
-  *@file_name: the sonf filename to load
+  *@file_name: the song filename to load
  *
  * Loads a new song. If there is a previous song instance it will be freed.
  *
@@ -101,7 +101,10 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
   if(bt_edit_application_prepare_song(self)) {
     BtSongIO *loader=bt_song_io_new(file_name);
 
-    if(loader) {    
+    if(loader) {
+      // @todo does not work -> (gdk_window_set_cursor): assertion `window != NULL' failed
+      //GdkWindow *window=gtk_window_get_transient_for(GTK_WINDOW(self->private->main_window));
+      //gdk_window_set_cursor(window,gdk_cursor_new(GDK_WATCH));
       if(bt_song_io_load(loader,self->private->song)) {
         // emit signal that song has been changed
         g_signal_emit(G_OBJECT(self),BT_EDIT_APPLICATION_GET_CLASS(self)->song_changed_signal_id,0);
@@ -110,6 +113,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       else {
         GST_ERROR("could not load song \"%s\"",file_name);
       }
+      //gdk_window_set_cursor(window,NULL);
       g_object_unref(loader);
     }
   }
