@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.33 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: song-io-native.c,v 1.34 2004-10-06 16:59:50 waffel Exp $
  * class for native song input and output
  */
  
@@ -589,6 +589,11 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   sleep(1);
   //DEBUG
   
+	// @todo add gnome-vfs detection method. This method should detect the
+	// filetype of the given file and returns a gnome-vfs uri to open this
+	// file with gnome-vfs. For example if the given file is song.xml the method
+	// should return file:/home/waffel/buzztard/songs/song.xml
+	
   // @todo add zip file processing
   /*
    * zip_file=bt_zip_file_new(filename,BT_ZIP_FILE_MODE_READ);
