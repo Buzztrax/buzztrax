@@ -1,12 +1,39 @@
-*$Id: objects.txt,v 1.1 2004-04-26 14:47:57 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
-================================================================================
+//$Id: objects.txt,v 1.2 2004-04-27 15:41:50 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//==============================================================================
 
-BTMachine
+BTMachine {
+}
 
-BTConnection
+BTSourceMachine extends BTMachine {
+}
 
-BTSong
+BTProcessorMachine extends BTMachine {
+}
 
-BTPattern
+BTSinkMachine extends BTMachine {
+}
 
-BTTimeLine
+BTWire { // was BTConnection
+}
+
+BTSong {
+	// metadata
+	   gchar* name;
+
+	// public methods
+	BtSongPtr bt_song_new(void)
+	BtSongPtr bt_song_new_from_file(gchar *file_name);
+       void bt_song_destroy(BtSongPtr song);
+			 
+	  GstBin* bt_song_get_bin(BtSongPtr song);
+	     void bt_song_set_master(BtSongPtr song, BtMachinePtr master);
+			 
+	 gboolean bt_song_play(BtSongPtr song);
+   gboolean bt_song_stop(BtSongPtr song);
+}
+
+BTPattern {
+}
+
+BTTimeLine {
+}

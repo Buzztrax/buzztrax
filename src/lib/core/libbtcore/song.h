@@ -1,4 +1,4 @@
-/** $Id: song.h,v 1.2 2004-04-21 14:39:02 ensonic Exp $
+/** $Id: song.h,v 1.3 2004-04-27 15:41:50 ensonic Exp $
  * song
  *
  */
@@ -13,10 +13,16 @@ struct _BtSong {
 	GstElement *thread;
 	// the element that has the clock
 	GstElement *master;
+	
+	// setup data
 	// all used machines
 	GList *machines;
 	// add used connections
 	GList *connections;
+	
+	// sequence data
+	/** @todo the song-sequence needs to be here */
+	/** @todo the size data (sequence-length, number of tracks( needs to be here */
 };
 
 #endif /* BT_SONG_H */

@@ -26,7 +26,7 @@ struct _BtSong {
 };
 
 struct _BtSongClass {
-  GObject parent;
+  GObjectClass parent;
   
 };
 
