@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.7 2004-10-22 16:15:58 ensonic Exp $
+/** $Id: e-network.c,v 1.8 2004-10-29 16:46:04 waffel Exp $
  */
 
 #include "t-core.h"
@@ -47,7 +47,7 @@ START_TEST(test_btcore_net_example1) {
 	song=bt_song_new(app);
   
 	/* get the song setup */
-	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
 
   /* try to create the sink */
@@ -91,7 +91,7 @@ START_TEST(test_btcore_net_example1) {
     fail("playing of network song failed");
   }
   
-  g_object_checked_unref(setup);
+  g_object_unref(setup);
 	g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -124,7 +124,7 @@ START_TEST(test_btcore_net_example2) {
 	song=bt_song_new(app);
   
 	/* get the song setup */
-	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
 
   /* try to create the sink */
@@ -166,7 +166,7 @@ START_TEST(test_btcore_net_example2) {
     fail("playing of network song failed");
   }
   
-  g_object_checked_unref(setup);
+  g_object_unref(setup);
 	g_object_checked_unref(song);
 	g_object_checked_unref(app);
 }
@@ -188,4 +188,3 @@ Suite *bt_network_example_suite(void) {
   suite_add_tcase(s,bt_network_example_tcase());
   return(s);
 }
-

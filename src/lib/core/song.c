@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.54 2004-10-29 13:12:19 ensonic Exp $
+/* $Id: song.c,v 1.55 2004-10-29 16:45:54 waffel Exp $
  * song 
  *   holds all song related globals
  *
@@ -85,7 +85,7 @@ BtSong *bt_song_new(const BtApplication *app) {
 gboolean bt_song_play(const BtSong *self) {
   gboolean res;
 
-  g_assert(BT_IS_SONG(self));
+	g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
@@ -106,7 +106,7 @@ gboolean bt_song_play(const BtSong *self) {
 gboolean bt_song_stop(const BtSong *self) {
   gboolean res;
 
-  g_assert(BT_IS_SONG(self));
+  g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   
   res=bt_sequence_stop(self->priv->sequence);
   return(res);
@@ -373,4 +373,3 @@ GType bt_song_get_type(void) {
   }
   return type;
 }
-
