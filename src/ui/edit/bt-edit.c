@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.9 2004-09-20 16:44:29 ensonic Exp $
+/* $Id: bt-edit.c,v 1.10 2004-11-18 14:05:33 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -31,6 +31,9 @@ int main(int argc, char **argv) {
 		POPT_TABLEEND
 	};
   
+	// in case we ever want to use a custom theme for buzztard:
+	// gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S"buzztard"G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
+	
   // init gtk (before or after bt_init ?)
   gtk_init(&argc,&argv);
 	// init buzztard core with own popt options
@@ -68,4 +71,3 @@ int main(int argc, char **argv) {
 	g_object_unref(app);
 	return(!res);
 }
-

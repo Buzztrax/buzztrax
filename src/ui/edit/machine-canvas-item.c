@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.8 2004-11-15 15:06:55 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.9 2004-11-18 14:05:33 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -107,6 +107,14 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
   g_object_try_unref(machine);
 }
 
+static void on_machine_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("machine dialog destroy occurred");
+  self->priv->parameter_dialog=NULL;
+}
 //-- helper methods
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
@@ -313,10 +321,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 		case GDK_2BUTTON_PRESS:
 			GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
 			if(!self->priv->parameter_dialog) {
-				// @todo pass machine instance to GUI
-				self->priv->parameter_dialog=GTK_WIDGET(bt_machine_dialog_new(self->priv->app/*,self->private->machine*/));
+				self->priv->parameter_dialog=GTK_WIDGET(bt_machine_dialog_new(self->priv->app,self->priv->machine));
   		  gtk_widget_show_all(self->priv->parameter_dialog);
-				// @todo we need to listen to destroy so that we can NULLify self->priv->parameter_dialog then
+				g_signal_connect(G_OBJECT(self->priv->parameter_dialog),"destroy",G_CALLBACK(on_machine_dialog_destroy),(gpointer)self);
 			}
 			res=TRUE;
 			break;
