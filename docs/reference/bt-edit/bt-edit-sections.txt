@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.5 2004-12-08 18:17:31 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.6 2004-12-09 14:26:44 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -272,8 +272,8 @@ BtWireCanvasItemPrivate
 <FILE>btedit</FILE>
 <TITLE>btedit</TITLE>
 add_pixmap_directory
-create_pixmap
-create_pixbuf
+gtk_image_new_from_filenamne
+gdk_pixbuf_new_from_filename
 bt_dialog_message
 bt_dialog_question
 </SECTION>

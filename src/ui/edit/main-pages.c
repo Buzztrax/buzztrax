@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.13 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: main-pages.c,v 1.14 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -44,7 +44,7 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
   gtk_widget_set_name(label,str);
   gtk_widget_show(label);
 
-	image=create_pixmap(icon);
+	image=gtk_image_new_from_filename(icon);
 	gtk_widget_show(image);
 	
 	box=gtk_hbox_new(FALSE,6);

@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.4 2004-12-07 14:17:51 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.5 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -70,7 +70,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 	// @todo add buttons (play,stop,clear)
-  image=create_pixmap("stock_media-play.png");
+  image=gtk_image_new_from_filename("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
@@ -81,7 +81,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_widget_set_name(button,_("Play"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play current wave table entry"),NULL);
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
-  image=create_pixmap("stock_media-stop.png");
+  image=gtk_image_new_from_filename("stock_media-stop.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -114,7 +114,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 	// @todo add buttons (play,stop,load)
-  image=create_pixmap("stock_media-play.png");
+  image=gtk_image_new_from_filename("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
@@ -125,7 +125,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_widget_set_name(button,_("Play"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play current sample"),NULL);
   //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
-  image=create_pixmap("stock_media-stop.png");
+  image=gtk_image_new_from_filename("stock_media-stop.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,

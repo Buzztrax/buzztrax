@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.25 2004-12-08 18:17:32 ensonic Exp $
+/* $Id: main-menu.c,v 1.26 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -267,7 +267,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_image_menu_item_new_with_mnemonic(_("About"));
   gtk_widget_set_name(subitem,_("About"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
-  image=create_pixmap("stock_about.png");
+  image=gtk_image_new_from_filename("stock_about.png");
   gtk_widget_set_name(image,_("About"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),image);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_about_activate),(gpointer)self);

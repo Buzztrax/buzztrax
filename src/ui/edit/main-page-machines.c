@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.34 2004-12-07 14:17:51 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.35 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -221,7 +221,7 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 
 //-- event handler
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
   BtSetup *setup;
@@ -502,7 +502,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
 	gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
 	// grid density toolbar icon
-  image=create_pixmap("grid.png");
+  image=gtk_image_new_from_filename("grid.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -581,7 +581,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
 
   menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=create_pixmap("menu_source_machine.png");
+  image=gtk_image_new_from_filename("menu_source_machine.png");
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
 	// add another submenu
@@ -597,7 +597,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
 	
   menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=create_pixmap("menu_processor_machine.png");
+  image=gtk_image_new_from_filename("menu_processor_machine.png");
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
 	// add another submenu
@@ -622,7 +622,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_show(menu_item);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
   return(TRUE);
 }

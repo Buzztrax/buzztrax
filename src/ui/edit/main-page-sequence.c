@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.26 2004-12-09 12:57:57 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.27 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -302,7 +302,7 @@ gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep a
   }
 }
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSongInfo *song_info;
   BtSong *song;
@@ -436,7 +436,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", (GCallback)on_sequence_table_cursor_moved, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.20 2004-12-09 12:57:57 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.21 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -112,7 +112,7 @@ static void on_machine_menu_changed(GtkOptionMenu *optionmenu, gpointer user_dat
   pattern_menu_refresh(self,bt_main_page_patterns_get_current_machine(self));
 }
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
   BtSetup *setup;
@@ -189,7 +189,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no pattern view yet"));
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
   return(TRUE);
 }

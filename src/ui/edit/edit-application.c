@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.36 2004-12-09 12:57:57 ensonic Exp $
+/* $Id: edit-application.c,v 1.37 2004-12-09 14:26:48 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -10,19 +10,12 @@
 
 //-- signal ids
 
-enum {
-  SONG_CHANGED,
-  LAST_SIGNAL
-};
-
 //-- property ids
 
 enum {
   EDIT_APPLICATION_SONG=1,
   EDIT_APPLICATION_MAIN_WINDOW
 };
-
-static guint signals[LAST_SIGNAL]={0,};
 
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
@@ -65,24 +58,6 @@ static gboolean on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpoint
 
 //-- helper methods
 
-gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
-  gboolean res=FALSE;
-
-  g_assert(BT_IS_EDIT_APPLICATION(self));
-  
-  // DEBUG
-  if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
-  // DEBUG
-  g_object_try_unref(self->priv->song);
-  if((self->priv->song=bt_song_new(BT_APPLICATION(self)))) {
-    res=TRUE;
-    // DEBUG
-    GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
-    // DEBUG
-  }
-  return(res);
-}
-
 static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   g_assert(self);
   g_assert(self->priv->main_window);
@@ -124,14 +99,15 @@ BtEditApplication *bt_edit_application_new(void) {
  */
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
-  
+  BtSong *song;
+	
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
-  if(bt_edit_application_prepare_song(self)) {
-    // emit signal that song has been changed
-    g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);
-    res=TRUE;
-  }
+	song=bt_song_new(BT_APPLICATION(self));
+	g_object_set(G_OBJECT(self),"song",song,NULL);
+	res=TRUE;
+
+	g_object_unref(song);
   return(res);
 }
 
@@ -146,39 +122,37 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
  */
 gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name) {
   gboolean res=FALSE;
+  BtSongIO *loader;
+	BtSong *song;
 
   g_assert(BT_IS_EDIT_APPLICATION(self));
 
   GST_INFO("song name = %s",file_name);
 
-  if(bt_edit_application_prepare_song(self)) {
-    BtSongIO *loader;
-
-    if((loader=bt_song_io_new(file_name))) {
-      GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
-      GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
+  if((loader=bt_song_io_new(file_name))) {
+    GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
+    GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
       
-      cursor=gdk_cursor_new(GDK_WATCH);
-      gdk_window_set_cursor(window,cursor);
-      gdk_cursor_unref(cursor);
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
+    cursor=gdk_cursor_new(GDK_WATCH);
+    gdk_window_set_cursor(window,cursor);
+    gdk_cursor_unref(cursor);
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
       
-      g_signal_connect(G_OBJECT(loader),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
-      while(gtk_events_pending()) gtk_main_iteration();
-      if(bt_song_io_load(loader,self->priv->song)) {
-        // emit signal that song has been changed
-        g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);
-        res=TRUE;
-      }
-      else {
-        GST_ERROR("could not load song \"%s\"",file_name);
-      }
-      GST_INFO("loading done");
-      
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
-      gdk_window_set_cursor(window,NULL);
-      g_object_unref(loader);
+    g_signal_connect(G_OBJECT(loader),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
+    while(gtk_events_pending()) gtk_main_iteration();
+		song=bt_song_new(BT_APPLICATION(self));
+    if(bt_song_io_load(loader,song)) {
+			g_object_set(G_OBJECT(self),"song",song,NULL);
+      res=TRUE;
     }
+    else {
+      GST_ERROR("could not load song \"%s\"",file_name);
+    }
+      
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
+    gdk_window_set_cursor(window,NULL);
+		g_object_unref(song);
+    g_object_unref(loader);
   }
   return(res);
 }
@@ -308,9 +282,12 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
+		  // DEBUG
+  		if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+  		// DEBUG
       g_object_try_unref(self->priv->song);
       self->priv->song=g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the song for edit_application: %p",self->priv->song);
+      GST_DEBUG("set the song for edit_application: %p",self->priv->song);
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -367,30 +344,12 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
 
   klass->song_changed = NULL;
 
-  /** 
-	 * BtEditApplication::song-changed:
-   * @self: the application object that emitted the signal
-	 *
-	 * the song of the application has changed.
-   * This happens after a load or new action
-	 */
-  signals[SONG_CHANGED] = g_signal_new("song-changed",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_STRUCT_OFFSET(BtEditApplicationClass,song_changed),
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
-                                        G_TYPE_NONE, // return type
-                                        0, // n_params
-                                        NULL /* param data */ );
-
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_SONG,
 																	g_param_spec_object("song",
                                      "song construct prop",
                                      "the song object, the wire belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_MAIN_WINDOW,
 																	g_param_spec_object("main-window",

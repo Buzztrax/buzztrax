@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.7 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: setup.h,v 1.8 2004-12-09 14:26:48 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -7,6 +7,8 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "machine.h"
+#include "wire.h"
 
 #define BT_TYPE_SETUP		         (bt_setup_get_type ())
 #define BT_SETUP(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SETUP, BtSetup))
@@ -36,6 +38,9 @@ struct _BtSetup {
 /* structure of the setup class */
 struct _BtSetupClass {
   GObjectClass parent_class;
+
+  void (*machine_added_event)(const BtSetup *setup, const BtMachine *machine, gpointer user_data);
+  void (*wire_added_event)(const BtSetup *setup, const BtWire *wire, gpointer user_data);
 };
 
 /* used by SETUP_TYPE */
@@ -43,4 +48,3 @@ GType bt_setup_get_type(void);
 
 
 #endif // BT_SETUP_H
-

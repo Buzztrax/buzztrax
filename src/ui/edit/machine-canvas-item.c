@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.16 2004-12-08 18:17:32 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.17 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -125,7 +125,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
   g_free(str);
   gtk_container_add(GTK_CONTAINER(vbox),label);
 	entry=gtk_entry_new();
-	gtk_entry_set_text(entry,id);g_free(id);
+	gtk_entry_set_text(GTK_ENTRY(entry),id);g_free(id);
 	gtk_container_add(GTK_CONTAINER(vbox),entry);
 	gtk_container_add(GTK_CONTAINER(hbox),vbox);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
@@ -203,7 +203,7 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 //-- helper methods
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
-  GtkWidget *menu_item,*image;
+  GtkWidget *menu_item,*image,*label;
 
   menu_item=gtk_menu_item_new_with_label(_("Mute"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -224,9 +224,18 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
-	// @todo how to make this menu item bold (default)
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PROPERTIES,NULL);  // dynamic part
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+	// make this menu item bold (default)
+	label=gtk_bin_get_child(GTK_BIN(menu_item));
+	if(GTK_IS_LABEL(label)) {
+		char *str,*mstr;
+		GST_INFO("!!! menu_item has a label child !!!!");
+		str=(gchar *)gtk_label_get_text(label);
+		mstr=g_strdup_printf("<b>%s</b>",str);
+		gtk_label_set_markup(label,mstr);
+		g_free(mstr);
+	}
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,NULL); // static part
@@ -255,7 +264,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
 
   menu_item=gtk_image_menu_item_new_with_label(_("About"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  image=create_pixmap("stock_about.png");
+  image=gtk_image_new_from_filename("stock_about.png");
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);gtk_widget_show(image);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_about_activate),(gpointer)self);

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.19 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-statusbar.c,v 1.20 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -76,7 +76,7 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
  	g_free(str);
 }
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   BtSong *song;
   BtSequence *sequence;
@@ -143,7 +143,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->loop),FALSE,FALSE,1);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 

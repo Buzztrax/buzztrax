@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.43 2004-12-07 14:17:50 ensonic Exp $
+/* $Id: setup.c,v 1.44 2004-12-09 14:26:48 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -19,7 +19,9 @@
 
 enum {
   MACHINE_ADDED_EVENT,
+  MACHINE_DELETED_EVENT,
   WIRE_ADDED_EVENT,
+  WIRE_DELETED_EVENT,
   LAST_SIGNAL
 };
 
@@ -113,7 +115,7 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 
   if(!g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
-		// @todo emit signal
+		g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
   }
   else {
     GST_WARNING("trying to add machine again"); 
@@ -133,7 +135,7 @@ void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 
   if(!g_list_find(self->priv->wires,wire)) {
     self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
-		// @todo emit signal
+		g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
   }
   else {
     GST_WARNING("trying to add wire again"); 
@@ -500,6 +502,48 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   gobject_class->dispose      = bt_setup_dispose;
   gobject_class->finalize     = bt_setup_finalize;
 
+  klass->machine_added_event = NULL;
+  klass->wire_added_event = NULL;
+	
+  /** 
+	 * BtSetup::machine-added:
+   * @self: the setup object that emitted the signal
+   * @machine: the new machine
+	 *
+	 * A new machine item has been added to the setup
+	 */
+  signals[MACHINE_ADDED_EVENT] = g_signal_new("machine-added",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_STRUCT_OFFSET(BtSetupClass,machine_added_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__POINTER,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_MACHINE // param data
+                                        );
+
+  /** 
+	 * BtSetup::wire-added:
+   * @self: the setup object that emitted the signal
+   * @wire: the new wire
+	 *
+	 * A new wire item has been added to the setup
+	 */
+  signals[MACHINE_ADDED_EVENT] = g_signal_new("wire-added",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_STRUCT_OFFSET(BtSetupClass,wire_added_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__POINTER,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_WIRE // param data
+                                        );
+
+	
   g_object_class_install_property(gobject_class,SETUP_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",

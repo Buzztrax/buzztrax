@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.27 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.28 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -145,7 +145,7 @@ static void on_song_level_change(GstElement * element, gdouble time, gint channe
 	gtk_vumeter_set_levels(self->priv->vumeter[channel], (gint)(rms*10.0), (gint)(peak*10.0));
 }
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
   BtSinkMachine *master;
@@ -254,7 +254,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   //-- media controls
   
-  image=create_pixmap("stock_media-play.png");
+  image=gtk_image_new_from_filename("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
@@ -266,7 +266,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play this song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
 
-  image=create_pixmap("stock_media-stop.png");
+  image=gtk_image_new_from_filename("stock_media-stop.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
@@ -278,7 +278,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of this song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
 
-  image=create_pixmap("stock_repeat.png");
+  image=gtk_image_new_from_filename("stock_repeat.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
@@ -320,7 +320,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
   
-  g_signal_connect(G_OBJECT(self->priv->app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
 
   return(TRUE);
 }

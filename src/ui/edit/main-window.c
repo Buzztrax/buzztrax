@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.34 2004-12-08 18:17:32 ensonic Exp $
+/* $Id: main-window.c,v 1.35 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main window
  */
 
@@ -57,7 +57,7 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
   gtk_main_quit();
 }
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gchar *title,*name;
   BtSong *song;
@@ -88,7 +88,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   self->priv->accel_group=gtk_accel_group_new();
   
   // create and set window icon
-  if((main_icon=create_pixbuf("buzztard.png"))) {
+  if((main_icon=gdk_pixbuf_new_from_filename("buzztard.png"))) {
     gtk_window_set_icon(GTK_WINDOW(self),main_icon);
   }
   gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
@@ -110,7 +110,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   self->priv->statusbar=bt_main_statusbar_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->statusbar),FALSE,FALSE,0);
 
-  g_signal_connect(G_OBJECT(self->priv->app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
 
   gtk_window_add_accel_group(GTK_WINDOW(self),self->priv->accel_group);
 

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.2 2004-12-08 18:17:32 ensonic Exp $
+/* $Id: tools.c,v 1.3 2004-12-09 14:26:48 ensonic Exp $
  * gui helper
  */
 
@@ -35,14 +35,15 @@ static gchar *find_pixmap_file(const gchar *filename) {
 }
 
 /**
- * create_pixmap:
+ * gtk_image_new_from_filename:
  * @filename: the filename of the image file
  *
  * Creates a new pixmap image widget for the image file.
  *
  * Returns: a new pixmap widget
  */
-GtkWidget* create_pixmap(const gchar *filename) {
+//GtkWidget *create_pixmap(const gchar *filename) {
+GtkWidget *gtk_image_new_from_filename(const gchar *filename) {
   gchar *pathname = NULL;
   GtkWidget *pixmap;
 
@@ -61,14 +62,15 @@ GtkWidget* create_pixmap(const gchar *filename) {
 }
 
 /**
- * create_pixbuf:
+ * gdk_pixbuf_new_from_filename:
  * @filename: the filename of the image file
  *
  * Creates a new pixbuf image for the image file.
  *
  * Returns: a new pixbuf
  */
-GdkPixbuf *create_pixbuf(const gchar *filename) {
+//GdkPixbuf *create_pixbuf(const gchar *filename) {
+GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
   gchar *pathname = NULL;
   GdkPixbuf *pixbuf;
   GError *error = NULL;

@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.3 2004-12-08 18:17:32 ensonic Exp $
+/* $Id: tools.h,v 1.4 2004-12-09 14:26:48 ensonic Exp $
  * gui helper
  */
 
@@ -7,8 +7,8 @@
  
 /* pixmap/buf helpers */
 extern void add_pixmap_directory(const gchar *directory);
-extern GtkWidget *create_pixmap(const gchar *filename);
-extern GdkPixbuf *create_pixbuf(const gchar *filename);
+extern GtkWidget *gtk_image_new_from_filename(const gchar *filename);
+extern GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename);
 
 /* helper for simple message/question dialogs */
 void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);

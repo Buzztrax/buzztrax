@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.16 2004-11-26 18:53:27 waffel Exp $
+/* $Id: main-page-info.c,v 1.17 2004-12-09 14:26:48 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -31,7 +31,7 @@ static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler
 
-static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   BtSongInfo *song_info;
@@ -163,7 +163,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
 	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", (GCallback)on_info_changed, (gpointer)self);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
 
