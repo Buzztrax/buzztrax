@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.12 2004-07-28 13:25:21 ensonic Exp $
+/* $Id: cmd-application.c,v 1.13 2004-07-28 15:33:45 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -6,8 +6,6 @@
 #define BT_CMD_APPLICATION_C
 
 #include "bt-cmd.h"
-
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */

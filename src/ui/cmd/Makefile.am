@@ -1,18 +1,11 @@
 ## Makefile.am for src/ui/cmd
 
-#bin_PROGRAMS=bt-cmd network1 network2 
 bin_PROGRAMS=bt-cmd
 
 bt_cmd_LDADD = $(BASE_DEPS_LIBS) $(top_builddir)/src/lib/core/libbtcore.la
 bt_cmd_SOURCES= \
 	bt-cmd.c bt-cmd.h \
 	cmd-application.c cmd-application.h cmd-application-methods.h
-
-#network1_LDADD = $(BASE_DEPS_LIBS) $(top_builddir)/src/lib/core/libbtcore.la
-#network1_SOURCES= network1.c
-
-#network2_LDADD = $(BASE_DEPS_LIBS) $(top_builddir)/src/lib/core/libbtcore.la
-#network2_SOURCES= network2.c
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

@@ -1,12 +1,14 @@
-/* $Id: bt-edit.c,v 1.1 2004-07-28 14:59:10 ensonic Exp $
+/* $Id: bt-edit.c,v 1.2 2004-07-28 15:33:45 ensonic Exp $
  */
 
 #define BT_EDIT_C
 
 #include "bt-edit.h"
 
+GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+
 static void usage(int argc, char **argv, const struct poptOption *options) {
-  const poptContext context=poptGetContext(argv[0], argc, argv, options, 0);
+  const poptContext context=poptGetContext(argv[0], argc, (const char **)argv, options, 0);
   poptPrintUsage(context,stdout,0);
   poptFreeContext(context);
   exit(0);
@@ -27,8 +29,9 @@ int main(int argc, char **argv) {
   
 	// init buzztard core with own popt options
 	bt_init(&argc,&argv,options);
+  // init gtk (here or before bt_init ?)
 
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
+	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / gtk ui");
 
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);

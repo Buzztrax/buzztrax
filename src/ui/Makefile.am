@@ -1,1 +1,1 @@
-SUBDIRS = cmd
+SUBDIRS = cmd edit

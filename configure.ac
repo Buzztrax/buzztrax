@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.10 2004-07-02 13:44:48 ensonic Exp $
+# $Id: configure.ac,v 1.11 2004-07-28 15:33:44 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -165,6 +165,7 @@ AM_CONDITIONAL(ENABLE_GTK_DOC, test x$enable_gtk_doc = xyes)
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(X11/Xlocale.h)
+AC_CHECK_HEADERS(popt.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES
@@ -198,6 +199,7 @@ AC_CONFIG_FILES(Makefile \
 			src/lib/core/libbtcore/version.h \
 		src/ui/Makefile \
 			src/ui/cmd/Makefile \
+			src/ui/edit/Makefile \
   tests/Makefile \
 		tests/lib/Makefile \
 			tests/lib/core/Makefile \

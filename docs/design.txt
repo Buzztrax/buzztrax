@@ -1,4 +1,4 @@
-* $Id: design.txt,v 1.14 2004-07-21 15:17:18 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.15 2004-07-28 15:33:45 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture [modular ofcourse ;-)]
@@ -9,8 +9,8 @@
 			-i,--input-file
 			-o,--output-file
 			<cmd> can be {play, convert, info}
-		*** bt-gtk (graphical composer, editor)
-		*** btmix-gtk (graphical dj-player (can not edit the songs))
+		*** bt-edit (graphical composer, editor)
+		*** bt-mix (graphical dj-player (can not edit the songs))
 	** core-lib
 		- put all player code into libbtcore
 				- so that this can be used in players like xmms
@@ -41,7 +41,7 @@
 * gstreamer how-to
 	** get list of generators, effect, outputs
 		- see gst-editor sources
-	** find out how to feed parameters into elements
+	** find out how to feed parameters into elements (done)
 		- synchonous (from the GUI)
 				GstElement *sinesrc;
 				GstDParamManager *dpman;
@@ -69,9 +69,10 @@
 			...
 			
 		- find out how to implement timelined parameters
-	** find out how mixing works (route two source into into one sink)
+	** find out how mixing works, route two source into into one sink (done)
 		- mixing element is called 'adder'
-	
+
+
 * timing
 	- we have two clock rates:
 		audio-rate: sampling-rate/audio-buffer size
@@ -89,6 +90,7 @@
 	- controldata callback
 			- set new machine parameters from patterndata
 
+
 * plugin network
 	** user plugins
 	= ladspa plugins
@@ -105,8 +107,10 @@
 	hide the input mixing,output spreading
 	hide channel conversion (see open questions)
 
+
 * controller ids
 	- define a few standart controller ids to aid cut/copy/paste of pattern data
+
 
 * recording
   ** we record via gstreamer

@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.14 2004-07-28 14:59:10 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.15 2004-07-28 15:33:45 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -12,8 +12,10 @@
 
 #include "bt-cmd.h"
 
+GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+
 static void usage(int argc, char **argv, const struct poptOption *options) {
-  const poptContext context=poptGetContext(argv[0], argc, argv, options, 0);
+  const poptContext context=poptGetContext(argv[0], argc, (const char **)argv, options, 0);
   poptPrintUsage(context,stdout,0);
   poptFreeContext(context);
   exit(0);
