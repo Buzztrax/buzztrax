@@ -1,12 +1,10 @@
-/** $Id: net2.c,v 1.1 2004-04-02 18:00:32 ensonic Exp $
+/** $Id: net2.c,v 1.2 2004-04-08 15:29:32 ensonic Exp $
  * this is beta code !
  *  - it does not free any memory ;-)
  *  - it contains hardcoded stuff
  */
  
 #include <stdio.h>
-#include <gst/gst.h>
-#include <gst/control/control.h>
 
 #include "net.h"
 
@@ -27,12 +25,12 @@ void setup_network(gchar *master) {
 	gen1=bt_machine_new(thread,"sinesrc","generator1");
 	gen2=bt_machine_new(thread,"sinesrc","generator2");
 	
-	g_print("machines created\n");
+	GST_INFO("machines created\n");
 	
 	/* link machines */
-	if(!(bt_connection_new(thread,gen1,sink))) { g_print("can't connect machines: gen1,sink\n");exit(1);	}
-	if(!(bt_connection_new(thread,gen2,sink))) { g_print("can't connect machines: gen2,sink\n");exit(1);	}
-	g_print("machines connected\n");	
+	if(!(bt_connection_new(thread,gen1,sink))) { GST_DEBUG("can't connect machines: gen1,sink\n");exit(1);	}
+	if(!(bt_connection_new(thread,gen2,sink))) { GST_DEBUG("can't connect machines: gen2,sink\n");exit(1);	}
+	GST_INFO("machines connected\n");	
 }
 
 void setup_patterns(void) {
@@ -86,7 +84,7 @@ void play_sequence(void) {
 
   if(gst_element_set_state(thread, GST_STATE_PLAYING)) {
 		/* do whatever you want here, the thread will be playing */
-		g_print("thread is playing\n");
+		GST_INFO("thread is playing\n");
 
 		// step through the timeline and 
 		for(position=0;position<TIMELINES;position++) {
@@ -96,7 +94,7 @@ void play_sequence(void) {
 		/* stop the pipeline */
 		gst_element_set_state(thread, GST_STATE_NULL);
 	}
-	else g_print("starting to play failed\n");
+	else GST_INFO("starting to play failed\n");
 }
 
 //-- main ----------------------------------------------------------------------
@@ -105,7 +103,8 @@ int main(int argc, char **argv) {
 	// init gst
 	gst_init(&argc, &argv);
   gst_control_init(&argc,&argv);
-  
+	GST_DEBUG_CATEGORY_INIT(bt_core_debug, "buzztard", 0, "music production environment");
+
   if (argc < 2) {
     g_print("usage: %s <sink>\n",argv[0]);
 		g_print("examples:\n");
@@ -123,7 +122,7 @@ int main(int argc, char **argv) {
 	setup_sequence();
 	
   /* start playing */
-	g_print("start playing\n");
+	GST_INFO("start playing\n");
 	play_sequence();
 
   /* we don't need a reference to these objects anymore */
