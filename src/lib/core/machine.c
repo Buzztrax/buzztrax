@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.89 2005-02-16 19:10:00 waffel Exp $
+/* $Id: machine.c,v 1.90 2005-02-22 07:31:09 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -215,6 +215,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	switch(new_state) {
 		case BT_MACHINE_STATE_MUTE:
 			if(!bt_machine_set_mute(self,setup)) res=FALSE;
+			// alternatively just disconnect
 			break;
 		case BT_MACHINE_STATE_SOLO:
 			// @todo set all but this machine to paused
@@ -379,11 +380,14 @@ gboolean bt_machine_new(BtMachine *self) {
     GstDParam **dparam;
     guint i;
 
+		// setting param mode - don't yet know which one should use
+    if(gst_dpman_set_mode(self->priv->dparam_manager, "asynchronous")) {
+			GST_DEBUG("  machine \"%s\" supports asynchronous dparams",self->priv->plugin_name);
     // setting param mode. Only synchronized is currently supported
-    if(gst_dpman_set_mode(self->priv->dparam_manager, "synchronous")) {
-    	GST_DEBUG("  machine \"%s\" supports synchronous dparams",self->priv->plugin_name);
+    //if(gst_dpman_set_mode(self->priv->dparam_manager, "synchronous")) {
+    	//GST_DEBUG("  machine \"%s\" supports synchronous dparams",self->priv->plugin_name);
     
-	    // manage dparams
+	    // get all dparams templates
   	  specs=gst_dpman_list_dparam_specs(self->priv->dparam_manager);
     	// count the specs
     	for(i=0;specs[i];i++);
@@ -582,7 +586,7 @@ gboolean bt_machine_activate_spreader(BtMachine *self) {
   gboolean res=TRUE;
   
   if(!self->priv->machines[PART_SPREADER]) {
-    self->priv->machines[PART_SPREADER]=gst_element_factory_make("tee",g_strdup_printf("tee%p",self));
+    self->priv->machines[PART_SPREADER]=gst_element_factory_make("tee",g_strdup_printf("tee_%p",self));
     g_assert(self->priv->machines[PART_SPREADER]!=NULL);
     gst_bin_add(self->priv->bin, self->priv->machines[PART_SPREADER]);
     if(!gst_element_link(self->src_elem, self->priv->machines[PART_SPREADER])) {
@@ -970,7 +974,7 @@ static void bt_machine_set_property(GObject      *object,
       GST_DEBUG("set the id for machine: %s",self->priv->id);
 			if(self->priv->machines[PART_MACHINE]) {
 				gchar *name=bt_machine_make_name(self);
-				gst_element_set_name(self,name);
+				gst_element_set_name(self->priv->machines[PART_MACHINE],name);
 				g_free(name);
 			}
     } break;

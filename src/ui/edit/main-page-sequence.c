@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.63 2005-02-20 13:27:39 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.64 2005-02-22 07:31:09 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -547,10 +547,12 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
  */
 static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *setup) {
   BtMachine *machine=NULL;
-	GList *node,*list;
-	GtkWidget *menu_item,*submenu,*image;
+	GList *node,*list,*widgets;
+	GtkWidget *menu_item,*submenu,*label;
 	gchar *str;
 
+	GST_INFO("refreshing track menu");
+	
 	// create a new menu
 	submenu=gtk_menu_new();
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(self->priv->context_menu_add),submenu);
@@ -562,21 +564,17 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
 		g_object_get(G_OBJECT(machine),"id",&str,NULL);
 		
 		menu_item=gtk_image_menu_item_new_with_label(str);
-		if(BT_IS_SOURCE_MACHINE(machine)) {
-			image=gtk_image_new_from_filename("menu_source_machine.png");
-		}
-		else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-			image=gtk_image_new_from_filename("menu_processor_machine.png");
-		}
-		else if(BT_IS_SINK_MACHINE(machine)) {
-			image=gtk_image_new_from_filename("menu_sink_machine.png");
-		}
-		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+		gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),bt_ui_ressources_get_image_by_machine(machine));
 		gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
 		gtk_widget_show(menu_item);
+		widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
+		label=g_list_nth_data(widgets,0);
+		if(GTK_IS_LABEL(label)) {
+			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
+		}
+		g_list_free(widgets);
+		// what parameters to pass here ?
 		//g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
-		// there is not method to set the label of a menu item
-		//g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)self);
   }
 	g_list_free(list);
 }

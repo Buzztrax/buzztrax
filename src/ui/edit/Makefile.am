@@ -28,6 +28,7 @@ libbtedit_la_SOURCES   = \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	tools.c tools.h \
+	ui-ressources.c ui-ressources-item.h ui-ressources-methods.h \
 	wire-canvas-item.c wire-canvas-item.h wire-canvas-item-methods.h \
 	\
 	gtkvumeter.c gtkvumeter.h

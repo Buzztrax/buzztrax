@@ -1,4 +1,4 @@
-/* $Id: edit-application.h,v 1.8 2005-01-11 16:50:49 ensonic Exp $
+/* $Id: edit-application.h,v 1.9 2005-02-22 07:31:09 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
 
@@ -43,4 +43,3 @@ struct _BtEditApplicationClass {
 GType bt_edit_application_get_type(void);
 
 #endif // BT_EDIT_APPLICATION_H
-

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.59 2005-02-16 19:10:14 waffel Exp $
+/* $Id: edit-application.c,v 1.60 2005-02-22 07:31:09 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -83,7 +83,15 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
  */
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
-  
+
+	// create or ref the shared ui ressources
+	if(!ui_ressources) {
+		ui_ressources=bt_ui_ressources_new();
+	}
+	else {
+		g_object_ref(ui_ressources);
+	}
+
 	if(!(self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)))) {
 		goto Error;
 	}
@@ -398,6 +406,8 @@ static void bt_edit_application_dispose(GObject *object) {
 		//GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
 	//}
 	//g_object_try_unref(self->priv->main_window);
+	
+	g_object_try_unref(ui_ressources);
 
 	GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {

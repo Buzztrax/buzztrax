@@ -20,6 +20,7 @@
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
+<!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
@@ -67,6 +68,7 @@
     &BtMainToolbar;
     &BtSettingsDialog;
     &BtSettingsPageAudiodevices;
+		&BtUIRessources;
     &BtWireCanvasItem;
   </chapter>
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.44 2005-02-11 20:37:22 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.45 2005-02-22 07:31:09 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -27,9 +27,6 @@ struct _BtMainPagePatternsPrivate {
 #ifdef USE_GTKGRID
   GtkGrid *pattern_table;
 #endif
-	
-	/* icons */
-	GdkPixbuf *source_icon,*procesor_icon,*sink_icon;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -88,16 +85,11 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   GST_INFO("  adding \"%s\"",str);
 
 	gtk_list_store_append(store,&menu_iter);
-  if(BT_IS_SOURCE_MACHINE(machine)) {
-		gtk_list_store_set(store,&menu_iter,MACHINE_MENU_ICON,self->priv->source_icon,-1);
-  }
-  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
-		gtk_list_store_set(store,&menu_iter,MACHINE_MENU_ICON,self->priv->procesor_icon,-1);
-  }
-  else if(BT_IS_SINK_MACHINE(machine)) {
-		gtk_list_store_set(store,&menu_iter,MACHINE_MENU_ICON,self->priv->sink_icon,-1);
-  }
-	gtk_list_store_set(store,&menu_iter,MACHINE_MENU_LABEL,str,MACHINE_MENU_MACHINE,machine,-1);
+	gtk_list_store_set(store,&menu_iter,
+		MACHINE_MENU_ICON,bt_ui_ressources_get_pixbuf_by_machine(machine),
+		MACHINE_MENU_LABEL,str,
+		MACHINE_MENU_MACHINE,machine,
+		-1);
 	g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)self);
 	
   g_free(str);
@@ -587,10 +579,6 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-
-	g_object_try_unref(self->priv->source_icon);
-	g_object_try_unref(self->priv->procesor_icon);
-	g_object_try_unref(self->priv->sink_icon);
 	
   g_object_try_weak_unref(self->priv->app);
 
@@ -613,10 +601,6 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(instance);
   self->priv = g_new0(BtMainPagePatternsPrivate,1);
   self->priv->dispose_has_run = FALSE;
-
-	self->priv->source_icon=gdk_pixbuf_new_from_filename("menu_source_machine.png");
-	self->priv->procesor_icon=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
-	self->priv->sink_icon=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.12 2005-02-12 19:57:10 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.13 2005-02-22 07:31:09 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -109,16 +109,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 	gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
-	if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-		window_icon=gdk_pixbuf_new_from_filename("menu_source_machine.png");
-	}
-	else if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-		window_icon=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
-  }
-  else if(BT_IS_SINK_MACHINE(self->priv->machine)) {
-		window_icon=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
-  }
-  if(window_icon) {
+  if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   

@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.14 2005-02-12 12:56:50 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.15 2005-02-22 07:30:50 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -314,6 +314,27 @@ BT_TYPE_SETTINGS_PAGE_AUDIODEVICES
 <SUBSECTION Private>
 bt_settings_page_audiodevices_get_type
 BtSettingsPageAudiodevicesPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btuiressources</FILE>
+<TITLE>BtUIRessources</TITLE>
+BtUIRessources
+bt_ui_ressources_new
+bt_ui_ressources_get_pixbuf_by_machine
+bt_ui_ressources_get_image_by_machine
+bt_ui_ressources_get_image_by_machine_type
+<SUBSECTION Standard>
+BtUIRessourcesClass
+BT_UI_RESSOURCES
+BT_IS_UI_RESSOURCES
+BT_UI_RESSOURCES_CLASS
+BT_IS_UI_RESSOURCES_CLASS
+BT_UI_RESSOURCES_GET_CLASS
+BT_TYPE_UI_RESSOURCES
+<SUBSECTION Private>
+bt_ui_ressources_get_type
+BtUIRessourcesPrivate
 </SECTION>
 
 <SECTION>
