@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.38 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: machine.c,v 1.39 2004-10-08 14:28:08 ensonic Exp $
  * base class for a machine
  */
  
@@ -148,7 +148,7 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
   g_assert(BT_IS_PATTERN(pattern));
 
   if(!g_list_find(self->priv->patterns,pattern)) {
-    self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(pattern));
+    self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(G_OBJECT(pattern)));
   }
   else {
     GST_WARNING("trying to add pattern again"); 

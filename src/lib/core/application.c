@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.15 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: application.c,v 1.16 2004-10-08 14:28:08 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -39,9 +39,9 @@ gboolean bt_application_new(BtApplication *self) {
   g_assert(BT_IS_APPLICATION(self));
   
 #ifdef USE_GCONF
-  self->priv->settings=bt_gconf_settings_new();
+  self->priv->settings=BT_SETTINGS(bt_gconf_settings_new());
 #else
-  self->priv->settings=bt_plainfile_settings_new();
+  self->priv->settings=BT_SETTINGS(bt_plainfile_settings_new());
 #endif
   { // DEBUG
     gchar *audiosink_name;

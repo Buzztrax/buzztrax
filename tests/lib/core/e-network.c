@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.4 2004-09-26 01:50:08 ensonic Exp $
+/** $Id: e-network.c,v 1.5 2004-10-08 14:28:20 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -64,9 +64,9 @@ START_TEST(test_btcore_net_example1) {
   
   /* check if we can retrieve the machine via the id */
   machine=bt_setup_get_machine_by_id(setup,"master");
-  fail_unless(machine==sink, NULL);
+  fail_unless(machine==BT_MACHINE(sink), NULL);
   machine=bt_setup_get_machine_by_id(setup,"generator1");
-  fail_unless(machine==gen1, NULL);
+  fail_unless(machine==BT_MACHINE(gen1), NULL);
   
   /* try to link machines */
 	wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(sink));
