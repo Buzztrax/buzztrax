@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.7 2005-01-06 20:00:13 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.8 2005-01-07 11:53:27 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -212,10 +212,10 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
 	//     hbox
 	box2=gtk_hbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(box),box2);
-	//       zone entries (multiple waves per sample (xm?))
+	//       zone entries (multiple waves per sample (xm?)) -> (per entry: root key, length, rate, loope start, loop end
 	gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample zone entries yet"));
 	//       sampleview (which widget do we need?)
-	//       properties (root key, sample rate, ...)
+	//       properties (loop, envelope, ...)
 	gtk_container_add(GTK_CONTAINER(box2),gtk_label_new("no sample waveform view yet"));
 
   // register event handlers

@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.1 2005-01-06 22:12:03 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.2 2005-01-07 11:53:27 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -32,7 +32,7 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
-  GtkWidget *label,*table,*scrolled_window;
+  GtkWidget *label,*widget,*table,*scrolled_window;
 	gchar *id;
 	GdkPixbuf *window_icon=NULL;
 	GstElement *machine;
@@ -54,23 +54,23 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   
-  //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
+  //gtk_widget_set_size_request(GTK_WIDGET(self),250,300);
+	gtk_window_set_default_size(GTK_WINDOW(self),250,300);
 	g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
   gtk_window_set_title(GTK_WINDOW(self),g_strdup_printf(_("%s preferences"),id));
 	g_free(id);
-  
-  // add dialog commision widgets (okay, cancel)
-  gtk_dialog_add_buttons(GTK_DIALOG(self),GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
   
 	// get machine properties
 	if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
 		GST_INFO("machine has %d properties",number_of_properties);
 		// machine preferences inside a scrolled window
 		scrolled_window=gtk_scrolled_window_new(NULL,NULL);
-		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+		gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+		//gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+		gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
 		// add machine preferences into the table
-		table=gtk_table_new(/*rows=*/number_of_properties,/*columns=*/2,/*homogenous=*/FALSE);
+		table=gtk_table_new(/*rows=*/number_of_properties+1,/*columns=*/2,/*homogenous=*/FALSE);
+		gtk_container_set_border_width(GTK_CONTAINER(table),6);
 		for(i=0;i<number_of_properties;i++) {
 			property=properties[i];
 			GST_INFO("property %p has name %s",property,property->name);
@@ -80,19 +80,36 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 			// @todo choose proper widget
 			param_type=G_PARAM_SPEC_TYPE(property);
 			if(param_type==G_TYPE_PARAM_STRING) {
-				label=gtk_label_new("string");
+				//GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
+				gchar *value;
+				
+				g_object_get(machine,property->name,&value,NULL);
+				widget=gtk_entry_new();
+				gtk_entry_set_text(GTK_ENTRY(widget),safe_string(value));g_free(value);
+			}
+			else if(param_type==G_TYPE_PARAM_BOOLEAN) {
+				widget=gtk_label_new("boolean");
+			}
+			else if(param_type==G_TYPE_PARAM_INT) {
+				widget=gtk_label_new("int");
+			}
+			else if(param_type==G_TYPE_PARAM_DOUBLE) {
+				widget=gtk_label_new("double");
 			}
 			else {
-				label=gtk_label_new("unhandled");
+				widget=gtk_label_new("unhandled");
 			}
-			gtk_table_attach(GTK_TABLE(table),label, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+			gtk_table_attach(GTK_TABLE(table),widget, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 		}
+		// eat remaning space
+		gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 		g_free(properties);
-		gtk_container_add(GTK_CONTAINER(scrolled_window),table);
-		gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),scrolled_window);
+		gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
+		//gtk_container_add(GTK_CONTAINER(scrolled_window),table);
+		gtk_container_add(GTK_CONTAINER(self),scrolled_window);
 	}
 	else {
-		gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),gtk_label_new(_("machine has no preferences")));
+		gtk_container_add(GTK_CONTAINER(self),gtk_label_new(_("machine has no preferences")));
 	}
 
   return(TRUE);
@@ -248,7 +265,7 @@ GType bt_machine_preferences_dialog_get_type(void) {
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_preferences_dialog_init, // instance_init
     };
-		type = g_type_register_static(GTK_TYPE_DIALOG,"BtMachinePreferencesDialog",&info,0);
+		type = g_type_register_static(GTK_TYPE_WINDOW,"BtMachinePreferencesDialog",&info,0);
   }
   return type;
 }

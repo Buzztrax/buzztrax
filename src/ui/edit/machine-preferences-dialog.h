@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.h,v 1.1 2005-01-06 22:12:03 ensonic Exp $
+/* $Id: machine-preferences-dialog.h,v 1.2 2005-01-07 11:53:27 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -27,14 +27,14 @@ typedef struct _BtMachinePreferencesDialogPrivate BtMachinePreferencesDialogPriv
  * the root window for the editor application
  */
 struct _BtMachinePreferencesDialog {
-  GtkDialog parent;
+  GtkWindow parent;
   
   /* private */
   BtMachinePreferencesDialogPrivate *priv;
 };
 /* structure of the machine-preferences-dialog class */
 struct _BtMachinePreferencesDialogClass {
-  GtkDialogClass parent;
+  GtkWindowClass parent;
   
 };
 
