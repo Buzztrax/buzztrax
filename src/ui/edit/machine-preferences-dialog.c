@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.7 2005-01-24 19:05:36 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.8 2005-01-25 16:05:07 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -35,10 +35,12 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
 	
 	g_assert(user_data);
 
-	GST_INFO("preferences value notify received for: '%s'",property->name);
+	//GST_INFO("preferences value notify received for: '%s'",property->name);
 	
 	g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+	gdk_threads_enter();
 	gtk_range_set_value(GTK_RANGE(widget),value);
+	gdk_threads_leave();
 }
 
 static void on_double_entry_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -48,11 +50,13 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
 	
 	g_assert(user_data);
 
-	GST_INFO("preferences value notify received for: '%s'",property->name);
+	//GST_INFO("preferences value notify received for: '%s'",property->name);
 	
 	g_object_get(G_OBJECT(machine),property->name,&value,NULL);
 	str_value=g_strdup_printf("%f",value);
+	gdk_threads_enter();
 	gtk_entry_set_text(GTK_ENTRY(widget),str_value);
+	gdk_threads_leave();
 	g_free(str_value);
 }
 
@@ -62,7 +66,7 @@ static void on_range_property_changed(GtkRange *range,gpointer user_data) {
 	
 	g_assert(user_data);
 
-	GST_INFO("preferences value change received for: '%s'",name);
+	//GST_INFO("preferences value change received for: '%s'",name);
 	g_object_set(machine,name,gtk_range_get_value(range),NULL);
 }
 
@@ -73,7 +77,7 @@ static void on_double_entry_property_changed(GtkEditable *editable,gpointer user
 	
 	g_assert(user_data);
 
-	GST_INFO("preferences value change received for: '%s'",name);
+	//GST_INFO("preferences value change received for: '%s'",name);
 	value=g_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
 	g_object_set(machine,name,value,NULL);
 }
@@ -163,6 +167,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 				g_object_get(machine,property->name,&value,NULL);
 				//str_value=g_strdup_printf("%d",value);
 				step=(gdouble)(int_property->maximum-int_property->minimum)/10.0;
+				GST_INFO("  int : %d...%d, step=%f",int_property->maximum,int_property->minimum,step);
 				spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
   			widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
 				gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.9 2005-01-24 19:05:37 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.10 2005-01-25 16:05:07 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -41,28 +41,13 @@ static void on_range_property_notify(const GstDParam *dparam,GParamSpec *propert
 	
 	g_assert(user_data);
 
-	GST_INFO("property value notify received : %s ",property->name);
-	//gdk_threads_enter();
+	//GST_INFO("property value notify received : %s ",property->name);
+	gdk_threads_enter();
 	g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
-	//g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
+	g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
 	gtk_range_set_value(GTK_RANGE(widget),value);
-	//g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
-	//gdk_threads_leave();
-}
-
-static void on_range_property_notify_changed(const GstDParam *dparam,gpointer user_data) {
-	GtkWidget *widget=GTK_WIDGET(user_data);
-	gdouble value;
-	
-	g_assert(user_data);
-
-	GST_INFO("property value notify_changed received");
-	//gdk_threads_enter();
-	//g_object_get(G_OBJECT(dparam),"value_double",&value,NULL);
-	//g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
-	//gtk_range_set_value(GTK_RANGE(widget),value);
-	//g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
-	//gdk_threads_leave();
+	g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_changed,(gpointer)dparam);
+	gdk_threads_leave();
 }
 
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -72,9 +57,9 @@ static void on_range_property_changed(GtkRange *range,gpointer user_data) {
 
 	//GST_INFO("property value change received");
 	//gdk_threads_enter();
-	//g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify_changed,(gpointer)range);
+	g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify,(gpointer)range);
 	g_object_set(dparam,"value_double",gtk_range_get_value(range),NULL);
-	//g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify_changed,(gpointer)range);
+	g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_range_property_notify,(gpointer)range);
 	//gdk_threads_leave();
 }
 
@@ -146,6 +131,13 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 			if(param_type==G_TYPE_STRING) {
 				widget=gtk_label_new("string");
 			}
+			else if(param_type==G_TYPE_INT) {
+				GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+				gint value;
+				
+				GST_INFO("  int : %d...%d",int_property->maximum,int_property->minimum);
+				widget=gtk_label_new("int property");
+			}
 			else if(param_type==G_TYPE_DOUBLE) {
 				GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
 				gdouble step,value;
@@ -156,8 +148,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
 				gtk_range_set_value(GTK_RANGE(widget),value);
 				// @todo add numerical entry as well ?
-				g_signal_connect(G_OBJECT(dparam), "notify::value_double", (GCallback)on_range_property_notify, (gpointer)widget);
-				//g_signal_connect(G_OBJECT(dparam), "value-changed", (GCallback)on_range_property_notify_changed, (gpointer)widget);
+				g_signal_connect(G_OBJECT(dparam), "notify::value-double", (GCallback)on_range_property_notify, (gpointer)widget);
 				g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_range_property_changed, (gpointer)dparam);
 			}
 			else {

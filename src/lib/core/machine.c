@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.74 2005-01-25 12:00:47 ensonic Exp $
+/* $Id: machine.c,v 1.75 2005-01-25 16:05:06 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -105,33 +105,60 @@ GType bt_machine_state_get_type(void) {
 
 static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
 	gboolean res=TRUE;
-	GList *wires;
+	GList *wires,*node;
+	BtWire *wire;
+	BtMachine *dst_machine;
+	BtMachineState state;
 	
-	/*  we need to pause all elements downstream until we hit a loop-based element :(
-	 *  wires=bt_setup_get_wires_by_src_machine(setup,self->priv->machine);
-	 *  for each wire in wires {
-	 *    dst=wires->dst;
-	 *    if(bt_machine_has_active_adder(dst)) {
-	 *       pause src;
-	 *    }
-	 *    else {
-	 *      bt_machine_set_mute(dst,setup);
-	 *    }
-	 *  }
-	 */
-	if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
-		GST_WARNING("setting element '%s' to paused state failed",self->priv->id);
-		res=FALSE;
+	// we need to pause all elements downstream until we hit a loop-based element :(
+	if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
+		for(node=wires;node;node=g_list_next(node)) {
+			wire=BT_WIRE(node->data);
+    	g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
+	    if(bt_machine_has_active_adder(dst_machine)) {	// or is paused
+				GST_INFO("  setting element '%s' to paused",self->priv->id);
+				if(gst_element_set_state(self->priv->machine,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+					GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
+					res=FALSE;
+				}
+	    }
+	    else {
+	      bt_machine_set_mute(dst_machine,setup);
+	    }
+			g_object_unref(dst_machine);
+			g_object_unref(wire);
+	  }
+		g_list_free(wires);
 	}
 	return(res);
 }
 
 static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
 	gboolean res=TRUE;
+	GList *wires,*node;
+	BtWire *wire;
+	BtMachine *dst_machine;
+	BtMachineState state;
 	
-	if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
-		GST_WARNING("setting element '%s' to playing state failed",self->priv->id);
-		res=FALSE;
+	// we need to unpause all elements downstream until we hit a loop-based element :(
+	if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
+		for(node=wires;node;node=g_list_next(node)) {
+			wire=BT_WIRE(node->data);
+    	g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
+	    if(bt_machine_has_active_adder(dst_machine)) {	// or is paused
+				GST_INFO("  setting element '%s' to playing",self->priv->id);
+				if(gst_element_set_state(self->priv->machine,GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+					GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
+					res=FALSE;
+				}
+	    }
+	    else {
+	      bt_machine_unset_mute(dst_machine,setup);
+	    }
+			g_object_unref(dst_machine);
+			g_object_unref(wire);
+	  }
+		g_list_free(wires);
 	}
 	return(res);
 }
@@ -145,6 +172,8 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 	if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
 
 	g_object_get(self->priv->song,"setup",&setup,NULL);
+	
+	GST_INFO("state change for element '%s'",self->priv->id);
 	
 	// return to normal state
 	switch(self->priv->state) {
@@ -637,8 +666,8 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GVa
       //gchar *str=g_strdup_value_contents(event);
       //GST_INFO("events for %s at track %d : \"%s\"",self->priv->id,index,str);
       //g_free(str);
-      //g_object_set_property(G_OBJECT(dparam),"value_double",event);
-			g_object_set(G_OBJECT(dparam),"value_double",g_value_get_double(event),NULL);
+      g_object_set_property(G_OBJECT(dparam),"value-double",event);
+			//g_object_set(G_OBJECT(dparam),"value-double",g_value_get_double(event),NULL);
     }  break;
     default:
       GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));
