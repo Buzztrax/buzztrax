@@ -1,22 +1,33 @@
-/** $Id: gst1.c,v 1.4 2004-02-12 18:01:30 ensonic Exp $
- */
+/** $Id: gst1.c,v 1.5 2004-04-08 13:30:35 waffel Exp $
+* small example, how to create a pipeline with one source and one sink and how to
+* use dparams to control the volume. The volume in this example is decrementes from
+* the given volume to silence. After silence is reached, the example stpped.
+*/
  
 #include <stdio.h>
 #include <gst/gst.h>
 #include <gst/control/control.h>
 
 int main(int argc, char **argv) {
+  /* elements used in pipeline */
 	GstElement *audiosink, *audiosrc, *pipeline, *audioconvert;
+  /* dynamic parameters manager*/
   GstDParamManager *audiosrcParam;
+  /* one dynamic parameter, volume */
   GstDParam *volume;
+  /* float value, used to set value to the dynamic parameter */
   gfloat set_to_value;
+  /* the value to set dynamicly */
   GValue *set_val;
   
+  /* init gestreamer */
 	gst_init(&argc, &argv);
+  /* init gstreamer control */
   gst_control_init(&argc,&argv);
   
+  /* if wrong count of commandline parameters are given, print a short help and exit */
   if (argc < 3) {
-    printf("use: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
+    g_print("use: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
     exit(-1);
   }
   
@@ -24,18 +35,19 @@ int main(int argc, char **argv) {
   /* create a new pipeline to hold the elements */
   pipeline = gst_pipeline_new ("pipeline");
   
-  /* and an audio sink */
+  /* try to create an audio sink */
   audiosink = gst_element_factory_make (argv[2], "play_audio");
-  if (audiosrc == NULL) {
+  if (audiosink == NULL) {
     fprintf(stderr,"Can't create element \"%s\"\n",argv[2]);exit (-1);
   }
   
+  /* try to craete an audoiconvert */
   audioconvert = gst_element_factory_make ("float2int", "convert");
   if (audioconvert == NULL) {
     fprintf(stderr,"Can't create element \"float2int\"\n");exit (-1);
   }
   
-  /* add an sine source */
+  /* try to create an audio source */
   audiosrc = gst_element_factory_make (argv[1], "audio-source");
   if (audiosrc == NULL) {
     fprintf(stderr,"Can't create element \"%s\"\n",argv[1]);exit (-1);
@@ -67,11 +79,13 @@ int main(int argc, char **argv) {
   
   /* start playing */
   if(gst_element_set_state (pipeline, GST_STATE_PLAYING)) {
-		printf("playing ...\n");
+		g_print("playing ...\n");
     while (gst_bin_iterate (GST_BIN (pipeline))){
+      /* decrement the volume */
       set_to_value=set_to_value-0.01;
       g_value_set_float(set_val, set_to_value);
-      g_object_set_property(G_OBJECT(volume), "value_float", set_val);
+      g_object_set_property(G_OBECT(volume), "value_float", set_val);
+      /* if silence reached, break the loop */
       if (set_to_value < 0.1) {
         break;
       }
@@ -85,7 +99,6 @@ int main(int argc, char **argv) {
 
   /* we don't need a reference to these objects anymore */
   gst_object_unref (GST_OBJECT (pipeline));
-  /* unreffing the pipeline unrefs the contained elements as well */
 
   exit (0);
 }

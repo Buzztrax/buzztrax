@@ -1,5 +1,6 @@
-/** $Id: gst2.c,v 1.4 2004-02-17 14:27:00 ensonic Exp $
- */
+/** $Id: gst2.c,v 1.5 2004-04-08 13:30:35 waffel Exp $
+* small example on how to use clocks
+*/
  
 #include <stdio.h>
 #include <gst/gst.h>
@@ -8,7 +9,8 @@
 gfloat set_to_value;
 GValue *set_val;
 GstDParam *volume;
-  
+
+/* clock function. This function is called on each clock cycle */
 gboolean clockFunc(GstClock *clock, GstClockTime time, GstClockID id, gpointer user_data) {
     g_print("tick : volume=%f\n",set_to_value);
     set_to_value-=0.1;
