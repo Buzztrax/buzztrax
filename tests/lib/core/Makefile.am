@@ -4,7 +4,7 @@ noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = \
 	t-core.c t-core.h t-song.c t-song-io.g t-song-io.c t-network.c \
-	e-network.c t-setup.c e-setup.c
+	e-network.c t-setup.c e-setup.c t-wire.c
 
 
 INCLUDES = \
