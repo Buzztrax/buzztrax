@@ -50,6 +50,16 @@ struct BmxSectionEntry
 };
 
 
+
+struct BmxCompressionValues
+{
+	word	wSum1;
+	word	wSum2;
+	word	wResult;
+
+	dword	lpwTempData;
+};
+
 struct BmxWavData
 {
     BmxWavData();
@@ -62,10 +72,11 @@ inline BmxWavData::BmxWavData() {
 }
 
 inline BmxWavData::~BmxWavData() {
-    if (buffer != 0x0)
-        delete [] buffer;
+  DELARR(buffer);
 }
-    
+
+#define MAXPACKEDBUFFER 2048
+
 struct BmxCwavSection
 {
     BmxCwavSection();
@@ -74,12 +85,29 @@ struct BmxCwavSection
     word *index;
     byte *format;
     BmxWavData *data;
+    
+    byte abtPackedBuffer[MAXPACKEDBUFFER];
+    dword dwCurIndex;
+    dword dwCurBit;
+
+    dword dwBytesInBuffer;
+    dword dwMaxBytes;
+    dword dwBytesInFileRemain;
 };
 
 inline BmxCwavSection::BmxCwavSection() { 
     index = 0x0; 
     format = 0x0;
     data = 0x0;
+    
+    dwMaxBytes = MAXPACKEDBUFFER;
+    //dwBytesInFileRemain = dwSectionSize;  // in BmxFile::readCwavSection
+    dwCurBit = 0;
+
+    // set up so that call to UnpackBits() will force an immediate read from file
+    dwCurIndex = MAXPACKEDBUFFER;
+    dwBytesInBuffer = 0;
+
 }
 
 inline BmxCwavSection::~BmxCwavSection()  { 
@@ -95,6 +123,8 @@ struct BmxWavtableEnvelopePoints {
 };
 
 struct BmxWavtableEnvelope {
+    BmxWavtableEnvelope();
+    ~BmxWavtableEnvelope();
 		word attack;
 		word decay;
 		word sustain;
@@ -106,13 +136,32 @@ struct BmxWavtableEnvelope {
 		BmxWavtableEnvelopePoints *points;
 };
 
+inline BmxWavtableEnvelope::BmxWavtableEnvelope() {
+		points = 0x0;
+}
+
+inline BmxWavtableEnvelope::~BmxWavtableEnvelope() {
+		DELARR(points);
+}
+
 struct BmxWavtableLevel {
+    BmxWavtableLevel();
+    ~BmxWavtableLevel();
 		dword numberOfSamples;
 		dword loopBegin;
 		dword loopEnd;
 		dword samplesPerSec;
 		byte rootNote;
+    BmxWavData *data;
 };
+
+inline BmxWavtableLevel::BmxWavtableLevel() {
+		data = 0x0;
+}
+
+inline BmxWavtableLevel::~BmxWavtableLevel() {
+		DELARR(data);
+}
 
 struct BmxWavtSection
 {
@@ -137,11 +186,6 @@ inline BmxWavtSection::BmxWavtSection() {
 }
 
 inline BmxWavtSection::~BmxWavtSection() {
-    for (unsigned int i = 0; i < numberOfEnvelopes; i++) {
-      BmxWavtableEnvelope *envelope=&envelopes[i];
-
-      if(envelope->points) delete [] envelope->points;
-    }
 		DELARR(envelopes);
 		DELARR(levels);
 }
@@ -160,7 +204,7 @@ class BmxMachTrackState
         ~BmxMachTrackState();
         word *parameterState;
 };
-        
+
 inline BmxMachTrackState::BmxMachTrackState() {
     parameterState = 0x0;
 }
@@ -340,6 +384,8 @@ class BmxFile
     void readConnSection();
     void readSequSection();
     void readBlahSection();
+    
+    //BOOL decompressWave(LPWORD lpwOutputBuffer,DWORD dwNumSamples,BOOL bStereo)
 
     public:
 
