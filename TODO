@@ -1,4 +1,4 @@
-$Id: TODO,v 1.4 2004-07-12 16:38:47 ensonic Exp $
+$Id: TODO,v 1.5 2004-07-12 17:28:16 ensonic Exp $
 
 * how do we implement multiple voices per machine?
   * source 
@@ -6,6 +6,10 @@ $Id: TODO,v 1.4 2004-07-12 16:38:47 ensonic Exp $
   * processors (e.g. multi-tap delay)
     * separate instances that are getting the same input
       and that are mixed together in the end
+* how do we handle global/voice-params
+  * gstreamer does not support differentiation between them
+  * therefore global_data is 0 for now
+
 
 * unit-tests
   * in the unit tests package, we have nasty, complex LDADD lines
@@ -20,37 +24,4 @@ $Id: TODO,v 1.4 2004-07-12 16:38:47 ensonic Exp $
   * we need some convention how to shorten all the
     object->private->member statements
     * do once object_p=object->private;  
-
-* gobject properties
-  * we need s shortcut mechanism for things like
-    GstElement *bin;
-    GValue val={0,};
-    g_value_init(&val,G_TYPE_OBJECT);
-    g_object_get_property(G_OBJECT(song),"bin", &val);
-    bin=GST_ELEMENT(g_value_get_object(&val));
-    * v1)
-      =>
-      GstElement *bin=GST_ELEMENT(bt_g_object_get_property(G_OBJECT(song),G_TYPE_OBJECT,"bin"));
-      =>
-      <what>* bt_g_object_get_property(GObject *obj,GType *type,gchar *property_name) {
-        GValue val={0,};
-        g_value_init(&val,type);
-        if(type==G_TYPE_OBJECT) {
-          g_object_get_property(G_OBJECT(song),"bin", &val);
-          return(g_value_get_object(&val));
-        }
-        else if(...) {
-        }
-        GST_ERROR("unsupported type");
-      }
-    * v2)
-      =>
-      GstElement *bin=GST_ELEMENT(bt_g_object_get_object_property(G_OBJECT(song),"bin"));
-      =>
-      GObject* bt_g_object_get_object_property(GObject *obj,gchar *property_name) {
-        GValue val={0,};
-        g_value_init(&val,G_TYPE_OBJECT);
-        g_object_get_property(G_OBJECT(song),"bin", &val);
-        return(g_value_get_object(&val));
-      }
 

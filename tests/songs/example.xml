@@ -25,8 +25,8 @@
         <machineui xpos="20" ypos="80"/>
         <globaldata name="volume" value="80"/>
         <globaldata name="bpm" value="4"/>
-        <voicedata name="height" value="80" voice="1"/>
-        <voicedata name="height" value="10" voice="2"/>
+        <voicedata name="height" value="80" voice="0"/>
+        <voicedata name="height" value="10" voice="1"/>
       </source>
     </machines>
     
@@ -39,16 +39,17 @@
   <patterns>
     <pattern id="sine1_beep" machine="sine1" name="beep" length="16">
       <tick time="0">
-        <tickdata voice="0" name="note" value="C-3"/>
-				<tickdata voice="0" name="volume" value="1.0"/>
-				<tickdata voice="1" name="note" value="E-3"/>
-				<tickdata voice="1" name="volume" value="1.0"/>
+        <globaldata name="waveform" value="sine"/>
+        <voicedata voice="0" name="note" value="C-3"/>
+				<voicedata voice="0" name="volume" value="1.0"/>
+				<voicedata voice="1" name="note" value="E-3"/>
+				<voicedata voice="1" name="volume" value="1.0"/>
       </tick>
       <tick time="1">
-        <tickdata voice="0" name="note" value="D-3"/>
-				<tickdata voice="0" name="volume" value="1.0"/>
-				<tickdata voice="1" name="note" value="F-3"/>
-				<tickdata voice="1" name="volume" value="0.8"/>
+        <voicedata voice="0" name="note" value="D-3"/>
+				<voicedata voice="0" name="volume" value="1.0"/>
+				<voicedata voice="1" name="note" value="F-3"/>
+				<voicedata voice="1" name="volume" value="0.8"/>
       </tick>
     </pattern>
   </patterns>

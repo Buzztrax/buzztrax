@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.12 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: song-io-native.c,v 1.13 2004-07-12 17:28:20 ensonic Exp $
  * class for native song input and output
  */
  
@@ -205,12 +205,26 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
+static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node ) {
+
+  while(xml_node) {
+		if(!xmlNodeIsText(xml_node)) {
+      // get time index
+      // iterate over children
+        // get voice
+      // @todo load data
+		}
+		xml_node=xml_node->next;
+	}
+	return(TRUE);
+}
+
 static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr xml_node ) {
 	const BtSetup *setup=bt_song_get_setup(song);
   BtMachine *machine;
   BtPattern *pattern;
 	xmlChar *id,*machine_id,*pattern_name,*length_str;
-  guint length,voices;
+  glong length,voices;
 
   id=xmlGetProp(xml_node,"id");
   machine_id=xmlGetProp(xml_node,"machine");
@@ -220,10 +234,10 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
   // get the related machine
   if((machine=bt_setup_get_machine_by_id(setup,machine_id))) {
     voices=bt_g_object_get_long_property(G_OBJECT(machine),"voices");
-    // create pattern
+    // create pattern and load data
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
     pattern=g_object_new(BT_TYPE_PATTERN,"song",song,"length",length,"voices",voices,"machine",machine,NULL);
-    // @todo load tick data
+    bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
     // add to machine's pattern-list
     bt_machine_add_pattern(machine,pattern);
   }
@@ -231,6 +245,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     GST_ERROR("invalid machine-id=\"%s\"",machine_id);
   }
   xmlFree(id);xmlFree(machine_id);xmlFree(pattern_name);xmlFree(length_str);
+  return(TRUE);
 }
 
 static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.2 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: pattern.c,v 1.3 2004-07-12 17:28:20 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -11,7 +11,6 @@ enum {
   PATTERN_SONG=1,
   PATTERN_LENGTH,
   PATTERN_VOICES,
-  PATTERN_PARAMS,
   PATTERN_MACHINE
 };
 
@@ -24,18 +23,25 @@ struct _BtPatternPrivate {
 
   /* the number of ticks */
   glong length;
-
   /* the number of voices */
   glong voices;
-
-  /* the number of params */
-  glong params;
-
+  /* the number of dynamic params the machine provides per instance */
+  glong global_params;
+  /* the number of dynamic params the machine provides per instance and voice */
+  glong voice_params;
   /* the machine the pattern belongs to */
   BtMachine *machine;
 
-  /* we have one GValue* per tick, per voice, per parameter */
+  /* we have one GValue* in length*(global_params+voices*voice_params) */
 	GValue  *data;
+  /** @todo more objects here !
+  BtPatternRow *ticks;
+  
+  struct BtPatternRow {
+    GValue *global_data;  // global_params
+    GValue **voice_data;  // voices*voice_params
+  }
+   */
 };
 
 //-- helper methods
@@ -44,9 +50,9 @@ static void bt_pattern_init_data(const BtPattern *self) {
   g_assert(self->private->data==NULL);
   
   if(self->private->length && self->private->voices && self->private->params) {
-    glong data_count=self->private->length*self->private->voices*self->private->params;
+    glong data_count=self->private->length*(self->private->voices*self->private->voice_params+self->private->global_params);
 
-    GST_DEBUG("bt_pattern_init_data : %d*%d*%d=%d",self->private->length,self->private->voices,self->private->params,data_count);
+    GST_DEBUG("bt_pattern_init_data : %d*(%d*%d+%d)=%d",self->private->length,self->private->voices,self->private->voice_params,self->private->global_params,data_count);
     self->private->data=g_new0(GValue,data_count);
     // @todo depending on the type of the dparams initialize the GValues
   }
@@ -76,9 +82,6 @@ static void bt_pattern_get_property(GObject      *object,
     case PATTERN_VOICES: {
       g_value_set_long(value, self->private->voices);
     } break;
-    case PATTERN_PARAMS: {
-      g_value_set_long(value, self->private->params);
-    } break;
     case PATTERN_MACHINE: {
       g_value_set_object(value, G_OBJECT(self->private->machine));
     } break;
@@ -103,25 +106,18 @@ static void bt_pattern_set_property(GObject      *object,
       //GST_DEBUG("set the song for pattern: %p",self->private->song);
     } break;
     case PATTERN_LENGTH: {
-      // @todo that should not be neccesary, it should be NULL initially
-      //bt_pattern_free_data(self);
       self->private->length = g_value_get_long(value);
       bt_pattern_init_data(self);
     } break;
     case PATTERN_VOICES: {
-      // @todo that should not be neccesary, it should be NULL initially
-      //bt_pattern_free_data(self);
       self->private->voices = g_value_get_long(value);
       bt_pattern_init_data(self);
     } break;
-    case PATTERN_PARAMS: {
-      // @todo that should not be neccesary, it should be NULL initially
-      //bt_pattern_free_data(self);
-      self->private->params = g_value_get_long(value);
-      bt_pattern_init_data(self);
-    } break;
     case PATTERN_MACHINE: {
+      glong global_params,voice_params;
       self->private->machine = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->global_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"global_params");
+      self->private->voice_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"voice_params");
       //GST_DEBUG("set the machine for pattern: %p",self->private->machine);
     } break;
     default: {
@@ -181,15 +177,6 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
 																	g_param_spec_long("voices",
                                      "voices prop",
                                      "number of voices in the pattern",
-                                     1,
-                                     G_MAXLONG,
-                                     1,
-                                     G_PARAM_READWRITE));
-
-  g_object_class_install_property(gobject_class,PATTERN_PARAMS,
-																	g_param_spec_long("params",
-                                     "params prop",
-                                     "number of params for each pattern voice",
                                      1,
                                      G_MAXLONG,
                                      1,

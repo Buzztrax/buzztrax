@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.5 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: machine.h,v 1.6 2004-07-12 17:28:20 ensonic Exp $
  * base class for a machine
  */
 
@@ -43,7 +43,7 @@ struct _BtMachine {
 	GstElement *machine,*adder,*spreader;
 	GstDParamManager *dparam_manager;
 	GstDParam **dparams;
-	guint dparams_count;
+	//guint dparams_count; // OBSOLETE private->global_params, private->voice_params
 	// convinience pointer
 	GstElement *dst_elem,*src_elem;
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.14 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: machine.c,v 1.15 2004-07-12 17:28:20 ensonic Exp $
  * base class for a machine
  */
  
@@ -11,7 +11,9 @@ enum {
   MACHINE_SONG=1,
 	MACHINE_ID,
 	MACHINE_PLUGIN_NAME,
-  MACHINE_VOICES
+  MACHINE_VOICES,
+  MACHINE_GLOBAL_PARAMS,
+  MACHINE_VOICE_PARAMS
 };
 
 struct _BtMachinePrivate {
@@ -26,8 +28,10 @@ struct _BtMachinePrivate {
 	gchar *plugin_name;
   /* the number of voices the machine provides */
   glong voices;
-  /* the number of dynamic params the machine provides */
-  glong dparams;
+  /* the number of dynamic params the machine provides per instance */
+  glong global_params;
+  /* the number of dynamic params the machine provides per instance and voice */
+  glong voice_params;
   
   GList *patterns;	// each entry points to BtPattern
 };
@@ -62,7 +66,8 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
 				// count the specs
 				for(i=0;specs[i];i++);
 				self->dparams=(GstDParam **)g_new0(gpointer,i);
-				self->dparams_count=i;
+        // right now, we have no global params
+				self->private->voice_params=i;
 				// iterate over all dparam
 				for(i=0,dparam=self->dparams;specs[i];i++,dparam++) {
 					*dparam=gst_dparam_new(G_PARAM_SPEC_VALUE_TYPE(specs[i]));
@@ -121,6 +126,12 @@ static void bt_machine_get_property(GObject      *object,
       g_value_set_long(value, self->private->voices);
       // @todo reallocate self->private->patterns->private->data
     } break;
+    case MACHINE_GLOBAL_PARAMS: {
+      g_value_set_long(value, self->private->global_params);
+    } break;
+    case MACHINE_VOICE_PARAMS: {
+      g_value_set_long(value, self->private->voice_params);
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -155,6 +166,14 @@ static void bt_machine_set_property(GObject      *object,
     } break;
     case MACHINE_VOICES: {
       self->private->voices = g_value_get_long(value);
+    } break;
+    case MACHINE_GLOBAL_PARAMS: {
+      self->private->global_params = g_value_get_long(value);
+      bt_pattern_init_data(self);
+    } break;
+    case MACHINE_VOICE_PARAMS: {
+      self->private->voice_params = g_value_get_long(value);
+      bt_pattern_init_data(self);
     } break;
     default: {
       g_assert(FALSE);
@@ -234,6 +253,24 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      G_MAXLONG,
                                      1,
                                      G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MACHINE_GLOBAL_PARAMS,
+																	g_param_spec_long("global_params",
+                                     "global_params prop",
+                                     "number of params for the machine",
+                                     1,
+                                     G_MAXLONG,
+                                     1,
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
+																	g_param_spec_long("voice_params",
+                                     "voice_params prop",
+                                     "number of params for each machine voice",
+                                     1,
+                                     G_MAXLONG,
+                                     1,
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 }
 
 GType bt_machine_get_type(void) {
