@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.23 2004-11-03 12:10:54 ensonic Exp $
+/* $Id: sink-machine.c,v 1.24 2004-11-08 12:05:44 ensonic Exp $
  * class for a sink machine
  */
  
@@ -44,7 +44,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(is_string(audiosink_name)) plugin_name=audiosink_name;
   else if(is_string(system_audiosink_name)) plugin_name=system_audiosink_name;
   else {
-    // try first entry of gstreamer-audiosink list
+    // try first entry of gstreamer-audiosink list (@todo better would be the one with the highest rank)
     GList *audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
     if(audiosink_names) {
       plugin_name=audiosink_names->data;

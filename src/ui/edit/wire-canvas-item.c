@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.3 2004-11-04 10:38:15 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.4 2004-11-08 12:05:57 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -391,14 +391,20 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
   
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_WIRE,
                                   g_param_spec_object("wire",
                                      "wire contruct prop",
                                      "Set wire object, the item belongs to",
                                      BT_TYPE_WIRE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
 
  	g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_W,
 																	g_param_spec_double("w",
@@ -423,14 +429,20 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      "src contruct prop",
                                      "Set wire src machine canvas item",
                                      BT_TYPE_MACHINE_CANVAS_ITEM, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_DST,
                                   g_param_spec_object("dst",
                                      "dst contruct prop",
                                      "Set wire dst machine canvas item",
                                      BT_TYPE_MACHINE_CANVAS_ITEM, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_wire_canvas_item_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.4 2004-11-04 10:38:14 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.5 2004-11-08 12:05:57 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -414,14 +414,20 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
   
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINE,
                                   g_param_spec_object("machine",
                                      "machine contruct prop",
                                      "Set machine object, the item belongs to",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES                                     
+                                     G_PARAM_CONSTRUCT_ONLY |
+#endif
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_machine_canvas_item_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.15 2004-10-18 18:03:29 ensonic Exp $
+/* $Id: bt-edit.h,v 1.16 2004-11-08 12:05:57 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -35,5 +35,9 @@
 #if defined(BT_EDIT) && !defined(BT_EDIT_APPLICATION_C)
 	GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
+
+//-- gnome canvas has a broken design,
+// that does not allow derived classes to have G_PARAM_CONSTRUCT_ONLY properties
+#define GNOME_CANVAS_BROKEN_PROPERTIES 1
 
 #endif // BT_EDIT_H
