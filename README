@@ -1,0 +1,23 @@
+$Id: README,v 1.1 2004-04-15 16:02:50 ensonic Exp $
+
+requirements
+	libxml2
+	glib2
+	gtk+2
+	gstreamer(head cvs)
+	libz
+
+supported packages
+	check (http://check.sf.net - for unit tests)
+
+directories
+  design : little test sources, not needed for releases
+  docs : design ideas
+	src : the project sources
+		ui
+			cmd : buzztard tool for the commandline
+			gtk : buzztard user interface based on gtk
+		lib
+			core : logic, e.g. connections framework, file i/o, ...
+	tests : unit tests (same directory structure as src)
+		
