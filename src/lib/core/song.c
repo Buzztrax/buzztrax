@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.46 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: song.c,v 1.47 2004-09-26 10:36:32 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -188,8 +188,9 @@ static void bt_song_set_property(GObject      *object,
       GST_DEBUG("set the bin for the song: %p",self->private->bin);
 		} break;
 		case SONG_MASTER: {
-      g_object_try_unref(self->private->master);
-			self->private->master = GST_ELEMENT(g_object_try_ref(g_value_get_object(value)));
+      g_object_try_weak_unref(self->private->master);
+			self->private->master = GST_ELEMENT(g_value_get_object(value));
+      g_object_try_weak_ref(self->private->master);
       GST_DEBUG("set the master for the song: %p",self->private->master);
 		} break;
     default: {
@@ -206,10 +207,10 @@ static void bt_song_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_object_try_weak_unref(self->private->master);
 	g_object_try_unref(self->private->song_info);
 	g_object_try_unref(self->private->sequence);
 	g_object_try_unref(self->private->setup);
-  g_object_try_unref(self->private->master);
 	g_object_try_unref(self->private->bin);
 }
 

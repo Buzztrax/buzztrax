@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.31 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: machine.c,v 1.32 2004-09-26 10:36:32 ensonic Exp $
  * base class for a machine
  */
  
@@ -79,7 +79,7 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
   }
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->machine;
-  GST_DEBUG("  instantiated machine \"%s\"",self->private->plugin_name);
+  GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->private->plugin_name,G_OBJECT(self->machine)->ref_count);
   if((self->private->dparam_manager=gst_dpman_get_manager(self->machine))) {
     GParamSpec **specs;
     GstDParam **dparam;
@@ -107,6 +107,7 @@ gboolean bt_machine_init_gst_element(BtMachine *self) {
   }
   g_object_get(G_OBJECT(self->private->song),"bin",&self->private->bin,NULL);
   gst_bin_add(self->private->bin,self->machine);
+  GST_INFO("  added machine to bin, obj->ref_count=%d",G_OBJECT(self->machine)->ref_count);
   g_assert(self->machine!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
