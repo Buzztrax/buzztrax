@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.91 2005-03-02 16:14:39 ensonic Exp $
+/* $Id: machine.c,v 1.92 2005-03-04 16:47:05 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -230,6 +230,13 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
 			for(node=machines;node;node=g_list_next(node)) {
 				machine=BT_MACHINE(node->data);
 				if(machine!=self) {
+					// if a different machine is solo, set it to normal and unmute the current source
+					// @todo graphics need to listen to notify::state
+					if(machine->priv->state==BT_MACHINE_STATE_SOLO) {
+						machine->priv->state=BT_MACHINE_STATE_NORMAL;
+						g_object_notify(G_OBJECT(machine),"state");
+						if(!bt_machine_unset_mute(self,setup)) res=FALSE;
+					}
 					if(!bt_machine_set_mute(machine,setup)) res=FALSE;
 				}
 				g_object_unref(machine);
