@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.16 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: song-io.c,v 1.17 2004-09-21 14:01:19 ensonic Exp $
  * base class for song input and output
  */
  
@@ -6,6 +6,15 @@
 #define BT_SONG_IO_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  STATUS_CHANGED,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
   SONG_IO_FILE_NAME=1,
@@ -22,6 +31,8 @@ struct _BtSongIOPrivate {
 	/* informs about the progress of the loader */
 	gchar *status;
 };
+
+static guint signals[LAST_SIGNAL]={0,};
 
 /* list of registered io-classes */
 static GList *plugins=NULL;
@@ -164,9 +175,8 @@ static void bt_song_io_get_property(GObject      *object,
       g_value_set_string(value, self->private->status);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -182,13 +192,12 @@ static void bt_song_io_set_property(GObject      *object,
     case SONG_IO_STATUS: {
       g_free(self->private->status);
       self->private->status = g_value_dup_string(value);
-      g_signal_emit(G_OBJECT(self), BT_SONG_IO_GET_CLASS(self)->status_changed_signal_id, 0);
+      g_signal_emit(G_OBJECT(self), signals[STATUS_CHANGED], 0);
       GST_DEBUG("set the status for song_io: %s",self->private->status);
     } break;
      default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -223,7 +232,8 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
   gobject_class->dispose      = bt_song_io_dispose;
   gobject_class->finalize     = bt_song_io_finalize;
 	
-	klass->load       = bt_song_io_real_load;
+	klass->load           = bt_song_io_real_load;
+  klass->status_changed = NULL;
 
   /** 
 	 * BtSongIO::status-changed
@@ -233,10 +243,10 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
    * Access the "status" property of the song-io class to get a human-readable
    * status message.
 	 */
-  klass->status_changed_signal_id = g_signal_newv("status-changed",
+  signals[STATUS_CHANGED] = g_signal_new("status-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0, // class offset
+                                        G_STRUCT_OFFSET(BtSongIOClass,status_changed),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

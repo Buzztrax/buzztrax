@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.6 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: application.c,v 1.7 2004-09-21 14:01:19 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -40,9 +40,8 @@ static void bt_application_get_property(GObject      *object,
       g_value_set_object(value, self->private->bin);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -56,9 +55,8 @@ static void bt_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -69,7 +67,7 @@ static void bt_application_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	gst_object_unref(GST_OBJECT(self->private->bin));
+	g_object_try_unref(self->private->bin);
 }
 
 static void bt_application_finalize(GObject *object) {

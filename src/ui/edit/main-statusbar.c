@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.10 2004-09-20 16:44:29 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.11 2004-09-21 14:01:42 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -179,9 +179,8 @@ static void bt_main_statusbar_get_property(GObject      *object,
       g_value_set_object(value, self->private->app);
     } break;
     default: {
- 			g_assert(FALSE);
-      break;
-    }
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -196,13 +195,12 @@ static void bt_main_statusbar_set_property(GObject      *object,
   switch (property_id) {
     case MAIN_STATUSBAR_APP: {
       g_object_try_unref(self->private->app);
-      self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->app = g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the app for main_statusbar: %p",self->private->app);
     } break;
     default: {
-			g_assert(FALSE);
-      break;
-    }
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

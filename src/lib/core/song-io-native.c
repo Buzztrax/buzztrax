@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.25 2004-09-15 16:57:58 ensonic Exp $
+/* $Id: song-io-native.c,v 1.26 2004-09-21 14:01:19 ensonic Exp $
  * class for native song input and output
  */
  
@@ -587,9 +587,8 @@ static void bt_song_io_native_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -603,9 +602,8 @@ static void bt_song_io_native_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.18 2004-09-20 18:01:27 ensonic Exp $
+/* $Id: edit-application.c,v 1.19 2004-09-21 14:01:42 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -43,12 +43,8 @@ static BtApplicationClass *parent_class=NULL;
 gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   
-  if(self->private->song) {
-    //GObject *object=G_OBJECT(self->private->song);
-    GST_INFO("1. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
-    g_object_unref(self->private->song);
-    //GST_INFO("2. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
-  }
+  if(self->private->song) GST_INFO("1. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
+  g_object_try_unref(self->private->song);
   if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
     res=TRUE;
     GST_INFO("0. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
@@ -209,9 +205,8 @@ static void bt_edit_application_get_property(GObject      *object,
       g_value_set_object(value, self->private->main_window);
     } break;
     default: {
- 			g_assert(FALSE);
-      break;
-    }
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -225,15 +220,13 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      gpointer ptr=g_value_get_object(value);
       g_object_try_unref(self->private->song);
-      self->private->song=g_object_try_ref(ptr);
+      self->private->song=g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the song for edit_application: %p",self->private->song);
     } break;
     default: {
-			g_assert(FALSE);
-      break;
-    }
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -245,7 +238,10 @@ static void bt_edit_application_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  bt_song_stop(self->private->song);
+  if(self->private->song) {
+    GST_INFO("1. song->ref_ct=%d",G_OBJECT(self->private->song)->ref_count);
+    bt_song_stop(self->private->song);
+  }
   g_object_try_unref(self->private->song);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {

@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.22 2004-09-20 16:51:41 ensonic Exp $
+/* $Id: setup.c,v 1.23 2004-09-21 14:01:19 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -236,9 +236,8 @@ static void bt_setup_get_property(GObject      *object,
       g_value_set_object(value, self->private->song);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -258,9 +257,8 @@ static void bt_setup_set_property(GObject      *object,
       //GST_DEBUG("set the song for setup: %p",self->private->song);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

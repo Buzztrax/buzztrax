@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.10 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: sink-machine.c,v 1.11 2004-09-21 14:01:19 ensonic Exp $
  * class for a sink machine
  */
  
@@ -54,9 +54,8 @@ static void bt_sink_machine_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -70,9 +69,8 @@ static void bt_sink_machine_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			g_assert(FALSE);
-      break;
-    }
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

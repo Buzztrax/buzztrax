@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.41 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: song.c,v 1.42 2004-09-21 14:01:19 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -8,6 +8,16 @@
 #define BT_SONG_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  PLAY_EVENT,
+  STOP_EVENT,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
 	SONG_BIN=1,
@@ -27,6 +37,8 @@ struct _BtSongPrivate {
   /* the element that has the clock */
   GstElement *master;
 };
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- constructor methods
 
@@ -68,10 +80,10 @@ gboolean bt_song_play(const BtSong *self) {
   g_assert(self);
 
   // emit signal that we start playing
-  g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->play_signal_id, 0);
+  g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
   res=bt_sequence_play(self->private->sequence);
   // emit signal that we have finished playing
-  g_signal_emit(G_OBJECT(self), BT_SONG_GET_CLASS(self)->stop_signal_id, 0);
+  g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
   return(res);
 }
 
@@ -182,9 +194,8 @@ static void bt_song_get_property(GObject      *object,
       g_value_set_object(value, self->private->master);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -199,18 +210,17 @@ static void bt_song_set_property(GObject      *object,
   switch (property_id) {
 		case SONG_BIN: {
       g_object_try_unref(self->private->bin);
-			self->private->bin = g_object_ref(G_OBJECT(g_value_get_object(value)));
+			self->private->bin = g_object_try_ref(g_value_get_object(value));
       GST_DEBUG("set the bin for the song: %p",self->private->bin);
 		} break;
 		case SONG_MASTER: {
       g_object_try_unref(self->private->master);
-			self->private->master = g_object_ref(G_OBJECT(g_value_get_object(value)));
+			self->private->master = g_object_try_ref(g_value_get_object(value));
       GST_DEBUG("set the master for the song: %p",self->private->master);
 		} break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -224,7 +234,7 @@ static void bt_song_dispose(GObject *object) {
   if(self->private->bin) {
     GList *node=g_list_first(gst_bin_get_list(self->private->bin));
     while(node) {
-      gst_object_unref(GST_OBJECT(node->data));
+      g_object_try_unref(node->data);
       node=g_list_next(node);
     }
   }
@@ -232,8 +242,8 @@ static void bt_song_dispose(GObject *object) {
 	g_object_try_unref(self->private->song_info);
 	g_object_try_unref(self->private->sequence);
 	g_object_try_unref(self->private->setup);
-  gst_object_unref(GST_OBJECT(self->private->master));
-	gst_object_unref(GST_OBJECT(self->private->bin));
+  g_object_try_unref(self->private->master);
+	g_object_try_unref(self->private->bin);
 }
 
 static void bt_song_finalize(GObject *object) {
@@ -262,17 +272,19 @@ static void bt_song_class_init(BtSongClass *klass) {
   gobject_class->get_property = bt_song_get_property;
   gobject_class->dispose      = bt_song_dispose;
   gobject_class->finalize     = bt_song_finalize;
-  
+
+  klass->play_event = NULL;
+  klass->stop_event = NULL;
   /** 
 	 * BtSong::play:
    * @self: the song object that emitted the signal
 	 *
 	 * signals that this song has started to play
 	 */
-  klass->play_signal_id = g_signal_newv("play",
+  signals[PLAY_EVENT] = g_signal_new("play",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0, // class offset
+                                        G_STRUCT_OFFSET(BtSongClass,play_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
@@ -286,10 +298,10 @@ static void bt_song_class_init(BtSongClass *klass) {
 	 *
 	 * signals that this song has finished to play
 	 */
-  klass->stop_signal_id = g_signal_newv("stop",
+  signals[STOP_EVENT] = g_signal_new("stop",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        0, // class offset
+                                        G_STRUCT_OFFSET(BtSongClass,stop_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

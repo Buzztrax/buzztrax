@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.28 2004-09-20 16:44:29 ensonic Exp $
+/* $Id: cmd-application.c,v 1.29 2004-09-21 14:01:42 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -186,9 +186,8 @@ static void bt_cmd_application_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
- 			g_assert(FALSE);
-      break;
-    }
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -202,9 +201,8 @@ static void bt_cmd_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			g_assert(FALSE);
-      break;
-    }
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.21 2004-09-20 16:44:29 ensonic Exp $
+/* $Id: main-window.c,v 1.22 2004-09-21 14:01:42 ensonic Exp $
  * class for the editor main window
  */
 
@@ -177,7 +177,11 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   box=gtk_hbox_new(FALSE,0);
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
-  label=gtk_label_new(_("Really quit ?"));
+  label=gtk_label_new(NULL);
+  gtk_label_set_markup(GTK_LABEL(label), g_strdup_printf(
+    "<big><b>%s</b></big>\n\n%s",_("Really quit ?"),_("All unsaved changes will be lost then.")
+  ));
+  //label=gtk_label_new(_("Really quit ?"));
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
   gtk_widget_show_all(dialog);
@@ -267,9 +271,8 @@ static void bt_main_window_get_property(GObject      *object,
       g_value_set_object(value, self->private->app);
     } break;
     default: {
- 			g_assert(FALSE);
-      break;
-    }
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -284,13 +287,12 @@ static void bt_main_window_set_property(GObject      *object,
   switch (property_id) {
     case MAIN_WINDOW_APP: {
       g_object_try_unref(self->private->app);
-      self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->app = g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the app for main_window: %p",self->private->app);
     } break;
     default: {
-			g_assert(FALSE);
-      break;
-    }
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

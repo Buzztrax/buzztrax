@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.30 2004-09-20 18:01:20 ensonic Exp $
+/* $Id: sequence.c,v 1.31 2004-09-21 14:01:19 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -384,9 +384,8 @@ static void bt_sequence_get_property(GObject      *object,
       g_value_set_long(value, self->private->tracks);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -419,9 +418,8 @@ static void bt_sequence_set_property(GObject      *object,
       bt_sequence_init_timelinetracks(self);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

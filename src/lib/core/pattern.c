@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.10 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: pattern.c,v 1.11 2004-09-21 14:01:19 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -321,9 +321,8 @@ static void bt_pattern_get_property(GObject      *object,
       g_value_set_object(value, self->private->machine);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -339,8 +338,9 @@ static void bt_pattern_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case PATTERN_SONG: {
-      g_object_try_unref(self->private->song);
-      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      g_object_try_weak_unref(self->private->song);
+      self->private->song = BT_SONG(g_value_get_object(value));
+      g_object_try_weak_ref(self->private->song);
       //GST_DEBUG("set the song for pattern: %p",self->private->song);
     } break;
     case PATTERN_ID: {
@@ -368,15 +368,14 @@ static void bt_pattern_set_property(GObject      *object,
     case PATTERN_MACHINE: {
       glong global_params,voice_params;
       g_object_try_unref(self->private->machine);
-      self->private->machine = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->machine = g_object_try_ref(G_OBJECT(g_value_get_object(value)));
       self->private->global_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"global_params");
       self->private->voice_params=bt_g_object_get_long_property(G_OBJECT(self->private->machine),"voice_params");
       GST_DEBUG("set the machine for pattern: %p",self->private->machine);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -388,7 +387,8 @@ static void bt_pattern_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_unref(G_OBJECT(self->private->song));
+	g_object_try_weak_unref(self->private->song);
+  g_object_try_unref(self->private->machine);
 }
 
 static void bt_pattern_finalize(GObject *object) {

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.24 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: wire.c,v 1.25 2004-09-21 14:01:19 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -279,9 +279,8 @@ static void bt_wire_get_property(GObject      *object,
       g_value_set_object(value, self->private->dst);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -296,23 +295,22 @@ static void bt_wire_set_property(GObject      *object,
   switch (property_id) {
     case WIRE_SONG: {
       g_object_try_unref(self->private->song);
-      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->song = g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the song for wire: %p",self->private->song);
     } break;
 		case WIRE_SRC: {
       g_object_try_unref(self->private->src);
-			self->private->src = g_object_ref(G_OBJECT(g_value_get_object(value)));
+			self->private->src = g_object_try_ref(g_value_get_object(value));
       GST_DEBUG("set the source element for the wire: %p",self->private->src);
 		} break;
 		case WIRE_DST: {
       g_object_try_unref(self->private->dst);
-			self->private->dst = g_object_ref(G_OBJECT(g_value_get_object(value)));
+			self->private->dst = g_object_try_ref(g_value_get_object(value));
       GST_DEBUG("set the target element for the wire: %p",self->private->dst);
 		} break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 

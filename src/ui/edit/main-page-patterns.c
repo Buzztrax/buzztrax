@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.9 2004-09-20 16:44:29 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.10 2004-09-21 14:01:42 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -232,9 +232,8 @@ static void bt_main_page_patterns_get_property(GObject      *object,
       g_value_set_object(value, self->private->app);
     } break;
     default: {
- 			g_assert(FALSE);
-      break;
-    }
+ 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -249,13 +248,12 @@ static void bt_main_page_patterns_set_property(GObject      *object,
   switch (property_id) {
     case MAIN_PAGE_PATTERNS_APP: {
       g_object_try_unref(self->private->app);
-      self->private->app = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->app = g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the app for MAIN_PAGE_PATTERNS: %p",self->private->app);
     } break;
     default: {
-			g_assert(FALSE);
-      break;
-    }
+			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -264,7 +262,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
 
-  g_object_try_unref(G_OBJECT(self->private->app));
+  g_object_try_unref(self->private->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.27 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: machine.c,v 1.28 2004-09-21 14:01:19 ensonic Exp $
  * base class for a machine
  */
  
@@ -333,9 +333,8 @@ static void bt_machine_get_property(GObject      *object,
       g_value_set_long(value, self->private->voice_params);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
@@ -350,7 +349,7 @@ static void bt_machine_set_property(GObject      *object,
   switch (property_id) {
     case MACHINE_SONG: {
       g_object_try_unref(self->private->song);
-      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      self->private->song = g_object_try_ref(g_value_get_object(value));
       GST_DEBUG("set the song for machine: %p",self->private->song);
     } break;
     case MACHINE_ID: {
@@ -374,9 +373,8 @@ static void bt_machine_set_property(GObject      *object,
       self->private->voice_params = g_value_get_long(value);
     } break;
     default: {
-      g_assert(FALSE);
-      break;
-    }
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+    } break;
   }
 }
 
