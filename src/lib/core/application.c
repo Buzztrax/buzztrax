@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.1 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: application.c,v 1.2 2004-05-12 17:34:07 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -6,6 +6,10 @@
 #define BT_APPLICATION_C
 
 #include <libbtcore/core.h>
+
+enum {
+  APPLICATION_BIN=1
+};
 
 struct _BtApplicationPrivate {
   /* used to validate if dispose has run */
@@ -30,6 +34,9 @@ static void bt_application_get_property(GObject      *object,
   BtApplication *self = BT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
+    case APPLICATION_BIN: {
+      g_value_set_object(value, G_OBJECT(self->private->bin));
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -61,6 +68,7 @@ static void bt_application_dispose(GObject *object) {
 
 static void bt_application_finalize(GObject *object) {
   BtApplication *self = BT_APPLICATION(object);
+	gst_object_unref(GST_OBJECT(self->private->bin));
 	//g_object_unref(G_OBJECT(self->private->bin));
   g_free(self->private);
 }
@@ -69,16 +77,24 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   BtApplication *self = BT_APPLICATION(instance);
   self->private = g_new0(BtApplicationPrivate,1);
   self->private->dispose_has_run = FALSE;
+	self->private->bin = gst_thread_new("thread");
+  g_assert(self->private->bin!=NULL);
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  //GParamSpec *g_param_spec;
-  
+
   gobject_class->set_property = bt_application_set_property;
   gobject_class->get_property = bt_application_get_property;
   gobject_class->dispose      = bt_application_dispose;
   gobject_class->finalize     = bt_application_finalize;
+
+  g_object_class_install_property(gobject_class,APPLICATION_BIN,
+																	g_param_spec_object("bin",
+                                     "bin ro prop",
+                                     "applications top-level GstElement container",
+                                     BT_SONG_TYPE, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_application_get_type(void) {

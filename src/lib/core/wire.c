@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.12 2004-05-11 20:55:36 ensonic Exp $
+/* $Id: wire.c,v 1.13 2004-05-12 17:34:07 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -111,19 +111,18 @@ static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_wire_class_init(BtWireClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_wire_set_property;
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;
   gobject_class->finalize     = bt_wire_finalize;
 
-  g_param_spec = g_param_spec_object("song",
+  g_object_class_install_property(gobject_class,WIRE_SONG,
+																	g_param_spec_object("song",
                                      "song contruct prop",
-                                     "Set song object, the wire belongs to",
+                                     "the song object, the wire belongs to",
                                      BT_SONG_TYPE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-  g_object_class_install_property(gobject_class,WIRE_SONG,g_param_spec);
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 }
 
 GType bt_wire_get_type(void) {

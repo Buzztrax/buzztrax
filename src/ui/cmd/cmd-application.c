@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.1 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: cmd-application.c,v 1.2 2004-05-12 17:34:07 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -12,7 +12,69 @@ struct _BtCmdApplicationPrivate {
   gboolean dispose_has_run;
 };
 
+//-- helper mathods
+
+/**
+ * print_usage:
+ *
+ * give short commandline help when no arg has been supplied
+ */
+static void print_usage(void) {
+	puts("Usage: bt-cmd <song-filename>");
+}
+
+/**
+ * play_event:
+ *
+ * signal callback funktion
+ */
+static void play_event(void) {
+  GST_INFO("start play invoked per signal\n");
+}
+
+
 //-- methods
+
+gboolean bt_cmd_application_run(const BtCmdApplication *app, int argc, char **argv) {
+	BtSong *song;
+	BtSongIO *loader;
+	GValue sval={0,},oval={0,};
+	gchar *filename;
+
+	if(argc==1) {
+		print_usage();
+		return(FALSE);
+	}
+	filename=argv[1];
+
+	g_value_init(&oval,G_TYPE_OBJECT);
+	g_object_get_property(G_OBJECT(app),"bin", &oval);
+		
+	// @todo we need to pass the "bin" object from the app to the song
+	song = (BtSong *)g_object_new(BT_SONG_TYPE,"name","first buzztard song", NULL);
+	loader = (BtSongIO *)g_object_new(bt_song_io_detect(filename),NULL);
+	
+	GST_INFO("objects initialized");
+	
+	//if(bt_song_load(song,filename)) {
+	if(bt_song_io_load(loader,song,filename)) {
+		/* print some info about the song */
+		g_value_init(&sval,G_TYPE_STRING);
+		g_object_get_property(G_OBJECT(song),"name", &sval);
+		g_print("song.name: \"%s\"\n", g_value_get_string(&sval));
+		g_object_get_property(G_OBJECT(bt_song_get_song_info(song)),"info", &sval);
+		g_print("song.song_info.info: \"%s\"\n", g_value_get_string(&sval));
+		
+		/* connection play signal and invoking the play_event function */
+		g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event, NULL);
+		bt_song_start_play(song);
+		return(TRUE);
+	}
+	else {
+		GST_ERROR("could not load song \"%s\"",filename);
+		return(FALSE);
+	}
+}
 
 //-- wrapper
 

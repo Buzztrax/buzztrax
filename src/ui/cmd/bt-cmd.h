@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.h,v 1.1 2004-05-12 09:35:14 ensonic Exp $
+/* $Id: bt-cmd.h,v 1.2 2004-05-12 17:34:07 ensonic Exp $
  */
 
 #ifndef BT_CMD_H
@@ -10,7 +10,7 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#include "cmd-application.h"
+#include "cmd-application-methods.h"
 
 //-- misc
 #define GST_CAT_DEFAULT bt_cmd_debug

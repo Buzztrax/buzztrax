@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.19 2004-05-11 20:55:36 ensonic Exp $
+/* $Id: song.c,v 1.20 2004-05-12 17:34:07 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -10,7 +10,8 @@
 #include <libbtcore/core.h>
 
 enum {
-  SONG_NAME=1
+  SONG_NAME=1,
+	SONG_BIN
 };
 
 struct _BtSongPrivate {
@@ -23,6 +24,9 @@ struct _BtSongPrivate {
 	BtSongInfo* song_info; 
 	BtSequence* sequence;
 	BtSetup*    setup;
+
+	/* the main gstreamer container element */
+	GstElement *bin;
 };
 
 //-- methods
@@ -108,6 +112,9 @@ static void bt_song_get_property(GObject      *object,
     case SONG_NAME: {
       g_value_set_string(value, self->private->name);
     } break;
+    case SONG_BIN: {
+      g_value_set_object(value, G_OBJECT(self->private->bin));
+    } break;
     default: {
       g_assert(FALSE);
       break;
@@ -129,6 +136,10 @@ static void bt_song_set_property(GObject      *object,
       self->private->name = g_value_dup_string(value);
       GST_INFO("set the name for song: %s",self->private->name);
     } break;
+		case SONG_BIN: {
+			self->private->bin = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      GST_INFO("set the master bin for song: %p",self->private->bin);
+		} break;
     default: {
       g_assert(FALSE);
       break;
@@ -162,7 +173,6 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_song_class_init(BtSongClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_song_set_property;
   gobject_class->get_property = bt_song_get_property;
@@ -183,12 +193,19 @@ static void bt_song_class_init(BtSongClass *klass) {
                                         0, // n_params
                                         NULL /* param data */ );
   
-  g_param_spec = g_param_spec_string("name",
-                                     "name contruct prop",
+  g_object_class_install_property(gobject_class,SONG_NAME,
+																	g_param_spec_string("name",
+                                     "name contsruct prop",
                                      "Set songs name",
                                      "unnamed song", /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-  g_object_class_install_property(gobject_class,SONG_NAME,g_param_spec);
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,SONG_BIN,
+																	g_param_spec_object("bin",
+                                     "bin construct prop",
+                                     "songs top-level GstElement container",
+                                     GST_TYPE_BIN, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READABLE));
 }
 
 /**
