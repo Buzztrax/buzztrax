@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.13 2004-08-06 23:52:37 ensonic Exp $
+# $Id: configure.ac,v 1.14 2004-08-07 23:29:01 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -11,7 +11,7 @@
 #
 
 # Initialise the autoconf/automake tool
-AC_INIT([buzztard], [0.0.1], [ensonic@users.sourceforge.net])
+AC_INIT([buzztard], [0.0.1], [buzztard-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
 

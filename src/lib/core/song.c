@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.32 2004-08-07 21:45:01 waffel Exp $
+/* $Id: song.c,v 1.33 2004-08-07 23:29:02 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -64,7 +64,7 @@ BtSong *bt_song_new(const GstBin *bin) {
 BtSong *bt_song_new_with_name(const GstBin *bin, const gchar *name) {
   BtSong *self = NULL;
 	
-	if (bin && name && *name) {
+	if(bin && is_string(name)) {
 		self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,"name",name,NULL));
   } 
   return(self);

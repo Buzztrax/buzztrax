@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.19 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: song-io-native.c,v 1.20 2004-08-07 23:29:02 ensonic Exp $
  * class for native song input and output
  */
  
@@ -132,17 +132,17 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			if(!strncmp(xml_node->name,"sink\0",5)) {
 				GST_INFO("  new sink_machine(\"%s\",\"%s\") -----------------",id,plugin_name);
 				// create new sink machine
-				machine=bt_sink_machine_new(song,id,plugin_name);
+				machine=BT_MACHINE(bt_sink_machine_new(song,id,plugin_name));
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
 				GST_INFO("  new source_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new source machine
-				machine=bt_source_machine_new(song,id,plugin_name,voices);
+				machine=BT_MACHINE(bt_source_machine_new(song,id,plugin_name,voices));
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
 				GST_INFO("  new processor_machine(\"%s\",\"%s\",%d) -----------------",id,plugin_name,voices);
 				// create new processor machine
-				machine=bt_processor_machine_new(song,id,plugin_name,voices);
+				machine=BT_MACHINE(bt_processor_machine_new(song,id,plugin_name,voices));
 			}
 			if(machine) { // add machine to setup
 				//GST_DEBUG("machine.id: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"id"));

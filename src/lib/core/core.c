@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.10 2004-08-07 17:44:14 waffel Exp $
+/* $Id: core.c,v 1.11 2004-08-07 23:29:02 ensonic Exp $
  */
 
 #define BT_CORE
@@ -41,7 +41,12 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
 	g_type_init();
 
 	//-- init gstreamer with popt options
-	gst_init_with_popt_table(argc,argv,(GstPoptOption*)options);
+  if(options) {
+    gst_init_with_popt_table(argc,argv,(GstPoptOption*)options);
+  }
+  else {
+    gst_init(argc,argv);
+  }
   gst_control_init(argc,argv);
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 

@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.6 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: source-machine.c,v 1.7 2004-08-07 23:29:02 ensonic Exp $
  * class for a source machine
  */
  
@@ -33,7 +33,7 @@ BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, cons
   BtSourceMachine *self;
   self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin_name",plugin_name,"voices",voices,NULL));
   
-  bt_machine_init_gst_element(self);
+  bt_machine_init_gst_element(BT_MACHINE(self));
   return(self);
 }
 

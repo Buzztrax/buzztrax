@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.27 2004-08-06 23:52:39 ensonic Exp $
+/* $Id: core.h,v 1.28 2004-08-07 23:29:02 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -124,6 +124,15 @@
  * such as _get_property(), _set_property(), _dispose().
  */
 #define return_if_disposed(a) if(self->private->dispose_has_run) return a
+
+/**
+ * is_string:
+ * @a: string pointer
+ *
+ * checks if the supplied string pointer is not NULL and contains not just '\0'
+ */
+#define is_string(a) (a && *a)
+
 
 #ifndef BT_CORE_C
 	extern void bt_init(int *argc, char ***argv, struct poptOption *options);
