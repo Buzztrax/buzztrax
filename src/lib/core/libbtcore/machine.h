@@ -1,4 +1,4 @@
-/** $Id: machine.h,v 1.1 2004-05-04 15:24:59 ensonic Exp $
+/** $Id: machine.h,v 1.2 2004-05-07 18:04:15 ensonic Exp $
  * base class for a machine
  */
 
@@ -23,7 +23,15 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 
 struct _BtMachine {
   GObject parent;
-  
+
+	/* gstreamer related */
+	GstElement *machine,*adder,*spreader;
+	GstDParamManager *dparam_manager;
+	GstDParam **dparams;
+	guint dparams_count;
+	// convinience pointer
+	GstElement *dst_elem,*src_elem;
+
   /* private */
   BtMachinePrivate *private;
 };

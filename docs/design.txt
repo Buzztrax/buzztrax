@@ -1,17 +1,18 @@
-* $Id: design.txt,v 1.12 2004-05-07 11:46:55 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.13 2004-05-07 18:04:12 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
-* architecture (two main modules)
+* architecture [modular ofcourse ;-)]
 	** ui
-	  *** bt-cmd
+	  *** bt-cmd (command line tool)
 		  bt-cmd -c <cmd> -i <input_file> -o <output_file>
 			-c,--command
 			-i,--input-file
 			-o,--output-file
 			<cmd> can be {play, convert, info}
-		*** bt-gtk
-	** worker
-		- put all player code into buzztard-player.so
+		*** bt-gtk (graphical composer, editor)
+		*** btmix-gtk (graphical dj-player (can not edit the songs))
+	** core-lib
+		- put all player code into libbtcore
 				- so that this can be used in players like xmms
 				- lib should contain no UI code
 		- sub-modules

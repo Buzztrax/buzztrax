@@ -1,8 +1,9 @@
-//$Id: objects.txt,v 1.9 2004-05-07 15:16:02 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.10 2004-05-07 18:04:12 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
-// grep -o "#define Bt_[A-Z]*_TYPE" src/lib/core/libbtcore/*.h
+// grep -o "#define BT_[A-Z_]*_TYPE" src/lib/core/libbtcore/*.h
+// grep -o "#define BT_[A-Z_]*_TYPE" ./src/lib/core/libbtcore/*.h | wc -l
 
 BtMachine {	// no interface, but base-class
 	// public methods

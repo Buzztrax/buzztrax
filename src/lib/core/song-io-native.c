@@ -1,4 +1,4 @@
-/** $Id: song-io-native.c,v 1.4 2004-05-07 16:29:25 ensonic Exp $
+/** $Id: song-io-native.c,v 1.5 2004-05-07 18:04:14 ensonic Exp $
  * class for native song input and output
  */
  
@@ -126,11 +126,15 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			}
 			else if(!strncmp(xml_node->name,"source\0",7)) {
 				GST_INFO("  new source_machine(\"%s\",\"%s\")",id,plugin_name);
+				// parse additional params
 				// create new source machine
+				machine=g_object_new(BT_SOURCE_MACHINE_TYPE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 			}
 			else if(!strncmp(xml_node->name,"processor\0",10)) {
 				GST_INFO("  new processor_machine(\"%s\",\"%s\")",id,plugin_name);
+				// parse additional params
 				// create new processor machine
+				machine=g_object_new(BT_PROCESSOR_MACHINE_TYPE,"song",song,"id",id,"plugin_name",plugin_name,NULL);
 			}
 			if(machine) { // add machine to setup
 				/*{ // DEBUG
@@ -152,7 +156,8 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 	const BtSetup *setup=bt_song_get_setup(song);
 	BtWire *wire;
 	xmlChar *src,*dst;
-	
+	BtMachine *src_machine,*dst_machine;
+
 	GST_INFO(" got setup.wires root node");
   while(xml_node) {
 		if(!xmlNodeIsText(xml_node)) {
@@ -162,9 +167,9 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 			// parse params
 			// create new wire
 			wire=g_object_new(BT_WIRE_TYPE,"song",song,NULL);
-			// src_machine=bt_setup_get_machine_by_id(setup,src);
-			// dst_machine=bt_setup_get_machine_by_id(setup,dst);
-			// bt_wire_connect(wire,src_machine,dst_machine);
+			src_machine=bt_setup_get_machine_by_id(setup,src);
+			dst_machine=bt_setup_get_machine_by_id(setup,dst);
+			bt_wire_connect(wire,src_machine,dst_machine);
 			bt_setup_add_wire(setup,wire);
 		}
 		xml_node=xml_node->next;

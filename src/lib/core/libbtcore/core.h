@@ -1,4 +1,4 @@
-/** $Id: core.h,v 1.15 2004-05-07 16:29:28 ensonic Exp $
+/** $Id: core.h,v 1.16 2004-05-07 18:04:14 ensonic Exp $
   */
 
 #ifndef BT_CORE_H
@@ -20,11 +20,13 @@
 #include <libxml/xpathInternals.h>
 
 //-- libbtcore
-// contain only method prototypes (will include the data defs themself)
+// method prototype includes do include the data defs themself)
 #include "song-methods.h"
 #include "song-info-methods.h"
 #include "machine-methods.h"
+#include "processor-machine.h"
 #include "sink-machine.h"
+#include "source-machine.h"
 #include "wire-methods.h"
 #include "setup-methods.h"
 #include "sequence-methods.h"

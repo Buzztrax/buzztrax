@@ -1,4 +1,4 @@
-/** $Id: setup.c,v 1.4 2004-05-07 15:16:04 ensonic Exp $
+/** $Id: setup.c,v 1.5 2004-05-07 18:04:14 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -25,10 +25,6 @@ struct _BtSetupPrivate {
 
 //-- methods
 
-//-- wrapper
-
-//-- class internals
-
 void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 	self->private->machines=g_list_append(self->private->machines,g_object_ref(G_OBJECT(machine)));
 }
@@ -36,6 +32,25 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 	self->private->wires=g_list_append(self->private->wires,g_object_ref(G_OBJECT(wire)));
 }
+
+BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
+	BtMachine *machine;
+	GList* node=g_list_first(self->private->machines);
+	GValue val={0,};
+	g_value_init(&val,G_TYPE_STRING);
+	
+	while(node) {
+		machine=BT_MACHINE(node->data);
+		g_object_get_property(G_OBJECT(machine),"id", &val);
+		if(!strcmp(g_value_get_string(&val),id)) return(machine);
+		node=g_list_next(node);
+	}
+	return(NULL);
+}
+
+//-- wrapper
+
+//-- class internals
 
 /* returns a property for the given property_id for this object */
 static void bt_setup_get_property(GObject      *object,

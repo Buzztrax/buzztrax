@@ -1,4 +1,4 @@
-/** $Id: machine.c,v 1.6 2004-05-07 16:29:25 ensonic Exp $
+/** $Id: machine.c,v 1.7 2004-05-07 18:04:14 ensonic Exp $
  * base class for a machine
  */
  
@@ -24,6 +24,50 @@ struct _BtMachinePrivate {
 	/* the gst-plugin the machine is using */
 	gchar *plugin_name;
 };
+
+//-- helper methods
+
+static gboolean bt_machine_init_gst_element(BtMachine *self) {
+	if(self->machine) {
+		/** @todo change id of machine in gst */
+	}
+	else {
+		if(self->private->id && self->private->plugin_name) {
+		  self->machine=gst_element_factory_make(self->private->plugin_name,self->private->id);
+			if(!self->machine) {
+				GST_INFO("  failed to instantiate machine \"%s\"",self->private->plugin_name);
+				return FALSE;
+			}
+			// there is no adder or spreader in use by default
+			self->dst_elem=self->src_elem=self->machine;
+			GST_INFO("  instantiated machine \"%s\"",self->private->plugin_name);
+			if((self->dparam_manager=gst_dpman_get_manager(self->machine))) {
+				GParamSpec **specs;
+				GstDParam **dparam;
+				guint i;
+		
+				// setting param mode. Only synchronized is currently supported
+				gst_dpman_set_mode(self->dparam_manager, "synchronous");
+				GST_INFO("  machine \"%s\" supports dparams",self->private->plugin_name);
+				
+				/** @todo manage dparams */
+				specs=gst_dpman_list_dparam_specs(self->dparam_manager);
+				// count the specs
+				for(i=0;specs[i];i++);
+				self->dparams=(GstDParam **)g_new0(gpointer,i);
+				self->dparams_count=i;
+				// iterate over all dparam
+				for(i=0,dparam=self->dparams;specs[i];i++,dparam++) {
+					*dparam=gst_dparam_new(G_PARAM_SPEC_VALUE_TYPE(specs[i]));
+					gst_dpman_attach_dparam(self->dparam_manager,g_param_spec_get_name(specs[i]),*dparam);
+					GST_INFO("    added param \"%s\"",g_param_spec_get_name(specs[i]));
+				}
+			}
+			/** @todo song needs a bin element */
+			//gst_bin_add(bt_song_get_bin(song), self->machine);
+		}
+	}
+}
 
 //-- methods
 
@@ -73,11 +117,13 @@ static void bt_machine_set_property(GObject      *object,
       g_free(self->private->id);
       self->private->id = g_value_dup_string(value);
       GST_INFO("set the id for machine: %s",self->private->id);
+			bt_machine_init_gst_element(self);
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->private->plugin_name);
       self->private->plugin_name = g_value_dup_string(value);
       GST_INFO("set the plugin_name for machine: %s",self->private->plugin_name);
+			bt_machine_init_gst_element(self);
     } break;
     default: {
       g_assert(FALSE);

@@ -8,6 +8,7 @@ libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
+	processor-machine.c libbtcore/processor-machine.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
 	sink-machine.c libbtcore/sink-machine.h \
@@ -15,6 +16,7 @@ libbtcore_la_SOURCES = \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
 	song-io-native.c libbtcore/song-io-native.h \
+	source-machine.c libbtcore/source-machine.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
 	libbtcore/version.h
 

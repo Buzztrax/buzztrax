@@ -1,4 +1,4 @@
-/** $Id: wire.c,v 1.8 2004-05-07 16:29:25 ensonic Exp $
+/** $Id: wire.c,v 1.9 2004-05-07 18:04:14 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -24,7 +24,14 @@ struct _BtWirePrivate {
 //-- methods
 
 /** connect two machines */
-static gboolean bt_wire_connect(const BtWire *self, const BtMachine *src, const BtMachine *dst) {
+gboolean bt_wire_connect(const BtWire *self, const BtMachine *src, const BtMachine *dst) {
+	
+	g_assert(src);
+	g_assert(dst);
+
+	GST_INFO("trying to link machines");
+
+	/** @todo adapt source from network.c */
 	self->private->src=g_object_ref(G_OBJECT(src));
 	self->private->dst=g_object_ref(G_OBJECT(dst));
 	return(TRUE);
