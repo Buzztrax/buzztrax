@@ -62,7 +62,7 @@ m4_define(`__NAVBUTTON_STATUS',`
 ')m4_dnl
 
 m4_define(`__NAVBUTTON_WIKI',`
-	<a id="menu" href="/phpwiki/">Wiki</a>&nbsp;
+	<a id="menu" href="/phpwiki/">Wiki</a>
 ')m4_dnl
 
 m4_define(`__NAVBAR',`
@@ -80,8 +80,8 @@ m4_define(`__NAVBAR',`
 							<!--__NAVBUTTON_ARCHITECTURE<br>-->
 							__NAVBUTTON_STATUS<br>
 							__NAVBUTTON_DEVELOPMENT<br>
-							<!--__NAVBUTTON_LINKS--><!--br-->
-							__NAVBUTTON_WIKI
+							<!--__NAVBUTTON_LINKS><br-->
+							__NAVBUTTON_WIKI<br>
 						</div>
 					</td>
 				</tr>

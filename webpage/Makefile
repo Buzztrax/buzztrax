@@ -1,9 +1,8 @@
-#
+# $Id: Makefile,v 1.3 2004-04-30 13:27:01 ensonic Exp $
 
 SUFFIXES=.html .m4
 
 DEPS=$(shell ( find . -maxdepth 1 -name "*.m4" -printf "%f "))
-
 USER=$(shell cat CVS/Root | cut -d: -f3 | cut -d@ -f1)
 
 html:

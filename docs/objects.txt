@@ -1,4 +1,4 @@
-//$Id: objects.txt,v 1.2 2004-04-27 15:41:50 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.3 2004-04-30 13:27:00 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 BTMachine {
@@ -18,7 +18,9 @@ BTWire { // was BTConnection
 
 BTSong {
 	// metadata
-	   gchar* name;
+	     gchar* name;
+  BTSequence* sequence;
+	   BTSetup* setup;
 
 	// public methods
 	BtSongPtr bt_song_new(void)
@@ -32,8 +34,37 @@ BTSong {
    gboolean bt_song_stop(BtSongPtr song);
 }
 
+BTSequence {
+	GList *rows;	// row with pattern id per track
+}
+
+BTSetup {
+	GList *machines;	// each entry points to BTMachine
+	GList *wires;			// each entry points to BTWire
+}
+
 BTPattern {
+	GValue[ticks][params] events;
 }
 
 BTTimeLine {
+	BTPattern* patterns;
+	      ???* event;
 }
+
+//------------------------------------------------------------------------------
+
+
+BTSong *mysong=g_object_new(BT_SONG,NULL);
+bt_song_load("~/songs.song.bt);
+bt_song_import("~/songs.song.bmx);
+
+// creating a new wire between two machines
+wire=g_object_new(BT_WIRE,"song",mysong,"src",machine1,"dst",machine2);
+// the constructor of BT_WIRE adds the new instance to mysong->setup->wires
+//  -> this is not working as we can't rely upon the construction parameters (src,dst)
+wire=g_object_new(BT_WIRE,"song",mysong);
+// the constructor remembers the ref to the song
+bt_wire_connect(wire,machine1,machine2);
+// this methods initializes the wire and adds it to wire->song->setup->wires
+// -> it needs to g_assert(wire->song);

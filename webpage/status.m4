@@ -46,7 +46,9 @@ m4_divert`'m4_dnl
 					<li><b>writting a gstreamer plugin that wraps buzz machines</b> ()<br>
 						This should work like the ladspa wrapper, but needs to be able to wrap
 						windows dlls (the dll api is knwon to us).<br>
-						A starting point is to look at libtool or apps like mplayer or wine.
+						A starting point is to look at libtool or apps like mplayer, wine.
+						A coding expample that needs to be evaluated can be found
+						<a href="http://home.sch.bme.hu/~marosi/dllnt.source/" target="_new">at this site</a>.
 					</li>
 					<li><b>writting gstreamer mem-sink, mem-source plugins</b> ()<br>
 						We need this plugin to load and save samples in any gst supported format.

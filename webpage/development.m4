@@ -23,11 +23,11 @@ m4_divert`'m4_dnl
 			<!--p align="justify"-->
 				To login, do:<br>
 				<div id="src">
-					&nbsp;&nbsp;cvs -d:pserver:anonymous@cvs.buzztard.sourceforge.net:/cvsroot/buzztard login<br>
+					&nbsp;&nbsp;cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/buzztard login<br>
 				</div>
 				To check out the source, do:<br>
 				<div id="src">
-					&nbsp;&nbsp;cvs -z3 -d:pserver:anonymous@cvs.buzztard.sourceforge.net:/cvsroot/buzztard co buzztard<br>
+					&nbsp;&nbsp;cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/buzztard co buzztard<br>
 				</div>
 				To updated the source, do (from within each directory):<br>
 				<div id="src">
