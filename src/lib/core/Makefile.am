@@ -25,7 +25,7 @@ libbtcore_la_SOURCES = \
 	playline.c libbtcore/playline.h libbtcore/playline-methods.h \
 	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
-	settings.c libbtcore/settings.h libbtcore/settings-methods.h \
+	settings.c libbtcore/settings.h libbtcore/settings-methods.h libbtcore/settings-private.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
 	sink-machine.c libbtcore/sink-machine.h libbtcore/sink-machine-methods.h \
 	song.c libbtcore/song.h libbtcore/song-methods.h \

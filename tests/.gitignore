@@ -4,4 +4,6 @@
 *.la
 Makefile
 Makefile.in
+buzztard
+bt_cmd
 

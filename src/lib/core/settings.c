@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.4 2004-09-28 16:28:11 ensonic Exp $
+/* $Id: settings.c,v 1.5 2004-09-29 14:38:43 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -6,10 +6,7 @@
 #define BT_SETTINGS_C
 
 #include <libbtcore/core.h>
-
-enum {
-  SETTINGS_AUDIOSINK=1
-};
+#include <libbtcore/settings-private.h>
 
 struct _BtSettingsPrivate {
   /* used to validate if dispose has run */
@@ -29,16 +26,13 @@ static void bt_settings_get_property(GObject      *object,
                                GParamSpec   *pspec)
 {
   BtSettings *self = BT_SETTINGS(object);
+  GObjectClass *gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
   switch (property_id) {
-    case SETTINGS_AUDIOSINK: {
-      gchar *prop="";
-      // @todo get property value from implementation class
-      GST_DEBUG("application reads audiosink settings : %s",prop);
-      g_value_set_object(value, prop);
-    } break;
     default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      GST_DEBUG("!!!! call implementation");
+      gobject_class->get_property(object,property_id,value,pspec);
+      //G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -50,16 +44,13 @@ static void bt_settings_set_property(GObject      *object,
                               GParamSpec   *pspec)
 {
   BtSettings *self = BT_SETTINGS(object);
+  GObjectClass *gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
   switch (property_id) {
-    case SETTINGS_AUDIOSINK: {
-      gchar *prop=g_value_dup_string(value);
-      GST_DEBUG("application writes audiosink settings : %s",prop);
-      // @todo set property value via implementation class
-      g_free(prop);
-    } break;
     default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      GST_DEBUG("!!!! call implementation");
+      gobject_class->set_property(object,property_id,value,pspec);
+      //G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -98,7 +89,7 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
 	//klass->get           = bt_settings_real_get;
 	//klass->set           = bt_settings_real_set;
 
-  g_object_class_install_property(gobject_class,SETTINGS_AUDIOSINK,
+  g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",
                                      "audiosink prop",
                                      "audio output device",

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.11 2004-09-28 16:28:11 ensonic Exp $
+/* $Id: application.c,v 1.12 2004-09-29 14:38:43 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -8,7 +8,8 @@
 #include <libbtcore/core.h>
 
 enum {
-  APPLICATION_BIN=1
+  APPLICATION_BIN=1,
+  APPLICATION_SETTINGS
 };
 
 struct _BtApplicationPrivate {
@@ -33,6 +34,7 @@ struct _BtApplicationPrivate {
  * Returns: TRUE for succes, FALSE otherwise
  */
 gboolean bt_application_new(BtApplication *self) {
+  gboolean res=FALSE;
   g_assert(self);
   
 #ifdef USE_GCONF
@@ -40,7 +42,18 @@ gboolean bt_application_new(BtApplication *self) {
 #else
   self->private->settings=bt_plainfile_settings_new();
 #endif
-  return(TRUE);
+  { // DEBUG
+    gchar *audiosink_name;
+    g_object_get(self->private->settings,"audiosink",&audiosink_name,NULL);
+    if(audiosink_name) {
+      GST_INFO("default audiosink is \"%s\"",audiosink_name);
+      g_free(audiosink_name);
+    }
+  }
+  if(!self->private->settings) goto Error;
+  res=TRUE;
+Error:
+  return(res);
 }
 
 //-- methods
@@ -60,6 +73,9 @@ static void bt_application_get_property(GObject      *object,
   switch (property_id) {
     case APPLICATION_BIN: {
       g_value_set_object(value, self->private->bin);
+    } break;
+    case APPLICATION_SETTINGS: {
+      g_value_set_object(value, self->private->settings);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -125,6 +141,13 @@ static void bt_application_class_init(BtApplicationClass *klass) {
                                      "bin ro prop",
                                      "applications top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,APPLICATION_SETTINGS,
+																	g_param_spec_object("settings",
+                                     "settings ro prop",
+                                     "applications configuration settings",
+                                     BT_TYPE_SETTINGS, /* object type */
                                      G_PARAM_READABLE));
 }
 

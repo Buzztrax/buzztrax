@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.3 2004-09-28 16:28:11 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.4 2004-09-29 14:38:43 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -6,10 +6,7 @@
 #define BT_GCONF_SETTINGS_C
 
 #include <libbtcore/core.h>
-
-enum {
-  GCONF_SETTINGS_XXX=1
-};
+#include <libbtcore/settings-private.h>
 
 struct _BtGConfSettingsPrivate {
   /* used to validate if dispose has run */
@@ -20,6 +17,11 @@ struct _BtGConfSettingsPrivate {
 };
 
 static BtSettingsClass *parent_class=NULL;
+
+#define BT_GCONF_PATH_GSTREAMER "/system/gstreamer/default/"
+#define BT_GCONF_PATH_GNOME "/desktop/gnome/interface/"
+#define BT_GCONF_PATH_BUZZTARD "/apps/"PACKAGE"/"
+
 
 //-- constructor methods
 
@@ -53,6 +55,12 @@ static void bt_gconf_settings_get_property(GObject      *object,
   BtGConfSettings *self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
+    case BT_SETTINGS_AUDIOSINK: {
+      gchar *prop=gconf_client_get_string(self->private->client,BT_GCONF_PATH_GSTREAMER"audiosink",NULL);
+      GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
+      g_value_set_string(value, prop);
+      g_free(prop);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -68,6 +76,12 @@ static void bt_gconf_settings_set_property(GObject      *object,
   BtGConfSettings *self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
+    case BT_SETTINGS_AUDIOSINK: {
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
+      // @todo set property value
+      g_free(prop);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -80,9 +94,12 @@ static void bt_gconf_settings_dispose(GObject *object) {
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
   
-  gconf_client_remove_dir(self->private->client,"/system/gstreamer/default/",NULL);
-  gconf_client_remove_dir(self->private->client,"/desktop/gnome/interface/",NULL);
-  gconf_client_remove_dir(self->private->client,"/apps/"PACKAGE"/",NULL);
+  // unregister directories to watch
+  /* see bt_gconf_settings_init
+  gconf_client_remove_dir(self->private->client,BT_GCONF_PATH_GSTREAMER,NULL);
+  gconf_client_remove_dir(self->private->client,BT_GCONF_PATH_GNOME,NULL);
+  gconf_client_remove_dir(self->private->client,BT_GCONF_PATH_BUZZTARD,NULL);
+  */
   g_object_unref(self->private->client);
 
   GST_DEBUG("!!!! self=%p",self);
@@ -108,14 +125,14 @@ static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
   self->private->dispose_has_run = FALSE;
   self->private->client=gconf_client_get_default();
   gconf_client_set_error_handling(self->private->client,GCONF_CLIENT_HANDLE_UNRETURNED);
-  /* path to listen to:
-   * /system/gstreamer/default/audiosink
-   * /desktop/gnome/interface/*
-   * /apps/buzztard/
-   */
-  gconf_client_add_dir(self->private->client,"/system/gstreamer/default/",GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
-  gconf_client_add_dir(self->private->client,"/desktop/gnome/interface/",GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
-  gconf_client_add_dir(self->private->client,"/apps/"PACKAGE"/",GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
+  // register the config cache
+  /* this atm causes 
+  * (process:25225): GConf-CRITICAL **: file gconf-client.c: line 546 (gconf_client_add_dir): assertion `gconf_valid_key (dirname, NULL)' failed
+  *
+  gconf_client_add_dir(self->private->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
+  gconf_client_add_dir(self->private->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
+  gconf_client_add_dir(self->private->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
+  */
 }
 
 static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {

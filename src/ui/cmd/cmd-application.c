@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.33 2004-09-28 16:28:12 ensonic Exp $
+/* $Id: cmd-application.c,v 1.34 2004-09-29 14:38:44 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -168,10 +168,11 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     /* lookup a machine and print some info about it */
     {
       BtMachine *machine=bt_setup_get_machine_by_id(setup,"audio_sink");
-
-      g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
-      g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
-      g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
+      if(machine) {
+        g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
+        g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
+        g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
+      }
     }
     // release the references
     g_object_try_unref(song_info);
