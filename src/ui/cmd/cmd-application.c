@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.22 2004-08-13 18:58:10 ensonic Exp $
+/* $Id: cmd-application.c,v 1.23 2004-08-17 14:38:12 waffel Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -95,20 +95,28 @@ Error:
  * bt_cmd_application_info:
  * @self: the application instance to run
  * @input_file_name: the file to print information about
+ * @output_file_name: the file to put informations from the input_file_name. 
+ * If the given file_name is NULL, stdout is used to print the informations.
  *
  * load the file of the supplied name and print information about it to stdout.
  *
  * Returns: true for success
  */
-gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name) {
+gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
 	BtSong *song=NULL;
 	BtSongIO *loader=NULL;
+	FILE *output_file=NULL;
 
 	GST_INFO("application.info launched");
 
   if(!is_string(input_file_name)) {
     goto Error;
   }
+	if (!is_string(output_file_name)) {
+		output_file=stdout; 
+	} else {
+		output_file = fopen(output_file_name,"wb");
+	}
   if(!(song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
     goto Error;
   }
@@ -121,17 +129,17 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 	//if(bt_song_load(song,filename)) {
 	if(bt_song_io_load(loader,song)) {
 		/* print some info about the song */
-    g_print("song.song_info.name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
-		g_print("song.song_info.info: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"));
-		g_print("song.sequence.length: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"length"));
-		g_print("song.sequence.tracks: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"tracks"));
+    g_fprintf(output_file,"song.song_info.name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
+		g_fprintf(output_file,"song.song_info.info: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"info"));
+		g_fprintf(output_file,"song.sequence.length: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"length"));
+		g_fprintf(output_file,"song.sequence.tracks: %d\n",    bt_g_object_get_long_property(  G_OBJECT(bt_song_get_sequence( song)),"tracks"));
     /* lookup a machine and print some info about it */
     {
       BtSetup *setup=bt_song_get_setup(song);
       BtMachine *machine=bt_setup_get_machine_by_id(setup,"audio_sink");
 
-      g_print("machine.id: \"%s\"\n",          bt_g_object_get_string_property(G_OBJECT(machine),"id"));
-      g_print("machine.plugin_name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"plugin_name"));
+      g_fprintf(output_file,"machine.id: \"%s\"\n",          bt_g_object_get_string_property(G_OBJECT(machine),"id"));
+      g_fprintf(output_file,"machine.plugin_name: \"%s\"\n", bt_g_object_get_string_property(G_OBJECT(machine),"plugin_name"));
     }
 	}
 	else {
@@ -140,10 +148,16 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 	}
   g_object_unref(G_OBJECT(song));
   g_object_unref(G_OBJECT(loader));
+	if (is_string(output_file_name)) {
+		fclose(output_file);
+	}
 	return(TRUE);
 Error:
   if(song) g_object_unref(G_OBJECT(song));
   if(loader) g_object_unref(G_OBJECT(loader));
+	if (is_string(output_file_name)) {
+		fclose(output_file);
+	}
 	return(FALSE);
 }
 
