@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.24 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-window.c,v 1.25 2004-09-25 00:20:26 ensonic Exp $
  * class for the editor main window
  */
 
@@ -9,6 +9,7 @@
 
 enum {
   MAIN_WINDOW_APP=1,
+  MAIN_WINDOW_STATUSBAR
 };
 
 
@@ -279,6 +280,9 @@ static void bt_main_window_get_property(GObject      *object,
     case MAIN_WINDOW_APP: {
       g_value_set_object(value, self->private->app);
     } break;
+    case MAIN_WINDOW_STATUSBAR: {
+      g_value_set_object(value, self->private->statusbar);
+    } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -349,10 +353,17 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_APP,
                                   g_param_spec_object("app",
-                                     "app contruct prop",
+                                     "app construct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MAIN_WINDOW_STATUSBAR,
+                                  g_param_spec_object("statusbar",
+                                     "statusbar prop",
+                                     "Get the status bar",
+                                     BT_TYPE_MAIN_STATUSBAR, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_main_window_get_type(void) {

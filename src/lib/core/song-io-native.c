@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.28 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: song-io-native.c,v 1.29 2004-09-25 00:20:24 ensonic Exp $
  * class for native song input and output
  */
  
@@ -543,7 +543,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   g_free(status);
   
   //DEBUG
-  //sleep(1);
+  sleep(1);
   //DEBUG
   
   // @todo add zip file processing
@@ -590,7 +590,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	if(song_doc) xmlFreeDoc(song_doc);
   g_free(filename);
   //DEBUG
-  //sleep(1);
+  sleep(1);
   //DEBUG
   g_object_set((gpointer)self,"status",NULL,NULL);
 	return(result);

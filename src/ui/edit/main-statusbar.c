@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.13 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.14 2004-09-25 00:20:26 ensonic Exp $
  * class for the editor main tollbar
  */
 
@@ -9,6 +9,7 @@
 
 enum {
   MAIN_STATUSBAR_APP=1,
+  MAIN_STATUSBAR_STATUS
 };
 
 
@@ -203,6 +204,17 @@ static void bt_main_statusbar_set_property(GObject      *object,
       self->private->app = g_object_try_ref(g_value_get_object(value));
       //GST_DEBUG("set the app for main_statusbar: %p",self->private->app);
     } break;
+    case MAIN_STATUSBAR_STATUS: {
+      char *str=g_value_dup_string(value);
+      gtk_statusbar_pop(GTK_STATUSBAR(self->private->status),self->private->status_context_id);
+      if(str) {
+        gtk_statusbar_push(GTK_STATUSBAR(self->private->status),self->private->status_context_id,str);
+        g_free(str);
+      }
+      else gtk_statusbar_push(GTK_STATUSBAR(self->private->status),self->private->status_context_id,_("Ready to rock!"));
+      while(gtk_events_pending()) gtk_main_iteration();
+      //GST_DEBUG("set the status-text for main_statusbar");
+    } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -255,6 +267,13 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MAIN_STATUSBAR_STATUS,
+                                  g_param_spec_string("status",
+                                     "status prop",
+                                     "main status text",
+                                     _("Ready to rock!"), /* default value */
+                                     G_PARAM_WRITABLE));
 }
 
 GType bt_main_statusbar_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.21 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: edit-application.c,v 1.22 2004-09-25 00:20:26 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -37,6 +37,29 @@ struct _BtEditApplicationPrivate {
 };
 
 static BtApplicationClass *parent_class=NULL;
+
+//-- event handler
+
+static gboolean on_loader_status_changed(BtSongIO *loader, gpointer user_data) {
+  BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
+  BtMainStatusbar *statusbar;
+  gchar *str;
+  
+  g_object_get(self->private->main_window,"statusbar",&statusbar,NULL);
+  
+  /* @todo push loader status changes into the statusbar
+   * - how to read the status bar from here
+   *   - add read-only property to main-window
+   * - how to handle to push and pop stuff, first_acces=push_only, last_access=pop_only
+   *   - str!=NULL old.pop & new.push
+   *   - str==NULL old.pop & default.push
+   */
+  
+  g_object_get(loader,"status",&str,NULL);
+  GST_INFO("loader_status has changed : \"%s\"",safe_string(str));
+  g_object_set(statusbar,"status",str,NULL);
+  g_free(str);
+}
 
 //-- helper methods
 
@@ -119,16 +142,17 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     BtSongIO *loader=bt_song_io_new(file_name);
 
     if(loader) {
+      GdkCursor *cursor;
+      GdkWindow *window;
+      
+      //window=gtk_widget_get_parent_window(GTK_WIDGET(self->private->main_window));
+      //window=gtk_widget_get_root_window(GTK_WIDGET(self->private->main_window));
+      //window=GTK_WIDGET(self->private->main_window)->window;
+      //cursor=gdk_cursor_new(GDK_WATCH);
+      //gdk_window_set_cursor(window,cursor);
+      //g_object_try_unref(cursor);
       gtk_widget_set_sensitive(GTK_WIDGET(self->private->main_window),FALSE);
-      /* @todo does not work -> (gdk_window_set_cursor): assertion `window != NULL' failed
-        GdkWindow *window=gtk_window_get_transient_for(GTK_WINDOW(self->private->main_window));
-        gdk_window_set_cursor(window,gdk_cursor_new(GDK_WATCH));
-      */
-      /* @todo listen to loader changes and push them into the statusbar
-       * g_signal_connect(G_OBJECT(loader), "status-changed", (GCallback)on_loader_status_changed, (gpointer)self);
-       * - but how to read the status bar form here (method in main-statusbar.c)?
-       * - how to handle to push and pop stuff, first_acces=push_only, last_access=pop_only
-       */
+      g_signal_connect(G_OBJECT(loader),"status-changed",(GCallback)on_loader_status_changed,(gpointer)self);
       while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->private->song)) {
         // emit signal that song has been changed
@@ -138,9 +162,11 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
       else {
         GST_ERROR("could not load song \"%s\"",file_name);
       }
-      g_object_unref(loader);
-      //gdk_window_set_cursor(window,NULL);
+      GST_INFO("loading done");
       gtk_widget_set_sensitive(GTK_WIDGET(self->private->main_window),TRUE);
+      //gdk_window_set_cursor(window,NULL);
+      //g_object_try_unref(window);
+      g_object_unref(loader);
     }
   }
   return(res);
