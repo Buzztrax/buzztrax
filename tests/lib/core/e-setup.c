@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.14 2005-01-28 19:34:53 waffel Exp $
+/** $Id: e-setup.c,v 1.15 2005-01-28 19:39:03 waffel Exp $
 **/
 
 #include "t-core.h"
@@ -417,6 +417,7 @@ TCase *bt_setup_example_tcase(void) {
 	tcase_add_test(tc,test_btsetup_obj4);
 	tcase_add_test(tc,test_btsetup_wire1);
 	tcase_add_test(tc,test_btsetup_wire2);
+	tcase_add_test(tc,test_btsetup_machine1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
