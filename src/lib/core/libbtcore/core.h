@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.26 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: core.h,v 1.27 2004-08-06 23:52:39 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -8,6 +8,13 @@
 
 #include "config.h"
 
+//-- locale
+#ifdef HAVE_X11_XLOCALE_H
+	/* defines a more portable setlocale for X11 (_Xsetlocale) */
+	#include <X11/Xlocale.h>
+#else
+	#include <locale.h>
+#endif
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
@@ -22,6 +29,35 @@
 #include <libxml/xpathInternals.h>
 //-- popt
 #include <popt.h>
+//-- i18n
+#ifdef ENABLE_NLS
+	#include <langinfo.h>
+	#include <libintl.h>
+
+	#define _(String) dgettext(PACKAGE,String)
+	#ifdef GITK_LIB_C
+		#define __(String) dgettext(client_package_name,String)
+	#endif
+	#ifdef gettext_noop
+		#define N_(String) gettext_noop(String)
+	#else
+		#define N_(String) (String)
+	#endif
+#else /* NLS is disabled */
+	#define _(String) (String)
+	#define __(String) (String)
+	#define N_(String) (String)
+	#ifdef gettext
+		#undef gettext
+	#endif
+	#define gettext(String) (String)
+	#ifdef dgettext
+		#undef dgettext
+	#endif
+	#define dgettext(Domain,String) (String)
+	#define textdomain(Domain)
+	#define bindtextdomain(Package, Directory)
+#endif
 
 //-- libbtcore
 // method prototype includes do include the data defs themself

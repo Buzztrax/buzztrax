@@ -1,6 +1,6 @@
-## $Id: Makefile.am,v 1.8 2004-07-29 15:51:30 ensonic Exp $
+## $Id: Makefile.am,v 1.9 2004-08-06 23:52:37 ensonic Exp $
 
-SUBDIRS = src tests docs
+SUBDIRS = src po tests docs
 
 if DEBUG
 AM_CFLAGS = -pipe -O0 -Werror -g

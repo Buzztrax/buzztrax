@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.12 2004-07-29 15:51:30 ensonic Exp $
+# $Id: configure.ac,v 1.13 2004-08-06 23:52:37 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -41,7 +41,7 @@ VERSION=${BT_VERSION}
 AM_INIT_AUTOMAKE(buzztard, $VERSION)
 
 # i18n
-dnl ALL_LINGUAS="de en_GB"
+ALL_LINGUAS="de"
 localedir='${datadir}/locale'
 AC_SUBST(localedir)
 
@@ -72,8 +72,8 @@ AC_PROG_LIBTOOL
 AM_PROG_CC_STDC
 
 # Initialise gettext
-# AM_GNU_GETTEXT([external],[need-ngettext])
-# AM_GNU_GETTEXT_VERSION(0.12.1)
+AM_GNU_GETTEXT([external],[need-ngettext])
+AM_GNU_GETTEXT_VERSION(0.12.1)
 # this macro comes from gnome.m4, which we do not want to require
 # AM_ACLOCAL_INCLUDE(./m4)
 
@@ -192,9 +192,10 @@ AC_SUBST(BASE_DEPS_LIBS)
 AC_SUBST(BASE_DEPS_CFLAGS)
 
 AC_CONFIG_FILES(Makefile \
-  docs/Makefile
+  docs/Makefile \
     docs/version.entities \
     docs/reference/Makefile \
+  po/Makefile.in \
   src/Makefile \
 		src/lib/Makefile \
 			src/lib/core/Makefile \

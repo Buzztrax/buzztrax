@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.29 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: song.c,v 1.30 2004-08-06 23:52:39 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -43,9 +43,10 @@ struct _BtSongPrivate {
  * Returns: the new instance or NULL in case of an error
  */
 BtSong *bt_song_new(const GstBin *bin) {
-  BtSong *self;
-  self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
-  
+  BtSong *self=NULL;
+  if(bin) {
+    self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
+  }
   return(self);
 }
 

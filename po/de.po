@@ -1,0 +1,57 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 204 Buzztard project team
+# This file is distributed under the same license as the buzztard package.
+# Stefan Kost <ensonic@users.sf.net>, 2004.
+# :encoding=UTF-8:
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: buzztard 0.1\n"
+"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2004-08-06 23:29+0200\n"
+"PO-Revision-Date: 2004-08-06 23:50+0200\n"
+"Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
+"Language-Team: german <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/ui/edit/main-window.c:51
+msgid "main menu"
+msgstr "Hauptmenü"
+
+#: src/ui/edit/main-window.c:54
+msgid "_File"
+msgstr "_Datei"
+
+#: src/ui/edit/main-window.c:55
+msgid "file menu"
+msgstr "Datei Menü"
+
+#: src/ui/edit/main-window.c:68
+msgid "handlebox for toolbar"
+msgstr ""
+
+#: src/ui/edit/main-window.c:72
+msgid "tool bar"
+msgstr "Werkzeugleiste"
+
+#: src/ui/edit/main-window.c:80
+msgid "New"
+msgstr "Neu"
+
+#: src/ui/edit/main-window.c:84
+msgid "new"
+msgstr "neu"
+
+#: src/ui/edit/main-window.c:95
+msgid "song views"
+msgstr "Liedansichten"
+
+#: src/ui/edit/main-window.c:101 src/ui/edit/main-window.c:102
+msgid "machine view"
+msgstr "Geräteansicht"
+
+#: src/ui/edit/main-window.c:113
+msgid "status bar"
+msgstr "Statusleiste"

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.1 2004-08-06 19:42:45 ensonic Exp $
+/* $Id: main-window.c,v 1.2 2004-08-06 23:52:39 ensonic Exp $
  * class for the editor main window
  */
 
@@ -41,67 +41,153 @@ static void destroy(GtkWidget *widget, gpointer data) {
   gtk_main_quit();
 }
 
+void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
+  // @todo add messagebox
+  gtk_main_quit();
+}
+
+
 //-- helper methods
 
 GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidget *box) {
-  GtkWidget *menubar,*item;
+  GtkWidget *menubar,*item,*menu,*subitem;
+  GtkAccelGroup *accel_group;
+  
+  accel_group=gtk_accel_group_new();
   
   // @todo make this a sub-class of menu-bar
   menubar=gtk_menu_bar_new();
-  gtk_widget_set_name(menubar,"main menu");
+  gtk_widget_set_name(menubar,_("main menu"));
   gtk_box_pack_start(GTK_BOX(box),menubar,FALSE,FALSE,0);
 
-  item=gtk_menu_item_new_with_mnemonic("_File");
-  gtk_widget_set_name(item, "file menu");
+  item=gtk_menu_item_new_with_mnemonic(_("_File"));
+  gtk_widget_set_name(item,_("file menu"));
   gtk_container_add(GTK_CONTAINER(menubar),item);
 
+  menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("file menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+
+  subitem=gtk_image_menu_item_new_from_stock("gtk-new",accel_group);
+  gtk_widget_set_name(subitem,_("New"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_image_menu_item_new_from_stock("gtk-open",accel_group);
+  gtk_widget_set_name(subitem,_("Open"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_image_menu_item_new_from_stock("gtk-save",accel_group);
+  gtk_widget_set_name(subitem,_("Save"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_image_menu_item_new_from_stock("gtk-save-as",accel_group);
+  gtk_widget_set_name(subitem,_("Save as"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+
+  subitem=gtk_separator_menu_item_new();
+  gtk_widget_set_name(subitem,_("separator"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+
+  subitem=gtk_image_menu_item_new_from_stock("gtk-quit",accel_group);
+  gtk_widget_set_name(subitem,_("Quit"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),self->private->window);
+
+  gtk_window_add_accel_group(GTK_WINDOW(self->private->window),accel_group);
+ 
   return(menubar);
 }
 
 GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *handlebox,*toolbar;
-  GtkWidget *tmp_toolbar_icon;
+  GtkWidget *icon;
   GtkWidget *button;
 
   // @todo make this a sub-class of  tool-bar
   handlebox=gtk_handle_box_new();
-  gtk_widget_set_name(handlebox,"handlebox for toolbar");
+  gtk_widget_set_name(handlebox,_("handlebox for toolbar"));
   gtk_box_pack_start(GTK_BOX(box),handlebox,FALSE,FALSE,0);
 
   toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,"toolbar");
+  gtk_widget_set_name(toolbar,_("tool bar"));
   gtk_container_add(GTK_CONTAINER(handlebox),toolbar);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 
-  tmp_toolbar_icon=gtk_image_new_from_stock("gtk-new", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  icon=gtk_image_new_from_stock("gtk-new", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
-                                "New",
+                                _("New"),
                                 NULL,NULL,
-                                tmp_toolbar_icon,NULL,NULL);
+                                icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,"new");
-  
+  gtk_widget_set_name(button,_("New"));
+
+  icon=gtk_image_new_from_stock("gtk-open", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Open"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Open"));
+
+  icon=gtk_image_new_from_stock("gtk-save", gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Save"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Save"));
   return(handlebox);
 }
 
 GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidget *box) {
   GtkWidget *notebook;
-  GtkWidget *empty_notebook_page,*label;
+  GtkWidget *page,*label;
 
   // @todo make this a sub-class of notebook widget
   notebook=gtk_notebook_new();
-  gtk_widget_set_name(notebook, "song views");
+  gtk_widget_set_name(notebook,_("song views"));
   gtk_box_pack_start(GTK_BOX(box),notebook,TRUE,TRUE,0);
 
-  empty_notebook_page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(notebook),empty_notebook_page);
+  // @todo add real wigets for machine view (canvas)
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(notebook),page);
 
-  label=gtk_label_new("Machine View");
-  gtk_widget_set_name(label,"Machine View");
+  label=gtk_label_new(_("machine view"));
+  gtk_widget_set_name(label,_("machine view"));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),0),label);
+  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("nothing here"));
 
+  // @todo add real wigets for pattern view
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(notebook),page);
+
+  label=gtk_label_new(_("pattern view"));
+  gtk_widget_set_name(label,_("pattern view"));
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),1),label);
+
+  // @todo add real wigets for sequence view
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(notebook),page);
+
+  label=gtk_label_new(_("sequence view"));
+  gtk_widget_set_name(label,_("sequence view"));
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),2),label);
+  
+  // @todo add real wigets for song info view
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(notebook),page);
+
+  label=gtk_label_new(_("song information"));
+  gtk_widget_set_name(label,_("song information"));
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),3),label);
+  
   return(notebook);
 }
 
@@ -110,7 +196,7 @@ GtkWidget *bt_main_window_init_statusbar(const BtMainWindow *self, GtkWidget *bo
   
   // @todo make this a sub-class of status bar
   statusbar=gtk_statusbar_new();
-  gtk_widget_set_name(statusbar, "statusbar");
+  gtk_widget_set_name(statusbar,_("status bar"));
   gtk_box_pack_start(GTK_BOX(box),statusbar,FALSE,FALSE,0);
 
   return(statusbar);
@@ -168,7 +254,7 @@ static void bt_main_window_run_done(const BtMainWindow *self) {
  */
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
-  self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app));
+  self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,NULL));
   
   return(self);
 }
