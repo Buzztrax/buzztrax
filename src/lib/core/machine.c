@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.54 2004-12-03 16:29:36 ensonic Exp $
+/* $Id: machine.c,v 1.55 2004-12-06 20:18:46 waffel Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -351,9 +351,9 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
  * Searches the list of registered dparam of a machine for a global dparam of
  * the given name and returns the index if found.
  *
- * Returns: the index or -1 when it has not be found
+ * Returns: the index or sets g_error if it not found
  */
-glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name) {
+gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name) {
   GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   gulong i;
 
@@ -365,7 +365,8 @@ glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *nam
   for(i=0;i<self->priv->global_params;i++) {
     if(self->priv->global_dparams[i]==dparam) return(i);
   }
-  return(-1);
+	// @todo set g_error
+  //return(-1);
 }
 
 /**
@@ -376,11 +377,11 @@ glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *nam
  * Searches the list of registered dparam of a machine for a voice dparam of
  * the given name and returns the index if found.
  *
- * Returns: the index or -1 when it has not be found
+ * Returns: the index or sets g_error if it is not found
  */
-glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name) {
+gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name) {
   GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
-  glong i;
+  gulong i;
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
@@ -391,7 +392,8 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
   for(i=0;i<self->priv->voice_params;i++) {
     if(self->priv->voice_dparams[i]==dparam) return(i);
   }
-  return(-1);
+	// @todo set g_error
+  //return(-1);
 }
 
 /**
@@ -419,7 +421,7 @@ GType bt_machine_get_global_dparam_type(const BtMachine *self, gulong index) {
  *
  * Returns: the requested GType
  */
-GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
+GType bt_machine_get_voice_dparam_type(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->voice_params);
 
@@ -435,7 +437,7 @@ GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
  * Sets a the specified global dparam to the give data value.
  *
  */
-void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event) {
+void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GValue *event) {
   GstDParam *dparam;
   
   g_assert(BT_IS_MACHINE(self));
@@ -781,13 +783,13 @@ GType bt_machine_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      (guint)(sizeof(BtMachineClass)),
+      G_STRUCT_SIZE(BtMachineClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      (guint)(sizeof(BtMachine)),
+      G_STRUCT_SIZE(BtMachine),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_machine_init, // instance_init
 			NULL // value_table

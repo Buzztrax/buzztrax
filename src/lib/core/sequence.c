@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.44 2004-11-29 19:21:50 waffel Exp $
+/* $Id: sequence.c,v 1.45 2004-12-06 20:18:46 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -314,9 +314,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
     BtSongInfo *song_info;
     GstElement *bin;
     BtPlayLine *playline;
-    glong i;
-    glong wait_per_position,bars;
-    glong beats_per_minute,ticks_per_beat;
+    gulong i;
+    gulong wait_per_position,bars;
+    gulong beats_per_minute,ticks_per_beat;
     gdouble ticks_per_minute;
     // DEBUG {
     GTimer *timer;
@@ -570,7 +570,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      "length prop",
                                      "length of the sequence in timeline bars",
                                      1,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      1,
                                      G_PARAM_READWRITE));
 
@@ -579,7 +579,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      "tracks prop",
                                      "number of tracks in the sequence",
                                      0,
-                                     G_MAXLONG,
+                                     G_MAXULONG,
                                      0,
                                      G_PARAM_READWRITE));
 
@@ -614,13 +614,13 @@ GType bt_sequence_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSequenceClass),
+      G_STRUCT_SIZE(BtSequenceClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_sequence_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSequence),
+      G_STRUCT_SIZE(BtSequence),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_sequence_init, // instance_init
 			NULL // value_table

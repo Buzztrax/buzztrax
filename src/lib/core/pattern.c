@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.21 2004-11-30 20:15:49 waffel Exp $
+/* $Id: pattern.c,v 1.22 2004-12-06 20:18:46 waffel Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -32,7 +32,7 @@ struct _BtPatternPrivate {
   /* the number of voices */
   gulong voices;
   /* the number of dynamic params the machine provides per instance */
-  glong global_params;
+  gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
   glong voice_params;
   /* the machine the pattern belongs to */
@@ -84,7 +84,7 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
   return(ret);
 }
 
-static void bt_pattern_resize_data_length(const BtPattern *self, glong length) {
+static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) {
   // @todo implement pattern resizing
   // old_data=self->priv->data;
   // allocate new space
@@ -94,7 +94,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, glong length) {
   GST_ERROR("not yet implemented");
 }
 
-static void bt_pattern_resize_data_voices(const BtPattern *self, glong voices) {
+static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) {
   // @todo implement pattern resizing
   // old_data=self->priv->data;
   // allocate new space
@@ -153,8 +153,8 @@ Error:
  *
  * Returns: the GValue or NULL if out of the pattern range
  */
-GValue *bt_pattern_get_global_event_data(const BtPattern *self, glong tick, glong param) {
-  glong index;
+GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, glong param) {
+  gulong index;
 
   g_assert(BT_IS_PATTERN(self));
 
@@ -179,8 +179,8 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, glong tick, glon
  *
  * Returns: the GValue or NULL if out of the pattern range
  */
-GValue *bt_pattern_get_voice_event_data(const BtPattern *self, glong tick, glong voice, glong param) {
-  glong index;
+GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, glong param) {
+  gulong index;
 
   g_assert(BT_IS_PATTERN(self));
 
@@ -206,7 +206,7 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, glong tick, glong
  *
  * Returns: the index or -1 when it has not be found
  */
-glong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name) {
+gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name) {
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
 
@@ -223,7 +223,7 @@ glong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *nam
  *
  * Returns: the index or -1 when it has not be found
  */
-glong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name) {
+gulong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name) {
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
 
@@ -241,7 +241,7 @@ glong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name
  * machine.
  *
  */
-void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong param) {
+void bt_pattern_init_global_event(const BtPattern *self, GValue *event, gulong param) {
   g_assert(BT_IS_PATTERN(self));
 
   //GST_DEBUG("at %d",param);
@@ -259,7 +259,7 @@ void bt_pattern_init_global_event(const BtPattern *self, GValue *event, glong pa
  * machine.
  *
  */
-void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, glong param) {
+void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gulong param) {
   g_assert(BT_IS_PATTERN(self));
   g_assert(G_IS_VALUE(event));
 
@@ -305,8 +305,8 @@ gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar 
  * Sets all dparams from this pattern-row into the #BtMachine.
  *
  */
-void bt_pattern_play_tick(const BtPattern *self, glong index) {
-  glong j,k;
+void bt_pattern_play_tick(const BtPattern *self, gulong index) {
+  gulong j,k;
   GValue *data;
 
   g_assert(BT_IS_PATTERN(self));
@@ -371,7 +371,7 @@ static void bt_pattern_set_property(GObject      *object,
                               GParamSpec   *pspec)
 {
   BtPattern *self = BT_PATTERN(object);
-  glong length,voices;
+  gulong length,voices;
   
   return_if_disposed();
   switch (property_id) {
@@ -517,13 +517,13 @@ GType bt_pattern_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtPatternClass),
+      (guint16)(sizeof (BtPatternClass)),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_pattern_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtPattern),
+      (guint16)(sizeof (BtPattern)),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_pattern_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.60 2004-11-26 18:53:26 waffel Exp $
+/* $Id: song.c,v 1.61 2004-12-06 20:18:47 waffel Exp $
  * song 
  *   holds all song related globals
  *
@@ -378,13 +378,13 @@ GType bt_song_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSongClass),
+      G_STRUCT_SIZE(BtSongClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_song_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSong),
+      G_STRUCT_SIZE(BtSong),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_init, // instance_init
 			NULL // value_table

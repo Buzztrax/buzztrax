@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.28 2004-11-26 18:53:26 waffel Exp $
+/* $Id: song-info.c,v 1.29 2004-12-06 20:18:47 waffel Exp $
  * class for a machine to machine connection
  */
  
@@ -35,11 +35,11 @@ struct _BtSongInfoPrivate {
   /* the genre of the tune */
   gchar *genre;
   /* how many beats should be played in a minute */
-  glong beats_per_minute;
+  gulong beats_per_minute;
   /* how many event fire in one fraction of a beat */
-  glong ticks_per_beat;
+  gulong ticks_per_beat;
   /* how many bars per beat */
-  glong bars;
+  gulong bars;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -281,13 +281,13 @@ GType bt_song_info_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSongInfoClass),
+      G_STRUCT_SIZE(BtSongInfoClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_song_info_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSongInfo),
+      G_STRUCT_SIZE(BtSongInfo),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_info_init, // instance_init
 			NULL // value_table

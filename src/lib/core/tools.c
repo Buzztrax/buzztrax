@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.12 2004-11-30 20:15:49 waffel Exp $
+/* $Id: tools.c,v 1.13 2004-12-06 20:18:47 waffel Exp $
  */
  
 #define BT_CORE
@@ -22,7 +22,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
 
   g_assert(class_filter);
   
-  sl=strlen(class_filter);
+  sl=(gsize)(strlen(class_filter));
   
   elements=node=gst_registry_pool_feature_list(GST_TYPE_ELEMENT_FACTORY);
   while(node) {

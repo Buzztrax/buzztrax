@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.10 2004-12-03 16:29:36 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.11 2004-12-06 20:18:46 waffel Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -158,13 +158,13 @@ GType bt_gconf_settings_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      (guint)(sizeof(BtGConfSettingsClass)),
+      (guint16)(sizeof(BtGConfSettingsClass)),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_gconf_settings_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      (guint)(sizeof(BtGConfSettings)),
+      (guint16)(sizeof(BtGConfSettings)),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_gconf_settings_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.28 2004-11-26 18:53:26 waffel Exp $
+/* $Id: song-io.c,v 1.29 2004-12-06 20:18:47 waffel Exp $
  * base class for song input and output
  */
  
@@ -127,7 +127,8 @@ static void bt_song_io_update_filename(const BtSongIO *self, const BtSong *song)
 
 	g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
 	// file_name is last part from file_path
-	if(file_name=g_strrstr(file_path,G_DIR_SEPARATOR_S)) {
+	file_name=g_strrstr(file_path,G_DIR_SEPARATOR_S);
+	if(file_name) {
 		file_name++;
 	}
 	else {
@@ -158,8 +159,8 @@ BtSongIO *bt_song_io_new(const gchar *file_name) {
     GST_WARNING("filename should not be empty");
 		return NULL;
 	}
-	
-  if(type=bt_song_io_detect(file_name)) {
+	type=bt_song_io_detect(file_name);
+  if(type) {
     self=BT_SONG_IO(g_object_new(type,NULL));
     if(self) {
       self->priv->file_name=(gchar *)file_name;
@@ -346,13 +347,13 @@ GType bt_song_io_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSongIOClass),
+      G_STRUCT_SIZE(BtSongIOClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_song_io_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSongIO),
+      G_STRUCT_SIZE(BtSongIO),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_song_io_init, // instance_init
 			NULL // value_table

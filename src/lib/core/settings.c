@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.10 2004-11-26 18:53:26 waffel Exp $
+/* $Id: settings.c,v 1.11 2004-12-06 20:18:46 waffel Exp $
  * base class for buzztard settings handling
  */
 
@@ -113,13 +113,13 @@ GType bt_settings_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSettingsClass),
+      G_STRUCT_SIZE(BtSettingsClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_settings_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSettings),
+      G_STRUCT_SIZE(BtSettings),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_settings_init, // instance_init
 			NULL // value_table

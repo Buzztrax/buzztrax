@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.41 2004-12-03 16:29:36 ensonic Exp $
+/* $Id: setup.c,v 1.42 2004-12-06 20:18:47 waffel Exp $
  * class for machine and wire setup
  */
  
@@ -193,7 +193,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   
-	return(g_list_nth_data(self->priv->machines,index));
+	return(g_list_nth_data(self->priv->machines,(guint)index));
 }
 
  
@@ -495,13 +495,13 @@ GType bt_setup_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     static const GTypeInfo info = {
-      sizeof (BtSetupClass),
+      G_STRUCT_SIZE(BtSetupClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_setup_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      sizeof (BtSetup),
+      G_STRUCT_SIZE(BtSetup),
       0,   // n_preallocs
 	    (GInstanceInitFunc)bt_setup_init, // instance_init
 			NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.12 2004-11-30 20:15:51 waffel Exp $
+/* $Id: machine-methods.h,v 1.13 2004-12-06 20:18:49 waffel Exp $
  * defines all public methods of the machine base class
  */
 
@@ -18,13 +18,13 @@ extern gboolean bt_machine_has_active_spreader(BtMachine *self);
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id);
 
-extern glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name);
-extern glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name);
+extern gulong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name);
+extern gulong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name);
 
 extern GType bt_machine_get_global_dparam_type(const BtMachine *self, gulong index);
-extern GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index);
+extern GType bt_machine_get_voice_dparam_type(const BtMachine *self, gulong index);
 
-extern void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event);
+extern void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GValue *event);
 
 extern gpointer bt_machine_pattern_iterator_new(const BtMachine *self);
 extern gpointer bt_machine_pattern_iterator_next(gpointer iter);
