@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.18 2004-05-11 20:01:23 ensonic Exp $
+/* $Id: song.c,v 1.19 2004-05-11 20:55:36 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -38,7 +38,7 @@ static void bt_song_real_start_play(const BtSong *self) {
 
 /** 
  * bt_song_start_play:
- * @self: the #BtSong that should be played
+ * @self: the song that should be played
  *
  * Starts to play the specified song instance from beginning.
  */
@@ -48,8 +48,11 @@ void bt_song_start_play(const BtSong *self) {
 
 /**
  * bt_song_get_song_info:
+ * @self: the song to get the information from
  *
  * get the #BtSongInfo for the song
+ *
+ * Returns: the #BtSongInfo instance
  */
 BtSongInfo *bt_song_get_song_info(const BtSong *self) {
 	return(self->private->song_info);
@@ -57,8 +60,11 @@ BtSongInfo *bt_song_get_song_info(const BtSong *self) {
 
 /**
  * bt_song_get_setup:
+ * @self: the song to get the setup from
  *
  * get the #BtSetup for the song
+ *
+ * Returns: the #BtSetup instance
  */
 BtSetup *bt_song_get_setup(const BtSong *self) {
 	return(self->private->setup);
@@ -66,8 +72,11 @@ BtSetup *bt_song_get_setup(const BtSong *self) {
 
 /**
  * bt_song_get_sequence:
+ * @self: the song to get the sequence from
  *
  * get the #BtSequence for the song
+ *
+ * Returns: the #BtSequence instance
  */
 BtSequence *bt_song_get_sequence(const BtSong *self) {
 	return(self->private->sequence);
@@ -143,12 +152,12 @@ static void bt_song_finalize(GObject *object) {
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
 	
-	//GST_INFO("song_init self=%p",self);
+  //GST_INFO("song_init self=%p",self);
   self->private = g_new0(BtSongPrivate,1);
   self->private->dispose_has_run = FALSE;
-	self->private->song_info = BT_SONG_INFO(g_object_new(BT_SONG_INFO_TYPE,"song",self,NULL));
-	self->private->sequence  = BT_SEQUENCE(g_object_new(BT_SEQUENCE_TYPE,"song",self,NULL));
-	self->private->setup     = BT_SETUP(g_object_new(BT_SETUP_TYPE,"song",self,NULL));
+  self->private->song_info = BT_SONG_INFO(g_object_new(BT_SONG_INFO_TYPE,"song",self,NULL));
+  self->private->sequence  = BT_SEQUENCE(g_object_new(BT_SEQUENCE_TYPE,"song",self,NULL));
+  self->private->setup     = BT_SETUP(g_object_new(BT_SETUP_TYPE,"song",self,NULL));
 }
 
 static void bt_song_class_init(BtSongClass *klass) {

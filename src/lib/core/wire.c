@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.11 2004-05-11 20:01:23 ensonic Exp $
+/* $Id: wire.c,v 1.12 2004-05-11 20:55:36 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -25,8 +25,13 @@ struct _BtWirePrivate {
 
 /**
  * bt_wire_connect:
+ * @self: the wire that should be used for this connection
+ * @src: the source #BtMachine instance
+ * @dst: the destination or target #BtMachine instance
  *
- * connect two machines
+ * Connect two machines with a wire.
+ *
+ * Returns: true for success
  */
 gboolean bt_wire_connect(const BtWire *self, const BtMachine *src, const BtMachine *dst) {
 	
@@ -118,14 +123,7 @@ static void bt_wire_class_init(BtWireClass *klass) {
                                      "Set song object, the wire belongs to",
                                      BT_SONG_TYPE, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE);
-  /**
-   * BtWire:song:
-   *
-   * Supply the root song object thsi wire belongs to
-   *
-   * Since: 0.0.1
-   */
-	g_object_class_install_property(gobject_class,WIRE_SONG,g_param_spec);
+  g_object_class_install_property(gobject_class,WIRE_SONG,g_param_spec);
 }
 
 GType bt_wire_get_type(void) {
