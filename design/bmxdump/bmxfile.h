@@ -49,8 +49,6 @@ struct BmxSectionEntry
     dword size;
 };
 
-
-
 struct BmxCompressionValues
 {
 	word	wSum1;

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.27 2004-11-26 14:48:44 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.28 2004-11-26 17:55:34 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -81,11 +81,11 @@ void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gd
  * workaround for gnome_canvas bug, that fails to change font-sizes when zooming
  */
 static void update_machine_zoom(gpointer key,gpointer value,gpointer user_data) {
-	g_object_set(BT_MACHINE_CANVAS_ITEM(value),"zoom",(gdouble)(*user_data),NULL);
+	g_object_set(BT_MACHINE_CANVAS_ITEM(value),"zoom",(*(gdouble*)user_data),NULL);
 }
 
 static void update_machines_zoom(const BtMainPageMachines *self) {
-	g_hash_table_foreach(self->priv->machines,machine_zoom,&self->priv->zoom);
+	g_hash_table_foreach(self->priv->machines,update_machine_zoom,&self->priv->zoom);
 }
 
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
@@ -415,16 +415,12 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
 	// create grid-density menu with grid-density={off,low,mid,high}
   self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
 
-	GST_INFO("creating density menu items ##### : %d",self->priv->grid_density);
-
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
 	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
 	if(self->priv->grid_density==0) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_off_activated),(gpointer)self);
-
-	GST_INFO("check #####");
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Low"));
 	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
@@ -433,16 +429,12 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_low_activated),(gpointer)self);
 
-	GST_INFO("check #####");
-
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Medium"));
 	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
 	if(self->priv->grid_density==2) gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),TRUE);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->grid_density_menu),menu_item);
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_mid_activated),(gpointer)self);
-
-	GST_INFO("check #####");
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("High"));
 	self->priv->grid_density_group=gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
@@ -451,8 +443,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
 
-	GST_INFO("menu created #####");
-	
   // create the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 

@@ -1,4 +1,4 @@
-* $Id: gstreamer.txt,v 1.4 2004-11-25 10:35:08 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: gstreamer.txt,v 1.5 2004-11-26 17:55:34 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * gst-launch-0.8 tests
@@ -12,5 +12,4 @@
 	gst-launch-0.8 esdmon ! goom ! { queue ! ffmpegcolorspace ! ximagesink }
 
 * play video
-gst-launch-0.8 filesrc location=/usr/share/data/video-fun/Pixar\ -\ For\ the\ Birds.avi ! spider ! ffcolorspace ! ximagesink
-
+  gst-launch-0.8 filesrc location=/usr/share/data/video-fun/Pixar\ -\ For\ the\ Birds.avi ! spider ! ffcolorspace ! ximagesink

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.10 2004-11-26 14:48:44 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.11 2004-11-26 17:55:34 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -40,6 +40,9 @@ struct _BtMachineCanvasItemPrivate {
 
 	/* the parameter dialog */
 	GtkWidget *parameter_dialog;
+
+	/* the label element */
+	GnomeCanvasItem *label;
 
   /* the zoomration in pixels/per unit */
   double zoom;
@@ -233,6 +236,9 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
     case MACHINE_CANVAS_ITEM_ZOOM: {
       self->priv->zoom=g_value_get_double(value);
       GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
+			if(self->priv->label) {
+				gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",10.0*self->priv->zoom,NULL);
+			}
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -305,12 +311,12 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "outline_color", "black",
                            "width-pixels", 1,
                            NULL);
-  item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+  self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
                            "x", +0.0,
                            "y", -3.0,
                            "justification", GTK_JUSTIFY_CENTER,
-                           "size-points", 10.0,
+                           "size-points", 10.0*self->priv->zoom,
                            "size-set", TRUE,
                            "text", id,
                            "fill-color", "black",
