@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.41 2004-11-08 18:01:25 waffel Exp $
+/* $Id: sequence.c,v 1.42 2004-11-19 18:32:10 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -152,7 +152,8 @@ static void bt_sequence_init_machines(const BtSequence *self) {
  * bt_sequence_new:
  * @song: the song the new instance belongs to
  *
- * Create a new instance
+ * Create a new instance. One would not call this directly, but rather get this
+ * from a #BtSong instance.
  *
  * Returns: the new instance or NULL in case of an error
  */
@@ -183,7 +184,7 @@ BtSequence *bt_sequence_new(const BtSong *song) {
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time) {
 	
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
-
+  /* @todo check if not better initialize self->priv->length with -1 */
   if(time<self->priv->length) {
     return(self->priv->timelines[time]);
   }
