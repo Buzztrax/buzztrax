@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.29 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.30 2004-12-13 11:11:26 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -61,13 +61,14 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 static gboolean step_visible_filter(GtkTreeModel *model,GtkTreeIter *iter,gpointer user_data) {
 	gboolean visible=TRUE;
 	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-	gulong pos;
+	gulong pos,bars;
 	
 	g_assert(user_data);
 	
 	// determine row number from iter (SEQUENCE_TABLE_POS) and hide or show accordingly
 	gtk_tree_model_get(model,iter,SEQUENCE_TABLE_POS,&pos,-1);
-	// visible=(pos&((1L<<self->priv->steps)-1)==0);
+	// get index from bars_menu, get bars from index
+	//visible=(pos&((bars)-1)==0);
 	/*     1  2  4
 	  000  0  0  0
 	  001  1
@@ -221,7 +222,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     // set position
     gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_POS,pos,-1);
 		// @todo !! remove bars usage (while be handled by filter)
-    pos+=bars;
+    //pos+=bars;
+		pos++;
     // set label
     g_object_get(G_OBJECT(timeline),"label",&str,NULL);
     if(str) {
