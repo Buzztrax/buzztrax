@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.51 2005-01-28 18:48:06 ensonic Exp $
+/* $Id: edit-application.c,v 1.52 2005-01-29 14:18:38 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -121,10 +121,13 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 
 	if((song=bt_song_new(BT_APPLICATION(self)))) {
 		BtSetup *setup;
+		BtSequence *sequence;
 		BtMachine *machine;
 		gchar *id;
 
-		g_object_get(song,"setup",&setup,NULL);
+		g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
+		// add some initial timelines
+		g_object_set(sequence,"length",10,NULL);
 		// add audiosink
 		id=bt_setup_get_unique_machine_id(setup,"master");
 		if((machine=BT_MACHINE(bt_sink_machine_new(song,id)))) {
@@ -154,6 +157,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 
 		// release references
 		g_object_try_unref(setup);
+		g_object_try_unref(sequence);
 		g_object_unref(song);
 	}
   return(res);

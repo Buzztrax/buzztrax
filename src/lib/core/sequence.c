@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.53 2005-01-20 16:18:40 ensonic Exp $
+/* $Id: sequence.c,v 1.54 2005-01-29 14:18:31 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -165,7 +165,6 @@ BtSequence *bt_sequence_new(const BtSong *song) {
   if(!(self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL)))) {
 		goto Error;
 	}
-  bt_sequence_init_timelines(self);
   return(self);
 Error:
 	g_object_try_unref(self);
@@ -526,10 +525,6 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtSequence *self = BT_SEQUENCE(instance);
   self->priv = g_new0(BtSequencePrivate,1);
   self->priv->dispose_has_run = FALSE;
-  /* @todo check if not better initialize length with 0,
-   * and only in the editor create new songs with one timeline
-   */
-  self->priv->length=1;
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
   self->priv->is_playing_mutex=g_mutex_new();

@@ -1,6 +1,6 @@
 /* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 2; tab-width: 2 -*- */
 
-/* $Id: main-page-sequence.c,v 1.49 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.50 2005-01-29 14:18:38 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -111,26 +111,27 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
 	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
 		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
 	{
-		gtk_tree_model_get_iter_first(store,&iter);
-		do {
-			if(step_visible_filter(store,&iter,self)) {
-				if(odd_row) {
-    		  gtk_list_store_set(GTK_LIST_STORE(store),&iter,
-        		SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
-        		SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
-        		SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
-        		-1);
+		if(gtk_tree_model_get_iter_first(store,&iter)) {
+			do {
+				if(step_visible_filter(store,&iter,self)) {
+					if(odd_row) {
+    		  	gtk_list_store_set(GTK_LIST_STORE(store),&iter,
+        			SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
+        			SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
+        			SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
+        			-1);
+					}
+					else {
+      			gtk_list_store_set(GTK_LIST_STORE(store),&iter,
+        			SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
+        			SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
+        			SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
+        			-1);
+					}
+					odd_row=!odd_row;
 				}
-				else {
-      		gtk_list_store_set(GTK_LIST_STORE(store),&iter,
-        		SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
-        		SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
-        		SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
-        		-1);
-				}
-				odd_row=!odd_row;
-			}
-		} while(gtk_tree_model_iter_next(store,&iter));
+			} while(gtk_tree_model_iter_next(store,&iter));
+		}
 	}
 	else {
 		GST_WARNING("can't get tree model");

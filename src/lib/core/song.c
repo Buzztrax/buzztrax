@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.68 2005-01-28 18:47:49 ensonic Exp $
+/* $Id: song.c,v 1.69 2005-01-29 14:18:31 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -83,6 +83,7 @@ BtSong *bt_song_new(const BtApplication *app) {
   g_object_get(G_OBJECT(app),"bin",&bin,NULL);
   self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL));
   g_object_try_unref(bin);
+	GST_INFO("  new song created: %p",self);
   return(self);
 }
 
@@ -301,6 +302,7 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->sequence  = bt_sequence_new(self);
   self->priv->setup     = bt_setup_new(self);
   self->priv->wavetable = bt_wavetable_new(self);
+	GST_DEBUG("  done");
 }
 
 static void bt_song_class_init(BtSongClass *klass) {

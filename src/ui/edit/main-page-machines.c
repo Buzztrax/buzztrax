@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.49 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.50 2005-01-29 14:18:38 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -673,6 +673,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
 	bt_main_page_machine_draw_grid(self);
 
 	// create grid-density menu with grid-density={off,low,mid,high}
+	// @todo save with gconf settings
   self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));

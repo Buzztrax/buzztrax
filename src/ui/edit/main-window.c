@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.50 2005-01-28 18:04:44 ensonic Exp $
+/* $Id: main-window.c,v 1.51 2005-01-29 14:18:38 ensonic Exp $
  * class for the editor main window
  */
 
@@ -106,15 +106,12 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   // add the menu-bar
   self->priv->menu=bt_main_menu_new(self->priv->app,self->priv->accel_group);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->menu),FALSE,FALSE,0);
-	GST_INFO("  #1, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   // add the tool-bar
   self->priv->toolbar=bt_main_toolbar_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
-	GST_INFO("  #2, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   // add the window content pages
   self->priv->pages=bt_main_pages_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pages),TRUE,TRUE,0);
-	GST_INFO("  #3, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   // add the status bar
   self->priv->statusbar=bt_main_statusbar_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->statusbar),FALSE,FALSE,0);
