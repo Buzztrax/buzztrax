@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.25 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.26 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -52,7 +52,7 @@ static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *i
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-	GtkListStore *store;
+	GtkTreeModel *store;
 	GtkTreeIter iter;
 	gchar *str;
 	
@@ -111,7 +111,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(machine!=NULL));
 	gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->machine_menu,0);
-	g_object_unref(store); // drop with treeview
+	g_object_unref(store); // drop with comboxbox
 }
 
 static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine *machine) {
@@ -138,21 +138,23 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,const BtMachine 
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
 	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->pattern_menu,0);
-	g_object_unref(store); // drop with treeview
+	g_object_unref(store); // drop with comboxbox
 }
 
 //-- event handler
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	GtkTreeModel *store;
 	
   g_assert(user_data);
 	
 	GST_INFO("new machine has been added");
-	machine_menu_add(self,machine,GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu)));
+	store=GTK_LIST_STORE(gtk_combo_box_get_model(self->priv->machine_menu));
+	machine_menu_add(self,machine,store);
 
-	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
-	if(gtk_combo_box_get_active(self->priv->machine_menu)==-1) {
+	if(gtk_tree_model_iter_n_children(store,NULL)==1) {
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
 		gtk_combo_box_set_active(self->priv->machine_menu,0);
 	}
 }
@@ -169,6 +171,9 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 	// get the row where row.machine==machine
 	machine_model_get_iter_by_machine(GTK_TREE_MODEL(store),&iter,machine);
 	gtk_list_store_remove(store,&iter);
+	if(gtk_tree_model_iter_n_children(store,NULL)==0) {
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),FALSE);
+	}
 }
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
@@ -221,10 +226,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   self->priv->machine_menu=GTK_COMBO_BOX(gtk_combo_box_new());
 	renderer=gtk_cell_renderer_pixbuf_new ();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,FALSE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"pixbuf", 0,NULL);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"pixbuf",MACHINE_MENU_ICON,NULL);
 	renderer=gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
-	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text", 1,NULL);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
 
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);

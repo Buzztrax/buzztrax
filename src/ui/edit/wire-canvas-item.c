@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.9 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.10 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -245,6 +245,8 @@ BtWireCanvasItem *bt_wire_canvas_item_new(BtMainPageMachines *main_page_machines
                           	NULL));
   gnome_canvas_item_lower_to_bottom(self);
 	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
+
+	//GST_INFO("wire canvas item added");
 
 	g_object_try_unref(setup);
 	g_object_try_unref(song);

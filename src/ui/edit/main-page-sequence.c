@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.30 2004-12-13 11:11:26 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.31 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -21,6 +21,7 @@ struct _BtMainPageSequencePrivate {
   
   /* bars selection menu */
   GtkComboBox *bars_menu;
+	gulong bars;
   
   /* the pattern list */
   GtkTreeView *sequence_table;
@@ -61,25 +62,14 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 static gboolean step_visible_filter(GtkTreeModel *model,GtkTreeIter *iter,gpointer user_data) {
 	gboolean visible=TRUE;
 	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-	gulong pos,bars;
+	gulong pos;
 	
 	g_assert(user_data);
 	
-	// determine row number from iter (SEQUENCE_TABLE_POS) and hide or show accordingly
+	// determine row number and hide or show accordingly
 	gtk_tree_model_get(model,iter,SEQUENCE_TABLE_POS,&pos,-1);
-	// get index from bars_menu, get bars from index
-	//visible=(pos&((bars)-1)==0);
-	/*     1  2  4
-	  000  0  0  0
-	  001  1
-	  010  2  2
-	  011  3
-	  100  4  4  4
-	  101  5
-	  110  6  6
-	  111  7
-	*/
-
+	visible=((pos&((self->priv->bars)-1))==0);
+	//GST_INFO("bars=%d, pos=%d, -> visible=%1d",self->priv->bars,pos,visible);
 	return(visible);
 }
 
@@ -262,7 +252,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   }
 	// create a filterd model to realize step filtering
 	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
-	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,self,NULL);
+	gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,(gpointer)self,NULL);
 	
 	// should we use the filtered_store here?
   //gtk_tree_view_set_model(self->priv->sequence_table,GTK_TREE_MODEL(store));
@@ -317,7 +307,27 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 
 //-- event handler
 
-void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
+static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	GtkTreeModel *store;
+	GtkTreeIter iter;
+
+  g_assert(user_data);
+
+  //GST_INFO("bars_menu has changed : page=%p",user_data);
+	store=gtk_combo_box_get_model(self->priv->bars_menu);
+	if(gtk_combo_box_get_active_iter(self->priv->bars_menu,&iter)) {
+		gchar *str;
+
+		gtk_tree_model_get(store,&iter,0,&str,-1);
+		self->priv->bars=atoi(str);
+		g_free(str);
+		//GST_INFO("  bars = %d",self->priv->bars);
+		gtk_tree_model_filter_refilter(GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)));
+	}
+}
+
+static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
   g_assert(user_data);
@@ -326,7 +336,7 @@ void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data)
   pattern_list_refresh(self,bt_main_page_sequence_get_current_machine(self));
 }
 
-gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
+static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
   g_assert(user_data);
@@ -372,13 +382,36 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper methods
 
+static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *self,gulong bars) {
+	GtkListStore *store;
+	GtkTreeIter iter;
+	gchar str[4];
+	gulong i;
+	/* @todo the useful stepping depends on the rythm
+	   4/4 -> 1,4,8,16,32
+	   3/4 -> 1,3,6,12,24
+	*/
+	store=gtk_list_store_new(1,G_TYPE_STRING);
+	
+	gtk_list_store_append(store,&iter);
+	gtk_list_store_set(store,&iter,0,"1",-1);
+	gtk_list_store_append(store,&iter);
+	gtk_list_store_set(store,&iter,0,"2",-1);
+  for(i=4;i<=64;i+=4) {
+    sprintf(str,"%d",i);
+		gtk_list_store_append(store,&iter);
+		gtk_list_store_set(store,&iter,0,str,-1);
+  }
+	gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
+  gtk_combo_box_set_active(self->priv->bars_menu,2);
+	g_object_unref(store); // drop with comboxbox
+}
+
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *box,*button,*scrolled_window;
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
-  glong i;
-  gchar str[4];
 
   // add toolbar
   toolbar=gtk_toolbar_new();
@@ -390,17 +423,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   box=gtk_hbox_new(FALSE,2);
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // build the menu
-	/* @todo the useful stepping depends on the rythm
-	   4/4 -> 1,4,8,16,32
-	   3/4 -> 1,3,6,12,24
-	*/
-	self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),"1");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),"2");
-  for(i=4;i<=64;i+=4) {
-    sprintf(str,"%d",i);
-	  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->bars_menu),str);
-  }
+	self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+	bt_main_page_sequence_init_bars_menu(self,4);
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
+	g_signal_connect(G_OBJECT(self->priv->bars_menu),"changed",(GCallback)on_bars_menu_changed, (gpointer)self);
   // @todo do we really have to add the label by our self
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);
@@ -609,6 +637,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(instance);
   self->priv = g_new0(BtMainPageSequencePrivate,1);
   self->priv->dispose_has_run = FALSE;
+	self->priv->bars=1;
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.11 2004-12-10 19:14:37 ensonic Exp $
+/* $Id: bt-edit.c,v 1.12 2004-12-13 17:46:05 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -34,6 +34,11 @@ int main(int argc, char **argv) {
 	// in case we ever want to use a custom theme for buzztard:
 	// gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S"buzztard"G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
 	
+  if(!g_thread_supported()) {	// are g_threads() already initialized
+		g_thread_init(NULL);
+		gdk_threads_init();
+	}		
+
   // init gtk (before or after bt_init ?)
   gtk_init(&argc,&argv);
 	// init buzztard core with own popt options
@@ -42,8 +47,6 @@ int main(int argc, char **argv) {
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
-  
-  if(!g_thread_supported()) g_thread_init(NULL);
 
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.29 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.30 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -12,6 +12,7 @@ enum {
   MAIN_TOOLBAR_APP=1,
 };
 
+#define MAX_VUMETER 4
 
 struct _BtMainToolbarPrivate {
   /* used to validate if dispose has run */
@@ -21,25 +22,36 @@ struct _BtMainToolbarPrivate {
   BtEditApplication *app;
   
   /* the level meters */
-  GtkVUMeter *vumeter[4];
+  GtkVUMeter *vumeter[MAX_VUMETER];
+
+	GtkToggleButton *play_button;
+	GtkButton *stop_button;
+	
+	/* player variables */
+	GThread* player_thread;
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
 
 //-- event handler
 
-// @todo globale variables are not nice
-gulong on_song_stop_handler_id;
-GThread* player_thread=NULL;
-
 static void on_song_stop(const BtSong *song, gpointer user_data) {
-  GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+	gint i;
 
   g_assert(user_data);
   
-  GST_INFO("song stop event occured, button=%p",button);
-  g_signal_handler_disconnect(G_OBJECT(song),on_song_stop_handler_id);
-  gtk_toggle_button_set_active(button,FALSE);
+  GST_INFO("song stop event occured");
+	gdk_threads_enter();
+  gtk_toggle_button_set_active(self->priv->play_button,FALSE);
+	// reset level meters
+	for(i=0;i<2;i++) {
+    gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
+	}
+	// disable stop button
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
+	gdk_threads_leave();
+	GST_INFO("song stop event handled");
 }
 
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
@@ -91,12 +103,12 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     // get song from app
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 
-    on_song_stop_handler_id=g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)button);
     //-- start playing in a thread
-    if(!(player_thread=g_thread_create((GThreadFunc)&bt_song_play, (gpointer)song, FALSE, &error))) {
+    if(!(self->priv->player_thread=g_thread_create((GThreadFunc)&bt_song_play, (gpointer)song, TRUE, &error))) {
       GST_ERROR("error creating player thread : \"%s\"", error->message);
       g_error_free(error);
     }
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
     // release the reference
     g_object_try_unref(song);
   }
@@ -112,6 +124,8 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   bt_song_stop(song);
+	//g_thread_join(self->priv->player_thread);
+	//self->priv->player_thread=NULL;
   // release the reference
   g_object_try_unref(song);
 }
@@ -186,9 +200,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 			}
 			GST_INFO("  input level analyser will process %d,%d channels",channels_i,channels_o);
 		}
-		// DEBUG  // release the reference
+		// DEBUG
+		// @todo show/hide channel vumeters depending on the numer of channel
+		// release the reference
 		g_object_try_unref(level);
 	}
+	g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)self);
   g_object_try_unref(master);
   g_object_try_unref(song);
 
@@ -255,7 +272,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   //-- media controls
   
   image=gtk_image_new_from_filename("stock_media-play.png");
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+  self->priv->play_button=button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
                                 NULL,
                                 _("Play"),
@@ -267,7 +284,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
 
   image=gtk_image_new_from_filename("stock_media-stop.png");
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+  self->priv->stop_button=button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_BUTTON,
                                 NULL,
                                 _("Stop"),
@@ -277,6 +294,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_name(button,_("Stop"));
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of this song"),NULL);
   g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
 
   image=gtk_image_new_from_filename("stock_repeat.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -306,6 +324,9 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
     gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,2);
   }
+	for(i=2;i<MAX_VUMETER;i++) {
+		self->priv->vumeter[i]=NULL;
+	}
   gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
   // @todo add gain-control
 

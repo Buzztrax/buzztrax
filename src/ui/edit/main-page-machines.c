@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.37 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.38 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -155,6 +155,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     iter=bt_setup_wire_iterator_next(iter);
   }
 	gnome_canvas_item_lower_to_bottom(self->priv->grid);
+	GST_DEBUG("drawing done");
 }
 
 static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {

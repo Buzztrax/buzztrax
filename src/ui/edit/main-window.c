@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.37 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: main-window.c,v 1.38 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor main window
  */
 
@@ -161,7 +161,9 @@ Error:
 gboolean bt_main_window_run(const BtMainWindow *self) {
   gboolean res=TRUE;
   GST_INFO("before running the UI");
+	gdk_threads_enter();
   gtk_main();
+	gdk_threads_leave();
   GST_INFO("after running the UI");
   return(res);
 }

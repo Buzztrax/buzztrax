@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.20 2004-12-11 15:07:53 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.21 2004-12-13 17:46:05 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -309,6 +309,8 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(BtMainPageMachines *main_page_ma
                           	"y", ypos,
 														"zoom", zoom,
                           	NULL));
+
+	//GST_INFO("machine canvas item added");
 
 	g_object_try_unref(canvas);
 	g_object_try_unref(app);

@@ -61,12 +61,12 @@
   <sequence>
     <labels>
       <label time="0" name="start"/>
-      <label time="3" name="end"/>
+      <label time="63" name="end"/>
     </labels>
     <tracks>
       <track index="0" machine="sine1">
         <position time="0" pattern="sine1_beep"/>
-        <position time="2" pattern="sine1_beep"/>
+        <position time="32" pattern="sine1_beep"/>
       </track>
     </tracks>
   </sequence>
@@ -74,4 +74,3 @@
   <wavetable/>
 
 </buzztard>
-
