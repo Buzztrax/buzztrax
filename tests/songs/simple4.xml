@@ -54,6 +54,7 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
+		</machines>
     
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>

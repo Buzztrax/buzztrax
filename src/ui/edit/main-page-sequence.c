@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.43 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-page-sequence.c,v 1.44 2005-01-18 19:53:32 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -34,7 +34,10 @@ struct _BtMainPageSequencePrivate {
   GtkTreeView *sequence_table;
   /* the pattern list */
   GtkTreeView *pattern_list;
-  
+
+  /* pattern context_menu */
+  GtkMenu *context_menu;
+
   /* colors */
   GdkColor source_bg1,source_bg2;
   GdkColor processor_bg1,processor_bg2;
@@ -494,6 +497,21 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   g_assert(user_data);
 	
 	GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+	return(FALSE);
+}
+
+static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	gboolean res=FALSE;
+
+  g_assert(user_data);
+	
+	GST_INFO("sequence_table button : button 0x%x",event->button);
+	if(event->button==3) {
+		gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+		res=TRUE;
+	}	
+	return(res);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -568,6 +586,7 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *box,*button,*scrolled_window;
+  GtkWidget *menu_item;
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
 
@@ -625,7 +644,18 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   self->priv->sink_bg2.green=(guint16)(0.8*65535);
   self->priv->sink_bg2.blue= (guint16)(1.0*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);
-  
+
+  // generate the context menu  
+  self->priv->context_menu=GTK_MENU(gtk_menu_new());
+
+	// @todo add more items (Machine for Add Track) and disable Remove Track when tracks=0
+  menu_item=gtk_menu_item_new_with_label(_("Add Track"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  menu_item=gtk_menu_item_new_with_label(_("Remove Track"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+
   // add a hpaned
   box=gtk_hpaned_new();
   gtk_container_add(GTK_CONTAINER(self),box);
@@ -658,6 +688,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", (GCallback)on_sequence_table_cursor_moved, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", (GCallback)on_sequence_table_key_release_event, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", (GCallback)on_sequence_table_button_press_event, (gpointer)self);
   g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
@@ -778,6 +809,8 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   g_object_try_unref(self->priv->app);
+	
+	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

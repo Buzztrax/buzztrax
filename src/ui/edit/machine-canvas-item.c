@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.33 2005-01-17 18:02:39 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.34 2005-01-18 19:53:20 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -442,7 +442,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 static void bt_machine_canvas_item_finalize(GObject *object) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
 
-	GST_DEBUG("finilizing ...");
+	GST_DEBUG("finalizing ...");
   
   g_free(self->priv);
 
