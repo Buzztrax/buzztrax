@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.27 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: sequence.c,v 1.28 2004-09-20 16:51:41 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -419,7 +419,7 @@ static void bt_sequence_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	g_object_try_unref(self->private->song);
+	g_object_try_weak_unref(self->private->song);
   bt_sequence_unref_timelines(self);
   // @todo unref the machines
 }

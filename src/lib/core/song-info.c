@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.19 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: song-info.c,v 1.20 2004-09-20 16:51:41 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -154,7 +154,7 @@ static void bt_song_info_dispose(GObject *object) {
   self->private->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	g_object_try_unref(self->private->song);
+	g_object_try_weak_unref(self->private->song);
 }
 
 static void bt_song_info_finalize(GObject *object) {

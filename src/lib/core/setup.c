@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.21 2004-09-20 16:44:28 ensonic Exp $
+/* $Id: setup.c,v 1.22 2004-09-20 16:51:41 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -273,7 +273,7 @@ static void bt_setup_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_unref(self->private->song);
+	g_object_try_weak_unref(self->private->song);
 	// unref list of wires
 	if(self->private->wires) {
 		node=g_list_first(self->private->wires);
