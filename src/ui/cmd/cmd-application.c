@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.46 2005-01-16 14:20:41 waffel Exp $
+/* $Id: cmd-application.c,v 1.47 2005-01-16 15:54:05 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -73,7 +73,7 @@ Error:
  *
  * load and play the file of the supplied name
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
   gboolean res=FALSE;
@@ -123,7 +123,7 @@ Error:
  *
  * load the file of the supplied name and print information about it to stdout.
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
@@ -221,6 +221,73 @@ Error:
 		fclose(output_file);
 	}
 	return(res);
+}
+
+/**
+ * bt_cmd_application_convert:
+ * @self: the application instance to run
+ * @input_file_name: the file to read in
+ * @output_file_name: the file to generate
+ *
+ * Load the file of the supplied name and convert it into a buzztard song file.
+ * The type of the input file is automatically determined.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
+  gboolean res=FALSE;
+
+  g_assert(BT_IS_CMD_APPLICATION(self));
+
+  if(!is_string(input_file_name)) {
+    goto Error;
+  }
+  if(!is_string(output_file_name)) {
+    goto Error;
+  }
+
+  // @todo implement me (determine output format by filename?)
+  g_printf("sorry this is not yet implemented\n");
+
+Error:
+	return(res);	
+}
+
+/**
+ * bt_cmd_application_encode:
+ * @self: the application instance to run
+ * @input_file_name: the file to read in
+ * @output_file_name: the file to generate
+ *
+ * Load the file of the supplied name and encode it as an audio file.
+ * The type of the output file is automatically determined from the filename
+ * extension.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
+  gboolean res=FALSE;
+
+  g_assert(BT_IS_CMD_APPLICATION(self));
+
+  if(!is_string(input_file_name)) {
+    goto Error;
+  }
+  if(!is_string(output_file_name)) {
+    goto Error;
+  }
+
+  /* @todo implement me like play, with a different sink (determine by output file name ?)
+	 * instead of waiting for the clock with gst_element_wait(), we need to use gst_bin_iterate();
+	 * - that means we need to have an abstract base class BtTimelineCursor and have two subclasses:
+   *   BtPlayline (uses gst_element_wait()), BtRenderline (uses gst_bin_iterate())
+	 * - the play methods need refactoring, as the caller needs to pass the BtTimelineCursor
+	 *   maybe rename bt_sequence_play -> bt_sequence_run
+	 */
+  g_printf("sorry this is not yet implemented\n");
+
+Error:
+	return(res);	
 }
 
 //-- wrapper
