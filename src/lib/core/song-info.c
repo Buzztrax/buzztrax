@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.13 2004-07-30 15:15:51 ensonic Exp $
+/* $Id: song-info.c,v 1.14 2004-08-09 16:42:50 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -155,6 +155,7 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
 	//GST_DEBUG("song_info_init self=%p",self);
   self->private = g_new0(BtSongInfoPrivate,1);
   self->private->dispose_has_run = FALSE;
+  self->private->name=g_strdup("unamed song");
   // @idea alternate that all a little at new_song
   self->private->beats_per_minute=125;
   self->private->ticks_per_beat=4;

@@ -3,7 +3,9 @@
 #include <winbase.h>
 #include <windows.h>
 
-#define GET_SYMBOL(res,handle,name) if ((res = GetProcAddress(handle,name)) == NULL) { printf("cannot find Windows function %s", name); return -1; }
+#include "libwinelib.h"
+
+#define GET_SYMBOL(res,handle,name) if ((res = WineGetProcAddress(handle,name)) == NULL) { printf("cannot find Windows function %s", name); return -1; }
 
 typedef DWORD dword;
 typedef WORD  word;
@@ -118,7 +120,7 @@ typedef CMachineInfo* (*GetInfoFunctionType)();
 int load_dll(char *name)
 {
 	int i;
-	HMODULE h;
+	void *h;
 	DWORD le;
 
 	// typedef of function-paramter-prototyp
@@ -128,15 +130,19 @@ int load_dll(char *name)
 	CMachineInfo* frptr = NULL;
 
 	printf("START\n");
+  
+  SharedWineInit(NULL);
+  
+  printf("wine wrapper lib initialized\n");
 
 	// load
-	h = LoadLibrary(name);
-	le = GetLastError();
+	h = WineLoadLibrary(name);
+	//le = GetLastError();
 
 	if ( h == NULL)
 	{
-		printf ("load Windows DLL %s failed\n",name);
-		printf ("last error %ld\n",le);
+		printf("load Windows DLL %s failed\n",name);
+		//printf("last error %ld\n",le);
 		return 1;
 	}
 
@@ -144,7 +150,7 @@ int load_dll(char *name)
 	printf("handle: %ld\n", (long int)h);
 
 	// load function
-	fptr = (GetInfoFunctionType) GetProcAddress(h, "GetInfo");
+	fptr = (GetInfoFunctionType) WineGetProcAddress(h, "GetInfo");
 	//GET_SYMBOL (fptr, h, "GetInfo");
 	le = GetLastError();
 
@@ -182,6 +188,7 @@ int load_dll(char *name)
 	//CLibInterface *pLI;                                   // ignored if MIF_USES_LIB_INTERFACE is not set
 
 	// unload
+  /*
 	FreeLibrary(h);
 	le = GetLastError();
 
@@ -196,6 +203,6 @@ int load_dll(char *name)
 
 	printf("unload Windows DLL %s successful\n", name);
 	printf("handle: %ld\n", (long int)h);
-
+  */
 	return 0;
 }

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.5 2004-08-07 23:48:02 ensonic Exp $
+/* $Id: main-window.c,v 1.6 2004-08-09 16:42:50 ensonic Exp $
  * class for the editor main window
  */
 
@@ -23,7 +23,22 @@ struct _BtMainWindowPrivate {
   GtkWindow *window;
 };
 
-//-- event handler
+
+//-- helper
+
+static void bt_mainwindow_set_title(const BtMainWindow *self) {
+  static gchar *title;
+  BtSong *song;
+
+  // get song from app
+  song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
+  // compose title
+  title=g_strdup_printf(PACKAGE_NAME": %s",bt_g_object_get_string_property(G_OBJECT(bt_song_get_song_info(song)),"name"));
+  gtk_window_set_title(GTK_WINDOW(self->private->window), title);
+}
+
+
+//-- event handler helper
 
 static gboolean bt_main_check_quit(const BtMainWindow *self)  {
   gboolean quit=FALSE;
@@ -62,17 +77,46 @@ static gboolean bt_main_check_quit(const BtMainWindow *self)  {
   return(quit);
 }
 
+static void bt_main_new_song(const BtMainWindow *self)  {
+  // @todo if unsaved ask the use, if we should save the song
+  if(bt_edit_application_new_song(self->private->app)) {
+    bt_mainwindow_set_title(self);
+  }
+}
+
+static void bt_main_open_song(const BtMainWindow *self) {
+  GtkWidget *dialog=gtk_file_selection_new(_("Choose a song"));
+  gint result;
+    
+  /* Lets set the filename, as if this were a save dialog, and we are giving
+   a default filename */
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR"/songs/");
+  result=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(result) {
+    case GTK_RESPONSE_ACCEPT:
+    case GTK_RESPONSE_OK:
+      GST_INFO("new song name = %s\n",gtk_file_selection_get_filename(dialog));
+      /*
+      if(bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(dialog))) {
+        bt_mainwindow_set_title(self);
+      }
+      */
+      break;
+    case GTK_RESPONSE_REJECT:
+    case GTK_RESPONSE_CANCEL:
+    case GTK_RESPONSE_CLOSE:
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d\n",result);
+  } 
+  gtk_widget_destroy(dialog);
+}
+
+//-- event handler
 
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
-  BtMainWindow *self=BT_MAIN_WINDOW(data);
-  /* If you return FALSE in the "delete_event" signal handler, GTK will emit the
-   * "destroy" signal. Returning TRUE means you don't want the window to be
-   * destroyed.
-   * This is useful for popping up 'are you sure to quit?' type dialogs.
-   */
-
   GST_INFO("delete event occurred\n");
-  return(!bt_main_check_quit(self));
+  return(!bt_main_check_quit(BT_MAIN_WINDOW(data)));
 }
 
 static void destroy(GtkWidget *widget, gpointer data) {
@@ -81,13 +125,33 @@ static void destroy(GtkWidget *widget, gpointer data) {
   gtk_main_quit();
 }
 
+
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer data) {
-  BtMainWindow *self=BT_MAIN_WINDOW(data);
-  
   GST_INFO("menu quit event occurred\n");
-  if(bt_main_check_quit(self)) {
+  if(bt_main_check_quit(BT_MAIN_WINDOW(data))) {
     gtk_main_quit();
   }
+}
+
+static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer data) {
+  GST_INFO("menu new event occurred\n");
+  bt_main_new_song(BT_MAIN_WINDOW(data));
+}
+
+static void on_menu_open_activate(GtkMenuItem *menuitem,gpointer data) {
+  GST_INFO("menu open event occurred\n");
+  bt_main_open_song(BT_MAIN_WINDOW(data));
+}
+
+
+static void on_toolbar_new_clicked(GtkButton *button, gpointer data) {
+  GST_INFO("toolbar new event occurred\n");
+  bt_main_new_song(BT_MAIN_WINDOW(data));
+}
+
+static void on_toolbar_open_clicked(GtkButton *button, gpointer data) {
+  GST_INFO("toolbar open event occurred\n");
+  bt_main_open_song(BT_MAIN_WINDOW(data));
 }
 
 //-- helper methods
@@ -115,10 +179,12 @@ static GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidge
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,accel_group);
   gtk_widget_set_name(subitem,_("New"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_new_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_OPEN,accel_group);
   gtk_widget_set_name(subitem,_("Open"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_open_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE,accel_group);
   gtk_widget_set_name(subitem,_("Save"));
@@ -136,7 +202,7 @@ static GtkWidget *bt_main_window_init_menubar(const BtMainWindow *self, GtkWidge
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT,accel_group);
   gtk_widget_set_name(subitem,_("Quit"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
-  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),self);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_quit_activate),(gpointer)self);
 
 
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
@@ -187,6 +253,7 @@ static GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidge
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("New"));
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
 
   icon=gtk_image_new_from_stock(GTK_STOCK_OPEN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -197,6 +264,7 @@ static GtkWidget *bt_main_window_init_toolbar(const BtMainWindow *self, GtkWidge
                                 icon,NULL,NULL);
   gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
   gtk_widget_set_name(button,_("Open"));
+  g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 
   icon=gtk_image_new_from_stock(GTK_STOCK_SAVE, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
@@ -219,7 +287,8 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   gtk_widget_set_name(notebook,_("song views"));
   gtk_box_pack_start(GTK_BOX(box),notebook,TRUE,TRUE,0);
 
-  // @todo add real wigets for machine view (canvas)
+  // @todo add real wigets for machine view
+  //(canvas)
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(notebook),page);
 
@@ -229,6 +298,7 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("nothing here"));
 
   // @todo add real wigets for pattern view
+  // table ?
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(notebook),page);
 
@@ -237,6 +307,7 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),1),label);
 
   // @todo add real wigets for sequence view
+  // table ?
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(notebook),page);
 
@@ -245,6 +316,7 @@ static GtkWidget *bt_main_window_init_notebook(const BtMainWindow *self, GtkWidg
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(notebook),gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook),2),label);
   
   // @todo add real wigets for song info view
+  // display all properties from BTSongInfo
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(notebook),page);
 
@@ -274,11 +346,11 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *statusbar;
   
   // create the window
-  self->private->window=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  // @todo make the title: PACKAGE_NAME": %s",song->name 
-  gtk_window_set_title(GTK_WINDOW(self->private->window), PACKAGE_NAME);
-  g_signal_connect(G_OBJECT(self->private->window), "delete_event", G_CALLBACK(delete_event), self);
-  g_signal_connect(G_OBJECT(self->private->window), "destroy",      G_CALLBACK(destroy), self);
+  self->private->window=GTK_WINDOW(gtk_window_new(GTK_WINDOW_TOPLEVEL));
+  bt_mainwindow_set_title(self);
+  
+  g_signal_connect(G_OBJECT(self->private->window),"delete_event",G_CALLBACK(delete_event),(gpointer)self);
+  g_signal_connect(G_OBJECT(self->private->window),"destroy",     G_CALLBACK(destroy),(gpointer)self);
   
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);

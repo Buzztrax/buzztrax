@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.5 2004-08-08 01:04:46 ensonic Exp $
+/* $Id: edit-application.c,v 1.6 2004-08-09 16:42:50 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -6,6 +6,10 @@
 #define BT_EDIT_APPLICATION_C
 
 #include "bt-edit.h"
+
+enum {
+  EDIT_APPLICATION_SONG=1,
+};
 
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
@@ -51,6 +55,28 @@ BtEditApplication *bt_edit_application_new(void) {
 //-- methods
 
 /**
+ * bt_edit_application_new_song:
+ * @self: the application instance to create a new song in
+ *
+ * Creates a new blank song instance. If there is a previous song instance it
+ * will be freed.
+ *
+ * Returns: true for success
+ */
+gboolean bt_edit_application_new_song(const BtEditApplication *self) {
+  gboolean res=FALSE;
+  
+  if(self->private->song) {
+    g_object_unref(G_OBJECT(self->private->song));
+  }
+  if((self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin"))))) {
+    res=TRUE;
+  }
+  return(res);
+}
+
+
+/**
  * bt_edit_application_run:
  * @self: the application instance to run
  *
@@ -63,11 +89,10 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 
 	GST_INFO("application.play launched");
 
-	self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")));
-	
-	GST_INFO("objects initialized");
-  
-  res=bt_edit_application_ui(self);
+	if(bt_edit_application_new_song(self)) {
+		GST_INFO("objects initialized");
+    res=bt_edit_application_ui(self);
+  }
 	return(res);
 }
 
@@ -87,17 +112,17 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
 
 	GST_INFO("application.info launched");
 
-	self->private->song=bt_song_new(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self),"bin")));
-	loader=bt_song_io_new(input_file_name);
-	
-	GST_INFO("objects initialized");
-	
-	if(bt_song_io_load(loader,self->private->song,input_file_name)) {
-		res=bt_edit_application_ui(self);
-	}
-	else {
-		GST_ERROR("could not load song \"%s\"",input_file_name);
-	}
+  if(bt_edit_application_new_song(self)) {
+		loader=bt_song_io_new(input_file_name);
+		GST_INFO("objects initialized");
+    
+    if(bt_song_io_load(loader,self->private->song,input_file_name)) {
+      res=bt_edit_application_ui(self);
+    }
+    else {
+      GST_ERROR("could not load song \"%s\"",input_file_name);
+    }
+  }
 	return(res);
 }
 
@@ -114,6 +139,9 @@ static void bt_edit_application_get_property(GObject      *object,
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
+    case EDIT_APPLICATION_SONG: {
+      g_value_set_object(value, G_OBJECT(self->private->song));
+    } break;
     default: {
  			g_assert(FALSE);
       break;
@@ -130,6 +158,10 @@ static void bt_edit_application_set_property(GObject      *object,
   BtEditApplication *self = BT_EDIT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
+    case EDIT_APPLICATION_SONG: {
+      self->private->song = g_object_ref(G_OBJECT(g_value_get_object(value)));
+      //GST_DEBUG("set the song for edit_application: %p",self->private->song);
+    } break;
     default: {
 			g_assert(FALSE);
       break;
@@ -164,6 +196,14 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   gobject_class->get_property = bt_edit_application_get_property;
   gobject_class->dispose      = bt_edit_application_dispose;
   gobject_class->finalize     = bt_edit_application_finalize;
+
+  g_object_class_install_property(gobject_class,EDIT_APPLICATION_SONG,
+																	g_param_spec_object("song",
+                                     "song construct prop",
+                                     "the song object, the wire belongs to",
+                                     BT_TYPE_SONG, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+
 }
 
 GType bt_edit_application_get_type(void) {

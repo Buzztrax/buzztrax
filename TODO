@@ -1,4 +1,4 @@
-$Id: TODO,v 1.11 2004-08-07 21:23:15 ensonic Exp $
+$Id: TODO,v 1.12 2004-08-09 16:42:45 ensonic Exp $
 
 * run 'make todo' to get a list of todo comments from source
 
@@ -34,4 +34,9 @@ $Id: TODO,v 1.11 2004-08-07 21:23:15 ensonic Exp $
 * split gtk-doc
   * into docs for: bt-core, bt-cmd bt-edit
   * this is neccesary that e.g. bt-mix can have a BT_MAIN_WINDOW class
+
+* new signals
+  song::new ?
+    song has been reset or new song has been loaded
+    -> update gui
 
