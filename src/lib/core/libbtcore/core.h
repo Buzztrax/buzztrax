@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.46 2004-12-18 20:43:20 ensonic Exp $
+/* $Id: core.h,v 1.47 2005-01-06 11:19:50 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -126,7 +126,7 @@
  *
  * default buzztard xml namespace url
  */
-#define BT_NS_URL "http://buzztard.sourceforge.net/"
+#define BT_NS_URL "http://www.buzztard.org/"
 
 // handy shortcuts that improve readabillity
 //#define BT_SONG_GET_BIN GST_BIN(bt_g_object_get_object_property(G_OBJECT(self-private->song),"bin"))

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<buzztard xmlns="http://buzztard.sourceforge.net/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="buzztard.xsd"
-	name="simple test Song">
+<buzztard
+	xmlns="http://www.buzztard.org/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+	xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
 	<meta>
 		<info>what a lovely tune</info>
@@ -69,4 +70,3 @@
   <wavetable/>
 
 </buzztard>
-

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
+	xmlns="http://www.buzztard.org/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
->
+	targetNamespace="http://www.buzztard.org/"
+	elementFormDefault="qualified">
 
   <xsd:attribute name="command" type="xsd:string"/>
-  <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
   <xsd:attribute name="voices" type="xsd:integer"/>
@@ -22,16 +23,25 @@
   <xsd:attribute name="length" type="xsd:integer"/>
   <xsd:attribute name="time" type="xsd:integer"/>
   <xsd:attribute name="pattern" type="xsd:string"/>
+	<xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="url" type="xsd:string"/>
   
   <xsd:element name="info" type="xsd:string"/>
+	<xsd:element name="name" type="xsd:string"/>
   <xsd:element name="genre" type="xsd:string"/>
+	<xsd:element name="bpm" type="xsd:integer"/>
+	<xsd:element name="tpb" type="xsd:integer"/>
+	<xsd:element name="bars" type="xsd:integer"/>
 
   <xsd:element name="meta">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="info" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="genre" minOccurs="0" maxOccurs="1"/>
+				<xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -245,7 +255,6 @@
         <xsd:element ref="sequence" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="wavetable" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
-      <xsd:attribute ref="name" use="required"/>
     </xsd:complexType>
   </xsd:element>
 </xsd:schema>

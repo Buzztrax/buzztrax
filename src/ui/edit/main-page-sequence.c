@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.33 2004-12-16 13:41:32 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.34 2005-01-06 11:19:50 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -40,10 +40,26 @@ enum {
   SEQUENCE_TABLE_SOURCE_BG=0,
   SEQUENCE_TABLE_PROCESSOR_BG,
   SEQUENCE_TABLE_SINK_BG,
+	SEQUENCE_TABLE_TICK_FG,
+	SEQUENCE_TABLE_TICK_FG_SET,
   SEQUENCE_TABLE_POS,
   SEQUENCE_TABLE_LABEL,
   SEQUENCE_TABLE_PRE_CT
 };
+
+
+//-- tree model helper
+
+static void sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeIter *iter,gulong that_pos) {
+	gulong this_pos;
+
+	gtk_tree_model_get_iter_first(store,iter);
+	do {
+		gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&this_pos,-1);
+		if(this_pos==that_pos) break;
+	} while(gtk_tree_model_iter_next(store,iter));
+}
+
 
 //-- event handlers
 
@@ -111,11 +127,15 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   g_object_set(G_OBJECT(renderer),"editable",FALSE,"xalign",1.0,NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
+		"foreground",SEQUENCE_TABLE_TICK_FG,
+		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL);
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,NULL);
   col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
+		"foreground",SEQUENCE_TABLE_TICK_FG,
+		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL);
 	
 	GST_DEBUG("    number of columns : %d",col_index);
@@ -165,6 +185,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store_types[SEQUENCE_TABLE_SOURCE_BG   ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_PROCESSOR_BG]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_SINK_BG     ]=GDK_TYPE_COLOR;
+  store_types[SEQUENCE_TABLE_TICK_FG     ]=G_TYPE_STRING;
+  store_types[SEQUENCE_TABLE_TICK_FG_SET ]=G_TYPE_BOOLEAN;
   // for static display columns
   store_types[SEQUENCE_TABLE_POS         ]=G_TYPE_LONG;
   // for track display columns
@@ -183,17 +205,21 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
         SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
         SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
-          -1);
+        -1);
     }
     else {
       gtk_list_store_set(store,&tree_iter,
         SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
         SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
         SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
-          -1);
+        -1);
     }
-    // set position
-    gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_POS,pos,-1);
+    // set rest: position, highight-color
+    gtk_list_store_set(store,&tree_iter,
+			SEQUENCE_TABLE_POS,pos,
+			SEQUENCE_TABLE_TICK_FG,"red",
+			SEQUENCE_TABLE_TICK_FG_SET,FALSE,
+			-1);
 		pos++;
     // set label
     g_object_get(G_OBJECT(timeline),"label",&str,NULL);
@@ -330,6 +356,28 @@ static void pattern_list_refresh(const BtMainPageSequence *self,const BtMachine 
 
 //-- event handler
 
+static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+	GtkTreeModel *store;
+	GtkTreeIter iter;
+  
+  g_assert(user_data);
+
+  //GST_INFO("sequence tick received : %d",pos);
+	store=gtk_tree_view_get_model(self->priv->sequence_table);
+  // update sequence table highlight
+	gdk_threads_enter();
+	// set color for new pos
+	sequence_model_get_iter_by_position(store,&iter,pos);
+	gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,TRUE,-1);
+	// unset color for old pos
+	if(pos) {
+		sequence_model_get_iter_by_position(store,&iter,pos-1);
+		gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_TICK_FG_SET,FALSE,-1);
+	}
+	gdk_threads_leave();
+}
+
 static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	GtkTreeModel *store;
@@ -376,8 +424,9 @@ static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovemen
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSongInfo *song_info;
   BtSong *song;
+  BtSongInfo *song_info;
+	BtSequence *sequence;
   glong index,bars;
 
   g_assert(user_data);
@@ -385,7 +434,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,NULL);
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
@@ -402,8 +451,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   }
   //GST_INFO("  bars=%d, index=%d",bars,index);
   gtk_combo_box_set_active(self->priv->bars_menu,index);
+	// connect to the tick signal
+	g_signal_connect(G_OBJECT(sequence), "tick", (GCallback)on_sequence_tick, (gpointer)self);
   //-- release the references
   g_object_try_unref(song_info);
+	g_object_try_unref(sequence);
   g_object_try_unref(song);
 }
 
