@@ -1,4 +1,4 @@
-/** $Id: gst1.c,v 1.5 2004-04-08 13:30:35 waffel Exp $
+/** $Id: gst1.c,v 1.6 2004-04-08 13:33:16 waffel Exp $
 * small example, how to create a pipeline with one source and one sink and how to
 * use dparams to control the volume. The volume in this example is decrementes from
 * the given volume to silence. After silence is reached, the example stpped.
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
       /* decrement the volume */
       set_to_value=set_to_value-0.01;
       g_value_set_float(set_val, set_to_value);
-      g_object_set_property(G_OBECT(volume), "value_float", set_val);
+      g_object_set_property(G_OBJECT(volume), "value_float", set_val);
       /* if silence reached, break the loop */
       if (set_to_value < 0.1) {
         break;
