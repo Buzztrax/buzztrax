@@ -1,7 +1,9 @@
-/* $Id: bt-cmd.c,v 1.9 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.10 2004-07-07 15:39:03 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd <filename>
- * to enable debugging add e.g. --gst-debug="*:2,bt-*:3"
+ * to enable debug output add:
+ *  --gst-debug="*:2,bt-*:3" for not-so-much-logdata or
+ *  --gst-debug="*:2,bt-*:4" for a-lot-logdata
  *
  * example songs can be found in ./test/songs/
  */

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.23 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: song.c,v 1.24 2004-07-07 15:39:03 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -204,7 +204,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   g_object_class_install_property(gobject_class,SONG_NAME,
 																	g_param_spec_string("name",
                                      "name contsruct prop",
-                                     "Set songs name",
+                                     "the name of a song",
                                      "unnamed song", /* default value */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 

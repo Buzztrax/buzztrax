@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.9 2004-07-07 12:49:55 ensonic Exp $
+/* $Id: sequence.c,v 1.10 2004-07-07 15:39:03 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -22,14 +22,95 @@ struct _BtSequencePrivate {
 
   /* the number of timeline entries */
   glong length;
+
   /* the number of tracks */
   glong tracks;
 
-  /** the timelines that form the sequence */
+  /* the timelines that form the sequence */
   BtTimeLine **timelines;
 };
 
+//-- helper methods
+
+/**
+ * bt_sequence_free_timelines:
+ * Freeing old timelines when we create/load a new song
+ */
+static void bt_sequence_free_timelines(const BtSequence *self) {
+  GST_DEBUG("bt_sequence_free_timelines");
+  if(self->private->timelines) {
+    if(self->private->length) {
+      glong i;
+      for(i=0;i<self->private->length;i++) {
+        g_object_unref(G_OBJECT(self->private->timelines[i]));
+      }
+      self->private->length=0;
+    }
+    g_free(self->private->timelines);
+    self->private->timelines=NULL;
+  }
+}
+
+/**
+ * bt_sequence_init_timelines:
+ * Prepare new timelines when we create/load a new song
+ */
+static void bt_sequence_init_timelines(const BtSequence *self) {
+  GST_DEBUG("bt_sequence_init_timelines");
+  if(self->private->length) {
+    self->private->timelines=g_new0(BtTimeLine*,self->private->length);
+    if(self->private->timelines) {
+      glong i;
+      for(i=0;i<self->private->length;i++) {
+        self->private->timelines[i]=g_object_new(BT_TYPE_TIMELINE,"song",self->private->song,NULL);
+      }
+    }
+  }
+}
+
+/**
+ * bt_sequence_init_timelinetracks:
+ * Initialize the timelinetracks when we create/load a new song
+ */
+static void bt_sequence_init_timelinetracks(const BtSequence *self) {
+  GST_DEBUG("bt_sequence_init_timelinetracks");
+  if(self->private->timelines) {
+    if(self->private->length && self->private->tracks) {
+      glong i;
+      GValue lval={0,};
+
+      g_value_init(&lval,G_TYPE_LONG);
+      g_value_set_long(&lval, self->private->tracks);
+      for(i=0;i<self->private->length;i++) {
+        g_object_set_property(G_OBJECT(self->private->timelines[i]),"tracks", &lval);
+      }
+    }
+  }
+}
+
 //-- methods
+
+/**
+ * bt_sequence_get_timeline:
+ * @self the #Sequence that holds the #TimeLine objects
+ * @time the requested index
+ *
+ * fetches the required timeline.
+ *
+ * Returns: the object pointer or NULL in case of an error
+ */
+BtTimeLine *bt_sequence_get_timeline(const BtSequence *self,const glong time) {
+  BtTimeLine *tl=NULL;
+  
+  if(time<self->private->length) {
+    GST_DEBUG("  fetching timeline object for index %d",time);
+    tl=self->private->timelines[time];
+  }
+  else {
+    GST_ERROR(" index out of bounds %d should be < %d",time,self->private->length);
+  }
+  return(tl);
+}
 
 //-- wrapper
 
@@ -49,11 +130,9 @@ static void bt_sequence_get_property(GObject      *object,
     } break;
     case SEQUENCE_LENGTH: {
       g_value_set_long(value, self->private->length);
-      // @todo reallocate self->private->timelines
     } break;
     case SEQUENCE_TRACKS: {
       g_value_set_long(value, self->private->tracks);
-      // @todo reallocate self->private->timelines->private->tracks
     } break;
     default: {
       g_assert(FALSE);
@@ -76,10 +155,15 @@ static void bt_sequence_set_property(GObject      *object,
       //GST_DEBUG("set the song for sequence: %p",self->private->song);
     } break;
     case SEQUENCE_LENGTH: {
+      bt_sequence_free_timelines(self);
       self->private->length = g_value_get_long(value);
+      GST_DEBUG("set the length for sequence: %d",self->private->length);
+      bt_sequence_init_timelines(self);
     } break;
     case SEQUENCE_TRACKS: {
       self->private->tracks = g_value_get_long(value);
+      GST_DEBUG("set the tracks for sequence: %d",self->private->tracks);
+      bt_sequence_init_timelinetracks(self);
     } break;
     default: {
       g_assert(FALSE);
@@ -97,6 +181,7 @@ static void bt_sequence_dispose(GObject *object) {
 static void bt_sequence_finalize(GObject *object) {
   BtSequence *self = BT_SEQUENCE(object);
 	g_object_unref(G_OBJECT(self->private->song));
+  bt_sequence_free_timelines(self);
   g_free(self->private);
 }
 
@@ -104,8 +189,6 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtSequence *self = BT_SEQUENCE(instance);
   self->private = g_new0(BtSequencePrivate,1);
   self->private->dispose_has_run = FALSE;
-  self->private->length=0;
-  self->private->tracks=0;
 }
 
 static void bt_sequence_class_init(BtSequenceClass *klass) {

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.10 2004-07-06 15:44:57 ensonic Exp $
+/* $Id: song-io-native.c,v 1.11 2004-07-07 15:39:03 ensonic Exp $
  * class for native song input and output
  */
  
@@ -164,11 +164,11 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 			src=xmlGetProp(xml_node,"src");
 			dst=xmlGetProp(xml_node,"dst");
 			GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
-			// parse params
 			// create new wire
 			src_machine=bt_setup_get_machine_by_id(setup,src);
 			dst_machine=bt_setup_get_machine_by_id(setup,dst);
 			wire=g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL);
+      xmlFree(src);xmlFree(dst);
 		}
 		xml_node=xml_node->next;
 	}
@@ -176,7 +176,6 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
 }
 
 static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
-	//const BtSetup *setup=bt_song_get_setup(song);
 	xmlXPathObjectPtr items_xpoptr;
 	xmlNodePtr xml_node;
 	xmlChar *elem;
@@ -236,7 +235,7 @@ static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, cons
         length_str=xmlGetProp(xml_node,"length");
         length=atol(length_str);
         GST_INFO("  new pattern(\"%s\",%d) --------------------",id,length);
-				// @todo load tick data
+				// @todo create pattern and load tick data
         xmlFree(id);xmlFree(machine_name);xmlFree(pattern_name);xmlFree(length_str);
 			}
 		}
@@ -264,17 +263,13 @@ static gboolean bt_song_io_native_get_sequence_length(const BtSongIONative *self
       curtime=atol(xmlNodeGetContent(xmlXPathNodeSetItem(items,i)));
       if(curtime>maxtime) maxtime=curtime;
 		}
+    maxtime++;  // time values start with 0
     GST_INFO(" got %d sequence.length with a max time of %d",items_len,maxtime);
     g_value_init(&lval,G_TYPE_LONG);
     g_value_set_long(&lval, maxtime);
     g_object_set_property(G_OBJECT(sequence),"length", &lval);
     xmlXPathFreeObject(items_xpoptr);
 	}
-  return(TRUE);
-}
-
-static gboolean bt_song_io_native_get_sequence_tracks(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr root_node) {
-
   return(TRUE);
 }
 
@@ -287,15 +282,26 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
     cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence_labels,root_node),
     XPATH_NODESET)))
   {
+    BtTimeLine *timeline;
+    xmlChar *time_str,*name;
 		gint i;
+    GValue sval={0,};
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
 		gint items_len=xmlXPathNodeSetGetLength(items);
-    
+
     GST_INFO(" got sequence.labels root node with %d items",items_len);
+    g_value_init(&sval,G_TYPE_STRING);
     for(i=0;i<items_len;i++) {
       xml_node=xmlXPathNodeSetItem(items,i);
       if(!xmlNodeIsText(xml_node)) {
-        // @todo implement label loading
+        time_str=xmlGetProp(xml_node,"time");
+        name=xmlGetProp(xml_node,"name");
+        if((timeline=bt_sequence_get_timeline(sequence,atol(time_str)))) {
+          GST_INFO("  new timeline.label(%s,\"%s\")",time_str,name);
+          g_value_set_string(&sval, name);
+          g_object_set_property(G_OBJECT(timeline),"label", &sval);
+        }
+        xmlFree(time_str);xmlFree(name);
       }
 		}
     xmlXPathFreeObject(items_xpoptr);
@@ -364,7 +370,6 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
     if(items_len==1) {
       xml_node=xmlXPathNodeSetItem(items,0);
       bt_song_io_native_get_sequence_length(self,song,song_doc,xml_node);
-      bt_song_io_native_get_sequence_tracks(self,song,song_doc,xml_node);
             
       bt_song_io_native_load_sequence_labels(self,song,song_doc,xml_node);
       bt_song_io_native_load_sequence_tracks(self,song,song_doc,xml_node);
