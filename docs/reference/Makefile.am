@@ -6,7 +6,7 @@
 # of using the various options.
 
 # The name of the module, e.g. 'glib'.
-DOC_MODULE=buzztard
+DOC_MODULE=$(PACKAGE)
 
 # The top-level SGML file. Change it if you want.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.2 2004-05-12 17:34:07 ensonic Exp $
+/* $Id: cmd-application.c,v 1.3 2004-05-12 21:05:47 ensonic Exp $
  * class for a commandline buzztard based application
  */
  
@@ -7,12 +7,14 @@
 
 #include "bt-cmd.h"
 
+GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+
 struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
 
-//-- helper mathods
+//-- helper methods
 
 /**
  * print_usage:
@@ -31,7 +33,6 @@ static void print_usage(void) {
 static void play_event(void) {
   GST_INFO("start play invoked per signal\n");
 }
-
 
 //-- methods
 

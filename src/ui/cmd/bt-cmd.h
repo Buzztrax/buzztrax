@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.h,v 1.2 2004-05-12 17:34:07 ensonic Exp $
+/* $Id: bt-cmd.h,v 1.3 2004-05-12 21:05:47 ensonic Exp $
  */
 
 #ifndef BT_CMD_H
@@ -14,7 +14,7 @@
 
 //-- misc
 #define GST_CAT_DEFAULT bt_cmd_debug
-#ifndef BT_CMD_C
+#ifndef BT_CMD_APPLICATION_C
 	GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 

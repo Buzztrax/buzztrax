@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.7 2004-05-12 17:34:07 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.8 2004-05-12 21:05:46 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd <filename>
  * to enable debugging add e.g. --gst-debug="*:2,bt-*:3"
@@ -7,8 +7,6 @@
 #define BT_CMD_C
 
 #include "bt-cmd.h"
-
-GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 int main(int argc, char **argv) {
 	gboolean res;
