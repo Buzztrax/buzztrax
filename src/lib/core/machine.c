@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.53 2004-11-30 20:15:49 waffel Exp $
+/* $Id: machine.c,v 1.54 2004-12-03 16:29:36 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -155,8 +155,8 @@ gboolean bt_machine_new(BtMachine *self) {
       self->priv->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
       self->priv->global_dparams[i]=gst_dparam_new(self->priv->global_types[i]);
       attach_ret=gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
-			g_assert(attach_ret!=FALSE);
       GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
+			g_return_val_if_fail(attach_ret == TRUE,FALSE);
     }
   }
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
@@ -180,6 +180,8 @@ gboolean bt_machine_new(BtMachine *self) {
  * @self: the machine to add the input-level analyser to
  *
  * Add an input-level analyser to the machine and activate it.
+ *
+ * Returns: TRUE for success, FALSE otherwise
  */
 gboolean bt_machine_add_input_level(BtMachine *self) {
   gboolean res=FALSE;

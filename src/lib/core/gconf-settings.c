@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.9 2004-11-30 20:15:49 waffel Exp $
+/* $Id: gconf-settings.c,v 1.10 2004-12-03 16:29:36 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -79,16 +79,16 @@ static void bt_gconf_settings_set_property(GObject      *object,
                               const GValue *value,
                               GParamSpec   *pspec)
 {
-	gboolean gconf_ret=FALSE;
   BtGConfSettings *self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
+			gboolean gconf_ret=FALSE;
       gchar *prop=g_value_dup_string(value);
       GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"audiosink",prop,NULL);
-			g_assert(gconf_ret == FALSE);
       g_free(prop);
+			g_return_if_fail(gconf_ret == TRUE);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.32 2004-12-02 18:37:14 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.33 2004-12-03 16:29:37 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -92,6 +92,38 @@ static void update_machines_zoom(const BtMainPageMachines *self) {
 	gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
 }
 
+static void machine_item_new(const BtMainPageMachines *self,BtMachine *machine,gdouble xpos,gdouble ypos) {
+	GnomeCanvasItem *item;
+
+  item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           BT_TYPE_MACHINE_CANVAS_ITEM,
+                           "app", self->priv->app,
+                           "machine", machine,
+                           "x", xpos,
+                           "y", ypos,
+													 "zoom", self->priv->zoom,
+                           NULL);
+  g_hash_table_insert(self->priv->machines,machine,item);
+}
+
+static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,GnomeCanvasItem *src_machine_item,GnomeCanvasItem *dst_machine_item) {
+	GnomeCanvasItem *item;
+
+  item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           BT_TYPE_WIRE_CANVAS_ITEM,
+                           "app", self->priv->app,
+                           "wire", wire,
+                           "x", pos_xs,
+                           "y", pos_ys,
+                           "w", (pos_xe-pos_xs),
+                           "h", (pos_ye-pos_ys),
+                           "src", src_machine_item,
+                           "dst", dst_machine_item,
+                           NULL);
+  gnome_canvas_item_lower_to_bottom(item);
+  g_hash_table_insert(self->priv->wires,wire,item);
+}
+
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   gpointer iter;
   GHashTable *properties;
@@ -117,15 +149,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     g_object_get(machine,"properties",&properties,NULL);
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
     // draw machine
-    item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           BT_TYPE_MACHINE_CANVAS_ITEM,
-                           "app", self->priv->app,
-                           "machine", machine,
-                           "x", pos_x,
-                           "y", pos_y,
-													 "zoom", self->priv->zoom,
-                           NULL);
-    g_hash_table_insert(self->priv->machines,machine,item);
+		machine_item_new(self,machine,pos_x,pos_y);
     iter=bt_setup_machine_iterator_next(iter);
   }
 
@@ -142,20 +166,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     src_machine_item=g_hash_table_lookup(self->priv->machines,src_machine);
     dst_machine_item=g_hash_table_lookup(self->priv->machines,dst_machine);
     // draw wire
-    item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           BT_TYPE_WIRE_CANVAS_ITEM,
-                           "app", self->priv->app,
-                           "wire", wire,
-                           "x", pos_xs,
-                           "y", pos_ys,
-                           "w", (pos_xe-pos_xs),
-                           "h", (pos_ye-pos_ys),
-                           "src", src_machine_item,
-                           "dst", dst_machine_item,
-                           NULL);
-    gnome_canvas_item_lower_to_bottom(item);
-    g_hash_table_insert(self->priv->wires,wire,item);
-
+		wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
     g_object_try_unref(src_machine);
     g_object_try_unref(dst_machine);
     iter=bt_setup_wire_iterator_next(iter);
@@ -179,7 +190,7 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
 	
 	points=gnome_canvas_points_new(2);
 	
-	// @todo check zoom sizes to draw a wider range ?
+	// @todo check zoom and widnow sizes to draw a wider range ?
 	
   // low=1->2, mid=2->4, high=3->8
   step=(MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X)/(gdouble)(1<<self->priv->grid_density);
@@ -298,6 +309,103 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 	bt_main_page_machine_draw_grid(self);
 }
 
+static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+	BtMainWindow *main_window;
+	BtSong *song;
+	BtSetup *setup;
+	BtMachine *machine;
+	gchar *name,*id;
+	gdouble xpos=0.0,ypos=0.0;
+
+  g_assert(user_data);
+	name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
+	GST_DEBUG("adding source machine \"%s\"",name);
+	
+	g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
+	g_object_get(song,"setup",&setup,NULL);
+	
+	id=bt_setup_get_unique_machine_id(setup,name);
+	if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,1)))) {
+		GHashTable *properties;
+		gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+		//GdkWindow *window=GTK_WIDGET(main_window)->window;
+		//gint x,y;
+		//gdouble xp,yp;
+		
+		// where to put the new machine to ?
+		//gdk_window_get_pointer(window,&x,&y,NULL);
+		//gnome_canvas_window_to_world(self->priv->canvas,(gdouble)x,(gdouble)y,&xp,&yp);
+		//gnome_canvas_c2w(self->priv->canvas,(int)xp,(int)yp,&xpos,&ypos);
+		//GST_DEBUG("pointer location is %d %d -> %f,%f -> %f,%f",x,y,xp,yp,xpos,ypos);
+
+		g_object_get(machine,"properties",&properties,NULL);
+		if(properties) {
+			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
+			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
+		}
+		// @todo e.g. the pattern view do not find out about this
+		bt_setup_add_machine(setup,machine);
+
+		// draw machine
+		machine_item_new(self,machine,xpos,ypos);
+    g_object_unref(machine);
+	}
+	g_free(id);
+	g_object_try_unref(setup);
+	g_object_try_unref(song);
+	g_object_try_unref(main_window);
+}
+
+static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+	BtMainWindow *main_window;
+	BtSong *song;
+	BtSetup *setup;
+	BtMachine *machine;
+	gchar *name,*id;
+	gdouble xpos=0.0,ypos=0.0;
+	
+  g_assert(user_data);
+	name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
+	GST_DEBUG("adding processor machine \"%s\"",name);
+	
+	
+	g_object_get(self->priv->app,"song",&song,"main-window",&main_window,NULL);
+	g_object_get(song,"setup",&setup,NULL);
+	
+	id=bt_setup_get_unique_machine_id(setup,name);
+	if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,1)))) {
+		GHashTable *properties;
+		gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+		//GdkWindow *window=GTK_WIDGET(main_window)->window;
+		//gint x,y;
+		//gdouble xp,yp;
+		
+		// where to put the new machine to ?
+		//gdk_window_get_pointer(window,&x,&y,NULL);
+		//gnome_canvas_window_to_world(self->priv->canvas,(gdouble)x,(gdouble)y,&xp,&yp);
+		//gnome_canvas_c2w(self->priv->canvas,(int)xp,(int)yp,&xpos,&ypos);
+		//GST_DEBUG("pointer location is %d %d -> %f,%f -> %f,%f",x,y,xp,yp,xpos,ypos);
+
+		g_object_get(machine,"properties",&properties,NULL);
+		if(properties) {
+			g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,xpos)));
+			g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,ypos)));
+		}
+		// @todo e.g. the pattern view do not find out about this
+		bt_setup_add_machine(setup,machine);
+
+		// draw machine
+		machine_item_new(self,machine,xpos,ypos);
+    g_object_unref(machine);
+	}
+	g_free(id);
+	g_object_try_unref(setup);
+	g_object_try_unref(song);
+	g_object_try_unref(main_window);
+}
+
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
@@ -334,7 +442,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image,*scrolled_window;
-  GtkWidget *menu_item,*menu;
+  GtkWidget *menu_item,*menu,*submenu;
   GtkTooltips *tips;
 
   // add toolbar
@@ -462,13 +570,37 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_set_name(menu,_("add menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
 
-  menu_item=gtk_menu_item_new_with_label(_("Generators"));
+  menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+  image=create_pixmap("menu_source_machine.png");
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
+	// add another submenu
+	submenu=gtk_menu_new();
+  gtk_widget_set_name(submenu,_("generators menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
+
+  menu_item=gtk_menu_item_new_with_label("Sine");
+	gtk_widget_set_name(menu_item,"sinesrc");
+  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_source_machine_add_activated),(gpointer)self);
 	
-  menu_item=gtk_menu_item_new_with_label(_("Effects"));
+  menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
+  image=create_pixmap("menu_processor_machine.png");
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
+	// add another submenu
+	submenu=gtk_menu_new();
+  gtk_widget_set_name(submenu,_("effects menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
+
+  menu_item=gtk_menu_item_new_with_label("Volume");
+	gtk_widget_set_name(menu_item,"volume");
+  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+  gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_processor_machine_add_activated),(gpointer)self);
 
 	// continue with main menu
   menu_item=gtk_separator_menu_item_new();

@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.40 2004-11-26 18:53:26 waffel Exp $
+/* $Id: setup.c,v 1.41 2004-12-03 16:29:36 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -332,6 +332,32 @@ BtWire *bt_setup_wire_iterator_get_wire(gpointer iter) {
 	g_return_val_if_fail(iter,NULL);
   
 	return(BT_WIRE(((GList *)iter)->data));
+}
+
+/**
+ * bt_setup_get_unique_machine_id:
+ * @self: the setup for which the name should be unique
+ * @base_name: the leading name part
+ *
+ * The function makes the supplied base_name unique in this setup by eventually
+ * adding a number postfix.
+ *
+ * Returns: the newly allocated unique name
+ */
+gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
+	gchar *id,*ptr;
+	gint8 i=0;
+	
+	if(!bt_setup_get_machine_by_id(self,base_name)) {
+		return(g_strdup(base_name));
+	}
+
+	id=g_strdup_printf("%s 00",base_name);
+	ptr=&id[strlen(base_name)+1];
+	do {
+		g_printf(ptr,"%d",i++);
+	} while(bt_setup_get_machine_by_id(self,id) && (i<100));
+	return(id);
 }
 
 //-- wrapper

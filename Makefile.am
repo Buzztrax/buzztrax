@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.24 2004-12-02 17:22:32 ensonic Exp $
+## $Id: Makefile.am,v 1.25 2004-12-03 16:29:27 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -24,6 +24,8 @@ pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
 	pixmaps/buzztard.png \
 	pixmaps/grid.png \
+	pixmaps/menu_processor_machine.png \
+	pixmaps/menu_source_machine.png \
 	pixmaps/stock_about.png \
 	pixmaps/stock_media-fwd.png \
 	pixmaps/stock_media-pause.png \

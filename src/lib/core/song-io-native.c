@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.44 2004-11-26 18:53:26 waffel Exp $
+/* $Id: song-io-native.c,v 1.45 2004-12-03 16:29:36 ensonic Exp $
  * class for native song input and output
  */
  
@@ -648,6 +648,34 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 
 //-- saver helper methods
 
+static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+
+	xml_node=xmlNewChild(root_node,NULL,"sequence",NULL);
+	xml_child_node=xmlNewChild(xml_node,NULL,"labels",NULL);
+	xml_child_node=xmlNewChild(xml_node,NULL,"tracks",NULL);
+
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+
+	xml_node=xmlNewChild(root_node,NULL,"patterns",NULL);
+	// pattern
+
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+
+	xml_node=xmlNewChild(root_node,NULL,"setup",NULL);
+	xml_child_node=xmlNewChild(xml_node,NULL,"machines",NULL);
+	xml_child_node=xmlNewChild(xml_node,NULL,"wires",NULL);
+	
+	return(TRUE);
+}
 
 static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr *root_node) {
 	BtSongInfo *song_info;
@@ -672,6 +700,7 @@ static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, con
   	g_free(genre);
 	}
 	g_object_try_unref(song_info);
+	return(TRUE);
 }
 
 //-- saver method
@@ -700,6 +729,9 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
     xmlDocSetRootElement(song_doc,root_node);
 		// @todo build the xml document tree
 		bt_song_io_native_save_song_info(self,song,song_doc,root_node);
+		bt_song_io_native_save_setup(    self,song,song_doc,root_node);
+		bt_song_io_native_save_patterns( self,song,song_doc,root_node);
+		bt_song_io_native_save_sequence( self,song,song_doc,root_node);
 		
 		if(xmlSaveFile(file_name,song_doc)!=-1) {
 			result=TRUE;

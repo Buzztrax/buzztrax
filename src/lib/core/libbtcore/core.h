@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.42 2004-11-26 18:32:06 waffel Exp $
+/* $Id: core.h,v 1.43 2004-12-03 16:29:37 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -135,6 +135,15 @@
  * such as _get_property(), _set_property(), _dispose().
  */
 #define return_if_disposed() if(self->priv->dispose_has_run) return 
+
+/**
+ * G_STRUCT_SIZE:
+ * @s: struct name
+ *
+ * Applies the sizeof operator to a struct and casts the result for use in
+ * GTypeInfo definitions.
+ */
+#define G_STRUCT_SIZE(s) (guint16)sizeof(s)
 
 /**
  * is_string:

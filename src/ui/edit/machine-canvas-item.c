@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.14 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.15 2004-12-03 16:29:37 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -61,6 +61,49 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 //-- event handler
 
+static void on_machine_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("machine dialog destroy occurred");
+  self->priv->parameter_dialog=NULL;
+}
+
+static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  
+  g_assert(user_data);
+
+	if(!self->priv->parameter_dialog) {
+		self->priv->parameter_dialog=GTK_WIDGET(bt_machine_dialog_new(self->priv->app,self->priv->machine));
+		gtk_widget_show_all(self->priv->parameter_dialog);
+		g_signal_connect(G_OBJECT(self->priv->parameter_dialog),"destroy",G_CALLBACK(on_machine_dialog_destroy),(gpointer)self);
+	}
+}
+
+static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  
+  g_assert(user_data);
+	//if(!self->priv->attributes_dialog) { }
+}
+
+static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  
+  g_assert(user_data);
+	GST_INFO("context_menu rename event occurred");
+	// like about dialog
+}
+
+static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  
+  g_assert(user_data);
+	GST_INFO("context_menu delete event occurred");
+}
+
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   GstElement *machine;
@@ -116,14 +159,6 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
   g_object_try_unref(machine);
 }
 
-static void on_machine_dialog_destroy(GtkWidget *widget, gpointer user_data) {
-  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-
-  g_assert(user_data);
-
-  GST_INFO("machine dialog destroy occurred");
-  self->priv->parameter_dialog=NULL;
-}
 //-- helper methods
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
@@ -152,9 +187,11 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PROPERTIES,NULL);  // dynamic part
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_properties_activate),(gpointer)self);
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,NULL); // static part
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_preferences_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -164,9 +201,11 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   menu_item=gtk_menu_item_new_with_label(_("Rename ..."));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_rename_activate),(gpointer)self);
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_delete_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

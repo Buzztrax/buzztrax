@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.2 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.3 2004-12-03 16:29:37 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -47,7 +47,11 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *vpaned,*hpaned,*box,*box2;
- 
+	GtkWidget *button,*image,*icon;
+  GtkTooltips *tips;
+	
+	tips=gtk_tooltips_new();
+	
   // @todo add ui
 	// vpane
 	vpaned=gtk_vpaned_new();
@@ -56,6 +60,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
 	//   hpane
 	hpaned=gtk_hpaned_new();
 	gtk_paned_pack1(GTK_PANED(vpaned),GTK_WIDGET(hpaned),FALSE,FALSE);
+
 	//     vbox (loaded sample list)
 	box=gtk_vbox_new(FALSE,0);
 	gtk_paned_pack1(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
@@ -65,8 +70,41 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 	// @todo add buttons (play,stop,clear)
+  image=create_pixmap("stock_media-play.png");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+                                NULL,
+                                _("Play"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Play"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play current wave table entry"),NULL);
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+  image=create_pixmap("stock_media-stop.png");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Stop"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Stop"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of current wave table entry"),NULL);
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+  icon=gtk_image_new_from_stock(GTK_STOCK_CLEAR, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Open"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Clear"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Clear current wave table entry"),NULL);
 	//       listview
 	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no loaded sample list yet"));
+
 	//     vbox (file browser)
 	box=gtk_vbox_new(FALSE,0);
 	gtk_paned_pack2(GTK_PANED(hpaned),GTK_WIDGET(box),FALSE,FALSE);
@@ -76,8 +114,43 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self, const Bt
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 	// @todo add buttons (play,stop,load)
+  image=create_pixmap("stock_media-play.png");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
+                                NULL,
+                                _("Play"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Play"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play current sample"),NULL);
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+  image=create_pixmap("stock_media-stop.png");
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Stop"),
+                                NULL, NULL,
+                                image, NULL, NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Stop"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of current sample"),NULL);
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+  icon=gtk_image_new_from_stock(GTK_STOCK_OPEN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Open"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Open"));
+  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Load current sample into wave table"),NULL);
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 	//       listview
 	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no sample browser yet"));
+
+
 	//   vbox (sample view)
 	box=gtk_vbox_new(FALSE,0);
 	gtk_paned_pack2(GTK_PANED(vpaned),GTK_WIDGET(box),FALSE,FALSE);

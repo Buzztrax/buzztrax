@@ -85,9 +85,27 @@ word		number of patterns
 word		number of tracks
 
 (first pattern)
-asciiz		name 
+asciiz	name 
 word		length of pattern in number of ticks (rows)
-x		pattern data (like in PARA section?)
+-- if machine is 0 = master, 2 = effect
+(first input)
+(first tick)
+word amp
+word unknown?
+(second tick)
+...
+(second input)
+(first tick)
+word amp
+word unknown?
+(second tick)
+...
+
+(first tick)
+x		pattern data (global param + track x track param)
+
+(second tick)
+...
 
 (second pattern)
 ...

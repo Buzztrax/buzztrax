@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.23 2004-12-02 17:22:43 ensonic Exp $
+/* $Id: main-menu.c,v 1.24 2004-12-03 16:29:37 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -266,7 +266,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
   gtk_widget_set_name(subitem,_("Toolbar"));
 	// @todo save with gconf settings
-	gtk_check_menu_item_set_active(subitem,TRUE);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),TRUE);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 	g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
 
