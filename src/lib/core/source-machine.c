@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.17 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: source-machine.c,v 1.18 2004-10-08 13:50:04 ensonic Exp $
  * class for a source machine
  */
  
@@ -34,16 +34,21 @@ static BtMachineClass *parent_class=NULL;
 BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
   BtSourceMachine *self;
   
-  g_assert(song);
+  g_assert(BT_IS_SONG(song));
   g_assert(id);
   g_assert(plugin_name);
   
-  self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
-  if(self) {
-    // @todo check result
-    bt_machine_new(BT_MACHINE(self));
+  if(!(self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)))) {
+    goto Error;
+  }
+  // @todo we need to make sure the machine is really a source
+  if(!bt_machine_new(BT_MACHINE(self))) {
+    goto Error;
   }
   return(self);
+Error:
+  g_object_try_unref(self);
+  return(NULL);
 }
 
 //-- methods

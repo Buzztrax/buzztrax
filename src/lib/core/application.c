@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.14 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: application.c,v 1.15 2004-10-08 13:50:04 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -36,7 +36,7 @@ struct _BtApplicationPrivate {
 gboolean bt_application_new(BtApplication *self) {
   gboolean res=FALSE;
 
-  g_assert(self);
+  g_assert(BT_IS_APPLICATION(self));
   
 #ifdef USE_GCONF
   self->priv->settings=bt_gconf_settings_new();
@@ -126,7 +126,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = g_new0(BtApplicationPrivate,1);
   self->priv->dispose_has_run = FALSE;
 	self->priv->bin = gst_thread_new("thread");
-  g_assert(self->priv->bin!=NULL);
+  g_assert(GST_IS_BIN(self->priv->bin));
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {

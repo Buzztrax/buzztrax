@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.3 2004-10-04 17:04:48 waffel Exp $
+/** $Id: t-setup.c,v 1.4 2004-10-08 13:50:04 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -22,51 +22,9 @@ static void test_teardown(void) {
 //-- tests
 
 /**
-* Try to add a NULL machine to a empty setup. We have no return value. But in
-* this case no assertion should be thrown.
-*
-*/
-START_TEST(test_btsetup_obj1){
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	GstElement *bin=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	bin = gst_thread_new("thread");
-
-	song=bt_song_new(GST_BIN(bin));
-	setup=bt_setup_new(song);
-	bt_setup_add_machine(setup, NULL);
-	
-}
-END_TEST
-
-/**
-* Try to add a NULL wire to a empty setup. We have no return value. But in
-* this case no assertion should be thrown.
-*
-*/
-START_TEST(test_btsetup_obj2){
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	GstElement *bin=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	bin = gst_thread_new("thread");
-
-	song=bt_song_new(GST_BIN(bin));
-	setup=bt_setup_new(song);
-	bt_setup_add_wire(setup, NULL);
-	
-}
-END_TEST
-
-/**
 * Try to add the same machine twice to the setup
 */
-START_TEST(test_btsetup_obj3){
+START_TEST(test_btsetup_obj1){
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	GstElement *bin=NULL;
@@ -77,23 +35,27 @@ START_TEST(test_btsetup_obj3){
 	bin = gst_thread_new("thread");
 
 	song=bt_song_new(GST_BIN(bin));
-	setup=bt_setup_new(song);
+  g_object_get(song,"setup",&setup,NULL);
 	
 	/* try to create the machine */
-	machine=bt_source_machine_new(song,"generator1","sinesource",0);
+	machine=bt_source_machine_new(song,"generator1","sinesrc",1);
 	
 	/* try to add the machine to the setup */
 	bt_setup_add_machine(setup,BT_MACHINE(machine));
 	
-	/*  try to add the same machine again */
+	/* try to add the same machine again */
 	bt_setup_add_machine(setup, BT_MACHINE(machine));
+  
+  /* try to free the ressources */
+  g_object_unref(setup);
+  g_object_checked_unref(G_OBJECT(song));
 }
 END_TEST
 
 /**
 * try to add the same wire twice
 */
-START_TEST(test_btsetup_obj4){
+START_TEST(test_btsetup_obj2){
   BtSong *song=NULL;
 	BtSetup *setup=NULL;
 	GstElement *bin=NULL;
@@ -106,10 +68,10 @@ START_TEST(test_btsetup_obj4){
 	bin = gst_thread_new("thread");
 
 	song=bt_song_new(GST_BIN(bin));
-	setup=bt_setup_new(song);
+  g_object_get(song,"setup",&setup,NULL);
 	
 	/* try to create the source machine */
-	source=bt_source_machine_new(song,"generator1","sinesource",0);
+	source=bt_source_machine_new(song,"generator1","sinesrc",1);
 	
 	/*  try to create the sink machine */
 	sink=bt_sink_machine_new(song,"sink1","esdsink");
@@ -119,13 +81,17 @@ START_TEST(test_btsetup_obj4){
 	bt_setup_add_machine(setup,BT_MACHINE(sink));
 	
 	/* try to create the wire */
-	bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
+	wire=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
 	
 	/* try to add the wire to the setup */
 	bt_setup_add_wire(setup,wire);
 	
 	/* try to add again the same wire */
 	bt_setup_add_wire(setup,wire);
+
+  /* try to free the ressources */
+  g_object_unref(setup);
+  g_object_checked_unref(G_OBJECT(song));
 }
 END_TEST
 
@@ -134,8 +100,6 @@ TCase *bt_setup_obj_tcase(void) {
 
   tcase_add_test(tc,test_btsetup_obj1);
 	tcase_add_test(tc,test_btsetup_obj2);
-	tcase_add_test(tc,test_btsetup_obj3);
-	tcase_add_test(tc,test_btsetup_obj4);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

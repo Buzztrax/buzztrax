@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.29 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: edit-application.c,v 1.30 2004-10-08 13:50:04 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -46,6 +46,7 @@ static gboolean on_loader_status_changed(BtSongIO *loader, gpointer user_data) {
   BtMainStatusbar *statusbar;
   gchar *str;
 
+  g_assert(BT_IS_SONG_IO(loader));
   g_assert(user_data);
 
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
@@ -69,6 +70,8 @@ static gboolean on_loader_status_changed(BtSongIO *loader, gpointer user_data) {
 gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   GstBin *bin=NULL;
+
+  g_assert(BT_IS_EDIT_APPLICATION(self));
   
   if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
   g_object_try_unref(self->priv->song);
@@ -82,6 +85,7 @@ gboolean bt_edit_application_prepare_song(const BtEditApplication *self) {
 }
 
 static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
+  g_assert(self);
   g_assert(self->priv->main_window);
   
   return(bt_main_window_run(self->priv->main_window));
@@ -122,6 +126,8 @@ BtEditApplication *bt_edit_application_new(void) {
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   
+  g_assert(BT_IS_EDIT_APPLICATION(self));
+
   if(bt_edit_application_prepare_song(self)) {
     // emit signal that song has been changed
     g_signal_emit(G_OBJECT(self),signals[SONG_CHANGED],0);
@@ -141,6 +147,8 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
  */
 gboolean bt_edit_application_load_song(const BtEditApplication *self,const char *file_name) {
   gboolean res=FALSE;
+
+  g_assert(BT_IS_EDIT_APPLICATION(self));
 
   GST_INFO("new song name = %s",file_name);
 
@@ -212,6 +220,8 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
 gboolean bt_edit_application_run(const BtEditApplication *self) {
 	gboolean res=FALSE;
 
+  g_assert(BT_IS_EDIT_APPLICATION(self));
+
 	GST_INFO("application.run launched");
 
   if(bt_edit_application_new_song(self)) {
@@ -231,6 +241,8 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
  */
 gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name) {
 	gboolean res=FALSE;
+
+  g_assert(BT_IS_EDIT_APPLICATION(self));
 
 	GST_INFO("application.info launched");
 

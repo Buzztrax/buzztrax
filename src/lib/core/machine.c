@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.37 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: machine.c,v 1.38 2004-10-08 13:50:04 ensonic Exp $
  * base class for a machine
  */
  
@@ -80,7 +80,7 @@ struct _BtMachinePrivate {
  */
 gboolean bt_machine_new(BtMachine *self) {
 
-  g_assert(self);
+  g_assert(BT_IS_MACHINE(self));
   g_assert(self->machine==NULL);
   g_assert(self->priv->id);
   g_assert(self->priv->plugin_name);
@@ -140,10 +140,19 @@ gboolean bt_machine_new(BtMachine *self) {
  * @self: the machine to add the pattern to
  * @pattern: the new pattern instance
  *
- * let the machine know that the suplied pattern has been added for the machine.
+ * Add the supplied pattern to the machine. This is automatically done by 
+ * #bt_pattern_new().
  */
 void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
-	self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(pattern));
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(BT_IS_PATTERN(pattern));
+
+  if(!g_list_find(self->priv->patterns,pattern)) {
+    self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(pattern));
+  }
+  else {
+    GST_WARNING("trying to add pattern again"); 
+  }
 }
 
 /**
@@ -162,7 +171,8 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   gchar *pattern_id;
 	GList* node=g_list_first(self->priv->patterns);
 	
-  g_assert(self);
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(id);
 
 	while(node) {
 		pattern=BT_PATTERN(node->data);
@@ -191,6 +201,9 @@ glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *nam
   GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   glong i;
 
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(name);
+
   if((dparam==NULL)) { GST_ERROR("no dparam named \"%s\" found",name);return(-1); }
   
   for(i=0;i<self->priv->global_params;i++) {
@@ -213,6 +226,9 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
   GstDParam *dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name);
   glong i;
 
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(name);
+  
   if((dparam==NULL)) { GST_ERROR("no dparam named \"%s\" found",name);return(-1); }
   
   // @todo we need to support multiple voices
@@ -232,7 +248,9 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
  * Returns: the requested GType
  */
 GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index) {
+  g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
+  
   return(self->priv->global_types[index]);
 }
 
@@ -246,7 +264,9 @@ GType bt_machine_get_global_dparam_type(const BtMachine *self, glong index) {
  * Returns: the requested GType
  */
 GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
+  g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->voice_params);
+
   return(self->priv->voice_types[index]);
 }
 
@@ -262,6 +282,8 @@ GType bt_machine_get_voice_dparam_type(const BtMachine *self, glong index) {
 void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GValue *event) {
   GstDParam *dparam;
   
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(G_IS_VALUE(event));
   g_assert(index<self->priv->global_params);
   
   dparam=self->priv->global_dparams[index];
@@ -293,6 +315,8 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, glong index, GVal
  */
 gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
   gpointer res=NULL;
+
+  g_assert(BT_IS_MACHINE(self));
 
   if(self->priv->patterns) {
     res=g_list_first(self->priv->patterns);
@@ -353,14 +377,14 @@ static void bt_machine_get_property(GObject      *object,
       g_value_set_string(value, self->priv->plugin_name);
     } break;
     case MACHINE_VOICES: {
-      g_value_set_long(value, self->priv->voices);
+      g_value_set_ulong(value, self->priv->voices);
       // @todo reallocate self->priv->patterns->priv->data
     } break;
     case MACHINE_GLOBAL_PARAMS: {
-      g_value_set_long(value, self->priv->global_params);
+      g_value_set_ulong(value, self->priv->global_params);
     } break;
     case MACHINE_VOICE_PARAMS: {
-      g_value_set_long(value, self->priv->voice_params);
+      g_value_set_ulong(value, self->priv->voice_params);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -395,13 +419,13 @@ static void bt_machine_set_property(GObject      *object,
       GST_DEBUG("set the plugin_name for machine: %s",self->priv->plugin_name);
     } break;
     case MACHINE_VOICES: {
-      self->priv->voices = g_value_get_long(value);
+      self->priv->voices = g_value_get_ulong(value);
     } break;
     case MACHINE_GLOBAL_PARAMS: {
-      self->priv->global_params = g_value_get_long(value);
+      self->priv->global_params = g_value_get_ulong(value);
     } break;
     case MACHINE_VOICE_PARAMS: {
-      self->priv->voice_params = g_value_get_long(value);
+      self->priv->voice_params = g_value_get_ulong(value);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -524,7 +548,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICES,
-																	g_param_spec_long("voices",
+																	g_param_spec_ulong("voices",
                                      "voices prop",
                                      "number of voices in the machine",
                                      0,
@@ -533,7 +557,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_GLOBAL_PARAMS,
-																	g_param_spec_long("global-params",
+																	g_param_spec_ulong("global-params",
                                      "global_params prop",
                                      "number of params for the machine",
                                      0,
@@ -542,7 +566,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
-																	g_param_spec_long("voice-params",
+																	g_param_spec_ulong("voice-params",
                                      "voice_params prop",
                                      "number of params for each machine voice",
                                      0,

@@ -1,4 +1,4 @@
-/* $Id: cmd-application.h,v 1.6 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: cmd-application.h,v 1.7 2004-10-08 13:50:04 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
 
@@ -11,7 +11,7 @@
 #define BT_TYPE_CMD_APPLICATION		         (bt_cmd_application_get_type ())
 #define BT_CMD_APPLICATION(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_CMD_APPLICATION, BtCmdApplication))
 #define BT_CMD_APPLICATION_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_CMD_APPLICATION, BtCmdApplicationClass))
-#define BT_IS_CMD_APPLICATION(obj)	       (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_CMD_APPLICATION))
+#define BT_IS_CMD_APPLICATION(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_CMD_APPLICATION))
 #define BT_IS_CMD_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_CMD_APPLICATION))
 #define BT_CMD_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_CMD_APPLICATION, BtCmdApplicationClass))
 

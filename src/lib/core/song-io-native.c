@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.35 2004-10-06 17:26:30 ensonic Exp $
+/* $Id: song-io-native.c,v 1.36 2004-10-08 13:50:04 ensonic Exp $
  * class for native song input and output
  */
  
@@ -346,13 +346,11 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
   // get the related machine
   if((machine=bt_setup_get_machine_by_id(setup,machine_id))) {
     g_object_get(G_OBJECT(machine),"voices",&voices,NULL);
-    // create pattern and load data
+    // create pattern, add to machine's pattern-list and load data
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
     pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine);
     //bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
     bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children);
-    // add to machine's pattern-list
-    bt_machine_add_pattern(machine,pattern);
     g_object_unref(pattern);
   }
   else {
@@ -578,7 +576,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	xmlDocPtr song_doc=NULL;
 	xmlNsPtr ns=NULL;
   gchar *filename,*status;
-
+  
 	g_object_get((gpointer)self,"file name",&filename,NULL);
 	GST_INFO("native loader will now load song from \"%s\"",filename);
 

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.35 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: sequence.c,v 1.36 2004-10-08 13:50:04 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -146,7 +146,7 @@ static void bt_sequence_init_machines(const BtSequence *self) {
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
   
-  g_assert(song);
+  g_assert(BT_IS_SONG(song));
   
   self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
   if(self) {
@@ -168,6 +168,8 @@ BtSequence *bt_sequence_new(const BtSong *song) {
  * Returns: the #BtTimeLine pointer or NULL in case of an error
  */
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time) {
+  g_assert(BT_IS_SEQUENCE(self));
+
   if(time<self->priv->length) {
     return(self->priv->timelines[time]);
   }
@@ -187,6 +189,8 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  * Returns: the #BtMachine pointer or NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong track) {
+  g_assert(BT_IS_SEQUENCE(self));
+
   if(track<self->priv->tracks) {
     return(self->priv->machines[track]);
   }
@@ -206,7 +210,8 @@ BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong t
  */
 void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,const BtMachine *machine) {
 
-  g_assert(machine);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(BT_IS_MACHINE(machine));
 
   // @todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
   // as it should not be allowed to change the machine later on
@@ -241,6 +246,8 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
   gdouble ticks_per_minute;
   gulong res;
 
+  g_assert(BT_IS_SEQUENCE(self));
+
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
 
@@ -265,6 +272,8 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
 gulong bt_sequence_get_loop_time(const BtSequence *self) {
   gulong res;
 
+  g_assert(BT_IS_SEQUENCE(self));
+
   res=(gulong)(self->priv->length*bt_sequence_get_bar_time(self));
   return(res);
 }
@@ -281,6 +290,8 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
 gboolean bt_sequence_play(const BtSequence *self) {
   gboolean res=TRUE;
   
+  g_assert(BT_IS_SEQUENCE(self));
+
   if((!self->priv->tracks) || (!self->priv->length)) return(res);
   else {
     BtTimeLine **timeline=self->priv->timelines;
@@ -361,6 +372,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
  *
  */
 gboolean bt_sequence_stop(const BtSequence *self) {
+  g_assert(BT_IS_SEQUENCE(self));
+
   g_mutex_lock(self->priv->is_playing_mutex);
   self->priv->is_playing=FALSE;
   g_mutex_unlock(self->priv->is_playing_mutex);
@@ -387,10 +400,10 @@ static void bt_sequence_get_property(GObject      *object,
       g_value_set_object(value, self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
-      g_value_set_long(value, self->priv->length);
+      g_value_set_ulong(value, self->priv->length);
     } break;
     case SEQUENCE_TRACKS: {
-      g_value_set_long(value, self->priv->tracks);
+      g_value_set_ulong(value, self->priv->tracks);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -416,12 +429,12 @@ static void bt_sequence_set_property(GObject      *object,
     case SEQUENCE_LENGTH: {
       bt_sequence_unref_timelines(self);
       bt_sequence_free_timelines(self);
-      self->priv->length = g_value_get_long(value);
+      self->priv->length = g_value_get_ulong(value);
       GST_DEBUG("set the length for sequence: %d",self->priv->length);
       bt_sequence_init_timelines(self);
     } break;
     case SEQUENCE_TRACKS: {
-      self->priv->tracks = g_value_get_long(value);
+      self->priv->tracks = g_value_get_ulong(value);
       GST_DEBUG("set the tracks for sequence: %d",self->priv->tracks);
       bt_sequence_init_machines(self);
       bt_sequence_init_timelinetracks(self);
@@ -502,7 +515,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SEQUENCE_LENGTH,
-																	g_param_spec_long("length",
+																	g_param_spec_ulong("length",
                                      "length prop",
                                      "length of the sequence in timeline bars",
                                      1,
@@ -511,7 +524,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SEQUENCE_TRACKS,
-																	g_param_spec_long("tracks",
+																	g_param_spec_ulong("tracks",
                                      "tracks prop",
                                      "number of tracks in the sequence",
                                      0,

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.32 2004-10-05 15:46:09 ensonic Exp $
+/* $Id: wire.c,v 1.33 2004-10-08 13:50:04 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -59,6 +59,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   BtMachine *src, *dst;
   BtSong *song=self->priv->song;
 
+  g_assert(BT_IS_WIRE(self));
+  
   src=self->priv->src;
   dst=self->priv->dst;
 
@@ -124,6 +126,8 @@ static gboolean bt_wire_unlink_machines(const BtWire *self) {
   BtSong *song=self->priv->song;
   GstBin *bin;
 
+  g_assert(BT_IS_WIRE(self));
+
 	GST_DEBUG("trying to unlink machines");
 	gst_element_unlink(self->priv->src->src_elem, self->priv->dst->dst_elem);
 	if(self->priv->convert) {
@@ -170,6 +174,8 @@ static gboolean bt_wire_connect(BtWire *self) {
   BtSetup *setup=NULL;
   BtWire *other_wire;
   BtMachine *src, *dst;
+
+  g_assert(BT_IS_WIRE(self));
 
   if((!self->priv->src) || (!self->priv->dst)) goto Error;
   g_object_get(G_OBJECT(song),"bin",&self->priv->bin,"setup",&setup,NULL);
@@ -258,8 +264,8 @@ Error:
 /**
  * bt_wire_new:
  * @song: the song the new instance belongs to
- * @src_machine: the data source
- * @dst_machine: the data sink
+ * @src_machine: the data source (#BtSourceMachine or #BtProcessorMachine)
+ * @dst_machine: the data sink (#BtSinkMachine or #BtProcessorMachine)
  *
  * Create a new instance.
  * A wire should be added to a songs setup using
@@ -273,9 +279,12 @@ Error:
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
   BtWire *self;
   
-  g_assert(song);
-  g_assert(src_machine);
-  g_assert(dst_machine);
+  g_assert(BT_IS_SONG(song));
+  g_assert(BT_IS_MACHINE(src_machine));
+  g_assert(!BT_IS_SINK_MACHINE(src_machine));
+  g_assert(BT_IS_MACHINE(dst_machine));
+  g_assert(!BT_IS_SOURCE_MACHINE(dst_machine));
+  g_assert(src_machine!=dst_machine);
 
   self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
   if(self) {

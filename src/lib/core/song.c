@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.49 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: song.c,v 1.50 2004-10-08 13:50:04 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -50,14 +50,17 @@ static guint signals[LAST_SIGNAL]={0,};
  * @bin: the gst root element to hold the song. 
  *
  * Create a new instance. The bin object can be retrieved from the bin property
- * of an #BtApplication instance
+ * of an #BtApplication instance.
+ * The new song instance automatically has one instance of #BtSetup, #BtSequence
+ * and #BtSongInfo. These instances can be retrieved via the respecting
+ * properties.
  *
  * Returns: the new instance or NULL in case of an error
  */
 BtSong *bt_song_new(const GstBin *bin) {
   BtSong *self=NULL;
 	
-  g_assert(bin);
+  g_assert(GST_IS_BIN(bin));
   
   self=BT_SONG(g_object_new(BT_TYPE_SONG,"bin",bin,NULL));
   return(self);
@@ -78,7 +81,7 @@ BtSong *bt_song_new(const GstBin *bin) {
 gboolean bt_song_play(const BtSong *self) {
   gboolean res;
 
-  g_assert(self);
+  g_assert(BT_IS_SONG(self));
 
   // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
@@ -100,7 +103,7 @@ gboolean bt_song_play(const BtSong *self) {
 gboolean bt_song_stop(const BtSong *self) {
   gboolean res;
 
-  g_assert(self);
+  g_assert(BT_IS_SONG(self));
   
   res=bt_sequence_stop(self->priv->sequence);
   return(res);
@@ -116,7 +119,7 @@ gboolean bt_song_stop(const BtSong *self) {
  *
  */
 gboolean bt_song_pause(const BtSong *self) {
-  g_assert(self);
+  g_assert(BT_IS_SONG(self));
   // @todo remember play position
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
 }
@@ -131,7 +134,7 @@ gboolean bt_song_pause(const BtSong *self) {
  *
  */
 gboolean bt_song_continue(const BtSong *self) {
-  g_assert(self);
+  g_assert(BT_IS_SONG(self));
   // @todo reuse play position
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
 }

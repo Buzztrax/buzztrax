@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.31 2004-10-06 17:26:30 ensonic Exp $
+/* $Id: setup.c,v 1.32 2004-10-08 13:50:04 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -36,7 +36,7 @@ struct _BtSetupPrivate {
 BtSetup *bt_setup_new(const BtSong *song) {
   BtSetup *self;
 
-  g_assert(song);
+  g_assert(BT_IS_SONG(song));
 
   self=BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL));
   return(self);
@@ -52,10 +52,15 @@ BtSetup *bt_setup_new(const BtSong *song) {
  * let the setup know that the suplied machine is now part of the song.
  */
 void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
-  g_assert(self);
-  if(!machine) return;
+  g_assert(BT_IS_SETUP(self));
+  g_assert(BT_IS_MACHINE(machine));
 
-	self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
+  if(!g_list_find(self->priv->machines,machine)) {
+    self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
+  }
+  else {
+    GST_WARNING("trying to add machine again"); 
+  }
 }
 
 /**
@@ -66,10 +71,15 @@ void bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
  * let the setup know that the suplied wire is now part of the song.
  */
 void bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
-  g_assert(self);
-  if(!wire) return;
+  g_assert(BT_IS_SETUP(self));
+  g_assert(BT_IS_WIRE(wire));
 
-	self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+  if(!g_list_find(self->priv->wires,wire)) {
+    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+  }
+  else {
+    GST_WARNING("trying to add wire again"); 
+  }
 }
 
 /**
@@ -88,7 +98,8 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   gchar *machine_id;
 	GList* node=g_list_first(self->priv->machines);
 
-  g_assert(self);
+  g_assert(BT_IS_SETUP(self));
+  g_assert(id);
 	
 	while(node) {
 		machine=BT_MACHINE(node->data);
@@ -126,7 +137,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
  * Returns: #BtMachine instance or NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, glong index) {
-  g_assert(self);
+  g_assert(BT_IS_SETUP(self));
   
 	return(g_list_nth_data(self->priv->machines,index));
 }
@@ -148,7 +159,8 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
   BtMachine *machine;
 	GList *node;
 
-  g_assert(self);
+  g_assert(BT_IS_SETUP(self));
+  g_assert(BT_IS_MACHINE(src));
 	
   node=g_list_first(self->priv->wires);
 	while(node) {
@@ -180,7 +192,8 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
   BtMachine *machine;
 	GList *node;
 
-  g_assert(self);
+  g_assert(BT_IS_SETUP(self));
+  g_assert(BT_IS_MACHINE(dst));
 	
   node=g_list_first(self->priv->wires);
 	while(node) {
@@ -211,7 +224,7 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
 gpointer bt_setup_machine_iterator_new(const BtSetup *self) {
   gpointer res=NULL;
 
-  g_assert(self);
+  g_assert(BT_IS_SETUP(self));
 
   if(self->priv->machines) {
     res=g_list_first(self->priv->machines);

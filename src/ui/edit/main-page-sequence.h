@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.h,v 1.3 2004-09-29 16:56:47 ensonic Exp $
+/* $Id: main-page-sequence.h,v 1.4 2004-10-08 13:50:04 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -11,7 +11,7 @@
 #define BT_TYPE_MAIN_PAGE_SEQUENCE		        (bt_main_page_sequence_get_type ())
 #define BT_MAIN_PAGE_SEQUENCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequence))
 #define BT_MAIN_PAGE_SEQUENCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))
-#define BT_IS_MAIN_PAGE_SEQUENCE(obj)	        (G_TYPE_CHECK_TYPE ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE))
+#define BT_IS_MAIN_PAGE_SEQUENCE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE))
 #define BT_IS_MAIN_PAGE_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE))
 #define BT_MAIN_PAGE_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))
 

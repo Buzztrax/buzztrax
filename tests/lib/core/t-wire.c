@@ -1,4 +1,4 @@
-/** $Id: t-wire.c,v 1.1 2004-10-04 17:04:48 waffel Exp $
+/** $Id: t-wire.c,v 1.2 2004-10-08 13:50:04 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -22,28 +22,9 @@ static void test_teardown(void) {
 //-- tests
 
 /**
-* try to create a wire with NULL machines 
-*/
-START_TEST(test_btwire_obj1) {
-	GstElement *bin=NULL;
-	BtSong *song=NULL;
-	BtWire *wire=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	bin=gst_thread_new("thread");
-  /* create a new song */
-  song=bt_song_new(GST_BIN(bin));
-	
-	wire = bt_wire_new(song, NULL, NULL);
-	fail_unless(wire==NULL, NULL);
-}
-END_TEST
-
-/**
 * try to create a wire with the same machine as source and dest 
 */
-START_TEST(test_btwire_obj2){
+START_TEST(test_btwire_obj1){
 	GstElement *bin=NULL;
 	BtSong *song=NULL;
 	BtWire *wire=NULL;
@@ -57,7 +38,7 @@ START_TEST(test_btwire_obj2){
   song=bt_song_new(GST_BIN(bin));
 	
 	/* try to create a source machine */
-	machine=bt_source_machine_new(song, "genrator1", "sinesource", 0);
+	machine=bt_source_machine_new(song,"genrator1","sinesource",1);
 	
 	/* try to add the machine twice to the wire */
 	wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine));
@@ -69,8 +50,7 @@ END_TEST
 TCase *bt_wire_obj_tcase(void) {
   TCase *tc = tcase_create("bt_wire case");
 
-  tcase_add_test(tc,test_btwire_obj1);
-	tcase_add_test(tc,test_btwire_obj2);
+  //tcase_add_test(tc,test_btwire_obj1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.23 2004-10-01 16:01:46 ensonic Exp $
+/* $Id: song-info.c,v 1.24 2004-10-08 13:50:04 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -51,7 +51,7 @@ struct _BtSongInfoPrivate {
 BtSongInfo *bt_song_info_new(const BtSong *song) {
   BtSongInfo *self;
 
-  g_assert(song);
+  g_assert(BT_IS_SONG(song));
   
   self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
   return(self);
@@ -85,13 +85,13 @@ static void bt_song_info_get_property(GObject      *object,
       g_value_set_string(value, self->priv->genre);
     } break;
     case SONG_INFO_BPM: {
-      g_value_set_long(value, self->priv->beats_per_minute);
+      g_value_set_ulong(value, self->priv->beats_per_minute);
     } break;
     case SONG_INFO_TPB: {
-      g_value_set_long(value, self->priv->ticks_per_beat);
+      g_value_set_ulong(value, self->priv->ticks_per_beat);
     } break;
     case SONG_INFO_BARS: {
-      g_value_set_long(value, self->priv->bars);
+      g_value_set_ulong(value, self->priv->bars);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -130,15 +130,15 @@ static void bt_song_info_set_property(GObject      *object,
       GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
     } break;
     case SONG_INFO_BPM: {
-      self->priv->beats_per_minute = g_value_get_long(value);
+      self->priv->beats_per_minute = g_value_get_ulong(value);
       GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);
     } break;
     case SONG_INFO_TPB: {
-      self->priv->ticks_per_beat = g_value_get_long(value);
+      self->priv->ticks_per_beat = g_value_get_ulong(value);
       GST_DEBUG("set the tpb for song_info: %d",self->priv->ticks_per_beat);
     } break;
     case SONG_INFO_BARS: {
-      self->priv->bars = g_value_get_long(value);
+      self->priv->bars = g_value_get_ulong(value);
       GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
     } break;
     default: {
@@ -219,7 +219,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SONG_INFO_BPM,
-																	g_param_spec_long("bpm",
+																	g_param_spec_ulong("bpm",
                                      "bpm prop",
                                      "how many beats should be played in a minute",
                                      1,
@@ -228,7 +228,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SONG_INFO_TPB,
-																	g_param_spec_long("tpb",
+																	g_param_spec_ulong("tpb",
                                      "tpb prop",
                                      "how many event fire in one fraction of a beat",
                                      1,
@@ -237,7 +237,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SONG_INFO_BARS,
-																	g_param_spec_long("bars",
+																	g_param_spec_ulong("bars",
                                      "bars prop",
                                      "how many bars per beat",
                                      1,

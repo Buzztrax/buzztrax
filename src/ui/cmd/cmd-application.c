@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.35 2004-09-29 16:56:46 ensonic Exp $
+/* $Id: cmd-application.c,v 1.36 2004-10-08 13:50:04 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -75,6 +75,8 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 	BtSongIO *loader=NULL;
   GstBin *bin=NULL;
 
+  g_assert(BT_IS_CMD_APPLICATION(self));
+  
 	GST_INFO("application.play launched");
   
   if(!is_string(input_file_name)) {
@@ -126,6 +128,8 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 	BtSongIO *loader=NULL;
   GstBin *bin=NULL;
 	FILE *output_file=NULL;
+
+  g_assert(BT_IS_CMD_APPLICATION(self));
 
 	GST_INFO("application.info launched");
 
