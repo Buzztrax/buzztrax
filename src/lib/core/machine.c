@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.66 2005-01-10 17:25:38 ensonic Exp $
+/* $Id: machine.c,v 1.67 2005-01-11 09:26:38 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -546,59 +546,6 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GVa
     default:
       GST_ERROR("unsupported GType=%d",G_VALUE_TYPE(event));
   }
-}
-
-/**
- * bt_machine_pattern_iterator_new:
- * @self: the machine to generate the pattern iterator from
- *
- * Builds an iterator handle, one can use to traverse the #BtPattern list of the
- * machine.
- * The new iterator already points to the first element in the list.
- * Advance the iterator with bt_machine_pattern_iterator_next() and
- * read from the iterator with bt_machine_pattern_iterator_get_pattern().
- *
- * Returns: the iterator or NULL
- * Deprecated: Use the patterns property
- */
-gpointer bt_machine_pattern_iterator_new(const BtMachine *self) {
-  gpointer res=NULL;
-
-  g_assert(BT_IS_MACHINE(self));
-
-  if(self->priv->patterns) {
-    res=self->priv->patterns;
-  }
-  return(res);
-}
-
-/**
- * bt_machine_pattern_iterator_next:
- * @iter: the iterator handle as returned by bt_machine_pattern_iterator_new()
- *
- * Advances the iterator for one element. Read data with bt_machine_pattern_iterator_get_pattern().
- * 
- * Returns: the new iterator or NULL for end-of-list
- * Deprecated: Use the patterns property
- */
-gpointer bt_machine_pattern_iterator_next(gpointer iter) {
-  g_assert(iter);
-	return(g_list_next((GList *)iter));
-}
-
-/**
- * bt_machine_pattern_iterator_get_pattern:
- * @iter: the iterator handle as returned by bt_machine_pattern_iterator_new()
- *
- * Retrieves the #BtPattern from the current list position determined by the iterator.
- * Advance the iterator with bt_machine_pattern_iterator_next().
- *
- * Returns: the #BtPattern instance
- * Deprecated: Use the patterns property
- */
-BtPattern *bt_machine_pattern_iterator_get_pattern(gpointer iter) {
-  g_assert(iter);
-	return(BT_PATTERN(((GList *)iter)->data));
 }
 
 //-- wrapper

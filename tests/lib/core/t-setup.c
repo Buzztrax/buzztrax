@@ -1,4 +1,4 @@
-/** $Id: t-setup.c,v 1.8 2004-12-18 16:12:39 waffel Exp $
+/** $Id: t-setup.c,v 1.9 2005-01-11 09:26:39 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -361,169 +361,9 @@ START_TEST(test_btsetup_obj12) {
 END_TEST
 
 /**
-* try to call bt_setup_machine_iterator_new with NULL for self parameter 
-*/
-START_TEST(test_btsetup_obj13) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-  
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-	fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-	fail_unless(setup!=NULL,NULL);
-	
-	check_init_error_trapp("bt_setup_machine_iterator_new","BT_IS_SETUP(self)");
-	bt_setup_machine_iterator_new(NULL);
-	fail_unless(check_has_error_trapped(), NULL);
-}
-END_TEST
-
-/**
-* try to call bt_setup_machine_iterator_next with NULL for iterator parameter 
-*/
-START_TEST(test_btsetup_obj14) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-  
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-	fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-	fail_unless(setup!=NULL,NULL);
-	
-	check_init_error_trapp("bt_setup_machine_iterator_next",NULL);
-	bt_setup_machine_iterator_next(NULL);
-	fail_unless(check_has_error_trapped(), NULL);
-}
-END_TEST
-
-/**
-* try to call bt_setup_machine_iterator_get_machine with NULL for iterator parameter 
-*/
-START_TEST(test_btsetup_obj15) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-  
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-	fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-	fail_unless(setup!=NULL,NULL);
-	
-	check_init_error_trapp("bt_setup_machine_iterator_get_machine",NULL);
-	bt_setup_machine_iterator_get_machine(NULL);
-	fail_unless(check_has_error_trapped(), NULL);
-}
-END_TEST
-
-/**
-* try to call bt_setup_wire_iterator_new with NULL for self parameter 
-*/
-START_TEST(test_btsetup_obj16) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-  
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-	fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-	fail_unless(setup!=NULL,NULL);
-	
-	check_init_error_trapp("bt_setup_wire_iterator_new","BT_IS_SETUP(self)");
-	bt_setup_wire_iterator_new(NULL);
-	fail_unless(check_has_error_trapped(), NULL);
-}
-END_TEST
-
-/**
-* try to call bt_setup_wire_iterator_next with NULL for iterator parameter 
-*/
-START_TEST(test_btsetup_obj17) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-  
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-	fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-	fail_unless(setup!=NULL,NULL);
-	
-	check_init_error_trapp("bt_setup_wire_iterator_next",NULL);
-	bt_setup_wire_iterator_next(NULL);
-	fail_unless(check_has_error_trapped(), NULL);
-}
-END_TEST
-
-/**
-* try to call bt_setup_wire_iterator_get_wire with NULL for iterator parameter 
-*/
-START_TEST(test_btsetup_obj18) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-  
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-	fail_unless(app!=NULL,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
-  
-	check_init_error_trapp("bt_setup_wire_iterator_get_wire",NULL);
-	bt_setup_wire_iterator_get_wire(NULL);
-	fail_unless(check_has_error_trapped(), NULL);
-}
-END_TEST
-
-/**
 * try to remove a machine from setup with NULL pointer for setup
 */
-START_TEST(test_btsetup_obj19) {
+START_TEST(test_btsetup_obj13) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -548,7 +388,7 @@ END_TEST
 /**
 * try to remove a wire from setup with NULL pointer for setup
 */
-START_TEST(test_btsetup_obj20) {
+START_TEST(test_btsetup_obj14) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -574,7 +414,7 @@ END_TEST
 /**
 * try to remove a machine from setup with NULL pointer for machine
 */
-START_TEST(test_btsetup_obj21) {
+START_TEST(test_btsetup_obj15) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -601,7 +441,7 @@ END_TEST
 /**
 * try to remove a wire from setup with NULL pointer for wire
 */
-START_TEST(test_btsetup_obj22) {
+START_TEST(test_btsetup_obj16) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -628,7 +468,7 @@ END_TEST
 /**
 * try to remove a machine from setup with a machine witch is never added
 */
-START_TEST(test_btsetup_obj23) {
+START_TEST(test_btsetup_obj17) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -661,7 +501,7 @@ END_TEST
 /**
 * try to remove a wire from setup with a wire witch is never added
 */
-START_TEST(test_btsetup_obj24) {
+START_TEST(test_btsetup_obj18) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSetup *setup=NULL;
@@ -724,12 +564,6 @@ TCase *bt_setup_obj_tcase(void) {
 	tcase_add_test(tc,test_btsetup_obj16);
 	tcase_add_test(tc,test_btsetup_obj17);
 	tcase_add_test(tc,test_btsetup_obj18);
-	tcase_add_test(tc,test_btsetup_obj19);
-	tcase_add_test(tc,test_btsetup_obj20);
-	tcase_add_test(tc,test_btsetup_obj21);
-	tcase_add_test(tc,test_btsetup_obj22);
-	tcase_add_test(tc,test_btsetup_obj23);
-	tcase_add_test(tc,test_btsetup_obj24);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.8 2005-01-10 17:25:50 ensonic Exp $
+/** $Id: e-setup.c,v 1.9 2005-01-11 09:26:39 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -35,7 +35,6 @@ START_TEST(test_btsetup_obj1){
 	// machine
 	BtSourceMachine *gen1=NULL;
 	BtMachine *ref_machine=NULL;
-	
 	GList *list,*node;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
