@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.34 2005-01-14 15:14:47 ensonic Exp $
+# $Id: configure.ac,v 1.35 2005-01-28 09:31:39 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -175,6 +175,14 @@ PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
  ]
 )
 
+AC_MSG_CHECKING([glib version >= 2.6])
+if pkg-config --atleast-version=2.6 glib-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GLIB_2_6, [1], [Define to 1 if we can use API new in glib-2.6])
+else
+  AC_MSG_RESULT(no)
+fi
+
 # Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 
@@ -248,6 +256,8 @@ test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
 AC_C_CONST
 
 # Checks for library functions.
+# glib-2 functions
+# AC_CHECK_LIB( libglib-2.0, g_log_set_default_handler)
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'

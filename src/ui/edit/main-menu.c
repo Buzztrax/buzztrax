@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.29 2005-01-16 14:20:41 waffel Exp $
+/* $Id: main-menu.c,v 1.30 2005-01-28 09:31:47 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -34,7 +34,7 @@ static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu quit event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   quit=bt_main_window_check_quit(main_window);
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
   if(quit) gtk_main_quit();
 }
 

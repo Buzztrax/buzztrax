@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.47 2005-01-26 17:29:51 ensonic Exp $
+/* $Id: edit-application.c,v 1.48 2005-01-28 09:31:47 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -67,6 +67,8 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 	GST_INFO("application.run_ui launched");
 	
 	res=bt_main_window_run(self->priv->main_window);	
+
+	GST_INFO("application.run_ui finished");
   return(res);
 }
 
@@ -363,6 +365,11 @@ static void bt_edit_application_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+	/* I don't get it! This should destory the window as this is a child of the app.
+	 * On the other hand, this *NEVER* gats called as long as the window keeps its
+	 * strong reference to the app
+	 */
+	
   GST_DEBUG("!!!! self=%p",self);
 
   if(self->priv->song) {
@@ -370,6 +377,10 @@ static void bt_edit_application_dispose(GObject *object) {
     bt_song_stop(self->priv->song);
   }
   g_object_try_unref(self->priv->song);
+
+	if(self->priv->main_window) {
+		GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
+	}
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
