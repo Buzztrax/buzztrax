@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.23 2004-07-15 16:56:07 ensonic Exp $
+/* $Id: core.h,v 1.24 2004-07-26 17:03:46 waffel Exp $
  */
 
 #ifndef BT_CORE_H
@@ -18,6 +18,8 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+//-- popt
+#include <popt.h>
 
 //-- libbtcore
 // method prototype includes do include the data defs themself)
@@ -86,7 +88,7 @@
 #define return_if_disposed(a) if(self->private->dispose_has_run) return a
 
 #ifndef BT_CORE_C
-	extern void bt_init(int *argc, char ***argv);
+	extern void bt_init(int *argc, char ***argv, struct poptOption *options);
 #endif
 
 #endif // BT_CORE_H

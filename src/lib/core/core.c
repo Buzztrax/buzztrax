@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.7 2004-05-13 09:35:29 ensonic Exp $
+/* $Id: core.c,v 1.8 2004-07-26 17:03:46 waffel Exp $
  */
 
 #define BT_CORE
@@ -30,17 +30,18 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
  * bt_init:
  * @argc: pointer to commandline argument count
  * @argv: pointer to commandline arguments
+ * @poptOptions: custom commandline options from the application 
  *
  * initialize the libbtcore usage.
  * This function prepares gstreamer and libxml. 
  */
-void bt_init(int *argc, char ***argv) {
+void bt_init(int *argc, char ***argv, struct poptOption *poptOptions) {
 
 	//-- init gobject
 	g_type_init();
 
-	//-- init gstreamer
-	gst_init(argc,argv);
+	//-- init gstreamer with popt options
+	gst_init_with_popt_table(argc,argv,(GstPoptOption*)poptOptions);
   gst_control_init(argc,argv);
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
