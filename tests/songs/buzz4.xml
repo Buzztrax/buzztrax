@@ -48,13 +48,13 @@
         <globaldata name="Trigger" value="0"/>
       </tick>
       <tick time="4">
-        <globaldata name="Trigger" value="1"/>
+        <globaldata name="Trigger" value="10"/>
       </tick>
       <tick time="5">
         <globaldata name="Trigger" value="0"/>
       </tick>
       <tick time="8">
-        <globaldata name="Trigger" value="1"/>
+        <globaldata name="Trigger" value="80"/>
       </tick>
       <tick time="9">
         <globaldata name="Trigger" value="0"/>
