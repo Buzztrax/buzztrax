@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.65 2005-01-10 12:22:07 ensonic Exp $
+/* $Id: machine.c,v 1.66 2005-01-10 17:25:38 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -743,11 +743,11 @@ static void bt_machine_dispose(GObject *object) {
     g_object_unref(self->priv->bin);
   }
 
-	GST_DEBUG("  releasing song: %p",self->priv->song);
+	//GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
-	GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
+	//GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
 	// seems that gst_dpman_get_dparam() does not ref it, therefore we shouldn't unref it
-  g_object_try_unref(self->priv->dparam_manager);
+  //g_object_try_unref(self->priv->dparam_manager);
 	
 	GST_DEBUG("  releasing patterns");
 

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.27 2005-01-06 22:12:03 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.28 2005-01-10 17:25:50 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -52,8 +52,9 @@ struct _BtMachineCanvasItemPrivate {
 	GtkWidget *properties_dialog;
 	GtkWidget *preferences_dialog;
 
-	/* the label element */
+	/* the graphical components */
 	GnomeCanvasItem *label;
+	GnomeCanvasItem *box;
 
   /* the zoomration in pixels/per unit */
   double zoom;
@@ -451,7 +452,6 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
  */
 static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
-  GnomeCanvasItem *item;
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   guint bg_color=0xFFFFFFFF;
   gchar *id;
@@ -474,7 +474,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   g_object_get(self->priv->machine,"id",&id,NULL);
 
   // add machine visualisation components
-  item=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+  self->priv->box=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_RECT,
                            "x1", -w,
                            "y1", -h,
@@ -507,6 +507,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   gdouble dx, dy, px, py;
   GdkCursor *fleur;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+	guint bg_color;
 
   //GST_DEBUG("event for machine occured");
   
@@ -542,6 +543,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       if(self->priv->dragging) {
 				if(!self->priv->moved) {
         	gnome_canvas_item_raise_to_top(citem);
+					g_object_get(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",&bg_color,NULL);
+					bg_color&=0xFFFFFF7F;
+					gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",bg_color,NULL);
         	fleur=gdk_cursor_new(GDK_FLEUR);
         	gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
           	                    /* GDK_ENTER_NOTIFY_MASK | */
@@ -572,6 +576,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         self->priv->dragging=FALSE;
 				if(self->priv->moved) {
         	gnome_canvas_item_ungrab(citem,event->button.time);
+					g_object_get(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",&bg_color,NULL);
+					bg_color|=0x000000FF;
+					gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",bg_color,NULL);
 				}
         res=TRUE;
       }

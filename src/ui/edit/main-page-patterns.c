@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.31 2005-01-10 12:22:08 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.32 2005-01-10 17:25:50 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -194,6 +194,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
 	GST_INFO("refresh pattern table");
 	g_assert(BT_IS_PATTERN(pattern));
+#ifdef USE_GTKGRID
+	g_assert(GTK_IS_GRID(self->priv->pattern_table));
+#endif
 	
 	g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"machine",&machine,NULL);
   GST_INFO("  size is %2d,?",number_of_ticks);
@@ -204,7 +207,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 	// build model
 	GST_DEBUG("  build model");
 	store_types=(GType *)g_new(GType *,1);
-	store_types[0]=G_TYPE_STRING;
+	store_types[0]=G_TYPE_LONG;
 	store=gtk_list_store_newv(1,store_types);
   g_free(store_types);
 	// add events
@@ -218,6 +221,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 		pos++;
 	}
 #ifdef USE_GTKGRID
+	GST_DEBUG("    activating store: %p",store);
 	gtk_grid_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
 #endif
 
@@ -227,12 +231,15 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 #ifdef USE_GTKGRID
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+	GST_DEBUG("    created cell renderer");
   grid_col=gtk_grid_column_new_with_attributes(_("Pos."),renderer,
     "text",PATTERN_TABLE_POS,
     NULL);
+	GST_DEBUG("    created column");
 	gtk_grid_append_column(self->priv->pattern_table,grid_col);
 #endif
 
+	GST_DEBUG("  done");
 	// release the references
 	g_object_unref(store); // drop with gridview
 }

@@ -1,4 +1,4 @@
-/** $Id: e-setup.c,v 1.7 2004-12-29 12:08:04 ensonic Exp $
+/** $Id: e-setup.c,v 1.8 2005-01-10 17:25:50 ensonic Exp $
 **/
 
 #include "t-core.h"
@@ -36,7 +36,7 @@ START_TEST(test_btsetup_obj1){
 	BtSourceMachine *gen1=NULL;
 	BtMachine *ref_machine=NULL;
 	
-	gpointer *iter_ptr;
+	GList *list,*node;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
 
@@ -55,18 +55,21 @@ START_TEST(test_btsetup_obj1){
 	/* try to add the machine to the setup (and therewith to the song) */
 	bt_setup_add_machine(setup,BT_MACHINE(gen1));
 	
-	iter_ptr=bt_setup_machine_iterator_new(setup);
-	/* the iterator should not be null */
-	fail_unless(iter_ptr!=NULL, NULL);
+	g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+	/* the list should not be null */
+	fail_unless(list!=NULL, NULL);
+	node=list;
 	
-	/* the pointer should be point to the gen1 machine */
-	ref_machine=bt_setup_machine_iterator_get_machine(iter_ptr);
+	/* the pointer should be pointing to the gen1 machine */
+	ref_machine=node->data;
 	fail_unless(ref_machine!=NULL, NULL);
 	fail_unless(ref_machine==BT_MACHINE(gen1), NULL);
 	fail_unless(BT_IS_SOURCE_MACHINE(ref_machine)==TRUE, NULL);
 	
-	/* the next element of the pointer should be null */
-	fail_unless(bt_setup_machine_iterator_next(iter_ptr)==NULL, NULL);
+	/* the list should contain only one element */
+	fail_unless(g_list_length(list)==1, NULL);
+	
+	g_list_free(list);
 }
 END_TEST
 
