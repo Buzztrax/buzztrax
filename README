@@ -1,4 +1,4 @@
-$Id: README,v 1.2 2004-04-19 16:00:33 ensonic Exp $
+$Id: README,v 1.3 2004-05-09 12:59:16 ensonic Exp $
 
 quickinfo
   Please turn you browser to http://buzztard.sourceforge.net to learn what this
@@ -17,11 +17,11 @@ supported packages
 directories
   design : little test sources, not needed for releases
   docs : design ideas
-	src : the project sources
+  src : the project sources
 		ui
 			cmd : buzztard tool for the commandline
 			gtk : buzztard user interface based on gtk
 		lib
 			core : logic, e.g. connections framework, file i/o, ...
-	tests : unit tests (same directory structure as src)
+  tests : unit tests (same directory structure as src)
 		
