@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.42 2005-02-02 16:35:58 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.43 2005-02-08 19:58:30 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -23,7 +23,10 @@ struct _BtMainToolbarPrivate {
   
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
+	
+	/* the volume gain */
 	GtkScale *volume;
+	GstElement *gain;
 
 	/* action buttons */
 	GtkToggleButton *play_button;
@@ -193,8 +196,10 @@ static void on_song_volume_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   
   g_assert(user_data);
+	g_assert(self->priv->gain);
 	// get value from HScale and change volume
 	GST_INFO("volume has changed : %f",gtk_range_get_value(GTK_RANGE(self->priv->volume)));
+	g_object_set(self->priv->gain,"volume",gtk_range_get_value(GTK_RANGE(self->priv->volume)),NULL);
 }
 
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
@@ -238,9 +243,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 	if(master) {
 		GstPad *pad;
 		gint channels_i=0,channels_o=0;
+		gdouble volume;
 
 		// get the input_level property from audio_sink
-		g_object_get(G_OBJECT(master),"input-level",&level,NULL);
+		g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
 		// connect to the level signal
 		g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
 		// get the pad from the input-level and listen there for channel negotiation
@@ -250,7 +256,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		// release the references
 		g_object_try_unref(level);
 		
-		// @todo get the input_gain property from audio_sink and remember
+		// get the current input_gain and adjust volume widget
+		g_object_get(self->priv->gain,"volume",&volume,NULL);
+		gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
 		// connect volumne event
 		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
