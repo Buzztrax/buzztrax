@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.51 2004-12-18 17:53:18 ensonic Exp $
+/* $Id: song-io-native.c,v 1.52 2004-12-18 18:44:27 ensonic Exp $
  * class for native song input and output
  */
  
@@ -582,6 +582,20 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
 	return(TRUE);
 }
 
+static gboolean bt_song_io_native_load_wavetable(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
+	BtWavetable *wavetable;
+	
+	GST_INFO("loading the wavetable-data from the song");
+
+  g_object_get((gpointer)song,"wavetable",&wavetable,NULL);
+	
+	// @todo load wavetable data
+	
+  // release the reference
+  g_object_try_unref(wavetable);
+	return(TRUE);
+}
+
 //-- loader method
 
 gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
@@ -642,7 +656,8 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 				if(bt_song_io_native_load_song_info(self,song,song_doc) &&
 					bt_song_io_native_load_setup(    self,song,song_doc) &&
 					bt_song_io_native_load_patterns( self,song,song_doc) &&
-					bt_song_io_native_load_sequence( self,song,song_doc)
+					bt_song_io_native_load_sequence( self,song,song_doc) &&
+				  bt_song_io_native_load_wavetable(self,song,song_doc)
 				) {
 					//DEBUG
 					bt_song_write_to_xml_file(song);
@@ -665,22 +680,33 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 
 //-- saver helper methods
 
-static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	BtSongInfo *song_info;
 	xmlNodePtr xml_node,xml_child_node;
-
-	xml_node=xmlNewChild(root_node,NULL,"sequence",NULL);
-	xml_child_node=xmlNewChild(xml_node,NULL,"labels",NULL);
-	xml_child_node=xmlNewChild(xml_node,NULL,"tracks",NULL);
-
-	return(TRUE);
-}
-
-static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
-	xmlNodePtr xml_node,xml_child_node;
-
-	xml_node=xmlNewChild(root_node,NULL,"patterns",NULL);
-	// pattern
-
+	gchar *name,*genre,*author,*info;
+	
+	GST_INFO("saving the meta-data to the song");
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+	
+	xml_node=xmlNewChild(root_node,NULL,"meta",NULL);
+	g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"author",&author,"info",&info,NULL);
+  if(info) {
+		xmlNewChild(xml_node,NULL,"info",info);
+		g_free(info);
+	}
+  if(name) {
+		xmlNewChild(xml_node,NULL,"name",name);
+		g_free(name);
+	}
+  if(genre) {
+		xmlNewChild(xml_node,NULL,"genre",genre);
+  	g_free(genre);
+	}
+  if(author) {
+		xmlNewChild(xml_node,NULL,"author",author);
+  	g_free(author);
+	}
+	g_object_try_unref(song_info);
 	return(TRUE);
 }
 
@@ -694,29 +720,32 @@ static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
-	BtSongInfo *song_info;
+
+static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
-	gchar *name,*genre,*info;
-	
-	GST_INFO("saving the meta-data to the song");
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-	
-	xml_node=xmlNewChild(root_node,NULL,"meta",NULL);
-	g_object_get(G_OBJECT(song_info),"name",&name,"genre",&genre,"info",&info,NULL);
-  if(info) {
-		xmlNewChild(xml_node,NULL,"info",info);
-		g_free(info);
-	}
-  if(name) {
-		xmlNewChild(xml_node,NULL,"name",name);
-		g_free(name);
-	}
-  if(genre) {
-		xmlNewChild(xml_node,NULL,"genre",genre);
-  	g_free(genre);
-	}
-	g_object_try_unref(song_info);
+
+	xml_node=xmlNewChild(root_node,NULL,"patterns",NULL);
+	// pattern
+
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+
+	xml_node=xmlNewChild(root_node,NULL,"sequence",NULL);
+	xml_child_node=xmlNewChild(xml_node,NULL,"labels",NULL);
+	xml_child_node=xmlNewChild(xml_node,NULL,"tracks",NULL);
+
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+
+	xml_node=xmlNewChild(root_node,NULL,"wavetable",NULL);
+	// waves
+
 	return(TRUE);
 }
 
@@ -748,7 +777,8 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
 		if(bt_song_io_native_save_song_info(self,song,song_doc,root_node) &&
 		  bt_song_io_native_save_setup(    self,song,song_doc,root_node) &&
 		  bt_song_io_native_save_patterns( self,song,song_doc,root_node) &&
-		  bt_song_io_native_save_sequence( self,song,song_doc,root_node)
+		  bt_song_io_native_save_sequence( self,song,song_doc,root_node) &&
+			bt_song_io_native_save_wavetable(self,song,song_doc,root_node)
 		) {
 			if(xmlSaveFile(file_name,song_doc)!=-1) {
 				result=TRUE;

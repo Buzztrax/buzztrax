@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.27 2004-12-18 17:53:18 ensonic Exp $
+/* $Id: sink-machine.c,v 1.28 2004-12-18 18:44:26 ensonic Exp $
  * class for a sink machine
  */
  
@@ -50,7 +50,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
 		}
 		// if there is a space following put '\0' in there
 		if(eon=strstr(sink_name," ")) {
-			eon='\0';
+			*eon='\0';
 		}
 		plugin_name=sink_name;
 	}
@@ -63,7 +63,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
     g_list_free(audiosink_names);
   }
 	GST_INFO("using audio sink : \"%s\"",plugin_name);
-  if(!plugin_name) {
+  if((!plugin_name) || (!strlen(plugin_name))) {
     GST_ERROR("no audiosink configured/register");
     goto Error;
   }
