@@ -1,0 +1,22 @@
+#include <libbtcore/core.h>
+
+bt_application_get_type
+bt_gconf_settings_get_type
+bt_machine_get_type
+bt_pattern_get_type
+bt_plainfile_settings_get_type
+bt_playline_get_type
+bt_processor_machine_get_type
+bt_sequence_get_type
+bt_settings_get_type
+bt_setup_get_type
+bt_sink_machine_get_type
+bt_song_get_type
+bt_song_info_get_type
+bt_song_io_get_type
+bt_song_io_native_get_type
+bt_source_machine_get_type
+bt_timeline_get_type
+bt_timelinetrack_get_type
+bt_wire_get_type
+
