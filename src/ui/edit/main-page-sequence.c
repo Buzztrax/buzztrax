@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.61 2005-02-16 19:29:04 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.62 2005-02-17 18:31:17 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -236,7 +236,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 	else GST_WARNING("can't create treeview column");
 		
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"xalign",1.0,"foreground","blue",NULL);
+  g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,"xalign",1.0,"foreground","blue","width",80,NULL);
 	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
@@ -365,6 +365,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     machine=bt_sequence_get_machine_by_track(sequence,j);
     renderer=gtk_cell_renderer_text_new();
     //g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
+		g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,"width",100,NULL);
 
     // set machine name as column header
 		if(machine) {
