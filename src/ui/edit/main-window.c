@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.16 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-window.c,v 1.17 2004-08-20 16:35:52 ensonic Exp $
  * class for the editor main window
  */
 
@@ -35,15 +35,16 @@ struct _BtMainWindowPrivate {
 //-- event handler
 
 static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpointer user_data) {
-  BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+  //BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gboolean res=TRUE;
   
   GST_INFO("delete event occurred\n");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(BT_MAIN_WINDOW(user_data))) {
     res=FALSE;
-    //GST_INFO("  prepare to exit\n");
+    GST_INFO("  prepare to exit\n");
     //gtk_object_destroy(G_OBJECT(self));
+    gtk_widget_destroy(widget);
   }
   return(res);
 }
@@ -79,6 +80,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   if((main_icon=create_pixbuf("buzztard.png"))) {
     gtk_window_set_icon(GTK_WINDOW(self),main_icon);
   }
+  gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
@@ -205,10 +207,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
  */
 void bt_main_window_new_song(const BtMainWindow *self) {
   // @todo if unsaved ask the use, if we should save the song
-  if(bt_edit_application_new_song(self->private->app)) {
-    //bt_main_window_refresh_ui(self);
-  }
-  else {
+  if(!bt_edit_application_new_song(self->private->app)) {
     // @todo show error message
   }
 }
@@ -232,10 +231,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
-      if(bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)))) {
-        //bt_main_window_refresh_ui(self);
-      }
-      else {
+      if(!bt_edit_application_load_song(self->private->app,gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)))) {
         // @todo show error message
       }
       break;
@@ -305,6 +301,12 @@ static void bt_main_window_finalize(GObject *object) {
   g_free(self->private);
 }
 
+//static void bt_main_window_destroy(GtkObject *object) {
+//  BtMainWindow *self = BT_MAIN_WINDOW(object);
+//  
+//  GST_INFO(" someone is killing me");
+//}
+
 static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
   BtMainWindow *self = BT_MAIN_WINDOW(instance);
   self->private = g_new0(BtMainWindowPrivate,1);
@@ -313,12 +315,15 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_window_class_init(BtMainWindowClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
   GParamSpec *g_param_spec;
   
   gobject_class->set_property = bt_main_window_set_property;
   gobject_class->get_property = bt_main_window_get_property;
   gobject_class->dispose      = bt_main_window_dispose;
   gobject_class->finalize     = bt_main_window_finalize;
+  
+  //gtkobject_class->destroy      = bt_main_window_destroy;
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_APP,
                                   g_param_spec_object("app",

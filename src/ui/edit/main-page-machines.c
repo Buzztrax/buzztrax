@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.1 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.2 2004-08-20 16:35:52 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -18,13 +18,8 @@ struct _BtMainPageMachinesPrivate {
   
   /* the application */
   BtEditApplication *app;
-  
-  /* name of the song */
-  GtkEntry *name;
-  /* genre of the song  */
-  GtkEntry *genre;
-  /* freeform info anout the song */
-  GtkTextView *info;
+
+  /* canvas for machine view */
 };
 
 //-- event handler
@@ -42,10 +37,48 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
+  GtkWidget *toolbar;
+  GtkWidget *icon,*button,*image;
 
-  //@todo add toolbar and canvas
+  // add toolbar
+  toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,_("machine view tool bar"));
+  gtk_box_pack_start(GTK_CONTAINER(self),toolbar,FALSE,FALSE,0);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   
-  gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no machine view yet"));
+  icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_FIT, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Zoom Fit"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Zoom Fit"));
+  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
+
+  icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_IN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Zoom In"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Zoom In"));
+  
+  icon=gtk_image_new_from_stock(GTK_STOCK_ZOOM_OUT, gtk_toolbar_get_icon_size(GTK_TOOLBAR(toolbar)));
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_BUTTON,
+                                NULL,
+                                _("Zoom Out"),
+                                NULL,NULL,
+                                icon,NULL,NULL);
+  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Zoom Out"));
+  
+  // @todo add canvas
+  gtk_box_pack_start(GTK_CONTAINER(self),gtk_label_new("no machine view yet"),TRUE,TRUE,0);
   
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);

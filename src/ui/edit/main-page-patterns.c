@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.1 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.2 2004-08-20 16:35:52 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -42,9 +42,29 @@ static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, const BtEditApplication *app) {
+  GtkWidget *toolbar;
+  GtkWidget *label;
 
-  // @todo add toolbar and list-view
+  // add toolbar
+  toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,_("machine view tool bar"));
+  gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   
+  // @todo add toolbar widgets
+  // machine select
+  label=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                gtk_label_new(_("Machine")),
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  // pattern select
+  // wavetable entry select
+  // base octave
+  // play notes ?
+  
+  // @todo add list-view  
   gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no pattern view yet"));
 
   // register event handlers

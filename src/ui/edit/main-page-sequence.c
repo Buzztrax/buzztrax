@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.1 2004-08-19 17:03:44 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.2 2004-08-20 16:35:52 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -19,12 +19,8 @@ struct _BtMainPageSequencePrivate {
   /* the application */
   BtEditApplication *app;
   
-  /* name of the song */
-  GtkEntry *name;
-  /* genre of the song  */
-  GtkEntry *genre;
-  /* freeform info anout the song */
-  GtkTextView *info;
+  /* bar selection menu */
+  GtkOptionMenu *bars_menu;
 };
 
 //-- event handler
@@ -32,18 +28,70 @@ struct _BtMainPageSequencePrivate {
 static void on_song_changed(const BtEditApplication *app, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
+  glong index,bars;
 
   GST_INFO("song has changed : app=%p, window=%p\n",song,user_data);
   // get song from app
   song=BT_SONG(bt_g_object_get_object_property(G_OBJECT(self->private->app),"song"));
   // update page
+  bars=bt_g_object_get_long_property(G_OBJECT(bt_song_get_song_info(song)),"bars");
+  // find out to which entry it belongs and set the index
+  // 1 -> 0, 2 -> 1, 4 -> 2 , 8 -> 3
+  if(bars<4) {
+    index=bars-1;
+  }
+  else {
+    index=1+(bars>>2);
+  }
+  gtk_option_menu_set_history(GTK_OPTION_MENU(self->private->bars_menu),index);
 }
 
 //-- helper methods
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, const BtEditApplication *app) {
+  GtkWidget *toolbar;
+  GtkWidget *menu;
+  GtkWidget *button,*label;
+  BtSong *song;
+  glong i;
+  gchar str[4];
 
-  // @todo add toolbar and list-view
+  // add toolbar
+  toolbar=gtk_toolbar_new();
+  gtk_widget_set_name(toolbar,_("machine view tool bar"));
+  gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
+  gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
+  //gtk_container_set_border_width(GTK_CONTAINER(toolbar),2);
+  // add toolbar widgets
+  menu=gtk_menu_new();
+  //-- build list of values
+  sprintf(str,"1");gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
+  sprintf(str,"2");gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
+  for(i=4;i<=64;i+=4) {
+    sprintf(str,"%d",i);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_menu_item_new_with_label(str));
+  }
+  self->private->bars_menu=gtk_option_menu_new();
+  gtk_option_menu_set_menu(GTK_OPTION_MENU(self->private->bars_menu),menu);
+  // @todo how can we add some padding around the buttons in the toolbar?
+  // @todo do we really have to add the label by our self
+  label=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                gtk_label_new(_("Steps")),
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                GTK_WIDGET(self->private->bars_menu),
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Steps"));
+
+  
+  // @todo add list-view
 
   gtk_container_add(GTK_CONTAINER(self),gtk_label_new("no sequence view yet"));
 
