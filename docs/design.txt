@@ -1,4 +1,4 @@
-* design.txt (-*- mode:outline -*-)
+* $Id: design.txt,v 1.2 2002-06-07 10:11:38 ensonic Exp $ (-*- mode:outline -*-)
 ================================================================================
 
 ** network
@@ -14,18 +14,4 @@
 hide the input mixing
 hide channel conversion
 
-** file-format
-
 ** controller ids
-
-** user interface
-- plugins have level-meters (sources at right side, effects at both sides,
-  sinks at the left side)
-- meta-page (blabla)
-  - author, title,... form fields + freeform text field
-  - save as rdf with dc-schema
-  - info can e.g. be used for id-3 tgas when encoding
-- menu/new load/default song, which could contain e.g.
-  - initial blabla page
-  - some initial machines
-  ? does it make sense to provide "new from..."

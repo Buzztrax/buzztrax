@@ -1,0 +1,24 @@
+* $Id: file-format.txt,v 1.1 2002-06-07 10:11:38 ensonic Exp $ (-*- mode:outline -*-)
+================================================================================
+
+** multi-file archive (like zip/tat/lha/lzx/jar)
+? is there a (free) library to provide compressing multiple files into one
+  archive
+
+** files
+*** example
+  meta.rdf
+  environment.xml
+  sequences.xml
+  machines/
+    patterns/
+      <pattern>.xml
+  waveforms/
+    <sample>.wav
+*** description
+meta.rdf contains rdf with dc:schema from the blabla page
+environment.xml is the description of the used machines and how they are wired
+sequences.xml is the timeline of the song and denotes which pattern is used for
+  which machine at which time
+"machines" directory contains all patterns for each machine
+"waveforms" directory holds all used sample-waveforms, it may not exist
