@@ -92,7 +92,7 @@ struct BmxCwavSection
     word numberOfWavs;
     word *index;
     byte *format;
-    BmxWavData *data;
+    //BmxWavData *data; // old code
     
     byte abtPackedBuffer[MAXPACKEDBUFFER];
     dword dwCurIndex;
@@ -106,7 +106,7 @@ struct BmxCwavSection
 inline BmxCwavSection::BmxCwavSection() { 
     index = 0x0; 
     format = 0x0;
-    data = 0x0;
+    //data = 0x0; // old code
     
     dwMaxBytes = MAXPACKEDBUFFER;
     //dwBytesInFileRemain = dwSectionSize;  // in BmxFile::readCwavSection
@@ -115,11 +115,10 @@ inline BmxCwavSection::BmxCwavSection() {
     // set up so that call to UnpackBits() will force an immediate read from file
     dwCurIndex = MAXPACKEDBUFFER;
     dwBytesInBuffer = 0;
-
 }
 
 inline BmxCwavSection::~BmxCwavSection()  { 
-    DELARR(data);
+    //DELARR(data); // old code
     DELARR(index);
     DELARR(format);
 }
@@ -153,14 +152,15 @@ inline BmxWavtableEnvelope::~BmxWavtableEnvelope() {
 }
 
 struct BmxWavtableLevel {
-    BmxWavtableLevel();
-    ~BmxWavtableLevel();
-		dword numberOfSamples;
-		dword loopBegin;
-		dword loopEnd;
-		dword samplesPerSec;
-		byte rootNote;
-    BmxWavData *data;
+    public:
+      BmxWavtableLevel();
+      ~BmxWavtableLevel();
+      dword numberOfSamples;
+      dword loopBegin;
+      dword loopEnd;
+      dword samplesPerSec;
+      byte rootNote;
+      BmxWavData *data;
 };
 
 inline BmxWavtableLevel::BmxWavtableLevel() {
@@ -168,24 +168,25 @@ inline BmxWavtableLevel::BmxWavtableLevel() {
 }
 
 inline BmxWavtableLevel::~BmxWavtableLevel() {
-		DELARR(data);
+		if(data != 0x0) delete data;
 }
 
 struct BmxWavtSection
 {
-    BmxWavtSection();
-    ~BmxWavtSection();
-		word index;
-		std::string filename;
-		std::string name;
-		float volume;
-		byte flags;
-		
-		word	numberOfEnvelopes;
-		BmxWavtableEnvelope *envelopes;
-		
-		byte	numberOfLevels;
-		BmxWavtableLevel *levels;
+    public:
+      BmxWavtSection();
+      ~BmxWavtSection();
+      word index;
+      std::string filename;
+      std::string name;
+      float volume;
+      byte flags;
+      
+      word	numberOfEnvelopes;
+      BmxWavtableEnvelope *envelopes;
+      
+      byte	numberOfLevels;
+      BmxWavtableLevel *levels;
 };
 
 inline BmxWavtSection::BmxWavtSection() {
@@ -218,8 +219,7 @@ inline BmxMachTrackState::BmxMachTrackState() {
 }
 
 inline BmxMachTrackState::~BmxMachTrackState() {
-    if (parameterState != 0x0)
-        delete [] parameterState;
+    DELARR(parameterState);
 }
 
 class BmxMachSection
@@ -286,7 +286,8 @@ class BmxParaSection
 };
 
 inline BmxParaSection::BmxParaSection() {
-    globalParameter = trackpara = 0x0;
+    globalParameter = 0x0;
+    trackpara = 0x0;
 }
 
 inline BmxParaSection::~BmxParaSection() { 
@@ -368,7 +369,7 @@ class BmxFile
     
     // BLAH 
     dword lengthOfBlahSection; // in characters
-    unsigned char * blahText;
+    unsigned char *blahText;
     
     protected:
     void initvars();
