@@ -1,5 +1,5 @@
-/* $Id: main-statusbar.c,v 1.17 2004-10-13 16:05:15 ensonic Exp $
- * class for the editor main tollbar
+/* $Id: main-statusbar.c,v 1.18 2004-10-15 15:39:33 ensonic Exp $
+ * class for the editor main statusbar
  */
 
 #define BT_EDIT

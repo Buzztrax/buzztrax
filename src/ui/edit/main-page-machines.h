@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.4 2004-10-08 13:50:04 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.5 2004-10-15 15:39:33 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -40,6 +40,17 @@ struct _BtMainPageMachinesClass {
 
 /* used by MAIN_PAGE_MACHINES_TYPE */
 GType bt_main_page_machines_get_type(void);
+
+
+// machine view area
+#define MACHINE_VIEW_ZOOM_X 400.0
+#define MACHINE_VIEW_ZOOM_Y 300.0
+#define MACHINE_VIEW_ZOOM_FC  1.0
+
+#define MACHINE_VIEW_MACHINE_SIZE_X 50.0
+#define MACHINE_VIEW_MACHINE_SIZE_Y 30.0
+
+#define MACHINE_VIEW_WIRE_PAD_SIZE 10.0
 
 #endif // BT_MAIN_PAGE_MACHINES_H
 

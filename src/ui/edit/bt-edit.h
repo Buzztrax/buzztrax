@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.13 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: bt-edit.h,v 1.14 2004-10-15 15:39:32 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -25,6 +25,7 @@
 #include "main-window-methods.h"
 #include "settings-dialog-methods.h"
 #include "tools.h"
+#include "wire-canvas-item.h"
 
 //-- misc
 #ifndef GST_CAT_DEFAULT

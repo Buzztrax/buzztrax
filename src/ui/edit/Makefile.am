@@ -22,7 +22,8 @@ libbtedit_la_SOURCES   = \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
-	tools.c tools.h
+	tools.c tools.h \
+	wire-canvas-item.c wire-canvas-item.h
 	
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

@@ -1,5 +1,5 @@
-/* $Id: main-page-sequence.h,v 1.4 2004-10-08 13:50:04 ensonic Exp $
- * class for the editor main machines page
+/* $Id: main-page-sequence.h,v 1.5 2004-10-15 15:39:33 ensonic Exp $
+ * class for the editor main sequence page
  */
 
 #ifndef BT_MAIN_PAGE_SEQUENCE_H

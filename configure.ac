@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.21 2004-10-01 16:01:35 ensonic Exp $
+# $Id: configure.ac,v 1.22 2004-10-15 15:39:26 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -111,6 +111,15 @@ PKG_CHECK_MODULES(BASE_DEPS, \
 	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
   gstreamer-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 )
+
+glib_prefix="`pkg-config --variable=prefix glib-2.0`"
+gtk_prefix="`pkg-config --variable=prefix gtk+-2.0`"
+gst_prefix="`pkg-config --variable=prefix gstreamer-0.8`"
+gcanvas_prefix="`pkg-config --variable=prefix libgnomecanvas-2.0`"
+AC_SUBST(glib_prefix)
+AC_SUBST(gtk_prefix)
+AC_SUBST(gst_prefix)
+AC_SUBST(gcanvas_prefix)
 
 PKG_CHECK_MODULES(CUSTOM_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, true)

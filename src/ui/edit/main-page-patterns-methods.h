@@ -1,5 +1,5 @@
-/* $Id: main-page-patterns-methods.h,v 1.2 2004-08-24 14:10:04 ensonic Exp $
- * defines all public methods of the main machines page class
+/* $Id: main-page-patterns-methods.h,v 1.3 2004-10-15 15:39:33 ensonic Exp $
+ * defines all public methods of the main pattern page class
  */
 
 #ifndef BT_MAIN_PAGE_PATTERNS_METHODS_H

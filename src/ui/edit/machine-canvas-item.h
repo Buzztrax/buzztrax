@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.h,v 1.1 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: machine-canvas-item.h,v 1.2 2004-10-15 15:39:33 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -35,7 +35,8 @@ struct _BtMachineCanvasItem {
 /* structure of the main-pages class */
 struct _BtMachineCanvasItemClass {
   GnomeCanvasGroupClass parent;
-  
+
+  void (*position_changed)(const BtMachineCanvasItem *citem, gpointer user_data);
 };
 
 /* used by MAIN_PAGES_TYPE */

@@ -21,7 +21,11 @@ SCAN_OPTIONS=
 MKDB_OPTIONS=--output-format=xml --sgml-mode --ignore-files=parse
 
 # Extra options to supply to gtkdoc-fixref.
-FIXXREF_OPTIONS=--extra-dir=../bt-core
+FIXXREF_OPTIONS=--extra-dir=$(glib_prefix)/share/gtk-doc/html/gobject \
+  --extra-dir=$(glib_prefix)/share/gtk-doc/html/glib \
+	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer \
+	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer-libs \
+	--extra-dir=../bt-core
 
 # Used for dependencies.
 HFILE_GLOB=

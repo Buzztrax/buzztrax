@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.4 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.5 2004-10-15 15:39:33 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -13,7 +13,8 @@ enum {
 
 enum {
   SETTINGS_PAGE_AUDIO_DEVICES=0,
-  SETTINGS_PAGE_COLORS
+  SETTINGS_PAGE_COLORS,
+  SETTINGS_PAGE_SHORTCUTS
 };
 
 enum {
@@ -107,6 +108,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Audio Devices"),COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,-1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Colors"),COL_ID,SETTINGS_PAGE_COLORS,-1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Shortcuts"),COL_ID,SETTINGS_PAGE_SHORTCUTS,-1);
   gtk_tree_view_set_model(self->priv->settings_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
 
@@ -116,6 +119,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_notebook_set_show_tabs(self->priv->settings_pages,FALSE);
   gtk_notebook_set_show_border(self->priv->settings_pages,FALSE);
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(self->priv->settings_pages));
+
+  // @todo move pages into separate classes
   
   // add notebook page #1
   spacer=gtk_label_new("    ");
@@ -146,7 +151,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(widget),menu);
   gtk_option_menu_set_history(GTK_OPTION_MENU(widget),0);
-  gtk_table_attach(GTK_TABLE(table),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  gtk_table_attach(GTK_TABLE(table),widget, 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),table);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
@@ -160,6 +165,14 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),1),
     gtk_label_new("page 2"));
+
+  // add notebook page #3
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 3 yet"));
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),2),
+    gtk_label_new("page 3"));
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   

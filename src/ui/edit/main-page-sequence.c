@@ -1,5 +1,5 @@
-/* $Id: main-page-sequence.c,v 1.21 2004-10-13 16:05:15 ensonic Exp $
- * class for the editor main machines page
+/* $Id: main-page-sequence.c,v 1.22 2004-10-15 15:39:33 ensonic Exp $
+ * class for the editor main sequence page
  */
 
 #define BT_EDIT

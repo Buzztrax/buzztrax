@@ -42,7 +42,23 @@
       <source id="sine2" pluginname="sinesrc" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="0.0"/>
+          <property key="ypos" value="-0.1"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+
+      <source id="sine3" pluginname="sinesrc" voices="0">
+        <properties>
+          <property key="xpos" value="-0.6"/>
+          <property key="ypos" value="0.2"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+
+      <source id="sine4" pluginname="sinesrc" voices="0">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
@@ -51,6 +67,8 @@
     <wires>
       <wire src="sine1" dst="amp1" gain="1.5"/>
       <wire src="sine2" dst="amp1" gain="1.0"/>
+      <wire src="sine3" dst="amp1" gain="1.0"/>
+      <wire src="sine4" dst="amp1" gain="1.0"/>
       <wire src="amp1" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>

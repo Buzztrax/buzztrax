@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.1 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.2 2004-10-15 15:39:32 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -6,6 +6,15 @@
 #define BT_MACHINE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
+
+//-- signal ids
+
+enum {
+  POSITION_CHANGED,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
   MACHINE_CANVAS_ITEM_MACHINE=1,
@@ -16,10 +25,18 @@ struct _BtMachineCanvasItemPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   
-  /* the application */
+  /* the underlying machine */
   BtMachine *machine;
+  /* and its properties */
+  GHashTable *properties;
+
+  /* interaction state */
+  gboolean dragging,moved;
+  gdouble offx,offy,dragx,dragy;
   
 };
+
+static guint signals[LAST_SIGNAL]={0,};
 
 static GnomeCanvasGroupClass *parent_class=NULL;
 
@@ -65,7 +82,10 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
     case MACHINE_CANVAS_ITEM_MACHINE: {
       g_object_try_unref(self->priv->machine);
       self->priv->machine = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the machine for machine_canvas_item: %p",self->priv->machine);
+      if(self->priv->machine) {
+        g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
+        GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
+      }
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -103,7 +123,7 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
 static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
   GnomeCanvasItem *item;
-  gdouble w=12.0,h=7.0;
+  gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   guint bg_color=0xFFFFFFFF;
   gchar *id;
   
@@ -151,18 +171,55 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
 
 static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *event) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
+  gdouble dx, dy, px, py;
+  GdkCursor *fleur;
 
   //GST_DEBUG("event for machine occured");
   
   switch (event->type) {
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
+      if(event->button.button==1) {
+        /* dragxy coords are world coords of button press */
+        self->priv->dragx=event->button.x;
+        self->priv->dragy=event->button.y;
+        /* set some flags */
+        self->priv->dragging=TRUE;
+        self->priv->moved=FALSE;
+        gnome_canvas_item_raise_to_top(citem);
+        fleur=gdk_cursor_new(GDK_FLEUR);
+        gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
+                              /* GDK_ENTER_NOTIFY_MASK | */
+                              /* GDK_LEAVE_NOTIFY_MASK | */
+            GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
+      }
       break;
     case GDK_MOTION_NOTIFY:
-      GST_DEBUG("GDK_MOTION_NOTIFY: %d,%d",event->button.x,event->button.y);
+      //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
+      if(self->priv->dragging) {
+        dx=event->button.x-self->priv->dragx;
+        dy=event->button.y-self->priv->dragy;
+        gnome_canvas_item_move(citem, dx, dy);
+        // change position properties of the machines
+        g_object_get(citem,"x",&px,"y",&py,NULL);
+        px/=MACHINE_VIEW_ZOOM_X;
+        py/=MACHINE_VIEW_ZOOM_Y;
+        //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f -> %f,%f",event->button.x,event->button.y,px,py);
+        g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup_printf("%f",px));
+        g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup_printf("%f",py));
+        g_signal_emit(citem,signals[POSITION_CHANGED],0);
+        self->priv->dragx=event->button.x;
+        self->priv->dragy=event->button.y;
+        self->priv->moved=TRUE;
+      }
       break;
     case GDK_BUTTON_RELEASE:
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
+      if(self->priv->dragging) {
+        self->priv->dragging=FALSE;
+        gnome_canvas_item_ungrab(citem,event->button.time);
+        //g_signal_emit(citem,signals[POSITION_CHANGED],0);
+      }
       break;
     default:
       break;
@@ -190,6 +247,25 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 
   citem_class->realize        = bt_machine_canvas_item_realize;
   citem_class->event          = bt_machine_canvas_item_event;
+
+  klass->position_changed = NULL;
+
+  /** 
+	 * BtMachineCanvasItem::position-changed
+   * @self: the machine-canvas-item object that emitted the signal
+	 *
+	 * signals that item has been moved around.
+	 */
+  signals[POSITION_CHANGED] = g_signal_new("position-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_STRUCT_OFFSET(BtMachineCanvasItemClass,position_changed),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0, // n_params
+                                        NULL /* param data */ );
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINE,
                                   g_param_spec_object("machine",

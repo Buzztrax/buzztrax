@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.19 2004-10-13 16:05:15 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.20 2004-10-15 15:39:33 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -10,9 +10,6 @@
 enum {
   MAIN_PAGE_MACHINES_APP=1,
 };
-
-#define ZOOM_X 100.0
-#define ZOOM_Y  80.0
 
 struct _BtMainPageMachinesPrivate {
   /* used to validate if dispose has run */
@@ -29,59 +26,36 @@ struct _BtMainPageMachinesPrivate {
   /* we probably need a list of canvas items that we have drawn, so that we can
    * easily clear them later
    */
+  GHashTable *machines;	// each entry points to BtMachineCanvasItem
+	GHashTable *wires;			// each entry points to BtWireCanvasItem
 };
 
 static GtkVBoxClass *parent_class=NULL;
 
-//-- graphics helpers
+//-- data helper
 
-// @todo make another canvas item
-static void bt_main_page_machines_draw_wire(const BtMainPageMachines *self, gdouble pos_xs, gdouble pos_ys,gdouble pos_xe, gdouble pos_ye) {
-  GnomeCanvasItem *item;
-  GnomeCanvasPoints *points;
-  
-  GST_INFO("  draw wire from %lf,%lf to %lf,%lf",pos_xs,pos_ys,pos_xe,pos_ye);
-  
-  points=gnome_canvas_points_new(2);
-  /* fill out the points */
-  points->coords[0]=pos_xs;
-  points->coords[1]=pos_ys;
-  points->coords[2]=pos_xe;
-  points->coords[3]=pos_ye;
-  item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
-                           GNOME_TYPE_CANVAS_LINE,
-                           "points", points,
-                           "fill-color", "black",
-                           "width-pixels", 1,
-                           NULL);
-  gnome_canvas_points_free(points);
-  
-  // @todo add trinagle pointing (GnomeCanvasPolygon) to dest at the middle of the wire
-  /*
-  mid_x=pos_xs+(pos_xe-pos_xs)/2.0;
-  mid_y=pos_ys+(pos_ye-pos_ys)/2.0;
-  // go X points forth on the wire, that is the tip of the triangle
-  // go X points back on the wire and cast an orthogonal line of length X*2
-  */
-  // @todo connect the event signal to on_wire_event()
+gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_data) {
+  gtk_object_destroy(GTK_OBJECT(value));
+  return(TRUE);
 }
 
 //-- event handler helper
 
-static void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
+// @todo this methods probably should go to BtMachine
+void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
   char *prop;
 
   *pos_x=*pos_y=0.0;
   if(properties) {
     prop=(gchar *)g_hash_table_lookup(properties,"xpos");
     if(prop) {
-      *pos_x=ZOOM_X*g_ascii_strtod(prop,NULL);
+      *pos_x=MACHINE_VIEW_ZOOM_X*g_ascii_strtod(prop,NULL);
       // do not g_free(prop);
     }
     else GST_WARNING("no xpos property found");
     prop=(gchar *)g_hash_table_lookup(properties,"ypos");
     if(prop) {
-      *pos_y=ZOOM_Y*g_ascii_strtod(prop,NULL);
+      *pos_y=MACHINE_VIEW_ZOOM_Y*g_ascii_strtod(prop,NULL);
       // do not g_free(prop);
     }
     else GST_WARNING("no ypos property found");
@@ -92,49 +66,19 @@ static void machine_view_get_machine_position(GHashTable *properties, gdouble *p
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   gpointer iter;
   GHashTable *properties;
-  GnomeCanvasItem *item;
-  BtMachine *machine;
+  GnomeCanvasItem *item,*src_machine_item,*dst_machine_item;
+  BtMachine *machine,*src_machine,*dst_machine;
   BtWire *wire;
   gdouble pos_x,pos_y;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
-  GList *items;
+  GList *node;
   
-  // @todo clear the canvas, problem: items is always NULL
-  if((items=gtk_container_get_children(GTK_CONTAINER(self->priv->canvas)))) {
-    GList* node=g_list_first(items);
-    GnomeCanvasItem *item;
-    GST_DEBUG("before destoying canvas items");
-    while(node) {
-      GST_DEBUG("destoying canvas item");
-      item=GNOME_CANVAS_ITEM(node->data);
-      gtk_object_destroy(GTK_OBJECT(item));
-      node=g_list_next(node);
-    }
-    g_list_free(items);
-  }
-  else {
-    GST_DEBUG("no items on canvas");
-  }
-  
-  // draw all wires
-  iter=bt_setup_wire_iterator_new(setup);
-  while(iter) {
-    wire=bt_setup_wire_iterator_get_wire(iter);
-    // get positions of source and dest
-    g_object_get(wire,"src",&machine,NULL);
-    g_object_get(machine,"properties",&properties,NULL);
-    machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
-    GST_DEBUG("src-machine is %p",machine);
-    g_object_try_unref(machine);
-    g_object_get(wire,"dst",&machine,NULL);
-    g_object_get(machine,"properties",&properties,NULL);
-    machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
-    GST_DEBUG("dst-machine is %p",machine);
-    g_object_try_unref(machine);
-    // draw wire
-    bt_main_page_machines_draw_wire(self,pos_xs,pos_ys,pos_xe,pos_ye);
-    iter=bt_setup_wire_iterator_next(iter);
-  }
+  // clear the canvas
+  GST_DEBUG("before destoying machine canvas items");
+  g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
+  GST_DEBUG("before destoying wire canvas items");
+  g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
+  GST_DEBUG("done");
 
   // draw all machines
   iter=bt_setup_machine_iterator_new(setup);
@@ -142,7 +86,6 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     machine=bt_setup_machine_iterator_get_machine(iter);
     // get position, name and machine type
     g_object_get(machine,"properties",&properties,NULL);
-    GST_DEBUG("machine is %p",machine);
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
     // draw machine
     item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
@@ -151,8 +94,41 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
                            "x", pos_x,
                            "y", pos_y,
                            NULL);
+    g_hash_table_insert(self->priv->machines,machine,item);
     iter=bt_setup_machine_iterator_next(iter);
   }
+
+  // draw all wires
+  iter=bt_setup_wire_iterator_new(setup);
+  while(iter) {
+    wire=bt_setup_wire_iterator_get_wire(iter);
+    // get positions of source and dest
+    g_object_get(wire,"src",&src_machine,"dst",&dst_machine,NULL);
+    g_object_get(src_machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
+    g_object_get(dst_machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
+    src_machine_item=g_hash_table_lookup(self->priv->machines,src_machine);
+    dst_machine_item=g_hash_table_lookup(self->priv->machines,dst_machine);
+    // draw wire
+    item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
+                           BT_TYPE_WIRE_CANVAS_ITEM,
+                           "wire", wire,
+                           "x", pos_xs,
+                           "y", pos_ys,
+                           "w", (pos_xe-pos_xs),
+                           "h", (pos_ye-pos_ys),
+                           "src", src_machine_item,
+                           "dst", dst_machine_item,
+                           NULL);
+    gnome_canvas_item_lower_to_bottom(item);
+    g_hash_table_insert(self->priv->wires,wire,item);
+
+    g_object_try_unref(src_machine);
+    g_object_try_unref(dst_machine);
+    iter=bt_setup_wire_iterator_next(iter);
+  }
+
 }
 
 //-- event handler
@@ -254,7 +230,9 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   //gtk_widget_push_colormap((GdkColormap *)gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
-  gnome_canvas_set_scroll_region(self->priv->canvas,-ZOOM_X,-ZOOM_Y,ZOOM_X,ZOOM_Y);
+  gnome_canvas_set_scroll_region(self->priv->canvas,
+    -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
+     MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   //gtk_widget_pop_colormap();
   gtk_widget_pop_visual();
@@ -341,6 +319,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
+  //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_object_try_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -350,7 +330,9 @@ static void bt_main_page_machines_dispose(GObject *object) {
 
 static void bt_main_page_machines_finalize(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
-  
+
+  g_hash_table_destroy(self->priv->machines);
+  g_hash_table_destroy(self->priv->wires);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -363,7 +345,10 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   self->priv = g_new0(BtMainPageMachinesPrivate,1);
   self->priv->dispose_has_run = FALSE;
 
-  self->priv->zoom=5.0;
+  self->priv->zoom=MACHINE_VIEW_ZOOM_FC;
+  
+  self->priv->machines=g_hash_table_new(g_direct_hash,g_direct_equal);
+  self->priv->wires=g_hash_table_new(g_direct_hash,g_direct_equal);
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

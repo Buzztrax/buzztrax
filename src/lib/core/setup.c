@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.33 2004-10-13 14:04:22 ensonic Exp $
+/* $Id: setup.c,v 1.34 2004-10-15 15:39:32 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -18,7 +18,6 @@ struct _BtSetupPrivate {
 	/* the song the setup belongs to */
 	BtSong *song;
 	
-	// gfloat zoom;
 	GList *machines;	// each entry points to BtMachine
 	GList *wires;			// each entry points to BtWire
 };

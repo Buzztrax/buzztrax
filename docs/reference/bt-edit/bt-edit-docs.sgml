@@ -15,6 +15,7 @@
 <!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
 <!ENTITY BtMainStatusbar SYSTEM "xml/btmainstatusbar.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
+<!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
 ]>
@@ -53,6 +54,7 @@
     &BtMainPageInfo;
     &BtMainStatusbar;
     &BtSettingsDialog;
+    &BtWireCanvasItem;
   </chapter>
 
 	<chapter id="objecttree">
