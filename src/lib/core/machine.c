@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.48 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: machine.c,v 1.49 2004-11-04 10:38:14 ensonic Exp $
  * base class for a machine
  */
  
@@ -103,7 +103,7 @@ gboolean bt_machine_new(BtMachine *self) {
   // we need to make sure the machine is out of the right class
   {
     GstElementFactory *element_factory=gst_element_get_factory(self->priv->machine);
-    gchar *element_class=gst_element_factory_get_klass(element_factory);
+    const gchar *element_class=gst_element_factory_get_klass(element_factory);
     GST_INFO("checking machine class \"%s\"",element_class);
     if(BT_IS_SINK_MACHINE(self)) {
       if(g_ascii_strncasecmp(element_class,"Sink/",5)) {

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.20 2004-10-15 15:39:33 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.21 2004-11-04 10:38:14 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -22,7 +22,10 @@ struct _BtMainPageMachinesPrivate {
   GnomeCanvas *canvas;
   /* the zoomration in pixels/per unit */
   double zoom;
-
+  
+  /* canvas context_menu */
+  GtkMenu *context_menu;
+  
   /* we probably need a list of canvas items that we have drawn, so that we can
    * easily clear them later
    */
@@ -90,6 +93,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     // draw machine
     item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
                            BT_TYPE_MACHINE_CANVAS_ITEM,
+                           "app", self->priv->app,
                            "machine", machine,
                            "x", pos_x,
                            "y", pos_y,
@@ -113,6 +117,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     // draw wire
     item=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
                            BT_TYPE_WIRE_CANVAS_ITEM,
+                           "app", self->priv->app,
                            "wire", wire,
                            "x", pos_xs,
                            "y", pos_ys,
@@ -170,11 +175,37 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
 }
 
+static gboolean on_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *event, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  g_assert(user_data);
+  switch(event->type) {
+    case GDK_BUTTON_PRESS:
+      GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
+      if(event->button.button==3) {
+        // show context menu
+        gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+      }
+      break;
+    case GDK_MOTION_NOTIFY:
+      //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
+      break;
+    case GDK_BUTTON_RELEASE:
+      GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
+      break;
+    default:
+      break;
+  }
+  /* we don't want the click falling through to the parent canvas item */
+  return TRUE;
+}
+
 //-- helper methods
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, const BtEditApplication *app) {
   GtkWidget *toolbar;
   GtkWidget *icon,*button,*image,*scrolled_window;
+  GtkWidget *menu_item;
   GtkTooltips *tips;
 
   // add toolbar
@@ -238,9 +269,24 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
   gtk_widget_pop_visual();
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
-  
+
+  // generate the context menu
+  self->priv->context_menu=gtk_menu_new();
+
+  menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+
   // register event handlers
   g_signal_connect(G_OBJECT(app), "song-changed", (GCallback)on_song_changed, (gpointer)self);
+  // connecting the canvas to "event" causes the canvas not to draw !?!
+  //g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_item_event),(gpointer)self);
+  // that seems to be invalid
+  //g_signal_connect(G_OBJECT(gnome_canvas_root(self->priv->canvas)),"event-after",G_CALLBACK(on_canvas_item_event),(gpointer)self);
+  // that does nothing at all
+  g_signal_connect(G_OBJECT(gnome_canvas_root(self->priv->canvas)),"event",G_CALLBACK(on_canvas_item_event),(gpointer)self);
+  // this causes both menus to apprear, when clicking on a canvas item
+  //g_signal_connect(G_OBJECT(self->priv->canvas),"event-after",G_CALLBACK(on_canvas_item_event),(gpointer)self);
   return(TRUE);
 }
 
@@ -322,6 +368,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_object_try_unref(self->priv->app);
+  
+  g_object_unref(self->priv->context_menu);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

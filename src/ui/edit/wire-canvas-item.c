@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.2 2004-10-18 13:19:02 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.3 2004-11-04 10:38:15 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -8,7 +8,8 @@
 #include "bt-edit.h"
 
 enum {
-  WIRE_CANVAS_ITEM_WIRE=1,
+  WIRE_CANVAS_ITEM_APP=1,
+  WIRE_CANVAS_ITEM_WIRE,
   WIRE_CANVAS_ITEM_W,
   WIRE_CANVAS_ITEM_H,
 	WIRE_CANVAS_ITEM_SRC,
@@ -21,6 +22,9 @@ struct _BtWireCanvasItemPrivate {
   gboolean dispose_has_run;
   
   /* the application */
+  BtEditApplication *app;
+
+  /* the application */
   BtWire *wire;
   
   /* end-points of the wire, relative to the group x,y pos */
@@ -31,6 +35,9 @@ struct _BtWireCanvasItemPrivate {
   
   /* the parts of the wire item */
   GnomeCanvasItem *line,*triangle;
+  
+  /* wire context_menu */
+  GtkMenu *context_menu;
   
   /* interaction state */
   gboolean dragging,moved;
@@ -119,7 +126,10 @@ static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble
 void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *src_machine,*dst_machine;
-  GHashTable *properties;
+  GHashTable *properties;  
+  /* the application */
+  BtEditApplication *app;
+
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GnomeCanvasPoints *points;
 
@@ -171,6 +181,9 @@ static void bt_wire_canvas_item_get_property(GObject      *object,
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
   return_if_disposed();
   switch (property_id) {
+    case WIRE_CANVAS_ITEM_APP: {
+      g_value_set_object(value, self->priv->app);
+    } break;
     case WIRE_CANVAS_ITEM_WIRE: {
       g_value_set_object(value, self->priv->wire);
     } break;
@@ -201,6 +214,11 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
   return_if_disposed();
   switch (property_id) {
+    case WIRE_CANVAS_ITEM_APP: {
+      g_object_try_unref(self->priv->app);
+      self->priv->app = g_object_try_ref(g_value_get_object(value));
+      //GST_DEBUG("set the app for wire_canvas_item: %p",self->priv->app);
+    } break;
     case WIRE_CANVAS_ITEM_WIRE: {
       g_object_try_unref(self->priv->wire);
       self->priv->wire=g_object_try_ref(g_value_get_object(value));
@@ -239,10 +257,13 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
-  // this disposes the pages for us
+  
+  g_object_unref(self->priv->context_menu);
+  
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
@@ -300,12 +321,18 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
 
 static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *event) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
+  gboolean res=FALSE;
 
   //GST_DEBUG("event for wire occured");
   
   switch(event->type) {
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
+      if(event->button.button==3) {
+        // show context menu
+        gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+        res=TRUE;
+      }
       break;
     case GDK_MOTION_NOTIFY:
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
@@ -316,14 +343,33 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
     default:
       break;
   }
-  /* we don't want the click falling through to the parent canvas item */
-  return TRUE;
+  /* we don't want the click falling through to the parent canvas item, if we have handled it */
+  return res;
 }
 
 static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(instance);
+  GtkWidget *menu_item;
+
   self->priv = g_new0(BtWireCanvasItemPrivate,1);
   self->priv->dispose_has_run = FALSE;
+
+  // generate the context menu
+  self->priv->context_menu=gtk_menu_new();
+
+  menu_item=gtk_menu_item_new_with_label(_("Disconnect"));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_menu_item_new_with_label(_("Signal Analysis ..."));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+
 }
 
 static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
@@ -340,6 +386,13 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
   citem_class->realize        = bt_wire_canvas_item_realize;
   citem_class->event          = bt_wire_canvas_item_event;
 
+  g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_APP,
+                                  g_param_spec_object("app",
+                                     "app contruct prop",
+                                     "Set application object, the window belongs to",
+                                     BT_TYPE_EDIT_APPLICATION, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+  
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_WIRE,
                                   g_param_spec_object("wire",
                                      "wire contruct prop",

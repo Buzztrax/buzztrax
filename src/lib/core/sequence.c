@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.39 2004-11-03 09:35:16 ensonic Exp $
+/* $Id: sequence.c,v 1.40 2004-11-04 10:38:14 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -587,7 +587,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SEQUENCE_LOOP_START,
-																	g_param_spec_ulong("loop-start",
+																	g_param_spec_long("loop-start",
                                      "loop-start prop",
                                      "start of the repeat sequence on the timeline",
                                      -1,
@@ -596,7 +596,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,SEQUENCE_LOOP_END,
-																	g_param_spec_ulong("loop-end",
+																	g_param_spec_long("loop-end",
                                      "loop-end prop",
                                      "end of the repeat sequence on the timeline",
                                      -1,
