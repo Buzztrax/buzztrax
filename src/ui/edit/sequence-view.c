@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.3 2005-02-07 21:45:42 ensonic Exp $
+/* $Id: sequence-view.c,v 1.4 2005-02-08 15:36:08 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -9,7 +9,8 @@
 
 enum {
   SEQUENCE_VIEW_APP=1,
-	SEQUENCE_VIEW_PLAY_POSITION
+	SEQUENCE_VIEW_PLAY_POSITION,
+	SEQUENCE_VIEW_VISIBLE_ROWS
 };
 
 
@@ -22,6 +23,9 @@ struct _BtSequenceViewPrivate {
 	
 	/* position of playing pointer from 0.0 ... 1.0 */
 	gdouble play_pos;
+
+	/* number of visible rows, the height of one row */
+	gulong visible_rows,row_height;
 	
 	/* cache some ressources */
 	GdkWindow *window;
@@ -69,6 +73,8 @@ Error:
 static void bt_sequence_view_realize(GtkWidget *widget) {
 	BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 	GdkColor color;
+	GtkTreePath *path;
+	GdkRectangle br;
 
   // first let the parent realize itslf
   if(GTK_WIDGET_CLASS(parent_class)->realize) {
@@ -80,7 +86,12 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
 	color.green = 0;
 	color.blue = 65535;
 	self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
-	gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);	
+	gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
+
+	path=gtk_tree_path_new_from_indices(0,-1);
+	gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
+	self->priv->row_height=br.height;
+	GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
 }
 
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
@@ -99,16 +110,22 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
  	 */
   if(self->priv->window==event->window) {
 		gint w,h;
-		GdkRectangle vr;
+		//GdkRectangle vr,br;
+		//GtkTreePath *path;
 		
-		gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
-		GST_INFO(" tree view visible rect: %d x %d, %d x %d",vr.x,vr.y,vr.width,vr.height);
-		GST_INFO(" tree view allocation: %d x %d",widget->allocation.width,widget->allocation.height);
+		//gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
+		// path should point to the last row (of course there is no way the API will tell us ...)
+		//path=gtk_tree_path_new_from_indices(0,-1);
+		//gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
+		//GST_INFO(" tree view visible rect: %d x %d, %d x %d",vr.x,vr.y,vr.width,vr.height);
+		//GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
+		//GST_INFO(" tree view allocation: %d x %d",widget->allocation.width,widget->allocation.height);
 
-		//w=widget->allocation.width;
+		w=widget->allocation.width;
 		//h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
-		w=vr.width;
-		h=(gint)(self->priv->play_pos*(double)vr.height);
+		//w=vr.width;
+		//h=(gint)(self->priv->play_pos*(double)vr.height);
+		h=(gint)(self->priv->play_pos*(double)(self->priv->visible_rows*self->priv->row_height));
   	gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,h,w,h);
 	}
 	return(FALSE);
@@ -125,7 +142,6 @@ static void bt_sequence_view_get_property(GObject      *object,
   switch (property_id) {
     case SEQUENCE_VIEW_APP: {
       g_value_set_object(value, self->priv->app);
-			gtk_widget_queue_draw(GTK_WIDGET(self));
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -150,7 +166,11 @@ static void bt_sequence_view_set_property(GObject      *object,
     } break;
     case SEQUENCE_VIEW_PLAY_POSITION: {
       self->priv->play_pos = g_value_get_double(value);
-      //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
+			gtk_widget_queue_draw(GTK_WIDGET(self));
+    } break;
+    case SEQUENCE_VIEW_VISIBLE_ROWS: {
+      self->priv->visible_rows = g_value_get_ulong(value);
+			gtk_widget_queue_draw(GTK_WIDGET(self));
     } break;
     default: {
 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -221,6 +241,15 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      0.0,
 																		 1.0,
 																		 0.0,
+                                     G_PARAM_WRITABLE));
+
+  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_VISIBLE_ROWS,
+                                  g_param_spec_ulong("visible-rows",
+                                     "visible rows prop.",
+                                     "The number of currntly visible sequence rows",
+                                     0,
+																		 G_MAXULONG,
+																		 0,
                                      G_PARAM_WRITABLE));
 }
 

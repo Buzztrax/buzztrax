@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.9 2005-01-28 18:04:45 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.10 2005-02-08 15:36:08 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -92,6 +92,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", (GCallback)on_audiosink_menu_changed, (gpointer)self);
+	// @todo add pages/subdialogs for each audiosink with its settings
   
   g_free(audiosink_name);
   g_free(system_audiosink_name);

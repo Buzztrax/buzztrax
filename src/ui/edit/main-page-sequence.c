@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.55 2005-02-07 14:57:54 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.56 2005-02-08 15:36:08 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -103,6 +103,7 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
 	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
 	gboolean visible,odd_row=FALSE;
+	gulong rows=0;
 
 	GST_INFO("recolorize sequence tree view");
 	
@@ -127,8 +128,10 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
         			-1);
 					}
 					odd_row=!odd_row;
+					rows++;
 				}
 			} while(gtk_tree_model_iter_next(store,&iter));
+			g_object_set(self->priv->sequence_table,"visible-rows",rows,NULL);
 		}
 	}
 	else {
@@ -177,21 +180,33 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
  */
 static void sequence_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
+	GtkTreeViewColumn *tree_col;
 	gint col_index;
 	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,"xalign",1.0,"foreground","red",NULL);
-  gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Pos."),renderer,
+  g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,"xalign",1.0,"foreground","blue",NULL);
+	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
-    NULL);
+    NULL))
+	) {
+		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",40,NULL);
+		gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+	}
+	else GST_WARNING("can't create treeview column");
+		
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"xalign",1.0,"foreground","red",NULL);
-  col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
+  g_object_set(G_OBJECT(renderer),"xalign",1.0,"foreground","blue",NULL);
+	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
-    NULL);
+    NULL))
+	) {
+		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",80,NULL);
+		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+	}
+	else GST_WARNING("can't create treeview column");
 	
 	GST_DEBUG("    number of columns : %d",col_index);
 }
@@ -328,12 +343,13 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 		// @todo here we can add hbox that containts Mute, Solo, Bypass buttons as well
 		// or popup button that shows the whole context menu like that in the machine_view
 		gtk_widget_show(label);
-    col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,NULL,renderer,
+		if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
       "text",SEQUENCE_TABLE_PRE_CT+j,
-      NULL);
-    
-    if((tree_col=gtk_tree_view_get_column(self->priv->sequence_table,col_index-1))) {
-			gtk_tree_view_column_set_widget(tree_col,label);
+      NULL))
+		) {
+			g_object_set(tree_col,"widget",label,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",100,NULL);
+			gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+    			
 			g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)label);
 		
 			// color code columns
@@ -347,14 +363,18 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       	gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SINK_BG);
     	}
 		}
-		else GST_WARNING("can't get treeview column");
+		else GST_WARNING("can't create treeview column");
     g_object_unref(machine);
   }
 	// add a final column that eats remaining space
 	renderer=gtk_cell_renderer_text_new();
 	g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,NULL);
-	gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,/*title=*/NULL,renderer,NULL);
-  GST_INFO("    number of columns : %d",col_index);
+	if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
+		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,NULL);
+		col_index=gtk_tree_view_insert_column(self->priv->sequence_table,tree_col,-1);
+		GST_INFO("    number of columns : %d",col_index);
+	}
+	else GST_WARNING("can't create treeview column");
 
   // release the references
   g_object_try_unref(sequence);
@@ -420,6 +440,7 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
 	GtkTreeIter iter;
 	gdouble play_pos;
 	gulong sequence_length;
+	GtkTreePath *path;
   
   g_assert(user_data);
 
@@ -432,8 +453,14 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
 	if(!pos) self->priv->tick_pos=-1;
 	// do nothing for invisible rows
 	if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) return;
+	// scroll  to make play pos visible
+	path=gtk_tree_path_new_from_indices(pos,-1);
+	gdk_threads_enter();
+	gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+	gdk_threads_leave();
 
   //GST_INFO("sequence tick received : %d",pos);
+	/*
 	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
 		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
 	{
@@ -455,6 +482,7 @@ static void on_sequence_tick(const BtSequence *sequence, glong pos, gpointer use
 	else {
 		GST_WARNING("can't get tree model");
 	}
+	*/
 }
 
 static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
@@ -687,6 +715,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *menu_item;
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
+	GtkTreeViewColumn *tree_col;
+	gint col_index;
 
 	GST_DEBUG("!!!! self=%p",self);
 	
@@ -759,30 +789,43 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   // add a hpaned
   box=gtk_hpaned_new();
   gtk_container_add(GTK_CONTAINER(self),box);
-  // add sequence list-view
+
+// add sequence list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   //self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
 	self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
-	g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,NULL);
-  //gtk_tree_view_set_rules_hint(self->priv->sequence_table,TRUE);
+	g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
 	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column 
   //gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_BROWSE);
 	gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->sequence_table),GTK_SELECTION_NONE);
   sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_paned_pack1(GTK_PANED(box),GTK_WIDGET(scrolled_window),TRUE,TRUE);
-  // add pattern list-view
+
+// add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
+	g_object_set(self->priv->pattern_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
+	
   renderer=gtk_cell_renderer_text_new();
 	g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
-  gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Key"),renderer,"text",0,NULL);
+	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Key"),renderer,"text",0,NULL))) {
+		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",30,NULL);
+		gtk_tree_view_insert_column(self->priv->pattern_list,tree_col,-1);
+	}
+	else GST_WARNING("can't create treeview column");
+
   renderer=gtk_cell_renderer_text_new();
-  gtk_tree_view_insert_column_with_attributes(self->priv->pattern_list,-1,_("Patterns"),renderer,"text",1,NULL);
+	if((tree_col=gtk_tree_view_column_new_with_attributes(_("Patterns"),renderer,"text",1,NULL))) {
+		g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",70,NULL);
+		gtk_tree_view_insert_column(self->priv->pattern_list,tree_col,-1);
+	}
+	else GST_WARNING("can't create treeview column");
+	
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
   gtk_paned_pack2(GTK_PANED(box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
