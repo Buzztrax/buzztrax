@@ -1,4 +1,4 @@
-/** $Id: gst2.c,v 1.1 2004-02-11 17:34:13 waffel Exp $
+/** $Id: gst2.c,v 1.2 2004-02-12 15:24:09 waffel Exp $
  */
  
 #include <stdio.h>
@@ -73,8 +73,16 @@ int main(int argc, char **argv) {
   
   /* getting the clock */
   //gst_bin_auto_clock(GST_BIN (thread));
-  gst_bin_use_clock(GST_BIN (thread), gst_system_clock_obtain());
-  clock = gst_bin_get_clock(GST_BIN (thread));
+  g_print("audiosink provides clock? %d\n",gst_element_provides_clock (audiosink));
+  if (gst_element_provides_clock (audiosink)) {
+    gst_bin_use_clock(GST_BIN (thread), gst_element_get_clock (audiosink));
+    clock = gst_element_get_clock (audiosink);
+    g_print("using %s clock",argv[2]);
+  } else {
+    gst_bin_use_clock(GST_BIN (thread), gst_system_clock_obtain());
+    clock = gst_bin_get_clock(GST_BIN (thread));
+  }
+  
   g_print("speed: %f\n",gst_clock_get_speed (clock));
   g_print("resolution: %d\n",gst_clock_get_resolution (clock));
   g_print("is active: %d\n",gst_clock_is_active (clock));
