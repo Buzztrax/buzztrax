@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.4 2004-08-07 21:23:19 ensonic Exp $
+/* $Id: main-window.c,v 1.5 2004-08-07 23:48:02 ensonic Exp $
  * class for the editor main window
  */
 
@@ -20,7 +20,7 @@ struct _BtMainWindowPrivate {
   BtEditApplication *app;
 
   /* the top-level window of our app */
-  GtkWidget *window;
+  GtkWindow *window;
 };
 
 //-- event handler

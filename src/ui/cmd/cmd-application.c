@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.18 2004-08-07 23:29:02 ensonic Exp $
+/* $Id: cmd-application.c,v 1.19 2004-08-07 23:48:02 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -101,8 +101,8 @@ Error:
  * Returns: true for success
  */
 gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name) {
-	BtSong *song;
-	BtSongIO *loader;
+	BtSong *song=NULL;
+	BtSongIO *loader=NULL;
 
 	GST_INFO("application.info launched");
 
