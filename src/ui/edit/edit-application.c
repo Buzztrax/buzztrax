@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.55 2005-02-03 16:13:51 ensonic Exp $
+/* $Id: edit-application.c,v 1.56 2005-02-07 11:02:16 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -316,6 +316,11 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
   if(bt_edit_application_load_song(self,input_file_name)) {
     res=bt_edit_application_run_ui(self);
   }
+	else {
+		// start normaly
+		bt_edit_application_run(self);
+		// @todo show error message
+	}
 	GST_INFO("application.load_and_run finished");
 	return(res);
 }

@@ -1,4 +1,4 @@
-$Id: README,v 1.9 2005-01-13 18:42:08 ensonic Exp $
+$Id: README,v 1.10 2005-02-07 11:01:46 ensonic Exp $
 
 = quickinfo =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -9,14 +9,15 @@ libxml2
 glib2
 gtk+2
 gstreamer(head cvs)
+gnome-canvas
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
-gtkdrid
+gtkgrid
 gconf
 
 = directories =
-design : little test sources, not needed for releases
+design : little test sources, not needed for releases, not built during make
 docs : design ideas and API reference
 po : gettext i18n catalogs
 src : the project sources
@@ -47,5 +48,4 @@ in one console enter
   eval {rm\ ,\;touch\ ,\;tail\ -f\ }/tmp/buzztard.log
 in another
   make check
-
 

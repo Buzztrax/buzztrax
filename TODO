@@ -1,4 +1,4 @@
-$Id: TODO,v 1.21 2004-10-11 16:18:43 ensonic Exp $
+$Id: TODO,v 1.22 2005-02-07 11:01:46 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -8,16 +8,17 @@ run 'make todo' to get a list of todo comments from source
     audio-generators (and implement the instrument interface)
     audio-effects
   * bt-edit
-    * show play-position with finer resolution
-      - tick signal in playline
-      - sequence registers signal-handler and forwards signals
+    * show play-position with graphicaly
 
 * how do we implement multiple voices per machine?
-  * source 
-    * separate instances that are mixed together
-  * processors (e.g. multi-tap delay)
-    * separate instances that are getting the same input
-      and that are mixed together in the end
+  * simulate
+    * source 
+      * separate instances that are mixed together
+    * processors (e.g. multi-tap delay)
+      * separate instances that are getting the same input
+        and that are mixed together in the end
+  * natively
+    * instrument interface
 
 * how do we handle global/voice-params
   * gstreamer does not support differentiation between them
@@ -36,13 +37,8 @@ run 'make todo' to get a list of todo comments from source
     * do once object_p=object->priv;
     * #define G_SELF self->priv
 
-* new signals
-  song::new ?
-    song has been reset or new song has been loaded
-    -> update gui
-
 * new tests
-  * load songs and lookup te parts
+  * load songs and lookup the parts
     (e.g. bt_machine_get_pattern_by_id)
 
 * code enhancement

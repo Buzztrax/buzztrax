@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.14 2004-12-19 21:13:49 ensonic Exp $
+/* $Id: bt-edit.c,v 1.15 2005-02-07 11:02:09 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:
@@ -15,7 +15,7 @@ static void usage(int argc, char **argv, const struct poptOption *options) {
   const poptContext context=poptGetContext(argv[0], argc, (const char **)argv, options, 0);
   poptPrintUsage(context,stdout,0);
   poptFreeContext(context);
-  exit(0);
+  //exit(0);
 }
 
 int main(int argc, char **argv) {
@@ -59,10 +59,20 @@ int main(int argc, char **argv) {
   if(command) {
     // depending on the popt options call the correct method
     if(!strncmp(command,"load",4)) {
-      if(!input_file_name) usage(argc, argv, options);
-      res=bt_edit_application_load_and_run(app,input_file_name);
+      if(!input_file_name) {
+				usage(argc, argv, options);
+				// if commandline options where wrong, just start
+				res=bt_edit_application_run(app);
+			}
+      else {
+				res=bt_edit_application_load_and_run(app,input_file_name);
+			}
     }
-    else usage(argc, argv, options);
+    else {
+			usage(argc, argv, options);
+			// if commandline options where wrong, just start
+			res=bt_edit_application_run(app);
+		}
   }
   else {
     res=bt_edit_application_run(app);
