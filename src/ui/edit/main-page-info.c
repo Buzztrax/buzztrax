@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.19 2004-12-19 21:13:49 ensonic Exp $
+/* $Id: main-page-info.c,v 1.20 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -270,7 +270,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self, const BtEd
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app) {
   BtMainPageInfo *self;

@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.27 2004-12-14 16:12:07 ensonic Exp $
+/* $Id: main-menu.c,v 1.28 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -284,7 +284,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainMenu *bt_main_menu_new(const BtEditApplication *app,GtkAccelGroup *accel_group) {
   BtMainMenu *self;

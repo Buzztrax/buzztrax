@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.10 2004-11-26 18:53:27 waffel Exp $
+/* $Id: settings-dialog.c,v 1.11 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -150,7 +150,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSettingsDialog *bt_settings_dialog_new(const BtEditApplication *app) {
   BtSettingsDialog *self;

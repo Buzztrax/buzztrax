@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.50 2005-01-14 15:14:59 ensonic Exp $
+/* $Id: sequence.c,v 1.51 2005-01-15 22:02:51 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -155,7 +155,7 @@ static void bt_sequence_init_machines(const BtSequence *self) {
  * Create a new instance. One would not call this directly, but rather get this
  * from a #BtSong instance.
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
@@ -182,7 +182,7 @@ Error:
  * Fetches the timeline by its index from the sequence.
  * Unref the timeline, when done with it.
  *
- * Returns: the #BtTimeLine pointer or NULL in case of an error
+ * Returns: the #BtTimeLine pointer or %NULL in case of an error
  */
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const gulong time) {
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
@@ -202,7 +202,7 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const gulong
  *
  * fetches the required #BtMachine.
  *
- * Returns: the #BtMachine pointer or NULL in case of an error
+ * Returns: the #BtMachine pointer or %NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const gulong track) {
 	
@@ -301,7 +301,7 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
  *
  * starts playback for the sequence
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  *
  */
 gboolean bt_sequence_play(const BtSequence *self) {
@@ -386,7 +386,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
  *
  * stops playback for the sequence
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  *
  */
 gboolean bt_sequence_stop(const BtSequence *self) {

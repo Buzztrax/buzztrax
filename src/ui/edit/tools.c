@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.4 2004-12-13 10:31:42 ensonic Exp $
+/* $Id: tools.c,v 1.5 2005-01-15 22:02:53 ensonic Exp $
  * gui helper
  */
 
@@ -140,7 +140,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
  * @message: the message itself
  *
  * Displays a modal question dialog, that needs to be confirmed with "Okay" or aborted with "Cancel".
- * Returns: TRUE for Okay, FALSE otherwise
+ * Returns: %TRUE for Okay, %FALSE otherwise
  */
 gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message) {
   gboolean result=FALSE;

@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.21 2004-12-14 19:16:57 waffel Exp $
+/* $Id: source-machine.c,v 1.22 2005-01-15 22:02:52 ensonic Exp $
  * class for a source machine
  */
  
@@ -29,7 +29,7 @@ static BtMachineClass *parent_class=NULL;
  * A machine should be added to a songs setup using
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
   BtSourceMachine *self;

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.45 2005-01-07 17:50:53 ensonic Exp $
+/* $Id: main-window.c,v 1.46 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main window
  */
 
@@ -131,7 +131,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
@@ -175,7 +175,7 @@ gboolean bt_main_window_run(const BtMainWindow *self) {
  *
  * Displays a dialog box, that asks the user to confirm exiting the application.
  *
- * Returns: TRUE if the user has confirmed to exit
+ * Returns: %TRUE if the user has confirmed to exit
  */
 gboolean bt_main_window_check_quit(const BtMainWindow *self) {
 	// @todo check song->unsaved

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.29 2005-01-14 15:14:59 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.30 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -312,7 +312,7 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_page_machines,BtMachine *machine,gdouble xpos,gdouble ypos,gdouble zoom) {
 	BtMachineCanvasItem *self;

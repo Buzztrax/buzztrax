@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.32 2005-01-07 17:50:53 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.33 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -382,7 +382,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainToolbar *bt_main_toolbar_new(const BtEditApplication *app) {
   BtMainToolbar *self;

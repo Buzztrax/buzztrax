@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.47 2005-01-06 11:19:50 ensonic Exp $
+/* $Id: core.h,v 1.48 2005-01-15 22:02:52 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -169,7 +169,7 @@
  * is_string:
  * @a: string pointer
  *
- * checks if the supplied string pointer is not NULL and contains not just '\0'
+ * checks if the supplied string pointer is not %NULL and contains not just '\0'
  */
 #define is_string(a) (a && *a)
 
@@ -185,10 +185,10 @@
  * g_object_try_ref:
  * @obj: the object to reference
  *
- * If the supplied object is not NULL then reference it via
+ * If the supplied object is not %NULL then reference it via
  * g_object_ref().
  *
- * Return: the referenced object or NULL
+ * Return: the referenced object or %NULL
  */
 #define g_object_try_ref(obj) (obj)?g_object_ref(obj):NULL
 
@@ -196,7 +196,7 @@
  * g_object_try_unref:
  * @obj: the object to release the reference
  *
- * If the supplied object is not NULL then release the reference via
+ * If the supplied object is not %NULL then release the reference via
  * g_object_unref().
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
@@ -205,7 +205,7 @@
  * g_object_try_weak_ref:
  * @obj: the object to reference
  *
- * If the supplied object is not NULL then reference it via
+ * If the supplied object is not %NULL then reference it via
  * g_object_add_weak_pointer().
  */
 #define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
@@ -214,7 +214,7 @@
  * g_object_try_weak_unref:
  * @obj: the object to release the reference
  *
- * If the supplied object is not NULL then release the reference via
+ * If the supplied object is not %NULL then release the reference via
  * g_object_remove_weak_pointer().
  */
 #define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);

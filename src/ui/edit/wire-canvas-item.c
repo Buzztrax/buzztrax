@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.14 2005-01-14 15:15:00 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.15 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -223,7 +223,7 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
 	BtWireCanvasItem *self;

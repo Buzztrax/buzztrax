@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.36 2005-01-14 15:15:00 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.37 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -184,11 +184,16 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
  */
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
 	BtMachine *machine;
-	gulong i,number_of_ticks,pos=0;
+	gulong i,j,number_of_ticks,pos=0;
+	gulong col_ct,number_of_global_params;
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GType *store_types;
 	GtkTreeIter tree_iter;
+	GValue *value;
+	gchar *str;
+	GstDParam *dparam;
+	GParamSpec *pspec;
 #ifdef USE_GTKGRID
   GtkGridColumn *grid_col;
 #endif
@@ -203,22 +208,35 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
 	if(pattern) {
 		g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"machine",&machine,NULL);
-	  GST_INFO("  size is %2d,?",number_of_ticks);
+		g_object_get(G_OBJECT(machine),"global-params",&number_of_global_params,NULL);
+	  GST_INFO("  size is %2d,%2d",number_of_ticks,number_of_global_params);
 
 		// build model
 		GST_DEBUG("  build model");
-		store_types=(GType *)g_new(GType *,1);
+		col_ct=1+number_of_global_params;
+		store_types=(GType *)g_new(GType *,col_ct);
 		store_types[0]=G_TYPE_LONG;
-		store=gtk_list_store_newv(1,store_types);
+		for(i=1;i<col_ct;i++) {
+			store_types[i]=G_TYPE_STRING;
+		}
+		store=gtk_list_store_newv(col_ct,store_types);
   	g_free(store_types);
 		// add events
   	for(i=0;i<number_of_ticks;i++) {
-    	//timeline=bt_sequence_get_timeline_by_time(sequence,i);
     	gtk_list_store_append(store, &tree_iter);
     	// set position, highlight-color
     	gtk_list_store_set(store,&tree_iter,
 				PATTERN_TABLE_POS,pos,
 				-1);
+			for(j=0;j<number_of_global_params;j++) {
+				if((value=bt_pattern_get_global_event_data(pattern,i,j))) {
+					str=g_strdup_value_contents(value);
+	    		gtk_list_store_set(store,&tree_iter,
+						PATTERN_TABLE_POS+j,str,
+						-1);
+					g_free(str);
+				}
+			}
 			pos++;
 		}
 #ifdef USE_GTKGRID
@@ -232,12 +250,20 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 #ifdef USE_GTKGRID
   	renderer=gtk_cell_renderer_text_new();
   	g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
-		GST_DEBUG("    created cell renderer");
   	grid_col=gtk_grid_column_new_with_attributes(_("Pos."),renderer,
     	"text",PATTERN_TABLE_POS,
     	NULL);
-		GST_DEBUG("    created column");
 		gtk_grid_append_column(self->priv->pattern_table,grid_col);
+		for(j=0;j<number_of_global_params;j++) {
+			dparam=bt_machine_get_global_dparam(machine,j);
+			pspec=GST_DPARAM_PARAM_SPEC(dparam);
+	  	renderer=gtk_cell_renderer_text_new();
+	  	grid_col=gtk_grid_column_new_with_attributes(GST_DPARAM_NAME(dparam),renderer,
+  	  	"text",PATTERN_TABLE_POS+j,
+    		NULL);
+			gtk_grid_append_column(self->priv->pattern_table,grid_col);
+		}
+		GST_DEBUG("    created columns");
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),TRUE);
 #endif
 
@@ -390,7 +416,9 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
   // @todo add base octave (0-8)
   // @todo add play notes ?
   
-  // @todo add list-view / grid-view
+	
+	// @todo what about adding one control for global params and one for each voice, then these controls can be folded
+  // add list-view / grid-view for pattern
 	scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
@@ -419,7 +447,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self, co
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app) {
   BtMainPagePatterns *self;
@@ -447,7 +475,7 @@ Error:
  * in the toolbar.
  * Unref the machine, when done with it.
  *
- * Returns: the #BtMachine instance or NULL in case of an error
+ * Returns: the #BtMachine instance or %NULL in case of an error
  */
 BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
   gulong index;
@@ -477,7 +505,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
  * in the toolbar.
  * Unref the pattern, when done with it.
  *
- * Returns: the #BtPattern instance or NULL in case of an error
+ * Returns: the #BtPattern instance or %NULL in case of an error
  */
 BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self) {
   gulong index;

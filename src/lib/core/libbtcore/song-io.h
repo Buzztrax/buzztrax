@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.14 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: song-io.h,v 1.15 2005-01-15 22:02:52 ensonic Exp $
  * base class for song input and output
  */
 
@@ -35,6 +35,7 @@ struct _BtSongIO {
 /**
  * BtSongIOClass:
  * @load: virtual method for loading a song
+ * @save: virtual method for saving a song
  *
  * base class for song input and output plugins
  */
@@ -58,7 +59,7 @@ GType bt_song_io_get_type(void);
  * Type of the file-format detect function.
  * Each #BtSongIO plugin must provide this one.
  *
- * Returns: the #GType of the song-io class on succes or NULL otherwise
+ * Returns: the #GType of the song-io class on succes or %NULL otherwise
  */
 typedef GType (*BtSongIODetect)(const gchar *file_name);
 

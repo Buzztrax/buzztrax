@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.44 2005-01-14 15:15:00 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.45 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -765,7 +765,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self, co
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app) {
   BtMainPageMachines *self;

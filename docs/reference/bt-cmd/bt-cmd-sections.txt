@@ -1,4 +1,4 @@
-# $Id: bt-cmd-sections.txt,v 1.2 2005-01-11 16:50:45 ensonic Exp $
+# $Id: bt-cmd-sections.txt,v 1.3 2005-01-15 22:02:40 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -9,7 +9,7 @@
 # <SUBSECTION Private>
 # </SECTION>
 
-<INCLUDE>bt-cmd.h</INCLUDE>
+<INCLUDE>"bt-cmd.h"</INCLUDE>
 
 <SECTION>
 <FILE>btcmdapplication</FILE>

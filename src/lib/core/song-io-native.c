@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.53 2005-01-14 15:14:59 ensonic Exp $
+/* $Id: song-io-native.c,v 1.54 2005-01-15 22:02:52 ensonic Exp $
  * class for native song input and output
  */
  
@@ -21,7 +21,7 @@ static BtSongIOClass *parent_class=NULL;
  *
  * Checks if this plugin should manage this kind of file.
  *
- * Retunrs: the GType of this plugin of NULL
+ * Retunrs: the GType of this plugin of %NULL
  */
 GType bt_song_io_native_detect(const gchar *file_name) {
   GType type=0;
@@ -46,7 +46,7 @@ GType bt_song_io_native_detect(const gchar *file_name) {
  * @type: the required type
  *
  * test if the given XPathObject is of the expected type, otherwise discard the object
- * Returns: the supplied xpath object or NULL is types do not match
+ * Returns: the supplied xpath object or %NULL is types do not match
  */
 xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathObjectType type) {
 	if(xpath_optr && (xpath_optr->type!=type)) {

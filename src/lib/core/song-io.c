@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.33 2005-01-10 12:22:07 ensonic Exp $
+/* $Id: song-io.c,v 1.34 2005-01-15 22:02:52 ensonic Exp $
  * base class for song input and output
  */
  
@@ -138,7 +138,7 @@ static void bt_song_io_update_filename(const BtSongIO *self, const BtSong *song)
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSongIO *bt_song_io_new(const gchar *file_name) {
   BtSongIO *self=NULL;

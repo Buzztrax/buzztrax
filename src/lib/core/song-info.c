@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.30 2004-12-18 15:06:05 ensonic Exp $
+/* $Id: song-info.c,v 1.31 2005-01-15 22:02:52 ensonic Exp $
  * class for a machine to machine connection
  */
  
@@ -55,7 +55,7 @@ static GObjectClass *parent_class=NULL;
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSongInfo *bt_song_info_new(const BtSong *song) {
   BtSongInfo *self;

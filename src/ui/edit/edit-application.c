@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.43 2005-01-10 12:22:08 ensonic Exp $
+/* $Id: edit-application.c,v 1.44 2005-01-15 22:02:53 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -77,7 +77,7 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
@@ -108,7 +108,7 @@ Error:
  * Creates a new blank song instance. If there is a previous song instance it
  * will be freed.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;

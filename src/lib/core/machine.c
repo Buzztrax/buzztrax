@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.69 2005-01-14 15:14:59 ensonic Exp $
+/* $Id: machine.c,v 1.70 2005-01-15 22:02:51 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -89,7 +89,7 @@ static GObjectClass *parent_class=NULL;
  * This is the common part of machine construction. It needs to be called from
  * within the sub-classes constructor methods.
  *
- * Returns: TRUE for succes, FALSE otherwise
+ * Returns: %TRUE for succes, %FALSE otherwise
  */
 gboolean bt_machine_new(BtMachine *self) {
 
@@ -187,7 +187,7 @@ gboolean bt_machine_new(BtMachine *self) {
  *
  * Add an input-level analyser to the machine and activate it.
  *
- * Returns: TRUE for success, FALSE otherwise
+ * Returns: %TRUE for success, %FALSE otherwise
  */
 gboolean bt_machine_add_input_level(BtMachine *self) {
   gboolean res=FALSE;
@@ -216,7 +216,7 @@ Error:
  * Machines use an adder to allow multiple incoming wires.
  * This method is used by the #BtWire class to activate the adder when needed.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_machine_activate_adder(BtMachine *self) {
   gboolean res=TRUE;
@@ -250,7 +250,7 @@ gboolean bt_machine_activate_adder(BtMachine *self) {
  * Checks if the machine currently uses an adder.
  * This method is used by the #BtWire class to activate the adder when needed.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_machine_has_active_adder(BtMachine *self) {
   return(self->dst_elem==self->priv->adder);
@@ -263,7 +263,7 @@ gboolean bt_machine_has_active_adder(BtMachine *self) {
  * Machines use a spreader to allow multiple outgoing wires.
  * This method is used by the #BtWire class to activate the spreader when needed.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_machine_activate_spreader(BtMachine *self) {
   gboolean res=TRUE;
@@ -290,7 +290,7 @@ gboolean bt_machine_activate_spreader(BtMachine *self) {
  * Checks if the machine currently uses an spreader.
  * This method is used by the #BtWire class to activate the spreader when needed.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_machine_has_active_spreader(BtMachine *self) {
   return(self->src_elem==self->priv->spreader);
@@ -325,7 +325,7 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or NULL if not found
+ * Returns: #BtPattern instance or %NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   gboolean found=FALSE;
@@ -356,11 +356,11 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
  * The pattern must have been added previously to this setup with #bt_machine_add_pattern().
  * Unref the pattern, when done with it.
  *
- * Returns: #BtPattern instance or NULL if not found
+ * Returns: #BtPattern instance or %NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
 	g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-	g_return_val_if_fail(index>g_list_length(self->priv->patterns),NULL);
+	g_return_val_if_fail(index<g_list_length(self->priv->patterns),NULL);
 
 	return(g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index))));
 }

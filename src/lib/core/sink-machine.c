@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.30 2005-01-10 12:22:07 ensonic Exp $
+/* $Id: sink-machine.c,v 1.31 2005-01-15 22:02:52 ensonic Exp $
  * class for a sink machine
  */
  
@@ -28,7 +28,7 @@ static BtMachineClass *parent_class=NULL;
  * A machine should be added to a songs setup using
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   BtSinkMachine *self;

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.41 2005-01-14 15:15:00 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.42 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -99,6 +99,8 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
 	GtkTreeIter iter;
 	gboolean visible,odd_row=FALSE;
 
+	GST_INFO("recolorize sequence tree view");
+	
 	if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
 		&& (store=gtk_tree_model_filter_get_model(filtered_store)))
 	{
@@ -173,13 +175,13 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"xalign",1.0,"foreground","red",NULL);
+  g_object_set(G_OBJECT(renderer),"mode",GTK_CELL_RENDERER_MODE_INERT,"xalign",1.0,"foreground","red",NULL);
   gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Pos."),renderer,
     "text",SEQUENCE_TABLE_POS,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL);
   renderer=gtk_cell_renderer_text_new();
-  g_object_set(G_OBJECT(renderer),"editable",TRUE,"xalign",1.0,"foreground","red",NULL);
+  g_object_set(G_OBJECT(renderer),"xalign",1.0,"foreground","red",NULL);
   col_index=gtk_tree_view_insert_column_with_attributes(self->priv->sequence_table,-1,_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
 		"foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
@@ -305,7 +307,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   for(j=0;j<track_ct;j++) {
     machine=bt_sequence_get_machine_by_track(sequence,j);
     renderer=gtk_cell_renderer_text_new();
-    g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
+    //g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
 
     // set machine name as column header
 		if(machine) {
@@ -486,6 +488,14 @@ static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovemen
   }
 }
 
+static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  g_assert(user_data);
+	
+	GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSong *song;
@@ -514,7 +524,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     index=1+(bars>>2);
   }
   //GST_INFO("  bars=%d, index=%d",bars,index);
-  gtk_combo_box_set_active(self->priv->bars_menu,index);
+	if(gtk_combo_box_get_active(self->priv->bars_menu)!=index) {
+  	gtk_combo_box_set_active(self->priv->bars_menu,index);
+	}
+	else {
+		sequence_model_recolorize(self);
+	}
 	// connect to the tick signal
 	g_signal_connect(G_OBJECT(sequence), "tick", (GCallback)on_sequence_tick, (gpointer)self);
   //-- release the references
@@ -642,6 +657,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", (GCallback)on_sequence_table_cursor_moved, (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", (GCallback)on_sequence_table_cursor_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", (GCallback)on_sequence_table_key_release_event, (gpointer)self);
   g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
   return(TRUE);
 }
@@ -654,7 +670,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self, co
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app) {
   BtMainPageSequence *self;
@@ -682,7 +698,7 @@ Error:
  * the sequence table.
  * Unref the machine, when done with it.
  *
- * Returns: the #BtMachine instance or NULL in case of an error
+ * Returns: the #BtMachine instance or %NULL in case of an error
  */
 BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self) {
   BtMachine *machine=NULL;

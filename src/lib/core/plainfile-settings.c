@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.7 2004-12-06 20:18:46 waffel Exp $
+/* $Id: plainfile-settings.c,v 1.8 2005-01-15 22:02:51 ensonic Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -36,7 +36,7 @@ static BtSettingsClass *parent_class=NULL;
  *
  * Create a new instance.
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtPlainfileSettings *bt_plainfile_settings_new(void) {
   BtPlainfileSettings *self;

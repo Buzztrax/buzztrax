@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.55 2005-01-14 15:14:59 ensonic Exp $
+/* $Id: setup.c,v 1.56 2005-01-15 22:02:52 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -52,7 +52,7 @@ static guint signals[LAST_SIGNAL]={0,};
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSetup *bt_setup_new(const BtSong *song) {
   BtSetup *self;
@@ -76,7 +76,7 @@ BtSetup *bt_setup_new(const BtSong *song) {
  * In other words - it returns the first wire that has the the given #BtMachine as
  * the given type.
  *
- * Returns: the #BtWire or NULL 
+ * Returns: the #BtWire or %NULL 
  */
 static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMachine *machine, const gchar *type) {
 	gboolean found=FALSE;
@@ -189,7 +189,7 @@ void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
  * The machine must have been added previously to this setup with bt_setup_add_machine().
  * Unref the machine, when done with it.
  *
- * Returns: #BtMachine instance or NULL if not found
+ * Returns: #BtMachine instance or %NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   gboolean found=FALSE;
@@ -244,7 +244,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
  * The machine must have been added previously to this setup with bt_setup_add_machine().
  * Unref the machine, when done with it.
  *
- * Returns: #BtMachine instance or NULL if not found
+ * Returns: #BtMachine instance or %NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
@@ -262,7 +262,7 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
  * In other words - it returns the first wire that starts at the given #BtMachine.
  * Unref the wire, when done with it.
  *
- * Returns: the #BtWire or NULL 
+ * Returns: the #BtWire or %NULL 
  */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
@@ -279,7 +279,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
  * In other words - it returns the first wire that ends at the given #BtMachine.
  * Unref the wire, when done with it.
  *
- * Returns: the #BtWire or NULL 
+ * Returns: the #BtWire or %NULL 
  */
 BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
 	g_return_val_if_fail(BT_IS_SETUP(self),NULL);

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.23 2004-12-18 16:09:14 waffel Exp $
+/* $Id: processor-machine.c,v 1.24 2005-01-15 22:02:51 ensonic Exp $
  * class for a processor machine
  */
 
@@ -29,7 +29,7 @@ static BtMachineClass *parent_class=NULL;
  * A machine should be added to a songs setup using
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
   BtProcessorMachine *self;

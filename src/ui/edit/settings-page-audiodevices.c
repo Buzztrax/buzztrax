@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.6 2005-01-10 12:22:08 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.7 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -107,7 +107,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSettingsPageAudiodevices *bt_settings_page_audiodevices_new(const BtEditApplication *app) {
   BtSettingsPageAudiodevices *self;

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.21 2004-12-06 20:18:46 waffel Exp $
+/* $Id: application.c,v 1.22 2005-01-15 22:02:51 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -33,7 +33,7 @@ static GObjectClass *parent_class=NULL;
  * This is the common part of application construction. It needs to be called from
  * within the sub-classes constructor methods.
  *
- * Returns: TRUE for succes, FALSE otherwise
+ * Returns: %TRUE for succes, %FALSE otherwise
  */
 gboolean bt_application_new(BtApplication *self) {
   gboolean res=FALSE;

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.24 2004-12-14 19:16:57 waffel Exp $
+/* $Id: pattern.c,v 1.25 2005-01-15 22:02:51 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -118,7 +118,7 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
  * Create a new instance. It will be automatically added to the machines pattern
  * list.
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, glong length, glong voices,const BtMachine *machine) {
   BtPattern *self;
@@ -151,7 +151,7 @@ Error:
  *
  * Fetches a cell from the given location in the pattern
  *
- * Returns: the GValue or NULL if out of the pattern range
+ * Returns: the GValue or %NULL if out of the pattern range
  */
 GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param) {
   gulong index;
@@ -198,12 +198,13 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
  * bt_pattern_get_global_dparam_index:
  * @self: the pattern to search for the global dparam
  * @name: the name of the global dparam
+ * @error: pointer to an error variable
  *
  * Searches the list of registered dparam of the machine the pattern belongs to
  * for a global dparam of the given name and returns the index if found.
  *
- * Returns: the index. If an error occurse the function returns 0 and sets the 
- * err variable. You should always check for err if you use this function.
+ * Returns: the index. If an error occurs the function returns 0 and sets the 
+ * error variable. You should always check for error if you use this function.
  */
 gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
 	gulong ret=0;
@@ -230,12 +231,13 @@ gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *na
  * bt_pattern_get_voice_dparam_index:
  * @self: the pattern to search for the voice dparam
  * @name: the name of the voice dparam
+ * @error: pointer to an error variable
  *
  * Searches the list of registered dparam of the machine the pattern belongs to
  * for a voice dparam of the given name and returns the index if found.
  *
- * Returns: the index. If an error occurse the function returns 0 and sets the 
- * err variable. You should always check for err if you use this function.
+ * Returns: the index. If an error occurs the function returns 0 and sets the 
+ * error variable. You should always check for error if you use this function.
  */
 gulong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
 	gulong ret=0;
@@ -304,7 +306,7 @@ void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gulong pa
  *
  * Stores the supplied value into the given pattern cell.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar *value) {
   g_assert(BT_IS_PATTERN(self));

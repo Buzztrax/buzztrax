@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.44 2005-01-14 15:14:59 ensonic Exp $
+/* $Id: wire.c,v 1.45 2005-01-15 22:02:52 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstThread!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -261,7 +261,7 @@ Error:
  * (using <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>)
  * to the setup before as well
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
   BtWire *self;

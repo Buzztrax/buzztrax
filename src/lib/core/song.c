@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.65 2004-12-18 17:53:18 ensonic Exp $
+/* $Id: song.c,v 1.66 2005-01-15 22:02:52 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -72,7 +72,7 @@ static guint signals[LAST_SIGNAL]={0,};
  * g_object_get(BT_SONG(song), "sequence", &amp;sequence, NULL);</programlisting>
  * </informalexample>
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtSong *bt_song_new(const BtApplication *app) {
   BtSong *self=NULL;
@@ -95,7 +95,7 @@ BtSong *bt_song_new(const BtApplication *app) {
  * Starts to play the specified song instance from beginning.
  * This methods emits the "play" signal.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_song_play(const BtSong *self) {
   gboolean res;
@@ -116,7 +116,7 @@ gboolean bt_song_play(const BtSong *self) {
  *
  * Stops the playback of the specified song instance.
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_song_stop(const BtSong *self) {
   gboolean res;
@@ -133,7 +133,7 @@ gboolean bt_song_stop(const BtSong *self) {
  *
  * Pauses the playback of the specified song instance
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_song_pause(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
@@ -148,7 +148,7 @@ gboolean bt_song_pause(const BtSong *self) {
  *
  * Continues the playback of the specified song instance
  *
- * Returns: TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_song_continue(const BtSong *self) {
   g_assert(BT_IS_SONG(self));

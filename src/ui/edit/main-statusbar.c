@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.22 2005-01-06 11:19:51 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.23 2005-01-15 22:02:53 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -156,7 +156,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtMainStatusbar *bt_main_statusbar_new(const BtEditApplication *app) {
   BtMainStatusbar *self;
