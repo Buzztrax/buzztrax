@@ -1,59 +1,90 @@
-* $Id: design.txt,v 1.5 2004-01-29 17:28:26 ensonic Exp $ (-*- mode:outline -*-)
+* $Id: design.txt,v 1.6 2004-02-04 12:52:21 ensonic Exp $ (-*- mode:outline -*-)
 ================================================================================
 
 ** architecture
-- two main modules
-*** gui
-*** worker
-- player
-- file i/o
-- sample processing
-- song edit operations
+	- two main modules
+	*** gui
+	*** worker
+	- player
+	- file i/o
+	- sample processing
+	- song edit operations
+
+** gstreamer how-to
+*** get list of generators, effect, outputs
+*** find out how to feed parameters into elements
+  - synchonous (from the GUI)
+			GstElement *sinesrc;
+			GstDParamManager *dpman;
+			GstDParam *volume;
+			gfloat set_to_value = 0.5; /* or value from slider */
+			GValue *set_val = g_new0(GValue,1);
+			g_value_init(set_val, G_TYPE_FLOAT);
+			...
+			sinesrc = gst_element_factory_make("sinesrc","sine-source");
+			...
+			dpman = gst_dpman_get_manager (sinesrc);
+			gst_dpman_set_mode(dpman, "synchronous");
+			...
+			volume = gst_dparam_new(G_TYPE_FLOAT);
+			if (gst_dpman_attach_dparam (dpman, "volume", volume)){
+				/* the dparam was successfully attached */
+				...
+				g_value_set_float(set_val, set_to_value);
+				g_object_set_property(G_OBJECT(volume), "value_float", set_val);
+				...
+			}
+	- asynchronous (from the sequence data, when playing)
+		like above, but
+		gst_dpman_set_mode(dpman, "asynchronous");
+		...
+		
+	- find out how to implement timelined parameters
 
 ** timing
-- we have two clock rates:
-  audio-rate: sampling-rate/audio-buffer size
-	controldata-rate: determined from BPM, clock (e.g. 4/4) and TPB (ticks per beat)
-		(buzz only does 4/4)
-	with 160 BPM and 4/4: 160/4 => 40 clock cycles = loops_per_minute
-	with 16 TPB, 40 loops_per_min: 40*16 => 640 ticks_per_minute
-	at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
-	2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
-	SPT=(SRAT*60*4)/(BPM*TPB)
-- QUESTION: is it sufficient to run the control-data callback after a full series
-  of audio-cycles, or do we have to check inside the audio loop and trigger it
-	there (which would make it slow)
-- audio callback
-	- run our machine-plugin graph
-- controldata callback
-		- set new machine parameters from patterndata
+	- we have two clock rates:
+		audio-rate: sampling-rate/audio-buffer size
+		controldata-rate: determined from BPM, clock (e.g. 4/4) and TPB (ticks per beat)
+			(buzz only does 4/4)
+		with 160 BPM and 4/4: 160/4 => 40 clock cycles = loops_per_minute
+		with 16 TPB, 40 loops_per_min: 40*16 => 640 ticks_per_minute
+		at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
+		2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
+		SPT=(SRAT*60*4)/(BPM*TPB)
+	- QUESTION: is it sufficient to run the control-data callback after a full series
+		of audio-cycles, or do we have to check inside the audio loop and trigger it
+		there (which would make it slow)
+	- audio callback
+		- run our machine-plugin graph
+	- controldata callback
+			- set new machine parameters from patterndata
 
 ** network
-*** user plugins
-= ladspa plugins
+	*** user plugins
+	= ladspa plugins
+	
+	0 input, 1 output : sources    : generators
+	1 input, 1 output : processors : effects
+	1 input, 0 output : sinks      : player, analyser
+	
+	= original buzz machines 
+	wrap original buzz dll like e.g. mplayer does with windows codecs
 
-0 input, 1 output : sources    : generators
-1 input, 1 output : processors : effects
-1 input, 0 output : sinks      : player, analyser
-
-= original buzz machines 
-wrapp original buzz dll like e.g. mplayer does with windows codecs
-
-*** internal plugins
-= ladspa plugins
-hide the input mixing
-hide channel conversion
+	*** internal plugins
+	= ladspa plugins
+	hide the input mixing
+	hide channel conversion
 
 ** controller ids
 
 ** recording
-own jack-driver wav-record
-when telling buzztard to record wav-out instead of playing it, we attach a new
-wav-record driver to jack and supplying filename and jack-driver name. Then we
-diconnect our wave-out from the current playback driver and connect it to the
-newly created wav-record driver and start playback. The driver will then start
-recording and stop, when the clients have benn detached again.
-Recording will be done as fast as possible, as the jack-driver will have
-0-waits.
-QUESTION: can we attach drivers to running jackd?
+	own jack-driver wav-record
+	when telling buzztard to record wav-out instead of playing it, we attach a new
+	wav-record driver to jack and supplying filename and jack-driver name. Then we
+	diconnect our wave-out from the current playback driver and connect it to the
+	newly created wav-record driver and start playback. The driver will then start
+	recording and stop, when the clients have benn detached again.
+	Recording will be done as fast as possible, as the jack-driver will have
+	0-waits.
+	QUESTION: can we attach drivers to running jackd?
 
