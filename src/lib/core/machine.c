@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.15 2004-07-12 17:28:20 ensonic Exp $
+/* $Id: machine.c,v 1.16 2004-07-13 16:52:11 ensonic Exp $
  * base class for a machine
  */
  
@@ -32,7 +32,14 @@ struct _BtMachinePrivate {
   glong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
   glong voice_params;
-  
+
+  /* gstreamer dparams */
+  GstDParamManager *dparam_manager;
+  GType *global_types;
+  GType *voice_types; 
+	GstDParam **global_dparams;
+	GstDParam **voice_dparams;  // @todo we need these for every voice
+
   GList *patterns;	// each entry points to BtPattern
 };
 
@@ -52,29 +59,29 @@ static gboolean bt_machine_init_gst_element(BtMachine *self) {
 			// there is no adder or spreader in use by default
 			self->dst_elem=self->src_elem=self->machine;
 			GST_DEBUG("  instantiated machine \"%s\"",self->private->plugin_name);
-			if((self->dparam_manager=gst_dpman_get_manager(self->machine))) {
+			if((self->private->dparam_manager=gst_dpman_get_manager(self->machine))) {
 				GParamSpec **specs;
 				GstDParam **dparam;
 				guint i;
 		
 				// setting param mode. Only synchronized is currently supported
-				gst_dpman_set_mode(self->dparam_manager, "synchronous");
+				gst_dpman_set_mode(self->private->dparam_manager, "synchronous");
 				GST_DEBUG("  machine \"%s\" supports dparams",self->private->plugin_name);
 				
 				/** @todo manage dparams */
-				specs=gst_dpman_list_dparam_specs(self->dparam_manager);
+				specs=gst_dpman_list_dparam_specs(self->private->dparam_manager);
 				// count the specs
 				for(i=0;specs[i];i++);
-				self->dparams=(GstDParam **)g_new0(gpointer,i);
-        // right now, we have no global params
-				self->private->voice_params=i;
+        // right now, we have no voice params
+				self->private->global_params=i;
+				self->private->global_dparams=(GstDParam **)g_new0(gpointer,self->private->global_params);
+				self->private->global_types  =(GType *     )g_new0(GType   ,self->private->global_params);
 				// iterate over all dparam
-				for(i=0,dparam=self->dparams;specs[i];i++,dparam++) {
-					*dparam=gst_dparam_new(G_PARAM_SPEC_VALUE_TYPE(specs[i]));
-          // @todo change gstreamer so that the 2nd param of gst_dpman_attach_dparam() is declared with 'const'
-					gst_dpman_attach_dparam(self->dparam_manager,g_param_spec_get_name(specs[i]),*dparam);
-					GST_DEBUG("    added param \"%s\"",g_param_spec_get_name(specs[i]));
-          // @todo remember the types of the dparams, so that later we can correctly initialize the patterns
+				for(i=0,dparam=self->private->global_dparams;specs[i];i++,dparam++) {
+          self->private->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
+					self->private->global_dparams[i]=gst_dparam_new(self->private->global_types[i]);
+					gst_dpman_attach_dparam(self->private->dparam_manager,g_param_spec_get_name(specs[i]),self->private->global_dparams[i]);
+					GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
 				}
 			}
 			gst_bin_add(GST_BIN(bt_g_object_get_object_property(G_OBJECT(self->private->song),"bin")), self->machine);
@@ -169,11 +176,9 @@ static void bt_machine_set_property(GObject      *object,
     } break;
     case MACHINE_GLOBAL_PARAMS: {
       self->private->global_params = g_value_get_long(value);
-      bt_pattern_init_data(self);
     } break;
     case MACHINE_VOICE_PARAMS: {
       self->private->voice_params = g_value_get_long(value);
-      bt_pattern_init_data(self);
     } break;
     default: {
       g_assert(FALSE);
@@ -195,6 +200,10 @@ static void bt_machine_finalize(GObject *object) {
 	g_free(self->private->plugin_name);
 	g_free(self->private->id);
 	g_object_unref(G_OBJECT(self->private->song));
+  g_free(self->private->voice_types);
+  g_free(self->private->voice_dparams);
+  g_free(self->private->global_types);
+  g_free(self->private->global_dparams);
   // free list of patterns
 	if(self->private->patterns) {
 		node=g_list_first(self->private->patterns);

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.h,v 1.5 2004-07-07 11:39:05 ensonic Exp $
+/* $Id: processor-machine.h,v 1.6 2004-07-13 16:52:11 ensonic Exp $
  * class for a processor machine
  */
 
@@ -26,6 +26,12 @@ typedef struct _BtProcessorMachine BtProcessorMachine;
 typedef struct _BtProcessorMachineClass BtProcessorMachineClass;
 typedef struct _BtProcessorMachinePrivate BtProcessorMachinePrivate;
 
+/**
+ * BtProcessorMachine:
+ *
+ * Sub-class of a BtMachine that implements an effect-processor
+ * (a machine with in and outputs).
+ */
 struct _BtProcessorMachine {
   BtMachine parent;
   

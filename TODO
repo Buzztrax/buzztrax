@@ -1,4 +1,4 @@
-$Id: TODO,v 1.5 2004-07-12 17:28:16 ensonic Exp $
+$Id: TODO,v 1.6 2004-07-13 16:52:09 ensonic Exp $
 
 * how do we implement multiple voices per machine?
   * source 
@@ -6,9 +6,15 @@ $Id: TODO,v 1.5 2004-07-12 17:28:16 ensonic Exp $
   * processors (e.g. multi-tap delay)
     * separate instances that are getting the same input
       and that are mixed together in the end
+
 * how do we handle global/voice-params
   * gstreamer does not support differentiation between them
   * therefore global_data is 0 for now
+  * changes in gstreamer
+    * dparam_manager needs to maintain several lists
+      (one global and one for each voice)
+    * gst-elemnts need caps to tell wheter they support multiple voices
+    * if they do they need function to add/remove voices
 
 
 * unit-tests

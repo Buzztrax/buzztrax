@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.1 2004-07-12 16:38:49 ensonic Exp $
+/* $Id: tools.c,v 1.2 2004-07-13 16:52:11 ensonic Exp $
  */
  
 #define BT_CORE
@@ -34,7 +34,7 @@ GObject* bt_g_object_get_object_property(GObject *object,gchar *property_name) {
  *
  * Returns: the string value or NULL
  */
-gchar* bt_g_object_get_string_property(GObject *object,gchar *property_name) {
+const gchar* bt_g_object_get_string_property(GObject *object,gchar *property_name) {
   static GValue *val=NULL;
   
   if(val==NULL) {

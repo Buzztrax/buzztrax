@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.3 2004-07-12 17:28:20 ensonic Exp $
+/* $Id: pattern.c,v 1.4 2004-07-13 16:52:11 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -32,16 +32,10 @@ struct _BtPatternPrivate {
   /* the machine the pattern belongs to */
   BtMachine *machine;
 
-  /* we have one GValue* in length*(global_params+voices*voice_params) */
-	GValue  *data;
-  /** @todo more objects here !
-  BtPatternRow *ticks;
-  
-  struct BtPatternRow {
-    GValue *global_data;  // global_params
-    GValue **voice_data;  // voices*voice_params
-  }
+  /* an array of GValue
+   * with the size of length*(global_params+voices*voice_params)
    */
+	GValue  *data;
 };
 
 //-- helper methods
@@ -49,7 +43,7 @@ struct _BtPatternPrivate {
 static void bt_pattern_init_data(const BtPattern *self) {
   g_assert(self->private->data==NULL);
   
-  if(self->private->length && self->private->voices && self->private->params) {
+  if(self->private->length && self->private->voices && self->private->voice_params) {
     glong data_count=self->private->length*(self->private->voices*self->private->voice_params+self->private->global_params);
 
     GST_DEBUG("bt_pattern_init_data : %d*(%d*%d+%d)=%d",self->private->length,self->private->voices,self->private->voice_params,self->private->global_params,data_count);

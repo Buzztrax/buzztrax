@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.4 2004-07-02 13:44:50 ensonic Exp $
+/* $Id: sequence.h,v 1.5 2004-07-13 16:52:11 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -26,6 +26,13 @@ typedef struct _BtSequence BtSequence;
 typedef struct _BtSequenceClass BtSequenceClass;
 typedef struct _BtSequencePrivate BtSequencePrivate;
 
+/**
+ * BtSequence:
+ *
+ * Startingpoint for the BtSong timeline data-structures.
+ * Holds a series of BtTimeLine objects, which define the events that are
+ * sent to a BtMachine at a time.
+ */
 struct _BtSequence {
   GObject parent;
   

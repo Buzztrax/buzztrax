@@ -1,4 +1,4 @@
-/* $Id: sink-machine.h,v 1.5 2004-07-07 11:39:05 ensonic Exp $
+/* $Id: sink-machine.h,v 1.6 2004-07-13 16:52:11 ensonic Exp $
  * class for a sink machine
  */
 
@@ -26,6 +26,12 @@ typedef struct _BtSinkMachine BtSinkMachine;
 typedef struct _BtSinkMachineClass BtSinkMachineClass;
 typedef struct _BtSinkMachinePrivate BtSinkMachinePrivate;
 
+/**
+ * BtSinkMachine:
+ *
+ * Sub-class of a BtMachine that implements a signal output
+ * (a machine with inputs only).
+ */
 struct _BtSinkMachine {
   BtMachine parent;
   
