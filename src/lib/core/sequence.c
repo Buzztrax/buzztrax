@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.40 2004-11-04 10:38:14 ensonic Exp $
+/* $Id: sequence.c,v 1.41 2004-11-08 18:01:25 waffel Exp $
  * class for the pattern sequence
  */
  
@@ -159,7 +159,7 @@ static void bt_sequence_init_machines(const BtSequence *self) {
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
   
-  g_assert(BT_IS_SONG(song));
+	g_return_val_if_fail(BT_IS_SONG(song),NULL);
   
   self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL));
   if(self) {
@@ -181,7 +181,8 @@ BtSequence *bt_sequence_new(const BtSong *song) {
  * Returns: the #BtTimeLine pointer or NULL in case of an error
  */
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong time) {
-  g_assert(BT_IS_SEQUENCE(self));
+	
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
 
   if(time<self->priv->length) {
     return(self->priv->timelines[time]);
@@ -202,7 +203,8 @@ BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const glong 
  * Returns: the #BtMachine pointer or NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong track) {
-  g_assert(BT_IS_SEQUENCE(self));
+	
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
 
   if(track<self->priv->tracks) {
     return(self->priv->machines[track]);
@@ -223,8 +225,8 @@ BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const glong t
  */
 void bt_sequence_set_machine_by_track(const BtSequence *self,const glong track,const BtMachine *machine) {
 
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(BT_IS_MACHINE(machine));
+	g_return_if_fail(BT_IS_SEQUENCE(self));
+	g_return_if_fail(BT_IS_MACHINE(machine));
 
   // @todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
   // as it should not be allowed to change the machine later on
@@ -259,7 +261,7 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
   gdouble ticks_per_minute;
   gulong res;
 
-  g_assert(BT_IS_SEQUENCE(self));
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,"bars",&bars,NULL);
@@ -285,7 +287,7 @@ gulong bt_sequence_get_bar_time(const BtSequence *self) {
 gulong bt_sequence_get_loop_time(const BtSequence *self) {
   gulong res;
 
-  g_assert(BT_IS_SEQUENCE(self));
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
   res=(gulong)(self->priv->length*bt_sequence_get_bar_time(self));
   return(res);
@@ -303,7 +305,7 @@ gulong bt_sequence_get_loop_time(const BtSequence *self) {
 gboolean bt_sequence_play(const BtSequence *self) {
   gboolean res=TRUE;
   
-  g_assert(BT_IS_SEQUENCE(self));
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
 
   if((!self->priv->tracks) || (!self->priv->length)) return(res);
   else {
@@ -387,7 +389,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
  *
  */
 gboolean bt_sequence_stop(const BtSequence *self) {
-  g_assert(BT_IS_SEQUENCE(self));
+	
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
 
   g_mutex_lock(self->priv->is_playing_mutex);
   self->priv->is_playing=FALSE;
@@ -624,4 +627,3 @@ GType bt_sequence_get_type(void) {
   }
   return type;
 }
-
