@@ -1,4 +1,4 @@
-/** $Id: t-song-io.c,v 1.5 2004-09-24 22:42:16 ensonic Exp $
+/** $Id: t-song-io.c,v 1.6 2004-09-25 13:38:33 ensonic Exp $
 **/
 
 #include "t-song.h"
@@ -25,6 +25,8 @@ static void test_teardown(void) {
 START_TEST(test_btsong_io_obj1) {
 	BtSongIO *songIO;
 	
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	songIO=bt_song_io_new(NULL);
 	fail_unless(songIO == NULL, NULL);
 }
@@ -34,6 +36,8 @@ END_TEST
 START_TEST(test_btsong_io_obj2) {
 	BtSongIO *songIO;
 
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	songIO=bt_song_io_new("");
 	fail_unless(songIO==NULL, NULL);
 }
@@ -42,6 +46,8 @@ END_TEST
 // try to create a songIO object with wrong song name
 START_TEST(test_btsong_io_obj3) {
 	BtSongIO *songIO;
+
+  GST_INFO("--------------------------------------------------------------------------------");
 
 	songIO=bt_song_io_new("test");
 	fail_unless(songIO==NULL, NULL);
@@ -53,8 +59,10 @@ END_TEST
 START_TEST(test_btsong_io_obj4) {
 	BtSongIO *songIO;
 	
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	songIO=bt_song_io_new("test.xml");
-	// check if the type of songIO is nativ
+	// check if the type of songIO is native
 	fail_unless(BT_IS_SONG_IO_NATIVE(songIO), NULL);
 	fail_unless(songIO!=NULL, NULL);
 	g_object_checked_unref(songIO);

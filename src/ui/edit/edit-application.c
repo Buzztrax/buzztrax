@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.22 2004-09-25 00:20:26 ensonic Exp $
+/* $Id: edit-application.c,v 1.23 2004-09-25 13:38:32 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -142,16 +142,14 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     BtSongIO *loader=bt_song_io_new(file_name);
 
     if(loader) {
-      GdkCursor *cursor;
-      GdkWindow *window;
+      GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
+      GdkWindow *window=GTK_WIDGET(self->private->main_window)->window;
       
-      //window=gtk_widget_get_parent_window(GTK_WIDGET(self->private->main_window));
-      //window=gtk_widget_get_root_window(GTK_WIDGET(self->private->main_window));
-      //window=GTK_WIDGET(self->private->main_window)->window;
-      //cursor=gdk_cursor_new(GDK_WATCH);
-      //gdk_window_set_cursor(window,cursor);
-      //g_object_try_unref(cursor);
+      cursor=gdk_cursor_new(GDK_WATCH);
+      gdk_window_set_cursor(window,cursor);
+      gdk_cursor_unref(cursor);
       gtk_widget_set_sensitive(GTK_WIDGET(self->private->main_window),FALSE);
+      
       g_signal_connect(G_OBJECT(loader),"status-changed",(GCallback)on_loader_status_changed,(gpointer)self);
       while(gtk_events_pending()) gtk_main_iteration();
       if(bt_song_io_load(loader,self->private->song)) {
@@ -163,9 +161,9 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
         GST_ERROR("could not load song \"%s\"",file_name);
       }
       GST_INFO("loading done");
+      
       gtk_widget_set_sensitive(GTK_WIDGET(self->private->main_window),TRUE);
-      //gdk_window_set_cursor(window,NULL);
-      //g_object_try_unref(window);
+      gdk_window_set_cursor(window,NULL);
       g_object_unref(loader);
     }
   }

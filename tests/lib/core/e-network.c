@@ -1,4 +1,4 @@
-/** $Id: e-network.c,v 1.2 2004-09-24 22:42:16 ensonic Exp $
+/** $Id: e-network.c,v 1.3 2004-09-25 13:38:32 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -36,7 +36,9 @@ START_TEST(test_btcore_net_example1) {
   BtWire *wire, *wire1=NULL;
 	// song setup 
 	BtSetup *setup=NULL;
-	
+
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	bin=gst_thread_new("thread");
   /* create a new song */
   song=bt_song_new(GST_BIN(bin));
@@ -111,6 +113,8 @@ START_TEST(test_btcore_net_example2) {
 	// setup
 	BtSetup *setup=NULL;
   
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	bin=gst_thread_new("thread");
   /* create a new song */
   song=bt_song_new(GST_BIN(bin));  

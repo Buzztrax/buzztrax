@@ -1,4 +1,4 @@
-$Id: TODO,v 1.16 2004-08-24 17:07:47 ensonic Exp $
+$Id: TODO,v 1.17 2004-09-25 13:38:32 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -11,9 +11,6 @@ run 'make todo' to get a list of todo comments from source
     * show play-position with finer resolution
       - tick signal in playline
       - sequence registers signal-handler and forwards signals
-    * long operations (e.g. loading)
-      - block UI with wait cursor
-      - give feedback in status bar
 
 * how do we implement multiple voices per machine?
   * source 

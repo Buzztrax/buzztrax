@@ -1,4 +1,4 @@
-/** $Id: t-network.c,v 1.3 2004-09-24 22:42:16 ensonic Exp $
+/** $Id: t-network.c,v 1.4 2004-09-25 13:38:33 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -30,6 +30,8 @@ START_TEST(test_btcore_net1) {
 	BtSetup *setup=NULL;
 	gboolean song_ret;
 	
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	bin=gst_thread_new("thread");
   /* create a new song */
   song=bt_song_new(GST_BIN(bin));
@@ -57,6 +59,13 @@ START_TEST(test_btcore_net1) {
 	g_object_checked_unref(song);
 }
 END_TEST
+
+/**
+ * @todo test creating wires with args beeing NULL
+ * @todo test creating wires with args beeing nonsense (not BtMachines)
+ * @todo test creating machines with wrong names (not existing)
+ * @todo test adding machines/wires twice
+ */
 
 
 TCase *bt_network_obj_tcase(void) {

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.17 2004-09-24 22:42:08 ensonic Exp $
+# $Id: configure.ac,v 1.18 2004-09-25 13:38:32 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -193,8 +193,11 @@ AC_SUBST(BASE_DEPS_CFLAGS)
 
 AC_CONFIG_FILES(Makefile \
   docs/Makefile \
-    docs/version.entities \
+  docs/version.entities \
     docs/reference/Makefile \
+      docs/reference/bt-cmd/Makefile \
+      docs/reference/bt-core/Makefile \
+      docs/reference/bt-edit/Makefile \
   po/Makefile.in \
   src/Makefile \
 		src/lib/Makefile \

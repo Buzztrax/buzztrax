@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.11 2004-09-24 22:42:15 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.12 2004-09-25 13:38:32 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -60,10 +60,11 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 
 //-- helper methods
 
+// @todo this needs parameters
 /**
  * bt_main_page_machines_draw_machine:
+ * @self the machine-view page to draw
  * draw something that looks a bit like a buzz-machine
- * @todo this needs parameters
  */
 static void bt_main_page_machines_draw_machine(const BtMainPageMachines *self) {
   GnomeCanvasItem *item;

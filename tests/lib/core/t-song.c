@@ -1,4 +1,4 @@
-/** $Id: t-song.c,v 1.3 2004-09-24 22:42:16 ensonic Exp $
+/** $Id: t-song.c,v 1.4 2004-09-25 13:38:33 ensonic Exp $
 **/
 
 #include "t-song.h"
@@ -31,8 +31,10 @@ static void play_event_test(void) {
 START_TEST(test_btsong_obj1) {
   BtSong *song;
 
+  GST_INFO("--------------------------------------------------------------------------------");
+
   song=bt_song_new(NULL);
-	fail_unless(song == NULL,"failed to get song");
+	fail_unless(song == NULL,NULL);
 }
 END_TEST
 
@@ -41,24 +43,83 @@ START_TEST(test_btsong_obj2) {
 	BtSong *song;
 	GstElement *bin;
 	
-	/* create a new bin elemen */
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	/* create a new bin element */
   bin = gst_bin_new("bin");
 	
 	song=bt_song_new(GST_BIN(bin));
-	fail_unless(song != NULL, "failed to get song");
+	fail_unless(song != NULL, NULL);
+  g_object_checked_unref(G_OBJECT(song));
 }
 END_TEST
 
-// test if the song play routine works wihtout failure
+// test if the song loading works without failure
+START_TEST(test_btsong_load1) {
+	BtSong *song;
+	BtSongIO *loader;
+	GstElement *bin;
+	gboolean load_ret = FALSE;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	bin = gst_thread_new("thread");
+
+	song=bt_song_new(GST_BIN(bin));
+	fail_unless(song != NULL, NULL);
+	loader=bt_song_io_new("songs/test-simple1.xml");
+	fail_unless(loader != NULL, NULL);
+	load_ret = bt_song_io_load(loader,song);
+	fail_unless(load_ret, NULL);
+  g_object_checked_unref(G_OBJECT(loader));
+	g_object_checked_unref(G_OBJECT(song));
+}
+END_TEST
+
+// test if subsequent song loading works without failure
+START_TEST(test_btsong_load2) {
+	BtSong *song;
+	BtSongIO *loader;
+	GstElement *bin;
+	gboolean load_ret = FALSE;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	bin = gst_thread_new("thread");
+
+	song=bt_song_new(GST_BIN(bin));
+	fail_unless(song != NULL, NULL);
+	loader=bt_song_io_new("songs/test-simple1.xml");
+	fail_unless(loader != NULL, NULL);
+	load_ret = bt_song_io_load(loader,song);
+	fail_unless(load_ret, NULL);
+  g_object_checked_unref(G_OBJECT(loader));
+	g_object_checked_unref(G_OBJECT(song));
+
+	song=bt_song_new(GST_BIN(bin));
+	fail_unless(song != NULL, NULL);
+	loader=bt_song_io_new("songs/test-simple2.xml");
+	fail_unless(loader != NULL, NULL);
+	load_ret = bt_song_io_load(loader,song);
+	fail_unless(load_ret, NULL);
+  g_object_checked_unref(G_OBJECT(loader));
+	g_object_checked_unref(G_OBJECT(song));
+}
+END_TEST
+
+// test if the song play routine works without failure
 START_TEST(test_btsong_play1) {
 	BtSong *song=NULL;
 	BtSongIO *loader=NULL;
 	GstElement *bin=NULL;
 	gboolean load_ret = FALSE;
 	
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	bin = gst_thread_new("thread");
+
 	song=bt_song_new(GST_BIN(bin));
-	fail_unless(song != NULL, "failed to get song");
+	fail_unless(song != NULL, NULL);
 	loader=bt_song_io_new("songs/test-simple1.xml");
 	fail_unless(loader != NULL, NULL);
 	load_ret = bt_song_io_load(loader,song);
@@ -67,8 +128,8 @@ START_TEST(test_btsong_play1) {
 	g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event_test, NULL);
 	bt_song_play(song);
 	fail_unless(play_signal_invoke, NULL);
-	g_object_unref(G_OBJECT(song));
-  g_object_unref(G_OBJECT(loader));
+  g_object_checked_unref(G_OBJECT(loader));
+	g_object_checked_unref(G_OBJECT(song));
 }
 END_TEST
 
@@ -77,9 +138,12 @@ START_TEST(test_btsong_play2) {
 	BtSong *song=NULL;
 	GstElement *bin=NULL;
 	
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	bin = gst_thread_new("thread");
+
 	song=bt_song_new(GST_BIN(bin));
-	fail_unless(song != NULL, "failed to get song");
+	fail_unless(song != NULL, NULL);
   play_signal_invoke=FALSE;
 	g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event_test, NULL);
   mark_point();
@@ -95,9 +159,12 @@ START_TEST(test_btsong_setup1) {
 	GstElement *bin=NULL;
 	BtSetup *setup=NULL;
 	
+  GST_INFO("--------------------------------------------------------------------------------");
+
 	bin = gst_thread_new("thread");
+
 	song=bt_song_new(GST_BIN(bin));
-	fail_unless(song != NULL, "failed to get song");
+	fail_unless(song != NULL, NULL);
 	
 	g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
@@ -112,6 +179,8 @@ TCase *bt_song_obj_tcase(void) {
 
   tcase_add_test(tc,test_btsong_obj1);
 	tcase_add_test(tc,test_btsong_obj2);
+  tcase_add_test(tc,test_btsong_load1);
+  tcase_add_test(tc,test_btsong_load2);
 	tcase_add_test(tc,test_btsong_play1);
 	tcase_add_test(tc,test_btsong_play2);
 	tcase_add_test(tc,test_btsong_setup1);

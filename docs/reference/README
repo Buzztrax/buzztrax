@@ -1,4 +1,4 @@
-$Id: README,v 1.7 2004-07-28 13:25:20 ensonic Exp $
+$Id: README,v 1.8 2004-09-25 13:38:32 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
@@ -14,9 +14,9 @@ what to document where
 		in tmpl/xxx.sgml
 
 files to look into
-  buzztard-docs.sgml
+  <module>-docs.sgml
     defines the overall structure
-  buzztard-sections.txt
+  <module>-sections.txt
     group symbols to sections
     add sections in alpahbetical order
 		for gobject classes,
@@ -35,4 +35,7 @@ to make the hierarchy work
 
 to make devhelp find local books
   export DEVHELP_SEARCH_PATH="/home/ensonic/buzztard/share/gtk-doc/html/"
+
+to force rebuilding the docs
+  rm docs/reference/bt-*/*.stamp
 
