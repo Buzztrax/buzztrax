@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.32 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: cmd-application.c,v 1.33 2004-09-28 16:28:12 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
  
@@ -6,6 +6,8 @@
 #define BT_CMD_APPLICATION_C
 
 #include "bt-cmd.h"
+#include <libbtcore/application-private.h>
+
 
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
@@ -39,9 +41,6 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 
 //-- constructor methods
 
-// @todo ideally this would be a protected method, but how to do this in 'C' ?
-extern gboolean bt_application_new(BtApplication *self);
-                               
 /**
  * bt_cmd_application_new:
  *
@@ -53,6 +52,7 @@ BtCmdApplication *bt_cmd_application_new(void) {
   BtCmdApplication *self;
   self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL));
   
+  // @todo check result
   bt_application_new(BT_APPLICATION(self));
   return(self);
 }

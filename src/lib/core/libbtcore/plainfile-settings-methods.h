@@ -1,5 +1,5 @@
-/* $Id: plainfile-settings-methods.h,v 1.1 2004-09-27 16:05:33 ensonic Exp $
- * defines all public methods of the gconf-settings class
+/* $Id: plainfile-settings-methods.h,v 1.2 2004-09-28 16:28:11 ensonic Exp $
+ * defines all public methods of the plainfile-settings class
  */
 
 #ifndef BT_PLAINFILE_SETTINGS_METHODS_H

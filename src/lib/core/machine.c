@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.33 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: machine.c,v 1.34 2004-09-28 16:28:11 ensonic Exp $
  * base class for a machine
  */
  
@@ -65,7 +65,15 @@ struct _BtMachinePrivate {
 
 //-- constructor methods
 
-// @todo ideally this would be a protected method, but how to do this in 'C' ?
+/**
+ * bt_machine_new:
+ * @self: instance to finish construction of
+ *
+ * This is the common part of machine construction. It needs to be called from
+ * within the sub-classes constructor methods.
+ *
+ * Returns: TRUE for succes, FALSE otherwise
+ */
 gboolean bt_machine_new(BtMachine *self) {
 
   g_assert(self);

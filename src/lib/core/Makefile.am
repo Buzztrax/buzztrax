@@ -17,9 +17,9 @@ libbtcore_la_SOURCES = \
 	tools.c libbtcore/tools.h \
 	libbtcore/version.h \
 	\
-	application.c libbtcore/application.h libbtcore/application-methods.h \
+	application.c libbtcore/application.h libbtcore/application-methods.h libbtcore/application-private.h \
 	$(GCONF_SETTINGS_SRC) \
-	machine.c libbtcore/machine.h libbtcore/machine-methods.h \
+	machine.c libbtcore/machine.h libbtcore/machine-methods.h libbtcore/machine-private.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
 	plainfile-settings.c libbtcore/plainfile-settings.h libbtcore/plainfile-settings-methods.h \
 	playline.c libbtcore/playline.h libbtcore/playline-methods.h \

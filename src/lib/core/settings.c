@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.3 2004-09-26 01:50:08 ensonic Exp $
+/* $Id: settings.c,v 1.4 2004-09-28 16:28:11 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -8,7 +8,7 @@
 #include <libbtcore/core.h>
 
 enum {
-  SETTINGS_XXX=1
+  SETTINGS_AUDIOSINK=1
 };
 
 struct _BtSettingsPrivate {
@@ -31,6 +31,12 @@ static void bt_settings_get_property(GObject      *object,
   BtSettings *self = BT_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
+    case SETTINGS_AUDIOSINK: {
+      gchar *prop="";
+      // @todo get property value from implementation class
+      GST_DEBUG("application reads audiosink settings : %s",prop);
+      g_value_set_object(value, prop);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -46,6 +52,12 @@ static void bt_settings_set_property(GObject      *object,
   BtSettings *self = BT_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
+    case SETTINGS_AUDIOSINK: {
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes audiosink settings : %s",prop);
+      // @todo set property value via implementation class
+      g_free(prop);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -82,6 +94,16 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
   gobject_class->get_property = bt_settings_get_property;
   gobject_class->dispose      = bt_settings_dispose;
   gobject_class->finalize     = bt_settings_finalize;
+
+	//klass->get           = bt_settings_real_get;
+	//klass->set           = bt_settings_real_set;
+
+  g_object_class_install_property(gobject_class,SETTINGS_AUDIOSINK,
+                                  g_param_spec_string("audiosink",
+                                     "audiosink prop",
+                                     "audio output device",
+                                     "esdsink", /* default value */
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_settings_get_type(void) {

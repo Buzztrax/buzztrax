@@ -5,8 +5,10 @@
 %version-entities;
 <!ENTITY libcore SYSTEM "xml/libcore.xml">
 <!ENTITY BtApplication SYSTEM "xml/btapplication.xml">
+<!ENTITY BtGConfSettings SYSTEM "xml/btgconfsettings.xml">
 <!ENTITY BtMachine SYSTEM "xml/btmachine.xml">
 <!ENTITY BtPattern SYSTEM "xml/btpattern.xml">
+<!ENTITY BtPlainfileSettings SYSTEM "xml/btplainfilesettings.xml">
 <!ENTITY BtPlayLine SYSTEM "xml/btplayline.xml">
 <!ENTITY BtProcessorMachine SYSTEM "xml/btprocessormachine.xml">
 <!ENTITY BtSequence SYSTEM "xml/btsequence.xml">
@@ -57,8 +59,10 @@
 		</para>
     &libcore;
     &BtApplication;
+    &BtGConfSettings;
     &BtMachine;
     &BtPattern;
+    &BtPlainfileSettings;
     &BtPlayLine;
     &BtProcessorMachine;
     &BtSequence;

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.10 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: application.c,v 1.11 2004-09-28 16:28:11 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -23,7 +23,15 @@ struct _BtApplicationPrivate {
 
 //-- constructor methods
 
-// @todo ideally this would be a protected method, but how to do this in 'C' ?
+/**
+ * bt_application_new:
+ * @self: instance to finish construction of
+ *
+ * This is the common part of application construction. It needs to be called from
+ * within the sub-classes constructor methods.
+ *
+ * Returns: TRUE for succes, FALSE otherwise
+ */
 gboolean bt_application_new(BtApplication *self) {
   g_assert(self);
   
@@ -32,6 +40,7 @@ gboolean bt_application_new(BtApplication *self) {
 #else
   self->private->settings=bt_plainfile_settings_new();
 #endif
+  return(TRUE);
 }
 
 //-- methods

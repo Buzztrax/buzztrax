@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.2 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.3 2004-09-28 16:28:11 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -80,6 +80,9 @@ static void bt_gconf_settings_dispose(GObject *object) {
 	return_if_disposed();
   self->private->dispose_has_run = TRUE;
   
+  gconf_client_remove_dir(self->private->client,"/system/gstreamer/default/",NULL);
+  gconf_client_remove_dir(self->private->client,"/desktop/gnome/interface/",NULL);
+  gconf_client_remove_dir(self->private->client,"/apps/"PACKAGE"/",NULL);
   g_object_unref(self->private->client);
 
   GST_DEBUG("!!!! self=%p",self);
@@ -104,6 +107,15 @@ static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
   self->private = g_new0(BtGConfSettingsPrivate,1);
   self->private->dispose_has_run = FALSE;
   self->private->client=gconf_client_get_default();
+  gconf_client_set_error_handling(self->private->client,GCONF_CLIENT_HANDLE_UNRETURNED);
+  /* path to listen to:
+   * /system/gstreamer/default/audiosink
+   * /desktop/gnome/interface/*
+   * /apps/buzztard/
+   */
+  gconf_client_add_dir(self->private->client,"/system/gstreamer/default/",GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
+  gconf_client_add_dir(self->private->client,"/desktop/gnome/interface/",GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
+  gconf_client_add_dir(self->private->client,"/apps/"PACKAGE"/",GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
 }
 
 static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {

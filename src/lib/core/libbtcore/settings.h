@@ -1,4 +1,4 @@
-/* $Id: settings.h,v 1.2 2004-09-25 13:38:32 ensonic Exp $
+/* $Id: settings.h,v 1.3 2004-09-28 16:28:11 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -35,7 +35,10 @@ struct _BtSettings {
 /* structure of the settings class */
 struct _BtSettingsClass {
   GObjectClass parent_class;
-  
+
+  /* class methods */
+	//gboolean (*get)(const gpointer self);
+	//gboolean (*set)(const gpointer self);
 };
 
 /* used by SETTINGS_TYPE */

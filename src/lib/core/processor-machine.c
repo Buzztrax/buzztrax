@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.14 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: processor-machine.c,v 1.15 2004-09-28 16:28:11 ensonic Exp $
  * class for a processor machine
  */
 
@@ -7,6 +7,7 @@
 
 #include <libbtcore/core.h>
 #include <libbtcore/machine.h>
+#include <libbtcore/machine-private.h>
 
 struct _BtProcessorMachinePrivate {
   /* used to validate if dispose has run */
@@ -16,9 +17,6 @@ struct _BtProcessorMachinePrivate {
 static BtMachineClass *parent_class=NULL;
 
 //-- constructor methods
-
-// @todo ideally this would be a protected method, but how to do this in 'C' ?
-extern gboolean bt_machine_new(BtMachine *self);
 
 /**
  * bt_processor_machine_new:
@@ -37,6 +35,7 @@ BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id
   BtProcessorMachine *self;
   self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
   
+  // @todo check result
   bt_machine_new(BT_MACHINE(self));
   return(self);
 }

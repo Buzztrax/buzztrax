@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.13 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: sink-machine.c,v 1.14 2004-09-28 16:28:11 ensonic Exp $
  * class for a sink machine
  */
  
@@ -7,6 +7,7 @@
 
 #include <libbtcore/core.h>
 #include <libbtcore/sink-machine.h>
+#include <libbtcore/machine-private.h>
 
 struct _BtSinkMachinePrivate {
   /* used to validate if dispose has run */
@@ -16,9 +17,6 @@ struct _BtSinkMachinePrivate {
 static BtMachineClass *parent_class=NULL;
 
 //-- constructor methods
-
-// @todo ideally this would be a protected method, but how to do this in 'C' ?
-extern gboolean bt_machine_new(BtMachine *self);
 
 /**
  * bt_sink_machine_new:
@@ -36,6 +34,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id, const gc
   BtSinkMachine *self;
   self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL));
   
+  // @todo check result
   bt_machine_new(BT_MACHINE(self));
   return(self);
 }

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.39 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: core.h,v 1.40 2004-09-28 16:28:11 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -172,7 +172,22 @@
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
+/**
+ * g_object_try_weak_ref:
+ * @obj: the object to reference
+ *
+ * If the supplied object is not NULL then reference it via
+ * g_object_add_weak_pointer().
+ */
 #define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
+
+/**
+ * g_object_try_weak_unref:
+ * @obj: the object to release the reference
+ *
+ * If the supplied object is not NULL then release the reference via
+ * g_object_remove_weak_pointer().
+ */
 #define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 #ifndef BT_CORE_C

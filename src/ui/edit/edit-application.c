@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.24 2004-09-27 16:05:33 ensonic Exp $
+/* $Id: edit-application.c,v 1.25 2004-09-28 16:28:12 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -6,6 +6,7 @@
 #define BT_EDIT_APPLICATION_C
 
 #include "bt-edit.h"
+#include <libbtcore/application-private.h>
 
 //-- signal ids
 
@@ -86,9 +87,6 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 
 //-- constructor methods
 
-// @todo ideally this would be a protected method, but how to do this in 'C' ?
-extern gboolean bt_application_new(BtApplication *self);
-
 /**
  * bt_edit_application_new:
  *
@@ -99,6 +97,8 @@ extern gboolean bt_application_new(BtApplication *self);
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
   self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL));
+
+  // @todo check result
   bt_application_new(BT_APPLICATION(self));
 
   GST_INFO("new edit app created");
