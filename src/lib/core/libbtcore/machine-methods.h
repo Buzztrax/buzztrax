@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.21 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: machine-methods.h,v 1.22 2005-04-08 13:35:39 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -19,6 +19,8 @@ extern gboolean bt_machine_has_activated_spreader(BtMachine *self);
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id);
 extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index);
+
+extern gboolean bt_machine_is_polyphonic(const BtMachine *self);
 
 extern glong bt_machine_get_global_dparam_index(const BtMachine *self, const gchar *name, GError **error);
 extern glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name, GError **error);

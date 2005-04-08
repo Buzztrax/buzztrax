@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.95 2005-03-19 19:16:52 ensonic Exp $
+/* $Id: machine.c,v 1.96 2005-04-08 13:35:38 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -395,10 +395,19 @@ gboolean bt_machine_new(BtMachine *self) {
       }
     }
   }
+	// check if the elemnt implements the GstPolyVoice interface
+	if(GST_IS_POLY_VOICE(self)) {
+		GST_INFO("  instance is polyphonic!");
+	}
+	else {
+		GST_INFO("  instance is monophonic!");
+	}
 
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
   GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
+	
+	// get controllable parameters
   if((self->priv->dparam_manager=gst_dpman_get_manager(self->priv->machines[PART_MACHINE]))) {
     GParamSpec **specs;
     GstDParam **dparam;
@@ -721,6 +730,23 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
 		return(g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index))));
 	}
 	return(NULL);
+}
+
+/**
+ * bt_machine_is_polyphonic:
+ * @self: the machine to check
+ *
+ * Tells if the machine can produce (multiple) voices. Monophonic machines have
+ * their (one) voice params as part of the global params.
+ *
+ * Returns: %TRUE for polyphic machines, %FALSE for monophonic ones
+ */
+gboolean bt_machine_is_polyphonic(const BtMachine *self) {
+	g_assert(BT_IS_MACHINE(self));
+	
+	GST_DEBUG(" is machine \"%s\" poly ? %d",self->priv->id,GST_IS_PARENT(self->priv->machines[PART_MACHINE]));
+	
+	return(GST_IS_PARENT(self->priv->machines[PART_MACHINE]));
 }
 
 /**
@@ -1121,7 +1147,7 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtMachine *self = BT_MACHINE(instance);
   self->priv = g_new0(BtMachinePrivate,1);
   self->priv->dispose_has_run = FALSE;
-  self->priv->voices=-1;
+  self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
   
   GST_DEBUG("!!!! self=%p, self->priv->machine=%p",self,self->priv->machines[PART_MACHINE]);
@@ -1229,7 +1255,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
 	g_object_class_install_property(gobject_class,MACHINE_PATTERNS,
                                   g_param_spec_pointer("patterns",
                                      "pattern list prop",
-                                     "A copy of the list of patterns",
+                                     "a copy of the list of patterns",
                                      G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,MACHINE_STATE,

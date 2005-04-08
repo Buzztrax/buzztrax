@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.68 2005-03-21 13:37:00 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.69 2005-04-08 13:35:39 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -44,7 +44,7 @@ struct _BtMainPageSequencePrivate {
   /* the pattern list */
   GtkTreeView *pattern_list;
 
-  /* pattern context_menu */
+  /* sequence context_menu */
   GtkMenu *context_menu;
   GtkMenuItem *context_menu_add;
 

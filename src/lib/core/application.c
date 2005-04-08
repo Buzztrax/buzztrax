@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.23 2005-01-28 18:04:20 ensonic Exp $
+/* $Id: application.c,v 1.24 2005-04-08 13:35:38 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -20,9 +20,22 @@ struct _BtApplicationPrivate {
 	GstElement *bin;
   /* a reference to the buzztard settings object */
   BtSettings *settings;
+	
+	/* bin->error indicator */
+	gboolean got_error;
 };
 
 static GObjectClass *parent_class=NULL;
+
+//-- helper
+
+static void error_cb(GstElement *bin, GstElement *error_element, GError *error, const gchar *debug_msg, gpointer user_data) {
+  gboolean *p_got_error=(gboolean *)user_data;
+  	 
+  GST_WARNING("An error occured: %s\n", error->message);
+  	 
+  *p_got_error=TRUE;
+}
 
 //-- constructor methods
 
@@ -144,6 +157,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->dispose_has_run = FALSE;
 	self->priv->bin = gst_thread_new("thread");
   g_assert(GST_IS_BIN(self->priv->bin));
+	g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {

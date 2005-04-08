@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.49 2005-03-21 13:37:00 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.50 2005-04-08 13:35:39 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -28,6 +28,7 @@ struct _BtMainPagePatternsPrivate {
 
   /* pattern context_menu */
   GtkMenu *context_menu;
+	GtkMenuItem *context_menu_track_add,*context_menu_track_remove;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -145,9 +146,8 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
 	g_object_unref(store); // drop with comboxbox
 }
 
-static void pattern_menu_refresh(const BtMainPagePatterns *self) {
+static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machine) {
   BtPattern *pattern=NULL;
-  BtMachine *machine;
   GList *node,*list;
   gchar *str;
 	GtkListStore *store;
@@ -155,7 +155,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self) {
 
   // update pattern menu
   store=gtk_list_store_new(1,G_TYPE_STRING);
-  if((machine=bt_main_page_patterns_get_current_machine(self))) {
+  if(machine) {
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
@@ -166,7 +166,6 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self) {
 			g_free(str);
     }
 		g_list_free(list);
-    g_object_unref(machine);
   }
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
 	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
@@ -174,7 +173,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self) {
 	g_object_unref(store); // drop with comboxbox
 }
 
-/**
+/*
  * pattern_table_clear:
  * @self: the pattern page
  *
@@ -196,10 +195,10 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
 	GST_INFO("done");
 }
 
-/**
+/*
  * pattern_table_refresh:
  * @self:  the pattern page
- * @song: the new pattern to display
+ * @pattern: the new pattern to display
  *
  * rebuild the pattern table after a new pattern has been chosen
  */
@@ -332,6 +331,31 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 	}
 }
 
+/*
+ * context_menu_refresh:
+ * @self:  the pattern page
+ * @machine: the currently selected machine
+ *
+ * enable/disable context menu items
+ */
+static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machine) {
+	if(machine) {
+		//gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),TRUE);
+		if(bt_machine_is_polyphonic(machine)) {
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),TRUE);
+		}
+		else {
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
+		}
+	}
+	else {
+		GST_WARNING("no machine, huh?");
+		//gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
+	}
+}
+
 //-- event handler
 
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
@@ -380,10 +404,15 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-
+	BtMachine *machine;
+	
   g_assert(user_data);
+	machine=bt_main_page_patterns_get_current_machine(self);
 	// show new list of pattern in pattern menu
-  pattern_menu_refresh(self);
+  pattern_menu_refresh(self,machine);
+	// refresh context menu
+	context_menu_refresh(self,machine);
+	g_object_try_unref(machine);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -402,7 +431,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_menu_refresh(self,setup);
-  pattern_menu_refresh(self);
+  //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
 	g_signal_connect(G_OBJECT(setup),"machine-added",(GCallback)on_machine_added,(gpointer)self);
 	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
   // release the references
@@ -494,17 +523,17 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // generate the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 	
-	menu_item=gtk_image_menu_item_new_with_label(_("New track"));
+	self->priv->context_menu_track_add=GTK_MENU_ITEM(gtk_image_menu_item_new_with_label(_("New track")));
 	image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_track_add),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_track_add));
+  gtk_widget_show(GTK_WIDGET(self->priv->context_menu_track_add));
 	
-	menu_item=gtk_image_menu_item_new_with_label(_("Remove last track"));
+	self->priv->context_menu_track_remove=GTK_MENU_ITEM(gtk_image_menu_item_new_with_label(_("Remove last track")));
 	image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_track_remove),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_track_remove));
+  gtk_widget_show(GTK_WIDGET(self->priv->context_menu_track_remove));
 	
 	menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

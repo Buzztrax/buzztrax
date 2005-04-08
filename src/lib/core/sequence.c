@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.59 2005-03-18 08:50:06 ensonic Exp $
+/* $Id: sequence.c,v 1.60 2005-04-08 13:35:39 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -578,6 +578,7 @@ static void bt_sequence_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+	g_mutex_free(self->priv->is_playing_mutex);
   g_free(self->priv->machines);
   g_free(self->priv->timelines);
   g_free(self->priv);

@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.13 2005-01-28 18:04:45 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.14 2005-04-08 13:35:39 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -13,6 +13,7 @@ enum {
 
 enum {
   SETTINGS_PAGE_AUDIO_DEVICES=0,
+	SETTINGS_PAGE_MIDI_DEVICES,
   SETTINGS_PAGE_COLORS,
   SETTINGS_PAGE_SHORTCUTS
 };
@@ -92,6 +93,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_tree_view_set_headers_visible(self->priv->settings_list,FALSE);
   gtk_tree_view_insert_column_with_attributes(self->priv->settings_list,-1,NULL,renderer,"text",COL_LABEL,NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->settings_list),GTK_SELECTION_BROWSE);
+	// just for debugging the treeview
+	//gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->settings_list),GTK_SELECTION_NONE);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->settings_list));
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(scrolled_window));
   
@@ -101,6 +104,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   //-- append entries for settings pages
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Audio Devices"),COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,-1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Midi Devices"),COL_ID,SETTINGS_PAGE_MIDI_DEVICES,-1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Colors"),COL_ID,SETTINGS_PAGE_COLORS,-1);
   gtk_list_store_append(store, &tree_iter);
@@ -120,7 +125,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),0),
-    gtk_label_new(_("Audio Device")));
+    gtk_label_new(_("Audio Devices")));
 
   // add notebook page #2
   page=gtk_vbox_new(FALSE,0);
@@ -128,15 +133,23 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),1),
-    gtk_label_new("page 2"));
+    gtk_label_new(_("Midi Devices")));
 
-  // add notebook page #3
+// add notebook page #3
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 3 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),2),
-    gtk_label_new("page 3"));
+    gtk_label_new(_("Colors")));
+
+  // add notebook page #4
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),3),
+    gtk_label_new(_("Shortcuts")));
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   return(TRUE);
