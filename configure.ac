@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.40 2005-04-08 13:35:25 ensonic Exp $
+# $Id: configure.ac,v 1.41 2005-04-11 10:10:30 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -277,6 +277,8 @@ AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
 AC_HEADER_STDC
 AC_CHECK_HEADERS(X11/Xlocale.h)
 AC_CHECK_HEADERS(popt.h)
+
+AC_CHECK_HEADERS(gst/polyvoice/poly-voice.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES

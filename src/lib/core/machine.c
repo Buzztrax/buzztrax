@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.96 2005-04-08 13:35:38 ensonic Exp $
+/* $Id: machine.c,v 1.97 2005-04-11 10:10:36 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -396,12 +396,14 @@ gboolean bt_machine_new(BtMachine *self) {
     }
   }
 	// check if the elemnt implements the GstPolyVoice interface
+#ifdef HAVE_GST_POLYVOICE_POLY_VOICE_H
 	if(GST_IS_POLY_VOICE(self)) {
 		GST_INFO("  instance is polyphonic!");
 	}
 	else {
 		GST_INFO("  instance is monophonic!");
 	}
+#endif
 
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
@@ -744,9 +746,13 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
 gboolean bt_machine_is_polyphonic(const BtMachine *self) {
 	g_assert(BT_IS_MACHINE(self));
 	
+#ifdef HAVE_GST_POLYVOICE_POLY_VOICE_H
 	GST_DEBUG(" is machine \"%s\" poly ? %d",self->priv->id,GST_IS_PARENT(self->priv->machines[PART_MACHINE]));
 	
 	return(GST_IS_PARENT(self->priv->machines[PART_MACHINE]));
+#else
+	return(FALSE);
+#endif
 }
 
 /**
