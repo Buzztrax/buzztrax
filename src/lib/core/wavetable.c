@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.2 2005-01-10 12:22:07 ensonic Exp $
+/* $Id: wavetable.c,v 1.3 2005-04-12 18:56:01 ensonic Exp $
  * class for wavetable
  */
 
@@ -6,6 +6,13 @@
 #define BT_WAVETABLE_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  WAVE_ADDED_EVENT,
+  LAST_SIGNAL
+};
 
 //-- property ids
 
@@ -21,10 +28,12 @@ struct _BtWavetablePrivate {
 	/* the song the wavetable belongs to */
 	BtSong *song;
 	
-	GList *waves;		// each entry points to BtWave
+	GList *waves;		// each entry points to a BtWave
 };
 
 static GObjectClass *parent_class=NULL;
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- constructor methods
 
@@ -48,6 +57,23 @@ BtWavetable *bt_wavetable_new(const BtSong *song) {
 //-- private methods
 
 //-- public methods
+
+gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave) {
+	gboolean ret=FALSE;
+	
+	g_return_val_if_fail(BT_IS_WAVETABLE(self),FALSE);
+	g_return_val_if_fail(BT_IS_WAVE(wave),FALSE);
+
+  if(!g_list_find(self->priv->waves,wave)) {
+		ret=TRUE;
+    self->priv->waves=g_list_append(self->priv->waves,g_object_ref(G_OBJECT(wave)));
+		//g_signal_emit(G_OBJECT(self),signals[WAVE_ADDED_EVENT], 0, wave);
+	}
+  else {
+    GST_WARNING("trying to add wave again"); 
+  }
+	return ret;
+}
 
 //-- wrapper
 
@@ -166,7 +192,7 @@ static void bt_wavetable_class_init(BtWavetableClass *klass) {
 
   g_object_class_install_property(gobject_class,WAVETABLE_WAVES,
                                   g_param_spec_pointer("waves",
-                                     "wave list prop",
+                                     "waves list prop",
                                      "A copy of the list of waves",
                                      G_PARAM_READABLE));
 }

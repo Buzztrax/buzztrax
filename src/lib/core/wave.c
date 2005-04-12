@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.1 2004-12-18 20:43:20 ensonic Exp $
+/* $Id: wave.c,v 1.2 2005-04-12 18:56:00 ensonic Exp $
  * class for wave
  */
 
@@ -7,10 +7,19 @@
 
 #include <libbtcore/core.h>
 
+//-- signal ids
+
+enum {
+  WAVELEVEL_ADDED_EVENT,
+  LAST_SIGNAL
+};
+
 //-- property ids
 
 enum {
-  WAVE_SONG=1
+  WAVE_SONG=1,
+	WAVE_WAVELEVELS,
+	WAVE_NAME
 };
 
 struct _BtWavePrivate {
@@ -20,10 +29,15 @@ struct _BtWavePrivate {
 	/* the song the wave belongs to */
 	BtSong *song;
 	
-	GList *samples;		// each entry points to BtSample
+	/* the name of the wave (sample file name) */
+	gchar *name;
+	
+	GList *wavelevels;		// each entry points to a BtWavelevel
 };
 
 static GObjectClass *parent_class=NULL;
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- constructor methods
 
@@ -48,6 +62,23 @@ BtWave *bt_wave_new(const BtSong *song) {
 
 //-- public methods
 
+gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel) {
+	gboolean ret=FALSE;
+	
+	g_return_val_if_fail(BT_IS_WAVE(self),FALSE);
+	g_return_val_if_fail(BT_IS_WAVELEVEL(wavelevel),FALSE);
+
+  if(!g_list_find(self->priv->wavelevels,wavelevel)) {
+		ret=TRUE;
+    self->priv->wavelevels=g_list_append(self->priv->wavelevels,g_object_ref(G_OBJECT(wavelevel)));
+		//g_signal_emit(G_OBJECT(self),signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
+	}
+  else {
+    GST_WARNING("trying to add wavelevel again"); 
+  }
+	return ret;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -63,6 +94,12 @@ static void bt_wave_get_property(GObject      *object,
   switch (property_id) {
     case WAVE_SONG: {
       g_value_set_object(value, self->priv->song);
+    } break;
+		case WAVE_WAVELEVELS: {
+			g_value_set_pointer(value,g_list_copy(self->priv->wavelevels));
+		} break;
+    case WAVE_NAME: {
+      g_value_set_string(value, self->priv->name);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -85,6 +122,11 @@ static void bt_wave_set_property(GObject      *object,
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wave: %p",self->priv->song);
     } break;
+    case WAVE_NAME: {
+      g_free(self->priv->name);
+      self->priv->name = g_value_dup_string(value);
+      GST_DEBUG("set the name for wave: %s",self->priv->name);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -101,13 +143,13 @@ static void bt_wave_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
 	g_object_try_weak_unref(self->priv->song);
-	// unref list of samples
-	if(self->priv->samples) {
-		node=self->priv->samples;
+	// unref list of wavelevels
+	if(self->priv->wavelevels) {
+		node=self->priv->wavelevels;
 		while(node) {
       {
         GObject *obj=node->data;
-        GST_DEBUG("  free wave : %p (%d)",obj,obj->ref_count);
+        GST_DEBUG("  free wavelevels : %p (%d)",obj,obj->ref_count);
       }
       g_object_try_unref(node->data);
       node->data=NULL;
@@ -125,11 +167,12 @@ static void bt_wave_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	// free list of samples
-	if(self->priv->samples) {
-		g_list_free(self->priv->samples);
-		self->priv->samples=NULL;
+	// free list of wavelevels
+	if(self->priv->wavelevels) {
+		g_list_free(self->priv->wavelevels);
+		self->priv->wavelevels=NULL;
 	}
+	g_free(self->priv->name);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -159,6 +202,19 @@ static void bt_wave_class_init(BtWaveClass *klass) {
                                      "Set song object, the wave belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,WAVE_WAVELEVELS,
+                                  g_param_spec_pointer("wavelevels",
+                                     "wavelevels list prop",
+                                     "A copy of the list of wavelevels",
+                                     G_PARAM_READABLE));
+
+	g_object_class_install_property(gobject_class,WAVE_NAME,
+                                  g_param_spec_string("name",
+                                     "name prop",
+                                     "The name of the wave",
+                                     "unamed wave", /* default value */
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_wave_get_type(void) {

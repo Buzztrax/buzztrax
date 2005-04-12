@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.27 2005-04-12 14:21:57 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.28 2005-04-12 18:55:46 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -46,7 +46,6 @@ BT_GCONF_SETTINGS_GET_CLASS
 bt_gconf_settings_get_type
 BtGConfSettingsPrivate
 </SECTION>
-
 
 <SECTION>
 <FILE>btmachine</FILE>
@@ -406,6 +405,7 @@ bt_timelinetrack_type_get_type
 <TITLE>BtWave</TITLE>
 BtWave
 bt_wave_new
+bt_wave_add_wavelevel
 <SUBSECTION Standard>
 BtWaveClass
 BT_WAVE
@@ -442,6 +442,7 @@ BtWavelevelPrivate
 <TITLE>BtWavetable</TITLE>
 BtWavetable
 bt_wavetable_new
+bt_wavetable_add_wave
 <SUBSECTION Standard>
 BtWavetableClass
 BT_WAVETABLE

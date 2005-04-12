@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.1 2004-12-18 20:43:20 ensonic Exp $
+/* $Id: wavelevel.c,v 1.2 2005-04-12 18:56:01 ensonic Exp $
  * class for wavelevel
  */
 
@@ -20,7 +20,15 @@ struct _BtWavelevelPrivate {
 	/* the song the wavelevel belongs to */
 	BtSong *song;
 	
-	GList *waves;		// each entry points to BtWave
+	/*
+	Root Note
+	Length
+	Rate
+	Loop Begin/End
+	Format
+	*/
+
+	gpointer *sample;		// sample data
 };
 
 static GObjectClass *parent_class=NULL;
@@ -101,19 +109,6 @@ static void bt_wavelevel_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
 	g_object_try_weak_unref(self->priv->song);
-	// unref list of waves
-	if(self->priv->waves) {
-		node=self->priv->waves;
-		while(node) {
-      {
-        GObject *obj=node->data;
-        GST_DEBUG("  free wave : %p (%d)",obj,obj->ref_count);
-      }
-      g_object_try_unref(node->data);
-      node->data=NULL;
-			node=g_list_next(node);
-		}
-	}
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -125,11 +120,7 @@ static void bt_wavelevel_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	// free list of waves
-	if(self->priv->waves) {
-		g_list_free(self->priv->waves);
-		self->priv->waves=NULL;
-	}
+	g_free(self->priv->sample);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
