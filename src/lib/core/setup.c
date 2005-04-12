@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.64 2005-03-02 16:14:39 ensonic Exp $
+/* $Id: setup.c,v 1.65 2005-04-12 14:21:58 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -493,7 +493,7 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
 	id=g_strdup_printf("%s 00",base_name);
 	ptr=&id[strlen(base_name)+1];
 	do {
-		(void)g_sprintf(ptr,"%u",i++);
+		(void)g_sprintf(ptr,"%02u",i++);
 		g_object_try_unref(machine);
 	} while((machine=bt_setup_get_machine_by_id(self,id)) && (i<100));
 	g_object_try_unref(machine);

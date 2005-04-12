@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.97 2005-04-11 10:10:36 ensonic Exp $
+/* $Id: machine.c,v 1.98 2005-04-12 14:21:57 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -684,6 +684,21 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
 }
 
 /**
+ * bt_machine_remove_pattern:
+ * @self: the machine to remove the pattern from
+ * @pattern: the existing pattern instance
+ *
+ * Remove the given pattern from the machine.
+ */
+void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern) {
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(BT_IS_PATTERN(pattern));
+
+  self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
+	g_object_unref(G_OBJECT(pattern));
+}
+
+/**
  * bt_machine_get_pattern_by_id:
  * @self: the machine to search for the pattern
  * @id: the identifier of the pattern
@@ -961,6 +976,34 @@ void bt_machine_set_voice_dparam_value(const BtMachine *self, gulong voice, gulo
 
 	// @todo set voice events
 	// dparam=self->priv->voice_dparams[voice][index];
+}
+
+/**
+ * bt_machine_get_unique_pattern_name:
+ * @self: the machine for which the name should be unique
+ * @base_name: the leading name part
+ *
+ * The function generates a unique pattern name for this machine by eventually
+ * adding a number postfix. This method should be used when adding new patterns.
+ *
+ * Returns: the newly allocated unique name
+ */
+gchar *bt_machine_get_unique_pattern_name(const BtMachine *self) {
+	BtPattern *pattern=NULL;
+	gchar *id,*ptr;
+	guint8 i=0;
+	
+	id=g_strdup_printf("%s 00",self->priv->id);
+	ptr=&id[strlen(self->priv->id)+1];
+	do {
+		(void)g_sprintf(ptr,"%02u",i++);
+		g_object_try_unref(pattern);
+	} while((pattern=bt_machine_get_pattern_by_id(self,id)) && (i<100));
+	g_object_try_unref(pattern);
+	g_free(id);
+	i--;
+	
+	return(g_strdup_printf("%02u",i));
 }
 
 //-- wrapper

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.43 2005-02-03 19:40:41 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.44 2005-04-12 14:21:59 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -322,12 +322,18 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMainWindow *main_window;
-	
+	gchar *msg,*id;
+
   g_assert(user_data);
 	GST_INFO("context_menu delete event occurred");
 	
 	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-	if(bt_dialog_question(main_window,_("Delete machine..."),_("Delete machine..."),_("There is no undo for this."))) {
+	g_object_get(self->priv->machine,"id",&id,NULL);
+	
+	msg=g_strdup_printf(_("Delete machine '%s'"),id);
+	g_free(id);
+
+	if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
 		BtSong *song;
 		BtSetup *setup;
 		
@@ -341,6 +347,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 		g_object_try_unref(song);
 	}
 	g_object_try_unref(main_window);
+	g_free(msg);
 }
 
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {

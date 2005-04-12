@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.41 2005-04-11 10:10:30 ensonic Exp $
+# $Id: configure.ac,v 1.42 2005-04-12 14:21:57 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -44,7 +44,7 @@ AC_SUBST(BT_RELEASE_DATE)
 VERSION=${BT_VERSION}
 
 # Initialise the automake tool
-AM_INIT_AUTOMAKE(buzztard, $VERSION)
+AM_INIT_AUTOMAKE([check-news])
 
 # i18n
 ALL_LINGUAS="de"
