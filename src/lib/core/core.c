@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.12 2004-09-24 22:42:14 ensonic Exp $
+/* $Id: core.c,v 1.13 2005-04-13 09:19:23 ensonic Exp $
  */
 
 #define BT_CORE
@@ -28,20 +28,20 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 /**
  * bt_init:
- * @argc: pointer to commandline argument count
- * @argv: pointer to commandline arguments
- * @options: custom commandline options from the application 
+ * @argc: pointer to command line argument count
+ * @argv: pointer to command line arguments
+ * @options: custom command line options from the application 
  *
  * initialize the libbtcore usage.
  * This function prepares gstreamer and libxml. 
  */
 void bt_init(int *argc, char ***argv, struct poptOption *options) {
   
-	//-- init gobject
+	//-- initialize gobject
 	g_type_init();
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
-	//-- init gstreamer with popt options
+	//-- initialize gstreamer with popt options
   if(options) {
     gst_init_with_popt_table(argc,argv,(GstPoptOption*)options);
   }
@@ -51,10 +51,10 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
   gst_control_init(argc,argv);
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
-	//-- init libxml
+	//-- initialize libxml
   // set own error handler
   //xmlSetGenericErrorFunc("libxml-error: ",&gitk_libxmlxslt_error_func);
-  // initialise the xml parser
+  // initialize the xml parser
   xmlInitParser();
   // xmlInitParser does that for us
   //xmlXPathInit();

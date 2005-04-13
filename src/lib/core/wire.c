@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.53 2005-03-19 19:16:52 ensonic Exp $
+/* $Id: wire.c,v 1.54 2005-04-13 09:19:23 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -32,19 +32,19 @@ struct _BtWirePrivate {
 	BtMachine *src,*dst;
 	/* wire type adapter elements */
 	GstElement *convert,*scale;
-	/* convinience pointer */
+	/* convenience pointer */
 	GstElement *dst_elem,*src_elem;
   
   /* the element to control the gain of a connection */
   GstElement *gain;
   
-  /* the element to analyse the output level of the wire (Filter/Analyzer/Audio/Level)
+  /* the element to analyze the output level of the wire (Filter/Analyzer/Audio/Level)
    * \@todo which volume does one wants to know about? (see machine.c)
    *   a.) the machine output (before the volume control on the wire)
    *   b.) the machine input (after the volume control on the wire)
    */
   GstElement *level;
-  /* the element to analyse the frequence spectrum of the wire (Filter/Analyzer/Audio/Spectrum) */
+  /* the element to Analise the frequency spectrum of the wire (Filter/Analyzer/Audio/Spectrum) */
   GstElement *spectrum;
   
 };
@@ -131,7 +131,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
  * bt_wire_unlink_machines:
  * @self: the wire that should be used for this connection
  *
- * Unlinks gst-element of this wire and removes the conversion elemnts from the
+ * Unlinks gst-element of this wire and removes the conversion elements from the
  * song.
  */
 static void bt_wire_unlink_machines(const BtWire *self) {
@@ -167,11 +167,11 @@ static void bt_wire_unlink_machines(const BtWire *self) {
  * bt_wire_connect:
  * @self: the wire that should be used for this connection
  *
- * Connect two machines with a wire. The source and dsetination machine must be
+ * Connect two machines with a wire. The source and destination machine must be
  * passed upon construction. 
  * Each machine can be involved in multiple connections. The method
  * transparently add spreader or adder elements in such cases. It further
- * inserts elemnts for data-type conversion if neccesary.
+ * inserts elements for data-type conversion if necessary.
  *
  * Same way the resulting wire should be added to the setup using #bt_setup_add_wire().
  *
@@ -204,14 +204,14 @@ static gboolean bt_wire_connect(BtWire *self) {
     if(!bt_machine_activate_spreader(src)) {
       goto Error;
     }
-    // if there is no converion element on the wire ..
+    // if there is no conversion element on the wire ..
 		if(other_wire->priv->src_elem==old_peer) {
 			// we need to fix the src_elem of the other connect, as we have inserted the spreader
 			other_wire->priv->src_elem=src->src_elem;
 		}
 		// correct the link for the other wire
 		if(!bt_wire_link_machines(other_wire)) {
-			GST_ERROR("failed to re-link the machines after inserting internal spreaker");goto Error;
+			GST_ERROR("failed to re-link the machines after inserting internal spreader");goto Error;
 		}
 		g_object_unref(other_wire);
 	}
@@ -226,7 +226,7 @@ static gboolean bt_wire_connect(BtWire *self) {
     if(!bt_machine_activate_adder(dst)) {
       goto Error;
     }
-    // if there is no converion element on the wire ..
+    // if there is no conversion element on the wire ..
 		if(other_wire->priv->dst_elem==old_peer) {
 			// we need to fix the dst_elem of the other connect, as we have inserted the adder
 			other_wire->priv->dst_elem=dst->dst_elem;
@@ -243,7 +243,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 	}
   //bt_setup_add_wire(setup,self);
   res=TRUE;
-  GST_DEBUG("linking machines succeded");
+  GST_DEBUG("linking machines succeeded");
 Error:
   g_object_try_unref(setup);
 	return(res);

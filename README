@@ -1,8 +1,12 @@
-$Id: README,v 1.10 2005-02-07 11:01:46 ensonic Exp $
+$Id: README,v 1.11 2005-04-13 09:19:12 ensonic Exp $
 
-= quickinfo =
+= quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
 is about. Buzztard is free software and distributed under the LGPL.
+
+= into =
+Buzztard is a music composer similar to tracker applications.
+It is roughly modeled after the windows only closed source application called Buzz.
 
 = requirements =
 libxml2
@@ -13,7 +17,6 @@ gnome-canvas
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
-gtkgrid
 gconf
 
 = directories =
@@ -22,19 +25,19 @@ docs : design ideas and API reference
 po : gettext i18n catalogs
 src : the project sources
   ui
-    cmd : buzztard tool for the commandline
+    cmd : buzztard tool for the command line
     edit : buzztard editor (gtk based ui)
   lib
     core : logic, e.g. connections framework, file i/o, ...
   tests : unit tests (same directory structure as src)
 
-= installing localy =
+= installing locally =
 use following options for ./autogen.sh or ./configure
   --prefix=/home/ensonic/buzztard
   --with-gconf-source=xml::/home/ensonic/.gconf/
   --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
-when installing the package to e.g. $HOME/buzztard remeber to set these
-environemnt options:
+when installing the package to e.g. $HOME/buzztard remember to set these
+environment options:
 online help: (as root)
   export OMF_DIR="$OMF_DIR:$HOME/buzztard/share/omf"
   scrollkeeper-update
