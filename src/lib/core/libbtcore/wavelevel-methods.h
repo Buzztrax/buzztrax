@@ -1,4 +1,4 @@
-/* $Id: wavelevel-methods.h,v 1.1 2004-12-18 20:43:20 ensonic Exp $
+/* $Id: wavelevel-methods.h,v 1.2 2005-04-13 18:11:55 ensonic Exp $
  * defines all public methods of the wavelevel class
  */
 
@@ -7,6 +7,6 @@
 
 #include "wavelevel.h"
 
-extern BtWavelevel *bt_wavelevel_new(const BtSong *song);
+extern BtWavelevel *bt_wavelevel_new(const BtSong *song,const BtWave *wave,guchar root_note,gulong length,glong loop_start,glong loop_end,gulong rate);
 
 #endif // BT_WAVELEVEL_METHDOS_H

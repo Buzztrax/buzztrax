@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.54 2005-02-22 07:31:09 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.55 2005-04-13 18:11:55 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -319,7 +319,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-	if(!song) return;
+	g_return_if_fail(song);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page

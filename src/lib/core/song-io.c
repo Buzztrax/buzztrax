@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.35 2005-03-08 12:19:07 ensonic Exp $
+/* $Id: song-io.c,v 1.36 2005-04-13 18:11:53 ensonic Exp $
  * base class for song input and output
  */
  
@@ -188,6 +188,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
 	
 	if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
 		bt_song_io_update_filename(BT_SONG_IO(self),song);
+		g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
 	}
 	return(result);
 }
@@ -206,6 +207,7 @@ gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
 
 	if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
 		bt_song_io_update_filename(BT_SONG_IO(self),song);
+		g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
 	}
 	return(result);
 }

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.30 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: pattern.c,v 1.31 2005-04-13 18:11:52 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -127,13 +127,14 @@ BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name
   g_assert(id);
   g_assert(name);
   g_assert(BT_IS_MACHINE(machine));
-  
+	
   if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",length,"voices",voices,"machine",machine,NULL)))) {
     goto Error;
   }
   if(!bt_pattern_init_data(self)) {
     goto Error;
   }
+	// add the pattern to the machine
   bt_machine_add_pattern(machine,self);
   return(self);
 Error:

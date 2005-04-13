@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.14 2005-04-08 13:35:39 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.15 2005-04-13 18:11:56 ensonic Exp $
  * class for the editor settings dialog
  */
 
@@ -93,8 +93,6 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_tree_view_set_headers_visible(self->priv->settings_list,FALSE);
   gtk_tree_view_insert_column_with_attributes(self->priv->settings_list,-1,NULL,renderer,"text",COL_LABEL,NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->settings_list),GTK_SELECTION_BROWSE);
-	// just for debugging the treeview
-	//gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->settings_list),GTK_SELECTION_NONE);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->settings_list));
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(scrolled_window));
   

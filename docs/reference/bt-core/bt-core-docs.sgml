@@ -38,7 +38,7 @@
   <preface>
     <title>Introduction</title>
     <para>
-      Buzztard aims to be a succesor of the freeware music tracker calld Buzz.
+      Buzztard aims to be a successor of the freeware music tracker called Buzz.
       The development of Buzz has been discontinued as the author lost all his source-codes.
     </para>
     <para>
@@ -50,7 +50,7 @@
   <chapter id="conventions">
     <title>Conventions</title>
     During the API docs some conventions are used to avoid duplication and
-    improve precission.
+    improve precision.
     <orderedlist>
       <listitem>
         <para>
@@ -62,12 +62,12 @@
         <para>
 					Methods do checking of preconditions using <function>g_return_if_fail()</function>
         	or <function>g_return_val_if_fail()</function>.
-        	Therefore watch for the glibs log messages indicating wrong API usage.
+        	Therefore watch for the glib log messages indicating wrong API usage.
 				</para>
       </listitem>
       <listitem>
         <para>
-					All methods that return a pointer to an object, increse the reference counter.
+					All methods that return a pointer to an object, increase the reference counter.
 					Therefore you should do release this reference by calling <function>g_object_unref()</function>
 					when you are done with the object.
 				</para>
@@ -95,7 +95,7 @@
       before reading further.
     </para>
 		<para>
-      All datastructures are encapsulated in objects based on <link linkend="GObject">GObject</link>.
+      All data structures are encapsulated in objects based on <link linkend="GObject">GObject</link>.
       Central starting points are <link linkend="BtApplication">BtApplication</link> and <link linkend="BtSong">BtSong</link>.
       All the objects that belong to a song have their song-instance as their member.
       Likewise all objects that belong to the applications have their application instance as a member.

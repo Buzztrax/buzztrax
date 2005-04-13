@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.3 2005-04-12 18:56:01 ensonic Exp $
+/* $Id: wavetable.c,v 1.4 2005-04-13 18:11:54 ensonic Exp $
  * class for wavetable
  */
 
@@ -50,8 +50,13 @@ BtWavetable *bt_wavetable_new(const BtSong *song) {
 
 	g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  self=BT_WAVETABLE(g_object_new(BT_TYPE_WAVETABLE,"song",song,NULL));
+  if(!(self=BT_WAVETABLE(g_object_new(BT_TYPE_WAVETABLE,"song",song,NULL)))) {
+		goto Error;
+	}
   return(self);
+Error:
+	g_object_try_unref(self);
+	return(NULL);
 }
 
 //-- private methods

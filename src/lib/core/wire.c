@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.54 2005-04-13 09:19:23 ensonic Exp $
+/* $Id: wire.c,v 1.55 2005-04-13 18:11:54 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -265,6 +265,7 @@ Error:
  */
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
   BtWire *self;
+	BtSetup *setup;
   
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(src_machine),NULL);
@@ -280,13 +281,11 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
     goto Error;
   }
 	// add the wire to the setup of the song
-	{
-		BtSetup *setup=NULL;
-		g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-		g_assert(setup!=NULL);
-		bt_setup_add_wire(setup,BT_WIRE(self));
-		g_object_try_unref(setup);
-	}
+	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_assert(setup!=NULL);
+	bt_setup_add_wire(setup,self);
+	g_object_unref(setup);
+
   return(self);
 Error:
 	g_object_try_unref(self);

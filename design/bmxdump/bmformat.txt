@@ -156,7 +156,7 @@ byte		flags:
 				bit 2: floating point memory format
 				bit 3: stereo (since 1.2)
 				bit 4: bidirectional loop (since 1.2)
-				bit 7: envelopes follow (since alpha 14)  
+				bit 7: envelopes follow (since alpha 1.4)  
 
 if flag bit 7 --------->
 	word		number of envelopes 

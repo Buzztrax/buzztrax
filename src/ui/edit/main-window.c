@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.52 2005-02-02 16:35:58 ensonic Exp $
+/* $Id: main-window.c,v 1.53 2005-04-13 18:11:56 ensonic Exp $
  * class for the editor main window
  */
 
@@ -60,11 +60,32 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
 	}
 }
 
+static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+  gchar *title,*name;
+  BtSongInfo *song_info;
+	gboolean unsaved;
+
+	g_assert(user_data);
+	
+	// @todo dumb notify triggers always
+	// when songs state has not changed, we don't need to change the title
+	
+	GST_INFO("song.unsaved has changed : song=%p, window=%p",song,user_data);
+	
+  g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
+  // compose title
+  g_object_get(G_OBJECT(song_info),"name",&name,NULL);
+  title=g_strdup_printf("%s %s - "PACKAGE_NAME,name,(unsaved?_("(unsaved)"):""));g_free(name);
+  gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
+  //-- release the references
+  g_object_try_unref(song_info);
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   gchar *title,*name;
   BtSong *song;
-  BtSongInfo *song_info;
 
   g_assert(user_data);
 
@@ -74,13 +95,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(app),"song",&song,NULL);
 	if(!song) return;
 
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  // compose title
-  g_object_get(G_OBJECT(song_info),"name",&name,NULL);
-  title=g_strdup_printf("%s - "PACKAGE_NAME,name);g_free(name);
-  gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
+	on_song_unsaved_changed(song,arg,self);
+	g_signal_connect(G_OBJECT(song), "notify::unsaved", (GCallback)on_song_unsaved_changed, (gpointer)self);
   //-- release the references
-  g_object_try_unref(song_info);
   g_object_try_unref(song);
 }
 
@@ -191,8 +208,20 @@ gboolean bt_main_window_run(const BtMainWindow *self) {
  * Returns: %TRUE if the user has confirmed to exit
  */
 gboolean bt_main_window_check_quit(const BtMainWindow *self) {
-	// @todo check song->unsaved
-	return(bt_dialog_question(self,_("Really quit ?"),_("Really quit ?"),_("All unsaved changes will be lost then.")));
+	gboolean res=TRUE;
+	gboolean unsaved=FALSE;
+	BtSong *song;
+	
+	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(song) {
+		g_object_get(song,"unsaved",&unsaved,NULL);
+		g_object_unref(song);
+	}
+	if(unsaved) {
+		res=bt_dialog_question(self,_("Really quit ?"),_("Really quit ?"),_("All unsaved changes will be lost then."));
+	}
+	
+	return(res);
 }
 
 /**

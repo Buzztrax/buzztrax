@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.25 2005-02-12 19:57:10 ensonic Exp $
+/* $Id: main-page-info.c,v 1.26 2005-04-13 18:11:55 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -54,7 +54,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-	if(!song) return;
+	g_return_if_fail(song);
 
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields

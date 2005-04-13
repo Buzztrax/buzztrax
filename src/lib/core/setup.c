@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.65 2005-04-12 14:21:58 ensonic Exp $
+/* $Id: setup.c,v 1.66 2005-04-13 18:11:53 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -147,6 +147,7 @@ gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 		ret=TRUE;
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
 		g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
+		g_object_set(G_OBJECT(self->priv->song),"unsaved",TRUE,NULL);
   }
   else {
     GST_WARNING("trying to add machine again"); 
@@ -187,6 +188,7 @@ gboolean bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
 			ret=TRUE;
 	    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
 			g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
+			g_object_set(G_OBJECT(self->priv->song),"unsaved",TRUE,NULL);
 		}
 		g_object_try_unref(other_wire1);
 		g_object_try_unref(other_wire2);
@@ -214,6 +216,7 @@ void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
     self->priv->machines=g_list_remove(self->priv->machines,machine);
 		g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
 		g_object_unref(G_OBJECT(machine));
+		g_object_set(G_OBJECT(self->priv->song),"unsaved",TRUE,NULL);
   }
   else {
     GST_WARNING("trying to remove machine that is not in setup"); 
@@ -235,6 +238,7 @@ void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
     self->priv->wires=g_list_remove(self->priv->wires,wire);
 		g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
 		g_object_unref(G_OBJECT(wire));
+		g_object_set(G_OBJECT(self->priv->song),"unsaved",TRUE,NULL);
   }
   else {
     GST_WARNING("trying to remove wire that is not in setup"); 

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.69 2005-04-08 13:35:39 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.70 2005-04-13 18:11:55 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -931,7 +931,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-	if(!song) return;
+	g_return_if_fail(song);
 
   g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&sequence,NULL);
   // update page

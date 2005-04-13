@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.2 2005-04-12 18:56:00 ensonic Exp $
+/* $Id: wave.c,v 1.3 2005-04-13 18:11:54 ensonic Exp $
  * class for wave
  */
 
@@ -19,7 +19,8 @@ enum {
 enum {
   WAVE_SONG=1,
 	WAVE_WAVELEVELS,
-	WAVE_NAME
+	WAVE_NAME,
+	WAVE_FILE_NAME,
 };
 
 struct _BtWavePrivate {
@@ -29,8 +30,9 @@ struct _BtWavePrivate {
 	/* the song the wave belongs to */
 	BtSong *song;
 	
-	/* the name of the wave (sample file name) */
+	/* the name of the wave and the the sample file */
 	gchar *name;
+	gchar *file_name;
 	
 	GList *wavelevels;		// each entry points to a BtWavelevel
 };
@@ -44,18 +46,32 @@ static guint signals[LAST_SIGNAL]={0,};
 /**
  * bt_wave_new:
  * @song: the song the new instance belongs to
+ * @name: the display name for the new wave
+ * @file_name: the file system path of the sample data
  *
  * Create a new instance
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtWave *bt_wave_new(const BtSong *song) {
+BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name) {
   BtWave *self;
+	BtWavetable *wavetable;
 
 	g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,NULL));
+  if(!(self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"file-name",file_name,NULL)))) {
+		goto Error;
+	}
+	// add the wave to the wavetable of the song
+	g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
+	g_assert(wavetable!=NULL);
+	bt_wavetable_add_wave(wavetable,self);
+	g_object_unref(wavetable);
+
   return(self);
+Error:
+	g_object_try_unref(self);
+	return(NULL);
 }
 
 //-- private methods
@@ -101,6 +117,9 @@ static void bt_wave_get_property(GObject      *object,
     case WAVE_NAME: {
       g_value_set_string(value, self->priv->name);
     } break;
+    case WAVE_FILE_NAME: {
+      g_value_set_string(value, self->priv->file_name);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -126,6 +145,11 @@ static void bt_wave_set_property(GObject      *object,
       g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
       GST_DEBUG("set the name for wave: %s",self->priv->name);
+    } break;
+    case WAVE_FILE_NAME: {
+      g_free(self->priv->file_name);
+      self->priv->file_name = g_value_dup_string(value);
+      GST_DEBUG("set the file-name for wave: %s",self->priv->file_name);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -173,6 +197,7 @@ static void bt_wave_finalize(GObject *object) {
 		self->priv->wavelevels=NULL;
 	}
 	g_free(self->priv->name);
+	g_free(self->priv->file_name);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -214,6 +239,13 @@ static void bt_wave_class_init(BtWaveClass *klass) {
                                      "name prop",
                                      "The name of the wave",
                                      "unamed wave", /* default value */
+                                     G_PARAM_READWRITE));
+
+	g_object_class_install_property(gobject_class,WAVE_FILE_NAME,
+                                  g_param_spec_string("file-name",
+                                     "file-name prop",
+                                     "The file-name of the wave",
+                                     NULL, /* default value */
                                      G_PARAM_READWRITE));
 }
 

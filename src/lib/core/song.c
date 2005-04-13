@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.69 2005-01-29 14:18:31 ensonic Exp $
+/* $Id: song.c,v 1.70 2005-04-13 18:11:53 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -302,6 +302,7 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->sequence  = bt_sequence_new(self);
   self->priv->setup     = bt_setup_new(self);
   self->priv->wavetable = bt_wavetable_new(self);
+	self->priv->unsaved   = FALSE;
 	GST_DEBUG("  done");
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.98 2005-04-12 14:21:57 ensonic Exp $
+/* $Id: machine.c,v 1.99 2005-04-13 18:11:51 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -354,7 +354,8 @@ static gchar *bt_machine_make_name(BtMachine *self) {
  * Returns: %TRUE for succes, %FALSE otherwise
  */
 gboolean bt_machine_new(BtMachine *self) {
-	gchar *name; 
+	gchar *name;
+	BtSetup *setup;
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(self->priv->machines[PART_MACHINE]==NULL);
@@ -456,16 +457,13 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_DEBUG("  this will be the master for the song");
     g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
-	// getting the setup from the current assigned song
-	// @todo the method should get the song as an paramter. All subclasses calling
-	// this method and it is ugly to use this in that way
-	{
-		BtSetup *setup=NULL;
-		g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-		g_assert(setup!=NULL);
-		bt_setup_add_machine(setup,BT_MACHINE(G_OBJECT(self)));
-		g_object_try_unref(setup);
-	}
+	//add the machine to the setup of the song
+	// @todo the method should get the setup as an paramter (faster when bulk adding)
+	g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+	g_assert(setup!=NULL);
+	bt_setup_add_machine(setup,self);
+	g_object_unref(setup);
+
   return(TRUE);
 }
 

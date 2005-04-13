@@ -1,4 +1,4 @@
-/* $Id: wave-methods.h,v 1.2 2005-04-12 18:56:01 ensonic Exp $
+/* $Id: wave-methods.h,v 1.3 2005-04-13 18:11:55 ensonic Exp $
  * defines all public methods of the wave class
  */
 
@@ -8,7 +8,7 @@
 #include "wave.h"
 #include "wavelevel.h"
 
-extern BtWave *bt_wave_new(const BtSong *song);
+extern BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name);
 
 extern gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel);
 
