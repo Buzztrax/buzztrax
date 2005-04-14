@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.70 2005-04-13 18:11:55 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.71 2005-04-14 15:31:26 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -16,6 +16,10 @@
  *  - support different rythms
  *    - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
  *    - use different highlighing (strong bar every start of a beat)
+ *  - pattern_add/remove refreshing
+ *	  g_signal_connect(G_OBJECT(machine),"pattern-added",(GCallback)on_pattern_added,(gpointer)self);
+ *	  g_signal_connect(G_OBJECT(machine),"pattern-removed",(GCallback)on_pattern_removed,(gpointer)self);
+ *
  */
 
 #define BT_EDIT

@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.15 2005-01-19 17:44:25 ensonic Exp $
+/* $Id: machine.h,v 1.16 2005-04-14 15:31:26 ensonic Exp $
  * base class for a machine
  */
 
@@ -7,6 +7,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
+#include "pattern.h"
 
 #define BT_TYPE_MACHINE		         (bt_machine_get_type ())
 #define BT_MACHINE(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
@@ -39,7 +40,9 @@ struct _BtMachine {
 /* structure of the machine class */
 struct _BtMachineClass {
   GObjectClass parent_class;
-  
+
+  void (*pattern_added_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
+  void (*pattern_removed_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
 };
 
 #define BT_TYPE_MACHINE_STATE       (bt_machine_state_get_type())

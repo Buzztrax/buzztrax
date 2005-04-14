@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.70 2005-04-13 18:11:53 ensonic Exp $
+/* $Id: song.c,v 1.71 2005-04-14 15:31:25 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -89,7 +89,22 @@ BtSong *bt_song_new(const BtApplication *app) {
 
 //-- methods
 
-/** 
+/**
+ * bt_song_set_unsaved:
+ * @self: the song that should be changed
+ * @unsaved: the new state of the songs unsaved flag
+ *
+ * Use this method instead of directly setting the state via g_object_set() to
+ * avoid double notifies, if the state is unchanged.
+ */
+void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
+	if(self->priv->unsaved!=unsaved) {
+		self->priv->unsaved=unsaved;
+		g_object_notify(G_OBJECT(self),"unsaved");
+	}
+}
+
+/**
  * bt_song_play:
  * @self: the song that should be played
  *

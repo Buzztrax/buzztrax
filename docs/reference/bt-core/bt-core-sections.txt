@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.28 2005-04-12 18:55:46 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.29 2005-04-14 15:30:59 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -268,6 +268,7 @@ BtSinkMachinePrivate
 BtSong
 BtSongClass
 bt_song_new
+bt_song_set_unsaved
 bt_song_play
 bt_song_stop
 bt_song_pause
@@ -329,6 +330,7 @@ BtSongIOPrivate
 <TITLE>BtSongIONative</TITLE>
 BtSongIONative
 BtSongIONativeClass
+bt_song_io_native_detect
 <SUBSECTION Standard>
 BT_SONG_IO_NATIVE
 BT_IS_SONG_IO_NATIVE
@@ -484,6 +486,7 @@ is_string
 safe_string
 return_if_disposed
 G_STRUCT_SIZE
+G_ABS_STRUCT_OFFSET
 g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref

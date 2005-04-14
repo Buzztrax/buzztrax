@@ -16,9 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/ui/edit/bt-edit.desktop.in.h:1
-#, fuzzy
 msgid "Buzztard Music Editor"
-msgstr "Buzztard Editor"
+msgstr "Buzztard Music Editor"
 
 #: src/ui/edit/bt-edit.desktop.in.h:2
 msgid "Edit buzztard song files"
@@ -120,7 +119,6 @@ msgid "view menu"
 msgstr "Ansichts Menü"
 
 #: src/ui/edit/main-menu.c:246 src/ui/edit/main-menu.c:247
-#, fuzzy
 msgid "Toolbar"
 msgstr "Werkzeugleiste"
 
@@ -135,12 +133,12 @@ msgstr "Hilfe Menü"
 
 #: src/ui/edit/main-menu.c:264
 msgid "Content"
-msgstr ""
+msgstr "Inhalt"
 
 #: src/ui/edit/main-menu.c:267 src/ui/edit/main-menu.c:268
 #: src/ui/edit/main-menu.c:271
 msgid "About"
-msgstr ""
+msgstr "Über"
 
 #. first row of vbox
 #: src/ui/edit/main-page-info.c:188 src/ui/edit/main-page-info.c:189
@@ -227,9 +225,8 @@ msgid "High"
 msgstr ""
 
 #: src/ui/edit/main-page-machines.c:708
-#, fuzzy
 msgid "add menu"
-msgstr "Hauptmenü"
+msgstr "Hinzufügen menü"
 
 #: src/ui/edit/main-page-machines.c:711
 msgid "Generators"
@@ -244,9 +241,8 @@ msgid "Effects"
 msgstr ""
 
 #: src/ui/edit/main-page-machines.c:734
-#, fuzzy
 msgid "effects menu"
-msgstr "Bearbeiten Menü"
+msgstr "Effekt Menü"
 
 #: src/ui/edit/main-page-machines.c:749
 msgid "Unmute all machines"
@@ -386,7 +382,7 @@ msgstr ""
 
 #: src/ui/edit/main-toolbar.c:305 src/ui/edit/main-toolbar.c:309
 msgid "Loop"
-msgstr ""
+msgstr "Wiederholen"
 
 #: src/ui/edit/main-toolbar.c:310
 msgid "Toggle looping of playback"
@@ -395,7 +391,7 @@ msgstr ""
 #. gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
 #: src/ui/edit/main-toolbar.c:342
 msgid "Volume"
-msgstr ""
+msgstr "Lautstärke"
 
 #. @todo check song->unsaved
 #: src/ui/edit/main-window.c:181
@@ -408,10 +404,9 @@ msgstr ""
 
 #: src/ui/edit/main-window.c:206
 msgid "Open a song"
-msgstr ""
+msgstr "Öffnen"
 
 #: src/ui/edit/main-window.c:277
-#, fuzzy
 msgid "Save a song"
 msgstr "Speichern unter"
 

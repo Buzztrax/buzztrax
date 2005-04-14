@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.99 2005-04-13 18:11:51 ensonic Exp $
+/* $Id: machine.c,v 1.100 2005-04-14 15:31:25 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -10,6 +10,16 @@
 #define BT_MACHINE_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  PATTERN_ADDED_EVENT,
+  PATTERN_REMOVED_EVENT,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
   MACHINE_PROPERTIES=1,
@@ -94,6 +104,8 @@ struct _BtMachinePrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- enums
 
@@ -675,6 +687,8 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
 
   if(!g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(G_OBJECT(pattern)));
+		g_signal_emit(G_OBJECT(self),signals[PATTERN_ADDED_EVENT], 0, pattern);
+		bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to add pattern again"); 
@@ -692,8 +706,15 @@ void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern) 
   g_assert(BT_IS_MACHINE(self));
   g_assert(BT_IS_PATTERN(pattern));
 
-  self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
-	g_object_unref(G_OBJECT(pattern));
+  if(g_list_find(self->priv->patterns,pattern)) {
+		self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
+		g_signal_emit(G_OBJECT(self),signals[PATTERN_REMOVED_EVENT], 0, pattern);
+		g_object_unref(G_OBJECT(pattern));
+		bt_song_set_unsaved(self->priv->song,TRUE);
+  }
+  else {
+    GST_WARNING("trying to remove pattern that is not in machine"); 
+  }
 }
 
 /**
@@ -1209,6 +1230,47 @@ static void bt_machine_class_init(BtMachineClass *klass) {
   gobject_class->get_property = bt_machine_get_property;
   gobject_class->dispose      = bt_machine_dispose;
   gobject_class->finalize     = bt_machine_finalize;
+
+  klass->pattern_added_event = NULL;
+  klass->pattern_removed_event = NULL;
+	
+  /** 
+	 * BtMachine::pattern-added:
+   * @self: the machine object that emitted the signal
+   * @pattern: the new pattern
+	 *
+	 * A new pattern item has been added to the machine
+	 */
+  signals[PATTERN_ADDED_EVENT] = g_signal_new("pattern-added",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_ABS_STRUCT_OFFSET(BtMachineClass,pattern_added_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__POINTER,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_PATTERN // param data
+                                        );
+	
+  /**
+	 * BtMachine::pattern-removed:
+   * @self: the machine object that emitted the signal
+   * @pattern: the old pattern
+	 *
+	 * A pattern item has been removed from the machine
+	 */
+  signals[PATTERN_REMOVED_EVENT] = g_signal_new("pattern-removed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_ABS_STRUCT_OFFSET(BtMachineClass,pattern_removed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__POINTER,
+                                        G_TYPE_NONE, // return type
+                                        1, // n_params
+                                        BT_TYPE_PATTERN // param data
+                                        );
 
   g_object_class_install_property(gobject_class,MACHINE_PROPERTIES,
                                   g_param_spec_pointer("properties",
