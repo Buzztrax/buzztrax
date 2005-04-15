@@ -1,4 +1,4 @@
-## Makefile.am for tests/ui/cmd
+## $Id: Makefile.am,v 1.5 2005-04-15 17:08:29 ensonic Exp $
 
 noinst_LTLIBRARIES = libbt-cmd-check.la
 libbt_cmd_check_la_LIBADD = -lm $(BASE_DEPS_LIBS) \

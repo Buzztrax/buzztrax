@@ -4,6 +4,6 @@
 *.la
 Makefile
 Makefile.in
-buzztard
+bt_core
 bt_cmd
 bt_edit

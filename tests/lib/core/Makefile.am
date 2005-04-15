@@ -1,4 +1,4 @@
-## Makefile.am for tests/lib/core
+## $Id: Makefile.am,v 1.21 2005-04-15 17:08:18 ensonic Exp $
 
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
