@@ -1,10 +1,9 @@
-/** $Id: t-machine.c,v 1.2 2005-02-07 21:15:10 waffel Exp $ **/
+/* $Id: t-machine.c,v 1.3 2005-04-15 17:05:14 ensonic Exp $
+ */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
@@ -139,17 +138,10 @@ START_TEST(test_btmachine_state2) {
 }
 END_TEST
 
-TCase *bt_machine_obj_tcase(void) {
-  TCase *tc = tcase_create("bt_machine case");
+TCase *bt_machine_test_case(void) {
+  TCase *tc = tcase_create("BtMachineTests");
 	
 	tcase_add_test(tc, test_btmachine_state1);
 	tcase_add_test(tc, test_btmachine_state2);
   return(tc);
-}
-
-Suite *bt_machine_suite(void) { 
-  Suite *s=suite_create("BtMachine"); 
-
-  suite_add_tcase(s,bt_machine_obj_tcase());
-  return(s);
 }

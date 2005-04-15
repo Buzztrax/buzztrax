@@ -1,11 +1,10 @@
-/** $Id: e-song.c,v 1.3 2005-01-11 16:50:50 ensonic Exp $
-**/
+/* $Id: e-song.c,v 1.4 2005-04-15 17:05:13 ensonic Exp $
+ */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
 
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 static gboolean play_signal_invoke=FALSE;
 
 //-- fixtures
@@ -189,8 +188,8 @@ START_TEST(test_btsong_new1){
 }
 END_TEST
 
-TCase *bt_song_example_tcase(void) {
-  TCase *tc = tcase_create("bt_song_example case");
+TCase *bt_song_example_case(void) {
+  TCase *tc = tcase_create("BtSongExamples");
 
   tcase_add_test(tc,test_btsong_obj1);
   tcase_add_test(tc,test_btsong_load1);
@@ -199,12 +198,4 @@ TCase *bt_song_example_tcase(void) {
   tcase_add_test(tc,test_btsong_new1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-
-Suite *bt_song_example_suite(void) { 
-  Suite *s=suite_create("BtSongExample"); 
-
-  suite_add_tcase(s,bt_song_example_tcase());
-  return(s);
 }

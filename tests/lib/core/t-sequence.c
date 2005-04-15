@@ -1,11 +1,9 @@
-/** $Id: t-sequence.c,v 1.3 2005-01-24 18:48:49 waffel Exp $ 
-**/
+/* $Id: t-sequence.c,v 1.4 2005-04-15 17:05:14 ensonic Exp $ 
+ */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
@@ -139,8 +137,8 @@ START_TEST(test_btsequence_obj4) {
 }
 END_TEST
 
-TCase *bt_sequence_obj_tcase(void) {
-  TCase *tc = tcase_create("bt_song case");
+TCase *bt_sequence_test_case(void) {
+  TCase *tc = tcase_create("BtSequenceTests");
 
 	tcase_add_test(tc,test_btsequence_properties);
   tcase_add_test(tc,test_btsequence_obj1);
@@ -149,12 +147,4 @@ TCase *bt_sequence_obj_tcase(void) {
 	tcase_add_test(tc,test_btsequence_obj4);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-
-Suite *bt_sequence_suite(void) { 
-  Suite *s=suite_create("BtSequence"); 
-
-  suite_add_tcase(s,bt_sequence_obj_tcase());
-  return(s);
 }

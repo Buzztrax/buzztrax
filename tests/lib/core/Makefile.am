@@ -2,11 +2,19 @@
 
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
-libbtcore_check_la_SOURCES = \
-	t-core.c t-core.h t-song.c e-song.c t-song-io.g t-song-io.c t-network.c \
-	e-network.c t-setup.c e-setup.c t-wire.c t-sourcemachine.c \
-	e-sourcemachine.c t-sinkmachine.c t-sequence.c t-machine.c \
-	e-timeline.c e-songinfo.c
+libbtcore_check_la_SOURCES = m-bt-core.h \
+	s-core.c t-core.c \
+	s-machine.c t-machine.c \
+	s-network.c e-network.c t-network.c \
+	s-sequence.c t-sequence.c \
+	s-setup.c e-setup.c t-setup.c \
+	s-sink-machine.c t-sink-machine.c \
+	s-song.c t-song.c e-song.c \
+	s-song-io.c t-song-io.c \
+	s-song-info.c e-song-info.c \
+	s-source-machine.c e-source-machine.c t-source-machine.c \
+	s-timeline.c e-timeline.c \
+	s-wire.c t-wire.c
 
 
 INCLUDES = \

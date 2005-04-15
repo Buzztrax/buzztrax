@@ -1,11 +1,9 @@
-/** $Id: e-network.c,v 1.10 2005-02-16 19:10:24 waffel Exp $
+/* $Id: e-network.c,v 1.11 2005-04-15 17:05:12 ensonic Exp $
  */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
@@ -159,18 +157,11 @@ START_TEST(test_btcore_net_example2) {
 END_TEST
 
 
-TCase *bt_network_example_tcase(void) {
-  TCase *tc = tcase_create("Network");
+TCase *bt_network_example_case(void) {
+  TCase *tc = tcase_create("BtNetworkExamples");
 
   tcase_add_test(tc,test_btcore_net_example1);
   tcase_add_test(tc,test_btcore_net_example2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-Suite *bt_network_example_suite(void) { 
-  Suite *s=suite_create("BtNetworkExamples"); 
-
-  suite_add_tcase(s,bt_network_example_tcase());
-  return(s);
 }

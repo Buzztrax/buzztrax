@@ -1,7 +1,7 @@
-/** $Id: t-core.c,v 1.3 2005-04-15 15:13:12 ensonic Exp $
+/* $Id: t-core.c,v 1.4 2005-04-15 17:05:14 ensonic Exp $
  */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
 
@@ -27,18 +27,11 @@ START_TEST(test_btcore_init1) {
 }
 END_TEST
 
-TCase *bt_core_tcase(void) {
-  TCase *tc = tcase_create("Core");
+TCase *bt_core_test_case(void) {
+  TCase *tc = tcase_create("BtCoreTests");
 
   tcase_add_test(tc,test_btcore_init0);
 	tcase_add_test(tc,test_btcore_init1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-Suite *bt_core_suite(void) { 
-  Suite *s=suite_create("BtCore"); 
-
-  suite_add_tcase(s,bt_core_tcase());
-  return(s);
 }

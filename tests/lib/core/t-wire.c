@@ -1,11 +1,9 @@
-/** $Id: t-wire.c,v 1.6 2005-02-16 19:10:28 waffel Exp $
-**/
+/* $Id: t-wire.c,v 1.7 2005-04-15 17:05:14 ensonic Exp $
+ */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
@@ -100,19 +98,11 @@ START_TEST(test_btwire_obj2){
 }
 END_TEST
 
-TCase *bt_wire_obj_tcase(void) {
-  TCase *tc = tcase_create("bt_wire case");
+TCase *bt_wire_test_case(void) {
+  TCase *tc = tcase_create("BtWireTests");
 
   tcase_add_test(tc,test_btwire_obj1);
   tcase_add_test(tc,test_btwire_obj2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-
-Suite *bt_wire_suite(void) { 
-  Suite *s=suite_create("BtWire"); 
-
-  suite_add_tcase(s,bt_wire_obj_tcase());
-  return(s);
 }

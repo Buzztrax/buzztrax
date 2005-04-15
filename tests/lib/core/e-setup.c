@@ -1,11 +1,9 @@
-/** $Id: e-setup.c,v 1.17 2005-02-16 19:10:26 waffel Exp $
-**/
+/* $Id: e-setup.c,v 1.18 2005-04-15 17:05:12 ensonic Exp $
+ */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
@@ -374,8 +372,8 @@ START_TEST(test_btsetup_machine1) {
 }
 END_TEST
 
-TCase *bt_setup_example_tcase(void) {
-  TCase *tc = tcase_create("bt_setup example case");
+TCase *bt_setup_example_case(void) {
+  TCase *tc = tcase_create("BtSetupExamples");
 
   tcase_add_test(tc,test_btsetup_obj1);
 	tcase_add_test(tc,test_btsetup_obj2);
@@ -386,12 +384,4 @@ TCase *bt_setup_example_tcase(void) {
 	tcase_add_test(tc,test_btsetup_machine1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-
-Suite *bt_setup_example_suite(void) { 
-  Suite *s=suite_create("BtSetupExample"); 
-
-  suite_add_tcase(s,bt_setup_example_tcase());
-  return(s);
 }

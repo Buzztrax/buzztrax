@@ -1,11 +1,9 @@
-/** $Id: t-setup.c,v 1.14 2005-03-04 19:31:24 waffel Exp $
-**/
+/* $Id: t-setup.c,v 1.15 2005-04-15 17:05:14 ensonic Exp $
+ */
 
-#include "t-core.h"
+#include "m-bt-core.h"
 
 //-- globals
-
-GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 //-- fixtures
 
@@ -826,8 +824,8 @@ START_TEST(test_btsetup_get1) {
 }
 END_TEST
 
-TCase *bt_setup_obj_tcase(void) {
-  TCase *tc = tcase_create("bt_setup case");
+TCase *bt_setup_test_case(void) {
+  TCase *tc = tcase_create("BtSetupTests");
 
 	tcase_add_test(tc,test_btsetup_properties);
   tcase_add_test(tc,test_btsetup_obj1);
@@ -856,12 +854,4 @@ TCase *bt_setup_obj_tcase(void) {
 	tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
-}
-
-
-Suite *bt_setup_suite(void) { 
-  Suite *s=suite_create("BtSetup"); 
-
-  suite_add_tcase(s,bt_setup_obj_tcase());
-  return(s);
 }
