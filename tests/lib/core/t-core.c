@@ -1,4 +1,4 @@
-/** $Id: t-core.c,v 1.2 2004-09-24 22:42:16 ensonic Exp $
+/** $Id: t-core.c,v 1.3 2005-04-15 15:13:12 ensonic Exp $
  */
 
 #include "t-core.h"
@@ -27,7 +27,7 @@ START_TEST(test_btcore_init1) {
 }
 END_TEST
 
-TCase *libbtcore_tcase(void) {
+TCase *bt_core_tcase(void) {
   TCase *tc = tcase_create("Core");
 
   tcase_add_test(tc,test_btcore_init0);
@@ -36,11 +36,9 @@ TCase *libbtcore_tcase(void) {
   return(tc);
 }
 
-Suite *libbtcore_suite(void) { 
-  Suite *s=suite_create("LibBtCore"); 
+Suite *bt_core_suite(void) { 
+  Suite *s=suite_create("BtCore"); 
 
-  suite_add_tcase(s,libbtcore_tcase());
+  suite_add_tcase(s,bt_core_tcase());
   return(s);
 }
-
-

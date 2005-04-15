@@ -2,7 +2,7 @@
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
-  TESTS_BIN = buzztard bt_cmd bt_edit
+  TESTS_BIN = bt_core bt_cmd bt_edit
 else
   TESTS_BIN=
 endif
@@ -15,27 +15,27 @@ TESTS = \
 TESTS_ENVIRONMENT = ulimit -St20;
 
 if BUILD_CHECK_TESTS
-noinst_PROGRAMS=buzztard bt_cmd bt_edit
+noinst_PROGRAMS=$(TESTS_BIN)
 
 COMMON_SOURCES = bt-check.c bt-check.h
 
-buzztard_LDADD = $(BASE_DEPS_LIBS) -lcheck \
+bt_core_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la
-buzztard_SOURCES= \
-	t-buzztard.c $(COMMON_SOURCES)
+bt_core_SOURCES= \
+	m-bt-core.c $(COMMON_SOURCES)
 	
 bt_cmd_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la
 bt_cmd_SOURCES= \
-	t-bt-cmd.c $(COMMON_SOURCES)
+	m-bt-cmd.c $(COMMON_SOURCES)
 
 bt_edit_LDADD = $(BASE_DEPS_LIBS) -lcheck \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/ui/edit/libbt-edit-check.la
 bt_edit_SOURCES= \
-	t-bt-edit.c $(COMMON_SOURCES)
+	m-bt-edit.c $(COMMON_SOURCES)
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \
