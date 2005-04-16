@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.31 2005-04-13 18:11:52 ensonic Exp $
+/* $Id: pattern.c,v 1.32 2005-04-16 13:33:25 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -429,18 +429,21 @@ static void bt_pattern_set_property(GObject      *object,
       g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
       GST_DEBUG("set the display name for the pattern: %s",self->priv->name);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case PATTERN_LENGTH: {
       length=self->priv->length;
       self->priv->length = g_value_get_ulong(value);
       GST_DEBUG("set the length for pattern: %d",self->priv->length);
       if(self->priv->data) bt_pattern_resize_data_length(self,length);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case PATTERN_VOICES: {
       voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
       GST_DEBUG("set the voices for pattern: %d",self->priv->voices);
       if(self->priv->data) bt_pattern_resize_data_voices(self,voices);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case PATTERN_MACHINE: {
       g_object_try_weak_unref(self->priv->machine);

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.60 2005-04-08 13:35:39 ensonic Exp $
+/* $Id: sequence.c,v 1.61 2005-04-16 13:33:25 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -515,6 +515,7 @@ static void bt_sequence_set_property(GObject      *object,
 				self->priv->play_end=self->priv->length;
 			}
 			bt_sequence_limit_play_pos(self);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_TRACKS: {
 			gulong old_tracks=self->priv->tracks;
@@ -525,22 +526,26 @@ static void bt_sequence_set_property(GObject      *object,
       GST_DEBUG("set the tracks for sequence: %lu",self->priv->tracks);
       bt_sequence_init_machines(self,old_tracks);
       bt_sequence_init_timelinetracks(self);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP: {
       self->priv->loop = g_value_get_boolean(value);
       GST_DEBUG("set the loop for sequence: %d",self->priv->loop);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP_START: {
       self->priv->loop_start = g_value_get_long(value);
       GST_DEBUG("set the loop-start for sequence: %ld",self->priv->loop_start);
 			self->priv->play_start=(self->priv->loop_start!=-1)?self->priv->loop_start:0;
 			bt_sequence_limit_play_pos(self);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
       GST_DEBUG("set the loop-end for sequence: %ld",self->priv->loop_end);
 			self->priv->play_end=(self->priv->loop_end!=-1)?self->priv->loop_end:self->priv->length;
 			bt_sequence_limit_play_pos(self);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_PLAY_POS: {
       self->priv->play_pos = g_value_get_ulong(value);

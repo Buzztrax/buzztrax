@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.100 2005-04-14 15:31:25 ensonic Exp $
+/* $Id: machine.c,v 1.101 2005-04-16 13:33:24 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -347,11 +347,19 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
  *
  * Return: the name in newly allocated memory
  */
-static gchar *bt_machine_make_name(BtMachine *self) {
+static gchar *bt_machine_make_name(const BtMachine *self) {
 	gchar *name;
 	
 	name=g_strdup_printf("%s_%p",self->priv->id,self->priv->song);
 	return(name);
+}
+
+static void bt_machine_resize_pattern_voices(const BtMachine *self) {
+	GList* node;
+	// reallocate self->priv->patterns->priv->data
+	for(node=self->priv->patterns;node;node=g_list_next(node)) {
+		g_object_set(BT_PATTERN(node->data),"voices",self->priv->voices,NULL);
+	}
 }
 
 //-- constructor methods
@@ -1110,6 +1118,7 @@ static void bt_machine_set_property(GObject      *object,
 				gst_element_set_name(self->priv->machines[PART_MACHINE],name);
 				g_free(name);
 			}
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case MACHINE_PLUGIN_NAME: {
       g_free(self->priv->plugin_name);
@@ -1118,7 +1127,8 @@ static void bt_machine_set_property(GObject      *object,
     } break;
     case MACHINE_VOICES: {
       self->priv->voices = g_value_get_ulong(value);
-      // @todo reallocate self->priv->patterns->priv->data
+			bt_machine_resize_pattern_voices(self);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case MACHINE_GLOBAL_PARAMS: {
       self->priv->global_params = g_value_get_ulong(value);
@@ -1129,6 +1139,7 @@ static void bt_machine_set_property(GObject      *object,
     case MACHINE_STATE: {
 			bt_machine_change_state(self,g_value_get_enum(value));
       GST_DEBUG("set the state for machine: %d",self->priv->state);
+			bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
