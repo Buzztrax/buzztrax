@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.1 2005-04-15 15:12:48 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.2 2005-04-16 10:48:54 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -8,7 +8,8 @@
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
-extern Suite *bt_edit_suite(void);
+extern Suite *bt_edit_application_suite(void);
+extern Suite *bt_settings_dialog_suite(void);
 
 guint test_argc=2;
 gchar *test_arg0="check_buzzard";
@@ -30,7 +31,8 @@ int main(int argc, char **argv) {
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 	
-  sr=srunner_create(bt_edit_suite());
+  sr=srunner_create(bt_edit_application_suite());
+	srunner_add_suite(sr, bt_settings_dialog_suite());
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);

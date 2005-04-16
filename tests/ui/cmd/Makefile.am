@@ -1,11 +1,10 @@
-## $Id: Makefile.am,v 1.5 2005-04-15 17:08:29 ensonic Exp $
+## $Id: Makefile.am,v 1.6 2005-04-16 10:48:58 ensonic Exp $
 
 noinst_LTLIBRARIES = libbt-cmd-check.la
 libbt_cmd_check_la_LIBADD = -lm $(BASE_DEPS_LIBS) \
 	$(top_builddir)/src/ui/cmd/libbtcmd.la
-libbt_cmd_check_la_SOURCES = \
-	t-bt-cmd.c t-bt-cmd.h
-
+libbt_cmd_check_la_SOURCES = m-bt-cmd.h \
+	s-bt-cmd-application.c e-bt-cmd-application.c t-bt-cmd-application.c
 
 INCLUDES = \
 	-I@srcdir@ -I$(top_builddir)/src/lib/core \

@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.1 2005-04-15 15:12:48 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.2 2005-04-16 10:48:54 ensonic Exp $
  * command line app unit tests
  */
 
@@ -8,7 +8,7 @@
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
-extern Suite *bt_cmd_suite(void);
+extern Suite *bt_cmd_application_suite(void);
 
 guint test_argc=1;
 gchar *test_arg0="check_buzzard";
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 	bt_init(NULL,NULL,NULL);
 
-  sr=srunner_create(bt_cmd_suite());
+  sr=srunner_create(bt_cmd_application_suite());
   // this make tracing errors with gdb easier
   //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
