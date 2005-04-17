@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.55 2005-04-13 18:11:55 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.56 2005-04-17 10:53:34 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -610,7 +610,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
 	
   menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=bt_ui_ressources_get_image_by_machine_type(BT_TYPE_SINK_MACHINE);
+  image=bt_ui_ressources_get_image_by_machine_type(BT_TYPE_PROCESSOR_MACHINE);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);
 	// add another submenu

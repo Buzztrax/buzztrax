@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.57 2005-02-16 19:10:05 waffel Exp $
+/* $Id: song-io-native.c,v 1.58 2005-04-17 10:53:27 ensonic Exp $
  * class for native song input and output
  */
  
@@ -720,12 +720,82 @@ static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, con
 	return(TRUE);
 }
 
+static gboolean bt_song_io_native_save_setup_machines(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	xmlNodePtr xml_node;
+	BtSetup *setup;
+	BtMachine *machine;
+	GList *machines,*node;
+	gchar *id,*plugin_name;
+
+	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_object_get(G_OBJECT(setup),"machines",&machines,NULL);
+	
+	for(node=machines;node;node=g_list_next(node)) {
+		machine=BT_MACHINE(node->data);
+		g_object_get(G_OBJECT(machine),"id",&id,"plugin-name",&plugin_name,NULL);
+		if(BT_IS_PROCESSOR_MACHINE(machine)) {
+			xml_node=xmlNewChild(root_node,NULL,"processor",NULL);
+			xmlNewProp(xml_node,"plugin-name",plugin_name);
+		}
+		else if(BT_IS_SINK_MACHINE(machine)) {
+			xml_node=xmlNewChild(root_node,NULL,"sink",NULL);
+		}
+		else if(BT_IS_SOURCE_MACHINE(machine)) {
+			xml_node=xmlNewChild(root_node,NULL,"source",NULL);
+			xmlNewProp(xml_node,"plugin-name",plugin_name);
+		}
+		xmlNewProp(xml_node,"id",id);
+		g_free(id);
+		if(plugin_name) g_free(plugin_name);
+	}
+	g_list_free(machines);
+	g_object_try_unref(setup);
+	
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_setup_wires(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	xmlNodePtr xml_node;
+	BtSetup *setup;
+	BtWire *wire;
+	BtMachine *src_machine,*dst_machine;
+	GList *wires,*node;
+	gchar *id;
+
+	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_object_get(G_OBJECT(setup),"wires",&wires,NULL);
+	
+	for(node=wires;node;node=g_list_next(node)) {
+		wire=BT_WIRE(node->data);
+		
+		xml_node=xmlNewChild(root_node,NULL,"wire",NULL);
+		g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
+
+		g_object_get(G_OBJECT(src_machine),"id",&id,NULL);
+		xmlNewProp(xml_node,"src",id);
+		g_free(id);
+		
+		g_object_get(G_OBJECT(dst_machine),"id",&id,NULL);
+		xmlNewProp(xml_node,"dst",id);
+		g_free(id);
+
+		g_object_try_unref(src_machine);
+		g_object_try_unref(dst_machine);
+	}
+	g_list_free(wires);
+	g_object_try_unref(setup);
+	
+	return(TRUE);
+}
+
 static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
 
 	xml_node=xmlNewChild(root_node,NULL,"setup",NULL);
 	xml_child_node=xmlNewChild(xml_node,NULL,"machines",NULL);
+	bt_song_io_native_save_setup_machines(self,song,song_doc,xml_child_node);
 	xml_child_node=xmlNewChild(xml_node,NULL,"wires",NULL);
+	bt_song_io_native_save_setup_wires(self,song,song_doc,xml_child_node);
 	
 	return(TRUE);
 }
