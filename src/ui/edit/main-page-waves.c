@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.16 2005-04-13 18:11:56 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.17 2005-04-19 19:08:58 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -172,7 +172,6 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
 	
 	tips=gtk_tooltips_new();
 	
-  // @todo add ui
 	// vpane
 	vpaned=gtk_vpaned_new();
   gtk_container_add(GTK_CONTAINER(self),vpaned);
@@ -189,7 +188,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_widget_set_name(toolbar,_("sample list tool bar"));
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
-	// @todo add buttons (play,stop,clear)
+	// add buttons (play,stop,clear)
   image=gtk_image_new_from_filename("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
@@ -245,7 +244,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_widget_set_name(toolbar,_("sample browser tool bar"));
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
-	// @todo add buttons (play,stop,load)
+	// add buttons (play,stop,load)
   image=gtk_image_new_from_filename("stock_media-play.png");
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
@@ -292,7 +291,6 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_widget_set_name(toolbar,_("sample edit tool bar"));
   gtk_box_pack_start(GTK_BOX(box),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
-	// @todo add buttons (...)
 	//     hbox
 	box2=gtk_hbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(box),box2);

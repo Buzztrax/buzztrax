@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.53 2005-04-13 18:11:56 ensonic Exp $
+/* $Id: main-window.c,v 1.54 2005-04-19 19:08:59 ensonic Exp $
  * class for the editor main window
  */
 
@@ -67,9 +67,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 	gboolean unsaved;
 
 	g_assert(user_data);
-	
-	// @todo dumb notify triggers always
-	// when songs state has not changed, we don't need to change the title
 	
 	GST_INFO("song.unsaved has changed : song=%p, window=%p",song,user_data);
 	
@@ -231,9 +228,22 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
  * Prepares a new song. Triggers cleaning up the old song and refreshes the ui.
  */
 void bt_main_window_new_song(const BtMainWindow *self) {
-  // @todo if unsaved ask the user, if we should save the song
-  if(!bt_edit_application_new_song(self->priv->app)) {
-    // @todo show error message (from where?)
+	gboolean res=TRUE;
+	gboolean unsaved=FALSE;
+	BtSong *song;
+
+	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	if(song) {
+		g_object_get(song,"unsaved",&unsaved,NULL);
+		g_object_unref(song);
+	}
+	if(unsaved) {
+		res=bt_dialog_question(self,_("New song ?"),_("New song ?"),_("All unsaved changes will be lost then."));
+	}
+	if(res) {
+		if(!bt_edit_application_new_song(self->priv->app)) {
+			// @todo show error message (from where?)
+		}
   }
 }
 

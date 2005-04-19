@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.47 2005-04-13 18:11:56 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.48 2005-04-19 19:08:59 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -288,6 +288,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("tool bar"));
   gtk_container_add(GTK_CONTAINER(self),toolbar);
+	// @todo let gnome control this (if there is gnome)
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
 
   //-- file controls

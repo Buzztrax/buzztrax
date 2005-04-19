@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.58 2005-04-17 10:53:27 ensonic Exp $
+/* $Id: song-io-native.c,v 1.59 2005-04-19 19:08:35 ensonic Exp $
  * class for native song input and output
  */
  
@@ -479,7 +479,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
   BtPattern *pattern;
   BtTimeLine *timeline;
   BtTimeLineTrack *timelinetrack;
-  xmlChar *time_str,*pattern_id;
+  xmlChar *time_str,*pattern_id,*command;
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 
@@ -488,25 +488,39 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
     if(!xmlNodeIsText(xml_node)) {
       time_str=xmlGetProp(xml_node,"time");
       pattern_id=xmlGetProp(xml_node,"pattern");
-      // @todo comand=xmlGetProp(xml_node,"comand");
+      command=xmlGetProp(xml_node,"comand");
       GST_DEBUG("  at %s, pattern \"%s\"",time_str,pattern_id);
-      // get pattern by name from machine
-      if((pattern=bt_machine_get_pattern_by_id(machine,pattern_id))) {
-        // get timeline from sequence
-        if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
-          // get timelinetrack from timeline
-          if((timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,index))) {
-            g_object_set(timelinetrack,"pattern",pattern,"type",BT_TIMELINETRACK_TYPE_PATTERN,NULL);
-            g_object_unref(timelinetrack);
-          }
-          else GST_ERROR("  unknown timelinetrack index \"%d\"",index);
-          g_object_unref(timeline);
-        }
-        else GST_ERROR("  unknown timeline index \"%s\"",time_str);
-				g_object_unref(pattern);
-      }
-      else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
-      xmlFree(pattern_id);xmlFree(time_str);
+			// get timeline from sequence
+			if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
+				// get timelinetrack from timeline
+				if((timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,index))) {
+					if(pattern_id) {
+						// get pattern by name from machine
+						if((pattern=bt_machine_get_pattern_by_id(machine,pattern_id))) {
+							g_object_set(timelinetrack,"pattern",pattern,"type",BT_TIMELINETRACK_TYPE_PATTERN,NULL);
+							g_object_unref(pattern);
+						}
+						else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
+						xmlFree(pattern_id);
+					}
+					if(command) {
+						// mute, stop
+						if(!strncmp(command,"stop\0",5)) {
+							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,NULL);
+						}
+						else if(!strncmp(command,"mute\0",5)) {
+							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,NULL);
+						}
+						else GST_ERROR("  unknown command \"%s\"",command);
+						xmlFree(command);
+					}
+					g_object_unref(timelinetrack);
+				}
+				else GST_ERROR("  unknown timelinetrack index \"%d\"",index);
+				g_object_unref(timeline);
+			}
+			else GST_ERROR("  unknown timeline index \"%s\"",time_str);
+			xmlFree(time_str);
 		}
 		xml_node=xml_node->next;
 	}
@@ -690,6 +704,29 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 
 //-- saver helper methods
 
+static void bt_song_io_native_save_property_entries(gpointer key, gpointer value, gpointer user_data) {
+	xmlNodePtr xml_node;
+	
+	xml_node=xmlNewChild(user_data,NULL,"property",NULL);
+	xmlNewProp(xml_node,"key",(gchar *)key);
+	xmlNewProp(xml_node,"value",(gchar *)value);
+}
+
+static gboolean bt_song_io_native_save_properties(const BtSongIONative *self, const BtSong *song,xmlNodePtr root_node,GObject *object) {
+	xmlNodePtr xml_node;
+	GHashTable *properties;
+
+  // get property hashtable from object, return if NULL
+  g_object_get(object,"properties",&properties,NULL);
+  if(!properties) return(TRUE);
+		
+	xml_node=xmlNewChild(root_node,NULL,"properties",NULL);
+	// iterate over hashtable and store key value pairs
+	g_hash_table_foreach(properties,bt_song_io_native_save_property_entries,xml_node);
+
+  return(TRUE);
+}
+
 static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	BtSongInfo *song_info;
 	xmlNodePtr xml_node,xml_child_node;
@@ -735,18 +772,19 @@ static gboolean bt_song_io_native_save_setup_machines(const BtSongIONative *self
 		g_object_get(G_OBJECT(machine),"id",&id,"plugin-name",&plugin_name,NULL);
 		if(BT_IS_PROCESSOR_MACHINE(machine)) {
 			xml_node=xmlNewChild(root_node,NULL,"processor",NULL);
-			xmlNewProp(xml_node,"plugin-name",plugin_name);
+			xmlNewProp(xml_node,"pluginname",plugin_name);
 		}
 		else if(BT_IS_SINK_MACHINE(machine)) {
 			xml_node=xmlNewChild(root_node,NULL,"sink",NULL);
 		}
 		else if(BT_IS_SOURCE_MACHINE(machine)) {
 			xml_node=xmlNewChild(root_node,NULL,"source",NULL);
-			xmlNewProp(xml_node,"plugin-name",plugin_name);
+			xmlNewProp(xml_node,"pluginname",plugin_name);
 		}
 		xmlNewProp(xml_node,"id",id);
 		g_free(id);
 		if(plugin_name) g_free(plugin_name);
+		bt_song_io_native_save_properties(self,song,xml_node,G_OBJECT(machine));
 	}
 	g_list_free(machines);
 	g_object_try_unref(setup);
@@ -803,10 +841,129 @@ static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const B
 
 static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
+	BtSetup *setup;
+	BtMachine *machine;
+	BtPattern *pattern;
+	GList *machines,*patterns,*node1,*node2;
+	gchar *id,*machine_id,*name,*length_str;
+	gulong length;
 
 	xml_node=xmlNewChild(root_node,NULL,"patterns",NULL);
-	// pattern
 
+	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_object_get(G_OBJECT(setup),"machines",&machines,NULL);
+	
+	for(node1=machines;node1;node1=g_list_next(node1)) {
+		machine=BT_MACHINE(node1->data);
+		g_object_get(G_OBJECT(machine),"id",&machine_id,"patterns",&patterns,NULL);
+		// save all patterns for this machine	
+		for(node2=patterns;node2;node2=g_list_next(node2)) {
+			pattern=BT_PATTERN(node2->data);
+			g_object_get(G_OBJECT(pattern),"name",&name,"length",&length,NULL);
+			
+			xml_child_node=xmlNewChild(xml_node,NULL,"pattern",NULL);
+			// @todo generate "id"
+			id=g_strdup_printf("%s_%s",machine_id,name);
+			g_object_set(G_OBJECT(pattern),"id",id,NULL);
+			// save attributes
+			length_str=g_strdup_printf("%d",length);
+			xmlNewProp(xml_child_node,"id",id);g_free(id);
+			xmlNewProp(xml_child_node,"machine",machine_id);
+			xmlNewProp(xml_child_node,"name",name);g_free(name);
+			xmlNewProp(xml_child_node,"length",length_str);g_free(length_str);
+			// @todo save tick data
+		}
+		g_list_free(patterns);
+		g_free(machine_id);
+	}
+	g_list_free(machines);
+	g_object_try_unref(setup);
+
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_sequence_labels(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	xmlNodePtr xml_node;
+	BtSequence *sequence;
+	BtTimeLine *timeline;
+	gchar *time_str,*label;
+	gulong i,length;
+	
+	g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+	g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+
+	// iterate over timelines
+	for(i=0;i<length;i++) {
+		if(timeline=bt_sequence_get_timeline_by_time(sequence,i)) {
+			g_object_get(G_OBJECT(timeline),"label",&label,NULL);
+			if(label) {
+				xml_node=xmlNewChild(root_node,NULL,"label",NULL);
+				time_str=g_strdup_printf("%d",i);
+				xmlNewProp(xml_node,"name",label);g_free(label);
+				xmlNewProp(xml_node,"time",time_str);g_free(time_str);
+			}
+		}
+		g_object_unref(timeline);
+	}
+	g_object_try_unref(sequence);
+	
+	return(TRUE);
+}
+
+static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+	BtSequence *sequence;
+	BtMachine *machine;
+	BtPattern *pattern;
+	BtTimeLine *timeline;
+	BtTimeLineTrack *timelinetrack;
+	BtTimeLineTrackType type;
+	gchar *time_str,*track_str,*machine_id,*pattern_id;
+	gulong i,j,length,tracks;
+	
+	g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+	g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
+
+	// iterate over tracks
+	for(j=0;j<tracks;j++) {
+		xml_node=xmlNewChild(root_node,NULL,"track",NULL);
+		machine=bt_sequence_get_machine_by_track(sequence,j);
+		g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
+		track_str=g_strdup_printf("%d",j);
+		xmlNewProp(xml_node,"index",track_str);g_free(track_str);
+		xmlNewProp(xml_node,"machine",machine_id);g_free(machine_id);
+		g_object_unref(machine);
+		// iterate over timelines
+		for(i=0;i<length;i++) {
+			if(timeline=bt_sequence_get_timeline_by_time(sequence,i)) {
+				if(timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,j)) {
+					// get pattern type and pattern
+					g_object_get(G_OBJECT(timelinetrack),"pattern",&pattern,"type",&type,NULL);
+					if(type!=BT_TIMELINETRACK_TYPE_EMPTY) {
+						xml_child_node=xmlNewChild(xml_node,NULL,"position",NULL);
+						time_str=g_strdup_printf("%d",i);
+						xmlNewProp(xml_child_node,"time",time_str);g_free(time_str);
+						switch(type) {
+							case BT_TIMELINETRACK_TYPE_MUTE:
+								xmlNewProp(xml_child_node,"command","mute");
+								break;
+							case BT_TIMELINETRACK_TYPE_STOP:
+								xmlNewProp(xml_child_node,"command","stop");
+								break;
+							case BT_TIMELINETRACK_TYPE_PATTERN:
+								g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
+								xmlNewProp(xml_child_node,"pattern",pattern_id);g_free(pattern_id);
+								break;
+						}					
+					}
+					g_object_unref(timelinetrack);
+				}
+				g_object_unref(timeline);
+			}
+		}
+	}
+	g_object_try_unref(sequence);
+	
 	return(TRUE);
 }
 
@@ -814,8 +971,12 @@ static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, cons
 	xmlNodePtr xml_node,xml_child_node;
 
 	xml_node=xmlNewChild(root_node,NULL,"sequence",NULL);
+	
 	xml_child_node=xmlNewChild(xml_node,NULL,"labels",NULL);
+	bt_song_io_native_save_sequence_labels(self,song,song_doc,xml_child_node);
+
 	xml_child_node=xmlNewChild(xml_node,NULL,"tracks",NULL);
+	bt_song_io_native_save_sequence_tracks(self,song,song_doc,xml_child_node);
 
 	return(TRUE);
 }
