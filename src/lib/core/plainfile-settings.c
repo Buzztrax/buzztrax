@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.9 2005-01-16 14:20:40 waffel Exp $
+/* $Id: plainfile-settings.c,v 1.10 2005-04-20 09:39:06 ensonic Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -61,12 +61,13 @@ static void bt_plainfile_settings_get_property(GObject      *object,
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
-    case BT_SETTINGS_AUDIOSINK: {
-      gchar *prop=g_strdup("esdsink");// @todo get property value
-      GST_DEBUG("application reads audiosink plainfile_settings : %s",prop);
-      g_value_set_object(value, prop);
-      g_free(prop);
+    case BT_SETTINGS_AUDIOSINK:
+		case BT_SETTINGS_SYSTEM_AUDIOSINK: {
+      g_value_set_object(value, "esdsink");
     } break;
+		case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+      g_value_set_string(value, "both");
+			} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;

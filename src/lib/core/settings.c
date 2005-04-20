@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.11 2004-12-06 20:18:46 waffel Exp $
+/* $Id: settings.c,v 1.12 2005-04-20 09:39:06 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -107,6 +107,12 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
                                      "esdsink", /* default value */
                                      G_PARAM_READABLE));
 
+  g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,
+                                  g_param_spec_string("toolbar-style",
+                                     "toolbar-style prop",
+                                     "system tolbar style",
+                                     "both", /* default value */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_settings_get_type(void) {

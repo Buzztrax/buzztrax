@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.12 2005-01-15 22:02:51 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.13 2005-04-20 09:39:06 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -18,10 +18,19 @@ struct _BtGConfSettingsPrivate {
 
 static BtSettingsClass *parent_class=NULL;
 
-#define BT_GCONF_PATH_GSTREAMER "/system/gstreamer/default/"
-#define BT_GCONF_PATH_GNOME "/desktop/gnome/interface/"
-#define BT_GCONF_PATH_BUZZTARD "/apps/"PACKAGE"/"
+#define BT_GCONF_PATH_GSTREAMER "/system/gstreamer/default"
+#define BT_GCONF_PATH_GNOME "/desktop/gnome/interface"
+#define BT_GCONF_PATH_BUZZTARD "/apps/"PACKAGE
 
+//-- event handler
+
+static void bt_gconf_settings_notify_toolbar_style(GConfClient *client, guint cnxn_id, GConfEntry  *entry, gpointer user_data) {
+	BtGConfSettings *self=BT_GCONF_SETTINGS(user_data);
+	
+	GST_INFO("!!!  gconf notify for toolbar style");
+	
+	g_object_notify(G_OBJECT(self),"toolbar-style");
+}
 
 //-- constructor methods
 
@@ -34,10 +43,20 @@ static BtSettingsClass *parent_class=NULL;
  */
 BtGConfSettings *bt_gconf_settings_new(void) {
   BtGConfSettings *self;
-  self=BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL));
+  if(!(self=BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL)))) {
+		goto Error;
+	}
+	// register notify handlers for some properties
+	gconf_client_notify_add(self->priv->client,
+				 BT_GCONF_PATH_GNOME"/toolbar_style",
+				 bt_gconf_settings_notify_toolbar_style,
+				 (gpointer)self, NULL, NULL);
   
   //bt_settings_new(BT_SETTINGS(self));
-  return(self);  
+  return(self);
+Error:
+  g_object_try_unref(self);
+  return(NULL);
 }
 
 //-- methods
@@ -56,14 +75,20 @@ static void bt_gconf_settings_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"audiosink",NULL);
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
       GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"audiosink",NULL);
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
       GST_DEBUG("application reads system audiosink gconf_settings : %s",prop);
+      g_value_set_string(value, prop);
+      g_free(prop);
+    } break;
+		case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GNOME"/toolbar_style",NULL);
+      GST_DEBUG("application reads system toolbar style gconf_settings : %s",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
@@ -86,7 +111,7 @@ static void bt_gconf_settings_set_property(GObject      *object,
 			gboolean gconf_ret=FALSE;
       gchar *prop=g_value_dup_string(value);
       GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
-      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"audiosink",prop,NULL);
+      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",prop,NULL);
       g_free(prop);
 			g_return_if_fail(gconf_ret == TRUE);
     } break;
@@ -103,11 +128,10 @@ static void bt_gconf_settings_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
   
   // unregister directories to watch
-  /* see bt_gconf_settings_init
+  /* see bt_gconf_settings_init */
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
-  */
   g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
@@ -136,11 +160,10 @@ static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
   // register the config cache
   /* this atm causes 
   * (process:25225): GConf-CRITICAL **: file gconf-client.c: line 546 (gconf_client_add_dir): assertion `gconf_valid_key (dirname, NULL)' failed
-  *
+  */
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
-  */
 }
 
 static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {
