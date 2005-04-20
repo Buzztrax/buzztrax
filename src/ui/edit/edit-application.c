@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.60 2005-02-22 07:31:09 ensonic Exp $
+/* $Id: edit-application.c,v 1.61 2005-04-20 17:37:07 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -200,7 +200,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
       
-    g_signal_connect(G_OBJECT(loader),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
+    g_signal_connect(G_OBJECT(loader),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
 		
 		// create new song
@@ -267,7 +267,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
       
-    g_signal_connect(G_OBJECT(saver),"notify::status",(GCallback)on_songio_status_changed,(gpointer)self);
+    g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
     if(bt_song_io_save(saver,self->priv->song)) {
       res=TRUE;

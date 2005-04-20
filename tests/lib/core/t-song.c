@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.17 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-song.c,v 1.18 2005-04-20 17:37:08 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -71,7 +71,7 @@ START_TEST(test_btsong_play1) {
 	song=bt_song_new(app);
 	fail_unless(song != NULL, NULL);
   play_signal_invoke=FALSE;
-	g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event_test, NULL);
+	g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(play_event_test), NULL);
   mark_point();
 	bt_song_play(song);
 	fail_unless(play_signal_invoke, NULL);

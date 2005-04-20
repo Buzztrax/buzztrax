@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.7 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: tools.c,v 1.8 2005-04-20 17:37:08 ensonic Exp $
  * gui helper
  */
 
@@ -241,4 +241,34 @@ void gdk_threads_try_enter(void) {
  */
 void gdk_threads_try_leave(void) {
 	if (!bt_threads_in_main_thread()) gdk_threads_leave();
+}
+
+
+// gtk toolbar helper
+
+/**
+ * gtk_toolbar_get_style_from_string:
+ * @style_name: the style name returned from gconf settings
+ *
+ * toolbar gconf to style conversion
+ *
+ * Returns: the style id
+ */
+GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
+
+	g_return_val_if_fail(style_name,GTK_TOOLBAR_BOTH);
+	
+	if (!strcmp(style_name,"icons")) {
+		return(GTK_TOOLBAR_ICONS);
+	}
+	else if (!strcmp(style_name,"both")) {
+		return(GTK_TOOLBAR_BOTH);
+	}
+	else if (!strcmp(style_name,"both-horiz")) {
+		return(GTK_TOOLBAR_BOTH_HORIZ);
+	}
+	else if (!strcmp(style_name,"text")) {
+		return(GTK_TOOLBAR_TEXT);
+	}
+	return(GTK_TOOLBAR_BOTH);
 }

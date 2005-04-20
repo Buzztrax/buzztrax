@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.20 2005-02-03 16:13:51 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.21 2005-04-20 17:37:08 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -245,7 +245,7 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
                           	"dst", dst_machine_item,
                           	NULL));
   gnome_canvas_item_lower_to_bottom(GNOME_CANVAS_ITEM(self));
-	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
+	g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
 
 	//GST_INFO("wire canvas item added");
 
@@ -333,7 +333,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->src);
       self->priv->src=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->src) {
-        g_signal_connect(G_OBJECT(self->priv->src),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
+        g_signal_connect(G_OBJECT(self->priv->src),"position-changed",G_CALLBACK(on_wire_position_changed),(gpointer)self);
         GST_DEBUG("set the src for wire_canvas_item: %p",self->priv->src);
       }
     } break;
@@ -341,7 +341,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->dst);
       self->priv->dst=BT_MACHINE_CANVAS_ITEM(g_value_dup_object(value));
       if(self->priv->dst) {
-        g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",(GCallback)on_wire_position_changed,(gpointer)self);
+        g_signal_connect(G_OBJECT(self->priv->dst),"position-changed",G_CALLBACK(on_wire_position_changed),(gpointer)self);
         GST_DEBUG("set the dst for wire_canvas_item: %p",self->priv->dst);
       }
     } break;

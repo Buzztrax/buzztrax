@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.52 2005-04-13 18:11:55 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.53 2005-04-20 17:37:07 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -122,7 +122,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
 		MACHINE_MENU_LABEL,str,
 		MACHINE_MENU_MACHINE,machine,
 		-1);
-	g_signal_connect(G_OBJECT(machine),"notify::id",(GCallback)on_machine_id_changed,(gpointer)self);
+	g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
 	
   g_free(str);
 }
@@ -432,8 +432,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   machine_menu_refresh(self,setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
-	g_signal_connect(G_OBJECT(setup),"machine-added",(GCallback)on_machine_added,(gpointer)self);
-	g_signal_connect(G_OBJECT(setup),"machine-removed",(GCallback)on_machine_removed,(gpointer)self);
+	g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
+	g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   // release the references
   g_object_try_unref(setup);
   g_object_try_unref(song);
@@ -663,10 +663,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	// @todo cut, copy, paste
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", (GCallback)on_machine_menu_changed, (gpointer)self);
-	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", (GCallback)on_pattern_menu_changed, (gpointer)self);
-	g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", (GCallback)on_pattern_table_button_press_event, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
 
 	GST_DEBUG("  done");
 	return(TRUE);

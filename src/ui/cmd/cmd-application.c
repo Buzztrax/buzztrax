@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.52 2005-02-07 21:45:42 ensonic Exp $
+// $Id: cmd-application.c,v 1.53 2005-04-20 17:37:07 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -102,8 +102,8 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 	
 	if(bt_song_io_load(loader,song)) {
     // connection play and stop signals
-		g_signal_connect(G_OBJECT(song), "play", (GCallback)on_song_play, (gpointer)self);
-		g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
+		g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(on_song_play), (gpointer)self);
+		g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
 		bt_song_play(song);
     res=TRUE;
 	}

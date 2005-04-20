@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.29 2005-04-13 18:11:56 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.30 2005-04-20 17:37:08 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -108,8 +108,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 	gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
  	g_free(str);
   // subscribe to play-pos changes of song->sequence
-	g_signal_connect(G_OBJECT(sequence), "notify::play-pos", (GCallback)on_sequence_tick, (gpointer)self);
-  g_signal_connect(G_OBJECT(song), "stop", (GCallback)on_song_stop, (gpointer)self);
+	g_signal_connect(G_OBJECT(sequence), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);
@@ -150,7 +150,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->loop),FALSE,FALSE,1);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   return(TRUE);
 }
 

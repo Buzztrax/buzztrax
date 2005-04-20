@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.4 2005-04-15 17:05:13 ensonic Exp $
+/* $Id: e-song.c,v 1.5 2005-04-20 17:37:08 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -131,7 +131,7 @@ START_TEST(test_btsong_play1) {
 	load_ret = bt_song_io_load(loader,song);
 	fail_unless(load_ret, NULL);
   play_signal_invoke=FALSE;
-	g_signal_connect(G_OBJECT(song), "play", (GCallback)play_event_test, NULL);
+	g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(play_event_test), NULL);
 	bt_song_play(song);
 	fail_unless(play_signal_invoke, NULL);
   g_object_checked_unref(loader);

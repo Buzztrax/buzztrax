@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.59 2005-04-19 19:08:35 ensonic Exp $
+/* $Id: song-io-native.c,v 1.60 2005-04-20 17:37:06 ensonic Exp $
  * class for native song input and output
  */
  
@@ -838,6 +838,21 @@ static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
+static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, const BtPattern *pattern,xmlNodePtr root_node) {
+	xmlNodePtr xml_node,xml_child_node;
+	gulong i,length;
+	gchar *time_str;
+	
+	g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+	for(i=0;i<length;i++) {
+		xml_node=xmlNewChild(root_node,NULL,"tick",NULL);
+		// check if there are any non default values ?
+		//time_str=g_strdup_printf("%d",i);
+		//xmlNewProp(xml_node,"time",time_str);g_free(time_str);
+		// @todo save tick data
+	}
+	return(TRUE);
+}
 
 static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node,xml_child_node;
@@ -862,7 +877,7 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
 			g_object_get(G_OBJECT(pattern),"name",&name,"length",&length,NULL);
 			
 			xml_child_node=xmlNewChild(xml_node,NULL,"pattern",NULL);
-			// @todo generate "id"
+			// generate "id"
 			id=g_strdup_printf("%s_%s",machine_id,name);
 			g_object_set(G_OBJECT(pattern),"id",id,NULL);
 			// save attributes
@@ -871,7 +886,8 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
 			xmlNewProp(xml_child_node,"machine",machine_id);
 			xmlNewProp(xml_child_node,"name",name);g_free(name);
 			xmlNewProp(xml_child_node,"length",length_str);g_free(length_str);
-			// @todo save tick data
+			// save tick data
+			bt_song_io_native_save_pattern_data(self,pattern,xml_child_node);
 		}
 		g_list_free(patterns);
 		g_free(machine_id);

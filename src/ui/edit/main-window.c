@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.54 2005-04-19 19:08:59 ensonic Exp $
+/* $Id: main-window.c,v 1.55 2005-04-20 17:37:08 ensonic Exp $
  * class for the editor main window
  */
 
@@ -93,7 +93,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 	if(!song) return;
 
 	on_song_unsaved_changed(song,arg,self);
-	g_signal_connect(G_OBJECT(song), "notify::unsaved", (GCallback)on_song_unsaved_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   g_object_try_unref(song);
 }
@@ -136,7 +136,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 
 	GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 	
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
 
@@ -238,11 +238,12 @@ void bt_main_window_new_song(const BtMainWindow *self) {
 		g_object_unref(song);
 	}
 	if(unsaved) {
+		// @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
 		res=bt_dialog_question(self,_("New song ?"),_("New song ?"),_("All unsaved changes will be lost then."));
 	}
 	if(res) {
 		if(!bt_edit_application_new_song(self->priv->app)) {
-			// @todo show error message (from where?)
+			// @todo show error message (from where? and which error?)
 		}
   }
 }
@@ -367,7 +368,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 		if((file=fopen(file_name,"rb"))) {
 			GST_INFO("file already exists");
 			// it already exists, ask the user what to do (do not save, choose new name, overwrite song)
-			cont=bt_dialog_question(self,_("File already exists"),_("File already exists"),_("Choose 'yes' to overwrite and 'no' to not save the song."));
+			cont=bt_dialog_question(self,_("File already exists"),_("File already exists"),_("Choose 'Okay' to overwrite and 'Cancel' to abort saving the song."));
 			fclose(file);
 		}
 		else {

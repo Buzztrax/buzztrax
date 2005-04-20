@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.3 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-machine.c,v 1.4 2005-04-20 17:37:08 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -19,9 +19,19 @@ static void test_teardown(void) {
 
 //-- tests
 
-/**
-* test following scenario:
-* * sinesrc | volume | audio_sink
+/* this is an abstract base class, which should not be instantiable
+ * unfortunately glib manages again to error out here in a fashion that exits the app :(
+ */
+START_TEST(test_btmachine_abstract) {
+	BtMachine *machine;
+	
+	machine=g_object_new(BT_TYPE_MACHINE,NULL);
+	fail_unless(machine==NULL,NULL);
+}
+END_TEST
+
+/*
+* sinesrc | volume | audio_sink
 * 1) mute sinesrc
 * 2) mute volume
 * 3) unmute volume
@@ -80,7 +90,7 @@ START_TEST(test_btmachine_state1) {
 }
 END_TEST
 
-/**
+/*
 * sinesrc1, sinesrc2 | audio_sink
 * 1) solo sinesrc1
 * 2) solo sinesrc2
@@ -141,6 +151,7 @@ END_TEST
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
 	
+	//tcase_add_test(tc, test_btmachine_abstract);
 	tcase_add_test(tc, test_btmachine_state1);
 	tcase_add_test(tc, test_btmachine_state2);
   return(tc);

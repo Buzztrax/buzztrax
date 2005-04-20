@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.26 2005-04-13 18:11:55 ensonic Exp $
+/* $Id: main-page-info.c,v 1.27 2005-04-20 17:37:07 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -213,21 +213,21 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->name=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->name), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	g_signal_connect(G_OBJECT(self->priv->name), "changed", (GCallback)on_name_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->name), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->genre=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	g_signal_connect(G_OBJECT(self->priv->genre), "changed", (GCallback)on_genre_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->genre), "changed", G_CALLBACK(on_genre_changed), (gpointer)self);
 
   label=gtk_label_new(_("author"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->author=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	g_signal_connect(G_OBJECT(self->priv->genre), "changed", (GCallback)on_author_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->genre), "changed", G_CALLBACK(on_author_changed), (gpointer)self);
 
 	// second column
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
@@ -239,7 +239,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(130.0, 20.0, 300.0, 1.0, 5.0, 5.0));
   self->priv->bpm=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	g_signal_connect(G_OBJECT(self->priv->bpm), "value-changed", (GCallback)on_bpm_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->bpm), "value-changed", G_CALLBACK(on_bpm_changed), (gpointer)self);
 
   label=gtk_label_new(_("tick per beat"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -247,7 +247,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 4.0));
   self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", (GCallback)on_tpb_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);
 	
 	gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
@@ -268,10 +268,10 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 	GST_DEBUG("  text view: %p",self->priv->info);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(self->priv->info),GTK_WRAP_WORD);
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
-	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", (GCallback)on_info_changed, (gpointer)self);
+	g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", G_CALLBACK(on_info_changed), (gpointer)self);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
 	GST_DEBUG("  done");
 	return(TRUE);

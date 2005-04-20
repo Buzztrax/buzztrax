@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.101 2005-04-16 13:33:24 ensonic Exp $
+/* $Id: machine.c,v 1.102 2005-04-20 17:37:06 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1402,7 +1402,7 @@ GType bt_machine_get_type(void) {
 	    (GInstanceInitFunc)bt_machine_init, // instance_init
 			NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,0);
+		type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,G_TYPE_FLAG_ABSTRACT);
   }
   return type;
 }

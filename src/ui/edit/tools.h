@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.6 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: tools.h,v 1.7 2005-04-20 17:37:08 ensonic Exp $
  * gui helper
  */
 
@@ -18,5 +18,8 @@ extern gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,c
 extern void bt_threads_init(void);
 extern void gdk_threads_try_enter(void);
 extern void gdk_threads_try_leave(void);
+
+/* gtk toolbar helper */
+extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);
 
 #endif // BT_EDIT_TOOLS_H

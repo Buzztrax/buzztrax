@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.15 2005-02-22 07:30:50 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.16 2005-04-20 17:37:06 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -363,7 +363,8 @@ gtk_image_new_from_filename
 gdk_pixbuf_new_from_filename
 bt_dialog_message
 bt_dialog_question
-bt_threads_init;
-gdk_threads_try_enter;
+bt_threads_init
+gdk_threads_try_enter
 gdk_threads_try_leave
+gtk_toolbar_get_style_from_string
 </SECTION>

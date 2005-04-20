@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.3 2005-04-13 18:11:54 ensonic Exp $
+/* $Id: wavelevel.c,v 1.4 2005-04-20 17:37:06 ensonic Exp $
  * class for wavelevel
  */
 
@@ -213,7 +213,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass *klass) {
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
-	// @todo make this an own type
+	// @idea make this an own type
 	g_object_class_install_property(gobject_class,WAVELEVEL_ROOT_NOTE,
 																	g_param_spec_uchar("root-note",
                                      "root-note prop",

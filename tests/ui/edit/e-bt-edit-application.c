@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.1 2005-04-16 10:48:58 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.2 2005-04-20 17:37:08 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -52,11 +52,6 @@ static gboolean timeout(gpointer data) {
 
 
 //-- tests
-
-/* @idea we just create a app=bt_edit_application_new();
- * then we create another bt_main_window_new(app);
- * and check if we can destroy this
- */
 
 // create app and then unconditionally destroy window
 START_TEST(test_create_app) {

@@ -1,8 +1,9 @@
-/* $Id: machine-canvas-item.c,v 1.44 2005-04-12 14:21:59 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.45 2005-04-20 17:37:07 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
-/* @todo add level meter widgets */
+/* @todo add level meter widgets
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_CANVAS_ITEM_C
@@ -572,8 +573,8 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
-				g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", (GCallback)on_machine_id_changed, (gpointer)self);
-				g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", (GCallback)on_machine_state_changed, (gpointer)self);
+				g_signal_connect(G_OBJECT(self->priv->machine), "notify::id", G_CALLBACK(on_machine_id_changed), (gpointer)self);
+				g_signal_connect(G_OBJECT(self->priv->machine), "notify::state", G_CALLBACK(on_machine_state_changed), (gpointer)self);
       }
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {

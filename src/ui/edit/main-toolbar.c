@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.49 2005-04-20 09:39:17 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.50 2005-04-20 17:37:08 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -258,7 +258,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
 		// get the pad from the input-level and listen there for channel negotiation
 		if((pad=gst_element_get_pad(level,"src"))) {
-			g_signal_connect(pad,"notify::caps",(GCallback)on_channels_negotiated,(gpointer)self);
+			g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
 		}
 		// release the references
 		g_object_try_unref(level);
@@ -269,7 +269,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		// connect volumne event
 		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
-	g_signal_connect(G_OBJECT(song),"stop",(GCallback)on_song_stop,(gpointer)self);
+	g_signal_connect(G_OBJECT(song),"stop",G_CALLBACK(on_song_stop),(gpointer)self);
   g_object_try_unref(master);
   g_object_try_unref(song);
 
@@ -282,19 +282,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 	g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
 	
 	GST_INFO("!!!  toolbar style has changed '%s'",toolbar_style);
-
-	if (!strcmp(toolbar_style,"icons")) {
-		gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOLBAR_ICONS);
-	}
-	else if (!strcmp(toolbar_style,"both")) {
-		gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOLBAR_BOTH);
-	}
-	else if (!strcmp(toolbar_style,"both-horiz")) {
-		gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOLBAR_BOTH_HORIZ);
-	}
-	else if (!strcmp(toolbar_style,"text")) {
-		gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOLBAR_TEXT);
-	}
+	gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),gtk_toolbar_get_style_from_string(toolbar_style));
 	g_free(toolbar_style);
 }
 
@@ -311,15 +299,8 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   gtk_widget_set_name(GTK_WIDGET(self),_("handlebox for toolbar"));
 	
-	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-
   self->priv->toolbar=gtk_toolbar_new();
   gtk_widget_set_name(self->priv->toolbar,_("tool bar"));
-  gtk_container_add(GTK_CONTAINER(self),self->priv->toolbar);
-	// let settings control this
-	on_toolbar_style_changed(settings,NULL,(gpointer)self);
-	g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", (GCallback)on_toolbar_style_changed, (gpointer)self);
-	g_object_unref(settings);
 	
   //-- file controls
 
@@ -404,8 +385,9 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   gtk_toolbar_append_space(GTK_TOOLBAR(self->priv->toolbar));
   
-  // volume level
-  box=gtk_vbox_new(FALSE,0);
+  //-- volume level and control
+
+	box=gtk_vbox_new(FALSE,0);
   gtk_container_set_border_width(GTK_CONTAINER(box),2);
   // add gtk_vumeter widgets and update from level_callback
   for(i=0;i<MAX_VUMETER;i++) {
@@ -432,8 +414,17 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_widget_set_name(button,_("Volume"));
 
   gtk_toolbar_append_space(GTK_TOOLBAR(self->priv->toolbar));
-  
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+
+  gtk_container_add(GTK_CONTAINER(self),self->priv->toolbar);
+
+  // register event handlers
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+
+	// let settings control toolbar style
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	on_toolbar_style_changed(settings,NULL,(gpointer)self);
+	g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+	g_object_unref(settings);
 
   return(TRUE);
 }
