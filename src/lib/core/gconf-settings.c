@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.13 2005-04-20 09:39:06 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.14 2005-04-21 16:13:28 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -80,6 +80,17 @@ static void bt_gconf_settings_get_property(GObject      *object,
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
+		case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",NULL);
+      GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
+      g_value_set_boolean(value, prop);
+    } break;
+		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
+      GST_DEBUG("application reads grid-density gconf_settings : %s",prop);
+      g_value_set_string(value, prop);
+      g_free(prop);			
+		} break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
       GST_DEBUG("application reads system audiosink gconf_settings : %s",prop);
@@ -115,6 +126,21 @@ static void bt_gconf_settings_set_property(GObject      *object,
       g_free(prop);
 			g_return_if_fail(gconf_ret == TRUE);
     } break;
+		case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+			gboolean gconf_ret=FALSE;
+      gboolean prop=g_value_get_boolean(value);
+      GST_DEBUG("application writes toolbar-hide gconf_settings : %d",prop);
+      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",prop,NULL);
+			g_return_if_fail(gconf_ret == TRUE);
+		} break;
+		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+			gboolean gconf_ret=FALSE;
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes grid-density gconf_settings : %s",prop);
+      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",prop,NULL);
+      g_free(prop);
+			g_return_if_fail(gconf_ret == TRUE);
+		} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -128,7 +154,6 @@ static void bt_gconf_settings_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
   
   // unregister directories to watch
-  /* see bt_gconf_settings_init */
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
@@ -158,9 +183,6 @@ static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->client=gconf_client_get_default();
   gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
   // register the config cache
-  /* this atm causes 
-  * (process:25225): GConf-CRITICAL **: file gconf-client.c: line 546 (gconf_client_add_dir): assertion `gconf_valid_key (dirname, NULL)' failed
-  */
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);

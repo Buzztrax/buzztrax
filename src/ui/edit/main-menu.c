@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.32 2005-01-28 18:48:06 ensonic Exp $
+/* $Id: main-menu.c,v 1.33 2005-04-21 16:13:28 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -112,21 +112,25 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
   BtMainMenu *self=BT_MAIN_MENU(user_data);
 	BtMainWindow *main_window;
 	BtMainToolbar *toolbar;
+	BtSettings *settings;
 
   g_assert(user_data);
 
-  GST_INFO("menu view toolbar event occurred");
-	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  GST_INFO("menu 'view toolbar' event occurred");
+	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
 	g_object_get(G_OBJECT(main_window),"toolbar",&toolbar,NULL);
 	
 	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
 		gtk_widget_show(GTK_WIDGET(toolbar));
+		g_object_set(G_OBJECT(settings),"toolbar-hide",FALSE,NULL);
 }
 	else {
 		gtk_widget_hide(GTK_WIDGET(toolbar));
+		g_object_set(G_OBJECT(settings),"toolbar-hide",TRUE,NULL);
 	}
 	
 	g_object_try_unref(toolbar);
+	g_object_try_unref(settings);
 	g_object_try_unref(main_window);
 }
 
@@ -155,7 +159,9 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel_group) {
   GtkWidget *item,*menu,*subitem,*image;
-  
+	BtSettings *settings;
+	gboolean toolbar_hide;
+	
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
 
   //-- file menu
@@ -248,8 +254,12 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
   gtk_widget_set_name(subitem,_("Toolbar"));
-	// @todo save with gconf settings
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),TRUE);
+	// from here we can't hide the toolbar as it is not yet created and shown
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,NULL);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!toolbar_hide);
+	g_object_unref(settings);
+	
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 	g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
 

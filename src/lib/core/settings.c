@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.13 2005-04-20 17:37:06 ensonic Exp $
+/* $Id: settings.c,v 1.14 2005-04-21 16:13:28 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -96,14 +96,28 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
   g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",
                                      "audiosink prop",
-                                     "audio output device",
+                                     "audio output gstreamer element",
                                      "esdsink", /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TOOLBAR_HIDE,
+                                  g_param_spec_boolean("toolbar-hide",
+                                     "toolbar-hide",
+                                     "hide main toolbar",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
+                                  g_param_spec_string("grid-density",
+                                     "grid-density prop",
+                                     "machine view grid detail level",
+                                     "low", /* default value */
                                      G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,
                                   g_param_spec_string("system-audiosink",
                                      "system-audiosink prop",
-                                     "system audio output device",
+                                     "system audio output gstreamer element",
                                      "esdsink", /* default value */
                                      G_PARAM_READABLE));
 

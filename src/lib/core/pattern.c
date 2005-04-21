@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.32 2005-04-16 13:33:25 ensonic Exp $
+/* $Id: pattern.c,v 1.33 2005-04-21 16:13:28 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -335,12 +335,73 @@ gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar 
 }
 
 /**
- * bt_pattern_play_tick:
+ * bt_pattern_get_event:
  * @self: the pattern the cell belongs to
+ * @event: the event cell
+ *
+ * Returns the string representation of the given cell. Free it when done.
+ *
+ * Returns: a newly allocated string with teh data or %NULL on error
+ */
+gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
+	gchar *res=NULL;
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(G_IS_VALUE(event));
+	
+  // depending on the type, set the result
+  switch(G_VALUE_TYPE(event)) {
+    case G_TYPE_DOUBLE:
+      res=g_strdup_printf("%lf",g_value_get_double(event));
+			break;
+    case G_TYPE_INT:
+			res=g_strdup_printf("%ld",g_value_get_int(event));
+			break;
+    default:
+      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
+      return(NULL);
+  }
+	return(res);
+}
+
+/**
+ * bt_pattern_tick_has_data:
+ * @self: the pattern to check
  * @index: the tick index in the pattern
  *
- * Sets all dparams from this pattern-row into the #BtMachine.
+ * Check if there are any event in the given pattern-row.
  *
+ * Returns: %TRUE is there are events, %FALSE otherwise
+ */
+gboolean bt_pattern_tick_has_data(const BtPattern *self, gulong index) {
+  gulong j,k;
+  GValue *data;
+
+  g_assert(BT_IS_PATTERN(self));
+
+  data=&self->priv->data[index*(self->priv->global_params+self->priv->voices*self->priv->voice_params)];
+  for(k=0;k<self->priv->global_params;k++) {
+    if(G_IS_VALUE(data)) {
+      return(TRUE);
+    }
+    data++;
+  }
+  for(j=0;j<self->priv->voices;j++) {
+    for(k=0;k<self->priv->voice_params;k++) {
+			if(G_IS_VALUE(data)) {
+				return(TRUE);
+			}
+      data++;
+    }
+  }
+	return(FALSE);
+}
+
+/**
+ * bt_pattern_play_tick:
+ * @self: the pattern a tick should be played from
+ * @index: the tick index in the pattern
+ *
+ * Pushes all control changes from this pattern-row into the #BtMachine params.
  */
 void bt_pattern_play_tick(const BtPattern *self, gulong index) {
   gulong j,k;
@@ -449,7 +510,7 @@ static void bt_pattern_set_property(GObject      *object,
       g_object_try_weak_unref(self->priv->machine);
       self->priv->machine = BT_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->machine);
-      g_object_get(G_OBJECT(self->priv->machine),"global_params",&self->priv->global_params,"voice_params",&self->priv->voice_params,NULL);
+      g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
       GST_DEBUG("set the machine for pattern: %p",self->priv->machine);
     } break;
     default: {

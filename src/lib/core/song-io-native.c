@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.60 2005-04-20 17:37:06 ensonic Exp $
+/* $Id: song-io-native.c,v 1.61 2005-04-21 16:13:28 ensonic Exp $
  * class for native song input and output
  */
  
@@ -839,18 +839,38 @@ static gboolean bt_song_io_native_save_setup(const BtSongIONative *self, const B
 }
 
 static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, const BtPattern *pattern,xmlNodePtr root_node) {
+	BtMachine *machine;
 	xmlNodePtr xml_node,xml_child_node;
-	gulong i,length;
-	gchar *time_str;
+	gulong i,j,k,length,voices,global_params,voice_params;
+	gchar *time_str,*value;
+	GValue *data;
 	
-	g_object_get(G_OBJECT(pattern),"length",&length,NULL);
+	g_object_get(G_OBJECT(pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
+	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
 	for(i=0;i<length;i++) {
-		xml_node=xmlNewChild(root_node,NULL,"tick",NULL);
-		// check if there are any non default values ?
-		//time_str=g_strdup_printf("%d",i);
-		//xmlNewProp(xml_node,"time",time_str);g_free(time_str);
-		// @todo save tick data
+		// check if there are any GValues stored ?
+		if(bt_pattern_tick_has_data(pattern,i)) {
+			xml_node=xmlNewChild(root_node,NULL,"tick",NULL);
+			time_str=g_strdup_printf("%d",i);
+			xmlNewProp(xml_node,"time",time_str);g_free(time_str);
+			// save tick data
+			for(j=0;j<global_params;j++) {
+				if((data=bt_pattern_get_global_event_data(pattern,i,j))) {
+					//<globaldata name="freq" value="440.0"/>
+					value=bt_pattern_get_event(pattern,data);
+					// @todo save data
+					g_free(value);
+				}
+			}
+			for(j=0;j<voices;j++) {
+				for(k=0;k<voice_params;k++) {
+					data=bt_pattern_get_voice_event_data(pattern,i,j,k);
+					// @todo save data
+				}
+			}
+		}
 	}
+	g_object_unref(machine);
 	return(TRUE);
 }
 

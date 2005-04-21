@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.57 2005-04-20 17:37:07 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.58 2005-04-21 16:13:28 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -365,41 +365,65 @@ static void on_toolbar_grid_clicked(GtkButton *button, gpointer user_data) {
 
 static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+	BtSettings *settings;
 
 	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
   g_assert(user_data);
 	self->priv->grid_density=0;
+
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	g_object_set(G_OBJECT(settings),"grid-density","off",NULL);
+	g_object_unref(settings);
+
 	bt_main_page_machine_draw_grid(self);
 }
 
 static void on_toolbar_grid_density_low_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+	BtSettings *settings;
 
 	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
   g_assert(user_data);
 	self->priv->grid_density=1;
+
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	g_object_set(G_OBJECT(settings),"grid-density","low",NULL);
+	g_object_unref(settings);
+
 	bt_main_page_machine_draw_grid(self);
 }
 
 static void on_toolbar_grid_density_mid_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+	BtSettings *settings;
 
 	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
   g_assert(user_data);
 	self->priv->grid_density=2;
+
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	g_object_set(G_OBJECT(settings),"grid-density","medium",NULL);
+	g_object_unref(settings);
+
 	bt_main_page_machine_draw_grid(self);
 }
 
 static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+	BtSettings *settings;
 
 	if(!gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) return;
 
   g_assert(user_data);
 	self->priv->grid_density=3;
+
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	g_object_set(G_OBJECT(settings),"grid-density","high",NULL);
+	g_object_unref(settings);
+
 	bt_main_page_machine_draw_grid(self);
 }
 
@@ -655,10 +679,19 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   GtkWidget *icon,*button,*image,*scrolled_window;
   GtkWidget *menu_item,*menu;
   GtkTooltips *tips;
+	gchar *density;
 
 	GST_DEBUG("!!!! self=%p",self);
 	
   tips=gtk_tooltips_new();
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	
+	g_object_get(G_OBJECT(settings),"grid-density",&density,NULL);
+	if(!strcmp(density,"off")) self->priv->grid_density=0;
+	else if(!strcmp(density,"low")) self->priv->grid_density=1;
+	else if(!strcmp(density,"medium")) self->priv->grid_density=2;
+	else if(!strcmp(density,"high")) self->priv->grid_density=3;
+	g_free(density);
 
   // add toolbar
   self->priv->toolbar=gtk_toolbar_new();
@@ -746,8 +779,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
 	bt_main_page_machine_draw_grid(self);
 
-	// create grid-density menu with grid-density={off,low,mid,high}
-	// @todo save with gconf settings
+	// create grid-density menu with grid-density={off,low,mid,high}	
   self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
@@ -786,9 +818,9 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
 
 	// let settings control toolbar style
-	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
 	on_toolbar_style_changed(settings,NULL,(gpointer)self);
 	g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+
 	g_object_unref(settings);
 
 	GST_DEBUG("  done");

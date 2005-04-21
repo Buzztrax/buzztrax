@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.55 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: main-window.c,v 1.56 2005-04-21 16:13:28 ensonic Exp $
  * class for the editor main window
  */
 
@@ -157,8 +157,14 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
  */
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
+	BtSettings *settings;
+	gboolean toolbar_hide;
 
 	GST_INFO("creating a new window, app->ref_ct=%d",G_OBJECT(app)->ref_count);
+	// eventualy hide the toolbar
+	g_object_get(G_OBJECT(app),"settings",&settings,NULL);
+	g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,NULL);
+	g_object_unref(settings);
 	
   if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
     goto Error;
@@ -170,6 +176,12 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   }
 	GST_INFO("new main_window layouted, app->ref_ct=%d",G_OBJECT(app)->ref_count);
   gtk_widget_show_all(GTK_WIDGET(self));
+	if(toolbar_hide) {
+		gtk_widget_hide(GTK_WIDGET(self->priv->toolbar));
+	}
+
+
+
 	GST_INFO("new main_window shown");
   return(self);
 Error:

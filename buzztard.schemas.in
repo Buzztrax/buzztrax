@@ -8,8 +8,33 @@
       <type>string</type>
       <locale name="C">
         <default></default>
-        <short>Which audiosink to use.</short>
-        <long>Which audiosink should buzztard applications use.</long>
+        <short>Which audiosink to use</short>
+        <long>Which gstreamer audiosink element should buzztard applications use.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/toolbar-hide</key>
+      <applyto>/apps/buzztard/toolbar-hide</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Hide main toolbar</short>
+        <long>Should the main application toolbar be hidden.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/grid-density</key>
+      <applyto>/apps/buzztard/grid-density</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default>low</default>
+        <short>Machine view grid detail level</short>
+        <long>
+					How dense the app should draw the grid lines shown in machine view:
+					(off,low,medium,high)
+				</long>
       </locale>
     </schema>
   </schemalist>
