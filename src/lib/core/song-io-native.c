@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.61 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: song-io-native.c,v 1.62 2005-04-21 19:47:52 ensonic Exp $
  * class for native song input and output
  */
  
@@ -6,6 +6,11 @@
 #define BT_SONG_IO_NATIVE_C
 
 #include <libbtcore/core.h>
+
+/* @todo
+ * - remove song_doc args that are not used
+ * - try to pass song-component object to children, to avoid looking them up again and again
+ */
 
 struct _BtSongIONativePrivate {
   /* used to validate if dispose has run */
@@ -606,17 +611,43 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
 	return(TRUE);
 }
 
+static gboolean bt_song_io_native_load_wavetable_wave(const BtSongIONative *self, const BtSong *song, BtWavetable *wavetable, xmlNodePtr root_node) {
+	// @todo load wave data
+	return(TRUE);
+}
+
 static gboolean bt_song_io_native_load_wavetable(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {
-	BtWavetable *wavetable;
+	xmlXPathObjectPtr items_xpoptr;
+	xmlNodePtr xml_node;
+	xmlChar *elem;
 	
 	GST_INFO("loading the wavetable-data from the song");
 
-  g_object_get((gpointer)song,"wavetable",&wavetable,NULL);
-	
-	// @todo load wavetable data
-	
-  // release the reference
-  g_object_try_unref(wavetable);
+	// get top xml-node
+	if((items_xpoptr=xpath_type_filter(
+				cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_wavetable,NULL),
+				XPATH_NODESET)))
+	{
+		BtWavetable *wavetable;
+		gint i;
+		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
+		gint items_len=xmlXPathNodeSetGetLength(items);
+
+	  g_object_get((gpointer)song,"wavetable",&wavetable,NULL);
+
+		GST_INFO(" got wavetable root node with %d items",items_len);
+		for(i=0;i<items_len;i++) {
+			xml_node=xmlXPathNodeSetItem(items,i);
+			if(!xmlNodeIsText(xml_node)) {
+				if(!strncmp(xml_node->name,"wave\0",8)) {
+					bt_song_io_native_load_wavetable_wave(self,song,wavetable,xml_node);
+				}
+			}
+		}
+		xmlXPathFreeObject(items_xpoptr);
+	  // release the reference
+	  g_object_try_unref(wavetable);
+	}
 	return(TRUE);
 }
 
@@ -810,12 +841,10 @@ static gboolean bt_song_io_native_save_setup_wires(const BtSongIONative *self, c
 		g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
 
 		g_object_get(G_OBJECT(src_machine),"id",&id,NULL);
-		xmlNewProp(xml_node,"src",id);
-		g_free(id);
+		xmlNewProp(xml_node,"src",id);g_free(id);
 		
 		g_object_get(G_OBJECT(dst_machine),"id",&id,NULL);
-		xmlNewProp(xml_node,"dst",id);
-		g_free(id);
+		xmlNewProp(xml_node,"dst",id);g_free(id);
 
 		g_object_try_unref(src_machine);
 		g_object_try_unref(dst_machine);
@@ -842,11 +871,14 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 	BtMachine *machine;
 	xmlNodePtr xml_node,xml_child_node;
 	gulong i,j,k,length,voices,global_params,voice_params;
-	gchar *time_str,*value;
+	gchar *time_str,*voice_str,*value;
 	GValue *data;
 	
 	g_object_get(G_OBJECT(pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
 	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+	
+	GST_INFO("saving the pattern-data: len=%d, global=%d, voices=%d",length,global_params,voice_params);
+	
 	for(i=0;i<length;i++) {
 		// check if there are any GValues stored ?
 		if(bt_pattern_tick_has_data(pattern,i)) {
@@ -855,18 +887,27 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 			xmlNewProp(xml_node,"time",time_str);g_free(time_str);
 			// save tick data
 			for(j=0;j<global_params;j++) {
-				if((data=bt_pattern_get_global_event_data(pattern,i,j))) {
-					//<globaldata name="freq" value="440.0"/>
+				data=bt_pattern_get_global_event_data(pattern,i,j);
+				if(data && G_IS_VALUE(data)) {
 					value=bt_pattern_get_event(pattern,data);
-					// @todo save data
-					g_free(value);
+					xml_child_node=xmlNewChild(xml_node,NULL,"globaldata",NULL);
+					xmlNewProp(xml_child_node,"name",bt_machine_get_global_dparam_name(machine,j));
+					xmlNewProp(xml_child_node,"value",value);g_free(value);
 				}
 			}
 			for(j=0;j<voices;j++) {
+				voice_str=g_strdup_printf("%d",j);
 				for(k=0;k<voice_params;k++) {
 					data=bt_pattern_get_voice_event_data(pattern,i,j,k);
-					// @todo save data
+					if(data && G_IS_VALUE(data)) {
+						value=bt_pattern_get_event(pattern,data);
+						xml_child_node=xmlNewChild(xml_node,NULL,"voicedata",NULL);
+						xmlNewProp(xml_child_node,"voice",voice_str);
+						xmlNewProp(xml_child_node,"name",bt_machine_get_voice_dparam_name(machine,j));
+						xmlNewProp(xml_child_node,"value",value);g_free(value);
+					}
 				}
+				g_free(voice_str);
 			}
 		}
 	}
@@ -1018,10 +1059,29 @@ static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, cons
 }
 
 static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
+	BtWavetable *wavetable;
+	BtWave *wave;
 	xmlNodePtr xml_node,xml_child_node;
+	GList *waves,*node;
+	gchar *name,*file_name;
 
 	xml_node=xmlNewChild(root_node,NULL,"wavetable",NULL);
-	// waves
+	g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
+	g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
+	
+	for(node=waves;node;node=g_list_next(node)) {
+		wave=BT_WAVE(node->data);
+		
+		xml_node=xmlNewChild(root_node,NULL,"wave",NULL);
+		// @todo needs an index
+		g_object_get(G_OBJECT(wave),"name",name,"file-name",file_name,NULL);
+		xmlNewProp(xml_node,"name",name);g_free(name);
+		xmlNewProp(xml_node,"uri",file_name);g_free(file_name);
+		
+		// @todo save wavelevels
+	}
+	g_list_free(waves);
+	g_object_unref(wavetable);
 
 	return(TRUE);
 }
@@ -1164,6 +1224,8 @@ static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
 	g_assert(klass->xpath_get_sequence_length);
   //klass->xpath_count_sequence_tracks = xmlXPathCompile("count(./"BT_NS_PREFIX":tracks/"BT_NS_PREFIX":track)");
 	//g_assert(klass->xpath_count_sequence_tracks);
+	klass->xpath_get_wavetable = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":wavetable");
+	g_assert(klass->xpath_get_wavetable);
 }
 
 /* as of gobject documentation, static types are keept alive until the program ends.

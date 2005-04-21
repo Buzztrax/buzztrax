@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.14 2005-03-08 12:19:12 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.15 2005-04-21 19:47:53 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -144,7 +144,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 			property=GST_DPARAM_PARAM_SPEC(dparam);
 			GST_INFO("property %p has name '%s','%s'",property,property->name,GST_DPARAM_NAME(dparam));
 			// get name
-			label=gtk_label_new(GST_DPARAM_NAME(dparam));
+			label=gtk_label_new((gchar *)bt_machine_get_global_dparam_name(self->priv->machine,i));
 			gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
 			gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
 			// @todo choose proper widgets

@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.23 2005-04-12 14:21:59 ensonic Exp $
+/* $Id: machine-methods.h,v 1.24 2005-04-21 19:47:53 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -16,10 +16,17 @@ extern gboolean bt_machine_has_activated_adder(BtMachine *self);
 extern gboolean bt_machine_activate_spreader(BtMachine *self);
 extern gboolean bt_machine_has_activated_spreader(BtMachine *self);
 
+// pattern handling
+
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 extern void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
+
 extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id);
 extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index);
+
+extern gchar *bt_machine_get_unique_pattern_name(const BtMachine *self);
+
+// global and voice param handling
 
 extern gboolean bt_machine_is_polyphonic(const BtMachine *self);
 
@@ -34,6 +41,7 @@ extern GType bt_machine_get_voice_dparam_type(const BtMachine *self, gulong inde
 extern void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GValue *event);
 extern void bt_machine_set_voice_dparam_value(const BtMachine *self, gulong voice, gulong index, GValue *event);
 
-extern gchar *bt_machine_get_unique_pattern_name(const BtMachine *self);
+extern const gchar *bt_machine_get_global_dparam_name(const BtMachine *self, gulong index);
+extern const gchar *bt_machine_get_voice_dparam_name(const BtMachine *self, gulong index);
 
 #endif // BT_MACHINE_METHDOS_H

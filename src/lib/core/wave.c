@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.3 2005-04-13 18:11:54 ensonic Exp $
+/* $Id: wave.c,v 1.4 2005-04-21 19:47:53 ensonic Exp $
  * class for wave
  */
 
@@ -20,7 +20,10 @@ enum {
   WAVE_SONG=1,
 	WAVE_WAVELEVELS,
 	WAVE_NAME,
-	WAVE_FILE_NAME,
+	WAVE_FILE_NAME
+	/* @todo needs an index as well
+	 * the list of waves can have emtry entries
+ 	 */
 };
 
 struct _BtWavePrivate {

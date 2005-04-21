@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.13 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: song-io-native.h,v 1.14 2005-04-21 19:47:53 ensonic Exp $
  * class for native song input and output
  */
 
@@ -41,6 +41,7 @@ struct _BtSongIONative {
  * @xpath_get_sequence_labels: compiled xpath expression to get the labels of the timeline sequence
  * @xpath_get_sequence_tracks: compiled xpath expression to get the tracks of the timeline sequence
  * @xpath_get_sequence_length: compiled xpath expression to get the length of the timeline sequence
+ * @xpath_get_wavetable: compiled xpath expression to get the wavetable definitions
  *
  * class for song input and output in native zip/xml format
  */
@@ -55,10 +56,10 @@ struct _BtSongIONativeClass {
   xmlXPathCompExprPtr xpath_get_sequence_labels;
   xmlXPathCompExprPtr xpath_get_sequence_tracks;
   xmlXPathCompExprPtr xpath_get_sequence_length;
+	xmlXPathCompExprPtr xpath_get_wavetable;
 };
 
 /* used by SONG_IO_NATIVE_TYPE */
 GType bt_song_io_native_get_type(void);
 
 #endif // BT_SONG_IO_NATIVE_H
-
