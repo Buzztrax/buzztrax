@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.15 2005-04-21 19:47:53 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.16 2005-04-22 17:34:19 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -116,8 +116,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 	// leave the choice of width to gtk
 	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
 	// set a title
-	title=g_strdup_printf(_("%s properties"),id);
 	g_object_get(self->priv->machine,"id",&id,"global-params",&global_params,NULL);
+	title=g_strdup_printf(_("%s properties"),id);
   gtk_window_set_title(GTK_WINDOW(self),title);
 	g_free(id);g_free(title);
     

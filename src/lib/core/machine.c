@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.103 2005-04-21 19:47:52 ensonic Exp $
+/* $Id: machine.c,v 1.104 2005-04-22 17:34:18 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -91,7 +91,7 @@ struct _BtMachinePrivate {
   GType *global_types;
   GType *voice_types; 
 	GstDParam **global_dparams;
-	GstDParam **voice_dparams;  // @todo we need these for every voice
+	GstDParam **voice_dparams;
 
   GList *patterns;	// each entry points to BtPattern
   
@@ -360,6 +360,24 @@ static void bt_machine_resize_pattern_voices(const BtMachine *self) {
 	for(node=self->priv->patterns;node;node=g_list_next(node)) {
 		g_object_set(BT_PATTERN(node->data),"voices",self->priv->voices,NULL);
 	}
+}
+
+static void bt_machine_set_dparam_value(GstDParam *dparam, GValue *event) {
+  // depending on the type, set the GValue
+  switch(G_VALUE_TYPE(event)) {
+    case G_TYPE_DOUBLE: {
+      //gchar *str=g_strdup_value_contents(event);
+      //GST_INFO("events for %s at track %d : \"%s\"",self->priv->id,index,str);
+      //g_free(str);
+      g_object_set_property(G_OBJECT(dparam),"value-double",event);
+			//g_object_set(G_OBJECT(dparam),"value-double",g_value_get_double(event),NULL);
+    } break;
+    case G_TYPE_INT: {
+			g_object_set_property(G_OBJECT(dparam),"value-int",event);
+		} break;
+    default:
+			GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
+  }
 }
 
 //-- constructor methods
@@ -781,7 +799,6 @@ BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index) {
 /**
  * bt_machine_get_unique_pattern_name:
  * @self: the machine for which the name should be unique
- * @base_name: the leading name part
  *
  * The function generates a unique pattern name for this machine by eventually
  * adding a number postfix. This method should be used when adding new patterns.
@@ -940,7 +957,7 @@ glong bt_machine_get_voice_dparam_index(const BtMachine *self, const gchar *name
  *
  * Retrieves the global GstDParam
  *
- * Returns: the requested GstDParam
+ * Returns: the requested global GstDParam
  */
 GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
@@ -948,6 +965,24 @@ GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
   g_assert(self->priv->global_dparams);
 	
   return(self->priv->global_dparams[index]);
+}
+
+/**
+ * bt_machine_get_voice_dparam:
+ * @self: the machine to search for the voice dparam
+ * @index: the offset in the list of voice dparams
+ *
+ * Retrieves the voice GstDParam
+ *
+ * Returns: the requested voice GstDParam
+ */
+GstDParam *bt_machine_get_voice_dparam(const BtMachine *self, gulong voice, gulong index) {
+  g_assert(BT_IS_MACHINE(self));
+	g_assert(voice<self->priv->voices);
+  g_assert(index<self->priv->voice_params);
+  g_assert(self->priv->voice_dparams);
+	
+  return(self->priv->voice_dparams[voice*self->priv->voice_params+index]);
 }
 
 /**
@@ -992,28 +1027,12 @@ GType bt_machine_get_voice_dparam_type(const BtMachine *self, gulong index) {
  * Sets a the specified global dparam to the give data value.
  */
 void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GValue *event) {
-  GstDParam *dparam;
-  
   g_assert(BT_IS_MACHINE(self));
   g_assert(G_IS_VALUE(event));
   g_assert(index<self->priv->global_params);
+	g_assert(self->priv->global_dparams);
   
-  dparam=self->priv->global_dparams[index];
-  // depending on the type, set the GValue
-  switch(G_VALUE_TYPE(event)) {
-    case G_TYPE_DOUBLE: {
-      //gchar *str=g_strdup_value_contents(event);
-      //GST_INFO("events for %s at track %d : \"%s\"",self->priv->id,index,str);
-      //g_free(str);
-      g_object_set_property(G_OBJECT(dparam),"value-double",event);
-			//g_object_set(G_OBJECT(dparam),"value-double",g_value_get_double(event),NULL);
-    } break;
-    case G_TYPE_INT: {
-			g_object_set_property(G_OBJECT(dparam),"value-int",event);
-		} break;
-    default:
-			GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
-  }
+	bt_machine_set_dparam_value(self->priv->global_dparams[index],event);
 }
 
 /**
@@ -1026,16 +1045,13 @@ void bt_machine_set_global_dparam_value(const BtMachine *self, gulong index, GVa
  * Sets a the specified voice dparam to the give data value.
  */
 void bt_machine_set_voice_dparam_value(const BtMachine *self, gulong voice, gulong index, GValue *event) {
-  GstDParam *dparam;
-  
   g_assert(BT_IS_MACHINE(self));
   g_assert(G_IS_VALUE(event));
 	g_assert(voice<self->priv->voices);
   g_assert(index<self->priv->voice_params);
-	//g_assert(self->priv->voice_dparams);
+	g_assert(self->priv->voice_dparams);
 
-	// @todo set voice events
-	// dparam=self->priv->voice_dparams[voice][index];
+	bt_machine_set_dparam_value(self->priv->voice_dparams[voice*self->priv->voice_params+index],event);
 }
 
 /**
@@ -1068,12 +1084,9 @@ const gchar *bt_machine_get_voice_dparam_name(const BtMachine *self, gulong inde
 	g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->voice_params);
 	g_assert(self->priv->voices>0);
-  //g_assert(self->priv->voice_dparams);
+  g_assert(self->priv->voice_dparams);
 	
-  //return(GST_DPARAM_NAME(self->priv->voice_dparams[0][index]));
-	
-	// @todo implement bt_machine_get_voice_dparam_name
-	return("-");
+  return(GST_DPARAM_NAME(self->priv->voice_dparams[index]));
 }
 
 //-- wrapper

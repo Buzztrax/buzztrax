@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.16 2005-04-20 17:37:06 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.17 2005-04-22 17:34:18 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -278,6 +278,24 @@ BT_TYPE_MAIN_WINDOW
 <SUBSECTION Private>
 bt_main_window_get_type
 BtMainWindowPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btpatternpreferencesdialog</FILE>
+<TITLE>BtPatternPreferencesDialog</TITLE>
+BtPatternPreferencesDialog
+bt_pattern_preferences_dialog_new
+<SUBSECTION Standard>
+BtPatternPreferencesDialogClass
+BT_PATTERN_PREFERENCES_DIALOG
+BT_IS_PATTERN_PREFERENCES_DIALOG
+BT_PATTERN_PREFERENCES_DIALOG_CLASS
+BT_IS_PATTERN_PREFERENCES_DIALOG_CLASS
+BT_PATTERN_PREFERENCES_DIALOG_GET_CLASS
+BT_TYPE_PATTERN_PREFERENCES_DIALOG
+<SUBSECTION Private>
+bt_pattern_preferences_dialog_get_type
+BtPatternPreferencesDialogPrivate
 </SECTION>
 
 <SECTION>

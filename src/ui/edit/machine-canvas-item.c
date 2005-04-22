@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.45 2005-04-20 17:37:07 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.46 2005-04-22 17:34:19 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -243,7 +243,6 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
 
 	if(!self->priv->properties_dialog) {
 		self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
-		gtk_widget_show_all(self->priv->properties_dialog);
 		g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
 	}
 }
@@ -255,7 +254,6 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
 
 	if(!self->priv->preferences_dialog) {
 		self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->app,self->priv->machine));
-		gtk_widget_show_all(self->priv->preferences_dialog);
 		g_signal_connect(G_OBJECT(self->priv->preferences_dialog),"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
 	}
 }
@@ -788,7 +786,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 			GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
 			if(!self->priv->properties_dialog) {
 				self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
-  		  gtk_widget_show_all(self->priv->properties_dialog);
 				g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
 			}
 			res=TRUE;

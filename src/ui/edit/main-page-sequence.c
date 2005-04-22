@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.72 2005-04-20 17:37:07 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.73 2005-04-22 17:34:19 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -17,8 +17,10 @@
  *    - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
  *    - use different highlighing (strong bar every start of a beat)
  *  - pattern_add/remove refreshing
- *	  g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
- *	  g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
+ *    - signals
+ *	    g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
+ *	    g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
+ *    - make this an own data model
  *
  */
 
@@ -30,7 +32,6 @@
 enum {
   MAIN_PAGE_SEQUENCE_APP=1,
 };
-
 
 struct _BtMainPageSequencePrivate {
   /* used to validate if dispose has run */
@@ -60,6 +61,9 @@ struct _BtMainPageSequencePrivate {
 	/* some internal states */
 	glong tick_pos;
 	glong cursor_column;
+	
+	/* signal handler id's */
+	gulong pattern_added_handler, pattern_removed_handler;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -544,6 +548,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     g_object_unref(machine);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
+	
   g_object_unref(store); // drop with treeview
 }
 

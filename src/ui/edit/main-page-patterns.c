@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.53 2005-04-20 17:37:07 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.54 2005-04-22 17:34:19 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -459,6 +459,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	BtPattern *pattern;
 	glong voices=0;
 	gchar *mid,*id,*name;
+	GtkWidget *dialog;
 
   g_assert(user_data);
 
@@ -466,18 +467,27 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	g_return_if_fail(machine);
 	
 	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-	//g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+	g_object_get(G_OBJECT(machine),"id",&mid,NULL);
 
 	if(bt_machine_is_polyphonic(machine)) voices=1;
 	name=bt_machine_get_unique_pattern_name(machine);
-	//g_free(mid);
-	// @TODO new_pattern
-	pattern=bt_pattern_new(song, /*id=*/"sine_00", name, /*length=*/16, voices, machine);
-	// @TODO pattern_properties
+	id=g_strdup_printf("%s %s",mid,name);
+	// new_pattern
+	pattern=bt_pattern_new(song, id, name, /*length=*/16, voices, machine);
+
+	// pattern_properties
+	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
+	gtk_widget_show_all(dialog);
+
+	gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
 
 	bt_machine_add_pattern(machine,pattern);
 	pattern_menu_refresh(self,machine);
-	
+
+	// free ressources
+	g_free(mid);
+	g_free(id);
 	g_free(name);
 	g_object_unref(pattern);
 	g_object_unref(song);
@@ -487,13 +497,22 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 	BtPattern *pattern;
+	GtkWidget *dialog;
 	
   g_assert(user_data);
 	
 	pattern=bt_main_page_patterns_get_current_pattern(self);
 	g_return_if_fail(pattern);
 
-	// @TODO show pattern properties
+	// pattern_properties
+	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
+	gtk_widget_show_all(dialog);
+
+	gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+	
+	// update ?
+	//pattern_menu_refresh(self,machine);
 
 	g_object_unref(pattern);
 }

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.62 2005-04-21 19:47:52 ensonic Exp $
+/* $Id: song-io-native.c,v 1.63 2005-04-22 17:34:18 ensonic Exp $
  * class for native song input and output
  */
  
@@ -1063,7 +1063,8 @@ static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, con
 	BtWave *wave;
 	xmlNodePtr xml_node,xml_child_node;
 	GList *waves,*node;
-	gchar *name,*file_name;
+	gulong index;
+	gchar *name,*file_name,*index_str;
 
 	xml_node=xmlNewChild(root_node,NULL,"wavetable",NULL);
 	g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
@@ -1073,8 +1074,9 @@ static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, con
 		wave=BT_WAVE(node->data);
 		
 		xml_node=xmlNewChild(root_node,NULL,"wave",NULL);
-		// @todo needs an index
-		g_object_get(G_OBJECT(wave),"name",name,"file-name",file_name,NULL);
+		g_object_get(G_OBJECT(wave),"index",&index,"name",name,"file-name",file_name,NULL);
+		index_str=g_strdup_printf("%d",index);
+		xmlNewProp(xml_node,"index",index_str);g_free(index_str);
 		xmlNewProp(xml_node,"name",name);g_free(name);
 		xmlNewProp(xml_node,"uri",file_name);g_free(file_name);
 		

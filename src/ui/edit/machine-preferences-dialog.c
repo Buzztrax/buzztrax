@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.12 2005-03-08 12:19:12 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.13 2005-04-22 17:34:19 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -119,8 +119,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 	// leave the choice of width to gtk
 	gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
 	// set a title
-	title=g_strdup_printf(_("%s preferences"),id);
 	g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
+	title=g_strdup_printf(_("%s preferences"),id);
   gtk_window_set_title(GTK_WINDOW(self),title);
 	g_free(id);g_free(title);
   

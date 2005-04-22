@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.4 2005-04-21 19:47:53 ensonic Exp $
+/* $Id: wave.c,v 1.5 2005-04-22 17:34:18 ensonic Exp $
  * class for wave
  */
 
@@ -19,11 +19,9 @@ enum {
 enum {
   WAVE_SONG=1,
 	WAVE_WAVELEVELS,
+	WAVE_INDEX,
 	WAVE_NAME,
 	WAVE_FILE_NAME
-	/* @todo needs an index as well
-	 * the list of waves can have emtry entries
- 	 */
 };
 
 struct _BtWavePrivate {
@@ -32,7 +30,9 @@ struct _BtWavePrivate {
 	
 	/* the song the wave belongs to */
 	BtSong *song;
-	
+
+	/* each wave has an index number, the list of waves can have empty slots */
+	gulong index;	
 	/* the name of the wave and the the sample file */
 	gchar *name;
 	gchar *file_name;
@@ -117,6 +117,9 @@ static void bt_wave_get_property(GObject      *object,
 		case WAVE_WAVELEVELS: {
 			g_value_set_pointer(value,g_list_copy(self->priv->wavelevels));
 		} break;
+    case WAVE_INDEX: {
+			g_value_set_ulong(value, self->priv->index);
+		} break;
     case WAVE_NAME: {
       g_value_set_string(value, self->priv->name);
     } break;
@@ -143,6 +146,10 @@ static void bt_wave_set_property(GObject      *object,
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
       //GST_DEBUG("set the song for wave: %p",self->priv->song);
+    } break;
+    case WAVE_INDEX: {
+      self->priv->index = g_value_get_ulong(value);
+			GST_DEBUG("set the index for wave: %d",self->priv->index);
     } break;
     case WAVE_NAME: {
       g_free(self->priv->name);
@@ -236,6 +243,15 @@ static void bt_wave_class_init(BtWaveClass *klass) {
                                      "wavelevels list prop",
                                      "A copy of the list of wavelevels",
                                      G_PARAM_READABLE));
+
+	g_object_class_install_property(gobject_class,WAVE_INDEX,
+                                  g_param_spec_ulong("index",
+                                     "index prop",
+                                     "The index of the wave in the wavtable",
+																		 0,
+																		 G_MAXULONG,
+                                     0, /* default value */
+                                     G_PARAM_READWRITE));
 
 	g_object_class_install_property(gobject_class,WAVE_NAME,
                                   g_param_spec_string("name",

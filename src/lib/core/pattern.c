@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.33 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: pattern.c,v 1.34 2005-04-22 17:34:18 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -41,7 +41,7 @@ struct _BtPatternPrivate {
   /* an array of GValue
    * with the size of length*(global_params+voices*voice_params)
    */
-	GValue  *data;
+	GValue *data;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -54,7 +54,7 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
   //GValue *data;
 
   if(self->priv->machine==NULL) return(TRUE);
-  if(self->priv->length==0) return(TRUE);
+  if(data_count==0) return(TRUE);
 		
   if(self->priv->data) {
     GST_ERROR("data has already been initialized");
@@ -62,7 +62,7 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
   }
 
   GST_DEBUG("sizes : %d*(%d+%d*%d)=%d",self->priv->length,self->priv->global_params,self->priv->voices,self->priv->voice_params,data_count);
-  if((self->priv->data=g_new0(GValue,data_count))) {
+  if((self->priv->data=g_try_new0(GValue,data_count))) {
     // initialize the GValues (can we use memcpy for the tick-lines)
     /*
     data=self->priv->data;
@@ -85,23 +85,51 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
 }
 
 static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) {
-  // @todo implement pattern resizing
-  // old_data=self->priv->data;
+	gulong old_data_count=length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
+	gulong new_data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
+	GValue *data=self->priv->data;
+	
   // allocate new space
-  // copy old values over
-  // if new space is bigger initialize new lines
-  // free old data
-  GST_ERROR("not yet implemented");
+	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
+  	// copy old values over
+		memcpy(self->priv->data,data,MIN(old_data_count,new_data_count*sizeof(GValue)));
+ 		// free old data
+		g_free(data);
+  }
+	else {
+		GST_ERROR("extending pattern length from %d to %d failed",length,self->priv->length);
+		self->priv->data=data;
+		self->priv->length=length;
+	}
 }
 
 static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) {
-  // @todo implement pattern resizing
-  // old_data=self->priv->data;
+	gulong old_data_count=self->priv->length*(self->priv->global_params+voices*self->priv->voice_params);
+	gulong new_data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
+	GValue *data=self->priv->data;
+	
   // allocate new space
-  // copy old values over
-  // if new space is bigger initialize new voices
-  // free old data
-  GST_ERROR("not yet implemented");
+	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
+		gulong i;
+		gulong count=self->priv->voice_params*MIN(voices,self->priv->voices);
+		GValue *src,*dst;
+		
+  	// copy old values over
+		src=&data[self->priv->global_params];
+		dst=&self->priv->data[self->priv->global_params];
+  	for(i=0;i<self->priv->length;i++) {
+			memcpy(dst,src,count*sizeof(GValue));
+			src=&src[self->priv->global_params+voices*self->priv->voice_params];
+			dst=&dst[self->priv->global_params+self->priv->voices*self->priv->voice_params];			
+		}
+  	// free old data
+		g_free(data);
+  }
+	else {
+		GST_ERROR("extending pattern voices from %d to %d failed",voices,self->priv->voices);
+		self->priv->data=data;
+		self->priv->voices=voices;
+	}
 }
 
 //-- constructor methods
