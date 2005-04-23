@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.55 2005-04-23 10:33:09 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.56 2005-04-23 12:07:24 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -305,26 +305,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 			}
 			else GST_WARNING("can't create treeview column");
 		}
-		// add a final column that eats remaining space
-		renderer=gtk_cell_renderer_text_new();
-		g_object_set(G_OBJECT(renderer),
-			"mode",GTK_CELL_RENDERER_MODE_INERT,
-			NULL);
-		if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
-			g_object_set(tree_col,
-				"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-				NULL);
-			col_index=gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-			GST_DEBUG("    number of columns : %d",col_index);
-		}
-		else GST_WARNING("can't create treeview column");
-
-		GST_DEBUG("    created columns");
-		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),TRUE);
-
-		GST_DEBUG("  done");
-		// release the references
-		g_object_unref(store); // drop with treeview
 	}
 	else {
 		// create empty list model, so that the context menu works
@@ -332,6 +312,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 		// one empty field
 		gtk_list_store_append(store, &tree_iter);
 		gtk_list_store_set(store,&tree_iter, 0, "",-1);
+
+		GST_DEBUG("    activating dummy store: %p",store);
+		gtk_tree_view_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
 	}
 	// add a final column that eats remaining space
 	renderer=gtk_cell_renderer_text_new();
@@ -388,6 +371,8 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   g_assert(user_data);
   // refresh pattern view
 	pattern=bt_main_page_patterns_get_current_pattern(self);
+	
+	GST_INFO("new pattern selected : %p",pattern);
 	pattern_table_refresh(self,pattern);
 	g_object_try_unref(pattern);
 }
@@ -504,8 +489,8 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 
 	gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
-
-	bt_machine_add_pattern(machine,pattern);
+	
+	GST_INFO("new pattern added : %p",pattern);
 	pattern_menu_refresh(self,machine);
 
 	// free ressources
@@ -515,6 +500,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	g_object_unref(pattern);
 	g_object_unref(song);
 	g_object_unref(machine);
+	GST_DEBUG("new pattern done");
 }
 
 static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {

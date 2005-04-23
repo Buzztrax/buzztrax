@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.14 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.15 2005-04-23 12:07:24 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -76,20 +76,39 @@ static void bt_gconf_settings_get_property(GObject      *object,
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
-      GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
-      g_value_set_string(value, prop);
-      g_free(prop);
+			if(prop) {
+				GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
+				g_value_set_string(value, prop);
+				g_free(prop);
+			}
+			else {
+				GST_DEBUG("application reads [def] audiosink gconf_settings : %s",((GParamSpecString *)pspec)->default_value);
+				g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+			}
     } break;
 		case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",NULL);
-      GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
-      g_value_set_boolean(value, prop);
+			if(prop) {
+				GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
+				g_value_set_boolean(value, prop);
+			}
+			else {
+				GST_DEBUG("application reads [def] system toolbar-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
+				g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
+			}
+
     } break;
 		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
-      GST_DEBUG("application reads grid-density gconf_settings : %s",prop);
-      g_value_set_string(value, prop);
-      g_free(prop);			
+			if(prop) {
+				GST_DEBUG("application reads grid-density gconf_settings : %s",prop);
+				g_value_set_string(value, prop);
+				g_free(prop);
+			}
+			else {
+				GST_DEBUG("application reads [def] grid-density gconf_settings : %s",((GParamSpecString *)pspec)->default_value);
+				g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+			}
 		} break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);

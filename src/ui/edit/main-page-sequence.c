@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.74 2005-04-23 10:33:09 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.75 2005-04-23 12:07:24 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -530,17 +530,24 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
-  if((machine=bt_main_page_sequence_get_current_machine(self))) {
-		if(machine!=self->priv->machine) {
-			if(self->priv->machine) {
-				g_object_unref(self->priv->machine);
-				g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
-				g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
-			}			
+	
+	machine=bt_main_page_sequence_get_current_machine(self);
+	if(machine!=self->priv->machine) {
+		if(self->priv->machine) {
+			g_object_unref(self->priv->machine);
+			g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
+			g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+			self->priv->pattern_added_handler=0;
+			self->priv->pattern_removed_handler=0;
+		}
+		if(machine) {		
 			self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
 			self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
-			self->priv->machine=machine; 		
 		}
+		self->priv->machine=machine;
+	}
+	
+  if(machine) {
     //-- append pattern rows
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
@@ -1219,7 +1226,7 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
 		BtSong *song;
 		BtSequence *sequence;
 
-    GST_DEBUG("  active track is %d",track);
+    GST_DEBUG("  >>> active track is %d",track);
 		g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 		g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
     machine=bt_sequence_get_machine_by_track(sequence,track-2);

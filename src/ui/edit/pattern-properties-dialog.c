@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.2 2005-04-23 10:33:09 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.3 2005-04-23 12:07:24 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -38,6 +38,7 @@ static GtkDialogClass *parent_class=NULL;
 static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
   GtkWidget *box,*label,*widget,*table,*scrolled_window;
 	gchar *name,*title;
+	gulong length,voices;
 	//GdkPixbuf *window_icon=NULL;
 
   // create and set window icon
@@ -67,11 +68,14 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 	table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
 	gtk_container_add(GTK_CONTAINER(box),table);
 	
+	g_object_get(G_OBJECT(self->priv->pattern),"name",&name,"length",&length,"voices",&voices,NULL);
+	
 	// GtkEntry : pattern name
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
+	gtk_entry_set_text(GTK_ENTRY(widget),name);g_free(name);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	//g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
@@ -84,6 +88,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   label=gtk_label_new(_("voices"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+	//if(!bt_machine_is_polyphonic(machine)) // disable widget
 	
   return(TRUE);
 }
