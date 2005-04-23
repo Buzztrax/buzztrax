@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.73 2005-04-22 17:34:19 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.74 2005-04-23 10:33:09 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -61,6 +61,7 @@ struct _BtMainPageSequencePrivate {
 	/* some internal states */
 	glong tick_pos;
 	glong cursor_column;
+	BtMachine *machine;
 	
 	/* signal handler id's */
 	gulong pattern_added_handler, pattern_removed_handler;
@@ -89,6 +90,7 @@ enum {
 static gchar *pattern_keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);
+static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data);
 
 //-- tree filter func
 
@@ -529,6 +531,16 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
   if((machine=bt_main_page_sequence_get_current_machine(self))) {
+		if(machine!=self->priv->machine) {
+			if(self->priv->machine) {
+				g_object_unref(self->priv->machine);
+				g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
+				g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+			}			
+			self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
+			self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
+			self->priv->machine=machine; 		
+		}
     //-- append pattern rows
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
@@ -545,7 +557,6 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 			index++;
     }
 		g_list_free(list);
-    g_object_unref(machine);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
 	
@@ -923,6 +934,16 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 	GST_INFO("machine has been removed");
   machine_menu_refresh(self,setup);
 }
+
+static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
+	BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  g_assert(user_data);
+	
+	GST_INFO("pattern has been added/removed");
+  pattern_list_refresh(self);
+}
+
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1312,6 +1333,11 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   g_object_try_weak_unref(self->priv->app);
+	if(self->priv->machine) {
+		g_object_unref(self->priv->machine);
+		g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
+		g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+	}
 	
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 

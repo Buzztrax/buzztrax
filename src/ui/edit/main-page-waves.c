@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.18 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.19 2005-04-23 10:33:09 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -58,14 +58,14 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8)
 	g_object_get(G_OBJECT(wavetable),"waves",&list,NULL);
 	for(node=list;node;node=g_list_next(node)) {
-    wave=BT_WAVE(node->data);
-    g_object_get(G_OBJECT(wave),"name",&str,NULL);
+		wave=BT_WAVE(node->data);
+		g_object_get(G_OBJECT(wave),"name",&str,NULL);
 		GST_INFO("  adding \"%s\"",str);
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,index,1,str,-1);
-    g_free(str);
+		gtk_list_store_append(store, &tree_iter);
+		gtk_list_store_set(store,&tree_iter,0,index,1,str,-1);
+		g_free(str);
 		index++;
-  }
+	}
 	g_list_free(list);
 
   gtk_tree_view_set_model(self->priv->waves_list,GTK_TREE_MODEL(store));
@@ -96,12 +96,12 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
   //-- append wavelevels rows
 	g_object_get(G_OBJECT(wave),"wavelevels",&list,NULL);
 	for(node=list;node;node=g_list_next(node)) {
-    wavelevel=BT_WAVELEVEL(node->data);
-    g_object_get(G_OBJECT(wavelevel),"root-note",&tmp,"length",&length,"loop-start",&loop_start,"loop-end",&loop_end,"rate",&rate,NULL);
+		wavelevel=BT_WAVELEVEL(node->data);
+		g_object_get(G_OBJECT(wavelevel),"root-note",&tmp,"length",&length,"loop-start",&loop_start,"loop-end",&loop_end,"rate",&rate,NULL);
 		root_note=(guint)tmp;
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,root_note,1,length,2,loop_start,3,loop_end,4,rate,-1);
-  }
+		gtk_list_store_append(store, &tree_iter);
+		gtk_list_store_set(store,&tree_iter,0,root_note,1,length,2,loop_start,3,loop_end,4,rate,-1);
+	}
 	g_list_free(list);
 
   gtk_tree_view_set_model(self->priv->wavelevels_list,GTK_TREE_MODEL(store));

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.54 2005-04-22 17:34:19 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.55 2005-04-23 10:33:09 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -327,8 +327,31 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 		g_object_unref(store); // drop with treeview
 	}
 	else {
-		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),FALSE);
+		// create empty list model, so that the context menu works
+		store=gtk_list_store_new(1,G_TYPE_STRING);
+		// one empty field
+		gtk_list_store_append(store, &tree_iter);
+		gtk_list_store_set(store,&tree_iter, 0, "",-1);
 	}
+	// add a final column that eats remaining space
+	renderer=gtk_cell_renderer_text_new();
+	g_object_set(G_OBJECT(renderer),
+		"mode",GTK_CELL_RENDERER_MODE_INERT,
+		NULL);
+	if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
+		g_object_set(tree_col,
+			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+			NULL);
+		col_index=gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
+		GST_DEBUG("    number of columns : %d",col_index);
+	}
+	else GST_WARNING("can't create treeview column");
+
+	//gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_table),TRUE);
+
+	GST_DEBUG("  done");
+	// release the references
+	g_object_unref(store); // drop with treeview
 }
 
 /*

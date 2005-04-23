@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.1 2005-04-22 17:34:20 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.2 2005-04-23 10:33:09 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -36,13 +36,9 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
-	//BtMainWindow *main_window;
   GtkWidget *box,*label,*widget,*table,*scrolled_window;
 	gchar *name,*title;
 	//GdkPixbuf *window_icon=NULL;
-
-	//g_object_get(self->priv->app,"main-window",&main_window,NULL);
-	//gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
 	/* e.v. tab_pattern.png
@@ -60,7 +56,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 	  // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                          GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
+                          //GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
 
   // add widgets to the dialog content area
@@ -68,15 +64,27 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 	gtk_box_set_spacing(GTK_BOX(box),12);	
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 	
-	// @todo add table with real widgets
-	gtk_container_add(GTK_CONTAINER(box),gtk_label_new("no widgets yet"));
-	// GtkEntry : pattern name
-	// GtkComboBox : pattern length
-	// GtkComboBox : number of voices
+	table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+	gtk_container_add(GTK_CONTAINER(box),table);
 	
-	//gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
+	// GtkEntry : pattern name
+  label=gtk_label_new(_("name"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  widget=gtk_entry_new();
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	//g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
-	//g_object_try_unref(main_window);
+	// GtkComboBox : pattern length
+  label=gtk_label_new(_("length"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+
+	// GtkSpinButton : number of voices
+  label=gtk_label_new(_("voices"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+	
   return(TRUE);
 }
 
