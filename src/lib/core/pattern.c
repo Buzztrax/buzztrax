@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.34 2005-04-22 17:34:18 ensonic Exp $
+/* $Id: pattern.c,v 1.35 2005-04-23 15:24:28 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -615,7 +615,7 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                      "name contruct prop",
                                      "the display-name of the pattern",
                                      "unamed", /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE));
 
  	g_object_class_install_property(gobject_class,PATTERN_LENGTH,
 																	g_param_spec_ulong("length",

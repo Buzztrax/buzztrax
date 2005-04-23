@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.56 2005-04-23 12:07:24 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.57 2005-04-23 15:24:35 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -28,7 +28,8 @@ struct _BtMainPagePatternsPrivate {
 
   /* pattern context_menu */
   GtkMenu *context_menu;
-	GtkMenuItem *context_menu_track_add,*context_menu_track_remove;
+	GtkWidget *context_menu_track_add,*context_menu_track_remove;
+	GtkWidget *context_menu_pattern_properties,*context_menu_pattern_remove;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -164,6 +165,9 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 			gtk_list_store_append(store,&menu_iter);
 			gtk_list_store_set(store,&menu_iter,0,str,-1);
 			g_free(str);
+			/* @todo watch the pattern
+			g_signal_connect(G_OBJECT(machine),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
+			*/
     }
 		g_list_free(list);
   }
@@ -305,6 +309,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 			}
 			else GST_WARNING("can't create treeview column");
 		}
+		/* @todo watch the pattern
+		g_signal_connect(G_OBJECT(machine),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
+		g_signal_connect(G_OBJECT(machine),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+		g_signal_connect(G_OBJECT(machine),"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+		*/
 	}
 	else {
 		// create empty list model, so that the context menu works
@@ -345,7 +354,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
  * enable/disable context menu items
  */
 static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machine) {
+	GList *list;
+
 	if(machine) {
+		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+		
 		//gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),TRUE);
 		if(bt_machine_is_polyphonic(machine)) {
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),TRUE);
@@ -355,10 +368,22 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
 		}
+		if(list) {
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),TRUE);
+			g_list_free(list);
+		}
+		else {
+			GST_WARNING("machine has no patterns");
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
+		}
 	}
 	else {
 		GST_WARNING("no machine, huh?");
 		//gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
 	}
 }
 
@@ -492,6 +517,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	
 	GST_INFO("new pattern added : %p",pattern);
 	pattern_menu_refresh(self,machine);
+	context_menu_refresh(self,machine);
 
 	// free ressources
 	g_free(mid);
@@ -548,6 +574,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 		machine=bt_main_page_patterns_get_current_machine(self);
 		bt_machine_remove_pattern(machine,pattern);
 		pattern_menu_refresh(self,machine);
+		context_menu_refresh(self,machine);
 
 		g_object_unref(machine);
 	}
@@ -623,7 +650,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // @todo add play notes ?
   
 	
-	// @todo what about adding one control for global params and one for each voice, then these controls can be folded
+	// @idea what about adding one control for global params and one for each voice, then these controls can be folded
   // add list-view for pattern
 	scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
@@ -642,18 +669,18 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	// generate the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 	
-	self->priv->context_menu_track_add=GTK_MENU_ITEM(gtk_image_menu_item_new_with_label(_("New track")));
+	self->priv->context_menu_track_add=gtk_image_menu_item_new_with_label(_("New track"));
 	image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_track_add),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_track_add));
-  gtk_widget_show(GTK_WIDGET(self->priv->context_menu_track_add));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_track_add);
+  gtk_widget_show(self->priv->context_menu_track_add);
 	g_signal_connect(G_OBJECT(self->priv->context_menu_track_add),"activate",G_CALLBACK(on_context_menu_track_add_activate),(gpointer)self);
 	
-	self->priv->context_menu_track_remove=GTK_MENU_ITEM(gtk_image_menu_item_new_with_label(_("Remove last track")));
+	self->priv->context_menu_track_remove=gtk_image_menu_item_new_with_label(_("Remove last track"));
 	image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_track_remove),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),GTK_WIDGET(self->priv->context_menu_track_remove));
-  gtk_widget_show(GTK_WIDGET(self->priv->context_menu_track_remove));
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_track_remove);
+  gtk_widget_show(self->priv->context_menu_track_remove);
 	g_signal_connect(G_OBJECT(self->priv->context_menu_track_remove),"activate",G_CALLBACK(on_context_menu_track_remove_activate),(gpointer)self);
 	
 	menu_item=gtk_separator_menu_item_new();
@@ -668,19 +695,19 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_new_activate),(gpointer)self);
 	
-	menu_item=gtk_image_menu_item_new_with_label(_("Pattern properties ..."));
+	self->priv->context_menu_pattern_properties=gtk_image_menu_item_new_with_label(_("Pattern properties ..."));
 	image=gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
-	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_properties_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_pattern_properties),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_pattern_properties);
+  gtk_widget_show(self->priv->context_menu_pattern_properties);
+	g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_properties),"activate",G_CALLBACK(on_context_menu_pattern_properties_activate),(gpointer)self);
 	
-	menu_item=gtk_image_menu_item_new_with_label(_("Remove pattern ..."));
+	self->priv->context_menu_pattern_remove=gtk_image_menu_item_new_with_label(_("Remove pattern ..."));
 	image=gtk_image_new_from_stock(GTK_STOCK_DELETE,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
-	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_pattern_remove),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_pattern_remove);
+  gtk_widget_show(self->priv->context_menu_pattern_remove);
+	g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_remove),"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
 	
   menu_item=gtk_menu_item_new_with_label(_("Copy pattern ..."));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

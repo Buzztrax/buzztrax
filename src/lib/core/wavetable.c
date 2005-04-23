@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.4 2005-04-13 18:11:54 ensonic Exp $
+/* $Id: wavetable.c,v 1.5 2005-04-23 15:24:28 ensonic Exp $
  * class for wavetable
  */
 
@@ -28,6 +28,7 @@ struct _BtWavetablePrivate {
 	/* the song the wavetable belongs to */
 	BtSong *song;
 	
+	// @todo use a GArray instead (BtWave.index is the array pos)
 	GList *waves;		// each entry points to a BtWave
 };
 

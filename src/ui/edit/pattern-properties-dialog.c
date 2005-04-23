@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.3 2005-04-23 12:07:24 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.4 2005-04-23 15:24:35 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -33,11 +33,38 @@ static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
 
+static void on_name_changed(GtkEditable *editable,gpointer user_data) {
+	BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
+
+  g_assert(user_data);
+	// @todo assure uniqueness !
+  // update field
+	g_object_set(G_OBJECT(self->priv->pattern),"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+}
+
+static void on_length_changed(GtkEditable *editable,gpointer user_data) {
+	BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
+
+  g_assert(user_data);
+  // update field
+	g_object_set(G_OBJECT(self->priv->pattern),"length",atol(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+}
+
+static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+	BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
+
+  g_assert(user_data);
+
+  // update field
+	g_object_set(G_OBJECT(self->priv->pattern),"voices",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+}
 //-- helper methods
 
 static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
+	BtMachine *machine;
   GtkWidget *box,*label,*widget,*table,*scrolled_window;
-	gchar *name,*title;
+	GtkAdjustment *spin_adjustment;
+	gchar *name,*title,*length_str;
 	gulong length,voices;
 	//GdkPixbuf *window_icon=NULL;
 
@@ -68,7 +95,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 	table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
 	gtk_container_add(GTK_CONTAINER(box),table);
 	
-	g_object_get(G_OBJECT(self->priv->pattern),"name",&name,"length",&length,"voices",&voices,NULL);
+	g_object_get(G_OBJECT(self->priv->pattern),"name",&name,"length",&length,"voices",&voices,"machine",&machine,NULL);
 	
 	// GtkEntry : pattern name
   label=gtk_label_new(_("name"));
@@ -77,18 +104,34 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   widget=gtk_entry_new();
 	gtk_entry_set_text(GTK_ENTRY(widget),name);g_free(name);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	//g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
+	g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
 	// GtkComboBox : pattern length
   label=gtk_label_new(_("length"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
-
+	length_str=g_strdup_printf("%d",length);
+	widget=gtk_entry_new();
+	gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_length_changed), (gpointer)self);
+	
 	// GtkSpinButton : number of voices
   label=gtk_label_new(_("voices"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
-	//if(!bt_machine_is_polyphonic(machine)) // disable widget
+	// @todo get min/max number of voices
+	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(1.0, 1.0, 16.0, 1.0, 4.0, 4.0));
+	widget=gtk_spin_button_new(spin_adjustment,1.0,0);
+	if(bt_machine_is_polyphonic(machine)) {
+		g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
+	}
+	else {
+		gtk_widget_set_sensitive(widget,FALSE);
+	}
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+	
+	g_object_unref(machine);
 	
   return(TRUE);
 }

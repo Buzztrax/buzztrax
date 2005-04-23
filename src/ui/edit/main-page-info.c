@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.27 2005-04-20 17:37:07 ensonic Exp $
+/* $Id: main-page-info.c,v 1.28 2005-04-23 15:24:35 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -73,7 +73,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(song);
 }
 
-void on_name_changed(GtkEditable *editable,gpointer user_data) {
+static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 	BtSong *song;
   BtSongInfo *song_info;
@@ -91,7 +91,7 @@ void on_name_changed(GtkEditable *editable,gpointer user_data) {
   g_object_try_unref(song);
 }
 
-void on_genre_changed(GtkEditable *editable,gpointer user_data) {
+static void on_genre_changed(GtkEditable *editable,gpointer user_data) {
 	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 	BtSong *song;
   BtSongInfo *song_info;
@@ -109,7 +109,7 @@ void on_genre_changed(GtkEditable *editable,gpointer user_data) {
   g_object_try_unref(song);
 }
 
-void on_author_changed(GtkEditable *editable,gpointer user_data) {
+static void on_author_changed(GtkEditable *editable,gpointer user_data) {
 	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 	BtSong *song;
   BtSongInfo *song_info;
@@ -127,7 +127,7 @@ void on_author_changed(GtkEditable *editable,gpointer user_data) {
   g_object_try_unref(song);
 }
 
-void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+static void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 	BtSong *song;
   BtSongInfo *song_info;
@@ -145,7 +145,7 @@ void on_bpm_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   g_object_try_unref(song);
 }
 
-void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 	BtSong *song;
   BtSongInfo *song_info;
@@ -163,7 +163,7 @@ void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   g_object_try_unref(song);
 }
 
-void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
+static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
 	BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 	BtSong *song;
   BtSongInfo *song_info;
