@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.57 2005-04-23 15:24:35 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.58 2005-04-25 14:50:27 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -30,6 +30,11 @@ struct _BtMainPagePatternsPrivate {
   GtkMenu *context_menu;
 	GtkWidget *context_menu_track_add,*context_menu_track_remove;
 	GtkWidget *context_menu_pattern_properties,*context_menu_pattern_remove;
+	
+	/* the pattern that is currently shown */
+	BtPattern *pattern;
+	/* signal handler ids */
+	gint pattern_length_changed,pattern_voices_changed;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -38,6 +43,11 @@ enum {
   MACHINE_MENU_ICON=0,
   MACHINE_MENU_LABEL,
 	MACHINE_MENU_MACHINE
+};
+
+enum {
+  PATTERN_MENU_LABEL=0,
+	PATTERN_MENU_PATTERN
 };
 
 enum {
@@ -60,6 +70,16 @@ static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *i
 	} while(gtk_tree_model_iter_next(store,iter));
 }
 
+static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *iter,BtPattern *that_pattern) {
+	BtPattern *this_pattern;
+
+	gtk_tree_model_get_iter_first(store,iter);
+	do {
+		gtk_tree_model_get(store,iter,PATTERN_MENU_PATTERN,&this_pattern,-1);
+		if(this_pattern==that_pattern) break;
+	} while(gtk_tree_model_iter_next(store,iter));
+}
+
 //-- event handlers
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
@@ -77,6 +97,25 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	// get the row where row.machine==machine
 	machine_model_get_iter_by_machine(store,&iter,machine);
 	gtk_list_store_set(GTK_LIST_STORE(store),&iter,MACHINE_MENU_LABEL,str,-1);
+
+	g_free(str);
+}
+
+static on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
+	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	GtkTreeModel *store;
+	GtkTreeIter iter;
+	gchar *str;
+	
+	g_assert(user_data);
+
+	g_object_get(G_OBJECT(pattern),"name",&str,NULL);
+  GST_INFO("pattern name changed to \"%s\"",str);
+	
+	store=gtk_combo_box_get_model(self->priv->pattern_menu);
+	// get the row where row.pattern==pattern
+	pattern_model_get_iter_by_pattern(store,&iter,pattern);
+	gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_MENU_LABEL,str,-1);
 
 	g_free(str);
 }
@@ -153,9 +192,10 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   gchar *str;
 	GtkListStore *store;
 	GtkTreeIter menu_iter;
+	gint index=-1;
 
   // update pattern menu
-  store=gtk_list_store_new(1,G_TYPE_STRING);
+  store=gtk_list_store_new(2,G_TYPE_STRING,BT_TYPE_PATTERN);
   if(machine) {
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
@@ -163,17 +203,19 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
       g_object_get(G_OBJECT(pattern),"name",&str,NULL);
       GST_INFO("  adding \"%s\"",str);
 			gtk_list_store_append(store,&menu_iter);
-			gtk_list_store_set(store,&menu_iter,0,str,-1);
+			gtk_list_store_set(store,&menu_iter,
+				PATTERN_MENU_LABEL,str,
+				PATTERN_MENU_PATTERN,pattern,
+				-1);
+			index++;	// count so that we can activate the last one
 			g_free(str);
-			/* @todo watch the pattern
-			g_signal_connect(G_OBJECT(machine),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
-			*/
+			g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
     }
 		g_list_free(list);
   }
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
 	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->pattern_menu,((pattern!=NULL)?0:-1));
+  gtk_combo_box_set_active(self->priv->pattern_menu,((pattern!=NULL)?index:-1));
 	g_object_unref(store); // drop with comboxbox
 }
 
@@ -309,11 +351,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 			}
 			else GST_WARNING("can't create treeview column");
 		}
-		/* @todo watch the pattern
-		g_signal_connect(G_OBJECT(machine),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
-		g_signal_connect(G_OBJECT(machine),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
-		g_signal_connect(G_OBJECT(machine),"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
-		*/
 	}
 	else {
 		// create empty list model, so that the context menu works
@@ -389,17 +426,34 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 
 //-- event handler
 
+static on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
+	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+	GST_INFO("pattern size changed : %p",self->priv->pattern);
+	pattern_table_refresh(self,pattern);
+}
+
 static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-	BtPattern *pattern;
 
   g_assert(user_data);
+
+	if(self->priv->pattern) {
+		g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
+		g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
+		g_object_unref(self->priv->pattern);
+	}
+
   // refresh pattern view
-	pattern=bt_main_page_patterns_get_current_pattern(self);
+	self->priv->pattern=bt_main_page_patterns_get_current_pattern(self);
 	
-	GST_INFO("new pattern selected : %p",pattern);
-	pattern_table_refresh(self,pattern);
-	g_object_try_unref(pattern);
+	GST_INFO("new pattern selected : %p",self->priv->pattern);
+	pattern_table_refresh(self,self->priv->pattern);
+	if(self->priv->pattern) {
+		// watch the pattern
+		self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+		self->priv->pattern_voices_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::voices",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
+	}
 }
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -512,13 +566,19 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
 	gtk_widget_show_all(dialog);
 
-	gtk_dialog_run(GTK_DIALOG(dialog));
+	if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+		bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+
+		GST_INFO("new pattern added : %p",pattern);
+		pattern_menu_refresh(self,machine);
+		context_menu_refresh(self,machine);
+		// @todo select new pattern
+	}
+	else {
+		bt_machine_remove_pattern(machine,pattern);
+	}
   gtk_widget_destroy(dialog);
 	
-	GST_INFO("new pattern added : %p",pattern);
-	pattern_menu_refresh(self,machine);
-	context_menu_refresh(self,machine);
-
 	// free ressources
 	g_free(mid);
 	g_free(id);
@@ -543,12 +603,10 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
 	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
 	gtk_widget_show_all(dialog);
 
-	gtk_dialog_run(GTK_DIALOG(dialog));
+	if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+		bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+	}
   gtk_widget_destroy(dialog);
-	
-	// update ?
-	//pattern_menu_refresh(self,machine);
-
 	g_object_unref(pattern);
 }
 
@@ -867,6 +925,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 	
   g_object_try_weak_unref(self->priv->app);
+	g_object_try_unref(self->priv->pattern);
 	
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.35 2005-04-23 15:24:28 ensonic Exp $
+/* $Id: pattern.c,v 1.36 2005-04-25 14:50:26 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -91,10 +91,12 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 	
   // allocate new space
 	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
-  	// copy old values over
-		memcpy(self->priv->data,data,MIN(old_data_count,new_data_count*sizeof(GValue)));
- 		// free old data
-		g_free(data);
+		if(data) {
+			// copy old values over
+			memcpy(self->priv->data,data,MIN(old_data_count,new_data_count*sizeof(GValue)));
+			// free old data
+			g_free(data);
+		}
   }
 	else {
 		GST_ERROR("extending pattern length from %d to %d failed",length,self->priv->length);
@@ -110,20 +112,22 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 	
   // allocate new space
 	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
-		gulong i;
-		gulong count=self->priv->voice_params*MIN(voices,self->priv->voices);
-		GValue *src,*dst;
+		if(data) {
+			gulong i;
+			gulong count=self->priv->voice_params*MIN(voices,self->priv->voices);
+			GValue *src,*dst;
 		
-  	// copy old values over
-		src=&data[self->priv->global_params];
-		dst=&self->priv->data[self->priv->global_params];
-  	for(i=0;i<self->priv->length;i++) {
-			memcpy(dst,src,count*sizeof(GValue));
-			src=&src[self->priv->global_params+voices*self->priv->voice_params];
-			dst=&dst[self->priv->global_params+self->priv->voices*self->priv->voice_params];			
+			// copy old values over
+			src=&data[self->priv->global_params];
+			dst=&self->priv->data[self->priv->global_params];
+			for(i=0;i<self->priv->length;i++) {
+				memcpy(dst,src,count*sizeof(GValue));
+				src=&src[self->priv->global_params+voices*self->priv->voice_params];
+				dst=&dst[self->priv->global_params+self->priv->voices*self->priv->voice_params];			
+			}
+			// free old data
+			g_free(data);
 		}
-  	// free old data
-		g_free(data);
   }
 	else {
 		GST_ERROR("extending pattern voices from %d to %d failed",voices,self->priv->voices);
@@ -523,16 +527,20 @@ static void bt_pattern_set_property(GObject      *object,
     case PATTERN_LENGTH: {
       length=self->priv->length;
       self->priv->length = g_value_get_ulong(value);
-      GST_DEBUG("set the length for pattern: %d",self->priv->length);
-      if(self->priv->data) bt_pattern_resize_data_length(self,length);
-			bt_song_set_unsaved(self->priv->song,TRUE);
+      if(length!=self->priv->length) {
+				GST_DEBUG("set the length for pattern: %d",self->priv->length);
+				bt_pattern_resize_data_length(self,length);
+				bt_song_set_unsaved(self->priv->song,TRUE);
+			}
     } break;
     case PATTERN_VOICES: {
       voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
-      GST_DEBUG("set the voices for pattern: %d",self->priv->voices);
-      if(self->priv->data) bt_pattern_resize_data_voices(self,voices);
-			bt_song_set_unsaved(self->priv->song,TRUE);
+			if(voices!=self->priv->voices) {
+				GST_DEBUG("set the voices for pattern: %d",self->priv->voices);
+				bt_pattern_resize_data_voices(self,voices);
+				bt_song_set_unsaved(self->priv->song,TRUE);
+			}
     } break;
     case PATTERN_MACHINE: {
       g_object_try_weak_unref(self->priv->machine);

@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.5 2005-04-23 15:24:28 ensonic Exp $
+/* $Id: wavetable.c,v 1.6 2005-04-25 14:50:26 ensonic Exp $
  * class for wavetable
  */
 
@@ -28,7 +28,6 @@ struct _BtWavetablePrivate {
 	/* the song the wavetable belongs to */
 	BtSong *song;
 	
-	// @todo use a GArray instead (BtWave.index is the array pos)
 	GList *waves;		// each entry points to a BtWave
 };
 
@@ -79,6 +78,11 @@ gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave) {
     GST_WARNING("trying to add wave again"); 
   }
 	return ret;
+}
+
+BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index) {
+	// @todo implement 
+	return(NULL);
 }
 
 //-- wrapper

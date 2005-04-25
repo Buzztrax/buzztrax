@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.42 2005-04-12 14:21:57 ensonic Exp $
+# $Id: configure.ac,v 1.43 2005-04-25 14:50:19 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -214,9 +214,9 @@ fi
 # Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 
-# test for availability of check unittest package
+# test for availability of check unittest package (with a relative new function)
 AC_CHECK_HEADER( check.h, \
-	AC_CHECK_LIB( check, srunner_create, \
+	AC_CHECK_LIB( check, tcase_set_timeout, \
 		AM_CONDITIONAL(BUILD_CHECK_TESTS, true), \
 		AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
 	), \

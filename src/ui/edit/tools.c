@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.8 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: tools.c,v 1.9 2005-04-25 14:50:27 ensonic Exp $
  * gui helper
  */
 
@@ -19,7 +19,15 @@ void add_pixmap_directory(const gchar *directory) {
   pixmaps_directories = g_list_prepend(pixmaps_directories, g_strdup(directory));
 }
 
-/* This is an internally used function to find pixmap files. */
+/*
+ * find_pixmap_file:
+ * @filename: name of the file to look for
+ *
+ * This is an internally used function to find pixmap files.
+ * Use add_pixmap_directory() to extend the serarch path.
+ *
+ * Returns: the path that has this file
+ */
 static gchar *find_pixmap_file(const gchar *filename) {
   GList *elem;
 
@@ -42,7 +50,6 @@ static gchar *find_pixmap_file(const gchar *filename) {
  *
  * Returns: a new pixmap widget
  */
-//GtkWidget *create_pixmap(const gchar *filename) {
 GtkWidget *gtk_image_new_from_filename(const gchar *filename) {
   gchar *pathname = NULL;
   GtkWidget *pixmap;
@@ -69,7 +76,6 @@ GtkWidget *gtk_image_new_from_filename(const gchar *filename) {
  *
  * Returns: a new pixbuf
  */
-//GdkPixbuf *create_pixbuf(const gchar *filename) {
 GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
   gchar *pathname = NULL;
   GdkPixbuf *pixbuf;
@@ -92,6 +98,9 @@ GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
   g_free(pathname);
   return pixbuf;
 }
+
+
+// @todo use GtkMessageDialog for the next two
 
 /**
  * bt_dialog_message:

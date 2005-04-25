@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.4 2005-04-23 15:24:35 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.5 2005-04-25 14:50:27 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -24,9 +24,16 @@ struct _BtPatternPropertiesDialogPrivate {
   /* the underlying pattern */
   BtPattern *pattern;
 	
+	/* the machine and its id the pattern belongs to, needed to veryfy unique name */
+	BtMachine *machine;
+	gchar *machine_id;
+
+	/* dialog data */
+	gchar *name;
+	gulong length,voices;
+	
 	/* widgets and their handlers */
-	//GtkWidget *widgets;
-	//gulong *notify_id,*change_id;
+	GtkWidget *okay_button;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -35,11 +42,26 @@ static GtkDialogClass *parent_class=NULL;
 
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 	BtPatternPropertiesDialog *self=BT_PATTERN_PROPERTIES_DIALOG(user_data);
+	BtPattern *pattern;
+	gchar *id;
+	const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
 
   g_assert(user_data);
-	// @todo assure uniqueness !
+	// assure uniqueness of the entered data
+	id=g_strdup_printf("%s %s",self->priv->machine_id,name);
+	pattern=bt_machine_get_pattern_by_id(self->priv->machine,id);
+	if(!(*name) || (pattern && (pattern!=self->priv->pattern))) {
+		GST_INFO("not unique '%s'",id);
+		gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
+	}
+	else {
+		GST_INFO("unique    '%s'",id);
+		gtk_widget_set_sensitive(self->priv->okay_button,TRUE);
+	}
+	g_free(id);
   // update field
-	g_object_set(G_OBJECT(self->priv->pattern),"name",g_strdup(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+	g_free(self->priv->name);
+	self->priv->name=g_strdup(name);
 }
 
 static void on_length_changed(GtkEditable *editable,gpointer user_data) {
@@ -47,7 +69,8 @@ static void on_length_changed(GtkEditable *editable,gpointer user_data) {
 
   g_assert(user_data);
   // update field
-	g_object_set(G_OBJECT(self->priv->pattern),"length",atol(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
+	self->priv->length=atol(gtk_entry_get_text(GTK_ENTRY(editable)));
+	//g_object_set(G_OBJECT(self->priv->pattern),"length",atol(gtk_entry_get_text(GTK_ENTRY(editable))),NULL);
 }
 
 static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
@@ -56,17 +79,17 @@ static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   g_assert(user_data);
 
   // update field
-	g_object_set(G_OBJECT(self->priv->pattern),"voices",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+	self->priv->voices=gtk_spin_button_get_value_as_int(spinbutton);
+	//g_object_set(G_OBJECT(self->priv->pattern),"voices",gtk_spin_button_get_value_as_int(spinbutton),NULL);
 }
 //-- helper methods
 
 static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
-	BtMachine *machine;
   GtkWidget *box,*label,*widget,*table,*scrolled_window;
 	GtkAdjustment *spin_adjustment;
 	gchar *name,*title,*length_str;
-	gulong length,voices;
 	//GdkPixbuf *window_icon=NULL;
+	GList *buttons;
 
   // create and set window icon
 	/* e.v. tab_pattern.png
@@ -84,8 +107,13 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 	  // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                          //GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
+                          GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
+
+	buttons=gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(self)->action_area));
+	GST_INFO("dialog buttons: %d",g_list_length(buttons));
+	self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));
+	g_list_free(buttons);
 
   // add widgets to the dialog content area
   box=GTK_DIALOG(self)->vbox;	//gtk_vbox_new(FALSE,12);
@@ -95,14 +123,15 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 	table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
 	gtk_container_add(GTK_CONTAINER(box),table);
 	
-	g_object_get(G_OBJECT(self->priv->pattern),"name",&name,"length",&length,"voices",&voices,"machine",&machine,NULL);
+	g_object_get(G_OBJECT(self->priv->pattern),"name",&self->priv->name,"length",&self->priv->length,"voices",&self->priv->voices,"machine",&self->priv->machine,NULL);
+	g_object_get(G_OBJECT(self->priv->machine),"id",&self->priv->machine_id,NULL);
 	
 	// GtkEntry : pattern name
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
-	gtk_entry_set_text(GTK_ENTRY(widget),name);g_free(name);
+	gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
@@ -110,7 +139,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   label=gtk_label_new(_("length"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
-	length_str=g_strdup_printf("%d",length);
+	length_str=g_strdup_printf("%d",self->priv->length);
 	widget=gtk_entry_new();
 	gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
@@ -122,16 +151,14 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
 	// @todo get min/max number of voices
 	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(1.0, 1.0, 16.0, 1.0, 4.0, 4.0));
-	widget=gtk_spin_button_new(spin_adjustment,1.0,0);
-	if(bt_machine_is_polyphonic(machine)) {
+	widget=gtk_spin_button_new(spin_adjustment,(double)(self->priv->voices),0);
+	if(bt_machine_is_polyphonic(self->priv->machine)) {
 		g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
 	}
 	else {
 		gtk_widget_set_sensitive(widget,FALSE);
 	}
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-	
-	g_object_unref(machine);
 	
   return(TRUE);
 }
@@ -165,6 +192,18 @@ Error:
 }
 
 //-- methods
+
+/**
+ * bt_pattern_properties_dialog_apply:
+ * @self: the dialog which settings to apply
+ *
+ * Makes the dialog settings effective.
+ */
+void bt_pattern_properties_dialog_apply(const BtPatternPropertiesDialog *self) {
+	GST_INFO("applying pattern settings");
+
+	g_object_set(G_OBJECT(self->priv->pattern),"name",self->priv->name,"length",self->priv->length,"voices",self->priv->voices,NULL);
+}
 
 //-- wrapper
 
@@ -227,6 +266,7 @@ static void bt_pattern_properties_dialog_dispose(GObject *object) {
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->pattern);
+	g_object_try_unref(self->priv->machine);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -237,6 +277,9 @@ static void bt_pattern_properties_dialog_finalize(GObject *object) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
 
   GST_DEBUG("!!!! self=%p",self);
+	
+	g_free(self->priv->machine_id);
+	g_free(self->priv->name);	
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {

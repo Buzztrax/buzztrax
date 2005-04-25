@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.5 2005-04-22 17:34:18 ensonic Exp $
+/* $Id: wave.c,v 1.6 2005-04-25 14:50:26 ensonic Exp $
  * class for wave
  */
 
@@ -56,13 +56,13 @@ static guint signals[LAST_SIGNAL]={0,};
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name) {
+BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name,gulong index) {
   BtWave *self;
 	BtWavetable *wavetable;
 
 	g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  if(!(self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"file-name",file_name,NULL)))) {
+  if(!(self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"file-name",file_name,"index",index,NULL)))) {
 		goto Error;
 	}
 	// add the wave to the wavetable of the song
