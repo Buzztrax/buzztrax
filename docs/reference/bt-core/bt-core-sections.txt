@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.32 2005-04-22 17:34:04 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.33 2005-04-25 15:27:01 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -450,6 +450,7 @@ BtWavelevelPrivate
 BtWavetable
 bt_wavetable_new
 bt_wavetable_add_wave
+bt_wavetable_get_wave_by_index
 <SUBSECTION Standard>
 BtWavetableClass
 BT_WAVETABLE

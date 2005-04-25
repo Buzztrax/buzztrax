@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.20 2005-04-25 14:50:27 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.21 2005-04-25 15:27:08 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -50,17 +50,24 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
   GList *node,*list;
 	gulong index;
 	gchar *str;
+	gint i;
 
   GST_INFO("refresh waves list: self=%p, wavetable=%p",self,wavetable);
 		
   store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
-	/* @todo order waves this way
 	for(i=0;i<200;i++) {
-		bt_wavetable_get_wave_by_index(wavetable,index);
+		gtk_list_store_append(store, &tree_iter);
+		gtk_list_store_set(store,&tree_iter,0,i,-1);
+		if((wave=bt_wavetable_get_wave_by_index(wavetable,i))) {
+			g_object_get(G_OBJECT(wave),"name",&str,NULL);
+			GST_INFO("  adding [%3d] \"%s\"",i,str);
+			gtk_list_store_set(store,&tree_iter,1,str,-1);
+			g_free(str);
+		}
 	}
-	*/
+	/*
 	g_object_get(G_OBJECT(wavetable),"waves",&list,NULL);
 	for(node=list;node;node=g_list_next(node)) {
 		wave=BT_WAVE(node->data);
@@ -71,6 +78,7 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
 		g_free(str);
 	}
 	g_list_free(list);
+	*/
 
   gtk_tree_view_set_model(self->priv->waves_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview

@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.6 2005-04-25 14:50:26 ensonic Exp $
+/* $Id: wavetable.c,v 1.7 2005-04-25 15:27:08 ensonic Exp $
  * class for wavetable
  */
 
@@ -63,6 +63,14 @@ Error:
 
 //-- public methods
 
+/**
+ * bt_wavetable_add_wave:
+ * @self: the wavetable to add the wave to
+ * @wave: the new wave instance
+ *
+ * Add the supplied wave to the wavetable. This is automatically done by 
+ * #bt_wave_new().
+ */
 gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave) {
 	gboolean ret=FALSE;
 	
@@ -80,8 +88,27 @@ gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave) {
 	return ret;
 }
 
+/**
+ * bt_wavetable_get_wave_by_index:
+ * @self: the wavetable to search for the wave
+ * @index: the index of the wave
+ *
+ * Search the wavetable for a wave by the supplied index.
+ * The wave must have been added previously to this wavetable with #bt_wavetable_add_wave().
+ * Unref the wave, when done with it.
+ *
+ * Returns: #BtWave instance or %NULL if not found
+ */
 BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index) {
-	// @todo implement 
+	BtWave *wave;
+	GList *node;
+	gulong wave_index;
+
+	for(node=self->priv->waves;node;node=g_list_next(node)) {
+		wave=BT_WAVE(node->data);
+    g_object_get(G_OBJECT(wave),"index",&wave_index,NULL);
+		if(wave_index==index) return(g_object_ref(wave));
+	}
 	return(NULL);
 }
 

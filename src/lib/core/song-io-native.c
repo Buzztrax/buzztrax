@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.63 2005-04-22 17:34:18 ensonic Exp $
+/* $Id: song-io-native.c,v 1.64 2005-04-25 15:27:08 ensonic Exp $
  * class for native song input and output
  */
  
@@ -612,7 +612,21 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
 }
 
 static gboolean bt_song_io_native_load_wavetable_wave(const BtSongIONative *self, const BtSong *song, BtWavetable *wavetable, xmlNodePtr root_node) {
-	// @todo load wave data
+	BtWave *wave;
+	gchar *name,*file_name,*index_str;
+		
+	// load wave data
+	name=xmlGetProp(root_node,"name");
+	file_name=xmlGetProp(root_node,"url");
+	index_str=xmlGetProp(root_node,"index");
+	GST_INFO("loading the wave %s '%s' from the song",index_str,name);
+	wave=bt_wave_new(song,name,file_name,atol(index_str));
+	// @todo load wave level data
+
+	g_object_unref(wave);
+	xmlFree(name);
+	xmlFree(file_name);
+	xmlFree(index_str);
 	return(TRUE);
 }
 
@@ -639,7 +653,7 @@ static gboolean bt_song_io_native_load_wavetable(const BtSongIONative *self, con
 		for(i=0;i<items_len;i++) {
 			xml_node=xmlXPathNodeSetItem(items,i);
 			if(!xmlNodeIsText(xml_node)) {
-				if(!strncmp(xml_node->name,"wave\0",8)) {
+				if(!strncmp(xml_node->name,"wave\0",5)) {
 					bt_song_io_native_load_wavetable_wave(self,song,wavetable,xml_node);
 				}
 			}
@@ -1078,7 +1092,7 @@ static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, con
 		index_str=g_strdup_printf("%d",index);
 		xmlNewProp(xml_node,"index",index_str);g_free(index_str);
 		xmlNewProp(xml_node,"name",name);g_free(name);
-		xmlNewProp(xml_node,"uri",file_name);g_free(file_name);
+		xmlNewProp(xml_node,"url",file_name);g_free(file_name);
 		
 		// @todo save wavelevels
 	}
@@ -1226,7 +1240,7 @@ static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
 	g_assert(klass->xpath_get_sequence_length);
   //klass->xpath_count_sequence_tracks = xmlXPathCompile("count(./"BT_NS_PREFIX":tracks/"BT_NS_PREFIX":track)");
 	//g_assert(klass->xpath_count_sequence_tracks);
-	klass->xpath_get_wavetable = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":wavetable");
+	klass->xpath_get_wavetable = xmlXPathCompile("/"BT_NS_PREFIX":buzztard/"BT_NS_PREFIX":wavetable/"BT_NS_PREFIX":*");
 	g_assert(klass->xpath_get_wavetable);
 }
 
