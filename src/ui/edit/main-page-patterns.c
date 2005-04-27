@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.58 2005-04-25 14:50:27 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.59 2005-04-27 09:45:21 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -29,7 +29,7 @@ struct _BtMainPagePatternsPrivate {
   /* pattern context_menu */
   GtkMenu *context_menu;
 	GtkWidget *context_menu_track_add,*context_menu_track_remove;
-	GtkWidget *context_menu_pattern_properties,*context_menu_pattern_remove;
+	GtkWidget *context_menu_pattern_properties,*context_menu_pattern_remove,*context_menu_pattern_copy;
 	
 	/* the pattern that is currently shown */
 	BtPattern *pattern;
@@ -408,12 +408,14 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 		if(list) {
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),TRUE);
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),TRUE);
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),TRUE);
 			g_list_free(list);
 		}
 		else {
 			GST_WARNING("machine has no patterns");
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
 			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
+			gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),FALSE);
 		}
 	}
 	else {
@@ -421,6 +423,7 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 		//gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
+		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),FALSE);
 	}
 }
 
@@ -572,7 +575,6 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 		GST_INFO("new pattern added : %p",pattern);
 		pattern_menu_refresh(self,machine);
 		context_menu_refresh(self,machine);
-		// @todo select new pattern
 	}
 	else {
 		bt_machine_remove_pattern(machine,pattern);
@@ -639,6 +641,47 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 	g_object_try_unref(main_window);
 	g_object_unref(pattern);	// should finalize the pattern
 	g_free(msg);
+}
+
+static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+ 	BtMachine *machine;
+	BtPattern *pattern,*pattern_new;
+	GtkWidget *dialog;
+
+  g_assert(user_data);
+
+	machine=bt_main_page_patterns_get_current_machine(self);
+	g_return_if_fail(machine);
+
+	pattern=bt_main_page_patterns_get_current_pattern(self);
+	g_return_if_fail(pattern);
+	
+	/* @todo copy pattern
+	pattern_new=bt_pattern_copy(pattern);
+	g_object_unref(pattern);
+	pattern=pattern_new;
+	g_return_if_fail(pattern);
+	*/
+
+	// pattern_properties
+	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
+	gtk_widget_show_all(dialog);
+
+	if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+		bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+
+		GST_INFO("new pattern added : %p",pattern);
+		pattern_menu_refresh(self,machine);
+		context_menu_refresh(self,machine);
+	}
+	else {
+		bt_machine_remove_pattern(machine,pattern);
+	}
+  gtk_widget_destroy(dialog);
+	
+	g_object_unref(pattern);
+	g_object_unref(machine);
 }
 
 //-- helper methods
@@ -767,9 +810,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_widget_show(self->priv->context_menu_pattern_remove);
 	g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_remove),"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
 	
-  menu_item=gtk_menu_item_new_with_label(_("Copy pattern ..."));
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
+  self->priv->context_menu_pattern_copy=gtk_image_menu_item_new_with_label(_("Copy pattern ..."));
+	image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_pattern_copy),image);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_pattern_copy);
+  gtk_widget_show(self->priv->context_menu_pattern_copy);
+	g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_copy),"activate",G_CALLBACK(on_context_menu_pattern_copy_activate),(gpointer)self);
 	// --
 	// @todo solo, mute, bypass
 	// --

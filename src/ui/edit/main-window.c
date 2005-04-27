@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.56 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: main-window.c,v 1.57 2005-04-27 09:45:21 ensonic Exp $
  * class for the editor main window
  */
 
@@ -10,7 +10,8 @@
 enum {
   MAIN_WINDOW_APP=1,
 	MAIN_WINDOW_TOOLBAR,
-  MAIN_WINDOW_STATUSBAR
+  MAIN_WINDOW_STATUSBAR,
+	MAIN_WINDOW_PAGES
 };
 
 
@@ -158,12 +159,12 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
 	BtSettings *settings;
-	gboolean toolbar_hide;
+	gboolean toolbar_hide,tabs_hide;
 
 	GST_INFO("creating a new window, app->ref_ct=%d",G_OBJECT(app)->ref_count);
 	// eventualy hide the toolbar
 	g_object_get(G_OBJECT(app),"settings",&settings,NULL);
-	g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,NULL);
+	g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
 	g_object_unref(settings);
 	
   if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
@@ -179,7 +180,9 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
 	if(toolbar_hide) {
 		gtk_widget_hide(GTK_WIDGET(self->priv->toolbar));
 	}
-
+	if(tabs_hide) {
+		gtk_notebook_set_show_tabs(GTK_NOTEBOOK(self->priv->pages),FALSE);
+	}
 
 
 	GST_INFO("new main_window shown");
@@ -436,6 +439,9 @@ static void bt_main_window_get_property(GObject      *object,
     case MAIN_WINDOW_STATUSBAR: {
       g_value_set_object(value, self->priv->statusbar);
     } break;
+    case MAIN_WINDOW_PAGES: {
+      g_value_set_object(value, self->priv->pages);
+    } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -531,6 +537,13 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
                                      "statusbar prop",
                                      "Get the status bar",
                                      BT_TYPE_MAIN_STATUSBAR, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MAIN_WINDOW_PAGES,
+                                  g_param_spec_object("pages",
+                                     "pages prop",
+                                     "Get the pages widget",
+                                     BT_TYPE_MAIN_PAGES, /* object type */
                                      G_PARAM_READABLE));
 }
 

@@ -1,4 +1,4 @@
-/* $Id: settings-private.h,v 1.5 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: settings-private.h,v 1.6 2005-04-27 09:45:20 ensonic Exp $
  * defines all private methods of the settings class
  */
 
@@ -10,6 +10,7 @@
 enum {
   BT_SETTINGS_AUDIOSINK=1,
 	BT_SETTINGS_MENU_TOOLBAR_HIDE,
+	BT_SETTINGS_MENU_TABS_HIDE,
 	BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
 	/* @todo additional application settings
 	*/

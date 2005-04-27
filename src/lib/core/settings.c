@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.14 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: settings.c,v 1.15 2005-04-27 09:45:20 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -104,6 +104,13 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
                                   g_param_spec_boolean("toolbar-hide",
                                      "toolbar-hide",
                                      "hide main toolbar",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TABS_HIDE,
+                                  g_param_spec_boolean("tabs-hide",
+                                     "tabs-hide",
+                                     "hide main page tabs",
                                      FALSE, /* default value */
                                      G_PARAM_READWRITE));
 

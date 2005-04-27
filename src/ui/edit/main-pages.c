@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.19 2005-02-02 16:35:57 ensonic Exp $
+/* $Id: main-pages.c,v 1.20 2005-04-27 09:45:21 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -95,6 +95,10 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   self->priv->info_page=bt_main_page_info_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
 	bt_main_pages_init_tab(self,tips,4,_("song information"),"tab_info.png",_("song meta data editor"));
+
+	// @idea add widgets for machine help view
+	// GTK_STOCK_HELP icon
+	// embed mozilla/gtk-html
 
 	GST_DEBUG("  done");
 	return(TRUE);

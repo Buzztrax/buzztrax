@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.33 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: main-menu.c,v 1.34 2005-04-27 09:45:21 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -134,6 +134,112 @@ static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_dat
 	g_object_try_unref(main_window);
 }
 
+static void on_menu_view_tabs_toggled(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+	BtMainWindow *main_window;
+	BtMainPages *pages;
+	BtSettings *settings;
+
+  g_assert(user_data);
+
+  GST_INFO("menu 'view tabs' event occurred");
+	g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+
+	if(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(menuitem))) {
+		gtk_notebook_set_show_tabs(GTK_NOTEBOOK(pages),TRUE);
+		g_object_set(G_OBJECT(settings),"tabs-hide",FALSE,NULL);
+}
+	else {
+		gtk_notebook_set_show_tabs(GTK_NOTEBOOK(pages),FALSE);
+		g_object_set(G_OBJECT(settings),"tabs-hide",TRUE,NULL);
+	}
+	
+	g_object_try_unref(pages);
+	g_object_try_unref(settings);
+	g_object_try_unref(main_window);
+}
+
+static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+	BtMainPages *pages;
+  
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+	
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),0);
+
+	g_object_try_unref(pages);
+	g_object_try_unref(main_window);
+}
+
+static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+	BtMainPages *pages;
+  
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+	
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),1);
+
+	g_object_try_unref(pages);
+	g_object_try_unref(main_window);
+}
+
+static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+	BtMainPages *pages;
+  
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+	
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),2);
+
+	g_object_try_unref(pages);
+	g_object_try_unref(main_window);
+}
+
+static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+	BtMainPages *pages;
+  
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+	
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),3);
+
+	g_object_try_unref(pages);
+	g_object_try_unref(main_window);
+}
+
+static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+	BtMainPages *pages;
+  
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+	
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),4);
+
+	g_object_try_unref(pages);
+	g_object_try_unref(main_window);
+}
+
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
@@ -160,9 +266,12 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
 static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel_group) {
   GtkWidget *item,*menu,*subitem,*image;
 	BtSettings *settings;
-	gboolean toolbar_hide;
+	gboolean toolbar_hide,tabs_hide;
 	
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
+	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+	g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
+	g_object_unref(settings);
 
   //-- file menu
   item=gtk_menu_item_new_with_mnemonic(_("_File"));
@@ -255,15 +364,53 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
   gtk_widget_set_name(subitem,_("Toolbar"));
 	// from here we can't hide the toolbar as it is not yet created and shown
-	g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-	g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,NULL);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!toolbar_hide);
-	g_object_unref(settings);
-	
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 	g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
 
-  // help menu
+  subitem=gtk_check_menu_item_new_with_mnemonic(_("Tabs"));
+  gtk_widget_set_name(subitem,_("Tabs"));
+	// from here we can't hide the tabs as they are not yet created and shown
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!tabs_hide);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+	g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_tabs_toggled),(gpointer)self);
+
+  subitem=gtk_separator_menu_item_new();
+  gtk_widget_set_name(subitem,_("separator"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+	
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to machine view"));
+  gtk_widget_set_name(subitem,_("Go to machine view"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_machines.png"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_machine_view_activate),(gpointer)self);
+	
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to pattern view"));
+  gtk_widget_set_name(subitem,_("Go to pattern view"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_patterns.png"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_pattern_view_activate),(gpointer)self);
+
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to sequence view"));
+  gtk_widget_set_name(subitem,_("Go to sequence view"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_sequence.png"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_sequence_view_activate),(gpointer)self);
+
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to wave table view"));
+  gtk_widget_set_name(subitem,_("Go to wave table view"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_waves.png"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_waves_view_activate),(gpointer)self);
+
+  subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to song information"));
+  gtk_widget_set_name(subitem,_("Go to song information"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_info.png"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_info_view_activate),(gpointer)self);
+
+	// help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
   gtk_widget_set_name(item,_("help menu"));
   gtk_menu_item_right_justify(GTK_MENU_ITEM(item));
@@ -279,10 +426,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("About"));
   gtk_widget_set_name(subitem,_("About"));
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("stock_about.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
-  image=gtk_image_new_from_filename("stock_about.png");
-  gtk_widget_set_name(image,_("About"));
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),image);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_about_activate),(gpointer)self);
 
   return(TRUE);

@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.15 2005-04-23 12:07:24 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.16 2005-04-27 09:45:20 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -98,6 +98,18 @@ static void bt_gconf_settings_get_property(GObject      *object,
 			}
 
     } break;
+		case BT_SETTINGS_MENU_TABS_HIDE: {
+      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",NULL);
+			if(prop) {
+				GST_DEBUG("application reads system tabs-hide gconf_settings : %d",prop);
+				g_value_set_boolean(value, prop);
+			}
+			else {
+				GST_DEBUG("application reads [def] system tabs-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
+				g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
+			}
+
+    } break;
 		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
 			if(prop) {
@@ -150,6 +162,13 @@ static void bt_gconf_settings_set_property(GObject      *object,
       gboolean prop=g_value_get_boolean(value);
       GST_DEBUG("application writes toolbar-hide gconf_settings : %d",prop);
       gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",prop,NULL);
+			g_return_if_fail(gconf_ret == TRUE);
+		} break;
+		case BT_SETTINGS_MENU_TABS_HIDE: {
+			gboolean gconf_ret=FALSE;
+      gboolean prop=g_value_get_boolean(value);
+      GST_DEBUG("application writes tabs-hide gconf_settings : %d",prop);
+      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",prop,NULL);
 			g_return_if_fail(gconf_ret == TRUE);
 		} break;
 		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
