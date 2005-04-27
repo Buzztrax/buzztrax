@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.64 2005-04-25 15:27:08 ensonic Exp $
+/* $Id: song-io-native.c,v 1.65 2005-04-27 16:31:06 ensonic Exp $
  * class for native song input and output
  */
  
@@ -26,7 +26,7 @@ static BtSongIOClass *parent_class=NULL;
  *
  * Checks if this plugin should manage this kind of file.
  *
- * Retunrs: the GType of this plugin of %NULL
+ * Returns: the GType of this plugin of %NULL
  */
 GType bt_song_io_native_detect(const gchar *file_name) {
   GType type=0;
@@ -325,7 +325,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
           value=xmlGetProp(xml_subnode,"value");
           if(!strncmp(xml_subnode->name,"globaldata\0",11)) {
 						// @todo check error!
-            param=bt_pattern_get_global_dparam_index(pattern,name,NULL);
+            param=bt_pattern_get_global_param_index(pattern,name,NULL);
             if((event=bt_pattern_get_global_event_data(pattern,tick,param))) {
               bt_pattern_init_global_event(pattern,event,param);
               bt_pattern_set_event(pattern,event,value);
@@ -335,7 +335,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
             voice_str=xmlGetProp(xml_subnode,"voice");
             voice=atol(voice_str);
 						// @todo check error
-            param=bt_pattern_get_voice_dparam_index(pattern,name,NULL);
+            param=bt_pattern_get_voice_param_index(pattern,name,NULL);
             if((event=bt_pattern_get_voice_event_data(pattern,tick,voice,param))) {
               bt_pattern_init_voice_event(pattern,event,param);
               bt_pattern_set_event(pattern,event,value);
@@ -905,7 +905,7 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 				if(data && G_IS_VALUE(data)) {
 					value=bt_pattern_get_event(pattern,data);
 					xml_child_node=xmlNewChild(xml_node,NULL,"globaldata",NULL);
-					xmlNewProp(xml_child_node,"name",bt_machine_get_global_dparam_name(machine,j));
+					xmlNewProp(xml_child_node,"name",bt_machine_get_global_param_name(machine,j));
 					xmlNewProp(xml_child_node,"value",value);g_free(value);
 				}
 			}
@@ -917,7 +917,7 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 						value=bt_pattern_get_event(pattern,data);
 						xml_child_node=xmlNewChild(xml_node,NULL,"voicedata",NULL);
 						xmlNewProp(xml_child_node,"voice",voice_str);
-						xmlNewProp(xml_child_node,"name",bt_machine_get_voice_dparam_name(machine,j));
+						xmlNewProp(xml_child_node,"name",bt_machine_get_voice_param_name(machine,j));
 						xmlNewProp(xml_child_node,"value",value);g_free(value);
 					}
 				}

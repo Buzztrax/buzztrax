@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.6 2005-04-25 14:50:26 ensonic Exp $
+/* $Id: wave.c,v 1.7 2005-04-27 16:31:06 ensonic Exp $
  * class for wave
  */
 
@@ -51,10 +51,11 @@ static guint signals[LAST_SIGNAL]={0,};
  * @song: the song the new instance belongs to
  * @name: the display name for the new wave
  * @file_name: the file system path of the sample data
+ * @index: the list slot for the new wave
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name,gulong index) {
   BtWave *self;
@@ -81,6 +82,16 @@ Error:
 
 //-- public methods
 
+/**
+ * bt_wave_add_wavelevel:
+ * @self: the wavetable to add the new wavelevel to
+ * @wavelevel: the new wavelevel instance
+ *
+ * Add the supplied wavelevel to the wave. This is automatically done by 
+ * #bt_wavelevel_new().
+ *
+ * Returns: %TRUE for success, %FALSE otheriwse
+ */
 gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel) {
 	gboolean ret=FALSE;
 	

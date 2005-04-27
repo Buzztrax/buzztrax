@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.50 2005-04-11 10:10:37 ensonic Exp $
+/* $Id: core.h,v 1.51 2005-04-27 16:31:06 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -22,7 +22,12 @@
 #include <glib-object.h>
 //-- gstreamer
 #include <gst/gst.h>
-#include <gst/control/control.h>
+#ifdef USE_GST_DPARAMS
+	#include <gst/control/control.h>
+#endif
+#ifdef USE_GST_CONTROLLER
+	#include <gst-controller.h>
+#endif
 #ifdef HAVE_GST_POLYVOICE_POLY_VOICE_H
 	#include <gst/polyvoice/poly-voice.h>
 #endif

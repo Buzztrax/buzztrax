@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.36 2005-04-25 14:50:26 ensonic Exp $
+/* $Id: pattern.c,v 1.37 2005-04-27 16:31:05 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -68,12 +68,12 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
     data=self->priv->data;
     for(i=0;i<self->priv->length;i++) {
       for(k=0;k<self->priv->global_params;k++) {
-        g_value_init(data,bt_machine_get_global_dparam_type(self->priv->machine,k));
+        g_value_init(data,bt_machine_get_global_param_type(self->priv->machine,k));
         data++;
       }
       for(j=0;j<self->priv->voices;j++) {
         for(k=0;k<self->priv->voice_params;k++) {
-          g_value_init(data,bt_machine_get_voice_dparam_type(self->priv->machine,k));
+          g_value_init(data,bt_machine_get_voice_param_type(self->priv->machine,k));
           data++;
         }
       }
@@ -174,6 +174,47 @@ Error:
   return(NULL);
 }
 
+/**
+ * bt_pattern_copy:
+ * @self: the pattern to create a copy from
+ *
+ * Create a new instance as a copy of the given instance.
+ *
+ * Returns: the new instance or %NULL in case of an error
+ */
+BtPattern *bt_pattern_copy(const BtPattern *self) {
+	BtPattern *pattern;
+	BtSong *song;
+	BtMachine *machine;
+	gchar *id,*name,*mid;
+	glong length, voices;
+	
+	g_assert(BT_IS_PATTERN(self));
+	
+	GST_INFO("copying pattern");
+	
+	g_object_get(G_OBJECT(self),"song",&song,"length",&length,"voices",&voices,"machine",&machine,NULL);
+	g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+	
+	name=bt_machine_get_unique_pattern_name(machine);
+	id=g_strdup_printf("%s %s",mid,name);
+
+	if(pattern=bt_pattern_new(song,id,name,length,voices,machine)) {
+		gulong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
+
+		// copy data
+		memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
+		GST_INFO("  data copied");
+	}
+
+	g_free(mid);
+	g_free(id);
+	g_free(name);
+	g_object_unref(machine);
+
+	return(pattern);
+}
+
 //-- methods
 
 /**
@@ -228,7 +269,7 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
 }
 
 /**
- * bt_pattern_get_global_dparam_index:
+ * bt_pattern_get_global_param_index:
  * @self: the pattern to search for the global dparam
  * @name: the name of the global dparam
  * @error: pointer to an error variable
@@ -239,14 +280,14 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
  * Returns: the index. If an error occurs the function returns 0 and sets the 
  * error variable. You should always check for error if you use this function.
  */
-gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
+gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *name, GError **error) {
 	gulong ret=0;
 	GError *tmp_error=NULL;
 	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
 	
-	ret=bt_machine_get_global_dparam_index(self->priv->machine,name,&tmp_error);
+	ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
 		// set g_error
@@ -261,7 +302,7 @@ gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *na
 }
 
 /**
- * bt_pattern_get_voice_dparam_index:
+ * bt_pattern_get_voice_param_index:
  * @self: the pattern to search for the voice dparam
  * @name: the name of the voice dparam
  * @error: pointer to an error variable
@@ -272,14 +313,14 @@ gulong bt_pattern_get_global_dparam_index(const BtPattern *self, const gchar *na
  * Returns: the index. If an error occurs the function returns 0 and sets the 
  * error variable. You should always check for error if you use this function.
  */
-gulong bt_pattern_get_voice_dparam_index(const BtPattern *self, const gchar *name, GError **error) {
+gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name, GError **error) {
 	gulong ret=0;
 	GError *tmp_error=NULL;
 	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
 	
-	ret=bt_machine_get_voice_dparam_index(self->priv->machine,name,&tmp_error);
+	ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
 		// set g_error
@@ -308,7 +349,7 @@ void bt_pattern_init_global_event(const BtPattern *self, GValue *event, gulong p
   g_assert(BT_IS_PATTERN(self));
 
   //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_machine_get_global_dparam_type(self->priv->machine,param));
+  g_value_init(event,bt_machine_get_global_param_type(self->priv->machine,param));
   g_assert(G_IS_VALUE(event));
 }
 
@@ -327,7 +368,7 @@ void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gulong pa
   g_assert(G_IS_VALUE(event));
 
   //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_machine_get_voice_dparam_type(self->priv->machine,param));
+  g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));
 }
 
 
@@ -444,14 +485,14 @@ void bt_pattern_play_tick(const BtPattern *self, gulong index) {
   data=&self->priv->data[index*(self->priv->global_params+self->priv->voices*self->priv->voice_params)];
   for(k=0;k<self->priv->global_params;k++) {
     if(G_IS_VALUE(data)) {
-      bt_machine_set_global_dparam_value(self->priv->machine,k,data);
+      bt_machine_set_global_param_value(self->priv->machine,k,data);
     }
     data++;
   }
   for(j=0;j<self->priv->voices;j++) {
     for(k=0;k<self->priv->voice_params;k++) {
 			if(G_IS_VALUE(data)) {
-				bt_machine_set_voice_dparam_value(self->priv->machine,j,k,data);
+				bt_machine_set_voice_param_value(self->priv->machine,j,k,data);
 			}
       data++;
     }

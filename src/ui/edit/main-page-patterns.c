@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.59 2005-04-27 09:45:21 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.60 2005-04-27 16:31:06 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -259,8 +259,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 	GtkTreeIter tree_iter;
 	GValue *value;
 	gchar *str;
-	GstDParam *dparam;
-	GParamSpec *pspec;
+	//GParamSpec *pspec;
   GtkTreeViewColumn *tree_col;
 
 	GST_INFO("refresh pattern table");
@@ -332,14 +331,13 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 		}
 		else GST_WARNING("can't create treeview column");
 		for(j=0;j<number_of_global_params;j++) {
-			dparam=bt_machine_get_global_dparam(machine,j);
-			pspec=GST_DPARAM_PARAM_SPEC(dparam);
+			//pspec=bt_machine_get_global_param_spec(machine,j);
 	  	renderer=gtk_cell_renderer_text_new();
 			g_object_set(G_OBJECT(renderer),
 				"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
 				"xalign",1.0,
 				NULL);
-	  	if((tree_col=gtk_tree_view_column_new_with_attributes(GST_DPARAM_NAME(dparam),renderer,
+	  	if((tree_col=gtk_tree_view_column_new_with_attributes(bt_machine_get_global_param_name(machine,j),renderer,
   	  	"text",PATTERN_TABLE_PRE_CT+j,
     		NULL))
 			) {
@@ -657,12 +655,11 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 	pattern=bt_main_page_patterns_get_current_pattern(self);
 	g_return_if_fail(pattern);
 	
-	/* @todo copy pattern
+	// copy pattern
 	pattern_new=bt_pattern_copy(pattern);
 	g_object_unref(pattern);
 	pattern=pattern_new;
 	g_return_if_fail(pattern);
-	*/
 
 	// pattern_properties
 	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));

@@ -1,4 +1,4 @@
-/* $Id: t-source-machine.c,v 1.1 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-source-machine.c,v 1.2 2005-04-27 16:31:07 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -85,8 +85,8 @@ START_TEST(test_btsourcemachine_obj3){
   /* try to create a normal sink machine */
   machine=bt_source_machine_new(song,"id","sinesrc",0);
   fail_unless(machine!=NULL,NULL);
-  /* try to get global dparam index from sinesrc */
-  testIdx=bt_machine_get_global_dparam_index(BT_MACHINE(machine),"nonsense",&error);
+  /* try to get global param index from sinesrc */
+  testIdx=bt_machine_get_global_param_index(BT_MACHINE(machine),"nonsense",&error);
   fail_unless(g_error_matches(error,
                               g_quark_from_static_string("BtMachine"),
                               0),

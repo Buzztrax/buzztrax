@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.7 2005-04-25 15:27:08 ensonic Exp $
+/* $Id: wavetable.c,v 1.8 2005-04-27 16:31:06 ensonic Exp $
  * class for wavetable
  */
 
@@ -43,7 +43,7 @@ static guint signals[LAST_SIGNAL]={0,};
  *
  * Create a new instance
  *
- * Returns: the new instance or NULL in case of an error
+ * Returns: the new instance or %NULL in case of an error
  */
 BtWavetable *bt_wavetable_new(const BtSong *song) {
   BtWavetable *self;
@@ -70,6 +70,8 @@ Error:
  *
  * Add the supplied wave to the wavetable. This is automatically done by 
  * #bt_wave_new().
+ *
+ * Returns: %TRUE for success, %FALSE otheriwse
  */
 gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave) {
 	gboolean ret=FALSE;

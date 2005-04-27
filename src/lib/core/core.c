@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.13 2005-04-13 09:19:23 ensonic Exp $
+/* $Id: core.c,v 1.14 2005-04-27 16:31:05 ensonic Exp $
  */
 
 #define BT_CORE
@@ -48,7 +48,14 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
   else {
     gst_init(argc,argv);
   }
+	//-- initialize dynamic parameter control module
+#ifdef USE_GST_DPARAMS
   gst_control_init(argc,argv);
+#endif
+#ifdef USE_GST_CONTROLLER
+	gst_library_load("gstcontroller");
+#endif
+
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
 	//-- initialize libxml
@@ -62,4 +69,3 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
   xmlLoadExtDtdDefaultValue=TRUE;						// always load DTD default values (even when not validating)
 	xmlDoValidityCheckingDefaultValue=FALSE;	// do not validate files (we load xsl files as well
 }
-
