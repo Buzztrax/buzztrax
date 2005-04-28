@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.35 2005-02-16 19:10:03 waffel Exp $
+/* $Id: sink-machine.c,v 1.36 2005-04-28 20:44:19 ensonic Exp $
  * class for a sink machine
  */
  
@@ -47,6 +47,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
   if(is_string(audiosink_name)) plugin_name=audiosink_name;
   else if(is_string(system_audiosink_name)) {
+	GST_INFO("get audiosink from config");
 		// this can be a whole pipeline like "audioconvert ! osssink sync=false"
 		// seek for the last '!'
 		if(!(sink_name=g_strrstr(system_audiosink_name,"!"))) {
@@ -59,6 +60,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
 		plugin_name=sink_name;
 	}
   else {
+	GST_INFO("get audiosink from gst registry by rank");
     // iterate over gstreamer-audiosink list and choose element with highest rank
     GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
 		GstElementFactory *factory;
@@ -78,7 +80,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
     g_list_free(audiosink_names);
   }
 	GST_INFO("using audio sink : \"%s\"",plugin_name);
-  if((!plugin_name) || (!strlen(plugin_name))) {
+  if(!is_string(plugin_name)) {
     GST_ERROR("no audiosink configured/register");
     goto Error;
   }

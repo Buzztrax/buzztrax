@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.75 2005-04-23 12:07:24 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.76 2005-04-28 20:44:30 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -1287,7 +1287,8 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
 	if(path) gtk_tree_path_free(path);
   // release the references
   g_object_try_unref(sequence);
-  g_object_try_unref(song);	
+  g_object_try_unref(song);
+	// @todo return refedversion
 	return(timelinetrack);
 }
 
@@ -1339,11 +1340,12 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  GST_DEBUG("!!!! self=%p",self);	
   g_object_try_weak_unref(self->priv->app);
 	if(self->priv->machine) {
-		g_object_unref(self->priv->machine);
 		g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
 		g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+		g_object_unref(self->priv->machine);
 	}
 	
 	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
@@ -1356,6 +1358,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 static void bt_main_page_sequence_finalize(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
   
+  GST_DEBUG("!!!! self=%p",self);	
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {

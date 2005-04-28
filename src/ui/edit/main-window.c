@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.57 2005-04-27 09:45:21 ensonic Exp $
+/* $Id: main-window.c,v 1.58 2005-04-28 20:44:30 ensonic Exp $
  * class for the editor main window
  */
 
@@ -484,7 +484,6 @@ static void bt_main_window_dispose(GObject *object) {
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
-	/* why the heck we never see this? */
 	GST_DEBUG("  done");
 }
 

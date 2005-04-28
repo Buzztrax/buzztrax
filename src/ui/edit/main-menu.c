@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.34 2005-04-27 09:45:21 ensonic Exp $
+/* $Id: main-menu.c,v 1.35 2005-04-28 20:44:29 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -91,21 +91,17 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window;
   GtkWidget *dialog;
   
   g_assert(user_data);
 
-  GST_INFO("menu settings event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  
-  dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app/*,main_window*/));
+  GST_INFO("menu settings event occurred");  
+  dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app));
   
   gtk_widget_show_all(dialog);
                                                   
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
-  g_object_try_unref(main_window);
 }
 
 static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_data) {
