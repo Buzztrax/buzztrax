@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.43 2005-04-25 14:50:19 ensonic Exp $
+# $Id: configure.ac,v 1.44 2005-04-28 12:35:02 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -279,6 +279,9 @@ AC_CHECK_HEADERS(X11/Xlocale.h)
 AC_CHECK_HEADERS(popt.h)
 
 AC_CHECK_HEADERS(gst/polyvoice/poly-voice.h)
+
+AC_DEFINE(USE_GST_DPARAMS, [1], [use old gstreamer dparams])
+# AC_DEFINE(USE_GST_CONTROLLER, [1], [use new gstreamer controller])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES

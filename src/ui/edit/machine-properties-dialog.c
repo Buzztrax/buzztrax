@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.17 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.18 2005-04-28 12:35:14 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -36,7 +36,12 @@ static GtkDialogClass *parent_class=NULL;
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data);
 
+#ifdef USE_GST_DPARAMS
 static void on_double_range_property_notify(const GstDParam *dparam,GParamSpec *property,gpointer user_data) {
+#endif
+#ifdef USE_GST_CONTROLLER
+static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+#endif	
   GtkWidget *widget=GTK_WIDGET(user_data);
   gdouble value;
   
@@ -44,7 +49,12 @@ static void on_double_range_property_notify(const GstDParam *dparam,GParamSpec *
   //GST_INFO("property value notify received : %s ",property->name);
 
   gdk_threads_try_enter();
+#ifdef USE_GST_DPARAMS
   g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
+#endif
+#ifdef USE_GST_CONTROLLER
+  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+#endif
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)dparam);
   gtk_range_set_value(GTK_RANGE(widget),value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)dparam);
@@ -52,19 +62,39 @@ static void on_double_range_property_notify(const GstDParam *dparam,GParamSpec *
 }
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
+#ifdef USE_GST_DPARAMS
   GstDParam *dparam=GST_DPARAM(user_data);
+#endif
+#ifdef USE_GST_CONTROLLER
+	GstElement *machine=GST_ELEMENT(user_data);
+	const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
+#endif
+	gdouble value;
   
   g_assert(user_data);
   //GST_INFO("property value change received");
 
   //gdk_threads_enter();
+	value=gtk_range_get_value(range);
+#ifdef USE_GST_DPARAMS
   g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
-  g_object_set(dparam,"value-double",gtk_range_get_value(range),NULL);
+  g_object_set(dparam,"value-double",value,NULL);
   g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
+#endif
+#ifdef USE_GST_CONTROLLER
+  g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
+  g_object_set(machine,name,value,NULL);
+  g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
+#endif
   //gdk_threads_leave();
 }
 
+#ifdef USE_GST_DPARAMS
 static void on_int_range_property_notify(const GstDParam *dparam,GParamSpec *property,gpointer user_data) {
+#endif
+#ifdef USE_GST_CONTROLLER
+static void on_int_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+#endif
   GtkWidget *widget=GTK_WIDGET(user_data);
   gint value;
   
@@ -72,7 +102,12 @@ static void on_int_range_property_notify(const GstDParam *dparam,GParamSpec *pro
   //GST_INFO("property value notify received : %s ",property->name);
 
   gdk_threads_try_enter();
+#ifdef USE_GST_DPARAMS
   g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
+#endif
+#ifdef USE_GST_CONTROLLER
+  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+#endif
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)dparam);
   gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)dparam);
