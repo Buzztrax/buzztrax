@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.60 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.61 2005-04-29 10:25:35 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -872,7 +872,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
   BtSetup *setup;
   BtMachine *machine=NULL;
 
-  GST_INFO("get machine for pattern");
+  GST_INFO("get current machine");
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -902,7 +902,7 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
   BtMachine *machine;
 	BtPattern *pattern=NULL;
 
-  GST_INFO("get machine for pattern");
+  GST_INFO("get current pattern");
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -917,6 +917,22 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
   g_object_try_unref(setup);
   g_object_try_unref(song);
   return(pattern);
+}
+
+/**
+ * bt_main_page_patterns_show_pattern:
+ * @self: the pattern subpage
+ * @pattern: the pattern to show
+ *
+ * Show the given pattern
+ */
+void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern) {
+	BtMachine *machine;
+	
+	// @todo show this pattern
+	// get machine from pattern
+	// update machine menu
+	// update pattern menu
 }
 
 //-- wrapper

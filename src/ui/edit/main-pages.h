@@ -1,4 +1,4 @@
-/* $Id: main-pages.h,v 1.6 2005-01-11 16:50:50 ensonic Exp $
+/* $Id: main-pages.h,v 1.7 2005-04-29 10:25:35 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -41,5 +41,12 @@ struct _BtMainPagesClass {
 /* used by MAIN_PAGES_TYPE */
 GType bt_main_pages_get_type(void);
 
-#endif // BT_MAIN_PAGES_H
+enum {
+	BT_MAIN_PAGES_MACHINE_VIEW=0,
+	BT_MAIN_PAGES_PATTERN_VIEW,
+	BT_MAIN_PAGES_SEQUENCE_VIEW,
+	BT_MAIN_PAGES_WAVETABLE_VIEW,
+	BT_MAIN_PAGES_INFO_VIEW
+};
 
+#endif // BT_MAIN_PAGES_H

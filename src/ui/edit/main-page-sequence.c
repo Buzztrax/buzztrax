@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.76 2005-04-28 20:44:30 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.77 2005-04-29 10:25:35 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -534,9 +534,9 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 	machine=bt_main_page_sequence_get_current_machine(self);
 	if(machine!=self->priv->machine) {
 		if(self->priv->machine) {
-			g_object_unref(self->priv->machine);
 			g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
 			g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+			g_object_unref(self->priv->machine);
 			self->priv->pattern_added_handler=0;
 			self->priv->pattern_removed_handler=0;
 		}
@@ -810,6 +810,29 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			str=" ";
 			res=TRUE;
 		}
+		else if(event->keyval==GDK_Return) {	/* GDK_KP_Enter */
+			BtPattern *pattern;
+			g_object_get(timelinetrack,"pattern",&pattern,NULL);
+			if(pattern) {
+				BtMainWindow *main_window;
+				BtMainPages *pages;
+				BtMainPagePatterns *pattern_view;
+
+			  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+				g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+				// @todo g_object_get(G_OBJECT(pages),"pattern-view",&pattern_view,NULL);
+	
+				gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERN_VIEW);
+				//bt_main_page_patterns_show_pattern(pattern_view,pattern);
+
+				//g_object_try_unref(pattern_view);
+				g_object_try_unref(pages);
+				g_object_try_unref(main_window);
+
+				g_object_unref(pattern);
+				res=TRUE;
+			}
+		}
 		else {
 			gchar *pos=strchr(pattern_keys,event->keyval);
 			
@@ -822,7 +845,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 					if((pattern=bt_machine_get_pattern_by_index(machine,((gulong)pos-(gulong)pattern_keys)))) {
 						g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_PATTERN,"pattern",pattern,NULL);
 						g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-          	g_object_try_unref(pattern);
+          	g_object_unref(pattern);
           	free_str=TRUE;
 						res=TRUE;
 					}
@@ -870,6 +893,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			GST_WARNING("  nothing assgned to this key");
 		}
 		if(free_str) g_free(str);
+		g_object_unref(timelinetrack);
 	}
 	else {
 		GST_WARNING("  can't locate timelinetrack related to curos pos");
@@ -1288,7 +1312,7 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);
-	// @todo return refedversion
+	// is already ref'ed by bt_timeline_get_timelinetrack_by_index()
 	return(timelinetrack);
 }
 

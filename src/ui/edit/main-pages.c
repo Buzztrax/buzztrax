@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.20 2005-04-27 09:45:21 ensonic Exp $
+/* $Id: main-pages.c,v 1.21 2005-04-29 10:25:35 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -74,27 +74,27 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
-	bt_main_pages_init_tab(self,tips,0,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINE_VIEW,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
 	
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
-	bt_main_pages_init_tab(self,tips,1,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERN_VIEW,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
 	
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
-	bt_main_pages_init_tab(self,tips,2,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_VIEW,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
   self->priv->waves_page=bt_main_page_waves_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
-	bt_main_pages_init_tab(self,tips,3,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVETABLE_VIEW,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
   self->priv->info_page=bt_main_page_info_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
-	bt_main_pages_init_tab(self,tips,4,_("song information"),"tab_info.png",_("song meta data editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_VIEW,_("song information"),"tab_info.png",_("song meta data editor"));
 
 	// @idea add widgets for machine help view
 	// GTK_STOCK_HELP icon
