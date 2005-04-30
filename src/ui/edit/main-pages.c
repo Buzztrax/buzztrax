@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.21 2005-04-29 10:25:35 ensonic Exp $
+/* $Id: main-pages.c,v 1.22 2005-04-30 13:14:14 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -9,6 +9,11 @@
 
 enum {
   MAIN_PAGES_APP=1,
+	MAIN_PAGES_MACHINES_PAGE,
+	MAIN_PAGES_PATTERNS_PAGE,
+	MAIN_PAGES_SEQUENCE_PAGE,
+	MAIN_PAGES_WAVES_PAGE,
+	MAIN_PAGES_INFO_PAGE
 };
 
 
@@ -74,27 +79,27 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINE_VIEW,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINES_PAGE,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
 	
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERN_VIEW,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERNS_PAGE,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
 	
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_VIEW,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
   self->priv->waves_page=bt_main_page_waves_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVETABLE_VIEW,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVES_PAGE,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
   self->priv->info_page=bt_main_page_info_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_VIEW,_("song information"),"tab_info.png",_("song meta data editor"));
+	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_PAGE,_("song information"),"tab_info.png",_("song meta data editor"));
 
 	// @idea add widgets for machine help view
 	// GTK_STOCK_HELP icon
@@ -147,6 +152,21 @@ static void bt_main_pages_get_property(GObject      *object,
   switch (property_id) {
     case MAIN_PAGES_APP: {
       g_value_set_object(value, self->priv->app);
+    } break;
+    case MAIN_PAGES_MACHINES_PAGE: {
+      g_value_set_object(value, self->priv->machines_page);
+    } break;
+    case MAIN_PAGES_PATTERNS_PAGE: {
+      g_value_set_object(value, self->priv->patterns_page);
+    } break;
+    case MAIN_PAGES_SEQUENCE_PAGE: {
+      g_value_set_object(value, self->priv->sequence_page);
+    } break;
+    case MAIN_PAGES_WAVES_PAGE: {
+      g_value_set_object(value, self->priv->waves_page);
+    } break;
+    case MAIN_PAGES_INFO_PAGE: {
+      g_value_set_object(value, self->priv->info_page);
     } break;
     default: {
  			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -221,6 +241,41 @@ static void bt_main_pages_class_init(BtMainPagesClass *klass) {
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGES_MACHINES_PAGE,
+                                  g_param_spec_object("machines-page",
+                                     "machines page prop",
+                                     "the machines view page",
+                                     BT_TYPE_MAIN_PAGE_MACHINES, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGES_PATTERNS_PAGE,
+                                  g_param_spec_object("patterns-page",
+                                     "patterns page prop",
+                                     "the patterns view page",
+                                     BT_TYPE_MAIN_PAGE_PATTERNS, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGES_SEQUENCE_PAGE,
+                                  g_param_spec_object("sequence-page",
+                                     "sequence page prop",
+                                     "the sequence view page",
+                                     BT_TYPE_MAIN_PAGE_SEQUENCE, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGES_WAVES_PAGE,
+                                  g_param_spec_object("waves-page",
+                                     "waves page prop",
+                                     "the waves view page",
+                                     BT_TYPE_MAIN_PAGE_WAVES, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,MAIN_PAGES_INFO_PAGE,
+                                  g_param_spec_object("info-page",
+                                     "info page prop",
+                                     "the info view page",
+                                     BT_TYPE_MAIN_PAGE_INFO, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_main_pages_get_type(void) {

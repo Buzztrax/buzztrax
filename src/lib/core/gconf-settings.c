@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.16 2005-04-27 09:45:20 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.17 2005-04-30 13:14:08 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -77,12 +77,12 @@ static void bt_gconf_settings_get_property(GObject      *object,
     case BT_SETTINGS_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
 			if(prop) {
-				GST_DEBUG("application reads audiosink gconf_settings : %s",prop);
+				GST_DEBUG("application reads audiosink gconf_settings : '%s'",prop);
 				g_value_set_string(value, prop);
 				g_free(prop);
 			}
 			else {
-				GST_DEBUG("application reads [def] audiosink gconf_settings : %s",((GParamSpecString *)pspec)->default_value);
+				GST_DEBUG("application reads [def] audiosink gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
 				g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
 			}
     } break;
@@ -113,24 +113,24 @@ static void bt_gconf_settings_get_property(GObject      *object,
 		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
 			if(prop) {
-				GST_DEBUG("application reads grid-density gconf_settings : %s",prop);
+				GST_DEBUG("application reads grid-density gconf_settings : '%s'",prop);
 				g_value_set_string(value, prop);
 				g_free(prop);
 			}
 			else {
-				GST_DEBUG("application reads [def] grid-density gconf_settings : %s",((GParamSpecString *)pspec)->default_value);
+				GST_DEBUG("application reads [def] grid-density gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
 				g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
 			}
 		} break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
-      GST_DEBUG("application reads system audiosink gconf_settings : %s",prop);
+      GST_DEBUG("application reads system audiosink gconf_settings : '%s'",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
 		case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GNOME"/toolbar_style",NULL);
-      GST_DEBUG("application reads system toolbar style gconf_settings : %s",prop);
+      GST_DEBUG("application reads system toolbar style gconf_settings : '%s'",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;

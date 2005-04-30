@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.58 2005-04-21 16:13:28 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.59 2005-04-30 13:14:13 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -258,13 +258,13 @@ static BtMachineCanvasItem *bt_main_page_machine_get_machine_canvas_item_at(cons
 	BtMachineCanvasItem *mitem=NULL;
 	GnomeCanvasItem *ci,*pci;
 
-	GST_INFO("is there a machine at pos ?");
+	//GST_DEBUG("is there a machine at pos ?");
 	
 	if((ci=gnome_canvas_get_item_at(self->priv->canvas,mouse_x,mouse_y))) {
 		g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
 		if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
 			mitem=BT_MACHINE_CANVAS_ITEM(pci);
-			GST_INFO("  yes!");
+			//GST_DEBUG("  yes!");
 		}
 		else g_object_unref(pci);
 	}

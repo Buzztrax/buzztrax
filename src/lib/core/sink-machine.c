@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.36 2005-04-28 20:44:19 ensonic Exp $
+/* $Id: sink-machine.c,v 1.37 2005-04-30 13:14:08 ensonic Exp $
  * class for a sink machine
  */
  
@@ -45,9 +45,12 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   g_object_get(G_OBJECT(song),"app",&app,NULL);
   g_object_get(app,"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
-  if(is_string(audiosink_name)) plugin_name=audiosink_name;
+  if(is_string(audiosink_name)) {
+		GST_INFO("get audiosink from config");
+		plugin_name=audiosink_name;
+	}
   else if(is_string(system_audiosink_name)) {
-	GST_INFO("get audiosink from config");
+		GST_INFO("get audiosink from system config");
 		// this can be a whole pipeline like "audioconvert ! osssink sync=false"
 		// seek for the last '!'
 		if(!(sink_name=g_strrstr(system_audiosink_name,"!"))) {
@@ -60,7 +63,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
 		plugin_name=sink_name;
 	}
   else {
-	GST_INFO("get audiosink from gst registry by rank");
+		GST_INFO("get audiosink from gst registry by rank");
     // iterate over gstreamer-audiosink list and choose element with highest rank
     GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
 		GstElementFactory *factory;
@@ -98,6 +101,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   return(self);
 Error:
   g_free(system_audiosink_name);
+	g_free(audiosink_name);
   g_object_try_unref(settings);
   g_object_try_unref(app);
   g_object_try_unref(self);

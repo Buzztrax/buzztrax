@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.36 2005-04-29 10:25:35 ensonic Exp $
+/* $Id: main-menu.c,v 1.37 2005-04-30 13:14:13 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -166,7 +166,7 @@ static void on_menu_goto_machine_view_activate(GtkMenuItem *menuitem,gpointer us
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 	
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINE_VIEW);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_MACHINES_PAGE);
 
 	g_object_try_unref(pages);
 	g_object_try_unref(main_window);
@@ -182,7 +182,7 @@ static void on_menu_goto_pattern_view_activate(GtkMenuItem *menuitem,gpointer us
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 	
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERN_VIEW);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
 
 	g_object_try_unref(pages);
 	g_object_try_unref(main_window);
@@ -198,7 +198,7 @@ static void on_menu_goto_sequence_view_activate(GtkMenuItem *menuitem,gpointer u
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 	
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_VIEW);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
 
 	g_object_try_unref(pages);
 	g_object_try_unref(main_window);
@@ -214,7 +214,7 @@ static void on_menu_goto_waves_view_activate(GtkMenuItem *menuitem,gpointer user
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 	
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVETABLE_VIEW);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_WAVES_PAGE);
 
 	g_object_try_unref(pages);
 	g_object_try_unref(main_window);
@@ -230,7 +230,7 @@ static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 	
-	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_VIEW);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_INFO_PAGE);
 
 	g_object_try_unref(pages);
 	g_object_try_unref(main_window);

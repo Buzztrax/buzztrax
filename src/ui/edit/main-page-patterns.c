@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.61 2005-04-29 10:25:35 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.62 2005-04-30 13:14:14 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -35,6 +35,7 @@ struct _BtMainPagePatternsPrivate {
 	BtPattern *pattern;
 	/* signal handler ids */
 	gint pattern_length_changed,pattern_voices_changed;
+	gint pattern_menu_changed;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -299,9 +300,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 							-1);
 						g_free(str);
 					}
-					//else {
-					//	GST_WARNING("pattern[%2d,%2d]=%p is not a GValue*",i,j,value);
-					//}
+					else {
+						GST_WARNING("pattern[%2d,%2d]=%p is not a GValue*",i,j,value);
+					}
 				}
 			}
 			pos++;
@@ -507,7 +508,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
   BtSetup *setup;
-  BtMachine *machine;
 
   g_assert(user_data);
 
@@ -530,13 +530,14 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
+	// @todo implement track_add
   g_assert(user_data);
-
 }
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
+	// @todo implement track_remove
   g_assert(user_data);
 }
 
@@ -709,6 +710,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	renderer=gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
+	g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
@@ -732,6 +734,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,"text", 0,NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
+	self->priv->pattern_menu_changed=g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
 
   button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
                                 GTK_TOOLBAR_CHILD_WIDGET,
@@ -761,6 +764,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_container_add(GTK_CONTAINER(self),scrolled_window);
+	g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
 
 	GST_DEBUG("  before context menu",self);
 
@@ -820,9 +824,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
-	g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
-	g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
 
 	GST_DEBUG("  done");
 	return(TRUE);
@@ -927,12 +928,29 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
  * Show the given pattern
  */
 void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern) {
+  BtSong *song;
+  BtSetup *setup;
 	BtMachine *machine;
+	GList *list;
 	
-	// @todo show this pattern
-	// get machine from pattern
+	
+	g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
 	// update machine menu
+	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+	g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+	g_signal_handler_block(self->priv->pattern_menu,self->priv->pattern_menu_changed);
+	gtk_combo_box_set_active(self->priv->machine_menu,g_list_index(list,machine));
+	g_signal_handler_unblock(self->priv->pattern_menu,self->priv->pattern_menu_changed);
+	g_list_free(list);
 	// update pattern menu
+	g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+	gtk_combo_box_set_active(self->priv->pattern_menu,g_list_index(list,pattern));
+	g_list_free(list);
+  // release the references
+	g_object_try_unref(machine);
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
 }
 
 //-- wrapper

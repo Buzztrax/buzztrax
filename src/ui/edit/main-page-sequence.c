@@ -1,10 +1,10 @@
-/* $Id: main-page-sequence.c,v 1.77 2005-04-29 10:25:35 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.78 2005-04-30 13:14:14 ensonic Exp $
  * class for the editor main sequence page
  */
 
 /* @todo:
  *  - moving cursor around
- *  - disallowing to move to position column
+ *  - disallowing to move to position column (bug in GtkTreeView)
  *  - sequence header
  *    - add table to separate scrollable window
  *      (no own adjustments, share x-adjustment with sequence-view, show full height)
@@ -12,15 +12,10 @@
  *      - add level meters
  *      - add the same context menu as the machines have in machine view
  *    - sequence view will have no visible column headers
- *  - adding/removing columns
  *  - support different rythms
  *    - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
  *    - use different highlighing (strong bar every start of a beat)
- *  - pattern_add/remove refreshing
- *    - signals
- *	    g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_added),(gpointer)self);
- *	    g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_removed),(gpointer)self);
- *    - make this an own data model
+ *  - insert/remove rows
  *
  */
 
@@ -788,6 +783,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 	BtTimeLineTrack *timelinetrack;
 	gchar *str=NULL;
 	gboolean free_str=FALSE;
+	gboolean change=FALSE;
 
   g_assert(user_data);
 	
@@ -798,16 +794,19 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 		if(event->keyval=='-') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,"pattern",NULL,NULL);
 			str="---";
+			change=TRUE;
 			res=TRUE;
 		}
 		else if(event->keyval==',') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,"pattern",NULL,NULL);
       str="===";
+			change=TRUE;
 			res=TRUE;
 		}
 		else if(event->keyval==' ') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_EMPTY,"pattern",NULL,NULL);
 			str=" ";
+			change=TRUE;
 			res=TRUE;
 		}
 		else if(event->keyval==GDK_Return) {	/* GDK_KP_Enter */
@@ -816,16 +815,16 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			if(pattern) {
 				BtMainWindow *main_window;
 				BtMainPages *pages;
-				BtMainPagePatterns *pattern_view;
+				BtMainPagePatterns *patterns_page;
 
 			  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 				g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-				// @todo g_object_get(G_OBJECT(pages),"pattern-view",&pattern_view,NULL);
+				g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
 	
-				gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERN_VIEW);
-				//bt_main_page_patterns_show_pattern(pattern_view,pattern);
+				gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+				bt_main_page_patterns_show_pattern(patterns_page,pattern);
 
-				//g_object_try_unref(pattern_view);
+				g_object_try_unref(patterns_page);
 				g_object_try_unref(pages);
 				g_object_try_unref(main_window);
 
@@ -847,6 +846,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 						g_object_get(G_OBJECT(pattern),"name",&str,NULL);
           	g_object_unref(pattern);
           	free_str=TRUE;
+						change=TRUE;
 						res=TRUE;
 					}
 					g_object_unref(machine);
@@ -854,7 +854,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			}
 		}
 		// update tree-view model
-		if(res) {
+		if(change) {
 			GtkTreeModelFilter *filtered_store;
 			GtkTreeModel *store;
 			GtkTreePath *path;
