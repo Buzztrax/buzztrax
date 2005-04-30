@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.65 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: song-io-native.c,v 1.66 2005-04-30 17:50:57 ensonic Exp $
  * class for native song input and output
  */
  
@@ -16,6 +16,8 @@ struct _BtSongIONativePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 };
+
+static GQuark error_domain=0;
 
 static BtSongIOClass *parent_class=NULL;
 
@@ -306,11 +308,10 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 	return(TRUE);
 }
 
-static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node, GError **err) {
+static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node, GError **error) {
   xmlNodePtr xml_subnode;
   xmlChar *tick_str,*name,*value,*voice_str;
   glong tick,voice,param;
-  GValue *event;
 	GError *tmp_error;
 
   while(xml_node) {
@@ -324,22 +325,30 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
           name=xmlGetProp(xml_subnode,"name");
           value=xmlGetProp(xml_subnode,"value");
           if(!strncmp(xml_subnode->name,"globaldata\0",11)) {
-						// @todo check error!
-            param=bt_pattern_get_global_param_index(pattern,name,NULL);
-            if((event=bt_pattern_get_global_event_data(pattern,tick,param))) {
-              bt_pattern_init_global_event(pattern,event,param);
-              bt_pattern_set_event(pattern,event,value);
-            }
+            param=bt_pattern_get_global_param_index(pattern,name,&tmp_error);
+						if(!tmp_error) {
+							bt_pattern_set_global_event(pattern,tick,param,value);
+						}
+						else {
+							g_set_error (error, error_domain, /* errorcode= */0,
+									"can't load global data for pattern %s", name);
+							g_propagate_error(error, tmp_error);
+							return(FALSE);
+						}
           }
           if(!strncmp(xml_subnode->name,"voicedata\0",10)) {
             voice_str=xmlGetProp(xml_subnode,"voice");
             voice=atol(voice_str);
-						// @todo check error
-            param=bt_pattern_get_voice_param_index(pattern,name,NULL);
-            if((event=bt_pattern_get_voice_event_data(pattern,tick,voice,param))) {
-              bt_pattern_init_voice_event(pattern,event,param);
-              bt_pattern_set_event(pattern,event,value);
-            }
+            param=bt_pattern_get_voice_param_index(pattern,name,&tmp_error);
+						if(!tmp_error) {
+							bt_pattern_set_voice_event(pattern,tick,voice,param,value);
+						}
+						else {
+							g_set_error (error, error_domain, /* errorcode= */0,
+									"can't load voice data for pattern %s", name);
+							g_propagate_error(error, tmp_error);
+							return(FALSE);
+						}
             xmlFree(voice_str);
           }
           xmlFree(name);xmlFree(value);
@@ -886,7 +895,6 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 	xmlNodePtr xml_node,xml_child_node;
 	gulong i,j,k,length,voices,global_params,voice_params;
 	gchar *time_str,*voice_str,*value;
-	GValue *data;
 	
 	g_object_get(G_OBJECT(pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
 	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
@@ -901,9 +909,7 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 			xmlNewProp(xml_node,"time",time_str);g_free(time_str);
 			// save tick data
 			for(j=0;j<global_params;j++) {
-				data=bt_pattern_get_global_event_data(pattern,i,j);
-				if(data && G_IS_VALUE(data)) {
-					value=bt_pattern_get_event(pattern,data);
+				if((value=bt_pattern_get_global_event(pattern,i,j))) {
 					xml_child_node=xmlNewChild(xml_node,NULL,"globaldata",NULL);
 					xmlNewProp(xml_child_node,"name",bt_machine_get_global_param_name(machine,j));
 					xmlNewProp(xml_child_node,"value",value);g_free(value);
@@ -912,9 +918,7 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
 			for(j=0;j<voices;j++) {
 				voice_str=g_strdup_printf("%d",j);
 				for(k=0;k<voice_params;k++) {
-					data=bt_pattern_get_voice_event_data(pattern,i,j,k);
-					if(data && G_IS_VALUE(data)) {
-						value=bt_pattern_get_event(pattern,data);
+					if((value=bt_pattern_get_voice_event(pattern,i,j,k))) {
 						xml_child_node=xmlNewChild(xml_node,NULL,"voicedata",NULL);
 						xmlNewProp(xml_child_node,"voice",voice_str);
 						xmlNewProp(xml_child_node,"name",bt_machine_get_voice_param_name(machine,j));
@@ -1211,6 +1215,8 @@ static void bt_song_io_native_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 	BtSongIOClass *base_class = BT_SONG_IO_CLASS(klass);
+
+	error_domain=g_quark_from_static_string("BtSongIONative");
 
   parent_class=g_type_class_ref(BT_TYPE_SONG_IO);
 	

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.78 2005-04-30 13:14:14 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.79 2005-04-30 17:50:58 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -109,12 +109,13 @@ static glong sequence_view_get_cursor_column(GtkTreeView *tree_view) {
 	glong res=-1;
   GtkTreeViewColumn *column;
 
-  // get table column number (column 0 is for labels)
+  // get table column number (column 0 is for positions and colum 1 for labels)
   gtk_tree_view_get_cursor(tree_view,NULL,&column);
   if(column) {
     GList *columns=gtk_tree_view_get_columns(tree_view);
     res=g_list_index(columns,(gpointer)column);
     g_list_free(columns);
+		GST_DEBUG("  -> cursor column is %d",res);
   }
 	return(res);
 }
@@ -751,9 +752,9 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
 
   g_assert(user_data);
 
-	cursor_column=sequence_view_get_cursor_column(treeview);
 	GST_INFO("sequence_table cursor has changed : treeview=%p, page=%p",treeview,user_data);
 	
+	cursor_column=sequence_view_get_cursor_column(treeview);
 	// @todo if cursor_column is 0 or last push it back
 	if(cursor_column!=self->priv->cursor_column) {
 		self->priv->cursor_column=cursor_column;
@@ -761,20 +762,25 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
 	}
 }
 
-static gboolean on_sequence_table_cursor_moved(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
+static gboolean on_sequence_table_move_cursor(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	glong cursor_column;
 
   g_assert(user_data);
 
-  GST_INFO("sequence_table cursor has moved : treeview=%p, page=%p, arg1=%d, arg2=%d",treeview,user_data,arg1,arg2);
   if(arg1==GTK_MOVEMENT_VISUAL_POSITIONS) {
+		GST_INFO("sequence_table cursor has moved : treeview=%p, page=%p, arg1=%d, arg2=%d",treeview,user_data,arg1,arg2);
 		cursor_column=sequence_view_get_cursor_column(treeview);
-		// @todo if cursor_column is 0 or last push it back
-		if(cursor_column!=self->priv->cursor_column) {
-			pattern_list_refresh(self);
-		}
+		// if cursor_column is going to be 0, reject movement
+		if((cursor_column==1) && (arg2==-1)) return(FALSE);
+		// @todo if cursor_column is to be last, reject movement
+		//if((cursor_column==(sequence_columns-1)) && (arg2==1)) return(FALSE);
+		//if(cursor_column!=self->priv->cursor_column) {
+		//	self->priv->cursor_column=cursor_column;
+		//	pattern_list_refresh(self);
+		//}
   }
+	return(TRUE);
 }
 
 static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
@@ -1164,6 +1170,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_paned_pack1(GTK_PANED(box),GTK_WIDGET(scrolled_window),TRUE,TRUE);
+  g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", G_CALLBACK(on_sequence_table_move_cursor), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
 
 // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -1191,10 +1201,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_paned_pack2(GTK_PANED(box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
   // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", G_CALLBACK(on_sequence_table_cursor_moved), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
-	g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
-	g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
 	GST_DEBUG("  done");

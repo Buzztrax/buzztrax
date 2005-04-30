@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.37 2005-04-27 16:31:05 ensonic Exp $
+/* $Id: pattern.c,v 1.38 2005-04-30 17:50:57 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -43,6 +43,8 @@ struct _BtPatternPrivate {
    */
 	GValue *data;
 };
+
+static GQuark error_domain=0;
 
 static GObjectClass *parent_class=NULL;
 
@@ -136,6 +138,159 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 	}
 }
 
+/*
+ * bt_pattern_get_global_event_data:
+ * @self: the pattern to search for the global dparam
+ * @tick: the tick (time) position starting with 0
+ * @param: the number of the global parameter starting with 0
+ *
+ * Fetches a cell from the given location in the pattern
+ *
+ * Returns: the GValue or %NULL if out of the pattern range
+ */
+static GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param) {
+  gulong index;
+
+  g_assert(BT_IS_PATTERN(self));
+	g_return_val_if_fail(self->priv->data,NULL);
+
+  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
+  if(!(param<self->priv->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
+
+  index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
+       + param;
+  return(&self->priv->data[index]);
+}
+
+/*
+ * bt_pattern_get_voice_event_data:
+ * @self: the pattern to search for the voice dparam
+ * @tick: the tick (time) position starting with 0
+ * @voice: the voice number starting with 0
+ * @param: the number of the voice parameter starting with 0
+ *
+ * Fetches a cell from the given location in the pattern
+ *
+ * Returns: the GValue or %NULL if out of the pattern range
+ */
+static GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param) {
+  gulong index;
+
+  g_assert(BT_IS_PATTERN(self));
+	g_return_val_if_fail(self->priv->data,NULL);
+
+  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
+  if(!(voice<self->priv->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
+  if(!(param<self->priv->voice_params)) { GST_ERROR("param beyond voice_ params");return(NULL); }
+
+  index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
+       +       self->priv->global_params+(voice*self->priv->voice_params)
+       +param;
+  return(&self->priv->data[index]);
+}
+
+/*
+ * bt_pattern_init_global_event:
+ * @self: the pattern that holds the cell
+ * @event: the pattern-cell to initialise
+ * @param: the index of the global dparam
+ *
+ * Initialises a pattern cell with the type of the n-th global param of the
+ * machine.
+ *
+ */
+static void bt_pattern_init_global_event(const BtPattern *self, GValue *event, gulong param) {
+  g_assert(BT_IS_PATTERN(self));
+
+  //GST_DEBUG("at %d",param);
+  g_value_init(event,bt_machine_get_global_param_type(self->priv->machine,param));
+  g_assert(G_IS_VALUE(event));
+}
+
+/*
+ * bt_pattern_init_voice_event:
+ * @self: the pattern that holds the cell
+ * @event: the pattern-cell to initialise
+ * @param: the index of the voice dparam
+ *
+ * Initialises a pattern cell with the type of the n-th voice param of the
+ * machine.
+ *
+ */
+static void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gulong param) {
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(G_IS_VALUE(event));
+
+  //GST_DEBUG("at %d",param);
+  g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));
+	g_assert(G_IS_VALUE(event));
+}
+
+
+/*
+ * bt_pattern_set_event:
+ * @self: the pattern the cell belongs to
+ * @event: the event cell
+ * @value: the string representation of the value to store
+ *
+ * Stores the supplied value into the given pattern cell.
+ *
+ * Returns: %TRUE for success
+ */
+static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar *value) {
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(G_IS_VALUE(event));
+  g_assert(value);
+
+  // depending on the type, set the GValue
+  switch(G_VALUE_TYPE(event)) {
+    case G_TYPE_DOUBLE: {
+      //gdouble val=atof(value); // this is dependend on the locale
+			gdouble val=g_ascii_strtod(value,NULL);
+      g_value_set_double(event,val);
+      GST_DEBUG("store double event %s",value);
+    } break;
+    case G_TYPE_INT: {
+			gint val=atoi(value);
+      g_value_set_int(event,val);
+      GST_DEBUG("store int event %s",value);
+    } break;
+    default:
+      GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
+      return(FALSE);
+  }
+  return(TRUE);
+}
+
+/*
+ * bt_pattern_get_event:
+ * @self: the pattern the cell belongs to
+ * @event: the event cell
+ *
+ * Returns the string representation of the given cell. Free it when done.
+ *
+ * Returns: a newly allocated string with the data or %NULL on error
+ */
+static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
+	gchar *res=NULL;
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(G_IS_VALUE(event));
+	
+  // depending on the type, set the result
+  switch(G_VALUE_TYPE(event)) {
+    case G_TYPE_DOUBLE:
+      res=g_strdup_printf("%lf",g_value_get_double(event));
+			break;
+    case G_TYPE_INT:
+			res=g_strdup_printf("%ld",g_value_get_int(event));
+			break;
+    default:
+      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
+      return(NULL);
+  }
+	return(res);
+}
+
 //-- constructor methods
 
 /**
@@ -218,57 +373,6 @@ BtPattern *bt_pattern_copy(const BtPattern *self) {
 //-- methods
 
 /**
- * bt_pattern_get_global_event_data:
- * @self: the pattern to search for the global dparam
- * @tick: the tick (time) position starting with 0
- * @param: the number of the global parameter starting with 0
- *
- * Fetches a cell from the given location in the pattern
- *
- * Returns: the GValue or %NULL if out of the pattern range
- */
-GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param) {
-  gulong index;
-
-  g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
-
-  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
-  if(!(param<self->priv->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
-
-  index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
-       + param;
-  return(&self->priv->data[index]);
-}
-
-/**
- * bt_pattern_get_voice_event_data:
- * @self: the pattern to search for the voice dparam
- * @tick: the tick (time) position starting with 0
- * @voice: the voice number starting with 0
- * @param: the number of the voice parameter starting with 0
- *
- * Fetches a cell from the given location in the pattern
- *
- * Returns: the GValue or %NULL if out of the pattern range
- */
-GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param) {
-  gulong index;
-
-  g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
-
-  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
-  if(!(voice<self->priv->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
-  if(!(param<self->priv->voice_params)) { GST_ERROR("param beyond voice_ params");return(NULL); }
-
-  index=(tick*(self->priv->global_params+self->priv->voices*self->priv->voice_params))
-       +       self->priv->global_params+(voice*self->priv->voice_params)
-       +param;
-  return(&self->priv->data[index]);
-}
-
-/**
  * bt_pattern_get_global_param_index:
  * @self: the pattern to search for the global dparam
  * @name: the name of the global dparam
@@ -290,12 +394,8 @@ gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *nam
 	ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
-		// set g_error
-		g_set_error (error,
-							 	g_quark_from_static_string("BtPattern"), 	/* error domain */
-								0,																				/* error code */
-								"global dparam for name %s not found",		/* error message format string */
-								name);
+		g_set_error (error, error_domain, /* errorcode= */0,
+							 	"global dparam for name %s not found", name);
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);
@@ -323,117 +423,106 @@ gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name
 	ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
-		// set g_error
-		g_set_error (error,
-							 	g_quark_from_static_string("BtPattern"), 	/* error domain */
-								0,																				/* error code */
-								"voice dparam for name %s not found",			/* error message format string */
-								name);
+		g_set_error (error, error_domain, /* errorcode= */0,
+								"voice dparam for name %s not found", name);
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);
 }
 
-
 /**
- * bt_pattern_init_global_event:
- * @self: the pattern that holds the cell
- * @event: the pattern-cell to initialise
- * @param: the index of the global dparam
- *
- * Initialises a pattern cell with the type of the n-th global param of the
- * machine.
- *
- */
-void bt_pattern_init_global_event(const BtPattern *self, GValue *event, gulong param) {
-  g_assert(BT_IS_PATTERN(self));
-
-  //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_machine_get_global_param_type(self->priv->machine,param));
-  g_assert(G_IS_VALUE(event));
-}
-
-/**
- * bt_pattern_init_voice_event:
- * @self: the pattern that holds the cell
- * @event: the pattern-cell to initialise
- * @param: the index of the voice dparam
- *
- * Initialises a pattern cell with the type of the n-th voice param of the
- * machine.
- *
- */
-void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gulong param) {
-  g_assert(BT_IS_PATTERN(self));
-  g_assert(G_IS_VALUE(event));
-
-  //GST_DEBUG("at %d",param);
-  g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));
-}
-
-
-/**
- * bt_pattern_set_event:
+ * bt_pattern_set_global_event:
  * @self: the pattern the cell belongs to
- * @event: the event cell
+ * @tick: the tick (time) position starting with 0
+ * @param: the number of the global parameter starting with 0
  * @value: the string representation of the value to store
  *
- * Stores the supplied value into the given pattern cell.
+ * Stores the supplied value into the specified pattern cell.
  *
  * Returns: %TRUE for success
  */
-gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar *value) {
-  g_assert(BT_IS_PATTERN(self));
-  g_assert(G_IS_VALUE(event));
-  g_assert(value);
+gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong param, const gchar *value) {
+	GValue *event;
 
-  // depending on the type, set the GValue
-  switch(G_VALUE_TYPE(event)) {
-    case G_TYPE_DOUBLE: {
-      //gdouble val=atof(value); // this is dependend on the locale
-			gdouble val=g_ascii_strtod(value,NULL);
-      g_value_set_double(event,val);
-      GST_DEBUG("store double event %s",value);
-    } break;
-    case G_TYPE_INT: {
-			gint val=atoi(value);
-      g_value_set_int(event,val);
-      GST_DEBUG("store int event %s",value);
-    } break;
-    default:
-      GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
-      return(FALSE);
-  }
-  return(TRUE);
+	/* @todo update GstController
+	foreach(pattern usage in sequence) {
+		timestamp=???;
+		bt_machine_set_global_event(self->priv->machine,timestamp,param,value);
+	}
+	*/
+	if((event=bt_pattern_get_global_event_data(self,tick,param))) {
+		if(!G_IS_VALUE(event)) {
+			bt_pattern_init_global_event(self,event,param);
+		}
+		bt_pattern_set_event(self,event,value);
+		return(TRUE);
+	}
+	return(FALSE);
 }
 
 /**
- * bt_pattern_get_event:
+ * bt_pattern_set_voice_event:
  * @self: the pattern the cell belongs to
- * @event: the event cell
+ * @tick: the tick (time) position starting with 0
+ * @voice: the voice number starting with 0
+ * @param: the number of the global parameter starting with 0
+ * @value: the string representation of the value to store
  *
- * Returns the string representation of the given cell. Free it when done.
+ * Stores the supplied value into the specified pattern cell.
  *
- * Returns: a newly allocated string with teh data or %NULL on error
+ * Returns: %TRUE for success
  */
-gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
-	gchar *res=NULL;
-  g_assert(BT_IS_PATTERN(self));
-  g_assert(G_IS_VALUE(event));
-	
-  // depending on the type, set the result
-  switch(G_VALUE_TYPE(event)) {
-    case G_TYPE_DOUBLE:
-      res=g_strdup_printf("%lf",g_value_get_double(event));
-			break;
-    case G_TYPE_INT:
-			res=g_strdup_printf("%ld",g_value_get_int(event));
-			break;
-    default:
-      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
-      return(NULL);
-  }
-	return(res);
+gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value) {
+	GValue *event;
+
+	// @todo update GstController
+	if((event=bt_pattern_get_voice_event_data(self,tick,voice, param))) {
+		if(!G_IS_VALUE(event)) {
+			bt_pattern_init_global_event(self,event,param);
+		}
+		bt_pattern_set_event(self,event,value);
+		return(TRUE);
+	}
+	return(FALSE);
+}
+
+/**
+ * bt_pattern_get_global_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @param: the number of the global parameter starting with 0
+ *
+ * Returns the string representation of the specified cell. Free it when done.
+ *
+ * Returns: a newly allocated string with the data or %NULL on error
+ */
+gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong param) {
+	GValue *event;
+
+	if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
+		return(bt_pattern_get_event(self,event));
+	}
+	return(NULL);
+}
+
+/**
+ * bt_pattern_get_voice_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @voice: the voice number starting with 0
+ * @param: the number of the global parameter starting with 0
+ *
+ * Returns the string representation of the specified cell. Free it when done.
+ *
+ * Returns: a newly allocated string with the data or %NULL on error
+ */
+gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param) {
+	GValue *event;
+
+	if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
+		return(bt_pattern_get_event(self,event));
+	}
+	return(NULL);
 }
 
 /**
@@ -638,6 +727,8 @@ static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_pattern_class_init(BtPatternClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
+	error_domain=g_quark_from_static_string("BtPattern");
+	
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
 
   gobject_class->set_property = bt_pattern_set_property;

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.62 2005-04-30 13:14:14 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.63 2005-04-30 17:50:58 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -119,6 +119,34 @@ static on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_
 	gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_MENU_LABEL,str,-1);
 
 	g_free(str);
+}
+
+static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+	gboolean res=FALSE;
+	
+  g_assert(user_data);
+	
+	GST_INFO("pattern_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+	if(event->keyval==GDK_Return) {	/* GDK_KP_Enter */
+		BtMainWindow *main_window;
+		BtMainPages *pages;
+		//BtMainPageSequence *sequence_page;
+
+		g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+		g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+		//g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+	
+		gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+		//bt_main_page_sequence_goto_???(sequence_page,pattern);
+
+		//g_object_try_unref(sequence_page);
+		g_object_try_unref(pages);
+		g_object_try_unref(main_window);
+
+		res=TRUE;
+	}
+	return(res);
 }
 
 static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
@@ -258,7 +286,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   GtkListStore *store;
   GType *store_types;
 	GtkTreeIter tree_iter;
-	GValue *value;
 	gchar *str;
 	//GParamSpec *pspec;
   GtkTreeViewColumn *tree_col;
@@ -274,6 +301,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 		g_object_get(G_OBJECT(machine),"global-params",&number_of_global_params,NULL);
 	  GST_DEBUG("  size is %2d,%2d",number_of_ticks,number_of_global_params);
 
+		// @todo include voice params
+		
 		// build model
 		GST_DEBUG("  build model");
 		col_ct=1+number_of_global_params;
@@ -292,17 +321,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 				PATTERN_TABLE_POS,pos,
 				-1);
 			for(j=0;j<number_of_global_params;j++) {
-				if((value=bt_pattern_get_global_event_data(pattern,i,j))) {
-					if(G_IS_VALUE(value)) {
-						str=g_strdup_value_contents(value);
-						gtk_list_store_set(store,&tree_iter,
-							PATTERN_TABLE_PRE_CT+j,str,
-							-1);
-						g_free(str);
-					}
-					else {
-						GST_WARNING("pattern[%2d,%2d]=%p is not a GValue*",i,j,value);
-					}
+				if((str=bt_pattern_get_global_event(pattern,i,j))) {
+					gtk_list_store_set(store,&tree_iter,
+						PATTERN_TABLE_PRE_CT+j,str,
+						-1);
+					g_free(str);
 				}
 			}
 			pos++;
@@ -764,6 +787,9 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_container_add(GTK_CONTAINER(self),scrolled_window);
+  //g_signal_connect(G_OBJECT(self->priv->pattern_table), "move-cursor", G_CALLBACK(on_pattern_table_move_cursor), (gpointer)self);
+  //g_signal_connect(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
+	g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
 	g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
 
 	GST_DEBUG("  before context menu",self);
@@ -947,6 +973,8 @@ void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern
 	g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 	gtk_combo_box_set_active(self->priv->pattern_menu,g_list_index(list,pattern));
 	g_list_free(list);
+	// focus pattern editor
+	gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   // release the references
 	g_object_try_unref(machine);
   g_object_try_unref(setup);
