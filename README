@@ -1,4 +1,4 @@
-$Id: README,v 1.12 2005-04-30 17:50:51 ensonic Exp $
+$Id: README,v 1.13 2005-05-03 22:13:11 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -44,7 +44,7 @@ online help: (as root)
 devhelp:
   export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztard/share/gtk-doc/html"
 pkg-config:
-  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig:
+  export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig"
     
 = running unit tests =
 in one console enter
