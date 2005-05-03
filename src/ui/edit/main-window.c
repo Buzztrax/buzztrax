@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.58 2005-04-28 20:44:30 ensonic Exp $
+/* $Id: main-window.c,v 1.59 2005-05-03 15:15:20 ensonic Exp $
  * class for the editor main window
  */
 
@@ -36,6 +36,12 @@ struct _BtMainWindowPrivate {
 };
 
 static GtkWindowClass *parent_class=NULL;
+
+enum { TARGET_URI_LIST };
+static GtkTargetEntry drop_types[] = {
+   { "text/uri-list", 0, TARGET_URI_LIST }
+};
+static gint n_drop_types = sizeof(drop_types) / sizeof(GtkTargetEntry);
 
 //-- event handler
 
@@ -99,6 +105,29 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(song);
 }
 
+static void on_winodw_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
+	BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+	glong i=0;
+	gchar *ptr=selection_data->data;
+
+  g_assert(user_data);
+
+  GST_INFO("something has been dropped on our app: window=%p data='%s'",user_data,selection_data->data);
+	// find first \0 or \n or \r
+	while((*ptr) && (*ptr!='\n') && (*ptr!='\r')) {
+		*ptr++;i++;
+	}
+	if(i) {
+		gchar *file_name=g_strndup(selection_data->data,i);
+		if(!bt_edit_application_load_song(self->priv->app,file_name)) {
+			gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
+			bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
+			g_free(msg);
+    }
+    g_free(file_name);
+	}
+}
+
 //-- helper methods
 
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
@@ -134,6 +163,11 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->statusbar),FALSE,FALSE,0);
 
   gtk_window_add_accel_group(GTK_WINDOW(self),self->priv->accel_group);
+
+	gtk_drag_dest_set(GTK_WIDGET(self),
+		(GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP),
+		drop_types, n_drop_types, GDK_ACTION_COPY);
+  g_signal_connect(G_OBJECT(self), "drag_data_received", G_CALLBACK(on_winodw_dnd_drop),(gpointer)self);
 
 	GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 	
@@ -274,7 +308,7 @@ void bt_main_window_new_song(const BtMainWindow *self) {
 void bt_main_window_open_song(const BtMainWindow *self) {
   GtkWidget *dialog=gtk_file_selection_new(_("Open a song"));
   gint result;
-  char *file_name=NULL;
+  gchar *file_name=NULL;
     
   // set a default file_name
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
@@ -313,7 +347,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
 void bt_main_window_save_song(const BtMainWindow *self) {
 	BtSong *song;
 	BtSongInfo *song_info;
-  char *file_name=NULL;
+  gchar *file_name=NULL;
 
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);

@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.21 2005-04-25 15:27:08 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.22 2005-05-03 15:15:20 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -147,7 +147,7 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
 		g_object_get(wavetable,"waves",&waves,NULL);
     wave=BT_WAVE(g_list_nth_data(waves,id));
 		g_list_free(waves);
-		wavelevels_list_refresh(self,wave);
+		if(wave) wavelevels_list_refresh(self,wave);
 		g_object_try_unref(wavetable);
   	g_object_try_unref(song);
   }

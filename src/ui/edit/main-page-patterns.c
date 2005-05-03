@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.63 2005-04-30 17:50:58 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.64 2005-05-03 15:15:20 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -22,6 +22,10 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *machine_menu;
   /* pattern selection menu */
   GtkComboBox *pattern_menu;
+  /* wavetable selection menu */
+  GtkComboBox *wavetable_menu;
+  /* base octave selection menu */
+  GtkComboBox *base_octave_menu;
 
 	/* the pattern table */
   GtkTreeView *pattern_table;
@@ -245,6 +249,25 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
 	gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->pattern_menu,((pattern!=NULL)?index:-1));
+	g_object_unref(store); // drop with comboxbox
+}
+
+static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
+	BtWave *wave=NULL;
+  GList *node,*list;
+  gchar *str;
+	GtkListStore *store;
+	GtkTreeIter menu_iter;
+	gint index=-1;
+
+  // update pattern menu
+  store=gtk_list_store_new(2,G_TYPE_STRING,BT_TYPE_WAVE);
+	
+	// @todo scan wavetable list for waves
+	
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->wavetable_menu),(wave!=NULL));
+	gtk_combo_box_set_model(self->priv->wavetable_menu,GTK_TREE_MODEL(store));
+  gtk_combo_box_set_active(self->priv->wavetable_menu,((wave!=NULL)?index:-1));
 	g_object_unref(store); // drop with comboxbox
 }
 
@@ -543,6 +566,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update page
   machine_menu_refresh(self,setup);
   //pattern_menu_refresh(self); // should be triggered by machine_menu_refresh()
+	wavetable_menu_refresh(self);
 	g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
 	g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   // release the references
@@ -713,6 +737,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	GtkWidget *menu_item,*image;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *tree_sel;
+	gint i;
 	
 	GST_DEBUG("!!!! self=%p",self);
 	
@@ -769,9 +794,50 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_widget_set_name(button,_("Pattern"));
   gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 
-  // @todo add wavetable entry select
-  // @todo add base octave (0-8)
-  // @todo add play notes ?
+  // add wavetable entry select
+	box=gtk_hbox_new(FALSE,2);
+  gtk_container_set_border_width(GTK_CONTAINER(box),4);
+	self->priv->wavetable_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+	renderer=gtk_cell_renderer_text_new();
+	gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,TRUE);
+	gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->wavetable_menu),renderer,"text", 0,NULL);
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Wave")),FALSE,FALSE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->wavetable_menu),TRUE,TRUE,2);
+	//self->priv->wavetable_menu_changed=g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
+
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                box,
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Wave"));
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
+	// add base octave (0-8)
+	box=gtk_hbox_new(FALSE,2);
+  gtk_container_set_border_width(GTK_CONTAINER(box),4);
+	self->priv->base_octave_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+	for(i=0;i<8;i++) {
+		gtk_combo_box_append_text(self->priv->base_octave_menu,g_strdup_printf("%1d",i));
+	}
+	gtk_combo_box_set_active(self->priv->base_octave_menu,3);
+  gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Octave")),FALSE,FALSE,2);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->base_octave_menu),TRUE,TRUE,2);
+	//g_signal_connect(G_OBJECT(self->priv->base_octave_menu), "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
+
+  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
+                                GTK_TOOLBAR_CHILD_WIDGET,
+                                box,
+                                NULL,
+                                NULL,NULL,
+                                NULL,NULL,NULL);
+  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
+  gtk_widget_set_name(button,_("Octave"));
+  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+
+  // @todo add play notes checkbox ?
   
 	
 	// @idea what about adding one control for global params and one for each voice, then these controls can be folded

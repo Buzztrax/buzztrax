@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.68 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: setup.c,v 1.69 2005-05-03 15:15:01 ensonic Exp $
  * class for machine and wire setup
  */
  
@@ -25,19 +25,19 @@ enum {
 
 enum {
   SETUP_SONG=1,
-	SETUP_MACHINES,
-	SETUP_WIRES,
+  SETUP_MACHINES,
+  SETUP_WIRES,
 };
 
 struct _BtSetupPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-	
-	/* the song the setup belongs to */
-	BtSong *song;
-	
-	GList *machines;	// each entry points to BtMachine
-	GList *wires;			// each entry points to BtWire
+  
+  /* the song the setup belongs to */
+  BtSong *song;
+  
+  GList *machines;  // each entry points to BtMachine
+  GList *wires;      // each entry points to BtWire
 };
 
 static GObjectClass *parent_class=NULL;
@@ -57,7 +57,7 @@ static guint signals[LAST_SIGNAL]={0,};
 BtSetup *bt_setup_new(const BtSong *song) {
   BtSetup *self;
 
-	g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
   self=BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL));
   return(self);
@@ -79,20 +79,20 @@ BtSetup *bt_setup_new(const BtSong *song) {
  * Returns: the #BtWire or %NULL 
  */
 static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMachine *machine, const gchar *type) {
-	gboolean found=FALSE;
-	BtWire *wire=NULL;
+  gboolean found=FALSE;
+  BtWire *wire=NULL;
   BtMachine *search_machine;
-	GList *node;
-	 
-	for(node=self->priv->wires;node;node=g_list_next(node)) {
-		wire=BT_WIRE(node->data);
+  GList *node;
+   
+  for(node=self->priv->wires;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
-		if(search_machine==machine) found=TRUE;
+    if(search_machine==machine) found=TRUE;
     g_object_try_unref(search_machine);
     if(found) return(g_object_ref(wire));
-	}
-	GST_DEBUG("no wire found for %s-machine %p",type,machine);
-	return(NULL);
+  }
+  GST_DEBUG("no wire found for %s-machine %p",type,machine);
+  return(NULL);
 }
 
 /**
@@ -107,19 +107,19 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup *self,const BtMac
  * Returns: a #GList with the #BtWires or %NULL 
  */
 static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMachine *machine, const gchar *type) {
-	GList *wires=NULL,*node;
-	BtWire *wire=NULL;
+  GList *wires=NULL,*node;
+  BtWire *wire=NULL;
   BtMachine *search_machine;
-	
-	for(node=self->priv->wires;node;node=g_list_next(node)) {
-		wire=BT_WIRE(node->data);
+  
+  for(node=self->priv->wires;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
-		if(search_machine==machine) {
-			wires=g_list_prepend(wires,g_object_ref(wire));
-		}
+    if(search_machine==machine) {
+      wires=g_list_prepend(wires,g_object_ref(wire));
+    }
     g_object_try_unref(search_machine);
-	}
-	return(wires);
+  }
+  return(wires);
 }
 
 //-- public methods
@@ -138,21 +138,21 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMac
  * machine is currently added to the setup.
  */
 gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
-	gboolean ret=FALSE;
-	
-	g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
-	g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
+  gboolean ret=FALSE;
+  
+  g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
+  g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
   if(!g_list_find(self->priv->machines,machine)) {
-		ret=TRUE;
+    ret=TRUE;
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
-		g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
-		bt_song_set_unsaved(self->priv->song,TRUE);
+    g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
+    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to add machine again"); 
   }
-	return ret;
+  return ret;
 }
 
 /**
@@ -171,34 +171,34 @@ gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
 
  */
 gboolean bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
-	gboolean ret=FALSE;
-	
-	g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
-	g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
+  gboolean ret=FALSE;
+  
+  g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
+  g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
 
   if(!g_list_find(self->priv->wires,wire)) {
-		BtMachine *src,*dst;
-		BtWire *other_wire1,*other_wire2;
-		
-		// check for wires with equal src and dst machines 
-		g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
-		other_wire1=bt_setup_get_wire_by_machines(self,src,dst);
-		other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
-		if((!other_wire1) && (!other_wire2)) {
-			ret=TRUE;
-	    self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
-			g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
-			bt_song_set_unsaved(self->priv->song,TRUE);
-		}
-		g_object_try_unref(other_wire1);
-		g_object_try_unref(other_wire2);
-		g_object_try_unref(src);
-		g_object_try_unref(dst);
+    BtMachine *src,*dst;
+    BtWire *other_wire1,*other_wire2;
+    
+    // check for wires with equal src and dst machines 
+    g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
+    other_wire1=bt_setup_get_wire_by_machines(self,src,dst);
+    other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
+    if((!other_wire1) && (!other_wire2)) {
+      ret=TRUE;
+      self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+      g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
+      bt_song_set_unsaved(self->priv->song,TRUE);
+    }
+    g_object_try_unref(other_wire1);
+    g_object_try_unref(other_wire2);
+    g_object_try_unref(src);
+    g_object_try_unref(dst);
   }
   else {
     GST_WARNING("trying to add wire again"); 
   }
-	return ret;
+  return ret;
 }
 
 /**
@@ -209,15 +209,15 @@ gboolean bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
  * Let the setup know that the suplied machine is removed from the song.
  */
 void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
-	g_return_if_fail(BT_IS_SETUP(self));
-	g_return_if_fail(BT_IS_MACHINE(machine));
+  g_return_if_fail(BT_IS_SETUP(self));
+  g_return_if_fail(BT_IS_MACHINE(machine));
 
   if(g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_remove(self->priv->machines,machine);
-		g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
-		g_object_unref(G_OBJECT(machine));
-		bt_song_set_unsaved(self->priv->song,TRUE);
-	}
+    g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
+    g_object_unref(G_OBJECT(machine));
+    bt_song_set_unsaved(self->priv->song,TRUE);
+  }
   else {
     GST_WARNING("trying to remove machine that is not in setup"); 
   }
@@ -231,14 +231,14 @@ void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
  * Let the setup know that the suplied wire is removed from the song.
  */
 void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
-	g_return_if_fail(BT_IS_SETUP(self));
-	g_return_if_fail(BT_IS_WIRE(wire));
+  g_return_if_fail(BT_IS_SETUP(self));
+  g_return_if_fail(BT_IS_WIRE(wire));
 
   if(g_list_find(self->priv->wires,wire)) {
     self->priv->wires=g_list_remove(self->priv->wires,wire);
-		g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
-		g_object_unref(G_OBJECT(wire));
-		bt_song_set_unsaved(self->priv->song,TRUE);
+    g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
+    g_object_unref(G_OBJECT(wire));
+    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to remove wire that is not in setup"); 
@@ -258,47 +258,47 @@ void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
  */
 BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   gboolean found=FALSE;
-	BtMachine *machine;
+  BtMachine *machine;
   gchar *machine_id;
-	GList* node;
+  GList* node;
 
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	g_return_val_if_fail(is_string(id),NULL);
-	
-	/*
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(is_string(id),NULL);
+  
+  /*
     find_by_property(gpointer item,gpointer data) {
       GValue value;
-	    g_object_get_property(item,data.key,&value);
-	    //a) compare via strcmp(find_by_property(value),find_by_property(data.compare_value));
-	    //b) switch(g_value_get_type(value)) {
-	    //     G_TYPE_STRING: strcmp(value,data.compare_value);
-	    //     default: value==data.compare_value;
-	    //   }
-		  //-> what about: gst_value_compare()
-		  //-> what about: g_param_values_cmp()
-    }	
-	 
-	  struct {
-	   gchar *key;
-	   GValue compare_value;
-	  } data;
-	  g_value_init(data.compare_value, G_TYPE_STRING);
-	  g_value_set_string(data.compare_value,id);
-	  data.key="id";
-	 
-	  node = g_list_find_custom(self->priv->machines, data, find_by_property);
-	  if(node) return(BT_MACHINE(node->data);
-	*/
-	
-	for(node=self->priv->machines;node;node=g_list_next(node)) {
-		machine=BT_MACHINE(node->data);
+      g_object_get_property(item,data.key,&value);
+      //a) compare via strcmp(find_by_property(value),find_by_property(data.compare_value));
+      //b) switch(g_value_get_type(value)) {
+      //     G_TYPE_STRING: strcmp(value,data.compare_value);
+      //     default: value==data.compare_value;
+      //   }
+      //-> what about: gst_value_compare()
+      //-> what about: g_param_values_cmp()
+    }  
+   
+    struct {
+     gchar *key;
+     GValue compare_value;
+    } data;
+    g_value_init(data.compare_value, G_TYPE_STRING);
+    g_value_set_string(data.compare_value,id);
+    data.key="id";
+   
+    node = g_list_find_custom(self->priv->machines, data, find_by_property);
+    if(node) return(BT_MACHINE(node->data);
+  */
+  
+  for(node=self->priv->machines;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
-		if(!strcmp(machine_id,id)) found=TRUE;
+    if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
     if(found) return(g_object_ref(machine));
-	}
-	GST_DEBUG("no machine found for id \"%s\"",id);
-	return(NULL);
+  }
+  GST_DEBUG("no machine found for id \"%s\"",id);
+  return(NULL);
 }
 
 /**
@@ -313,9 +313,9 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
  * Returns: #BtMachine instance or %NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	
-	return(g_object_ref(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index))));
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  
+  return(g_object_ref(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index))));
 }
 
 /**
@@ -330,19 +330,19 @@ BtMachine *bt_setup_get_machine_by_index(const BtSetup *self, gulong index) {
  * Returns: #BtMachine instance or %NULL if not found
  */
 BtMachine *bt_setup_get_machine_by_type(const BtSetup *self, GType type) {
-	BtMachine *machine;
-	GList *node;
+  BtMachine *machine;
+  GList *node;
 
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
 
-	for(node=self->priv->machines;node;node=g_list_next(node)) {
-		machine=BT_MACHINE(node->data);
-		if(G_OBJECT_TYPE(machine)==type) {
-			return(g_object_ref(machine));
-		}
-	}
-	GST_DEBUG("no machine found for this type");
-	return(NULL);
+  for(node=self->priv->machines;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+    if(G_OBJECT_TYPE(machine)==type) {
+      return(g_object_ref(machine));
+    }
+  }
+  GST_DEBUG("no machine found for this type");
+  return(NULL);
 }
 
 /**
@@ -356,18 +356,18 @@ BtMachine *bt_setup_get_machine_by_type(const BtSetup *self, GType type) {
  * Returns: the list instance or %NULL if not found
  */
 GList *bt_setup_get_machines_by_type(const BtSetup *self, GType type) {
-	BtMachine *machine;
-	GList *machines=NULL,*node;
+  BtMachine *machine;
+  GList *machines=NULL,*node;
 
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
 
-	for(node=self->priv->machines;node;node=g_list_next(node)) {
-		machine=BT_MACHINE(node->data);
-		if(G_OBJECT_TYPE(machine)==type) {
-			machines=g_list_prepend(machines,g_object_ref(machine));
-		}
-	}
-	return(machines);
+  for(node=self->priv->machines;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+    if(G_OBJECT_TYPE(machine)==type) {
+      machines=g_list_prepend(machines,g_object_ref(machine));
+    }
+  }
+  return(machines);
 }
 
  
@@ -383,9 +383,9 @@ GList *bt_setup_get_machines_by_type(const BtSetup *self, GType type) {
  * Returns: the #BtWire or %NULL 
  */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *src) {
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
-	return(bt_setup_get_wire_by_machine_type(self,src,"src"));
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
+  return(bt_setup_get_wire_by_machine_type(self,src,"src"));
 }
 
 /**
@@ -400,9 +400,9 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup *self,const BtMachine *sr
  * Returns: the #BtWire or %NULL 
  */
 BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
-	return(bt_setup_get_wire_by_machine_type(self,dst,"dst"));
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+  return(bt_setup_get_wire_by_machine_type(self,dst,"dst"));
 }
 
 /**
@@ -418,25 +418,25 @@ BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *self,const BtMachine *ds
  * Returns: the #BtWire or NULL
  */
 BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,const BtMachine *dst) {
-	gboolean found=FALSE;
-	BtWire *wire=NULL;
+  gboolean found=FALSE;
+  BtWire *wire=NULL;
   BtMachine *src_machine,*dst_machine;
-	GList *node;
+  GList *node;
 
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
-	g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
-	 
-	for(node=self->priv->wires;node;node=g_list_next(node)) {
-		wire=BT_WIRE(node->data);
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+   
+  for(node=self->priv->wires;node;node=g_list_next(node)) {
+    wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
-		if((src_machine==src) && (dst_machine==dst))found=TRUE;
+    if((src_machine==src) && (dst_machine==dst))found=TRUE;
     g_object_try_unref(src_machine);
-		g_object_try_unref(dst_machine);
+    g_object_try_unref(dst_machine);
     if(found) return(g_object_ref(wire));
-	}
-	GST_DEBUG("no wire found for machines %p %p",src,dst);
-	return(NULL);
+  }
+  GST_DEBUG("no wire found for machines %p %p",src,dst);
+  return(NULL);
 }
 
 /**
@@ -450,9 +450,9 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup *self,const BtMachine *src,c
  * Returns: a #GList with the #BtWires or %NULL 
  */
 GList *bt_setup_get_wires_by_src_machine(const BtSetup *self,const BtMachine *src) {
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
-	return(bt_setup_get_wires_by_machine_type(self,src,"src"));
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
+  return(bt_setup_get_wires_by_machine_type(self,src,"src"));
 }
 
 /**
@@ -466,9 +466,9 @@ GList *bt_setup_get_wires_by_src_machine(const BtSetup *self,const BtMachine *sr
  * Returns: a #GList with the #BtWires or %NULL 
  */
 GList *bt_setup_get_wires_by_dst_machine(const BtSetup *self,const BtMachine *dst) {
-	g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-	g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
-	return(bt_setup_get_wires_by_machine_type(self,dst,"dst"));
+  g_return_val_if_fail(BT_IS_SETUP(self),NULL);
+  g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
+  return(bt_setup_get_wires_by_machine_type(self,dst,"dst"));
 }
 
 /**
@@ -482,26 +482,26 @@ GList *bt_setup_get_wires_by_dst_machine(const BtSetup *self,const BtMachine *ds
  * Returns: the newly allocated unique name
  */
 gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
-	BtMachine *machine;
-	gchar *id,*ptr;
-	guint8 i=0;
-	
-	if(!(machine=bt_setup_get_machine_by_id(self,base_name))) {
-		return(g_strdup(base_name));
-	}
-	else {
-		g_object_unref(machine);
-		machine=NULL;
-	}
+  BtMachine *machine;
+  gchar *id,*ptr;
+  guint8 i=0;
+  
+  if(!(machine=bt_setup_get_machine_by_id(self,base_name))) {
+    return(g_strdup(base_name));
+  }
+  else {
+    g_object_unref(machine);
+    machine=NULL;
+  }
 
-	id=g_strdup_printf("%s 00",base_name);
-	ptr=&id[strlen(base_name)+1];
-	do {
-		(void)g_sprintf(ptr,"%02u",i++);
-		g_object_try_unref(machine);
-	} while((machine=bt_setup_get_machine_by_id(self,id)) && (i<100));
-	g_object_try_unref(machine);
-	return(id);
+  id=g_strdup_printf("%s 00",base_name);
+  ptr=&id[strlen(base_name)+1];
+  do {
+    (void)g_sprintf(ptr,"%02u",i++);
+    g_object_try_unref(machine);
+  } while((machine=bt_setup_get_machine_by_id(self,id)) && (i<100));
+  g_object_try_unref(machine);
+  return(id);
 }
 
 //-- wrapper
@@ -520,12 +520,12 @@ static void bt_setup_get_property(GObject      *object,
     case SETUP_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
-		case SETUP_MACHINES: {
-			g_value_set_pointer(value,g_list_copy(self->priv->machines));
-		} break;
-		case SETUP_WIRES: {
-			g_value_set_pointer(value,g_list_copy(self->priv->wires));
-		} break;
+    case SETUP_MACHINES: {
+      g_value_set_pointer(value,g_list_copy(self->priv->machines));
+    } break;
+    case SETUP_WIRES: {
+      g_value_set_pointer(value,g_list_copy(self->priv->wires));
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -555,32 +555,32 @@ static void bt_setup_set_property(GObject      *object,
 
 static void bt_setup_dispose(GObject *object) {
   BtSetup *self = BT_SETUP(object);
-	GList* node;
+  GList* node;
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_weak_unref(self->priv->song);
-	// unref list of wires
-	if(self->priv->wires) {
-		for(node=self->priv->wires;node;node=g_list_next(node)) {
+  g_object_try_weak_unref(self->priv->song);
+  // unref list of wires
+  if(self->priv->wires) {
+    for(node=self->priv->wires;node;node=g_list_next(node)) {
       GObject *obj=node->data;
       GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
       g_object_try_unref(node->data);
       node->data=NULL;
-		}
-	}
-	// unref list of machines
-	if(self->priv->machines) {
-		for(node=self->priv->machines;node;node=g_list_next(node)) {
+    }
+  }
+  // unref list of machines
+  if(self->priv->machines) {
+    for(node=self->priv->machines;node;node=g_list_next(node)) {
       GObject *obj=node->data;
       GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
-			g_object_try_unref(node->data);
+      g_object_try_unref(node->data);
       node->data=NULL;
-		}
-	}
+    }
+  }
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -592,15 +592,15 @@ static void bt_setup_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	// free list of wires
-	if(self->priv->wires) {
-		g_list_free(self->priv->wires);
-		self->priv->wires=NULL;
-	}
-	// free list of machines
-	if(self->priv->machines) {
-		g_list_free(self->priv->machines);
-		self->priv->wires=NULL;
+  // free list of wires
+  if(self->priv->wires) {
+    g_list_free(self->priv->wires);
+    self->priv->wires=NULL;
+  }
+  // free list of machines
+  if(self->priv->machines) {
+    g_list_free(self->priv->machines);
+    self->priv->wires=NULL;
   }
   g_free(self->priv);
 
@@ -629,14 +629,14 @@ static void bt_setup_class_init(BtSetupClass *klass) {
   klass->wire_added_event = NULL;
   klass->machine_removed_event = NULL;
   klass->wire_removed_event = NULL;
-	
+  
   /** 
-	 * BtSetup::machine-added:
+   * BtSetup::machine-added:
    * @self: the setup object that emitted the signal
    * @machine: the new machine
-	 *
-	 * A new machine item has been added to the setup
-	 */
+   *
+   * A new machine item has been added to the setup
+   */
   signals[MACHINE_ADDED_EVENT] = g_signal_new("machine-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -650,12 +650,12 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                         );
 
   /** 
-	 * BtSetup::wire-added:
+   * BtSetup::wire-added:
    * @self: the setup object that emitted the signal
    * @wire: the new wire
-	 *
-	 * A new wire item has been added to the setup
-	 */
+   *
+   * A new wire item has been added to the setup
+   */
   signals[WIRE_ADDED_EVENT] = g_signal_new("wire-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -669,12 +669,12 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                         );
 
   /**
-	 * BtSetup::machine-removed:
+   * BtSetup::machine-removed:
    * @self: the setup object that emitted the signal
    * @machine: the old machine
-	 *
-	 * A machine item has been removed from the setup
-	 */
+   *
+   * A machine item has been removed from the setup
+   */
   signals[MACHINE_REMOVED_EVENT] = g_signal_new("machine-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -686,14 +686,14 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                         1, // n_params
                                         BT_TYPE_MACHINE // param data
                                         );
-	
+  
   /** 
-	 * BtSetup::wire-removed:
+   * BtSetup::wire-removed:
    * @self: the setup object that emitted the signal
    * @wire: the old wire
-	 *
-	 * A wire item has been removed from the setup
-	 */
+   *
+   * A wire item has been removed from the setup
+   */
   signals[WIRE_REMOVED_EVENT] = g_signal_new("wire-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -706,20 +706,20 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                         BT_TYPE_WIRE // param data
                                         );
 
-	g_object_class_install_property(gobject_class,SETUP_SONG,
+  g_object_class_install_property(gobject_class,SETUP_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the setup belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,SETUP_MACHINES,
+  g_object_class_install_property(gobject_class,SETUP_MACHINES,
                                   g_param_spec_pointer("machines",
                                      "machine list prop",
                                      "A copy of the list of machines",
                                      G_PARAM_READABLE));
 
-	g_object_class_install_property(gobject_class,SETUP_WIRES,
+  g_object_class_install_property(gobject_class,SETUP_WIRES,
                                   g_param_spec_pointer("wires",
                                      "wire list prop",
                                      "A copy of the list of wires",
@@ -738,10 +738,10 @@ GType bt_setup_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSetup),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_setup_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_setup_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSetup",&info,0);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtSetup",&info,0);
   }
   return type;
 }
