@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.2 2005-04-15 17:05:11 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.3 2005-05-03 19:33:53 waffel Exp $
  * core library unit tests
  */
 
@@ -20,6 +20,7 @@ extern Suite *bt_song_info_suite(void);
 extern Suite *bt_source_machine_suite(void);
 extern Suite *bt_timeline_suite(void);
 extern Suite *bt_wire_suite(void);
+extern Suite *bt_settings_suite(void);
 
 guint test_argc=1;
 gchar *test_arg0="check_buzzard";
@@ -55,6 +56,7 @@ int main(int argc, char **argv) {
 	srunner_add_suite(sr, bt_source_machine_suite());
 	srunner_add_suite(sr, bt_timeline_suite());
 	srunner_add_suite(sr, bt_wire_suite());
+	srunner_add_suite(sr, bt_settings_suite());
   // this make tracing errors with gdb easier
   //srunner_set_fork_status(sr,CK_NOFORK);
 	srunner_run_all(sr,CK_NORMAL);
