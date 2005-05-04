@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.44 2005-04-28 12:35:02 ensonic Exp $
+# $Id: configure.ac,v 1.45 2005-05-04 15:14:56 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -55,12 +55,12 @@ AC_SUBST(localedir)
 AC_PATH_PROG(PROG_ACLOCAL, aclocal, no)
 AC_MSG_CHECKING(where to install .m4 files to)
 if test "$PROG_ACLOCAL" = "no" ; then
-	acdir=${datadir}/aclocal
+  acdir=${datadir}/aclocal
 else
-	acdir=`$PROG_ACLOCAL --print-ac-dir`
-	if test ! -w "$acdir" ; then
-		acdir=${datadir}/aclocal
-	fi
+  acdir=`$PROG_ACLOCAL --print-ac-dir`
+  if test ! -w "$acdir" ; then
+    acdir=${datadir}/aclocal
+  fi
 fi
 AC_MSG_RESULT($acdir)
 AC_SUBST(acdir)
@@ -85,36 +85,36 @@ AM_GNU_GETTEXT_VERSION(0.12.1)
 # enable runtime debugging code
 AC_MSG_CHECKING(whether to enable runtime debugging code)
 AC_ARG_ENABLE(
-	debug,
-	AC_HELP_STRING([--enable-debug],[enable runtime debugging code (default=no)]),
-	,
-	[enable_debug="no"])
+  debug,
+  AC_HELP_STRING([--enable-debug],[enable runtime debugging code (default=no)]),
+  ,
+  [enable_debug="no"])
 AC_MSG_RESULT($enable_debug)
 if test "$enable_debug" = "yes"; then
-	AC_DEFINE(APP_DEBUG, [1], [enable runtime debugging code])
-	DEBUG_CFLAGS="-O0 -Werror -g"
+  AC_DEFINE(APP_DEBUG, [1], [enable runtime debugging code])
+  DEBUG_CFLAGS="-O0 -Werror -g"
 else
-	AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
-	AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
-	AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
-	DEBUG_CFLAGS=""
+  AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
+  AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
+  AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
+  DEBUG_CFLAGS=""
 fi
 
 # enable coverage analysis
 AC_MSG_CHECKING(whether to enable coverage analysis)
 AC_ARG_ENABLE(
-	coverage,
-	AC_HELP_STRING([--enable-coverage],[enable coverage analysis (default=no)]),
-	,
-	[enable_coverage="no"])
+  coverage,
+  AC_HELP_STRING([--enable-coverage],[enable coverage analysis (default=no)]),
+  ,
+  [enable_coverage="no"])
 AC_MSG_RESULT($enable_coverage)
 if test "$enable_coverage" = "yes"; then
-	#AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
-	AM_CONDITIONAL(USE_COVERAGE, true)
-	COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
+  #AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
+  AM_CONDITIONAL(USE_COVERAGE, true)
+  COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
 else
-	AM_CONDITIONAL(USE_COVERAGE, false)
-	COVERAGE_CFLAGS=""
+  AM_CONDITIONAL(USE_COVERAGE, false)
+  COVERAGE_CFLAGS=""
 fi
 
 # valgrind integration for tests
@@ -148,23 +148,23 @@ AC_SUBST(VALGRIND_CFLAGS)dnl
 # define custom path for desktop files
 AC_MSG_CHECKING(where to install desktop files)
 AC_ARG_WITH(
-	desktop_dir,
-	AC_HELP_STRING([--with-desktop-dir],[install desktop files to DIR/applications (default=$prefix/share/)]),
-	,
-	[with_desktop_dir="$prefix/share/"])
+  desktop_dir,
+  AC_HELP_STRING([--with-desktop-dir],[install desktop files to DIR/applications (default=$prefix/share/)]),
+  ,
+  [with_desktop_dir="$prefix/share/"])
 AC_MSG_RESULT($with_desktop_dir)
 AC_SUBST(with_desktop_dir)
 
 
 # gstreamer-libs not required, while there are only provided from gstreamer-plugins
-#	gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
+#  gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.4.0 gthread-2.0 >= 2.4.0 gmodule-2.0 >= 2.4.0 \
   gtk+-2.0 >= 2.4.0 \
   libgnomecanvas-2.0 \
-	libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
+  libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
   gstreamer-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
 )
 
@@ -194,7 +194,7 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
 #AM_GCONF_SOURCE_2
 
 #PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
-#	AM_CONDITIONAL(USE_GTKGRID, true)
+#  AM_CONDITIONAL(USE_GTKGRID, true)
 #    AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
 #    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
 #    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
@@ -216,11 +216,11 @@ BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 
 # test for availability of check unittest package (with a relative new function)
 AC_CHECK_HEADER( check.h, \
-	AC_CHECK_LIB( check, tcase_set_timeout, \
-		AM_CONDITIONAL(BUILD_CHECK_TESTS, true), \
-		AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
-	), \
-	AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
+  AC_CHECK_LIB( check, tcase_set_timeout, \
+    AM_CONDITIONAL(BUILD_CHECK_TESTS, true), \
+    AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
+  ), \
+  AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
 )
 
 # Check for gtk-doc.
@@ -321,20 +321,20 @@ AC_CONFIG_FILES(Makefile \
       docs/reference/bt-edit/Makefile \
   po/Makefile.in \
   src/Makefile \
-		src/lib/Makefile \
-			src/lib/core/Makefile \
-			src/lib/core/libbtcore.pc \
-			  src/lib/core/libbtcore/Makefile \
-			  src/lib/core/libbtcore/version.h \
-		src/ui/Makefile \
-			src/ui/cmd/Makefile \
-			src/ui/edit/Makefile \
+    src/lib/Makefile \
+      src/lib/core/Makefile \
+      src/lib/core/libbtcore.pc \
+        src/lib/core/libbtcore/Makefile \
+        src/lib/core/libbtcore/version.h \
+    src/ui/Makefile \
+      src/ui/cmd/Makefile \
+      src/ui/edit/Makefile \
       src/ui/edit/bt-edit.desktop.in \
   tests/Makefile \
-		tests/lib/Makefile \
-			tests/lib/core/Makefile \
-		tests/ui/Makefile \
-			tests/ui/cmd/Makefile \
-			tests/ui/edit/Makefile \
+    tests/lib/Makefile \
+      tests/lib/core/Makefile \
+    tests/ui/Makefile \
+      tests/ui/cmd/Makefile \
+      tests/ui/edit/Makefile \
 )
 AC_OUTPUT

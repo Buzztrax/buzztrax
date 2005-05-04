@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.2 2005-04-16 10:48:54 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.3 2005-05-04 15:15:08 ensonic Exp $
  * command line app unit tests
  */
 
@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+
 	bt_init(NULL,NULL,NULL);
 
   sr=srunner_create(bt_cmd_application_suite());

@@ -130,6 +130,8 @@ void setup_log_capture(void) {
   (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
 #endif
   (void)g_set_printerr_handler(check_print_handler);
+	// no ansi color codes in logfiles please
+	gst_debug_set_colored(FALSE);
 }
 
 

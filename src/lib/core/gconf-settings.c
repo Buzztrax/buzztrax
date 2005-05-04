@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.17 2005-04-30 13:14:08 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.18 2005-05-04 15:15:08 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -195,6 +195,8 @@ static void bt_gconf_settings_dispose(GObject *object) {
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
+	// shutdown gconf client
+	gconf_client_suggest_sync(self->priv->client,NULL);
   g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);

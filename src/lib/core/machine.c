@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.105 2005-04-27 16:31:05 ensonic Exp $
+/* $Id: machine.c,v 1.106 2005-05-04 15:15:08 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -440,19 +440,19 @@ gboolean bt_machine_new(BtMachine *self) {
     const gchar *element_class=gst_element_factory_get_klass(element_factory);
     GST_INFO("checking machine class \"%s\"",element_class);
     if(BT_IS_SINK_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Sink/",5)) {
+      if(g_ascii_strncasecmp(element_class,"Sink/",5) && g_ascii_strncasecmp(element_class,"Sink\0",5)) {
         GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Sink/...\"",self->priv->plugin_name,element_class);
         return(FALSE);
       }
     }
     else if(BT_IS_SOURCE_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Source/",7)) {
+      if(g_ascii_strncasecmp(element_class,"Source/",7) && g_ascii_strncasecmp(element_class,"Source\0",7)) {
         GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Source/...\"",self->priv->plugin_name,element_class);
         return(FALSE);
       }
     }
     else if(BT_IS_PROCESSOR_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Filter/",7)) {
+      if(g_ascii_strncasecmp(element_class,"Filter/",7) && g_ascii_strncasecmp(element_class,"Filter\0",7)) {
         GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Filter/...\"",self->priv->plugin_name,element_class);
         return(FALSE);
       }
