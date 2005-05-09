@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.10 2005-04-20 09:39:06 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.11 2005-05-09 18:35:40 waffel Exp $
  * plain file based implementation sub class for buzztard settings handling
  */
 
@@ -63,7 +63,7 @@ static void bt_plainfile_settings_get_property(GObject      *object,
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
 		case BT_SETTINGS_SYSTEM_AUDIOSINK: {
-      g_value_set_object(value, "esdsink");
+      g_value_set_string(value, "esdsink");
     } break;
 		case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
       g_value_set_string(value, "both");
