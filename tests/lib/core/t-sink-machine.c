@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.1 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.2 2005-05-09 18:33:38 waffel Exp $
  */
 
 #include "m-bt-core.h"
@@ -19,18 +19,14 @@ static void test_teardown(void) {
 
 //-- tests
 
-// @todo change settings to test this now
-
-/**
-* try to create a machine with not exising plugin name
-*/
-START_TEST(test_btsinkmachine_obj1){
-  BtApplication *app=NULL;
+START_TEST(test_btsinkmachine_settings1) {
+	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSinkMachine *machine=NULL;
+	BtSettings *settings=NULL;
+	gchar *saved_audiosink_name;
 	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
+  GST_INFO("--------------------------------------------------------------------------------");
 	/* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -38,23 +34,40 @@ START_TEST(test_btsinkmachine_obj1){
   /* create a new song */
 	song=bt_song_new(app);
 	
-	/* try to create a source machine with wrong pluginname (not existing)*/
-	//machine=bt_sink_machine_new(song,"id","nonsense");
-	fail_unless(machine==NULL, NULL);
+  settings=BT_SETTINGS(bt_gconf_settings_new());
+  
+  g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
+	
+	g_object_set(settings,"audiosink","osssink sync=false",NULL);
+	
+	machine=bt_sink_machine_new(song,"master");
+	fail_unless(machine!=NULL, NULL);
+	
+	
+  g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
+	
+  g_object_unref(settings);
+	g_free(saved_audiosink_name);
+	g_object_unref(machine);
+	g_object_unref(song);
+	g_object_unref(app);
 }
-END_TEST
+END_TEST;
 
 /**
-* try to create a machine which is a source machine and not a sink machine
-* here we mean the plugin-name from gst
+* Try to create a sink machine, if we set the sink property with the gconf 
+* properties to the string "audioconvert ! osssink sync=false". This string 
+* should be replaced by the sink machine to "ossink" and the machine should be 
+* instantiable.
 */
-START_TEST(test_btsinkmachine_obj2){
-  BtApplication *app=NULL;
+START_TEST(test_btsinkmachine_settings2) {
+	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSinkMachine *machine=NULL;
+	BtSettings *settings=NULL;
+	gchar *saved_audiosink_name;
 	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
+  GST_INFO("--------------------------------------------------------------------------------");
 	/* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -62,18 +75,32 @@ START_TEST(test_btsinkmachine_obj2){
   /* create a new song */
 	song=bt_song_new(app);
 	
-	/* try to create a source machine with wrong plugin type (source instead of sink) */
-	//machine=bt_sink_machine_new(song,"id","sinesource");
-	fail_unless(machine==NULL, NULL);
+  settings=BT_SETTINGS(bt_gconf_settings_new());
+  
+  g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
+	
+	g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
+	
+	machine=bt_sink_machine_new(song,"master");
+	fail_unless(machine!=NULL, NULL);
+	
+	
+  g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
+	
+  g_object_unref(settings);
+	g_free(saved_audiosink_name);
+	g_object_unref(machine);
+	g_object_unref(song);
+	g_object_unref(app);
 }
-END_TEST
+END_TEST;
+
 
 
 TCase *bt_sink_machine_test_case(void) {
   TCase *tc = tcase_create("BtSinkMachineTests");
 
-  //tcase_add_test(tc,test_btsinkmachine_obj1);
-	//tcase_add_test(tc,test_btsinkmachine_obj2);
+	tcase_add_test(tc,test_btsinkmachine_settings1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
