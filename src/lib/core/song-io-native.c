@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.67 2005-05-03 15:15:01 ensonic Exp $
+/* $Id: song-io-native.c,v 1.68 2005-05-09 20:29:56 ensonic Exp $
  * class for native song input and output
  */
  
@@ -235,7 +235,6 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
 			}
 			if(machine) { // add machine to setup
         bt_song_io_native_load_properties(self,song,xml_node->children,G_OBJECT(machine));
-				bt_setup_add_machine(setup,machine);
         g_object_unref(machine);
 			}
 			xmlFree(id);xmlFree(plugin_name);xmlFree(voices_str);
@@ -309,18 +308,21 @@ static gboolean bt_song_io_native_load_setup(const BtSongIONative *self, const B
 }
 
 static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, const BtPattern *pattern, const xmlDocPtr song_doc, xmlNodePtr xml_node, GError **error) {
+	gboolean ret=TRUE;
   xmlNodePtr xml_subnode;
   xmlChar *tick_str,*name,*value,*voice_str;
   glong tick,voice,param;
 	GError *tmp_error=NULL;
+	
+	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  while(xml_node) {
+  while(xml_node && !tmp_error) {
 		if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"tick\0",5))) {
       tick_str=xmlGetProp(xml_node,"time");
       tick=atoi(tick_str);
       // iterate over children
       xml_subnode=xml_node->children;
-      while(xml_subnode) {
+      while(xml_subnode && !tmp_error) {
         if(!xmlNodeIsText(xml_subnode)) {
           name=xmlGetProp(xml_subnode,"name");
           value=xmlGetProp(xml_subnode,"value");
@@ -330,10 +332,10 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
 							bt_pattern_set_global_event(pattern,tick,param,value);
 						}
 						else {
-							g_set_error (error, error_domain, /* errorcode= */0,
-									"can't load global data for pattern %s", name);
+							//g_set_error (error, error_domain, /* errorcode= */0,
+							//		"can't load global data for pattern %s", name);
 							g_propagate_error(error, tmp_error);
-							return(FALSE);
+							ret=FALSE;
 						}
           }
           if(!strncmp(xml_subnode->name,"voicedata\0",10)) {
@@ -344,8 +346,8 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
 							bt_pattern_set_voice_event(pattern,tick,voice,param,value);
 						}
 						else {
-							g_set_error (error, error_domain, /* errorcode= */0,
-									"can't load voice data for pattern %s", name);
+							//g_set_error (error, error_domain, /* errorcode= */0,
+							//		"can't load voice data for pattern %s", name);
 							g_propagate_error(error, tmp_error);
 							return(FALSE);
 						}
@@ -359,16 +361,18 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
 		}
 		xml_node=xml_node->next;
 	}
-	return(TRUE);
+	return(ret);
 }
 
 static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc, xmlNodePtr xml_node ) {
+	gboolean ret=TRUE;
 	BtSetup *setup;
   BtMachine *machine;
   BtPattern *pattern;
 	xmlChar *id,*machine_id,*pattern_name,*length_str;
   glong length,voices;
-
+	GError *tmp_error=NULL;
+	
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   id=xmlGetProp(xml_node,"id");
   machine_id=xmlGetProp(xml_node,"machine");
@@ -382,8 +386,13 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
     GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
     if((pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine))) {
     	//bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
-    	bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children,NULL);
-    	g_object_unref(pattern);
+			if(!bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children,&tmp_error)) {
+				GST_WARNING("corrupt file: \"%s\"",tmp_error->message);
+				g_error_free(tmp_error);
+				ret=FALSE;
+				g_object_unref(pattern);
+			}
+			g_object_unref(pattern);
 		}
 		g_object_unref(machine);
   }
@@ -393,7 +402,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
   xmlFree(id);xmlFree(machine_id);xmlFree(pattern_name);xmlFree(length_str);
   //-- release the reference
   g_object_try_unref(setup);
-  return(TRUE);
+  return(ret);
 }
 
 static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc) {

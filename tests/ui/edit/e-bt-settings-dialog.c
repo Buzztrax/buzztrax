@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.1 2005-04-16 10:48:58 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.2 2005-05-09 20:30:10 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -31,6 +31,7 @@ static void test_setup(void) {
 	GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
+	gst_debug_set_colored(FALSE);
 
 	gdk_threads_try_enter();
 

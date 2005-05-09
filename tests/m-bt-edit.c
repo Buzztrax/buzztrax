@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.2 2005-04-16 10:48:54 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.3 2005-05-09 20:30:09 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
  
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+	gst_debug_set_colored(FALSE);
 	
   sr=srunner_create(bt_edit_application_suite());
 	srunner_add_suite(sr, bt_settings_dialog_suite());

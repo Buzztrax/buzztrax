@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.3 2005-05-03 19:33:53 waffel Exp $
+/* $Id: m-bt-core.c,v 1.4 2005-05-09 20:30:09 ensonic Exp $
  * core library unit tests
  */
 
@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+	gst_debug_set_colored(FALSE);
 
   sr=srunner_create(bt_core_suite());
 	srunner_add_suite(sr, bt_machine_suite());

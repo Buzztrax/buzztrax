@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.38 2005-04-30 17:50:57 ensonic Exp $
+/* $Id: pattern.c,v 1.39 2005-05-09 20:29:56 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -101,7 +101,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 		}
   }
 	else {
-		GST_ERROR("extending pattern length from %d to %d failed",length,self->priv->length);
+		GST_ERROR("extending pattern length from %d to %d failed (data_count=%d, gp=%d, vp=%d)",length,self->priv->length,new_data_count,self->priv->global_params,self->priv->voice_params);
 		self->priv->data=data;
 		self->priv->length=length;
 	}
@@ -132,7 +132,7 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 		}
   }
 	else {
-		GST_ERROR("extending pattern voices from %d to %d failed",voices,self->priv->voices);
+		GST_ERROR("extending pattern voices from %d to %d failed (data_count=%d, gp=%d, vp=%d)",voices,self->priv->voices,new_data_count,self->priv->global_params,self->priv->voice_params);
 		self->priv->data=data;
 		self->priv->voices=voices;
 	}
@@ -390,6 +390,7 @@ gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *nam
 	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
+	g_return_val_if_fail(error == NULL || *error == NULL, 0);
 	
 	ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
 	
@@ -419,6 +420,7 @@ gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name
 	
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
+	g_return_val_if_fail(error == NULL || *error == NULL, 0);
 	
 	ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
 	

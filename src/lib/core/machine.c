@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.106 2005-05-04 15:15:08 ensonic Exp $
+/* $Id: machine.c,v 1.107 2005-05-09 20:29:55 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -558,6 +558,9 @@ gboolean bt_machine_new(BtMachine *self) {
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
+	if(!(self->priv->global_params+self->priv->voice_params)) {
+		GST_WARNING("  machine has no params");
+	}
 
   if(BT_IS_SINK_MACHINE(self)) {
     GST_DEBUG("  this will be the master for the song");
@@ -931,6 +934,7 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
+	g_return_val_if_fail(error == NULL || *error == NULL, -1);
   
 #ifdef USE_GST_DPARAMS
   if(self->priv->dparam_manager) {
@@ -990,6 +994,7 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
+	g_return_val_if_fail(error == NULL || *error == NULL, -1);
   
 #ifdef USE_GST_DPARAMS
   if(self->priv->dparam_manager) {

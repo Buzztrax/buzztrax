@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.50 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.51 2005-05-09 20:30:09 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -136,7 +136,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
 
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
     BtSong *song;
-    GError *error;
+    GError *error=NULL;
 
     GST_INFO("toolbar play event occurred");
     // get song from app
