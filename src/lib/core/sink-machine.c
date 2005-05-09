@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.37 2005-04-30 13:14:08 ensonic Exp $
+/* $Id: sink-machine.c,v 1.38 2005-05-09 18:32:39 waffel Exp $
  * class for a sink machine
  */
  
@@ -48,21 +48,23 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(is_string(audiosink_name)) {
 		GST_INFO("get audiosink from config");
 		plugin_name=audiosink_name;
-	}
-  else if(is_string(system_audiosink_name)) {
+	}  else if(is_string(system_audiosink_name)) {
 		GST_INFO("get audiosink from system config");
+		plugin_name=system_audiosink_name;
+	}
+	if (plugin_name) {
 		// this can be a whole pipeline like "audioconvert ! osssink sync=false"
 		// seek for the last '!'
-		if(!(sink_name=g_strrstr(system_audiosink_name,"!"))) {
-			sink_name=system_audiosink_name;
-		}
+		if(!(sink_name=g_strrstr(plugin_name,"!"))) {
+			sink_name=plugin_name;
+		} 
 		// if there is a space following put '\0' in there
 		if(eon=strstr(sink_name," ")) {
 			*eon='\0';
 		}
 		plugin_name=sink_name;
 	}
-  else {
+	if (!is_string(plugin_name)) {
 		GST_INFO("get audiosink from gst registry by rank");
     // iterate over gstreamer-audiosink list and choose element with highest rank
     GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
