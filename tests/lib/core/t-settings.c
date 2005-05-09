@@ -1,4 +1,4 @@
-/* $Id: t-settings.c,v 1.1 2005-05-03 19:36:20 waffel Exp $ */
+/* $Id: t-settings.c,v 1.2 2005-05-09 18:34:52 waffel Exp $ */
 
 #include "m-bt-core.h"
 
@@ -34,7 +34,7 @@ static void test_teardown(void) {
 }
 
 //-- tests
-START_TEST(test_btgconf_settings_get_audiosync1) {
+START_TEST(test_btsettings_get_audiosink1) {
   GST_INFO("--------------------------------------------------------------------------------");
   BtSettings *settings=get_settings();
   gchar *saved_audiosink_name,*test_audiosink_name;
@@ -42,8 +42,10 @@ START_TEST(test_btgconf_settings_get_audiosync1) {
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
 	
 	g_object_set(settings,"audiosink","fakesink",NULL);
+	
 	g_object_get(settings,"audiosink",&test_audiosink_name,NULL);
-	fail_unless(strcmp(test_audiosink_name,"fakesink"),"sink is %s",test_audiosink_name);
+	
+	fail_unless(!strcmp(test_audiosink_name,"fakesink"),"sink is %s",test_audiosink_name);
 	
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
 	
@@ -53,10 +55,11 @@ START_TEST(test_btgconf_settings_get_audiosync1) {
 }
 END_TEST;
 
-TCase *bt_gconf_settings_test_case(void) {
-  TCase *tc = tcase_create("BtGConfSettingsTests");
 
-	tcase_add_test(tc,test_btgconf_settings_get_audiosync1);
+TCase *bt_gconf_settings_test_case(void) {
+  TCase *tc = tcase_create("BtSettingsTests");
+
+	tcase_add_test(tc,test_btsettings_get_audiosink1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
