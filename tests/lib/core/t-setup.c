@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.15 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-setup.c,v 1.16 2005-05-09 19:06:15 waffel Exp $
  */
 
 #include "m-bt-core.h"
@@ -464,6 +464,149 @@ START_TEST(test_btsetup_get_wires_by_src_machine3) {
 END_TEST
 
 /**
+* try to call bt_setup_get_wire_by_dst_machine with NULL for setup parameter 
+*/
+START_TEST(test_btsetup_get_wire_by_dst_machine1) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_SETUP(self)");
+	bt_setup_get_wire_by_dst_machine(NULL,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to call bt_setup_get_wire_by_dst_machine with NULL for machine parameter 
+*/
+START_TEST(test_btsetup_get_wire_by_dst_machine2) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+	fail_unless(app!=NULL,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	fail_unless(song!=NULL,NULL);
+  g_object_get(song,"setup",&setup,NULL);
+	fail_unless(setup!=NULL,NULL);
+	
+	check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_MACHINE(dst)");
+	bt_setup_get_wire_by_dst_machine(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+/**
+* try to get wires by destination machine with NULL for setup
+*/
+START_TEST(test_btsetup_get_wires_by_dst_machine1) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	BtSinkMachine *dst_machine=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	
+	/* create sink machine */
+	dst_machine=bt_sink_machine_new(song,"dst");
+	
+	/* try to get the wires */
+	check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_SETUP(self)");
+	bt_setup_get_wires_by_dst_machine(NULL,BT_MACHINE(dst_machine));
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+
+/**
+* try to get wires by sink machine with NULL for machine
+*/
+START_TEST(test_btsetup_get_wires_by_dst_machine2) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	
+	/* try to get the wires */
+	check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_MACHINE(dst)");
+	bt_setup_get_wires_by_dst_machine(setup,NULL);
+	fail_unless(check_has_error_trapped(), NULL);
+}
+END_TEST
+
+
+/**
+* try to get wires by sink machine with never added machine
+*/
+START_TEST(test_btsetup_get_wires_by_dst_machine3) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSetup *setup=NULL;
+	GList *wire_list=NULL;
+	BtSinkMachine *dst_machine=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+  
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+	
+	/* create sink machine */
+	dst_machine=bt_sink_machine_new(song,"dst");
+	
+	/* remove machine from setup */
+	bt_setup_remove_machine(setup, BT_MACHINE(dst_machine));
+	
+	/* try to get the wires */
+	wire_list=bt_setup_get_wires_by_dst_machine(setup,BT_MACHINE(dst_machine));
+	fail_unless(wire_list==NULL,NULL);
+}
+END_TEST
+
+
+/**
 * try to remove a machine from setup with NULL pointer for setup
 */
 START_TEST(test_btsetup_obj13) {
@@ -843,6 +986,11 @@ TCase *bt_setup_test_case(void) {
 	tcase_add_test(tc,test_btsetup_get_wires_by_src_machine1);
 	tcase_add_test(tc,test_btsetup_get_wires_by_src_machine2);
 	tcase_add_test(tc,test_btsetup_get_wires_by_src_machine3);
+	tcase_add_test(tc,test_btsetup_get_wire_by_dst_machine1);
+	tcase_add_test(tc,test_btsetup_get_wire_by_dst_machine2);
+	tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine1);
+	tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine2);
+	tcase_add_test(tc,test_btsetup_get_wires_by_dst_machine3);
 	tcase_add_test(tc,test_btsetup_obj13);
 	tcase_add_test(tc,test_btsetup_obj14);
 	tcase_add_test(tc,test_btsetup_obj15);
