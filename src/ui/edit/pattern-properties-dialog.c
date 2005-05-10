@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.5 2005-04-25 14:50:27 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.6 2005-05-10 14:15:51 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -256,8 +256,6 @@ static void bt_pattern_properties_dialog_set_property(GObject      *object,
 
 static void bt_pattern_properties_dialog_dispose(GObject *object) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
-	gulong i,global_params;
-	GstDParam *dparam;
 	
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;

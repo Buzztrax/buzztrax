@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.51 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: core.h,v 1.52 2005-05-10 14:15:38 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -26,11 +26,9 @@
 	#include <gst/control/control.h>
 #endif
 #ifdef USE_GST_CONTROLLER
-	#include <gst-controller.h>
+	#include <gst/controller/gst-controller.h>
 #endif
-#ifdef HAVE_GST_POLYVOICE_POLY_VOICE_H
-	#include <gst/polyvoice/poly-voice.h>
-#endif
+#include <gst/childbin/childbin.h>
 //-- libxml2
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>

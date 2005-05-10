@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.18 2005-04-28 12:35:14 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.19 2005-05-10 14:15:49 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -51,13 +51,16 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
   gdk_threads_try_enter();
 #ifdef USE_GST_DPARAMS
   g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
-#endif
-#ifdef USE_GST_CONTROLLER
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-#endif
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)dparam);
   gtk_range_set_value(GTK_RANGE(widget),value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)dparam);
+#endif
+#ifdef USE_GST_CONTROLLER
+  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
+  gtk_range_set_value(GTK_RANGE(widget),value);
+  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
+#endif
   gdk_threads_try_leave();
 }
 
@@ -82,9 +85,9 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
 #endif
 #ifdef USE_GST_CONTROLLER
-  g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
+  g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
-  g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
+  g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
 #endif
   //gdk_threads_leave();
 }
@@ -104,13 +107,16 @@ static void on_int_range_property_notify(const GstElement *machine,GParamSpec *p
   gdk_threads_try_enter();
 #ifdef USE_GST_DPARAMS
   g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
-#endif
-#ifdef USE_GST_CONTROLLER
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-#endif
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)dparam);
   gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)dparam);
+#endif
+#ifdef USE_GST_CONTROLLER
+  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
+  gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
+  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
+#endif
   gdk_threads_try_leave();
 }
 
@@ -213,7 +219,12 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
         gint step,value;
         
-        g_object_get(G_OBJECT(dparam),"value-int",&value,NULL);        
+#ifdef USE_GST_DPARAMS
+        g_object_get(G_OBJECT(dparam),"value-int",&value,NULL);
+#endif
+#ifdef USE_GST_CONTROLLER
+				g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+#endif
         // @todo make it a check box when range ist 0...1 ?
         // @todo how to detect option menus
         //step=(int_property->maximum-int_property->minimum)/1024.0;
@@ -238,7 +249,12 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
         gdouble step,value;
 
+#ifdef USE_GST_DPARAMS
         g_object_get(G_OBJECT(dparam),"value-double",&value,NULL);
+#endif
+#ifdef USE_GST_CONTROLLER
+				g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+#endif
         step=(double_property->maximum-double_property->minimum)/1024.0;
         widget=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
         gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
@@ -359,8 +375,13 @@ static void bt_machine_properties_dialog_set_property(GObject      *object,
 
 static void bt_machine_properties_dialog_dispose(GObject *object) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
+#ifdef USE_GST_DPARAMS
   gulong i,global_params;
   GstDParam *dparam;
+#endif
+#ifdef USE_GST_CONTROLLER
+	GstElement *machine;
+#endif
   
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -368,12 +389,20 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   // disconnect all handlers that are connected to dparams
+#ifdef USE_GST_DPARAMS
   g_object_get(self->priv->machine,"global-params",&global_params,NULL);
   for(i=0;i<global_params;i++) {
     dparam=bt_machine_get_global_dparam(self->priv->machine,i);
     g_signal_handlers_disconnect_matched(dparam,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(dparam,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
   }
+#endif
+#ifdef USE_GST_CONTROLLER
+	g_object_get(self->priv->machine,"machine",&machine,NULL);
+	g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
+  g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
+	g_object_unref(machine);
+#endif
   
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);

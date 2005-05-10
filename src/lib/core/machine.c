@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.107 2005-05-09 20:29:55 ensonic Exp $
+/* $Id: machine.c,v 1.108 2005-05-10 14:15:32 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -502,22 +502,22 @@ gboolean bt_machine_new(BtMachine *self) {
 #endif
 #ifdef USE_GST_CONTROLLER
   // register global params
-  if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
+  if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
     guint i;
     
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
-      if(properties[i].flags&GST_PARAM_CONTROLLABLE) self->priv->global_params++;
+      if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->global_params++;
 		}
 		self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
-		self->priv->global_names  =(gchar *     )g_new0(gchar   ,self->priv->global_params);
+		self->priv->global_names  =(gchar **    )g_new0(gchar   ,self->priv->global_params);
 		for(i=0;i<number_of_properties;i++) {
 			property=properties[i];
-      if(property.flags&GST_PARAM_CONTROLLABLE) {
+      if(property->flags&GST_PARAM_CONTROLLABLE) {
         // add global param
-				self->priv->global_names[i]=property.name;
-				self->priv->global_types[i]=property.value_type;
-				GST_DEBUG("    added global_param \"%s\"",property.name);
+				self->priv->global_names[i]=property->name;
+				self->priv->global_types[i]=property->value_type;
+				GST_DEBUG("    added global_param \"%s\"",property->name);
       }
     }
   }
@@ -526,23 +526,23 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_INFO("  instance is polyphonic!");
     // register voice params
     // get child for voice 0
-    if((voice_child=gst_child_proxy_get_child_by_index(machine,0))) {
+    if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
       if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
         guint i;
         
         // count number of controlable params
     		for(i=0;i<number_of_properties;i++) {
-      		if(properties[i].flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
+      		if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
 				}
 				self->priv->voice_types  =(GType *     )g_new0(GType   ,self->priv->voice_params);
-				self->priv->voice_names  =(gchar *     )g_new0(gchar   ,self->priv->voice_params);
+				self->priv->voice_names  =(gchar **    )g_new0(gchar   ,self->priv->voice_params);
         for(i=0;i<number_of_properties;i++) {
           property=properties[i];
-          if(property.flags&GST_PARAM_CONTROLLABLE) {
+          if(property->flags&GST_PARAM_CONTROLLABLE) {
 		        // add voice param
-						self->priv->voice_names[i]=property.name;
-						self->priv->voice_types[i]=property.value_type;
-						GST_DEBUG("    added voice_param \"%s\"",property.name);
+						self->priv->voice_names[i]=property->name;
+						self->priv->voice_types[i]=property->value_type;
+						GST_DEBUG("    added voice_param \"%s\"",property->name);
           }
         }
       }
@@ -963,7 +963,7 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
 #endif
 #ifdef USE_GST_CONTROLLER
   for(i=0;i<self->priv->global_params;i++) {
-    if(!strcmp(self->priv->global_names[i],name) {
+    if(!strcmp(self->priv->global_names[i],name)) {
       ret=i;
       found=TRUE;
       break;
@@ -1023,7 +1023,7 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
 #endif
 #ifdef USE_GST_CONTROLLER
   for(i=0;i<self->priv->voice_params;i++) {
-    if(!strcmp(self->priv->voice_names[i],name) {
+    if(!strcmp(self->priv->voice_names[i],name)) {
       ret=i;
       found=TRUE;
       break;
@@ -1168,7 +1168,7 @@ void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GVal
   bt_machine_set_param_value(self->priv->global_dparams[index],event);
 #endif
 #ifdef USE_GST_CONTROLLER
-	g_object_set_property(G_OBJECT(self->priv->machine),self->priv->global_names[index],event);
+	g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
 #endif
 }
 
@@ -1192,7 +1192,7 @@ void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulon
   bt_machine_set_param_value(self->priv->voice_dparams[voice*self->priv->voice_params+index],event);
 #endif
 #ifdef USE_GST_CONTROLLER
-	g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(self->priv->machine,voice)),self->priv->voice_names[index],event);
+	g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice)),self->priv->voice_names[index],event);
 #endif
 }
 

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.45 2005-05-04 15:14:56 ensonic Exp $
+# $Id: configure.ac,v 1.46 2005-05-10 14:15:25 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -165,7 +165,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   gtk+-2.0 >= 2.4.0 \
   libgnomecanvas-2.0 \
   libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
-  gstreamer-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
+  gstreamer-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 \
 )
 
 glib_prefix="`pkg-config --variable=prefix glib-2.0`"
@@ -188,10 +188,27 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, false)
   ]
 )
-  
-# GConf schema install stuff (see above)
-#AC_PATH_PROG(GCONFTOOL, gconftool-2)
-#AM_GCONF_SOURCE_2
+
+PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.0.1, [
+    AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
+  ]
+)
+
+#AC_DEFINE(USE_GST_DPARAMS, [1], [use old gstreamer dparams])
+#PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-control-0.8 >= 0.8, [
+#    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
+#    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
+#  ]
+#)
+
+AC_DEFINE(USE_GST_CONTROLLER, [1], [use new gstreamer controller])
+PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-controller >= 0.0.1, [
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
+  ]
+)
 
 #PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
 #  AM_CONDITIONAL(USE_GTKGRID, true)
@@ -277,11 +294,6 @@ AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
 AC_HEADER_STDC
 AC_CHECK_HEADERS(X11/Xlocale.h)
 AC_CHECK_HEADERS(popt.h)
-
-AC_CHECK_HEADERS(gst/polyvoice/poly-voice.h)
-
-AC_DEFINE(USE_GST_DPARAMS, [1], [use old gstreamer dparams])
-# AC_DEFINE(USE_GST_CONTROLLER, [1], [use new gstreamer controller])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES

@@ -1,4 +1,4 @@
-$Id: README,v 1.13 2005-05-03 22:13:11 ensonic Exp $
+$Id: README,v 1.14 2005-05-10 14:15:24 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -14,6 +14,9 @@ glib2
 gtk+2
 gstreamer(head cvs)
 gnome-canvas
+gst-buzztard
+  available iin buzztard cvs (on sf.net)
+  needed for a cvs build of buzztard
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
@@ -32,7 +35,7 @@ src : the project sources
   tests : unit tests (same directory structure as src)
 
 = installing locally =
-use following options for ./autogen.sh or ./configure
+Use following options for ./autogen.sh or ./configure
   --prefix=/home/ensonic/buzztard
   --with-gconf-source=xml::/home/ensonic/.gconf/
   --with-desktop-dir=/home/ensonic/.gnome2/vfolders/
@@ -48,6 +51,7 @@ pkg-config:
     
 = running unit tests =
 in one console enter
-  eval {rm\ ,\;touch\ ,\;tail\ -f\ }/tmp/buzztard.log
-in another
+  eval {rm\ ,\;touch\ ,\;tail\ -f\ }/tmp/bt_XXX.log
+where XXX is one of 'core', 'cmd' and 'edit'
+and in another
   make check

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.39 2005-05-09 20:29:56 ensonic Exp $
+/* $Id: pattern.c,v 1.40 2005-05-10 14:15:34 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -59,7 +59,7 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
   if(data_count==0) return(TRUE);
 		
   if(self->priv->data) {
-    GST_ERROR("data has already been initialized");
+    GST_INFO("data has already been initialized");
     return(TRUE);
   }
 
