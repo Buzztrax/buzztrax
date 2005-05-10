@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.60 2005-05-10 18:18:13 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.61 2005-05-10 18:45:32 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -740,7 +740,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
 	tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_FIT));
   gtk_widget_set_name(tool_item,_("Zoom Fit"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Zoom in/out so that everything is visible"),NULL);
-	gtk_widget_show(tool_item);
 	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
 
@@ -748,7 +747,6 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   gtk_widget_set_name(self->priv->zoom_in,_("Zoom In"));
 	gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(self->priv->zoom_in),GTK_TOOLTIPS(tips),_("Zoom in so more details are visible"),NULL);
-	gtk_widget_show(self->priv->zoom_in);
 	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_in),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
 
@@ -756,32 +754,19 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
 	gtk_widget_set_name(self->priv->zoom_out,_("Zoom Out"));
 	gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(self->priv->zoom_out),GTK_TOOLTIPS(tips),_("Zoom out for better overview"),NULL);
-	gtk_widget_show(self->priv->zoom_out);
 	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_out),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_out),"clicked",G_CALLBACK(on_toolbar_zoom_out_clicked),(gpointer)self);
 
-	tool_item=GTK_WIDGET(gtk_separator_tool_item_new());
-	gtk_widget_show(tool_item);
-	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 
 	// grid density toolbar icon
   image=gtk_image_new_from_filename("grid.png");
-	/*
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Grid"),
-                                NULL, NULL,
-                                image, NULL, NULL);
-	gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->toolbar)->children)->data))->label),TRUE);
-	g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
-	*/
 	tool_item=GTK_WIDGET(gtk_menu_tool_button_new(image,_("Grid")));
 	gtk_menu_tool_button_set_menu(GTK_MENU_TOOL_BUTTON(tool_item),GTK_WIDGET(self->priv->grid_density_menu));
 	gtk_menu_tool_button_set_arrow_tooltip(GTK_MENU_TOOL_BUTTON(tool_item),GTK_TOOLTIPS(tips),_("Show background grid"),NULL);
 	gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Show background grid"),NULL);
-	gtk_widget_show(tool_item);
 	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+	//g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_grid_clicked),(gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(self),self->priv->toolbar,FALSE,FALSE,0);
 
