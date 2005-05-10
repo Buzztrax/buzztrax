@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.46 2005-05-10 14:15:25 ensonic Exp $
+# $Id: configure.ac,v 1.47 2005-05-10 18:18:05 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -161,11 +161,11 @@ AC_SUBST(with_desktop_dir)
 
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
-  glib-2.0 >= 2.4.0 gthread-2.0 >= 2.4.0 gmodule-2.0 >= 2.4.0 \
-  gtk+-2.0 >= 2.4.0 \
+  glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
+  gtk+-2.0 >= 2.6.0 \
   libgnomecanvas-2.0 \
   libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
-  gstreamer-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 \
+  gstreamer-0.8 >= 0.8.10 gstreamer-interfaces-0.8 >= 0.8 \
 )
 
 glib_prefix="`pkg-config --variable=prefix glib-2.0`"
