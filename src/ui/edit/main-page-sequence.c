@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.79 2005-04-30 17:50:58 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.80 2005-05-11 08:47:45 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -522,6 +522,8 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
   //-- append default rows
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
   gtk_list_store_append(store, &tree_iter);
