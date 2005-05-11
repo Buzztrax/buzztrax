@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.47 2005-05-10 18:18:05 ensonic Exp $
+# $Id: configure.ac,v 1.48 2005-05-11 07:32:28 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -196,19 +196,28 @@ PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.0.1, [
   ]
 )
 
-#AC_DEFINE(USE_GST_DPARAMS, [1], [use old gstreamer dparams])
-#PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-control-0.8 >= 0.8, [
-#    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
-#    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
-#  ]
-#)
-
-AC_DEFINE(USE_GST_CONTROLLER, [1], [use new gstreamer controller])
-PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-controller >= 0.0.1, [
-    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
-    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
-  ]
-)
+# @todo this is onlly for smooth transition to new API
+AC_MSG_CHECKING(whether to use the new gstreamer controller api (or old dparams))
+AC_ARG_WITH([gst-controller],
+        AC_HELP_STRING([--with-gst-controller],
+        [whether to use the new gstreamer controller api (default is no=dparams)]),
+        [ac_cv_use_gst_controller=$withval], [ac_cv_use_gst_controller=no])dnl
+AC_MSG_RESULT($ac_cv_use_gst_controller)
+if test $ac_cv_use_gst_controller == no; then
+	AC_DEFINE(USE_GST_DPARAMS, [1], [use old gstreamer dparams])
+	PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-control-0.8 >= 0.8, [
+      BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
+      BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
+    ]
+  )
+else
+  AC_DEFINE(USE_GST_CONTROLLER, [1], [use new gstreamer controller])
+  PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-controller >= 0.0.1, [
+      BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
+      BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
+    ]
+  )
+fi
 
 #PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
 #  AM_CONDITIONAL(USE_GTKGRID, true)
