@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.61 2005-05-10 18:45:32 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.62 2005-05-17 23:40:51 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -330,6 +330,19 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // release the reference
   g_object_try_unref(setup);
   g_object_try_unref(song);
+}
+
+static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  g_assert(user_data);
+
+	/* TODO calculate bounds
+  self->priv->zoom*=???;
+  GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
+  gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+	update_machines_zoom(self);
+	*/
 }
 
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
@@ -741,7 +754,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   gtk_widget_set_name(tool_item,_("Zoom Fit"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Zoom in/out so that everything is visible"),NULL);
 	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_zoom_fit_clicked),(gpointer)self);
 
 	self->priv->zoom_in=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_IN));
   gtk_widget_set_name(self->priv->zoom_in,_("Zoom In"));

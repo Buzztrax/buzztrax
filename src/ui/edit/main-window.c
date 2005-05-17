@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.59 2005-05-03 15:15:20 ensonic Exp $
+/* $Id: main-window.c,v 1.60 2005-05-17 23:40:51 ensonic Exp $
  * class for the editor main window
  */
 
@@ -105,7 +105,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(song);
 }
 
-static void on_winodw_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
+static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
 	BtMainWindow *self=BT_MAIN_WINDOW(user_data);
 	glong i=0;
 	gchar *ptr=selection_data->data;
@@ -167,7 +167,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 	gtk_drag_dest_set(GTK_WIDGET(self),
 		(GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP),
 		drop_types, n_drop_types, GDK_ACTION_COPY);
-  g_signal_connect(G_OBJECT(self), "drag_data_received", G_CALLBACK(on_winodw_dnd_drop),(gpointer)self);
+  g_signal_connect(G_OBJECT(self), "drag_data_received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
 
 	GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 	

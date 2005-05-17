@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.52 2005-05-10 14:15:38 ensonic Exp $
+/* $Id: core.h,v 1.53 2005-05-17 23:40:50 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -184,8 +184,10 @@
  * @a: string pointer
  *
  * passed the supplied string through or return an empty string when it is NULL
+ *
+ * Returns: the given string or an empty string in the case of a NULL argument
  */
-#define safe_string(a) ((a)?a:"")
+#define safe_string(a) ((gchar *)(a)?(gchar *)(a):"")
 
 /**
  * g_object_try_ref:
@@ -194,7 +196,7 @@
  * If the supplied object is not %NULL then reference it via
  * g_object_ref().
  *
- * Return: the referenced object or %NULL
+ * Returns: the referenced object or %NULL
  */
 #define g_object_try_ref(obj) (obj)?g_object_ref(obj):NULL
 

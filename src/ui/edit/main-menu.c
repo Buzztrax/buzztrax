@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.37 2005-04-30 13:14:13 ensonic Exp $
+/* $Id: main-menu.c,v 1.38 2005-05-17 23:40:51 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -18,6 +18,11 @@ struct _BtMainMenuPrivate {
 
   /* the application */
   BtEditApplication *app;
+	
+	/* MenuItems */
+	GtkWidget *save_item;
+	GtkWidget *save_as_item;
+	
 };
 
 static GtkMenuBarClass *parent_class=NULL;
@@ -256,6 +261,35 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_try_unref(main_window);
 }
 
+static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+	gboolean unsaved;
+
+	g_assert(user_data);
+	
+	GST_INFO("song.unsaved has changed : song=%p, menu=%p",song,user_data);
+	
+  g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
+	gtk_widget_set_sensitive(self->priv->save_item,unsaved);
+	gtk_widget_set_sensitive(self->priv->save_as_item,unsaved);
+}	
+
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtSong *song;
+
+  g_assert(user_data);
+
+  GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
+  
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	g_return_if_fail(song);
+
+	g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_object_try_unref(song);
+
+}
+
 
 //-- helper methods
 
@@ -297,11 +331,13 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_name(subitem,_("Save"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 	g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_save_activate),(gpointer)self);
+	self->priv->save_item=subitem;
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_SAVE_AS,accel_group);
   gtk_widget_set_name(subitem,_("Save as"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 	g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
+	self->priv->save_as_item=subitem;
 
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));
@@ -425,6 +461,9 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("stock_about.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_about_activate),(gpointer)self);
+
+  // register event handlers
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
   return(TRUE);
 }

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.69 2005-05-10 14:15:36 ensonic Exp $
+/* $Id: song-io-native.c,v 1.70 2005-05-17 23:40:48 ensonic Exp $
  * class for native song input and output
  */
  
@@ -316,14 +316,14 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
 	
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  while(xml_node && !tmp_error) {
+  while(xml_node && ret) {
 		if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"tick\0",5))) {
       tick_str=xmlGetProp(xml_node,"time");
       tick=atoi(tick_str);
 			GST_DEBUG("   loading tick at %d",tick);
       // iterate over children
       xml_subnode=xml_node->children;
-      while(xml_subnode && !tmp_error) {
+      while(xml_subnode && ret) {
         if(!xmlNodeIsText(xml_subnode)) {
           name=xmlGetProp(xml_subnode,"name");
           value=xmlGetProp(xml_subnode,"value");
@@ -350,7 +350,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
 							//g_set_error (error, error_domain, /* errorcode= */0,
 							//		"can't load voice data for pattern %s", name);
 							g_propagate_error(error, tmp_error);
-							return(FALSE);
+							ret=FALSE;
 						}
             xmlFree(voice_str);
           }
@@ -513,7 +513,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
       time_str=xmlGetProp(xml_node,"time");
       pattern_id=xmlGetProp(xml_node,"pattern");
       command=xmlGetProp(xml_node,"comand");
-      GST_DEBUG("  at %s, pattern \"%s\"",time_str,pattern_id);
+      GST_DEBUG("  at %s, pattern \"%s\" or command \"%s\"",time_str,safe_string(pattern_id),safe_string(command));
 			// get timeline from sequence
 			if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
 				// get timelinetrack from timeline
