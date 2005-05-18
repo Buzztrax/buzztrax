@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.40 2005-05-10 14:15:34 ensonic Exp $
+/* $Id: pattern.c,v 1.41 2005-05-18 11:37:13 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -395,8 +395,8 @@ gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *nam
 	ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
-		g_set_error (error, error_domain, /* errorcode= */0,
-							 	"global dparam for name %s not found", name);
+		//g_set_error (error, error_domain, /* errorcode= */0,
+		//					 	"global dparam for name %s not found", name);
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);
@@ -425,8 +425,8 @@ gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name
 	ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
 	
 	if (tmp_error!=NULL) {
-		g_set_error (error, error_domain, /* errorcode= */0,
-								"voice dparam for name %s not found", name);
+		//g_set_error (error, error_domain, /* errorcode= */0,
+		//						"voice dparam for name %s not found", name);
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);

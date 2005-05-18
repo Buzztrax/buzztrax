@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.61 2005-04-16 13:33:25 ensonic Exp $
+/* $Id: sequence.c,v 1.62 2005-05-18 11:37:13 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -224,6 +224,7 @@ Error:
  */
 BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const gulong time) {
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
+
   if(time<self->priv->length) {
     return(g_object_ref(self->priv->timelines[time]));
   }

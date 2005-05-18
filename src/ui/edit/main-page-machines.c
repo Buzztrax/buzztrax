@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.62 2005-05-17 23:40:51 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.63 2005-05-18 11:37:32 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -786,7 +786,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   // add canvas
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
 	// generate an antialiased canvas
   gtk_widget_push_visual(gdk_rgb_get_visual());
   gtk_widget_push_colormap(gdk_rgb_get_colormap());

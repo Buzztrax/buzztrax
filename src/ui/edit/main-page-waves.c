@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.22 2005-05-03 15:15:20 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.23 2005-05-18 11:37:40 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -193,7 +193,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
 	BtSettings *settings;
   GtkWidget *vpaned,*hpaned,*box,*box2;
-	GtkWidget *button,*image,*icon;
+	GtkWidget *image,*icon,*tool_item;
 	GtkWidget *scrolled_window;
 	GtkCellRenderer *renderer;
   GtkTooltips *tips;
@@ -218,38 +218,24 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_widget_set_name(self->priv->list_toolbar,_("sample list tool bar"));
 	
 	// add buttons (play,stop,clear)
-  image=gtk_image_new_from_filename("stock_media-play.png");
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->list_toolbar),
-                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
-                                NULL,
-                                _("Play"),
-                                NULL, NULL,
-                                image, NULL, NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->list_toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Play"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play current wave table entry"),NULL);
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
-  image=gtk_image_new_from_filename("stock_media-stop.png");
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->list_toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Stop"),
-                                NULL, NULL,
-                                image, NULL, NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->list_toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Stop"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of current wave table entry"),NULL);
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
-  icon=gtk_image_new_from_stock(GTK_STOCK_CLEAR, gtk_toolbar_get_icon_size(GTK_TOOLBAR(self->priv->list_toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->list_toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Clear"),
-                                NULL,NULL,
-                                icon,NULL,NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->list_toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Clear"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Clear current wave table entry"),NULL);
+	tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
+  gtk_widget_set_name(tool_item,_("Play"));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play current wave table entry"),NULL);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+
+	tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
+  gtk_widget_set_name(tool_item,_("Stop"));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of current wave table entry"),NULL);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+	gtk_widget_set_sensitive(tool_item,FALSE);
+
+	tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR));
+  gtk_widget_set_name(tool_item,_("Clear"));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Clear current wave table entry"),NULL);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_clear_clicked),(gpointer)self);
 	
   gtk_box_pack_start(GTK_BOX(box),self->priv->list_toolbar,FALSE,FALSE,0);
 
@@ -276,40 +262,25 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_widget_set_name(self->priv->browser_toolbar,_("sample browser tool bar"));
     
 	// add buttons (play,stop,load)
-  image=gtk_image_new_from_filename("stock_media-play.png");
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->browser_toolbar),
-                                GTK_TOOLBAR_CHILD_TOGGLEBUTTON,
-                                NULL,
-                                _("Play"),
-                                NULL, NULL,
-                                image, NULL, NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->browser_toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Play"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Play current sample"),NULL);
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
-  image=gtk_image_new_from_filename("stock_media-stop.png");
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->browser_toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Stop"),
-                                NULL, NULL,
-                                image, NULL, NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->browser_toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Stop"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Stop playback of current sample"),NULL);
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
-  icon=gtk_image_new_from_stock(GTK_STOCK_OPEN, gtk_toolbar_get_icon_size(GTK_TOOLBAR(self->priv->browser_toolbar)));
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(self->priv->browser_toolbar),
-                                GTK_TOOLBAR_CHILD_BUTTON,
-                                NULL,
-                                _("Open"),
-                                NULL,NULL,
-                                icon,NULL,NULL);
-  gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(self->priv->browser_toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Open"));
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),button,_("Load current sample into wave table"),NULL);
-  //g_signal_connect(G_OBJECT(button),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
-	
+	tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
+  gtk_widget_set_name(tool_item,_("Play"));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play current sample"),NULL);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+
+	tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
+  gtk_widget_set_name(tool_item,_("Stop"));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of current sample"),NULL);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+	gtk_widget_set_sensitive(tool_item,FALSE);
+
+	tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
+  gtk_widget_set_name(tool_item,_("Open"));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Load current sample into selected wave table entry"),NULL);
+	gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
+
 	gtk_box_pack_start(GTK_BOX(box),self->priv->browser_toolbar,FALSE,FALSE,0);
 
 	//       file-chooser

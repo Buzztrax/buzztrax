@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.64 2005-05-03 15:15:20 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.65 2005-05-18 11:37:32 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -733,7 +733,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkWidget *toolbar,*scrolled_window;
-  GtkWidget *box,*menu,*button;
+  GtkWidget *box,*menu,*tool_item;
 	GtkWidget *menu_item,*image;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *tree_sel;
@@ -743,7 +743,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 	
   // add toolbar
   toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,_("machine view tool bar"));
+  gtk_widget_set_name(toolbar,_("pattern view tool bar"));
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   
@@ -763,15 +763,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
 
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_WIDGET,
-                                box,
-                                NULL,
-                                NULL,NULL,
-                                NULL,NULL,NULL);
-  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Machine"));
-  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+	tool_item=GTK_WIDGET(gtk_tool_item_new());
+  gtk_widget_set_name(tool_item,_("Machine"));
+	gtk_container_add(GTK_CONTAINER(tool_item),box);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 
   // pattern select
   box=gtk_hbox_new(FALSE,2);
@@ -784,15 +781,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
 	self->priv->pattern_menu_changed=g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
 
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_WIDGET,
-                                box,
-                                NULL,
-                                NULL,NULL,
-                                NULL,NULL,NULL);
-  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Pattern"));
-  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+	tool_item=GTK_WIDGET(gtk_tool_item_new());
+  gtk_widget_set_name(tool_item,_("Pattern"));
+	gtk_container_add(GTK_CONTAINER(tool_item),box);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 
   // add wavetable entry select
 	box=gtk_hbox_new(FALSE,2);
@@ -805,15 +799,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->wavetable_menu),TRUE,TRUE,2);
 	//self->priv->wavetable_menu_changed=g_signal_connect(G_OBJECT(self->priv->wavetable_menu), "changed", G_CALLBACK(on_wavetable_menu_changed), (gpointer)self);
 
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_WIDGET,
-                                box,
-                                NULL,
-                                NULL,NULL,
-                                NULL,NULL,NULL);
-  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Wave"));
-  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+	tool_item=GTK_WIDGET(gtk_tool_item_new());
+  gtk_widget_set_name(tool_item,_("Wave"));
+	gtk_container_add(GTK_CONTAINER(tool_item),box);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
+
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 
 	// add base octave (0-8)
 	box=gtk_hbox_new(FALSE,2);
@@ -827,24 +818,21 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->base_octave_menu),TRUE,TRUE,2);
 	//g_signal_connect(G_OBJECT(self->priv->base_octave_menu), "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
 
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_WIDGET,
-                                box,
-                                NULL,
-                                NULL,NULL,
-                                NULL,NULL,NULL);
-  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Octave"));
-  gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+	tool_item=GTK_WIDGET(gtk_tool_item_new());
+  gtk_widget_set_name(tool_item,_("Octave"));
+	gtk_container_add(GTK_CONTAINER(tool_item),box);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-  // @todo add play notes checkbox ?
+  gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
+
+  // @todo add play notes checkbox or toggle tool button
   
 	
 	// @idea what about adding one control for global params and one for each voice, then these controls can be folded
   // add list-view for pattern
 	scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->pattern_table=GTK_TREE_VIEW(gtk_tree_view_new());
 	tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
 	// GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column

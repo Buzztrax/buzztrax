@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.80 2005-05-11 08:47:45 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.81 2005-05-18 11:37:40 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -1070,7 +1070,7 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *toolbar;
-  GtkWidget *box,*button,*scrolled_window;
+  GtkWidget *box,*scrolled_window,*tool_item;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
   GdkColormap *colormap;
@@ -1082,7 +1082,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
 	
   // add toolbar
   toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(toolbar,_("machine view tool bar"));
+  gtk_widget_set_name(toolbar,_("sequence view tool bar"));
   gtk_box_pack_start(GTK_BOX(self),toolbar,FALSE,FALSE,0);
   gtk_toolbar_set_style(GTK_TOOLBAR(toolbar),GTK_TOOLBAR_BOTH);
   // add toolbar widgets
@@ -1099,14 +1099,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Steps")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->bars_menu),TRUE,TRUE,2);
   
-  button=gtk_toolbar_append_element(GTK_TOOLBAR(toolbar),
-                                GTK_TOOLBAR_CHILD_WIDGET,
-                                box,
-                                NULL,
-                                NULL,NULL,
-                                NULL,NULL,NULL);
-  //gtk_label_set_use_underline(GTK_LABEL(((GtkToolbarChild*)(g_list_last(GTK_TOOLBAR(toolbar)->children)->data))->label),TRUE);
-  gtk_widget_set_name(button,_("Steps"));
+	tool_item=GTK_WIDGET(gtk_tool_item_new());
+  gtk_widget_set_name(tool_item,_("Steps"));
+	gtk_container_add(GTK_CONTAINER(tool_item),box);
+	gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
   // allocate our colors
   colormap=gdk_colormap_get_system();
@@ -1180,7 +1176,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
 // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   self->priv->pattern_list=GTK_TREE_VIEW(gtk_tree_view_new());
 	g_object_set(self->priv->pattern_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
 	

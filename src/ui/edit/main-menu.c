@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.38 2005-05-17 23:40:51 ensonic Exp $
+/* $Id: main-menu.c,v 1.39 2005-05-18 11:37:32 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -20,9 +20,7 @@ struct _BtMainMenuPrivate {
   BtEditApplication *app;
 	
 	/* MenuItems */
-	GtkWidget *save_item;
-	GtkWidget *save_as_item;
-	
+	GtkWidget *save_item;	
 };
 
 static GtkMenuBarClass *parent_class=NULL;
@@ -271,7 +269,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 	
   g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
 	gtk_widget_set_sensitive(self->priv->save_item,unsaved);
-	gtk_widget_set_sensitive(self->priv->save_as_item,unsaved);
 }	
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -337,7 +334,6 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_name(subitem,_("Save as"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
 	g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
-	self->priv->save_as_item=subitem;
 
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));

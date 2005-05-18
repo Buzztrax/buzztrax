@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.28 2005-04-23 15:24:35 ensonic Exp $
+/* $Id: main-page-info.c,v 1.29 2005-05-18 11:37:32 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -190,19 +190,30 @@ static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
 
 static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   GtkWidget *label,*frame,*box;
-  GtkWidget *table,*entry;
+  GtkWidget *table,*entry,*spacer;
   GtkWidget *scrolledwindow;
 	GtkAdjustment *spin_adjustment;
+	gchar *str;
   
 	GST_DEBUG("!!!! self=%p",self);
 	
   // first row of vbox
-  frame=gtk_frame_new(_("song meta data"));
+  frame=gtk_frame_new(NULL);
+	label=gtk_label_new(NULL);
+  str=g_strdup_printf("<big><b>%s</b></big>",_("song meta data"));
+  gtk_label_set_markup(GTK_LABEL(label),str);
+	g_free(str);
+	gtk_frame_set_label_widget(GTK_FRAME(frame),label);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+	gtk_container_set_border_width(GTK_CONTAINER(frame),6);
   gtk_widget_set_name(frame,_("song meta data"));
   gtk_box_pack_start(GTK_BOX(self),frame,FALSE,TRUE,0);
 	
 	box=gtk_hbox_new(FALSE,6);
 	gtk_container_add(GTK_CONTAINER(frame),box);
+
+	spacer=gtk_label_new("    ");
+	gtk_box_pack_start(GTK_BOX(box),spacer,FALSE,TRUE,0);
 
 	// first column
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
@@ -210,21 +221,21 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->name=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->name), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->name), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 
   label=gtk_label_new(_("genre"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->genre=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->genre), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->genre), "changed", G_CALLBACK(on_genre_changed), (gpointer)self);
 
   label=gtk_label_new(_("author"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->author=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->genre), "changed", G_CALLBACK(on_author_changed), (gpointer)self);
@@ -235,7 +246,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 
   label=gtk_label_new(_("beats per minute"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_FILL,GTK_SHRINK, 2,1);
 	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(130.0, 20.0, 300.0, 1.0, 5.0, 5.0));
   self->priv->bpm=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
@@ -243,7 +254,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 
   label=gtk_label_new(_("tick per beat"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
 	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 4.0));
   self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
@@ -252,14 +263,27 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
 	gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second row of hbox
-  frame=gtk_frame_new(_("free text info"));
+  frame=gtk_frame_new(NULL);
+	label=gtk_label_new(NULL);
+  str=g_strdup_printf("<big><b>%s</b></big>",_("free text info"));
+  gtk_label_set_markup(GTK_LABEL(label),str);
+	g_free(str);
+	gtk_frame_set_label_widget(GTK_FRAME(frame),label);
+	gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_NONE);
+	gtk_container_set_border_width(GTK_CONTAINER(frame),6);
   gtk_widget_set_name(frame,_("free text info"));
   gtk_box_pack_start(GTK_BOX(self),frame,TRUE,TRUE,0);
 
-  scrolledwindow=gtk_scrolled_window_new(NULL, NULL);
+	box=gtk_hbox_new(FALSE,6);
+	gtk_container_add(GTK_CONTAINER(frame),box);
+
+	spacer=gtk_label_new("    ");
+	gtk_box_pack_start(GTK_BOX(box),spacer,FALSE,TRUE,0);
+
+	scrolledwindow=gtk_scrolled_window_new(NULL, NULL);
   gtk_widget_set_name(scrolledwindow,"scrolledwindow");
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),GTK_SHADOW_IN);
-  gtk_container_add(GTK_CONTAINER(frame),scrolledwindow);
+  gtk_container_add(GTK_CONTAINER(box),scrolledwindow);
 	GST_DEBUG("  scrolled window: %p",scrolledwindow);
 
   self->priv->info=GTK_TEXT_VIEW(gtk_text_view_new());
