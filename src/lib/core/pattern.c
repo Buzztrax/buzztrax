@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.41 2005-05-18 11:37:13 ensonic Exp $
+/* $Id: pattern.c,v 1.42 2005-05-19 15:57:20 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -254,6 +254,11 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
 			gint val=atoi(value);
       g_value_set_int(event,val);
       GST_DEBUG("store int event %s",value);
+    } break;
+    case G_TYPE_UINT: {
+			gint val=atoi(value);
+      g_value_set_uint(event,val);
+      GST_DEBUG("store uint event %s",value);
     } break;
     default:
       GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);

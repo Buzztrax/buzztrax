@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.52 2005-05-17 23:40:51 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.53 2005-05-19 15:57:29 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -284,6 +284,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 		g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 	}
 	g_signal_connect(G_OBJECT(song),"stop",G_CALLBACK(on_song_stop),(gpointer)self);
+	on_song_unsaved_changed(song,NULL,self);
 	g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   g_object_try_unref(master);
   g_object_try_unref(song);

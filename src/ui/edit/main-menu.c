@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.39 2005-05-18 11:37:32 ensonic Exp $
+/* $Id: main-menu.c,v 1.40 2005-05-19 15:57:29 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -282,9 +282,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 	g_return_if_fail(song);
 
+	on_song_unsaved_changed(song,NULL,self);
 	g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   g_object_try_unref(song);
-
 }
 
 

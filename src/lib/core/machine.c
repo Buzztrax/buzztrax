@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.109 2005-05-18 11:37:13 ensonic Exp $
+/* $Id: machine.c,v 1.110 2005-05-19 15:57:20 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -503,7 +503,7 @@ gboolean bt_machine_new(BtMachine *self) {
 #ifdef USE_GST_CONTROLLER
   // register global params
   if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
-    guint i;
+    guint i,j;
     
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
@@ -511,15 +511,17 @@ gboolean bt_machine_new(BtMachine *self) {
 		}
 		self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
 		self->priv->global_names  =(gchar **    )g_new0(gchar   ,self->priv->global_params);
-		for(i=0;i<number_of_properties;i++) {
+		for(i=j=0;i<number_of_properties;i++) {
 			property=properties[i];
       if(property->flags&GST_PARAM_CONTROLLABLE) {
         // add global param
-				self->priv->global_names[i]=property->name;
-				self->priv->global_types[i]=property->value_type;
+				self->priv->global_names[j]=property->name;
+				self->priv->global_types[j]=property->value_type;
+				j++;
 				GST_DEBUG("    added global_param \"%s\"",property->name);
       }
     }
+		g_free(properties);
   }
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_PROXY(self)) {
@@ -528,7 +530,7 @@ gboolean bt_machine_new(BtMachine *self) {
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
       if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
-        guint i;
+        guint i,j;
         
         // count number of controlable params
     		for(i=0;i<number_of_properties;i++) {
@@ -536,16 +538,18 @@ gboolean bt_machine_new(BtMachine *self) {
 				}
 				self->priv->voice_types  =(GType *     )g_new0(GType   ,self->priv->voice_params);
 				self->priv->voice_names  =(gchar **    )g_new0(gchar   ,self->priv->voice_params);
-        for(i=0;i<number_of_properties;i++) {
+        for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
 		        // add voice param
-						self->priv->voice_names[i]=property->name;
-						self->priv->voice_types[i]=property->value_type;
+						self->priv->voice_names[j]=property->name;
+						self->priv->voice_types[j]=property->value_type;
+						j++;
 						GST_DEBUG("    added voice_param \"%s\"",property->name);
           }
         }
       }
+			g_free(properties);
     }
   }
   else {
@@ -567,7 +571,7 @@ gboolean bt_machine_new(BtMachine *self) {
     g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
   //add the machine to the setup of the song
-  // @todo the method should get the setup as an paramter (faster when bulk adding)
+  // @todo the method should get the setup as an parameter (faster when bulk adding)
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
   g_assert(setup!=NULL);
   bt_setup_add_machine(setup,self);
@@ -964,7 +968,7 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
   }
 #endif
 #ifdef USE_GST_CONTROLLER
-  for(i=0;i<self->priv->global_params;i++) {
+	for(i=0;i<self->priv->global_params;i++) {
     if(!strcmp(self->priv->global_names[i],name)) {
       ret=i;
       found=TRUE;
@@ -1411,6 +1415,9 @@ static void bt_machine_dispose(GObject *object) {
 
 static void bt_machine_finalize(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
+#ifdef USE_GST_CONTROLLER
+	gulong i;
+#endif
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -1424,8 +1431,10 @@ static void bt_machine_finalize(GObject *object) {
   g_free(self->priv->global_dparams);
 #endif
 #ifdef USE_GST_CONTROLLER
-  g_free(self->priv->voice_names);
+	//for(i=0;i<self->priv->global_params;i++) g_free(self->priv->global_names[i]);
   g_free(self->priv->global_names);
+	//for(i=0;i<self->priv->voice_params;i++) g_free(self->priv->voice_names[i]);
+  g_free(self->priv->voice_names);
 #endif
   // free list of patterns
   if(self->priv->patterns) {
