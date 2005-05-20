@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.48 2005-05-11 07:32:28 ensonic Exp $
+# $Id: configure.ac,v 1.49 2005-05-20 13:54:26 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -99,6 +99,30 @@ else
   AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
   DEBUG_CFLAGS=""
 fi
+
+
+# compile with disable-deprecated switches
+AC_MSG_CHECKING([whether to disable deprecated glib/gtk+/gst/etc. features])
+AC_ARG_ENABLE(deprecated,
+	AC_HELP_STRING([--disable-deprecated],[disable deprecated glib/gtk+/gst/etc. features]),
+	set_enable_deprecated="$enableval",[
+		if test -f $srcdir/autogen.sh; then
+			is_cvs_version=true
+			set_enable_deprecated=no
+		else
+			set_enable_deprecated=yes
+		fi
+	]
+)
+if test "$set_enable_deprecated" != "yes"; then
+	AC_MSG_RESULT(yes)
+	BT_DISABLE_DEPRECATED="-DG_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGST_DISABLE_DEPRECATED"
+else
+	AC_MSG_RESULT(no)
+	BT_DISABLE_DEPRECATED=""
+fi
+AC_SUBST(BT_DISABLE_DEPRECATED)
+
 
 # enable coverage analysis
 AC_MSG_CHECKING(whether to enable coverage analysis)
@@ -315,7 +339,7 @@ AC_C_CONST
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
-BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS"
+BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS='-lbtcore -lm'
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.63 2005-05-18 11:37:32 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.64 2005-05-20 13:54:34 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -788,16 +788,13 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
 	// generate an antialiased canvas
-  gtk_widget_push_visual(gdk_rgb_get_visual());
   gtk_widget_push_colormap(gdk_rgb_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
 	/* the non antialisaed (and faster) version 
-  gtk_widget_push_visual(gdk_imlib_get_visual());
   gtk_widget_push_colormap(gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
 	*/
   gtk_widget_pop_colormap();
-  gtk_widget_pop_visual();
 	// seems to be ignored
 	//gtk_widget_add_events(GTK_WIDGET(self->priv->canvas),GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);

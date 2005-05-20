@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.71 2005-05-18 11:37:14 ensonic Exp $
+/* $Id: song-io-native.c,v 1.72 2005-05-20 13:54:34 ensonic Exp $
  * class for native song input and output
  */
  
@@ -80,7 +80,8 @@ xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr cons
   xmlXPathObjectPtr result=NULL;
   xmlXPathContextPtr ctxt;
 
-  g_assert(doc!=NULL);
+  g_assert(doc);
+	g_assert(xpath_comp_expression);
 
   //gitk_log_intro();
 	

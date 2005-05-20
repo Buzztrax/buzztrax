@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.110 2005-05-19 15:57:20 ensonic Exp $
+/* $Id: machine.c,v 1.111 2005-05-20 13:54:34 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -339,19 +339,33 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
     gst_element_unlink(self->priv->machines[pre],self->priv->machines[post]);
     // link new connection
     res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
+		if(!res) {
+			GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]),GST_OBJECT_NAME(self->priv->machines[post]));
+		}
   }
   else if(pre==-1) {
     // unlink old connection
     gst_element_unlink(peer,self->priv->machines[post]);
     // link new connection
     res=gst_element_link_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
+		if(!res) {
+			GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+			// @todo try to re-wire
+		}
   }
   else if(post==-1) {
     // unlink old connection
     gst_element_unlink(self->priv->machines[pre],peer);
     // link new connection
     res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
+		if(!res) {
+			GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+			// @todo try to re-wire
+		}
   }
+	else {
+		GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(self->priv->machines[part_position]));
+	}
   return(res);
 }
 

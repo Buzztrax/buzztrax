@@ -1,8 +1,14 @@
-/* $Id: machine-canvas-item.c,v 1.46 2005-04-22 17:34:19 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.47 2005-05-20 13:54:34 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
-/* @todo add level meter widgets
+/* @todo more graphics:
+ * - add level meter widgets
+ * - machine apperance
+ *   - have a shaded title bar
+ *   - move the machine title to top (over the shaded bar)
+ *   - use bold shaded M,S,B for mute, solo, bypass and
+ *     make the click rectangle shaded borderless (just add a divider for the title bar)
  */
 
 #define BT_EDIT
@@ -676,11 +682,22 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "outline_color", "black",
                            "width-pixels", 1,
                            NULL);
+	
+	// title bar
+	gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
+                           GNOME_TYPE_CANVAS_RECT,
+                           "x1", -w+1,
+                           "y1", -h+2,
+                           "x2", +w-1,
+                           "y2", -h+4+BASE_FONT_SIZE*self->priv->zoom,
+                           "fill-color-rgba", bg_color2,
+                           "width-pixels", 0,
+                           NULL);
 	// the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
                            "x", +0.0,
-                           "y", -3.0,
+                           "y", -MACHINE_VIEW_MACHINE_SIZE_X+2+(2*BASE_FONT_SIZE*self->priv->zoom),	/* was -3.0 */
                            "justification", GTK_JUSTIFY_CENTER,
 													 "font", "helvetica",	/* test if this ensures equal sizes among systems */
                            "size-points", BASE_FONT_SIZE*self->priv->zoom,

@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.40 2005-05-19 15:57:29 ensonic Exp $
+/* $Id: main-menu.c,v 1.41 2005-05-20 13:54:34 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -441,7 +441,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
 	// help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
   gtk_widget_set_name(item,_("help menu"));
-  gtk_menu_item_right_justify(GTK_MENU_ITEM(item));
+	// shouldn't be used anymore
+  //gtk_menu_item_right_justify(GTK_MENU_ITEM(item));
   gtk_container_add(GTK_CONTAINER(self),item);
 
   menu=gtk_menu_new();

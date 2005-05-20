@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.2 2005-05-09 20:30:10 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.3 2005-05-20 13:54:34 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -12,9 +12,7 @@ static void test_setup(void) {
 	if(!g_thread_supported()) {	// are g_threads() already initialized
 		g_thread_init(NULL);
 	}
-	if(!gdk_threads_mutex) { // is thew gdk_mutex already initialized 
-		gdk_threads_init();
-	}
+	gdk_threads_init();
 	bt_threads_init();
 
 	gtk_init(NULL,NULL);

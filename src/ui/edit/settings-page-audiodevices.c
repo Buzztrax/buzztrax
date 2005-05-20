@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.11 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.12 2005-05-20 13:54:34 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -26,7 +26,7 @@ static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
 
-static void on_audiosink_menu_changed(GtkOptionMenu *optionmenu, gpointer user_data) {
+static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data) {
   BtSettingsPageAudiodevices *self=BT_SETTINGS_PAGE_AUDIODEVICES(user_data);
   BtSettings *settings;
   gulong index;
