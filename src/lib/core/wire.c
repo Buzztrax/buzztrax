@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.55 2005-04-13 18:11:54 ensonic Exp $
+/* $Id: wire.c,v 1.56 2005-05-23 20:54:24 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -60,7 +60,7 @@ static GObjectClass *parent_class=NULL;
  * Links the gst-element of this wire and tries a couple for conversion elements
  * if necessary.
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 static gboolean bt_wire_link_machines(const BtWire *self) {
   gboolean res=TRUE;
@@ -74,7 +74,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   g_assert(GST_IS_OBJECT(src->src_elem));
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
-	GST_DEBUG("trying to link machines directly : %p -> %p",src->src_elem,dst->dst_elem);
+	GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
 	// try link src to dst {directly, with convert, with scale, with ...}
 	if(!gst_element_link(src->src_elem, dst->dst_elem)) {
 		if(!self->priv->convert) {
@@ -86,6 +86,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 		gst_bin_add(self->priv->bin, self->priv->convert);
     GST_DEBUG("trying to link machines with convert");
 		if(!gst_element_link_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL)) {
+			gst_element_unlink_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL);
 			if(!self->priv->scale) {
 				gchar *name=g_strdup_printf("audioscale_%p",self);
 				self->priv->scale=gst_element_factory_make("audioscale",name);
@@ -95,11 +96,21 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 			gst_bin_add(self->priv->bin, self->priv->scale);
       GST_DEBUG("trying to link machines with scale");
 			if(!gst_element_link_many(src->src_elem, self->priv->scale, dst->dst_elem, NULL)) {
+				gst_element_unlink_many(src->src_elem, self->priv->scale, dst->dst_elem, NULL);
         GST_DEBUG("trying to link machines with convert and scale");
 				if(!gst_element_link_many(src->src_elem, self->priv->convert, self->priv->scale, dst->dst_elem, NULL)) {
-					// try harder (scale, convert)
-					GST_DEBUG("failed to link the machines");
-          res=FALSE;
+					gst_element_unlink_many(src->src_elem, self->priv->convert, self->priv->scale, dst->dst_elem, NULL);
+					GST_DEBUG("trying to link machines with scale and convert");
+					if(!gst_element_link_many(src->src_elem, self->priv->scale, self->priv->convert, dst->dst_elem, NULL)) {
+						gst_element_unlink_many(src->src_elem, self->priv->scale, self->priv->convert, dst->dst_elem, NULL);
+						GST_DEBUG("failed to link the machines");
+						res=FALSE;
+					}
+					else {
+						self->priv->src_elem=self->priv->convert;
+						self->priv->dst_elem=self->priv->scale;
+						GST_DEBUG("  wire okay with scale and convert");
+					}
 				}
 				else {
 					self->priv->src_elem=self->priv->scale;
@@ -138,16 +149,18 @@ static void bt_wire_unlink_machines(const BtWire *self) {
 
   g_assert(BT_IS_WIRE(self));
 
-	GST_DEBUG("trying to unlink machines");
-	gst_element_unlink(self->priv->src->src_elem, self->priv->dst->dst_elem);
-	if(self->priv->convert) {
-		gst_element_unlink_many(self->priv->src->src_elem, self->priv->convert, self->priv->dst->dst_elem, NULL);
-	}
-	if(self->priv->scale) {
-		gst_element_unlink_many(self->priv->src->src_elem, self->priv->scale, self->priv->dst->dst_elem, NULL);
-	}
+	GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
 	if(self->priv->convert && self->priv->scale) {
 		gst_element_unlink_many(self->priv->src->src_elem, self->priv->convert, self->priv->scale, self->priv->dst->dst_elem, NULL);
+	}
+	else if(self->priv->convert) {
+		gst_element_unlink_many(self->priv->src->src_elem, self->priv->convert, self->priv->dst->dst_elem, NULL);
+	}
+	else if(self->priv->scale) {
+		gst_element_unlink_many(self->priv->src->src_elem, self->priv->scale, self->priv->dst->dst_elem, NULL);
+	}
+	else {
+		gst_element_unlink(self->priv->src->src_elem, self->priv->dst->dst_elem);
 	}
 	if(self->priv->convert) {
     GST_DEBUG("  removing convert from bin, obj->ref_count=%d",G_OBJECT(self->priv->convert)->ref_count);
@@ -258,7 +271,7 @@ Error:
  * @dst_machine: the data sink (#BtSinkMachine or #BtProcessorMachine)
  *
  * Create a new instance.
- * A wire should be added to a songs setup using
+ * The new wire is automaticall added to a songs setup. You don't need to call
  * <code>#bt_setup_add_wire(setup,wire);</code>.
  *
  * Returns: the new instance or %NULL in case of an error
@@ -290,6 +303,23 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
 Error:
 	g_object_try_unref(self);
 	return(NULL);
+}
+
+//-- methods
+
+/**
+ * bt_wire_reconnect:
+ * @self: the wire to re-link
+ *
+ * Call this method after internal elements in a #BtMachine have changed, but
+ * failed to link.
+ *
+ * Returns: %TRUE for success and %FALSE otherwise
+ */
+gboolean bt_wire_reconnect(BtWire *self) {
+	GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
+	bt_wire_unlink_machines(self);
+	return(bt_wire_link_machines(self));
 }
 
 //-- wrapper

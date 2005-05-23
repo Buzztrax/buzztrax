@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.111 2005-05-20 13:54:34 ensonic Exp $
+/* $Id: machine.c,v 1.112 2005-05-23 20:54:24 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -319,6 +319,8 @@ static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
 static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMachinePart part_position) {
   gboolean res=FALSE;
   gint i,pre,post;
+	BtSetup *setup;
+	BtWire *wire;
     
   //seek elements before and after part_position
   pre=post=-1;
@@ -340,6 +342,7 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
     // link new connection
     res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
 		if(!res) {
+			gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
 			GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]),GST_OBJECT_NAME(self->priv->machines[post]));
 		}
   }
@@ -349,8 +352,22 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
     // link new connection
     res=gst_element_link_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
 		if(!res) {
+			gst_element_unlink_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
 			GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
-			// @todo try to re-wire
+			// try to re-wire
+			if((res=gst_element_link(self->priv->machines[part_position],self->priv->machines[post]))) {
+				g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+				if((wire=bt_setup_get_wire_by_dst_machine(setup,self))) {
+					if(!(res=bt_wire_reconnect(wire))) {
+						GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+					}
+					g_object_unref(wire);
+				}
+				g_object_try_unref(setup);
+			}
+			else {
+				GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+			}
 		}
   }
   else if(post==-1) {
@@ -359,8 +376,22 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
     // link new connection
     res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
 		if(!res) {
+			gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
 			GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
-			// @todo try to re-wire
+			// try to re-wire
+			if((res=gst_element_link(self->priv->machines[pre],self->priv->machines[part_position]))) {
+				g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+				if((wire=bt_setup_get_wire_by_src_machine(setup,self))) {
+					if(!(res=bt_wire_reconnect(wire))) {
+						GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+					}
+					g_object_unref(wire);
+				}
+				g_object_try_unref(setup);
+			}
+			else {
+				GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+			}
 		}
   }
 	else {
@@ -721,6 +752,7 @@ gboolean bt_machine_activate_adder(BtMachine *self) {
     gst_bin_add(self->priv->bin, self->priv->machines[PART_ADDER_CONVERT]);
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
+			gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
       GST_ERROR("failed to link the machines internal adder");res=FALSE;
     }
     else {
