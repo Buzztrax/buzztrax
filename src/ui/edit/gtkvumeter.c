@@ -49,7 +49,7 @@ GtkType gtk_vumeter_get_type (void)
 GtkWidget* gtk_vumeter_new (gboolean vertical)
 {
     GtkVUMeter *vumeter;
-    vumeter = gtk_type_new (GTK_TYPE_VUMETER);
+    vumeter = GTK_VUMETER( g_object_new (GTK_TYPE_VUMETER,NULL));
     vumeter->vertical = vertical;
     return GTK_WIDGET (vumeter);
 }

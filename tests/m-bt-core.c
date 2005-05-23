@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.4 2005-05-09 20:30:09 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.5 2005-05-23 13:06:23 ensonic Exp $
  * core library unit tests
  */
 
@@ -32,6 +32,8 @@ int main(int argc, char **argv) {
   int nf; 
   SRunner *sr;
 
+	//g_mem_set_vtable(glib_mem_profiler_table);
+
   setup_log(argc,argv);
 	setup_log_capture();
   test_argv[0]=test_arg0;
@@ -63,6 +65,8 @@ int main(int argc, char **argv) {
 	srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
+	
+	//g_mem_profile();
 
 	return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
 }
