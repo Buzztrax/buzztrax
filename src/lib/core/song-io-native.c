@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.72 2005-05-20 13:54:34 ensonic Exp $
+/* $Id: song-io-native.c,v 1.73 2005-05-24 15:39:00 ensonic Exp $
  * class for native song input and output
  */
  
@@ -750,7 +750,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 				  bt_song_io_native_load_wavetable(self,song,song_doc)
 				) {
 					//DEBUG
-					bt_song_write_to_xml_file(song);
+					//bt_song_write_to_xml_file(song);
 					//DEBUG
 					result=TRUE;
 				}

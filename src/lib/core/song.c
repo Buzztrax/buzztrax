@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.71 2005-04-14 15:31:25 ensonic Exp $
+/* $Id: song.c,v 1.72 2005-05-24 15:39:00 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -275,6 +275,10 @@ static void bt_song_dispose(GObject *object) {
 
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+	
+	//DEBUG
+	bt_song_write_to_xml_file(self);
+	//DEBUG
 
   GST_DEBUG("!!!! self=%p",self);
 
