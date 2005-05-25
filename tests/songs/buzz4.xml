@@ -40,16 +40,13 @@
   </setup>
   
   <patterns>
-    <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
-      <tick time="0">
-        <globaldata name="Trigger" value="1"/>
-      </tick>
-      <tick time="4">
-        <globaldata name="Trigger" value="10"/>
-      </tick>
-      <tick time="8">
-        <globaldata name="Trigger" value="80"/>
-      </tick>
+    <pattern id="gen_beats" machine="gen" name="beats" length="16">
+      <tick time="0"><globaldata name="Trigger" value="10"/></tick>
+			<tick time="1"><globaldata name="Trigger" value= "0"/></tick>
+      <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+			<tick time="5"><globaldata name="Trigger" value= "0"/></tick>
+      <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+			<tick time="9"><globaldata name="Trigger" value= "0"/></tick>
     </pattern>
   </patterns>
   
@@ -60,8 +57,8 @@
     </labels>
     <tracks>
       <track index="0" machine="gen">
-        <position time="0" pattern="gen_beeps"/>
-        <position time="32" pattern="gen_beeps"/>
+        <position time="0" pattern="gen_beats"/>
+        <position time="32" pattern="gen_beats"/>
       </track>
     </tracks>
   </sequence>

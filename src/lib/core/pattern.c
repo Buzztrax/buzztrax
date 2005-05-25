@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.42 2005-05-19 15:57:20 ensonic Exp $
+/* $Id: pattern.c,v 1.43 2005-05-25 15:53:00 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -288,6 +288,9 @@ static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
 			break;
     case G_TYPE_INT:
 			res=g_strdup_printf("%ld",g_value_get_int(event));
+			break;
+    case G_TYPE_UINT:
+			res=g_strdup_printf("%lu",g_value_get_uint(event));
 			break;
     default:
       GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
@@ -583,12 +586,28 @@ void bt_pattern_play_tick(const BtPattern *self, gulong index) {
     if(G_IS_VALUE(data)) {
       bt_machine_set_global_param_value(self->priv->machine,k,data);
     }
+		else {
+			/*
+			guint flags;
+			g_param_spec_get_qdata(paramspec,param_quark_min_val,GPOINTER_TO_UINT(&flags));
+			// if !(flags&MPF_STATE) -> set no-value
+			bt_machine_set_global_param_no_value(self->priv->machine,k);
+			*/
+		}
     data++;
   }
   for(j=0;j<self->priv->voices;j++) {
     for(k=0;k<self->priv->voice_params;k++) {
 			if(G_IS_VALUE(data)) {
 				bt_machine_set_voice_param_value(self->priv->machine,j,k,data);
+			}
+			else {
+				/*
+				guint flags;
+				g_param_spec_get_qdata(paramspec,param_quark_min_val,GPOINTER_TO_UINT(&flags));
+				// if !(flags&MPF_STATE) -> set no-value
+				bt_machine_set_voice_param_no_value(self->priv->machine,j,k);
+				*/
 			}
       data++;
     }
