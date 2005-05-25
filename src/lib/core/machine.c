@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.112 2005-05-23 20:54:24 ensonic Exp $
+/* $Id: machine.c,v 1.113 2005-05-25 09:52:51 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1026,6 +1026,7 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
                 "global param for name %s not found", name);
   }
 #endif
+	g_assert((found || (error && *error)));
   return(ret);
 }
 
@@ -1086,6 +1087,7 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
                 "voice param for name %s not found", name);
   }
 #endif
+	g_assert((found || (error && *error)));
 	return(ret);
 }
 
@@ -1290,6 +1292,22 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
 #ifdef USE_GST_CONTROLLER
 	return(self->priv->voice_names[index]);
 #endif
+}
+
+//-- debug helper
+
+void bt_machine_dbg_print_parts(const BtMachine *self) {
+	/* [A AC IL IG M OL OG S] */
+	GST_DEBUG("%s [%s %s %s %s %s %s %s %s]",
+		self->priv->id,
+		self->priv->machines[PART_ADDER]?"A":"a",
+		self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
+		self->priv->machines[PART_INPUT_LEVEL]?"IL":"il",
+		self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
+		self->priv->machines[PART_MACHINE]?"M":"m",
+		self->priv->machines[PART_OUTPUT_LEVEL]?"OL":"ol",
+		self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
+		self->priv->machines[PART_SPREADER]?"S":"s");
 }
 
 //-- wrapper

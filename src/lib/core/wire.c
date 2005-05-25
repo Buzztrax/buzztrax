@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.56 2005-05-23 20:54:24 ensonic Exp $
+/* $Id: wire.c,v 1.57 2005-05-25 09:52:52 ensonic Exp $
  * class for a machine to machine connection
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -104,6 +104,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
 					if(!gst_element_link_many(src->src_elem, self->priv->scale, self->priv->convert, dst->dst_elem, NULL)) {
 						gst_element_unlink_many(src->src_elem, self->priv->scale, self->priv->convert, dst->dst_elem, NULL);
 						GST_DEBUG("failed to link the machines");
+						// print out the content of both machines (using GST_DEBUG)
+						bt_machine_dbg_print_parts(src);bt_machine_dbg_print_parts(dst);
 						res=FALSE;
 					}
 					else {
