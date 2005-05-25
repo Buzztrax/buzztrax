@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.5 2005-05-23 13:06:23 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.6 2005-05-25 13:32:00 ensonic Exp $
  * core library unit tests
  */
 
@@ -11,6 +11,7 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 extern Suite *bt_core_suite(void);
 extern Suite *bt_machine_suite(void);
 extern Suite *bt_network_suite(void);
+extern Suite *bt_processor_machine_suite(void);
 extern Suite *bt_sequence_suite(void);
 extern Suite *bt_setup_suite(void);
 extern Suite *bt_sink_machine_suite(void);
@@ -50,6 +51,7 @@ int main(int argc, char **argv) {
   sr=srunner_create(bt_core_suite());
 	srunner_add_suite(sr, bt_machine_suite());
 	srunner_add_suite(sr, bt_network_suite());
+	srunner_add_suite(sr, bt_processor_machine_suite());
 	srunner_add_suite(sr, bt_sequence_suite());
 	srunner_add_suite(sr, bt_setup_suite());
 	srunner_add_suite(sr, bt_sink_machine_suite());
@@ -60,7 +62,7 @@ int main(int argc, char **argv) {
 	srunner_add_suite(sr, bt_timeline_suite());
 	srunner_add_suite(sr, bt_wire_suite());
 	srunner_add_suite(sr, bt_settings_suite());
-  // this make tracing errors with gdb easier
+  // this make tracing errors with gdb easier (use env CK_FORK="no" gdb ...)
   //srunner_set_fork_status(sr,CK_NOFORK);
 	srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.113 2005-05-25 09:52:51 ensonic Exp $
+/* $Id: machine.c,v 1.114 2005-05-25 13:31:59 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -347,6 +347,7 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
 		}
   }
   else if(pre==-1) {
+		self->dst_elem=self->priv->machines[part_position];
     // unlink old connection
     gst_element_unlink(peer,self->priv->machines[post]);
     // link new connection
@@ -371,6 +372,7 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
 		}
   }
   else if(post==-1) {
+		self->src_elem=self->priv->machines[part_position];
     // unlink old connection
     gst_element_unlink(self->priv->machines[pre],peer);
     // link new connection
@@ -715,7 +717,7 @@ gboolean bt_machine_enable_input_gain(BtMachine *self) {
     if(!bt_machine_insert_element(self,peer,PART_INPUT_GAIN)) {
       GST_ERROR("failed to link the input gain element for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }  
-     GST_INFO("sucessfully added input gain element %p",self->priv->machines[PART_INPUT_GAIN]);
+    GST_INFO("sucessfully added input gain element %p",self->priv->machines[PART_INPUT_GAIN]);
   }
   res=TRUE;
 Error:
@@ -1298,16 +1300,41 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
 
 void bt_machine_dbg_print_parts(const BtMachine *self) {
 	/* [A AC IL IG M OL OG S] */
-	GST_DEBUG("%s [%s %s %s %s %s %s %s %s]",
+	GST_DEBUG("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
 		self->priv->id,
+	
+		self->priv->machines[PART_ADDER]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_ADDER]?"A":"a",
+		self->priv->machines[PART_ADDER]==self->src_elem?'>':' ',
+	
+		self->priv->machines[PART_ADDER_CONVERT]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
+		self->priv->machines[PART_ADDER_CONVERT]==self->src_elem?'>':' ',
+	
+		self->priv->machines[PART_INPUT_LEVEL]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_INPUT_LEVEL]?"IL":"il",
+		self->priv->machines[PART_INPUT_LEVEL]==self->src_elem?'>':' ',
+		
+		self->priv->machines[PART_INPUT_GAIN]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
+		self->priv->machines[PART_INPUT_GAIN]==self->src_elem?'>':' ',
+	
+		self->priv->machines[PART_MACHINE]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_MACHINE]?"M":"m",
+		self->priv->machines[PART_MACHINE]==self->src_elem?'>':' ',
+	
+		self->priv->machines[PART_OUTPUT_LEVEL]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_OUTPUT_LEVEL]?"OL":"ol",
+		self->priv->machines[PART_OUTPUT_LEVEL]==self->src_elem?'>':' ',
+	
+		self->priv->machines[PART_OUTPUT_GAIN]==self->dst_elem?'<':' ',
 		self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
-		self->priv->machines[PART_SPREADER]?"S":"s");
+		self->priv->machines[PART_OUTPUT_GAIN]==self->src_elem?'>':' ',
+	
+		self->priv->machines[PART_SPREADER]==self->dst_elem?'<':' ',
+		self->priv->machines[PART_SPREADER]?"S":"s",
+		self->priv->machines[PART_SPREADER]==self->src_elem?'>':' '
+	);
 }
 
 //-- wrapper

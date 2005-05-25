@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.48 2005-05-23 20:54:24 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.49 2005-05-25 13:32:00 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -375,8 +375,13 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
 		
-		// @todo add a '\n' after each ',' to nicely format the message_box
 		str_author=g_markup_escape_text(element_author,strlen(element_author));
+		// add a '\n' after each ',' to nicely format the message_box
+		str=str_author;
+		while((str=strchr(str,','))) {
+			str++;
+			if(*str==' ') *str='\n';
+		}
 		
 		str=g_strdup_printf(
 			_("by %s\n\n%s"),

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.61 2005-04-20 17:37:07 ensonic Exp $
+/* $Id: edit-application.c,v 1.62 2005-05-25 13:32:00 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -327,6 +327,7 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
     res=bt_edit_application_run_ui(self);
   }
 	else {
+		GST_WARNING("loading song failed");
 		// start normaly
 		bt_edit_application_run(self);
 		// @todo show error message
