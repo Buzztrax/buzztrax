@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.1 2005-04-15 17:05:13 ensonic Exp $
+/* $Id: e-source-machine.c,v 1.2 2005-05-25 13:29:27 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -45,7 +45,7 @@ START_TEST(test_btsourcemachine_obj1){
 	song=bt_song_new(app);
 	
 	/* try to create a source machine */
-	machine=bt_source_machine_new(song,"id","sinesrc",1);
+	machine=bt_source_machine_new(song,"gen","sinesrc",1);
 	fail_unless(machine!=NULL, NULL);
 	
 	/* try to create a pattern */

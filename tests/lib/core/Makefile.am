@@ -1,11 +1,12 @@
-## $Id: Makefile.am,v 1.23 2005-05-03 19:34:39 waffel Exp $
+## $Id: Makefile.am,v 1.24 2005-05-25 13:29:26 ensonic Exp $
 
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-core.c t-core.c \
-	s-machine.c t-machine.c \
+	s-machine.c e-machine.c t-machine.c \
 	s-network.c e-network.c t-network.c \
+	s-processor-machine.c e-processor-machine.c \
 	s-sequence.c t-sequence.c \
 	s-setup.c e-setup.c t-setup.c \
 	s-sink-machine.c t-sink-machine.c \
