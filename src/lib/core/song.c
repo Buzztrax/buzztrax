@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.73 2005-05-25 09:52:52 ensonic Exp $
+/* $Id: song.c,v 1.74 2005-05-26 16:55:29 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -185,7 +185,7 @@ void bt_song_write_to_xml_file(const BtSong *self) {
   FILE *out;
   g_assert(BT_IS_SONG(self));
   
-	// @todo find a way to not overwrite files diring a run
+	// @todo find a way to not overwrite files during a run
   if((out=fopen("/tmp/buzztard-song.xml","wb"))) {
     gst_xml_write_file(GST_ELEMENT(self->priv->bin),out);
     fclose(out);

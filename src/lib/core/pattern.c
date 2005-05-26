@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.43 2005-05-25 15:53:00 ensonic Exp $
+/* $Id: pattern.c,v 1.44 2005-05-26 16:55:29 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -587,12 +587,7 @@ void bt_pattern_play_tick(const BtPattern *self, gulong index) {
       bt_machine_set_global_param_value(self->priv->machine,k,data);
     }
 		else {
-			/*
-			guint flags;
-			g_param_spec_get_qdata(paramspec,param_quark_min_val,GPOINTER_TO_UINT(&flags));
-			// if !(flags&MPF_STATE) -> set no-value
 			bt_machine_set_global_param_no_value(self->priv->machine,k);
-			*/
 		}
     data++;
   }
@@ -602,12 +597,7 @@ void bt_pattern_play_tick(const BtPattern *self, gulong index) {
 				bt_machine_set_voice_param_value(self->priv->machine,j,k,data);
 			}
 			else {
-				/*
-				guint flags;
-				g_param_spec_get_qdata(paramspec,param_quark_min_val,GPOINTER_TO_UINT(&flags));
-				// if !(flags&MPF_STATE) -> set no-value
 				bt_machine_set_voice_param_no_value(self->priv->machine,j,k);
-				*/
 			}
       data++;
     }

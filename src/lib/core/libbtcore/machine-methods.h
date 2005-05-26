@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.27 2005-05-25 09:52:57 ensonic Exp $
+/* $Id: machine-methods.h,v 1.28 2005-05-26 16:55:37 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -49,6 +49,9 @@ extern void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice
 
 extern const gchar *bt_machine_get_global_param_name(const BtMachine *self, gulong index);
 extern const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index);
+
+extern void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index);
+extern void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index);
 
 // debug helper
 extern void bt_machine_dbg_print_parts(const BtMachine *self);

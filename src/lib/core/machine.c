@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.114 2005-05-25 13:31:59 ensonic Exp $
+/* $Id: machine.c,v 1.115 2005-05-26 16:55:29 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1250,6 +1250,35 @@ void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulon
 #ifdef USE_GST_CONTROLLER
 	g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice)),self->priv->voice_names[index],event);
 #endif
+}
+
+void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index) {
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(index<self->priv->global_params);
+
+	/* @todo implement
+	guint flags;
+	g_param_spec_get_qdata(paramspec,param_quark_flags,GPOINTER_TO_UINT(&flags));
+	if(!(flags&MPF_STATE)) {
+		g_param_spec_get_qdata(paramspec,param_quark_no_value,GPOINTER_TO_UINT(&val));
+		-> set no-value
+	}
+	*/	
+}
+
+void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index) {
+  g_assert(BT_IS_MACHINE(self));
+  g_assert(voice<self->priv->voices);
+  g_assert(index<self->priv->global_params);
+
+	/* @todo implement
+	guint flags;
+	g_param_spec_get_qdata(paramspec,param_quark_flags,GPOINTER_TO_UINT(&flags));
+	if(!(flags&MPF_STATE)) {
+		g_param_spec_get_qdata(paramspec,param_quark_no_value,GPOINTER_TO_UINT(&val));
+		-> set no-value
+	}
+	*/	
 }
 
 /**
