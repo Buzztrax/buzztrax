@@ -42,11 +42,8 @@
   <patterns>
     <pattern id="gen_beats" machine="gen" name="beats" length="16">
       <tick time="0"><globaldata name="Trigger" value="10"/></tick>
-			<tick time="1"><globaldata name="Trigger" value= "0"/></tick>
       <tick time="4"><globaldata name="Trigger" value="40"/></tick>
-			<tick time="5"><globaldata name="Trigger" value= "0"/></tick>
       <tick time="8"><globaldata name="Trigger" value="80"/></tick>
-			<tick time="9"><globaldata name="Trigger" value= "0"/></tick>
     </pattern>
   </patterns>
   

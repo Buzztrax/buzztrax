@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.44 2005-05-26 16:55:29 ensonic Exp $
+/* $Id: pattern.c,v 1.45 2005-05-27 15:40:40 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -250,6 +250,11 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
       g_value_set_double(event,val);
       GST_DEBUG("store double event %s",value);
     } break;
+    case G_TYPE_BOOLEAN: {
+			gint val=atoi(value);
+      g_value_set_boolean(event,val);
+      GST_DEBUG("store boolean event %s",value);
+    } break;
     case G_TYPE_INT: {
 			gint val=atoi(value);
       g_value_set_int(event,val);
@@ -285,6 +290,9 @@ static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE:
       res=g_strdup_printf("%lf",g_value_get_double(event));
+			break;
+    case G_TYPE_BOOLEAN:
+			res=g_strdup_printf("%d",g_value_get_boolean(event));
 			break;
     case G_TYPE_INT:
 			res=g_strdup_printf("%ld",g_value_get_int(event));

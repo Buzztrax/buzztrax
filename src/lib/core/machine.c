@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.115 2005-05-26 16:55:29 ensonic Exp $
+/* $Id: machine.c,v 1.116 2005-05-27 15:40:40 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -89,16 +89,15 @@ struct _BtMachinePrivate {
   /* dynamic parameter control */
 #ifdef USE_GST_DPARAMS
   GstDParamManager *dparam_manager;
-  GstDParam **global_dparams;
-  GstDParam **voice_dparams;
+  GstDParam **global_dparams,**voice_dparams;
 #endif
 #ifdef USE_GST_CONTROLLER
   GstController *controller;
-  gchar **global_names;
-  gchar **voice_names;
+  gchar **global_names,**voice_names;
 #endif
-  GType *global_types;
-  GType *voice_types; 
+  GType *global_types,*voice_types; 
+	guint *global_flags,*voice_flags;
+	GValue *global_no_val,*voice_no_val;
 
   GList *patterns;  // each entry points to BtPattern
   
@@ -115,6 +114,9 @@ static GQuark error_domain=0;
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
+
+// see GstBML::gstbml.c
+static GQuark param_quark_min_val,param_quark_max_val,param_quark_def_val,param_quark_no_val,param_quark_flags;
 
 //-- enums
 
@@ -461,8 +463,7 @@ gboolean bt_machine_new(BtMachine *self) {
   gchar *name;
   BtSetup *setup;
 #ifdef USE_GST_CONTROLLER
-  GParamSpec **properties,*property;
-  GstObject *voice_child;
+  GParamSpec **properties;
 	guint number_of_properties;
 #endif
 
@@ -530,7 +531,9 @@ gboolean bt_machine_new(BtMachine *self) {
       // right now, we have no voice params
       self->priv->global_params=i;
       self->priv->global_dparams=(GstDParam **)g_new0(gpointer,self->priv->global_params);
-      self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
+      self->priv->global_types  =(GType *    )g_new0(GType    ,self->priv->global_params);
+			self->priv->global_flags  =(guint *    )g_new0(guint    ,self->priv->global_params);
+			self->priv->global_no_val =(GValue *   )g_new0(GValue   ,self->priv->global_params);
       // iterate over all dparam
       for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
         gboolean attach_ret=FALSE;
@@ -549,55 +552,97 @@ gboolean bt_machine_new(BtMachine *self) {
 #endif
 #ifdef USE_GST_CONTROLLER
   // register global params
-  if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
+  if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
+	  GParamSpec *property;
     guint i,j;
     
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
       if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->global_params++;
 		}
-		self->priv->global_types  =(GType *     )g_new0(GType   ,self->priv->global_params);
-		self->priv->global_names  =(gchar **    )g_new0(gchar   ,self->priv->global_params);
+		self->priv->global_types =(GType *     )g_new0(GType   ,self->priv->global_params);
+		self->priv->global_names =(gchar **    )g_new0(gchar   ,self->priv->global_params);
+		self->priv->global_flags =(guint *     )g_new0(guint   ,self->priv->global_params);
+		self->priv->global_no_val=(GValue *    )g_new0(GValue  ,self->priv->global_params);
 		for(i=j=0;i<number_of_properties;i++) {
 			property=properties[i];
       if(property->flags&GST_PARAM_CONTROLLABLE) {
+				GST_DEBUG("    adding global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         // add global param
 				self->priv->global_names[j]=property->name;
 				self->priv->global_types[j]=property->value_type;
+				self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_flags));
+				g_value_init(&self->priv->global_no_val[j],property->value_type);
+				switch(property->value_type) {
+					case G_TYPE_BOOLEAN:
+						g_value_set_boolean(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
+						break;
+					case G_TYPE_INT:
+						g_value_set_int(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
+						break;
+					case G_TYPE_UINT:
+						g_value_set_uint(&self->priv->global_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,param_quark_no_val)));
+						break;
+					default:
+						GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+				}
+				GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
 				j++;
-				GST_DEBUG("    added global_param \"%s\"",property->name);
       }
     }
 		g_free(properties);
   }
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_PROXY(self)) {
+  	GstObject *voice_child;
+
     GST_INFO("  instance is polyphonic!");
     // register voice params
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
-      if((properties=g_object_class_list_properties (G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
+      if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
+			  GParamSpec *property;
         guint i,j;
         
         // count number of controlable params
     		for(i=0;i<number_of_properties;i++) {
       		if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
 				}
-				self->priv->voice_types  =(GType *     )g_new0(GType   ,self->priv->voice_params);
-				self->priv->voice_names  =(gchar **    )g_new0(gchar   ,self->priv->voice_params);
+				self->priv->voice_types =(GType *     )g_new0(GType   ,self->priv->voice_params);
+				self->priv->voice_names =(gchar **    )g_new0(gchar   ,self->priv->voice_params);
+				self->priv->voice_flags =(guint *     )g_new0(guint   ,self->priv->voice_params);
+				self->priv->voice_no_val=(GValue *    )g_new0(GValue  ,self->priv->voice_params);
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
 		        // add voice param
 						self->priv->voice_names[j]=property->name;
 						self->priv->voice_types[j]=property->value_type;
+						self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_flags));
+						g_value_init(&self->priv->voice_no_val[j],property->value_type);
+						switch(property->value_type) {
+							case G_TYPE_BOOLEAN:
+								g_value_set_boolean(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
+								break;
+							case G_TYPE_INT:
+								g_value_set_int(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
+								break;
+							case G_TYPE_UINT:
+								g_value_set_uint(&self->priv->voice_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,param_quark_no_val)));
+								break;
+					    default:
+					      GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+						}
+						GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
 						j++;
-						GST_DEBUG("    added voice_param \"%s\"",property->name);
           }
         }
       }
 			g_free(properties);
     }
+		else {
+			GST_WARNING("  can't get first voice child!");
+		}
   }
   else {
     GST_INFO("  instance is monophonic!");
@@ -1256,14 +1301,9 @@ void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
 
-	/* @todo implement
-	guint flags;
-	g_param_spec_get_qdata(paramspec,param_quark_flags,GPOINTER_TO_UINT(&flags));
-	if(!(flags&MPF_STATE)) {
-		g_param_spec_get_qdata(paramspec,param_quark_no_value,GPOINTER_TO_UINT(&val));
-		-> set no-value
+	if(!(self->priv->global_flags[index]&0x02)) {	/* MPF_STATE */
+		bt_machine_set_global_param_value(self,index,&self->priv->global_no_val[index]);
 	}
-	*/	
 }
 
 void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index) {
@@ -1271,14 +1311,9 @@ void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gu
   g_assert(voice<self->priv->voices);
   g_assert(index<self->priv->global_params);
 
-	/* @todo implement
-	guint flags;
-	g_param_spec_get_qdata(paramspec,param_quark_flags,GPOINTER_TO_UINT(&flags));
-	if(!(flags&MPF_STATE)) {
-		g_param_spec_get_qdata(paramspec,param_quark_no_value,GPOINTER_TO_UINT(&val));
-		-> set no-value
+	if(!(self->priv->voice_flags[index]&0x02)) {	/* MPF_STATE */
+		bt_machine_set_voice_param_value(self,voice,index,&self->priv->voice_no_val[index]);
 	}
-	*/	
 }
 
 /**
@@ -1482,7 +1517,7 @@ static void bt_machine_set_property(GObject      *object,
 
 static void bt_machine_dispose(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
-  gint i;
+  guint i;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -1509,6 +1544,12 @@ static void bt_machine_dispose(GObject *object) {
   //GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
 #ifdef USE_GST_DPARAMS
+	for(i=0;i<self->priv->global_params;i++) {
+		g_object_unref(self->priv->global_dparams[i]);
+	}
+	for(i=0;i<self->priv->voice_params;i++) {
+		g_object_unref(self->priv->voice_dparams[i]);
+	}
   //GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
   // seems that gst_dpman_get_dparam() does not ref it, therefore we shouldn't unref it
   //g_object_try_unref(self->priv->dparam_manager);
@@ -1535,15 +1576,17 @@ static void bt_machine_dispose(GObject *object) {
 
 static void bt_machine_finalize(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
-#ifdef USE_GST_CONTROLLER
-	gulong i;
-#endif
 
   GST_DEBUG("!!!! self=%p",self);
 
   g_hash_table_destroy(self->priv->properties);
   g_free(self->priv->id);
   g_free(self->priv->plugin_name);
+
+  g_free(self->priv->voice_no_val);
+  g_free(self->priv->global_no_val);
+  g_free(self->priv->voice_flags);
+  g_free(self->priv->global_flags);
   g_free(self->priv->voice_types);
   g_free(self->priv->global_types);
 #ifdef USE_GST_DPARAMS
@@ -1551,9 +1594,7 @@ static void bt_machine_finalize(GObject *object) {
   g_free(self->priv->global_dparams);
 #endif
 #ifdef USE_GST_CONTROLLER
-	//for(i=0;i<self->priv->global_params;i++) g_free(self->priv->global_names[i]);
   g_free(self->priv->global_names);
-	//for(i=0;i<self->priv->voice_params;i++) g_free(self->priv->voice_names[i]);
   g_free(self->priv->voice_names);
 #endif
   // free list of patterns
@@ -1751,6 +1792,13 @@ GType bt_machine_get_type(void) {
       NULL // value_table
     };
     type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,G_TYPE_FLAG_ABSTRACT);
-  }
+
+    // see GstBML::gstbml.c
+    param_quark_min_val=g_quark_from_string("BT_PARAM_MIN_VAL");
+    param_quark_max_val=g_quark_from_string("BT_PARAM_MAX_VAL");
+    param_quark_def_val=g_quark_from_string("BT_PARAM_DEF_VAL");
+    param_quark_no_val=g_quark_from_string("BT_PARAM_NO_VAL");
+    param_quark_flags=g_quark_from_string("BT_PARAM_FLAGS");    
+	}
   return type;
 }
