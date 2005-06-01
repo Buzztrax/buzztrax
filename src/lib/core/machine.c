@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.116 2005-05-27 15:40:40 ensonic Exp $
+/* $Id: machine.c,v 1.117 2005-06-01 14:18:51 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -460,7 +460,6 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
  * Returns: %TRUE for succes, %FALSE otherwise
  */
 gboolean bt_machine_new(BtMachine *self) {
-  gchar *name;
   BtSetup *setup;
 #ifdef USE_GST_CONTROLLER
   GParamSpec **properties;
@@ -472,11 +471,15 @@ gboolean bt_machine_new(BtMachine *self) {
   g_assert(self->priv->id);
   g_assert(self->priv->plugin_name);
   g_assert(self->priv->song);
-  GST_INFO("initializing machine");
 
-  name=bt_machine_make_name(self);
-  self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
-  g_free(name);
+  GST_INFO("initializing machine");
+  // name the machine and try to instantiate it
+  {
+    gchar *name=bt_machine_make_name(self);
+    self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
+    g_free(name);
+  }
+  GST_INFO("machine element instantiated");
 
   if(!self->priv->machines[PART_MACHINE]) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);

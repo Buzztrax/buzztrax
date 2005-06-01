@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.49 2005-05-20 13:54:26 ensonic Exp $
+# $Id: configure.ac,v 1.50 2005-06-01 14:18:41 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -186,10 +186,13 @@ AC_SUBST(with_desktop_dir)
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
-  gtk+-2.0 >= 2.6.0 \
-  libgnomecanvas-2.0 \
-  libxml-2.0 >= 2.5.0 libxslt > 1.0.0 \
+  libxml-2.0 >= 2.5.0 \
   gstreamer-0.8 >= 0.8.10 gstreamer-interfaces-0.8 >= 0.8 \
+)
+
+PKG_CHECK_MODULES(GUI_DEPS, \
+  gtk+-2.0 >= 2.6.0 \
+  libgnomecanvas-2.0
 )
 
 glib_prefix="`pkg-config --variable=prefix glib-2.0`"
@@ -339,6 +342,7 @@ AC_C_CONST
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
+# -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS='-lbtcore -lm'
@@ -351,6 +355,8 @@ AC_SUBST(BT_LIBDIR)
 AC_SUBST(BT_LIBS)
 AC_SUBST(BASE_DEPS_LIBS)
 AC_SUBST(BASE_DEPS_CFLAGS)
+AC_SUBST(GUI_DEPS_LIBS)
+AC_SUBST(GUI_DEPS_CFLAGS)
 
 AC_CONFIG_FILES(Makefile \
   docs/Makefile \

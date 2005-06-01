@@ -59,14 +59,14 @@
   
   <patterns>
     <pattern id="bd_beats" machine="bd" name="beats" length="16">
-      <tick time= "0"><globaldata name="Trig" value="-1"/></tick>
-      <tick time= "4"><globaldata name="Trig" value="-1"/></tick>
-      <tick time= "8"><globaldata name="Trig" value="-1"/></tick>
+      <tick time= "0"><globaldata name="Trig" value="1"/></tick>
+      <tick time= "4"><globaldata name="Trig" value="1"/></tick>
+      <tick time= "8"><globaldata name="Trig" value="1"/></tick>
 			<tick time="12"><globaldata name="Trig" value="-1"/></tick>
     </pattern>
     <pattern id="snr_beats" machine="snr" name="beats" length="16">
-      <tick time= "4"><globaldata name="Trig" value="-1"/></tick>
- 			<tick time="12"><globaldata name="Trig" value="-1"/></tick>
+      <tick time= "4"><globaldata name="Trig" value="1"/></tick>
+      <tick time="12"><globaldata name="Trig" value="1"/></tick>
     </pattern>
   </patterns>
   

@@ -2,7 +2,7 @@
 
 bin_PROGRAMS=bt-edit
 
-bt_edit_LDADD = $(BASE_DEPS_LIBS) \
+bt_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	libbtedit.la
 bt_edit_SOURCES= \
@@ -41,6 +41,7 @@ INCLUDES = \
 	-DDATADIR=\"$(datadir)/buzztard\" \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
+	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
 desktopdir = ${with_desktop_dir}/applications
