@@ -25,7 +25,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <source id="bd" pluginname="bml-ErsKick" voices="0">
+      <source id="bd" pluginname="bml-ErsKick" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -33,7 +33,7 @@
         <globaldata name="volume" value="1.0"/>
       </source>
 
-      <source id="snr" pluginname="bml-ErsSnare" voices="0">
+      <source id="snr" pluginname="bml-ErsSnare" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
@@ -41,32 +41,32 @@
         <globaldata name="volume" value="1.0"/>
       </source>
 
-			<source id="hh" pluginname="bml-ErsHihat" voices="0">
+    <source id="hh" pluginname="bml-ErsHihat" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
-		</machines>
+    </machines>
     
     <wires>
       <wire src="bd" dst="audio_sink" gain="1.0" pan="-50"/>
-			<wire src="snr" dst="audio_sink" gain="1.0" pan="-50"/>
-			<wire src="hh" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="snr" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="hh" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
   
   <patterns>
     <pattern id="bd_beats" machine="bd" name="beats" length="16">
-      <tick time= "0"><globaldata name="Trig" value="1"/></tick>
-      <tick time= "4"><globaldata name="Trig" value="1"/></tick>
-      <tick time= "8"><globaldata name="Trig" value="1"/></tick>
-			<tick time="12"><globaldata name="Trig" value="-1"/></tick>
+      <tick time= "0"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time= "8"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
     </pattern>
     <pattern id="snr_beats" machine="snr" name="beats" length="16">
-      <tick time= "4"><globaldata name="Trig" value="1"/></tick>
-      <tick time="12"><globaldata name="Trig" value="1"/></tick>
+      <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
     </pattern>
   </patterns>
   
@@ -82,9 +82,9 @@
       </track>
       <track index="1" machine="snr">
         <position time="0" pattern="snr_beats"/>
-				<position time="16" pattern="snr_beats"/>
+        <position time="16" pattern="snr_beats"/>
         <position time="32" pattern="snr_beats"/>
-				<position time="48" pattern="snr_beats"/>
+        <position time="48" pattern="snr_beats"/>
       </track>
     </tracks>
   </sequence>

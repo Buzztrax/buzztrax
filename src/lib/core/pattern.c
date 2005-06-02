@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.45 2005-05-27 15:40:40 ensonic Exp $
+/* $Id: pattern.c,v 1.46 2005-06-02 17:57:51 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -101,9 +101,11 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 		}
   }
 	else {
-		GST_ERROR("extending pattern length from %d to %d failed (data_count=%d, gp=%d, vp=%d)",length,self->priv->length,new_data_count,self->priv->global_params,self->priv->voice_params);
-		self->priv->data=data;
-		self->priv->length=length;
+		GST_ERROR("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( gp=%d + voices=%d * vp=%d )",
+			length,self->priv->length,
+			new_data_count,self->priv->length,self->priv->global_params,self->priv->voices,self->priv->voice_params);
+		//self->priv->data=data;
+		//self->priv->length=length;
 	}
 }
 
@@ -132,9 +134,11 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 		}
   }
 	else {
-		GST_ERROR("extending pattern voices from %d to %d failed (data_count=%d, gp=%d, vp=%d)",voices,self->priv->voices,new_data_count,self->priv->global_params,self->priv->voice_params);
-		self->priv->data=data;
-		self->priv->voices=voices;
+		GST_ERROR("extending pattern voices from %d to %d failed : data_count=%d = length=%d * ( gp=%d + voices=%d * vp=%d )",
+			voices,self->priv->voices,
+			new_data_count,self->priv->length,self->priv->global_params,self->priv->voices,self->priv->voice_params);
+		//self->priv->data=data;
+		//self->priv->voices=voices;
 	}
 }
 

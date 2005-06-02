@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.117 2005-06-01 14:18:51 ensonic Exp $
+/* $Id: machine.c,v 1.118 2005-06-02 17:57:50 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -564,7 +564,7 @@ gboolean bt_machine_new(BtMachine *self) {
       if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->global_params++;
 		}
 		self->priv->global_types =(GType *     )g_new0(GType   ,self->priv->global_params);
-		self->priv->global_names =(gchar **    )g_new0(gchar   ,self->priv->global_params);
+		self->priv->global_names =(gchar **    )g_new0(gpointer,self->priv->global_params);
 		self->priv->global_flags =(guint *     )g_new0(guint   ,self->priv->global_params);
 		self->priv->global_no_val=(GValue *    )g_new0(GValue  ,self->priv->global_params);
 		for(i=j=0;i<number_of_properties;i++) {
@@ -596,7 +596,7 @@ gboolean bt_machine_new(BtMachine *self) {
 		g_free(properties);
   }
   // check if the elemnt implements the GstChildProxy interface
-  if(GST_IS_CHILD_PROXY(self)) {
+  if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
   	GstObject *voice_child;
 
     GST_INFO("  instance is polyphonic!");
@@ -612,7 +612,7 @@ gboolean bt_machine_new(BtMachine *self) {
       		if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
 				}
 				self->priv->voice_types =(GType *     )g_new0(GType   ,self->priv->voice_params);
-				self->priv->voice_names =(gchar **    )g_new0(gchar   ,self->priv->voice_params);
+				self->priv->voice_names =(gchar **    )g_new0(gpointer,self->priv->voice_params);
 				self->priv->voice_flags =(guint *     )g_new0(guint   ,self->priv->voice_params);
 				self->priv->voice_no_val=(GValue *    )g_new0(GValue  ,self->priv->voice_params);
         for(i=j=0;i<number_of_properties;i++) {
@@ -1195,7 +1195,10 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine *self, gulong index
   return(GST_DPARAM_PARAM_SPEC(self->priv->global_dparams[index]));
 #endif
 #ifdef USE_GST_CONTROLLER
-	return(g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self)),self->priv->global_names[index]));
+	return(g_object_class_find_property(
+		G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
+		self->priv->global_names[index])
+	);
 #endif
 }
 
@@ -1217,7 +1220,10 @@ GParamSpec *bt_machine_get_voice_param_spec(const BtMachine *self, gulong index)
   return(GST_DPARAM_PARAM_SPEC(self->priv->voice_dparams[index]));
 #endif
 #ifdef USE_GST_CONTROLLER
-	return(g_object_class_find_property(G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self)),self->priv->voice_names[index]));
+	return(g_object_class_find_property(
+		G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
+		self->priv->voice_names[index])
+	);
 #endif
 }
 
@@ -1272,6 +1278,7 @@ void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GVal
   bt_machine_set_param_value(self->priv->global_dparams[index],event);
 #endif
 #ifdef USE_GST_CONTROLLER
+	GST_DEBUG("set value for %s.%s",self->priv->id,self->priv->global_names[index]);
 	g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
 #endif
 }
@@ -1619,7 +1626,7 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
   
-  GST_DEBUG("!!!! self=%p, self->priv->machine=%p",self,self->priv->machines[PART_MACHINE]);
+  GST_DEBUG("!!!! self=%p",self);
 }
 
 static void bt_machine_class_init(BtMachineClass *klass) {
