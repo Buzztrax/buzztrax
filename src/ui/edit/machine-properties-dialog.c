@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.19 2005-05-10 14:15:49 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.20 2005-06-03 15:42:09 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -228,6 +228,10 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         // @todo make it a check box when range ist 0...1 ?
         // @todo how to detect option menus
         //step=(int_property->maximum-int_property->minimum)/1024.0;
+				/* @todo check qdata of property
+				 * we need something like
+				 * bt_machine_get_global_param_meta(self->priv->machine,i,BT_MACHINE_PARAM_META_MIN);
+				 */
         widget=gtk_hscale_new_with_range(int_property->minimum,int_property->maximum,1.0);
         gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
         gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
