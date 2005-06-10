@@ -14,6 +14,7 @@ src/ui/edit/main-page-patterns.c
 src/ui/edit/main-page-sequence.c
 src/ui/edit/main-page-waves.c
 src/ui/edit/main-pages.c
+src/ui/edit/pattern-properties-dialog.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
 src/ui/edit/main-statusbar.c

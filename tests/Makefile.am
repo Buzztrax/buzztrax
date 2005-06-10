@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.19 2005-04-15 17:08:16 ensonic Exp $
+## $Id: Makefile.am,v 1.20 2005-06-10 10:14:04 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -9,6 +9,7 @@ endif
 
 TESTS = \
   $(TESTS_BIN) \
+  povalid.sh \
   xmlvalid.sh
 
 # prevent endless loops
