@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.20 2005-06-10 10:14:04 ensonic Exp $
+## $Id: Makefile.am,v 1.21 2005-06-10 11:29:37 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -9,6 +9,7 @@ endif
 
 TESTS = \
   $(TESTS_BIN) \
+  gtkdoccomplete.sh \
   povalid.sh \
   xmlvalid.sh
 
