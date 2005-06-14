@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.39 2005-06-14 07:19:53 ensonic Exp $
+/* $Id: sink-machine.c,v 1.40 2005-06-14 15:26:46 ensonic Exp $
  * class for a sink machine
  */
  
@@ -57,7 +57,12 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
 		// seek for the last '!'
 		if(!(sink_name=g_strrstr(plugin_name,"!"))) {
 			sink_name=plugin_name;
-		} 
+		}
+		else {
+			// skip '!' and spaces
+			sink_name++;
+			while(*sink_name==' ') sink_name++;
+		}
 		// if there is a space following put '\0' in there
 		if((eon=strstr(sink_name," "))) {
 			*eon='\0';
