@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.4 2005-04-20 17:37:06 ensonic Exp $
+/* $Id: wavelevel.c,v 1.5 2005-06-14 07:19:54 ensonic Exp $
  * class for wavelevel
  */
 
@@ -163,7 +163,6 @@ static void bt_wavelevel_set_property(GObject      *object,
 
 static void bt_wavelevel_dispose(GObject *object) {
   BtWavelevel *self = BT_WAVELEVEL(object);
-	GList* node;
 
 	return_if_disposed();
   self->priv->dispose_has_run = TRUE;

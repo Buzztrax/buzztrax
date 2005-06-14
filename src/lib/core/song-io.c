@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.36 2005-04-13 18:11:53 ensonic Exp $
+/* $Id: song-io.c,v 1.37 2005-06-14 07:19:53 ensonic Exp $
  * base class for song input and output
  */
  
@@ -52,7 +52,7 @@ static void bt_song_io_register_plugins(void) {
   if(dirp) {
     struct dirent *dire;
     GModule *plugin;
-    BtSongIODetect bt_song_io_plugin_detect;
+    BtSongIODetect bt_song_io_plugin_detect=NULL;
     gchar link_target[FILENAME_MAX],plugin_name[FILENAME_MAX];
     
     //   1.) scan plugin-folder (LIBDIR/songio)
@@ -67,7 +67,7 @@ static void bt_song_io_register_plugins(void) {
  			if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
         GST_INFO("    that is a shared object");
         //   3.) gets the address of GType bt_song_io_detect(const gchar *);
-        if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer *)&bt_song_io_plugin_detect)) {
+        if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer *)bt_song_io_plugin_detect)) {
           GST_INFO("    and implements a songio subclass");
           //   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
           plugins=g_list_append(plugins,(gpointer)bt_song_io_plugin_detect);
@@ -181,7 +181,7 @@ static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
  *
  * load the song from a file.  The file ist set in the constructor
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
 	gboolean result;
@@ -200,7 +200,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
  *
  * save the song to a file.  The file ist set in the constructor
  *
- * Returns: true for success
+ * Returns: %TRUE for success
  */
 gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
 	gboolean result;

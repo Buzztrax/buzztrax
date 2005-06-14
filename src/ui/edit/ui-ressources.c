@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.c,v 1.1 2005-02-22 07:31:10 ensonic Exp $
+/* $Id: ui-ressources.c,v 1.2 2005-06-14 07:19:54 ensonic Exp $
  * singleton class that hold shared ui ressources
  */
 
@@ -79,12 +79,16 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   self->priv->sink_bg2.blue= (guint16)(1.0*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);	
 	*/
+
+	return(TRUE);
 }
 
 static gboolean bt_ui_ressources_init_icons(BtUIRessources *self) {
 	self->priv->source_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_source_machine.png");
 	self->priv->processor_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_processor_machine.png");
 	self->priv->sink_machine_pixbuf=gdk_pixbuf_new_from_filename("menu_sink_machine.png");
+
+	return(TRUE);
 }
 
 //-- constructor methods

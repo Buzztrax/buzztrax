@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.64 2005-05-20 13:54:34 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.65 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -124,7 +124,6 @@ static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble po
 
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   GHashTable *properties;
-  GnomeCanvasItem *item;
 	BtMachineCanvasItem *src_machine_item,*dst_machine_item;
   BtMachine *machine,*src_machine,*dst_machine;
   BtWire *wire;
@@ -333,7 +332,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 }
 
 static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
-  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  //BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
   g_assert(user_data);
 
@@ -367,6 +366,7 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
 	update_machines_zoom(self);
 }
 
+/*
 static void on_toolbar_grid_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
@@ -375,6 +375,7 @@ static void on_toolbar_grid_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar grid clicked event occurred");
   gtk_menu_popup(self->priv->grid_density_menu,NULL,NULL,NULL,NULL,1,gtk_get_current_event_time());
 }
+*/
 
 static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
@@ -687,7 +688,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
 }
 
 static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachines *self) {
-	GtkWidget *menu_item,*menu,*submenu,*image;
+	GtkWidget *menu_item;
 	
 	// create grid-density menu with grid-density={off,low,mid,high}	
   self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
@@ -723,8 +724,7 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
 	BtSettings *settings;
-  GtkWidget *button,*image,*scrolled_window;
-  GtkWidget *menu_item,*menu;
+  GtkWidget *image,*scrolled_window;
 	GtkWidget *tool_item;
   GtkTooltips *tips;
 	gchar *density;

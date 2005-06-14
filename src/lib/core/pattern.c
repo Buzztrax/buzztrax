@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.46 2005-06-02 17:57:51 ensonic Exp $
+/* $Id: pattern.c,v 1.47 2005-06-14 07:19:53 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -110,7 +110,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 }
 
 static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) {
-	gulong old_data_count=self->priv->length*(self->priv->global_params+voices*self->priv->voice_params);
+	//gulong old_data_count=self->priv->length*(self->priv->global_params+voices*self->priv->voice_params);
 	gulong new_data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
 	GValue *data=self->priv->data;
 	
@@ -299,10 +299,10 @@ static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
 			res=g_strdup_printf("%d",g_value_get_boolean(event));
 			break;
     case G_TYPE_INT:
-			res=g_strdup_printf("%ld",g_value_get_int(event));
+			res=g_strdup_printf("%d",g_value_get_int(event));
 			break;
     case G_TYPE_UINT:
-			res=g_strdup_printf("%lu",g_value_get_uint(event));
+			res=g_strdup_printf("%u",g_value_get_uint(event));
 			break;
     default:
       GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
@@ -374,7 +374,7 @@ BtPattern *bt_pattern_copy(const BtPattern *self) {
 	name=bt_machine_get_unique_pattern_name(machine);
 	id=g_strdup_printf("%s %s",mid,name);
 
-	if(pattern=bt_pattern_new(song,id,name,length,voices,machine)) {
+	if((pattern=bt_pattern_new(song,id,name,length,voices,machine))) {
 		gulong data_count=self->priv->length*(self->priv->global_params+self->priv->voices*self->priv->voice_params);
 
 		// copy data
@@ -500,7 +500,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
 	// @todo update GstController
 	if((event=bt_pattern_get_voice_event_data(self,tick,voice, param))) {
 		if(!G_IS_VALUE(event)) {
-			bt_pattern_init_global_event(self,event,param);
+			bt_pattern_init_voice_event(self,event,param);
 		}
 		bt_pattern_set_event(self,event,value);
 		return(TRUE);

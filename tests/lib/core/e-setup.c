@@ -1,4 +1,4 @@
-/* $Id: e-setup.c,v 1.18 2005-04-15 17:05:12 ensonic Exp $
+/* $Id: e-setup.c,v 1.19 2005-06-14 07:19:55 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -82,7 +82,7 @@ START_TEST(test_btsetup_obj2) {
 	// wire
 	BtWire *wire=NULL;
 	BtWire *ref_wire=NULL;
-	GList *list,*node;
+	GList *list;
   	
 	GST_INFO("--------------------------------------------------------------------------------");
 	

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.53 2005-05-17 23:40:50 ensonic Exp $
+/* $Id: core.h,v 1.54 2005-06-14 07:19:54 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -10,6 +10,8 @@
 
 //-- ansi c
 #include <dirent.h>
+#include <string.h>
+#include <unistd.h>
 //-- locale
 #ifdef HAVE_X11_XLOCALE_H
 	/* defines a more portable setlocale for X11 (_Xsetlocale) */
@@ -20,6 +22,7 @@
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
+#include <glib/gprintf.h>
 //-- gstreamer
 #include <gst/gst.h>
 #ifdef USE_GST_DPARAMS

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.62 2005-05-18 11:37:13 ensonic Exp $
+/* $Id: sequence.c,v 1.63 2005-06-14 07:19:53 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -352,18 +352,15 @@ gboolean bt_sequence_play(const BtSequence *self) {
 		return(res);
 	}
   else {
-    BtTimeLine **timeline;
     BtSongInfo *song_info;
     GstElement *bin;
     BtPlayLine *playline;
-    gulong i;
     gulong wait_per_position;
     gulong beats_per_minute,ticks_per_beat;
     gdouble ticks_per_minute;
     // DEBUG {
     //GTimer *timer;
     // }
-		gulong play_start,play_end;
 
     g_object_get(G_OBJECT(self->priv->song),"bin",&bin,"song-info",&song_info,NULL);
 		g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.30 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.31 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -73,7 +73,7 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
   msec=pos*bt_sequence_get_bar_time(sequence);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-	str=g_strdup_printf("%02d:%02d.%03d",min,sec,msec);
+	str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
   // update statusbar fields
 	gdk_threads_try_enter();
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id);
@@ -99,10 +99,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   // get new song length
   msec=bt_sequence_get_loop_time(sequence);
-  GST_INFO("  new msec : %ld",msec);
+  GST_INFO("  new msec : %lu",msec);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-	str=g_strdup_printf("%02d:%02d.%03d",min,sec,msec);
+	str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
   // update statusbar fields
   gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id); 
 	gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);

@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.2 2005-05-09 18:33:38 waffel Exp $
+/* $Id: t-sink-machine.c,v 1.3 2005-06-14 07:19:56 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -95,12 +95,11 @@ START_TEST(test_btsinkmachine_settings2) {
 }
 END_TEST;
 
-
-
 TCase *bt_sink_machine_test_case(void) {
   TCase *tc = tcase_create("BtSinkMachineTests");
 
 	tcase_add_test(tc,test_btsinkmachine_settings1);
+	tcase_add_test(tc,test_btsinkmachine_settings2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

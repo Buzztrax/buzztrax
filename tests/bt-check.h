@@ -1,15 +1,19 @@
-/* $Id: bt-check.h,v 1.1 2005-04-15 14:52:04 ensonic Exp $
+/* $Id: bt-check.h,v 1.2 2005-06-14 07:19:54 ensonic Exp $
  * testing helpers
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <check.h>
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
 //-- gstreamer
 #include <gst/gst.h>
+//-- buzztard
+#include <libbtcore/core.h>
 
 extern guint test_argc;
 extern gchar **test_argvptr;

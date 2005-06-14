@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.11 2005-04-15 17:05:12 ensonic Exp $
+/* $Id: e-network.c,v 1.12 2005-06-14 07:19:54 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -105,7 +105,7 @@ START_TEST(test_btcore_net_example2) {
 	BtSourceMachine *gen1=NULL,*gen2=NULL;
 	BtSinkMachine *sink=NULL;
 	// wires
-	BtWire *wire, *wire1=NULL, *wire2=NULL;
+	BtWire *wire1=NULL, *wire2=NULL;
 	// setup
 	BtSetup *setup=NULL;
   

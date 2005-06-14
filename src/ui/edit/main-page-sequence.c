@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.81 2005-05-18 11:37:40 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.82 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -148,6 +148,7 @@ static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath 
 	return(res);
 }
 
+/*
 static gboolean sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeIter *iter,gulong that_pos) {
 	gulong this_pos;
 	gboolean found=FALSE;
@@ -161,6 +162,7 @@ static gboolean sequence_model_get_iter_by_position(GtkTreeModel *store,GtkTreeI
 	} while(gtk_tree_model_iter_next(store,iter));
 	return(found);
 }
+*/
 
 /*
  * sequence_model_recolorize:
@@ -170,7 +172,7 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
 	GtkTreeModel *store;
 	GtkTreeModelFilter *filtered_store;
 	GtkTreeIter iter;
-	gboolean visible,odd_row=FALSE;
+	gboolean odd_row=FALSE;
 	gulong rows=0;
 
 	GST_INFO("recolorize sequence tree view");
@@ -229,7 +231,6 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
  */
 static void sequence_table_clear(const BtMainPageSequence *self) {
   GList *columns,*node;
-  gint col_index;
 	
   // remove columns
   if((columns=gtk_tree_view_get_columns(self->priv->sequence_table))) {
@@ -249,7 +250,7 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
 static void sequence_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
 	GtkTreeViewColumn *tree_col;
-	gint col_index;
+	gint col_index=0;
 	
   // re-add static columns
   renderer=gtk_cell_renderer_text_new();
@@ -278,7 +279,7 @@ static void sequence_table_init(const BtMainPageSequence *self) {
 			"sizing",GTK_TREE_VIEW_COLUMN_FIXED,
 			"fixed-width",40,
 			NULL);
-		gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
+		col_index=gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
 	}
 	else GST_WARNING("can't create treeview column");
 		
@@ -666,9 +667,6 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
 
 static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-	GtkTreeModel *store;
-	GtkTreeModelFilter *filtered_store;
-	GtkTreeIter iter;
 	gdouble play_pos;
 	gulong sequence_length,pos;
 	GtkTreePath *path;
@@ -765,7 +763,7 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
 }
 
 static gboolean on_sequence_table_move_cursor(GtkTreeView *treeview, GtkMovementStep arg1, gint arg2, gpointer user_data) {
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  //BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 	glong cursor_column;
 
   g_assert(user_data);
@@ -879,7 +877,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 				gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
 				if(path && column && gtk_tree_model_get_iter(GTK_TREE_MODEL(filtered_store),&filter_iter,path)) {
 			    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-		  	  glong row,track=g_list_index(columns,(gpointer)column)-2;
+		  	  glong track=g_list_index(columns,(gpointer)column)-2;
+					//glong row;
 				
 					g_list_free(columns);
 					gtk_tree_model_filter_convert_iter_to_child_iter(filtered_store,&iter,&filter_iter);
@@ -1059,13 +1058,15 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
 	gtk_list_store_append(store,&iter);
 	gtk_list_store_set(store,&iter,0,"2",-1);
   for(i=4;i<=64;i+=4) {
-    sprintf(str,"%d",i);
+    sprintf(str,"%lu",i);
 		gtk_list_store_append(store,&iter);
 		gtk_list_store_set(store,&iter,0,str,-1);
   }
 	gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->bars_menu,2);
 	g_object_unref(store); // drop with combobox
+	
+	return(TRUE);
 }
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
@@ -1076,7 +1077,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GdkColormap *colormap;
 	GtkTreeViewColumn *tree_col;
 	GtkTreeSelection *tree_sel;
-	gint col_index;
 
 	GST_DEBUG("!!!! self=%p",self);
 	
@@ -1292,7 +1292,7 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(column && path) {
     GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-    glong row,track=g_list_index(columns,(gpointer)column);
+    glong track=g_list_index(columns,(gpointer)column);
 		GtkTreeModel *store;
 		GtkTreeIter iter;
 
@@ -1304,7 +1304,7 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
 				gulong row;
 				// get pos from iter and then the timeline
 				gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
-				if(timeline=bt_sequence_get_timeline_by_time(sequence,row)) {
+				if((timeline=bt_sequence_get_timeline_by_time(sequence,row))) {
 					timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,track-2);
 					GST_DEBUG("  found one at %d,%d",track-2,row);
 					g_object_unref(timeline);

@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.23 2005-02-16 19:10:06 waffel Exp $
+/* $Id: source-machine.c,v 1.24 2005-06-14 07:19:54 ensonic Exp $
  * class for a source machine
  */
  
@@ -118,7 +118,7 @@ static void bt_source_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_source_machine_class_init(BtSourceMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
+	//BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_MACHINE);
   

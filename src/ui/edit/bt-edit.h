@@ -1,9 +1,10 @@
-/* $Id: bt-edit.h,v 1.27 2005-04-29 10:25:35 ensonic Exp $
+/* $Id: bt-edit.h,v 1.28 2005-06-14 07:19:54 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
 #define BT_EDIT_H
 
+#include <math.h>
 #include <stdio.h>
 
 #include <libbtcore/core.h>

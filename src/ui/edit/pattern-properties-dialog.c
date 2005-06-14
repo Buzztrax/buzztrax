@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.6 2005-05-10 14:15:51 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.7 2005-06-14 07:19:54 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -85,7 +85,7 @@ static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
-  GtkWidget *box,*label,*widget,*table,*scrolled_window;
+  GtkWidget *box,*label,*widget,*table;
 	GtkAdjustment *spin_adjustment;
 	gchar *name,*title,*length_str;
 	//GdkPixbuf *window_icon=NULL;
@@ -139,7 +139,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   label=gtk_label_new(_("length"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
-	length_str=g_strdup_printf("%d",self->priv->length);
+	length_str=g_strdup_printf("%lu",self->priv->length);
 	widget=gtk_entry_new();
 	gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
@@ -293,7 +293,7 @@ static void bt_pattern_properties_dialog_init(GTypeInstance *instance, gpointer 
 
 static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
+  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
   

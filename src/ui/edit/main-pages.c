@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.22 2005-04-30 13:14:14 ensonic Exp $
+/* $Id: main-pages.c,v 1.23 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -65,7 +65,6 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
 }
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
-  GtkWidget *label,*event_box,*box,*image;
   GtkTooltips *tips;
 
 	GST_DEBUG("!!!! self=%p",self);

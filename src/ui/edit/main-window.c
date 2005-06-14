@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.60 2005-05-17 23:40:51 ensonic Exp $
+/* $Id: main-window.c,v 1.61 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main window
  */
 
@@ -88,7 +88,6 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  gchar *title,*name;
   BtSong *song;
 
   g_assert(user_data);
@@ -542,7 +541,7 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_main_window_class_init(BtMainWindowClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
+  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_WINDOW);
   

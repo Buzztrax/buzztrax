@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.23 2005-05-18 11:37:40 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.24 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -47,8 +47,6 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
 	BtWave *wave;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  GList *node,*list;
-	gulong index;
 	gchar *str;
 	gint i;
 
@@ -193,7 +191,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
 	BtSettings *settings;
   GtkWidget *vpaned,*hpaned,*box,*box2;
-	GtkWidget *image,*icon,*tool_item;
+	GtkWidget *tool_item;
 	GtkWidget *scrolled_window;
 	GtkCellRenderer *renderer;
   GtkTooltips *tips;

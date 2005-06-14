@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.4 2005-05-20 13:54:34 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.5 2005-06-14 07:19:56 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -16,7 +16,6 @@ static void test_setup(void) {
 	bt_threads_init();
 
 	gtk_init(NULL,NULL);
-	gdk_rgb_init();
   bt_init(NULL,NULL,NULL);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
@@ -42,13 +41,14 @@ static void test_teardown(void) {
 
 //-- helper
 
+/*
 static gboolean timeout(gpointer data) {
   GST_INFO("shutting down the gui");
   gtk_main_quit();
 	//gtk_widget_destroy(GTK_WIDGET(data));
   return FALSE;
 }
-
+*/
 
 //-- tests
 

@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.62 2005-05-25 13:32:00 ensonic Exp $
+/* $Id: edit-application.c,v 1.63 2005-06-14 07:19:54 ensonic Exp $
  * class for a gtk based buzztard editor application
  */
  
@@ -34,7 +34,7 @@ static BtApplicationClass *parent_class=NULL;
 
 //-- event handler
 
-static gboolean on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer user_data) {
+static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer user_data) {
   BtEditApplication *self=BT_EDIT_APPLICATION(user_data);
   BtMainStatusbar *statusbar;
   gchar *str;

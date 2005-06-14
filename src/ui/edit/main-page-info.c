@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.29 2005-05-18 11:37:32 ensonic Exp $
+/* $Id: main-page-info.c,v 1.30 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -190,7 +190,7 @@ static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
 
 static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   GtkWidget *label,*frame,*box;
-  GtkWidget *table,*entry,*spacer;
+  GtkWidget *table,*spacer;
   GtkWidget *scrolledwindow;
 	GtkAdjustment *spin_adjustment;
 	gchar *str;

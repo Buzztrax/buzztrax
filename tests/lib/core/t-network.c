@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.11 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-network.c,v 1.12 2005-06-14 07:19:55 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -63,8 +63,8 @@ END_TEST
 TCase *bt_network_test_case(void) {
   TCase *tc = tcase_create("BtNetworkTests");
 
-	// @todo why is this uncommented
-	//tcase_add_test(tc,test_btcore_net1);
+	// @todo this was uncommented
+	tcase_add_test(tc,test_btcore_net1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

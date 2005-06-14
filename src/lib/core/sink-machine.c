@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.38 2005-05-09 18:32:39 waffel Exp $
+/* $Id: sink-machine.c,v 1.39 2005-06-14 07:19:53 ensonic Exp $
  * class for a sink machine
  */
  
@@ -32,7 +32,7 @@ static BtMachineClass *parent_class=NULL;
  * Returns: the new instance or %NULL in case of an error
  */
 BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
-  BtSinkMachine *self;
+  BtSinkMachine *self=NULL;
   BtApplication *app;
   BtSettings *settings;
   gchar *audiosink_name,*system_audiosink_name,*sink_name,*eon;
@@ -59,7 +59,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
 			sink_name=plugin_name;
 		} 
 		// if there is a space following put '\0' in there
-		if(eon=strstr(sink_name," ")) {
+		if((eon=strstr(sink_name," "))) {
 			*eon='\0';
 		}
 		plugin_name=sink_name;
@@ -193,7 +193,7 @@ static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
+	//BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_MACHINE);
   

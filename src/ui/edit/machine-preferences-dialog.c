@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.14 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.15 2005-06-14 07:19:54 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -357,7 +357,7 @@ static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer
 
 static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
+  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
   

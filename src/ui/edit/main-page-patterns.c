@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.65 2005-05-18 11:37:32 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.66 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -106,7 +106,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 	g_free(str);
 }
 
-static on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
+static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 	GtkTreeModel *store;
 	GtkTreeIter iter;
@@ -254,10 +254,10 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 
 static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
 	BtWave *wave=NULL;
-  GList *node,*list;
-  gchar *str;
+  //GList *node,*list;
+  //gchar *str;
 	GtkListStore *store;
-	GtkTreeIter menu_iter;
+	//GtkTreeIter menu_iter;
 	gint index=-1;
 
   // update pattern menu
@@ -474,7 +474,7 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 
 //-- event handler
 
-static on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
+static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
 	BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
 	GST_INFO("pattern size changed : %p",self->priv->pattern);
@@ -575,14 +575,14 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 }
 
 static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
 	// @todo implement track_add
   g_assert(user_data);
 }
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
 	// @todo implement track_remove
   g_assert(user_data);
@@ -733,7 +733,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkWidget *toolbar,*scrolled_window;
-  GtkWidget *box,*menu,*tool_item;
+  GtkWidget *box,*tool_item;
 	GtkWidget *menu_item,*image;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *tree_sel;

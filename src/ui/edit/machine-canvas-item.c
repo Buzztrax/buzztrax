@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.49 2005-05-25 13:32:00 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.50 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -366,7 +366,7 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
   // show info about machine
   g_object_get(self->priv->machine,"machine",&machine,NULL);
   
-  if(element_factory=gst_element_get_factory(machine)) {
+  if((element_factory=gst_element_get_factory(machine))) {
     const gchar *element_longname=gst_element_factory_get_longname(element_factory);
     const gchar *element_author=gst_element_factory_get_author(element_factory);
     const gchar *element_description=gst_element_factory_get_description(element_factory);
@@ -484,6 +484,8 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_widget_show(menu_item);gtk_widget_show(image);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_about_activate),(gpointer)self);
+
+	return(TRUE);
 }
 
 //-- constructor methods
@@ -884,7 +886,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 				self->priv->switching=FALSE;
 				// still over mode switch
 				if(bt_machine_canvas_item_is_over_state_switch(self,event)) {
-					GdkModifierType modifier=event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
+					gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
 					GST_DEBUG("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",event->button.state,(GDK_CONTROL_MASK|GDK_MOD4_MASK),modifier);
 					switch(modifier) {
 						case 0:

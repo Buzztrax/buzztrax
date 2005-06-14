@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.12 2005-05-20 13:54:34 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.13 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor settings audiodevices page
  */
 
@@ -50,8 +50,7 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
 
 static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevices *self) {
   BtSettings *settings;
-  GtkWidget *box,*scrolled_window,*page;
-  GtkWidget *label,*spacer,*widget;  
+  GtkWidget *label,*spacer;  
   gchar *audiosink_name,*system_audiosink_name,*str;
   GList *node;
   gulong audiosink_index=0,ct;
@@ -210,7 +209,7 @@ static void bt_settings_page_audiodevices_init(GTypeInstance *instance, gpointer
 
 static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
+  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_TABLE);
   

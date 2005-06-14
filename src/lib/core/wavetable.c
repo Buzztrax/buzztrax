@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.8 2005-04-27 16:31:06 ensonic Exp $
+/* $Id: wavetable.c,v 1.9 2005-06-14 07:19:54 ensonic Exp $
  * class for wavetable
  */
 
@@ -33,7 +33,7 @@ struct _BtWavetablePrivate {
 
 static GObjectClass *parent_class=NULL;
 
-static guint signals[LAST_SIGNAL]={0,};
+//static guint signals[LAST_SIGNAL]={0,};
 
 //-- constructor methods
 

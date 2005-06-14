@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.8 2005-02-12 12:56:50 ensonic Exp $
+/* $Id: sequence-view.c,v 1.9 2005-06-14 07:19:54 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -120,10 +120,10 @@ static void bt_sequence_view_unrealize (GtkWidget *widget) {
     (GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
   }
 	
-	gdk_gc_unref(self->priv->loop_pos_gc);
+	g_object_unref(self->priv->loop_pos_gc);
 	self->priv->play_pos_gc=NULL;
 	
-	gdk_gc_unref(self->priv->loop_pos_gc);
+	g_object_unref(self->priv->loop_pos_gc);
 	self->priv->play_pos_gc=NULL;
 	
 }

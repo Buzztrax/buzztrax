@@ -1,11 +1,11 @@
-/* $Id: t-settings.c,v 1.3 2005-06-01 14:18:51 ensonic Exp $ */
+/* $Id: t-settings.c,v 1.4 2005-06-14 07:19:55 ensonic Exp $ */
 
 #include "m-bt-core.h"
 
 //-- globals
 
 // this counts the number of runs, to provide different implementations for each
-static variant=0;
+static int variant=0;
 
 BtSettings *get_settings(void) {
 	BtSettings *settings=NULL;
@@ -18,6 +18,7 @@ BtSettings *get_settings(void) {
 			settings=BT_SETTINGS(bt_plainfile_settings_new());
 			break;
 	}
+	return(settings);
 }
 
 //-- fixtures

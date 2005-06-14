@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.53 2005-04-20 17:37:07 ensonic Exp $
+// $Id: cmd-application.c,v 1.54 2005-06-14 07:19:54 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -176,26 +176,26 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
 		g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
     g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
-		g_fprintf(output_file,"song.sequence.length: %d\n",length);
-		g_fprintf(output_file,"song.sequence.tracks: %d\n",tracks);
+		g_fprintf(output_file,"song.sequence.length: %lu\n",length);
+		g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
 
 		// print some statistics about the song (number of machines, wires, patterns)
 		g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);
-		g_fprintf(output_file,"song.setup.number_of_machines: %d\n",g_list_length(machines));
-		g_fprintf(output_file,"song.setup.number_of_wires: %d\n",g_list_length(wires));
+		g_fprintf(output_file,"song.setup.number_of_machines: %u\n",g_list_length(machines));
+		g_fprintf(output_file,"song.setup.number_of_wires: %u\n",g_list_length(wires));
 		for(node=machines;node;node=g_list_next(node)) {
 			g_object_get(G_OBJECT(node->data),"patterns",&patterns,NULL);
 			n_patterns+=g_list_length(patterns);
 			g_list_free(patterns);
 		}
-		g_fprintf(output_file,"song.setup.number_of_patterns: %d\n",n_patterns);
+		g_fprintf(output_file,"song.setup.number_of_patterns: %lu\n",n_patterns);
 		g_list_free(machines);
 		g_list_free(wires);
 		g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
-		g_fprintf(output_file,"song.wavetable.number_of_waves: %d\n",g_list_length(waves));
+		g_fprintf(output_file,"song.wavetable.number_of_waves: %u\n",g_list_length(waves));
 		g_list_free(waves);
 		g_object_get(G_OBJECT(self),"bin",&bin,NULL);
-		g_fprintf(output_file,"app.bin.number_of_elements: %d\n",g_list_length((GList *)gst_bin_get_list(bin)));
+		g_fprintf(output_file,"app.bin.number_of_elements: %u\n",g_list_length((GList *)gst_bin_get_list(bin)));
 
     // lookup the audio-sink machine and print some info about it
 		if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {

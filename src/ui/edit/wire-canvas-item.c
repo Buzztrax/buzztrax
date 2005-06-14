@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.21 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.22 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor wire views wire canvas item
  */
 
@@ -150,8 +150,6 @@ void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_d
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *src_machine,*dst_machine;
   GHashTable *properties;  
-  /* the application */
-  BtEditApplication *app;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GnomeCanvasPoints *points;
 	
@@ -402,7 +400,6 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
  */
 static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
-  GnomeCanvasItem *item;
   GnomeCanvasPoints *points;
   
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)

@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.41 2005-05-20 13:54:34 ensonic Exp $
+/* $Id: main-menu.c,v 1.42 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -291,7 +291,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 //-- helper methods
 
 static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel_group) {
-  GtkWidget *item,*menu,*subitem,*image;
+  GtkWidget *item,*menu,*subitem;
 	BtSettings *settings;
 	gboolean toolbar_hide,tabs_hide;
 	

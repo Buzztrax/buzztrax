@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.53 2005-05-19 15:57:29 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.54 2005-06-14 07:19:54 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -249,8 +249,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSong *song;
   BtSinkMachine *master;
   GstElement *level;
-	gulong i;
-	gint channels=0;
 
   g_assert(user_data);
 
@@ -263,7 +261,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"master",&master,NULL);
 	if(master) {
 		GstPad *pad;
-		gint channels_i=0,channels_o=0;
 		gdouble volume;
 
 		// get the input_level property from audio_sink
@@ -306,7 +303,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 	BtSettings *settings;
-  GtkWidget *icon,*image,*tool_item;
+  GtkWidget *tool_item;
   GtkTooltips *tips;
   GtkWidget *box;
   gulong i;

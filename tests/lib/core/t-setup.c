@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.16 2005-05-09 19:06:15 waffel Exp $
+/* $Id: t-setup.c,v 1.17 2005-06-14 07:19:55 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -612,7 +612,6 @@ END_TEST
 START_TEST(test_btsetup_obj13) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
-	BtSetup *setup=NULL;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
   
@@ -802,7 +801,6 @@ START_TEST(test_btsetup_wire1) {
 	// wire
 	BtWire *wire_one=NULL;
 	BtWire *wire_two=NULL;
-	gboolean ret=FALSE;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
   
@@ -849,7 +847,6 @@ START_TEST(test_btsetup_wire2) {
 	// wire
 	BtWire *wire_one=NULL;
 	BtWire *wire_two=NULL;
-	gboolean ret=FALSE;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
   
@@ -899,7 +896,6 @@ START_TEST(test_btsetup_wire3) {
 	BtWire *wire_one=NULL;
 	BtWire *wire_two=NULL;
 	BtWire *wire_three=NULL;
-	gboolean ret=FALSE;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
   
@@ -936,33 +932,6 @@ START_TEST(test_btsetup_wire3) {
 	/* this should fail */
 	wire_three = bt_wire_new(song, BT_MACHINE(src2), BT_MACHINE(src1));
 	fail_unless(wire_three!=NULL,NULL);
-	
-}
-END_TEST
-
-START_TEST(test_btsetup_get1) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	// machines
-	BtSourceMachine *source=NULL;
-	BtSinkMachine *sink=NULL;
-	// wire
-	BtWire *wire=NULL;
-	BtWire *ref_wire=NULL;
-	/* wire list */
-	GList* wire_list=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	/* create a dummy app */
-  app=g_object_new(BT_TYPE_APPLICATION,NULL);
-  bt_application_new(app);
-  
-  /* create a new song */
-	song=bt_song_new(app);
-  g_object_get(song,"setup",&setup,NULL);
-	
 	
 }
 END_TEST

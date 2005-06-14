@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.20 2005-06-03 15:42:09 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.21 2005-06-14 07:19:54 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -217,7 +217,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
       }
       else if(param_type==G_TYPE_INT) {
         GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-        gint step,value;
+        gint value;
         
 #ifdef USE_GST_DPARAMS
         g_object_get(G_OBJECT(dparam),"value-int",&value,NULL);
@@ -435,7 +435,7 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
+  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
   

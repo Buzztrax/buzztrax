@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.118 2005-06-02 17:57:50 ensonic Exp $
+/* $Id: machine.c,v 1.119 2005-06-14 07:19:53 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -142,7 +142,6 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
   GList *wires,*node;
   BtWire *wire;
   BtMachine *dst_machine;
-  BtMachineState state;
   
   // we need to pause all elements downstream until we hit a loop-based element  (has an adder) :(
   // @todo we need to do the same upstream too until we hit one with a spreader
@@ -177,7 +176,6 @@ static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
   GList *wires,*node;
   BtWire *wire;
   BtMachine *dst_machine;
-  BtMachineState state;
   
   // we need to unpause all elements downstream until we hit a loop-based element (has an adder) :(
   // @todo we need to do the same upstream too until we hit one with a spreader
@@ -248,6 +246,9 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
     case BT_MACHINE_STATE_BYPASS:  { // processor
       // @todo disconnect its source and sink + set this machine to playing
     } break;
+    case BT_MACHINE_STATE_NORMAL:
+      g_return_val_if_reached(FALSE);
+      break;
   }
   // set to new state
   switch(new_state) {
@@ -278,6 +279,9 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
     case BT_MACHINE_STATE_BYPASS:  { // processor
       // @todo set this machine to paused + connect its source and sink
     } break;
+    case BT_MACHINE_STATE_NORMAL:
+      g_return_val_if_reached(FALSE);
+      break;
   }
   self->priv->state=new_state;
 

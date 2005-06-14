@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.28 2005-05-26 16:55:37 ensonic Exp $
+/* $Id: machine-methods.h,v 1.29 2005-06-14 07:19:54 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -12,9 +12,9 @@ extern gboolean bt_machine_enable_input_level(BtMachine *self);
 extern gboolean bt_machine_enable_input_gain(BtMachine *self);
 
 extern gboolean bt_machine_activate_adder(BtMachine *self);
-extern gboolean bt_machine_has_activated_adder(BtMachine *self);
+extern gboolean bt_machine_has_active_adder(BtMachine *self);
 extern gboolean bt_machine_activate_spreader(BtMachine *self);
-extern gboolean bt_machine_has_activated_spreader(BtMachine *self);
+extern gboolean bt_machine_has_active_spreader(BtMachine *self);
 
 // pattern handling
 

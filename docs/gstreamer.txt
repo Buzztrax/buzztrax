@@ -1,4 +1,4 @@
-* $Id: gstreamer.txt,v 1.7 2005-03-12 12:11:28 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: gstreamer.txt,v 1.8 2005-06-14 07:19:53 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * gst-launch-0.8 tests
@@ -22,3 +22,7 @@
 * rip audio from video
   gst-launch filesrc location=TheChubbChubbs.avi ! avidemux name=demux demux.audio_00 ! { queue ! filesink location=chubb.mp3 }
   gst-launch filesrc location=TheChubbChubbs.avi ! avidemux name=demux demux.audio_00 ! { queue ! mad ! wavenc ! filesink location=chubb.wav }
+
+* grab desktop video
+  gst-launch-0.8 ximagesrc ! ffmpegcolorspace ! videoscale ! video/x-raw-rgb,width=320,height=240 ! ximagesink 
+  gst-launch-0.8 ximagesrc ! ffmpegcolorspace ! videoscale ! video/x-raw-yuv,width=320,height=240,framerate=\(double\)2 ! theoraenc ! oggmux ! filesink location=/tmp/desktop.ogg
