@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.12 2005-06-14 07:19:55 ensonic Exp $
+/* $Id: t-network.c,v 1.13 2005-06-15 08:17:51 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -54,8 +54,8 @@ START_TEST(test_btcore_net1) {
 	/* stop the song */
 	bt_song_stop(song);
 	
-  g_object_checked_unref(setup);  
-	g_object_checked_unref(song);
+  g_object_unref(setup);  
+	g_object_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -63,7 +63,6 @@ END_TEST
 TCase *bt_network_test_case(void) {
   TCase *tc = tcase_create("BtNetworkTests");
 
-	// @todo this was uncommented
 	tcase_add_test(tc,test_btcore_net1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);

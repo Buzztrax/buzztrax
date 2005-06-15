@@ -104,7 +104,6 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     GtkVUMeter *vumeter;
     GdkWindowAttr attributes;
     gint attributes_mask;
-    gint i;
     
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
@@ -155,9 +154,6 @@ static void gtk_vumeter_size_request (GtkWidget *widget, GtkRequisition *requisi
 static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocation)
 {
     GtkVUMeter *vumeter;
-    gint red, green;
-    gint f_step;
-    gint b_step;
     
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
@@ -221,14 +217,14 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
             NULL, widget, "trough", 0, 0, width, widget->allocation.height);
         /* draw background gradient */
         for (index = rms_level; index < peak_level; index++) {
-	  
-	  gdk_draw_line (widget->window, vumeter->b_gc[index], width - index - 1, 1, width - index - 1, height);   
+	  	      gdk_draw_line (widget->window, vumeter->b_gc[index], width - index - 1, 1, width - index - 1, height);   
         }
         /* draw foreground gradient */
         for (index = peak_level; index < width - 2; index++) {
-	  gdk_draw_line (widget->window, vumeter->f_gc[index], width - index - 1, 1, width - index - 1, height);            
+	          gdk_draw_line (widget->window, vumeter->f_gc[index], width - index - 1, 1, width - index - 1, height);            
         }        
     }
+		return(TRUE);
 }
 
 static void gtk_vumeter_free_colors (GtkVUMeter *vumeter)

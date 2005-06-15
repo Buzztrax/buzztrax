@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.21 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.22 2005-06-15 08:17:51 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -191,7 +191,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gtk_box_pack_start(GTK_BOX(box),gtk_hseparator_new(),FALSE,FALSE,0);
   
   if(global_params/*+voices*voice_params*/) {
+#ifdef USE_GST_CONTROLLER
 		gchar *signal_name;
+#endif
 		
     GST_INFO("machine has %d properties",global_params);
     // machine controls inside a scrolled window
