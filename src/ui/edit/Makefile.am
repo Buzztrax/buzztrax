@@ -20,8 +20,8 @@ libbtedit_la_SOURCES   = \
 	main-pages.c main-pages.h main-pages-methods.h \
 	main-page-machines.c main-page-machines.h main-page-machines-methods.h \
 	main-page-patterns.c main-page-patterns.h main-page-patterns-methods.h \
-	main-page-sequence.c main-page-sequence.h main-page-patterns-sequence.h \
-	main-page-waves.c main-page-waves.h main-page-patterns-waves.h \
+	main-page-sequence.c main-page-sequence.h main-page-sequence-methods.h \
+	main-page-waves.c main-page-waves.h main-page-waves-methods.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
@@ -29,7 +29,7 @@ libbtedit_la_SOURCES   = \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	tools.c tools.h \
-	ui-ressources.c ui-ressources-item.h ui-ressources-methods.h \
+	ui-ressources.c ui-ressources.h ui-ressources-methods.h \
 	wire-canvas-item.c wire-canvas-item.h wire-canvas-item-methods.h \
 	\
 	gtkvumeter.c gtkvumeter.h
