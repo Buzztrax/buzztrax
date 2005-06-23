@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.119 2005-06-14 07:19:53 ensonic Exp $
+/* $Id: machine.c,v 1.120 2005-06-23 20:50:02 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -96,8 +96,8 @@ struct _BtMachinePrivate {
   gchar **global_names,**voice_names;
 #endif
   GType *global_types,*voice_types; 
-	guint *global_flags,*voice_flags;
-	GValue *global_no_val,*voice_no_val;
+  guint *global_flags,*voice_flags;
+  GValue *global_no_val,*voice_no_val;
 
   GList *patterns;  // each entry points to BtPattern
   
@@ -114,9 +114,6 @@ static GQuark error_domain=0;
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
-
-// see GstBML::gstbml.c
-static GQuark param_quark_min_val,param_quark_max_val,param_quark_def_val,param_quark_no_val,param_quark_flags;
 
 //-- enums
 
@@ -325,8 +322,8 @@ static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
 static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMachinePart part_position) {
   gboolean res=FALSE;
   gint i,pre,post;
-	BtSetup *setup;
-	BtWire *wire;
+  BtSetup *setup;
+  BtWire *wire;
     
   //seek elements before and after part_position
   pre=post=-1;
@@ -347,64 +344,64 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
     gst_element_unlink(self->priv->machines[pre],self->priv->machines[post]);
     // link new connection
     res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
-		if(!res) {
-			gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
-			GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]),GST_OBJECT_NAME(self->priv->machines[post]));
-		}
+    if(!res) {
+      gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
+      GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]),GST_OBJECT_NAME(self->priv->machines[post]));
+    }
   }
   else if(pre==-1) {
-		self->dst_elem=self->priv->machines[part_position];
+    self->dst_elem=self->priv->machines[part_position];
     // unlink old connection
     gst_element_unlink(peer,self->priv->machines[post]);
     // link new connection
     res=gst_element_link_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
-		if(!res) {
-			gst_element_unlink_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
-			GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
-			// try to re-wire
-			if((res=gst_element_link(self->priv->machines[part_position],self->priv->machines[post]))) {
-				g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-				if((wire=bt_setup_get_wire_by_dst_machine(setup,self))) {
-					if(!(res=bt_wire_reconnect(wire))) {
-						GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
-					}
-					g_object_unref(wire);
-				}
-				g_object_try_unref(setup);
-			}
-			else {
-				GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
-			}
-		}
+    if(!res) {
+      gst_element_unlink_many(peer,self->priv->machines[part_position],self->priv->machines[post],NULL);
+      GST_WARNING("failed to link part '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+      // try to re-wire
+      if((res=gst_element_link(self->priv->machines[part_position],self->priv->machines[post]))) {
+        g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+        if((wire=bt_setup_get_wire_by_dst_machine(setup,self))) {
+          if(!(res=bt_wire_reconnect(wire))) {
+            GST_WARNING("failed to reconnect wire after linking '%s' before '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+          }
+          g_object_unref(wire);
+        }
+        g_object_try_unref(setup);
+      }
+      else {
+        GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
+      }
+    }
   }
   else if(post==-1) {
-		self->src_elem=self->priv->machines[part_position];
+    self->src_elem=self->priv->machines[part_position];
     // unlink old connection
     gst_element_unlink(self->priv->machines[pre],peer);
     // link new connection
     res=gst_element_link_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
-		if(!res) {
-			gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
-			GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
-			// try to re-wire
-			if((res=gst_element_link(self->priv->machines[pre],self->priv->machines[part_position]))) {
-				g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-				if((wire=bt_setup_get_wire_by_src_machine(setup,self))) {
-					if(!(res=bt_wire_reconnect(wire))) {
-						GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
-					}
-					g_object_unref(wire);
-				}
-				g_object_try_unref(setup);
-			}
-			else {
-				GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
-			}
-		}
+    if(!res) {
+      gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],peer,NULL);
+      GST_WARNING("failed to link part '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+      // try to re-wire
+      if((res=gst_element_link(self->priv->machines[pre],self->priv->machines[part_position]))) {
+        g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+        if((wire=bt_setup_get_wire_by_src_machine(setup,self))) {
+          if(!(res=bt_wire_reconnect(wire))) {
+            GST_WARNING("failed to reconnect wire after linking '%s' after '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+          }
+          g_object_unref(wire);
+        }
+        g_object_try_unref(setup);
+      }
+      else {
+        GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));
+      }
+    }
   }
-	else {
-		GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(self->priv->machines[part_position]));
-	}
+  else {
+    GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(self->priv->machines[part_position]));
+  }
   return(res);
 }
 
@@ -467,7 +464,7 @@ gboolean bt_machine_new(BtMachine *self) {
   BtSetup *setup;
 #ifdef USE_GST_CONTROLLER
   GParamSpec **properties;
-	guint number_of_properties;
+  guint number_of_properties;
 #endif
 
   g_assert(BT_IS_MACHINE(self));
@@ -539,8 +536,8 @@ gboolean bt_machine_new(BtMachine *self) {
       self->priv->global_params=i;
       self->priv->global_dparams=(GstDParam **)g_new0(gpointer,self->priv->global_params);
       self->priv->global_types  =(GType *    )g_new0(GType    ,self->priv->global_params);
-			self->priv->global_flags  =(guint *    )g_new0(guint    ,self->priv->global_params);
-			self->priv->global_no_val =(GValue *   )g_new0(GValue   ,self->priv->global_params);
+      self->priv->global_flags  =(guint *    )g_new0(guint    ,self->priv->global_params);
+      self->priv->global_no_val =(GValue *   )g_new0(GValue   ,self->priv->global_params);
       // iterate over all dparam
       for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
         gboolean attach_ret=FALSE;
@@ -560,96 +557,96 @@ gboolean bt_machine_new(BtMachine *self) {
 #ifdef USE_GST_CONTROLLER
   // register global params
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
-	  GParamSpec *property;
+    GParamSpec *property;
     guint i,j;
     
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
       if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->global_params++;
-		}
-		self->priv->global_types =(GType *     )g_new0(GType   ,self->priv->global_params);
-		self->priv->global_names =(gchar **    )g_new0(gpointer,self->priv->global_params);
-		self->priv->global_flags =(guint *     )g_new0(guint   ,self->priv->global_params);
-		self->priv->global_no_val=(GValue *    )g_new0(GValue  ,self->priv->global_params);
-		for(i=j=0;i<number_of_properties;i++) {
-			property=properties[i];
+    }
+    self->priv->global_types =(GType *     )g_new0(GType   ,self->priv->global_params);
+    self->priv->global_names =(gchar **    )g_new0(gpointer,self->priv->global_params);
+    self->priv->global_flags =(guint *     )g_new0(guint   ,self->priv->global_params);
+    self->priv->global_no_val=(GValue *    )g_new0(GValue  ,self->priv->global_params);
+    for(i=j=0;i<number_of_properties;i++) {
+      property=properties[i];
       if(property->flags&GST_PARAM_CONTROLLABLE) {
-				GST_DEBUG("    adding global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
+        GST_DEBUG("    adding global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         // add global param
-				self->priv->global_names[j]=property->name;
-				self->priv->global_types[j]=property->value_type;
-				self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_flags));
-				g_value_init(&self->priv->global_no_val[j],property->value_type);
-				switch(property->value_type) {
-					case G_TYPE_BOOLEAN:
-						g_value_set_boolean(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
-						break;
-					case G_TYPE_INT:
-						g_value_set_int(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
-						break;
-					case G_TYPE_UINT:
-						g_value_set_uint(&self->priv->global_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,param_quark_no_val)));
-						break;
-					default:
-						GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-				}
-				GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
-				j++;
+        self->priv->global_names[j]=property->name;
+        self->priv->global_types[j]=property->value_type;
+        self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+        g_value_init(&self->priv->global_no_val[j],property->value_type);
+        switch(property->value_type) {
+          case G_TYPE_BOOLEAN:
+            g_value_set_boolean(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
+            break;
+          case G_TYPE_INT:
+            g_value_set_int(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
+            break;
+          case G_TYPE_UINT:
+            g_value_set_uint(&self->priv->global_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
+            break;
+          default:
+            GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+        }
+        GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
+        j++;
       }
     }
-		g_free(properties);
+    g_free(properties);
   }
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
-  	GstObject *voice_child;
+    GstObject *voice_child;
 
     GST_INFO("  instance is polyphonic!");
     // register voice params
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
       if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
-			  GParamSpec *property;
+        GParamSpec *property;
         guint i,j;
         
         // count number of controlable params
-    		for(i=0;i<number_of_properties;i++) {
-      		if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
-				}
-				self->priv->voice_types =(GType *     )g_new0(GType   ,self->priv->voice_params);
-				self->priv->voice_names =(gchar **    )g_new0(gpointer,self->priv->voice_params);
-				self->priv->voice_flags =(guint *     )g_new0(guint   ,self->priv->voice_params);
-				self->priv->voice_no_val=(GValue *    )g_new0(GValue  ,self->priv->voice_params);
+        for(i=0;i<number_of_properties;i++) {
+          if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
+        }
+        self->priv->voice_types =(GType *     )g_new0(GType   ,self->priv->voice_params);
+        self->priv->voice_names =(gchar **    )g_new0(gpointer,self->priv->voice_params);
+        self->priv->voice_flags =(guint *     )g_new0(guint   ,self->priv->voice_params);
+        self->priv->voice_no_val=(GValue *    )g_new0(GValue  ,self->priv->voice_params);
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
-		        // add voice param
-						self->priv->voice_names[j]=property->name;
-						self->priv->voice_types[j]=property->value_type;
-						self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_flags));
-						g_value_init(&self->priv->voice_no_val[j],property->value_type);
-						switch(property->value_type) {
-							case G_TYPE_BOOLEAN:
-								g_value_set_boolean(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
-								break;
-							case G_TYPE_INT:
-								g_value_set_int(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,param_quark_no_val)));
-								break;
-							case G_TYPE_UINT:
-								g_value_set_uint(&self->priv->voice_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,param_quark_no_val)));
-								break;
-					    default:
-					      GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-						}
-						GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
-						j++;
+            // add voice param
+            self->priv->voice_names[j]=property->name;
+            self->priv->voice_types[j]=property->value_type;
+            self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+            g_value_init(&self->priv->voice_no_val[j],property->value_type);
+            switch(property->value_type) {
+              case G_TYPE_BOOLEAN:
+                g_value_set_boolean(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
+                break;
+              case G_TYPE_INT:
+                g_value_set_int(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
+                break;
+              case G_TYPE_UINT:
+                g_value_set_uint(&self->priv->voice_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
+                break;
+              default:
+                GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+            }
+            GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
+            j++;
           }
         }
       }
-			g_free(properties);
+      g_free(properties);
     }
-		else {
-			GST_WARNING("  can't get first voice child!");
-		}
+    else {
+      GST_WARNING("  can't get first voice child!");
+    }
   }
   else {
     GST_INFO("  instance is monophonic!");
@@ -661,9 +658,9 @@ gboolean bt_machine_new(BtMachine *self) {
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
-	if(!(self->priv->global_params+self->priv->voice_params)) {
-		GST_WARNING("  machine has no params");
-	}
+  if(!(self->priv->global_params+self->priv->voice_params)) {
+    GST_WARNING("  machine has no params");
+  }
 
   if(BT_IS_SINK_MACHINE(self)) {
     GST_DEBUG("  this will be the master for the song");
@@ -806,7 +803,7 @@ gboolean bt_machine_activate_adder(BtMachine *self) {
     gst_bin_add(self->priv->bin, self->priv->machines[PART_ADDER_CONVERT]);
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
-			gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
+      gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);
       GST_ERROR("failed to link the machines internal adder");res=FALSE;
     }
     else {
@@ -940,8 +937,8 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(id);
   
-	//GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
-	
+  //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
+  
   for(node=self->priv->patterns;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data);
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
@@ -1040,12 +1037,12 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
-	g_return_val_if_fail(error == NULL || *error == NULL, -1);
+  g_return_val_if_fail(error == NULL || *error == NULL, -1);
   
 #ifdef USE_GST_DPARAMS
   if(self->priv->dparam_manager) {
-	  GstDParam *dparam=NULL;
-		
+    GstDParam *dparam=NULL;
+    
     if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
       for(i=0;i<self->priv->global_params;i++) {
         if(self->priv->global_dparams[i]==dparam) {
@@ -1068,19 +1065,19 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
   }
 #endif
 #ifdef USE_GST_CONTROLLER
-	for(i=0;i<self->priv->global_params;i++) {
+  for(i=0;i<self->priv->global_params;i++) {
     if(!strcmp(self->priv->global_names[i],name)) {
       ret=i;
       found=TRUE;
       break;
     }
-  }	
+  }  
   if(!found && error) {
     g_set_error (error, error_domain, /* errorcode= */0,
                 "global param for name %s not found", name);
   }
 #endif
-	g_assert((found || (error && *error)));
+  g_assert((found || (error && *error)));
   return(ret);
 }
 
@@ -1101,12 +1098,12 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
-	g_return_val_if_fail(error == NULL || *error == NULL, -1);
+  g_return_val_if_fail(error == NULL || *error == NULL, -1);
   
 #ifdef USE_GST_DPARAMS
   if(self->priv->dparam_manager) {
-		GstDParam *dparam=NULL;
-		
+    GstDParam *dparam=NULL;
+    
     if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
       for(i=0;i<self->priv->voice_params;i++) {
         if(self->priv->voice_dparams[i]==dparam) {
@@ -1135,14 +1132,14 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
       found=TRUE;
       break;
     }
-  }	
+  }  
   if(!found && error) {
     g_set_error (error, error_domain, /* errorcode= */0,
                 "voice param for name %s not found", name);
   }
 #endif
-	g_assert((found || (error && *error)));
-	return(ret);
+  g_assert((found || (error && *error)));
+  return(ret);
 }
 
 #ifdef USE_GST_DPARAMS
@@ -1199,10 +1196,10 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine *self, gulong index
   return(GST_DPARAM_PARAM_SPEC(self->priv->global_dparams[index]));
 #endif
 #ifdef USE_GST_CONTROLLER
-	return(g_object_class_find_property(
-		G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
-		self->priv->global_names[index])
-	);
+  return(g_object_class_find_property(
+    G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
+    self->priv->global_names[index])
+  );
 #endif
 }
 
@@ -1224,10 +1221,10 @@ GParamSpec *bt_machine_get_voice_param_spec(const BtMachine *self, gulong index)
   return(GST_DPARAM_PARAM_SPEC(self->priv->voice_dparams[index]));
 #endif
 #ifdef USE_GST_CONTROLLER
-	return(g_object_class_find_property(
-		G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
-		self->priv->voice_names[index])
-	);
+  return(g_object_class_find_property(
+    G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
+    self->priv->voice_names[index])
+  );
 #endif
 }
 
@@ -1282,8 +1279,8 @@ void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GVal
   bt_machine_set_param_value(self->priv->global_dparams[index],event);
 #endif
 #ifdef USE_GST_CONTROLLER
-	GST_DEBUG("set value for %s.%s",self->priv->id,self->priv->global_names[index]);
-	g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
+  GST_DEBUG("set value for %s.%s",self->priv->id,self->priv->global_names[index]);
+  g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
 #endif
 }
 
@@ -1307,7 +1304,7 @@ void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulon
   bt_machine_set_param_value(self->priv->voice_dparams[voice*self->priv->voice_params+index],event);
 #endif
 #ifdef USE_GST_CONTROLLER
-	g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice)),self->priv->voice_names[index],event);
+  g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice)),self->priv->voice_names[index],event);
 #endif
 }
 
@@ -1315,9 +1312,9 @@ void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
 
-	if(!(self->priv->global_flags[index]&0x02)) {	/* MPF_STATE */
-		bt_machine_set_global_param_value(self,index,&self->priv->global_no_val[index]);
-	}
+  if(!(self->priv->global_flags[index]&0x02)) {  /* MPF_STATE */
+    bt_machine_set_global_param_value(self,index,&self->priv->global_no_val[index]);
+  }
 }
 
 void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index) {
@@ -1325,9 +1322,9 @@ void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gu
   g_assert(voice<self->priv->voices);
   g_assert(index<self->priv->global_params);
 
-	if(!(self->priv->voice_flags[index]&0x02)) {	/* MPF_STATE */
-		bt_machine_set_voice_param_value(self,voice,index,&self->priv->voice_no_val[index]);
-	}
+  if(!(self->priv->voice_flags[index]&0x02)) {  /* MPF_STATE */
+    bt_machine_set_voice_param_value(self,voice,index,&self->priv->voice_no_val[index]);
+  }
 }
 
 /**
@@ -1348,7 +1345,7 @@ const gchar *bt_machine_get_global_param_name(const BtMachine *self, gulong inde
   return(GST_DPARAM_NAME(self->priv->global_dparams[index]));
 #endif
 #ifdef USE_GST_CONTROLLER
-	return(self->priv->global_names[index]);
+  return(self->priv->global_names[index]);
 #endif
 }
 
@@ -1370,49 +1367,49 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
   return(GST_DPARAM_NAME(self->priv->voice_dparams[index]));
 #endif
 #ifdef USE_GST_CONTROLLER
-	return(self->priv->voice_names[index]);
+  return(self->priv->voice_names[index]);
 #endif
 }
 
 //-- debug helper
 
 void bt_machine_dbg_print_parts(const BtMachine *self) {
-	/* [A AC IL IG M OL OG S] */
-	GST_DEBUG("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
-		self->priv->id,
-	
-		self->priv->machines[PART_ADDER]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_ADDER]?"A":"a",
-		self->priv->machines[PART_ADDER]==self->src_elem?'>':' ',
-	
-		self->priv->machines[PART_ADDER_CONVERT]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
-		self->priv->machines[PART_ADDER_CONVERT]==self->src_elem?'>':' ',
-	
-		self->priv->machines[PART_INPUT_LEVEL]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_INPUT_LEVEL]?"IL":"il",
-		self->priv->machines[PART_INPUT_LEVEL]==self->src_elem?'>':' ',
-		
-		self->priv->machines[PART_INPUT_GAIN]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
-		self->priv->machines[PART_INPUT_GAIN]==self->src_elem?'>':' ',
-	
-		self->priv->machines[PART_MACHINE]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_MACHINE]?"M":"m",
-		self->priv->machines[PART_MACHINE]==self->src_elem?'>':' ',
-	
-		self->priv->machines[PART_OUTPUT_LEVEL]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_OUTPUT_LEVEL]?"OL":"ol",
-		self->priv->machines[PART_OUTPUT_LEVEL]==self->src_elem?'>':' ',
-	
-		self->priv->machines[PART_OUTPUT_GAIN]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
-		self->priv->machines[PART_OUTPUT_GAIN]==self->src_elem?'>':' ',
-	
-		self->priv->machines[PART_SPREADER]==self->dst_elem?'<':' ',
-		self->priv->machines[PART_SPREADER]?"S":"s",
-		self->priv->machines[PART_SPREADER]==self->src_elem?'>':' '
-	);
+  /* [A AC IL IG M OL OG S] */
+  GST_DEBUG("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
+    self->priv->id,
+  
+    self->priv->machines[PART_ADDER]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_ADDER]?"A":"a",
+    self->priv->machines[PART_ADDER]==self->src_elem?'>':' ',
+  
+    self->priv->machines[PART_ADDER_CONVERT]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
+    self->priv->machines[PART_ADDER_CONVERT]==self->src_elem?'>':' ',
+  
+    self->priv->machines[PART_INPUT_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_LEVEL]?"IL":"il",
+    self->priv->machines[PART_INPUT_LEVEL]==self->src_elem?'>':' ',
+    
+    self->priv->machines[PART_INPUT_GAIN]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
+    self->priv->machines[PART_INPUT_GAIN]==self->src_elem?'>':' ',
+  
+    self->priv->machines[PART_MACHINE]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_MACHINE]?"M":"m",
+    self->priv->machines[PART_MACHINE]==self->src_elem?'>':' ',
+  
+    self->priv->machines[PART_OUTPUT_LEVEL]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_LEVEL]?"OL":"ol",
+    self->priv->machines[PART_OUTPUT_LEVEL]==self->src_elem?'>':' ',
+  
+    self->priv->machines[PART_OUTPUT_GAIN]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
+    self->priv->machines[PART_OUTPUT_GAIN]==self->src_elem?'>':' ',
+  
+    self->priv->machines[PART_SPREADER]==self->dst_elem?'<':' ',
+    self->priv->machines[PART_SPREADER]?"S":"s",
+    self->priv->machines[PART_SPREADER]==self->src_elem?'>':' '
+  );
 }
 
 //-- wrapper
@@ -1558,12 +1555,12 @@ static void bt_machine_dispose(GObject *object) {
   //GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
 #ifdef USE_GST_DPARAMS
-	for(i=0;i<self->priv->global_params;i++) {
-		g_object_unref(self->priv->global_dparams[i]);
-	}
-	for(i=0;i<self->priv->voice_params;i++) {
-		g_object_unref(self->priv->voice_dparams[i]);
-	}
+  for(i=0;i<self->priv->global_params;i++) {
+    g_object_unref(self->priv->global_dparams[i]);
+  }
+  for(i=0;i<self->priv->voice_params;i++) {
+    g_object_unref(self->priv->voice_dparams[i]);
+  }
   //GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
   // seems that gst_dpman_get_dparam() does not ref it, therefore we shouldn't unref it
   //g_object_try_unref(self->priv->dparam_manager);
@@ -1807,12 +1804,6 @@ GType bt_machine_get_type(void) {
     };
     type = g_type_register_static(G_TYPE_OBJECT,"BtMachine",&info,G_TYPE_FLAG_ABSTRACT);
 
-    // see GstBML::gstbml.c
-    param_quark_min_val=g_quark_from_string("BT_PARAM_MIN_VAL");
-    param_quark_max_val=g_quark_from_string("BT_PARAM_MAX_VAL");
-    param_quark_def_val=g_quark_from_string("BT_PARAM_DEF_VAL");
-    param_quark_no_val=g_quark_from_string("BT_PARAM_NO_VAL");
-    param_quark_flags=g_quark_from_string("BT_PARAM_FLAGS");    
-	}
+  }
   return type;
 }
