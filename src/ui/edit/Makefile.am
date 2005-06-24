@@ -35,7 +35,7 @@ libbtedit_la_SOURCES   = \
 	gtkvumeter.c gtkvumeter.h
 	
 INCLUDES = \
-	-I@srcdir@ -I$(top_builddir)/src/lib/core \
+	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \

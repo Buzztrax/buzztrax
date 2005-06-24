@@ -9,7 +9,7 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
 # documenting functions and macros.
-DOC_SOURCE_DIR=$(top_builddir)/src/lib/core
+DOC_SOURCE_DIR=$(top_srcdir)/src/lib/core
 
 # Extra options to pass to gtkdoc-scanobj or gtkdoc-scangobj.
 SCANOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"

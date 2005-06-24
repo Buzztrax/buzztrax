@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.21 2005-06-10 11:29:37 ensonic Exp $
+## $Id: Makefile.am,v 1.22 2005-06-24 16:54:42 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -40,7 +40,7 @@ bt_edit_SOURCES= \
 	m-bt-edit.c $(COMMON_SOURCES)
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_builddir)/src/lib/core \
+	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \
 	-DG_LOG_DOMAIN=\"buzztard-check\" \

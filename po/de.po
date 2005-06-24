@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2005-06-24 01:12+0200\n"
+"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2005-06-24 20:27+0200\n"
 "PO-Revision-Date: 2004-08-06 23:50+0200\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -24,14 +24,6 @@ msgstr ""
 #, c-format
 msgid "Saving file \"%s\""
 msgstr ""
-
-#: src/ui/edit/bt-edit.desktop.in.h:1
-msgid "Buzztard Music Editor"
-msgstr "Buzztard Music Editor"
-
-#: src/ui/edit/bt-edit.desktop.in.h:2
-msgid "Edit buzztard song files"
-msgstr "Bearbeiten von Buzztard Musik-Dateien"
 
 #: src/ui/edit/machine-canvas-item.c:281 src/ui/edit/machine-canvas-item.c:298
 #: src/ui/edit/machine-canvas-item.c:467
@@ -119,7 +111,6 @@ msgstr ""
 msgid "main menu"
 msgstr "Hauptmenü"
 
-#. -- file menu
 #: src/ui/edit/main-menu.c:304
 msgid "_File"
 msgstr "_Datei"
@@ -154,7 +145,6 @@ msgstr "Speichern unter"
 msgid "Quit"
 msgstr "Beenden"
 
-#. edit menu
 #: src/ui/edit/main-menu.c:349
 msgid "_Edit"
 msgstr "_Bearbeiten"
@@ -183,7 +173,6 @@ msgstr ""
 msgid "settings"
 msgstr ""
 
-#. view menu
 #: src/ui/edit/main-menu.c:384
 msgid "_View"
 msgstr "_Ansicht"
@@ -222,7 +211,6 @@ msgstr ""
 msgid "Go to song information"
 msgstr ""
 
-#. help menu
 #: src/ui/edit/main-menu.c:442
 msgid "_Help"
 msgstr "_Hilfe"
@@ -239,7 +227,6 @@ msgstr "Inhalt"
 msgid "song meta data"
 msgstr ""
 
-#. GtkEntry : pattern name
 #: src/ui/edit/main-page-info.c:222
 #: src/ui/edit/pattern-properties-dialog.c:130
 msgid "name"
@@ -266,7 +253,6 @@ msgstr ""
 msgid "free text info"
 msgstr ""
 
-#. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
 #: src/ui/edit/main-page-machines.c:637
 #, fuzzy
 msgid "Add nachine"
@@ -437,7 +423,6 @@ msgstr ""
 msgid "Add track"
 msgstr ""
 
-#. @idea should that be in the context menu of table headers?
 #: src/ui/edit/main-page-sequence.c:1143
 msgid "Remove track"
 msgstr ""
@@ -504,7 +489,6 @@ msgstr ""
 msgid "sample edit tool bar"
 msgstr ""
 
-#. g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
 #: src/ui/edit/main-page-waves.c:310
 msgid "Root"
 msgstr ""
@@ -570,17 +554,14 @@ msgstr ""
 msgid "song meta data editor"
 msgstr ""
 
-#. GtkComboBox : pattern length
 #: src/ui/edit/pattern-properties-dialog.c:139
 msgid "length"
 msgstr ""
 
-#. GtkSpinButton : number of voices
 #: src/ui/edit/pattern-properties-dialog.c:149
 msgid "voices"
 msgstr ""
 
-#. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: src/ui/edit/settings-dialog.c:75
 #, fuzzy
 msgid "buzztard settings"
@@ -669,10 +650,6 @@ msgstr "Wiederholen"
 msgid "Toggle looping of playback"
 msgstr ""
 
-#. add gain-control
-#. min=
-#. max=
-#. step=
 #: src/ui/edit/main-toolbar.c:383
 msgid "Change playback volume"
 msgstr ""
@@ -703,7 +680,6 @@ msgstr ""
 msgid "All unsaved changes will be lost then."
 msgstr ""
 
-#. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
 #: src/ui/edit/main-window.c:290
 msgid "New song ?"
 msgstr ""
@@ -727,7 +703,6 @@ msgstr "Öffnen"
 msgid "Save a song"
 msgstr "Speichern unter"
 
-#. it already exists, ask the user what to do (do not save, choose new name, overwrite song)
 #: src/ui/edit/main-window.c:419
 msgid "File already exists"
 msgstr ""
@@ -754,44 +729,8 @@ msgstr ""
 msgid "Signal Analysis ..."
 msgstr ""
 
-#: buzztard.schemas.in.h:1
-msgid "Hide main page tabs"
-msgstr ""
+#~ msgid "Buzztard Music Editor"
+#~ msgstr "Buzztard Music Editor"
 
-#: buzztard.schemas.in.h:2
-msgid "Hide main toolbar"
-msgstr ""
-
-#: buzztard.schemas.in.h:3
-msgid ""
-"How dense the app should draw the grid lines shown in machine view: (off,low,"
-"medium,high)"
-msgstr ""
-
-#: buzztard.schemas.in.h:4
-msgid "Machine view grid detail level"
-msgstr ""
-
-#: buzztard.schemas.in.h:5
-msgid "Should the main application notebook pages tabs be hidden."
-msgstr ""
-
-#: buzztard.schemas.in.h:6
-msgid "Should the main application toolbar be hidden."
-msgstr ""
-
-#: buzztard.schemas.in.h:7
-msgid "Which audiosink to use"
-msgstr ""
-
-#: buzztard.schemas.in.h:8
-msgid "Which gstreamer audiosink element should buzztard applications use."
-msgstr ""
-
-#: buzztard.schemas.in.h:9
-msgid "false"
-msgstr ""
-
-#: buzztard.schemas.in.h:10
-msgid "low"
-msgstr ""
+#~ msgid "Edit buzztard song files"
+#~ msgstr "Bearbeiten von Buzztard Musik-Dateien"

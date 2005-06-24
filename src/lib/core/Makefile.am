@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.27 2005-04-08 13:35:38 ensonic Exp $
+## $Id: Makefile.am,v 1.28 2005-06-24 16:54:41 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -41,7 +41,7 @@ libbtcore_la_SOURCES = \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_builddir)/src/lib/core \
+	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \

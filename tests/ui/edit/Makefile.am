@@ -8,7 +8,7 @@ libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-settings-dialog.c e-bt-settings-dialog.c
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_builddir)/src/lib/core \
+	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \
