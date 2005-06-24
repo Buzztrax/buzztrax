@@ -22,8 +22,8 @@ MKDB_OPTIONS=--output-format=xml --sgml-mode --ignore-files=parse
 
 # Extra options to supply to gtkdoc-fixref.
 FIXXREF_OPTIONS=--extra-dir=$(glib_prefix)/share/gtk-doc/html/gobject \
-  --extra-dir=$(glib_prefix)/share/gtk-doc/html/glib \
-  --extra-dir=$(gtk_prefix)/share/gtk-doc/html/gtk \
+	--extra-dir=$(glib_prefix)/share/gtk-doc/html/glib \
+	--extra-dir=$(gtk_prefix)/share/gtk-doc/html/gtk \
 	--extra-dir=$(gcanvas_prefix)/share/gtk-doc/html/libgnomecanvas \
 	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer \
 	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer-libs \
@@ -48,14 +48,14 @@ extra_files =
 # CFLAGS and LDFLAGS for compiling scan program. Only needed if your app/lib
 # contains GtkObjects/GObjects and you want to document signals and properties.
 GTKDOC_CFLAGS = \
-	-I$(top_builddir)/src/lib/core \
-	-I$(top_builddir)/src/ui/edit \
+	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/ui/edit \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
-        $(GUI_DEPS_LIBS) \
+	$(GUI_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/src/ui/edit/libbtedit.la
 
