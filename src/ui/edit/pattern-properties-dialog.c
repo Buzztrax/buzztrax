@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.7 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.8 2005-06-27 17:32:04 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -168,7 +168,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 /**
  * bt_pattern_properties_dialog_new:
  * @app: the application the dialog belongs to
- * @machine: the machine to create the dialog for
+ * @pattern: the pattern for which to create the dialog for
  *
  * Create a new instance
  *

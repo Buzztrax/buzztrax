@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.120 2005-06-23 20:50:02 ensonic Exp $
+/* $Id: machine.c,v 1.121 2005-06-27 17:32:02 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1142,7 +1142,6 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
   return(ret);
 }
 
-#ifdef USE_GST_DPARAMS
 /**
  * bt_machine_get_global_dparam:
  * @self: the machine to search for the global param
@@ -1152,6 +1151,7 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
  *
  * Returns: the requested global GstDParam
  */
+#ifdef USE_GST_DPARAMS
 GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
@@ -1159,6 +1159,7 @@ GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
   
   return(self->priv->global_dparams[index]);
 }
+#endif
 
 /**
  * bt_machine_get_voice_dparam:
@@ -1169,6 +1170,7 @@ GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
  *
  * Returns: the requested voice GstDParam
  */
+#ifdef USE_GST_DPARAMS
 GstDParam *bt_machine_get_voice_dparam(const BtMachine *self, gulong voice, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(voice<self->priv->voices);
@@ -1178,6 +1180,7 @@ GstDParam *bt_machine_get_voice_dparam(const BtMachine *self, gulong voice, gulo
   return(self->priv->voice_dparams[voice*self->priv->voice_params+index]);
 }
 #endif
+
 /**
  * bt_machine_get_global_param_spec:
  * @self: the machine to search for the global param

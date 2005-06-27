@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.74 2005-05-26 16:55:29 ensonic Exp $
+/* $Id: song.c,v 1.75 2005-06-27 17:32:03 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -338,6 +338,7 @@ static void bt_song_class_init(BtSongClass *klass) {
 
   klass->play_event = NULL;
   klass->stop_event = NULL;
+
   /** 
 	 * BtSong::play:
    * @self: the song object that emitted the signal
