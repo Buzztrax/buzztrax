@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.122 2005-06-29 09:21:22 ensonic Exp $
+/* $Id: machine.c,v 1.123 2005-06-29 15:19:41 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -450,20 +450,20 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
 #endif
 
 static void bt_machine_get_property_meta_value(GValue *value,GParamSpec *property,GQuark key) {
-	g_value_init(value,property->value_type);
-	switch(property->value_type) {
-		case G_TYPE_BOOLEAN:
-			g_value_set_boolean(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
-			break;
-		case G_TYPE_INT:
-			g_value_set_int(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
-			break;
-		case G_TYPE_UINT:
-			g_value_set_uint(value,GPOINTER_TO_UINT(g_param_spec_get_qdata(property,key)));
-			break;
-		default:
-			GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-	}
+  g_value_init(value,property->value_type);
+  switch(property->value_type) {
+    case G_TYPE_BOOLEAN:
+      g_value_set_boolean(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
+      break;
+    case G_TYPE_INT:
+      g_value_set_int(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
+      break;
+    case G_TYPE_UINT:
+      g_value_set_uint(value,GPOINTER_TO_UINT(g_param_spec_get_qdata(property,key)));
+      break;
+    default:
+      GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+  }
 }
 
 //-- constructor methods
@@ -592,11 +592,11 @@ gboolean bt_machine_new(BtMachine *self) {
         // add global param
         self->priv->global_names[j]=property->name;
         self->priv->global_types[j]=property->value_type;
-				if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-					self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-				}
-				// TODO check if iface is implemented
-				bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
+        if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+          self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+        }
+        // TODO check if iface is implemented
+        bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;
       }
@@ -629,12 +629,12 @@ gboolean bt_machine_new(BtMachine *self) {
             // add voice param
             self->priv->voice_names[j]=property->name;
             self->priv->voice_types[j]=property->value_type;
-						// TODO does the machine of the voice object implements it?
-						//if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-							self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-						//}
-						// TODO check if iface is implemented
-						bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
+            // TODO does the machine of the voice object implements it?
+            //if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+              self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+            //}
+            // TODO check if iface is implemented
+            bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
             GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             j++;
           }
@@ -1387,6 +1387,33 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
 #endif
 }
 
+static GValue *bt_machine_get_param_min_value(const BtMachine *self, GParamSpec *property) {
+  GValue *value=g_new0(GValue,1);
+
+  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+    bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val);
+  }
+  else {
+    g_value_init(value,property->value_type);
+    switch(property->value_type) {
+      case G_TYPE_BOOLEAN:
+        g_value_set_boolean(value,0);
+      break;
+      case G_TYPE_INT: {
+        GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+        g_value_set_int(value,int_property->minimum);
+      }  break;
+      case G_TYPE_UINT: {
+        GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+        g_value_set_uint(value,uint_property->minimum);
+      }  break;
+      default:
+        GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+    }
+  }
+  return(value);
+}
+
 /**
  * bt_machine_get_global_param_min_value:
  * @self: the machine to get the min param value from 
@@ -1397,31 +1424,9 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
  * Returns: the the minimum value as a new GValue
  */
 GValue *bt_machine_get_global_param_min_value(const BtMachine *self, gulong index) {
-	GValue *value=g_new0(GValue,1);
-	GParamSpec *property=bt_machine_get_global_param_spec(self,index);
-
-	if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-		bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val);
-	}
-	else {
-		g_value_init(value,property->value_type);
-		switch(property->value_type) {
-			case G_TYPE_BOOLEAN:
-				g_value_set_boolean(value,0);
-			break;
-			case G_TYPE_INT: {
-				GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-				g_value_set_int(value,int_property->minimum);
-			}	break;
-			case G_TYPE_UINT: {
-				GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-				g_value_set_uint(value,uint_property->minimum);
-			}	break;
-			default:
-				GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-		}
-	}
-	return(value);
+  GParamSpec *property=bt_machine_get_global_param_spec(self,index);
+  
+  return(bt_machine_get_param_min_value(self,property));
 }
 
 /**
@@ -1434,8 +1439,36 @@ GValue *bt_machine_get_global_param_min_value(const BtMachine *self, gulong inde
  * Returns: the the minimum value as a new GValue
  */
 GValue *bt_machine_get_voice_param_min_value(const BtMachine *self, gulong index) {
-	// TODO implement me
-	return(NULL);
+  GParamSpec *property=bt_machine_get_voice_param_spec(self,index);
+
+  return(bt_machine_get_param_min_value(self,property));
+}
+
+static GValue *bt_machine_get_param_max_value(const BtMachine *self, GParamSpec *property) {
+  GValue *value=g_new0(GValue,1);
+
+  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+    bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_max_val);
+  }
+  else {
+    g_value_init(value,property->value_type);
+    switch(property->value_type) {
+      case G_TYPE_BOOLEAN:
+        g_value_set_boolean(value,1);
+      break;
+      case G_TYPE_INT: {
+        GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+        g_value_set_int(value,int_property->maximum);
+      }  break;
+      case G_TYPE_UINT: {
+        GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+        g_value_set_uint(value,uint_property->maximum);
+      }  break;
+      default:
+        GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+    }
+  }
+  return(value);
 }
 
 /**
@@ -1448,8 +1481,9 @@ GValue *bt_machine_get_voice_param_min_value(const BtMachine *self, gulong index
  * Returns: the the maximum value as a new GValue
  */
 GValue *bt_machine_get_global_param_max_value(const BtMachine *self, gulong index) {
-	// TODO implement me
-	return(NULL);
+  GParamSpec *property=bt_machine_get_global_param_spec(self,index);
+  
+  return(bt_machine_get_param_max_value(self,property));
 }
 
 /**
@@ -1462,8 +1496,9 @@ GValue *bt_machine_get_global_param_max_value(const BtMachine *self, gulong inde
  * Returns: the the maximum value as a new GValue
  */
 GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index) {
-	// TODO implement me
-	return(NULL);
+  GParamSpec *property=bt_machine_get_voice_param_spec(self,index);
+
+  return(bt_machine_get_param_max_value(self,property));
 }
 
 /**
@@ -1478,14 +1513,14 @@ GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index
  * Returns: the description as newly allocated string
  */
 gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event) {
-	gchar *str=NULL;
-	// TODO implement me
-	if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-		/*
-		str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE],????);
-		*/
-	}
-	return(str);
+  gchar *str=NULL;
+  // TODO implement me
+  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+    /*
+    str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE]),????);
+    */
+  }
+  return(str);
 }
 
 /**
@@ -1500,9 +1535,9 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong inde
  * Returns: the description as newly allocated string
  */
 gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event) {
-	gchar *str=NULL;
-	// TODO implement me
-	return(str);
+  gchar *str=NULL;
+  // TODO implement me
+  return(str);
 }
 
 //-- debug helper
