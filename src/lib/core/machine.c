@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.121 2005-06-27 17:32:02 ensonic Exp $
+/* $Id: machine.c,v 1.122 2005-06-29 09:21:22 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -449,6 +449,23 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
 }
 #endif
 
+static void bt_machine_get_property_meta_value(GValue *value,GParamSpec *property,GQuark key) {
+	g_value_init(value,property->value_type);
+	switch(property->value_type) {
+		case G_TYPE_BOOLEAN:
+			g_value_set_boolean(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
+			break;
+		case G_TYPE_INT:
+			g_value_set_int(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
+			break;
+		case G_TYPE_UINT:
+			g_value_set_uint(value,GPOINTER_TO_UINT(g_param_spec_get_qdata(property,key)));
+			break;
+		default:
+			GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+	}
+}
+
 //-- constructor methods
 
 /**
@@ -575,21 +592,11 @@ gboolean bt_machine_new(BtMachine *self) {
         // add global param
         self->priv->global_names[j]=property->name;
         self->priv->global_types[j]=property->value_type;
-        self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-        g_value_init(&self->priv->global_no_val[j],property->value_type);
-        switch(property->value_type) {
-          case G_TYPE_BOOLEAN:
-            g_value_set_boolean(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
-            break;
-          case G_TYPE_INT:
-            g_value_set_int(&self->priv->global_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
-            break;
-          case G_TYPE_UINT:
-            g_value_set_uint(&self->priv->global_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
-            break;
-          default:
-            GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-        }
+				if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+					self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+				}
+				// TODO check if iface is implemented
+				bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;
       }
@@ -622,21 +629,12 @@ gboolean bt_machine_new(BtMachine *self) {
             // add voice param
             self->priv->voice_names[j]=property->name;
             self->priv->voice_types[j]=property->value_type;
-            self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-            g_value_init(&self->priv->voice_no_val[j],property->value_type);
-            switch(property->value_type) {
-              case G_TYPE_BOOLEAN:
-                g_value_set_boolean(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
-                break;
-              case G_TYPE_INT:
-                g_value_set_int(&self->priv->voice_no_val[j],GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
-                break;
-              case G_TYPE_UINT:
-                g_value_set_uint(&self->priv->voice_no_val[j],GPOINTER_TO_UINT(g_param_spec_get_qdata(property,gst_property_meta_quark_no_val)));
-                break;
-              default:
-                GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-            }
+						// TODO does the machine of the voice object implements it?
+						//if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+							self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+						//}
+						// TODO check if iface is implemented
+						bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
             GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             j++;
           }
@@ -1289,9 +1287,9 @@ void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GVal
 
 /**
  * bt_machine_set_voice_param_value:
- * @self: the machine to set the global param value
+ * @self: the machine to set the voice param value
  * @voice: the voice to change
- * @index: the offset in the list of global params
+ * @index: the offset in the list of voice params
  * @event: the new value
  *
  * Sets a the specified voice param to the give data value.
@@ -1311,6 +1309,13 @@ void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulon
 #endif
 }
 
+/**
+ * bt_machine_set_global_param_no_value:
+ * @self: the machine to set the global param value to the no-value
+ * @index: the offset in the list of global params
+ *
+ * Sets a the specified global param to the neutral no-value.
+ */
 void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
@@ -1320,6 +1325,14 @@ void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index) {
   }
 }
 
+/**
+ * bt_machine_set_voice_param_no_value:
+ * @self: the machine to set the voice param value to the no-value
+ * @voice: the voice to change
+ * @index: the offset in the list of voice params
+ *
+ * Sets a the specified voice param to the neutral no-value.
+ */
 void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index) {
   g_assert(BT_IS_MACHINE(self));
   g_assert(voice<self->priv->voices);
@@ -1372,6 +1385,124 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
 #ifdef USE_GST_CONTROLLER
   return(self->priv->voice_names[index]);
 #endif
+}
+
+/**
+ * bt_machine_get_global_param_min_value:
+ * @self: the machine to get the min param value from 
+ * @index: the offset in the list of global params
+ *
+ * Gets the minimum value of a global param.
+ *
+ * Returns: the the minimum value as a new GValue
+ */
+GValue *bt_machine_get_global_param_min_value(const BtMachine *self, gulong index) {
+	GValue *value=g_new0(GValue,1);
+	GParamSpec *property=bt_machine_get_global_param_spec(self,index);
+
+	if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+		bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val);
+	}
+	else {
+		g_value_init(value,property->value_type);
+		switch(property->value_type) {
+			case G_TYPE_BOOLEAN:
+				g_value_set_boolean(value,0);
+			break;
+			case G_TYPE_INT: {
+				GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+				g_value_set_int(value,int_property->minimum);
+			}	break;
+			case G_TYPE_UINT: {
+				GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+				g_value_set_uint(value,uint_property->minimum);
+			}	break;
+			default:
+				GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+		}
+	}
+	return(value);
+}
+
+/**
+ * bt_machine_get_voice_param_min_value:
+ * @self: the machine to get the min param value from 
+ * @index: the offset in the list of voice params
+ *
+ * Gets the minimum value of a voice param.
+ *
+ * Returns: the the minimum value as a new GValue
+ */
+GValue *bt_machine_get_voice_param_min_value(const BtMachine *self, gulong index) {
+	// TODO implement me
+	return(NULL);
+}
+
+/**
+ * bt_machine_get_global_param_max_value:
+ * @self: the machine to get the max param value from 
+ * @index: the offset in the list of global params
+ *
+ * Gets the maximum value of a global param.
+ *
+ * Returns: the the maximum value as a new GValue
+ */
+GValue *bt_machine_get_global_param_max_value(const BtMachine *self, gulong index) {
+	// TODO implement me
+	return(NULL);
+}
+
+/**
+ * bt_machine_get_voice_param_max_value:
+ * @self: the machine to get the max param value from 
+ * @index: the offset in the list of voice params
+ *
+ * Gets the maximum value of a voice param.
+ *
+ * Returns: the the maximum value as a new GValue
+ */
+GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index) {
+	// TODO implement me
+	return(NULL);
+}
+
+/**
+ * bt_machine_describe_global_param_value:
+ * @self: the machine to get a param description from
+ * @index: the offset in the list of global params
+ * @event: the value to describe
+ *
+ * Described a param value in human readable form. The type of the given @value
+ * must match the type of the paramspec of the param referenced by @index.
+ *
+ * Returns: the description as newly allocated string
+ */
+gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event) {
+	gchar *str=NULL;
+	// TODO implement me
+	if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+		/*
+		str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE],????);
+		*/
+	}
+	return(str);
+}
+
+/**
+ * bt_machine_describe_voice_param_value:
+ * @self: the machine to get a param description from
+ * @index: the offset in the list of voice params
+ * @event: the value to describe
+ *
+ * Described a param value in human readable form. The type of the given @value
+ * must match the type of the paramspec of the param referenced by @index.
+ *
+ * Returns: the description as newly allocated string
+ */
+gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event) {
+	gchar *str=NULL;
+	// TODO implement me
+	return(str);
 }
 
 //-- debug helper

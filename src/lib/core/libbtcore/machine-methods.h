@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.29 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: machine-methods.h,v 1.30 2005-06-29 09:21:22 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -47,11 +47,20 @@ extern GType bt_machine_get_voice_param_type(const BtMachine *self, gulong index
 extern void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GValue *event);
 extern void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulong index, GValue *event);
 
+extern void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index);
+extern void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index);
+
 extern const gchar *bt_machine_get_global_param_name(const BtMachine *self, gulong index);
 extern const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index);
 
-extern void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index);
-extern void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index);
+extern GValue *bt_machine_get_global_param_min_value(const BtMachine *self, gulong index);
+extern GValue *bt_machine_get_voice_param_min_value(const BtMachine *self, gulong index);
+
+extern GValue *bt_machine_get_global_param_max_value(const BtMachine *self, gulong index);
+extern GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index);
+
+extern gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event);
+extern gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event);
 
 // debug helper
 extern void bt_machine_dbg_print_parts(const BtMachine *self);
