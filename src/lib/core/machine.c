@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.123 2005-06-29 15:19:41 ensonic Exp $
+/* $Id: machine.c,v 1.124 2005-06-29 19:49:05 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1514,11 +1514,9 @@ GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index
  */
 gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event) {
   gchar *str=NULL;
-  // TODO implement me
+
   if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-    /*
-    str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE]),????);
-    */
+    str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE]),index,event);
   }
   return(str);
 }

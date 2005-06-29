@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.23 2005-06-29 15:19:42 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.24 2005-06-29 19:49:05 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -148,16 +148,18 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   //gdk_threads_leave();
 }
 
-/*
-static gchar* on_range_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+static gchar* on_int_range_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
 #ifdef USE_GST_CONTROLLER
-  GstElement *machine=GST_ELEMENT(user_data);
-  const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
 #endif
-  // TODO stick value into a gvalue container
-  return(bt_machine_describe_global_param_value(machine,name,val));
+	GValue int_value={0,};
+	glong index=bt_machine_get_global_param_index(machine,name,NULL);
+	
+  g_value_init(&int_value,G_TYPE_INT);
+	g_value_set_int(&int_value,(gint)value);
+  return(bt_machine_describe_global_param_value(machine,index,&int_value));
 }
-*/
 
 //-- helper methods
 
@@ -169,6 +171,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GdkPixbuf *window_icon=NULL;
   gulong i,global_params;
   GParamSpec *property;
+	GValue *range_min,*range_max;
   GType param_type;
   GstElement *machine;
 #ifdef USE_GST_DPARAMS
@@ -223,13 +226,24 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
       label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
-      // @todo choose proper widgets
+
       param_type=bt_machine_get_global_param_type(self->priv->machine,i);
+			range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
+			range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);
+			// DEBUG
+			if(range_min && range_max) {
+				gchar *str_min=g_strdup_value_contents(range_min);
+				gchar *str_max=g_strdup_value_contents(range_max);
+				GST_INFO("... has range : %s ... %s",str_min,str_max);
+				g_free(str_min);g_free(str_max);
+			}
+			// DEBUG
+
+      // @todo choose proper widgets
       if(param_type==G_TYPE_STRING) {
         widget=gtk_label_new("string");
       }
       else if(param_type==G_TYPE_INT) {
-        GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
         gint value;
         
 #ifdef USE_GST_DPARAMS
@@ -241,11 +255,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         // @todo make it a check box when range ist 0...1 ?
         // @todo how to detect option menus
         //step=(int_property->maximum-int_property->minimum)/1024.0;
-        /* @todo check qdata of property
-         * we need something like
-         * bt_machine_get_global_param_meta(self->priv->machine,i,BT_MACHINE_PARAM_META_MIN);
-         */
-        widget=gtk_hscale_new_with_range(int_property->minimum,int_property->maximum,1.0);
+        widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
         gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
         gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
         gtk_range_set_value(GTK_RANGE(widget),value);
@@ -259,13 +269,14 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         signal_name=g_strdup_printf("notify::%s",property->name);
         g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_int_range_property_notify, (gpointer)widget);
         g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_int_range_property_changed, (gpointer)machine);
-        //g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_range_property_format_value, (gpointer)machine);
+        g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_int_range_property_format_value, (gpointer)self->priv->machine);
         g_free(signal_name);
 #endif
       }
       else if(param_type==G_TYPE_DOUBLE) {
-        GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
         gdouble step,value;
+				gdouble value_min=g_value_get_double(range_min);
+				gdouble value_max=g_value_get_double(range_max);
 
 #ifdef USE_GST_DPARAMS
         g_object_get(G_OBJECT(dparam),"value-double",&value,NULL);
@@ -273,8 +284,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 #ifdef USE_GST_CONTROLLER
         g_object_get(G_OBJECT(machine),property->name,&value,NULL);
 #endif
-        step=(double_property->maximum-double_property->minimum)/1024.0;
-        widget=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+        step=(value_max-value_min)/1024.0;
+        widget=gtk_hscale_new_with_range(value_min,value_max,step);
         gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
         gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
         gtk_range_set_value(GTK_RANGE(widget),value);
@@ -288,13 +299,16 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         signal_name=g_strdup_printf("notify::%s",property->name);
         g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_range_property_notify, (gpointer)widget);
         g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_double_range_property_changed, (gpointer)machine);
-        g_free(signal_name);
+				//g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_double_range_property_format_value, (gpointer)machine);        g_free(signal_name);
 #endif
       }
       else {
         gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
         widget=gtk_label_new(str);g_free(str);
       }
+			if(range_min) { g_free(range_min);range_min=NULL; }
+			if(range_max) { g_free(range_max);range_max=NULL; }
+			
       gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
       gtk_table_attach(GTK_TABLE(table),widget, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
     }
