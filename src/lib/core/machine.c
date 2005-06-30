@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.125 2005-06-30 15:51:39 ensonic Exp $
+/* $Id: machine.c,v 1.126 2005-06-30 20:50:32 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -503,7 +503,7 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
   }
-  // we need to make sure the machine is out of the right class
+  // we need to make sure the machine is from the right class
   {
     GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
     const gchar *element_class=gst_element_factory_get_klass(element_factory);
@@ -626,6 +626,7 @@ gboolean bt_machine_new(BtMachine *self) {
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
+						GST_DEBUG("    adding voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             // add voice param
             self->priv->voice_names[j]=property->name;
             self->priv->voice_types[j]=property->value_type;
@@ -1499,6 +1500,44 @@ GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index
   GParamSpec *property=bt_machine_get_voice_param_spec(self,index);
 
   return(bt_machine_get_param_max_value(self,property));
+}
+
+/**
+ * bt_machine_is_global_param_trigger:
+ * @self: the machine to check params from
+ * @index: the offset in the list of global params
+ *
+ * Tests if the global param is a trigger param
+ * (like a key-note or a drum trigger).
+ *
+ * Returns: %true if it is a trigger
+ */
+gboolean bt_machine_is_global_param_trigger(const BtMachine *self, gulong index) {
+  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+		GParamSpec *property=bt_machine_get_global_param_spec(self,index);
+		int flags=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+		if(!(flags&0x02)) return(TRUE);
+  }
+	return(FALSE);
+}
+
+/**
+ * bt_machine_is_voice_param_trigger:
+ * @self: the machine to check params from
+ * @index: the offset in the list of voice params
+ *
+ * Tests if the voice param is a trigger param
+ * (like a key-note or a drum trigger).
+ *
+ * Returns: %true if it is a trigger
+ */
+gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong index) {
+  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+		GParamSpec *property=bt_machine_get_voice_param_spec(self,index);
+		int flags=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+		if(!(flags&0x02)) return(TRUE);
+  }
+	return(FALSE);
 }
 
 /**

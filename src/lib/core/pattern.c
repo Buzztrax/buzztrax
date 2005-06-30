@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.47 2005-06-14 07:19:53 ensonic Exp $
+/* $Id: pattern.c,v 1.48 2005-06-30 20:50:33 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -223,7 +223,6 @@ static void bt_pattern_init_global_event(const BtPattern *self, GValue *event, g
  */
 static void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gulong param) {
   g_assert(BT_IS_PATTERN(self));
-  g_assert(G_IS_VALUE(event));
 
   //GST_DEBUG("at %d",param);
   g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));

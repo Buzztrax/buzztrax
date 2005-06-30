@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.38 2005-06-29 09:21:21 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.39 2005-06-30 20:50:27 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -81,6 +81,8 @@ bt_machine_get_global_param_min_value
 bt_machine_get_voice_param_min_value
 bt_machine_get_global_param_max_value
 bt_machine_get_voice_param_max_value
+bt_machine_is_global_param_trigger
+bt_machine_is_voice_param_trigger
 bt_machine_describe_global_param_value
 bt_machine_describe_voice_param_value
 <SUBSECTION Standard>
