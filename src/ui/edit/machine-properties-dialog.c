@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.24 2005-06-29 19:49:05 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.25 2005-06-30 15:51:39 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -148,18 +148,18 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   //gdk_threads_leave();
 }
 
-static gchar* on_int_range_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
 #ifdef USE_GST_CONTROLLER
+static gchar* on_int_range_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
-#endif
-	GValue int_value={0,};
-	glong index=bt_machine_get_global_param_index(machine,name,NULL);
+  GValue int_value={0,};
+  glong index=bt_machine_get_global_param_index(machine,name,NULL);
 	
   g_value_init(&int_value,G_TYPE_INT);
 	g_value_set_int(&int_value,(gint)value);
   return(bt_machine_describe_global_param_value(machine,index,&int_value));
 }
+#endif
 
 //-- helper methods
 
@@ -171,7 +171,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GdkPixbuf *window_icon=NULL;
   gulong i,global_params;
   GParamSpec *property;
-	GValue *range_min,*range_max;
+  GValue *range_min,*range_max;
   GType param_type;
   GstElement *machine;
 #ifdef USE_GST_DPARAMS
