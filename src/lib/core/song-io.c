@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.37 2005-06-14 07:19:53 ensonic Exp $
+/* $Id: song-io.c,v 1.38 2005-07-01 14:49:56 ensonic Exp $
  * base class for song input and output
  */
  
@@ -179,7 +179,7 @@ static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
  * @self: the #SongIO instance to use
  * @song: the #Song instance that should initialized
  *
- * load the song from a file.  The file ist set in the constructor
+ * load the song from a file.  The file is set in the constructor
  *
  * Returns: %TRUE for success
  */
@@ -198,7 +198,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
  * @self: the #SongIO instance to use
  * @song: the #Song instance that should stored
  *
- * save the song to a file.  The file ist set in the constructor
+ * save the song to a file.  The file is set in the constructor
  *
  * Returns: %TRUE for success
  */

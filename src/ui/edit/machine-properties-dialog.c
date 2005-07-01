@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.26 2005-06-30 20:50:33 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.27 2005-07-01 14:49:56 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -234,15 +234,19 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 			params=global_params;
 			for(i=0;i<global_params;i++) {
 				if(bt_machine_is_global_param_trigger(self->priv->machine,i)) params--;
+				// @todo if machine has voice param of the same name, skip this
+				// if((bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i))>-1) params--;
 			}
 			table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
 			for(i=0,k=0;i<global_params;i++) {
 				if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
+				// @todo if machine has voice param of the same name, skip this
+				// if((bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i))>-1) continue;
 #ifdef USE_GST_DPARAMS
 				dparam=bt_machine_get_global_dparam(self->priv->machine,i);
 #endif
 				property=bt_machine_get_global_param_spec(self->priv->machine,i);
-				GST_INFO("property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
+				GST_INFO("global property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
 				// get name
 				label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
 				gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -260,7 +264,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				}
 				// DEBUG
 	
-				// @todo choose proper widgets
+				// @todo implement more widget types
 				if(param_type==G_TYPE_STRING) {
 					widget=gtk_label_new("string");
 				}
@@ -357,8 +361,38 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				for(i=0,k=0;i<global_params;i++) {
 					if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) continue;
 
-					// @todo add params
+					property=bt_machine_get_voice_param_spec(self->priv->machine,i);
+					GST_INFO("voice property %p has name '%s','%s'",property,property->name,bt_machine_get_voice_param_name(self->priv->machine,i));
+					// get name
+					label=gtk_label_new((gchar *)bt_machine_get_voice_param_name(self->priv->machine,i));
+					gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+					gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 					
+					param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
+					range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
+					range_max=bt_machine_get_voice_param_max_value(self->priv->machine,i);
+					// DEBUG
+					if(range_min && range_max) {
+						gchar *str_min=g_strdup_value_contents(range_min);
+						gchar *str_max=g_strdup_value_contents(range_max);
+						GST_INFO("... has range : %s ... %s",str_min,str_max);
+						g_free(str_min);g_free(str_max);
+					}
+					// DEBUG
+
+					// @todo implement more widget types
+					if(param_type==G_TYPE_STRING) {
+						widget=gtk_label_new("string");
+					}
+					else {
+						gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+						widget=gtk_label_new(str);g_free(str);
+					}
+					if(range_min) { g_free(range_min);range_min=NULL; }
+					if(range_max) { g_free(range_max);range_max=NULL; }
+					
+					gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
+					gtk_table_attach(GTK_TABLE(table),widget, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
 					k++;
 				}
 				gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
