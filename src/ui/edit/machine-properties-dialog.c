@@ -1,6 +1,7 @@
-/* $Id: machine-properties-dialog.c,v 1.27 2005-07-01 14:49:56 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.28 2005-07-02 12:20:43 ensonic Exp $
  * class for the machine properties dialog
  */
+// @todo need version of callbacks for voice-params
 
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -344,6 +345,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 		if(voices*voice_params) {
 			gulong j;
 			gchar *name;
+			GstObject *machine_voice;
 
 			params=voice_params;
 			for(i=0;i<voice_params;i++) {
@@ -355,6 +357,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 				gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
 				g_free(name);
 				gtk_box_pack_start(GTK_BOX(vbox),expander,TRUE,TRUE,0);
+				
+				machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
 				
 				// add voice machine controls into the table
 				table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
@@ -384,6 +388,46 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 					if(param_type==G_TYPE_STRING) {
 						widget=gtk_label_new("string");
 					}
+#ifdef USE_GST_CONTROLLER___NOT_YET_READY
+					else if(param_type==G_TYPE_INT) {
+						gint value;
+
+						g_object_get(G_OBJECT(machine_voice),property->name,&value,NULL);
+	
+						// @todo make it a check box when range ist 0...1 ?
+						// @todo how to detect option menus
+						//step=(int_property->maximum-int_property->minimum)/1024.0;
+						widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
+						gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
+						gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
+						gtk_range_set_value(GTK_RANGE(widget),value);
+						gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+						// @todo add numerical entry as well ?
+						signal_name=g_strdup_printf("notify::%s",property->name);
+						g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_int_range_property_notify, (gpointer)widget);
+						g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_int_range_property_changed, (gpointer)machine);
+						g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_int_range_property_format_value, (gpointer)self->priv->machine);
+						g_free(signal_name);
+					}
+					else if(param_type==G_TYPE_DOUBLE) {
+						gdouble step,value;
+						gdouble value_min=g_value_get_double(range_min);
+						gdouble value_max=g_value_get_double(range_max);
+
+						g_object_get(G_OBJECT(machine_voice),property->name,&value,NULL);
+						step=(value_max-value_min)/1024.0;
+						widget=gtk_hscale_new_with_range(value_min,value_max,step);
+						gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
+						gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
+						gtk_range_set_value(GTK_RANGE(widget),value);
+						gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+						// @todo add numerical entry as well ?
+						signal_name=g_strdup_printf("notify::%s",property->name);
+						g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_range_property_notify, (gpointer)widget);
+						g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_double_range_property_changed, (gpointer)machine);
+						//g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_double_range_property_format_value, (gpointer)machine);        g_free(signal_name);
+					}
+#endif
 					else {
 						gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
 						widget=gtk_label_new(str);g_free(str);
