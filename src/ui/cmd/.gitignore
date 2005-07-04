@@ -2,7 +2,7 @@
 .deps
 *.lo
 *.la
+*.da
 Makefile
 Makefile.in
 bt-cmd
-
