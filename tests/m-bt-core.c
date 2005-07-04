@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.6 2005-05-25 13:32:00 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.7 2005-07-04 14:05:11 ensonic Exp $
  * core library unit tests
  */
 
@@ -11,6 +11,7 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 extern Suite *bt_core_suite(void);
 extern Suite *bt_machine_suite(void);
 extern Suite *bt_network_suite(void);
+extern Suite *bt_pattern_suite(void);
 extern Suite *bt_processor_machine_suite(void);
 extern Suite *bt_sequence_suite(void);
 extern Suite *bt_setup_suite(void);
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
   sr=srunner_create(bt_core_suite());
 	srunner_add_suite(sr, bt_machine_suite());
 	srunner_add_suite(sr, bt_network_suite());
+	srunner_add_suite(sr, bt_pattern_suite());
 	srunner_add_suite(sr, bt_processor_machine_suite());
 	srunner_add_suite(sr, bt_sequence_suite());
 	srunner_add_suite(sr, bt_setup_suite());

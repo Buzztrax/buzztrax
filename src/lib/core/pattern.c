@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.48 2005-06-30 20:50:33 ensonic Exp $
+/* $Id: pattern.c,v 1.49 2005-07-04 14:05:10 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -326,7 +326,7 @@ static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, glong length, glong voices,const BtMachine *machine) {
+BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, gulong length, gulong voices,const BtMachine *machine) {
   BtPattern *self;
   
   g_assert(BT_IS_SONG(song));
