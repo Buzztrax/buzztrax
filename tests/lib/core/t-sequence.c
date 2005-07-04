@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.4 2005-04-15 17:05:14 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.5 2005-07-04 11:37:22 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -108,7 +108,7 @@ END_TEST
 
 /* try to check if BtSequence returns a NULL pointer for get_timeline if there
  is no timeline defined (loaded) */
-START_TEST(test_btsequence_obj4) {
+START_TEST(test_btsequence_timeline1) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSequence *sequence=NULL;
@@ -132,7 +132,37 @@ START_TEST(test_btsequence_obj4) {
 	fail_unless(timeline==NULL,NULL);
 	
 	g_object_try_unref(G_OBJECT(sequence));
-		g_object_try_unref(G_OBJECT(song));
+	g_object_try_unref(G_OBJECT(song));
+	g_object_checked_unref(app);
+}
+END_TEST
+
+/* get some timelines, check that they are different and not NULL
+ */
+START_TEST(test_btsequence_timeline2){
+  BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSequence *sequence=NULL;
+	BtTimeLine *timeline=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+	/* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+	
+	/* create and get some timelines */
+	g_object_set(G_OBJECT(sequence),"length",1,NULL);
+	timeline=bt_sequence_get_timeline_by_time(sequence,10);
+	fail_unless(timeline == NULL, NULL);
+	
+	g_object_try_unref(timeline);
+	g_object_unref(sequence);
+	g_object_unref(song);
 	g_object_checked_unref(app);
 }
 END_TEST
@@ -144,7 +174,8 @@ TCase *bt_sequence_test_case(void) {
   tcase_add_test(tc,test_btsequence_obj1);
 	tcase_add_test(tc,test_btsequence_obj2);
 	tcase_add_test(tc,test_btsequence_obj3);
-	tcase_add_test(tc,test_btsequence_obj4);
+	tcase_add_test(tc,test_btsequence_timeline1);
+	tcase_add_test(tc,test_btsequence_timeline2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

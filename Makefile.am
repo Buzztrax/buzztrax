@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.38 2005-05-27 15:40:40 ensonic Exp $
+## $Id: Makefile.am,v 1.39 2005-07-04 11:37:10 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -88,7 +88,7 @@ if USE_COVERAGE
 coverage::
 	mkdir -p ./coverage
 	lcov --directory . --zerocounters
-	$(MAKE) check
+	-$(MAKE) check
 	## workaround for lcov not liking libtool
 	for file in `find . -name "*.da" | grep ".libs" ` ;do \
 		mv $$file `echo $$file | sed -e 's/\/\.libs//'`; \

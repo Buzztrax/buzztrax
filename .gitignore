@@ -24,3 +24,5 @@ COPYING
 intltool*
 m4
 mkinstalldirs
+coverage
+*.log

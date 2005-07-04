@@ -1,4 +1,4 @@
-/* $Id: e-setup.c,v 1.19 2005-06-14 07:19:55 ensonic Exp $
+/* $Id: e-setup.c,v 1.20 2005-07-04 11:37:22 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -45,7 +45,7 @@ START_TEST(test_btsetup_obj1){
 	song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(gen1!=NULL, NULL);
 	
@@ -95,7 +95,7 @@ START_TEST(test_btsetup_obj2) {
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	
@@ -161,7 +161,7 @@ START_TEST(test_btsetup_obj3) {
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	
@@ -206,7 +206,7 @@ START_TEST(test_btsetup_obj4) {
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	
@@ -260,7 +260,7 @@ START_TEST(test_btsetup_wire1) {
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	
@@ -312,7 +312,7 @@ START_TEST(test_btsetup_wire2) {
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	
@@ -360,7 +360,7 @@ START_TEST(test_btsetup_machine1) {
   g_object_get(song,"setup",&setup,NULL);
 	fail_unless(setup!=NULL, NULL);
 	
-	/* try to craete generator1 with sinesrc */
+	/* try to create generator1 with sinesrc */
   source = bt_source_machine_new(song,"generator1","sinesrc",0);
   fail_unless(source!=NULL, NULL);
 	

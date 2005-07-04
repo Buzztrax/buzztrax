@@ -1,10 +1,12 @@
 stamp-po
 remove-potcdate.sin
+remove-potcdate.sed
 quot.sed
 insert-header.sin
 *@quot.header
 *@boldquot.header
 *.gmo
+notexist
 buzztard.pot
 boldquot.sed
 Rules-quot
@@ -14,4 +16,3 @@ Makefile.in.in
 Makefile.in
 Makefile
 .intltool-merge-cache
-
