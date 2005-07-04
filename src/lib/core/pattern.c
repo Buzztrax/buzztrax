@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.49 2005-07-04 14:05:10 ensonic Exp $
+/* $Id: pattern.c,v 1.50 2005-07-04 20:53:45 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -6,6 +6,15 @@
 #define BT_PATTERN_C
 
 #include <libbtcore/core.h>
+
+//-- signal ids
+
+enum {
+  CHANGED_EVENT,
+  LAST_SIGNAL
+};
+
+//-- property ids
 
 enum {
   PATTERN_SONG=1,
@@ -47,6 +56,8 @@ struct _BtPatternPrivate {
 static GQuark error_domain=0;
 
 static GObjectClass *parent_class=NULL;
+
+static guint signals[LAST_SIGNAL]={0,};
 
 //-- helper methods
 
@@ -272,6 +283,8 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
       GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
       return(FALSE);
   }
+  // notify other that the data has been changed
+  g_signal_emit(G_OBJECT(self), signals[CHANGED_EVENT], 0);
   return(TRUE);
 }
 
@@ -465,12 +478,6 @@ gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name
 gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong param, const gchar *value) {
 	GValue *event;
 
-	/* @todo update GstController
-	foreach(pattern usage in sequence) {
-		timestamp=???;
-		bt_machine_set_global_event(self->priv->machine,timestamp,param,value);
-	}
-	*/
 	if((event=bt_pattern_get_global_event_data(self,tick,param))) {
 		if(!G_IS_VALUE(event)) {
 			bt_pattern_init_global_event(self,event,param);
@@ -496,7 +503,6 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
 gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value) {
 	GValue *event;
 
-	// @todo update GstController
 	if((event=bt_pattern_get_voice_event_data(self,tick,voice, param))) {
 		if(!G_IS_VALUE(event)) {
 			bt_pattern_init_voice_event(self,event,param);
@@ -762,6 +768,25 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
   gobject_class->get_property = bt_pattern_get_property;
   gobject_class->dispose      = bt_pattern_dispose;
   gobject_class->finalize     = bt_pattern_finalize;
+  
+  klass->changed_event = NULL;
+  
+  /** 
+	 * BtPattern::changed:
+   * @self: the pattern object that emitted the signal
+	 *
+	 * signals that the data of this pattern has been changed
+	 */
+  signals[CHANGED_EVENT] = g_signal_new("play",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_ABS_STRUCT_OFFSET(BtPatternClass,changed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0, // n_params
+                                        NULL /* param data */ );
 
   g_object_class_install_property(gobject_class,PATTERN_SONG,
                                   g_param_spec_object("song",

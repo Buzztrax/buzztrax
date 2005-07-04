@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.30 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: main-page-info.c,v 1.31 2005-07-04 20:53:45 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -252,13 +252,16 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->bpm), "value-changed", G_CALLBACK(on_bpm_changed), (gpointer)self);
 
-  label=gtk_label_new(_("tick per beat"));
+  label=gtk_label_new(_("ticks per beat"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
 	spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 4.0));
   self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 	g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);
+  
+  // @idea have another field with subticks (GstController parameter smoothing)
+  // @idea show tick and subtick interval as time (s:ms)
 	
 	gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 

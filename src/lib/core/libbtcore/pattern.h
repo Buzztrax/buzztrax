@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.12 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: pattern.h,v 1.13 2005-07-04 20:53:45 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -37,11 +37,11 @@ struct _BtPattern {
 /* structure of the pattern class */
 struct _BtPatternClass {
   GObjectClass parent_class;
-  
+
+  void (*changed_event)(const BtPattern *pattern, gpointer user_data);
 };
 
 /* used by PATTERN_TYPE */
 GType bt_pattern_get_type(void);
 
 #endif /* BT_PATTERN_H */
-

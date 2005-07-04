@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.126 2005-06-30 20:50:32 ensonic Exp $
+/* $Id: machine.c,v 1.127 2005-07-04 20:53:44 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -92,7 +92,8 @@ struct _BtMachinePrivate {
   GstDParam **global_dparams,**voice_dparams;
 #endif
 #ifdef USE_GST_CONTROLLER
-  GstController *controller;
+  GstController *global_controller;
+  GstController **voice_controllers;
   gchar **global_names,**voice_names;
 #endif
   GType *global_types,*voice_types; 
@@ -421,12 +422,60 @@ static gchar *bt_machine_make_name(const BtMachine *self) {
   return(name);
 }
 
+/*
+ * bt_machine_resize_pattern_voices:
+ * @self: the machine which has changed its number of voices
+ *
+ * Iterates over the machines patterns and adjust their voices too.
+ */
 static void bt_machine_resize_pattern_voices(const BtMachine *self) {
   GList* node;
+
   // reallocate self->priv->patterns->priv->data
   for(node=self->priv->patterns;node;node=g_list_next(node)) {
     g_object_set(BT_PATTERN(node->data),"voices",self->priv->voices,NULL);
   }
+}
+
+/*
+ * bt_machine_resize_voices:
+ * @self: the machine which has changed its number of voices
+ *
+ * Adjust the private data structure after a change in the number of voices.
+ */
+static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
+  GST_INFO("changing machine voices from %d to %d",voices,self->priv->voices);
+
+#ifdef USE_GST_CONTROLLER
+  if(!GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) return;
+  // @todo make it use g_renew0()
+  // this is not as easy as it sounds (realloc does not know how big the old mem was)
+  self->priv->voice_controllers=(GstController **)g_renew(gpointer, self->priv->voice_controllers ,self->priv->voices);
+  if(voices<self->priv->voices) {
+    GstObject *voice_child;
+    GParamSpec **properties,*property;
+    guint number_of_properties;
+    gulong i,j;
+
+    // bind params for new voices
+    for(j=voices;j<self->priv->voices;j++) {
+      self->priv->voice_controllers[j]=NULL;
+      if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),j))) {
+        if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
+          for(i=0;i<number_of_properties;i++) {
+            property=properties[i];
+            if(property->flags&GST_PARAM_CONTROLLABLE) {
+              // bind params to the voice controller
+              if(!(self->priv->voice_controllers[j]=gst_controller_new(G_OBJECT(voice_child), property->name, NULL))) {
+                GST_WARNING("failed to add property \"%s\" to the %d voice controller",property->name,j);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+#endif
 }
 
 #ifdef USE_GST_DPARAMS
@@ -449,6 +498,15 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
 }
 #endif
 
+/*
+ * bt_machine_get_property_meta_value:
+ * @value: the value that will hold the result
+ * @property: the paramspec object to get the meta data from
+ * @key: the meta data key
+ *
+ * Fetches the meta data from the given paramspec object and sets the value.
+ * The values needs to be initialized to the correct type.
+ */
 static void bt_machine_get_property_meta_value(GValue *value,GParamSpec *property,GQuark key) {
   g_value_init(value,property->value_type);
   switch(property->value_type) {
@@ -594,9 +652,12 @@ gboolean bt_machine_new(BtMachine *self) {
         self->priv->global_types[j]=property->value_type;
         if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
           self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+          bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
         }
-        // TODO check if iface is implemented
-        bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
+        // bind param to machines global controller
+        if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
+          GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
+        }
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;
       }
@@ -619,10 +680,11 @@ gboolean bt_machine_new(BtMachine *self) {
         for(i=0;i<number_of_properties;i++) {
           if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
         }
-        self->priv->voice_types =(GType *     )g_new0(GType   ,self->priv->voice_params);
-        self->priv->voice_names =(gchar **    )g_new0(gpointer,self->priv->voice_params);
-        self->priv->voice_flags =(guint *     )g_new0(guint   ,self->priv->voice_params);
-        self->priv->voice_no_val=(GValue *    )g_new0(GValue  ,self->priv->voice_params);
+        self->priv->voice_types      =(GType *        )g_new0(GType   ,self->priv->voice_params);
+        self->priv->voice_names      =(gchar **       )g_new0(gpointer,self->priv->voice_params);
+        self->priv->voice_flags      =(guint *        )g_new0(guint   ,self->priv->voice_params);
+        self->priv->voice_no_val     =(GValue *       )g_new0(GValue  ,self->priv->voice_params);
+
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
@@ -630,12 +692,11 @@ gboolean bt_machine_new(BtMachine *self) {
             // add voice param
             self->priv->voice_names[j]=property->name;
             self->priv->voice_types[j]=property->value_type;
-            // TODO does the machine of the voice object implements it?
-            //if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
+            if(GST_IS_PROPERTY_META(voice_child)) {
               self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-            //}
-            // TODO check if iface is implemented
-            bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
+              bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
+            }
+            // params are bound to machines voice controller on voice-property change (see bt_machine_resize_voices() )
             GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             j++;
           }
@@ -1698,6 +1759,8 @@ static void bt_machine_set_property(GObject      *object,
                               GParamSpec   *pspec)
 {
   BtMachine *self = BT_MACHINE(object);
+  gulong voices;
+  
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
@@ -1723,9 +1786,14 @@ static void bt_machine_set_property(GObject      *object,
       GST_DEBUG("set the plugin_name for machine: %s",self->priv->plugin_name);
     } break;
     case MACHINE_VOICES: {
+      voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
-      bt_machine_resize_pattern_voices(self);
-      bt_song_set_unsaved(self->priv->song,TRUE);
+      if(voices!=self->priv->voices) {
+				GST_DEBUG("set the voices for machine: %d",self->priv->voices);
+        bt_machine_resize_voices(self,voices);
+        bt_machine_resize_pattern_voices(self);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+      }
     } break;
     case MACHINE_GLOBAL_PARAMS: {
       self->priv->global_params = g_value_get_ulong(value);
@@ -1825,6 +1893,7 @@ static void bt_machine_finalize(GObject *object) {
 #ifdef USE_GST_CONTROLLER
   g_free(self->priv->global_names);
   g_free(self->priv->voice_names);
+  g_free(self->priv->voice_controllers);
 #endif
   // free list of patterns
   if(self->priv->patterns) {
@@ -1842,7 +1911,8 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtMachine *self = BT_MACHINE(instance);
   self->priv = g_new0(BtMachinePrivate,1);
   self->priv->dispose_has_run = FALSE;
-  self->priv->voices=1;
+  // default is no voice, only global params
+  //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
   
   GST_DEBUG("!!!! self=%p",self);
