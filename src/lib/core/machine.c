@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.127 2005-07-04 20:53:44 ensonic Exp $
+/* $Id: machine.c,v 1.128 2005-07-05 14:55:57 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1842,9 +1842,11 @@ static void bt_machine_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->song);
 #ifdef USE_GST_DPARAMS
   for(i=0;i<self->priv->global_params;i++) {
+		gst_dparam_detach(self->priv->global_dparams[i]);
     g_object_unref(self->priv->global_dparams[i]);
   }
   for(i=0;i<self->priv->voice_params;i++) {
+		gst_dparam_detach(self->priv->voice_dparams[i]);
     g_object_unref(self->priv->voice_dparams[i]);
   }
   //GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
