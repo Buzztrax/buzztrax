@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.50 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.51 2005-07-07 21:45:00 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -698,7 +698,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x1", -w+1,
                            "y1", -h+2,
                            "x2", +w-1,
-                           "y2", -h+4+BASE_FONT_SIZE*self->priv->zoom,
+                           "y2", -h+4+BASE_FONT_SIZE,
                            "fill-color-rgba", bg_color2,
                            "width-pixels", 0,
                            NULL);
@@ -706,7 +706,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
                            "x", +0.0,
-                           "y", -MACHINE_VIEW_MACHINE_SIZE_X+2+(2*BASE_FONT_SIZE*self->priv->zoom),	/* was -3.0 */
+                           "y", -MACHINE_VIEW_MACHINE_SIZE_X+2+(2*BASE_FONT_SIZE),	/* was -3.0 */
                            "justification", GTK_JUSTIFY_CENTER,
 													 "font", "helvetica",	/* test if this ensures equal sizes among systems */
                            "size-points", BASE_FONT_SIZE*self->priv->zoom,

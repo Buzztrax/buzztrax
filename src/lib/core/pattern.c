@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.50 2005-07-04 20:53:45 ensonic Exp $
+/* $Id: pattern.c,v 1.51 2005-07-07 21:44:58 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -112,7 +112,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 		}
   }
 	else {
-		GST_ERROR("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( gp=%d + voices=%d * vp=%d )",
+		GST_WARNING("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( gp=%d + voices=%d * vp=%d )",
 			length,self->priv->length,
 			new_data_count,self->priv->length,self->priv->global_params,self->priv->voices,self->priv->voice_params);
 		//self->priv->data=data;
@@ -145,7 +145,7 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 		}
   }
 	else {
-		GST_ERROR("extending pattern voices from %d to %d failed : data_count=%d = length=%d * ( gp=%d + voices=%d * vp=%d )",
+		GST_WARNING("extending pattern voices from %d to %d failed : data_count=%d = length=%d * ( gp=%d + voices=%d * vp=%d )",
 			voices,self->priv->voices,
 			new_data_count,self->priv->length,self->priv->global_params,self->priv->voices,self->priv->voice_params);
 		//self->priv->data=data;
@@ -777,7 +777,7 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
 	 *
 	 * signals that the data of this pattern has been changed
 	 */
-  signals[CHANGED_EVENT] = g_signal_new("play",
+  signals[CHANGED_EVENT] = g_signal_new("changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
                                         G_ABS_STRUCT_OFFSET(BtPatternClass,changed_event),

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.63 2005-06-14 07:19:53 ensonic Exp $
+/* $Id: sequence.c,v 1.64 2005-07-07 21:44:59 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -289,48 +289,69 @@ void bt_sequence_set_machine_by_track(const BtSequence *self,const gulong track,
  * bt_sequence_get_bar_time:
  * @self: the #BtSequence of the song
  *
- * calculates the length of one sequence bar in milliseconds
+ * Calculates the length of one sequence bar in microseconds.
+ * Divide it by G_USEC_PER_SEC to get it in milliseconds.
  *
- * Returns: the length of one sequence bar in milliseconds
- *
+ * Returns: the length of one sequence bar in microseconds
  */
-gulong bt_sequence_get_bar_time(const BtSequence *self) {
+GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
   BtSongInfo *song_info;
-  gulong wait_per_position/*,bars*/;
+  GstClockTime wait_per_position;
   gulong beats_per_minute,ticks_per_beat;
   gdouble ticks_per_minute;
-  gulong res;
 
-	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),(GstClockTime)0);
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
 	g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
 
   ticks_per_minute=(gdouble)beats_per_minute*(gdouble)ticks_per_beat;
-  wait_per_position=(gulong)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+  wait_per_position=(GstClockTime)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
 
-  res=(gulong)((guint64)wait_per_position/G_USEC_PER_SEC);
+  //res=(gulong)(wait_per_position/G_USEC_PER_SEC);
   // release the references
   g_object_try_unref(song_info);
-  return(res);
+  return(wait_per_position);
 }
 
 /**
  * bt_sequence_get_loop_time:
  * @self: the #BtSequence of the song
  *
- * calculates the length of the song loop in milliseconds
+ * Calculates the length of the song loop in microseconds.
+ * Divide it by G_USEC_PER_SEC to get it in milliseconds.
  *
- * Returns: the length of the song loop in milliseconds
+ * Returns: the length of the song loop in microseconds
  *
  */
-gulong bt_sequence_get_loop_time(const BtSequence *self) {
-  gulong res;
+GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
+  GstClockTime res;
 
-	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),(GstClockTime)0);
 
-  res=(gulong)((self->priv->play_end-self->priv->play_start)*bt_sequence_get_bar_time(self));
+  res=(GstClockTime)(self->priv->play_end-self->priv->play_start)*bt_sequence_get_bar_time(self);
   return(res);
+}
+
+/**
+ * bt_sequence_get_pattern_positions:
+ * @self: the #BtSequence of the song
+ * @machine: the #BtMachine the pattern belongs to
+ * @pattern: the #BtPattern to lookup positions
+ *
+ * Searches all tick positions the pattern will be played.
+ *
+ * Returns: a newly allocated #GList holding the tick positions. Get them by
+ * calling: tick=GPOINTER_TO_UINT(node->data);. Free the list when done.
+ */
+GList *bt_sequence_get_pattern_positions(const BtSequence *self,const BtMachine *machine,const BtPattern *pattern) {
+  // @todo implement bt_sequence_get_pattern_positions()
+  /* playline algorithm?
+  foreach(timeline) {
+    
+  }
+  */
+  return(NULL);
 }
 
 /**

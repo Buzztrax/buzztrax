@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.31 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.32 2005-07-07 21:45:00 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -70,7 +70,7 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
 	g_object_get(G_OBJECT(sequence),"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
   // update elapsed statusbar
-  msec=pos*bt_sequence_get_bar_time(sequence);
+  msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
 	str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
@@ -98,7 +98,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   // get new song length
-  msec=bt_sequence_get_loop_time(sequence);
+  msec=(gulong)(bt_sequence_get_loop_time(sequence)/G_USEC_PER_SEC);
   GST_INFO("  new msec : %lu",msec);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);

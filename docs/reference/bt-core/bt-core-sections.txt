@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.40 2005-07-01 14:49:54 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.41 2005-07-07 21:44:46 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -194,6 +194,7 @@ bt_sequence_get_machine_by_track
 bt_sequence_set_machine_by_track
 bt_sequence_get_bar_time
 bt_sequence_get_loop_time
+bt_sequence_get_pattern_positions
 bt_sequence_play
 bt_sequence_stop
 <SUBSECTION Standard>
