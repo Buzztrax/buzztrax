@@ -99,16 +99,16 @@ static void bt_song_class_init(BtSongClass *klass) {
   klass->start_play = bt_song_real_start_play;
   
   /* adding simple signal */
-  klass->play_signal_id = g_signal_newv("play",
-                                       G_TYPE_FROM_CLASS (gobject_class),
-                                       G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                       NULL, // class closure
-                                       NULL, // accumulator
-                                       NULL, // acc data
-                                       g_cclosure_marshal_VOID__VOID,
-                                       G_TYPE_NONE, // return type
-                                       0, // n_params
-                                       NULL /* param data */ );
+  klass->play_signal_id = g_signal_new("play",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_ABS_STRUCT_OFFSET(BtSongClass,play_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        g_cclosure_marshal_VOID__VOID,
+                                        G_TYPE_NONE, // return type
+                                        0 // n_params
+                                        );
   
   bt_song_param_spec = g_param_spec_string("name",
                                            "name contruct prop",

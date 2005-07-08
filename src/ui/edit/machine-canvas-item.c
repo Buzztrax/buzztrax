@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.51 2005-07-07 21:45:00 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.52 2005-07-08 22:30:10 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -961,8 +961,8 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
                                         G_TYPE_NONE, // return type
-                                        0, // n_params
-                                        NULL /* param data */ );
+                                        0 // n_params
+                                        );
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_APP,
                                   g_param_spec_object("app",

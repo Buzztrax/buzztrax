@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.51 2005-07-07 21:44:58 ensonic Exp $
+/* $Id: pattern.c,v 1.52 2005-07-08 22:30:09 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -283,8 +283,6 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
       GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
       return(FALSE);
   }
-  // notify other that the data has been changed
-  g_signal_emit(G_OBJECT(self), signals[CHANGED_EVENT], 0);
   return(TRUE);
 }
 
@@ -482,7 +480,10 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
 		if(!G_IS_VALUE(event)) {
 			bt_pattern_init_global_event(self,event,param);
 		}
-		bt_pattern_set_event(self,event,value);
+		if(bt_pattern_set_event(self,event,value)) {
+      // notify others that the data has been changed
+      g_signal_emit(G_OBJECT(self),signals[CHANGED_EVENT],0,tick);
+    }
 		return(TRUE);
 	}
 	return(FALSE);
@@ -507,7 +508,10 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
 		if(!G_IS_VALUE(event)) {
 			bt_pattern_init_voice_event(self,event,param);
 		}
-		bt_pattern_set_event(self,event,value);
+		if(bt_pattern_set_event(self,event,value)) {
+      // notify others that the data has been changed
+      g_signal_emit(G_OBJECT(self),signals[CHANGED_EVENT],0,tick);
+    }
 		return(TRUE);
 	}
 	return(FALSE);
@@ -785,8 +789,9 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
                                         G_TYPE_NONE, // return type
-                                        0, // n_params
-                                        NULL /* param data */ );
+                                        1, // n_params
+                                        G_TYPE_ULONG // param data
+                                        );
 
   g_object_class_install_property(gobject_class,PATTERN_SONG,
                                   g_param_spec_object("song",

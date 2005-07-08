@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.64 2005-07-07 21:44:59 ensonic Exp $
+/* $Id: sequence.c,v 1.65 2005-07-08 22:30:10 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -51,6 +51,16 @@ struct _BtSequencePrivate {
   
   /* <length> timeline entries that form the sequence */
   BtTimeLine **timelines;
+  
+  /* alternative datastructure to get rid of BtTimeLine and BtTimeLineTracks
+     instead of BtTimeLineTracks we subclass the BtPattern class,
+     the pattern class
+
+  // <length> label entries
+  gchar **labels;
+  // <length>*<tracks> BtPattern pointers
+  BtPattern **patterns;
+  */
 
   /* flag to externally abort playing */
   GMutex *is_playing_mutex;

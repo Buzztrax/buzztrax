@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.75 2005-06-27 17:32:03 ensonic Exp $
+/* $Id: song.c,v 1.76 2005-07-08 22:30:10 ensonic Exp $
  * song 
  *   holds all song related globals
  *
@@ -353,8 +353,8 @@ static void bt_song_class_init(BtSongClass *klass) {
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
                                         G_TYPE_NONE, // return type
-                                        0, // n_params
-                                        NULL /* param data */ );
+                                        0 // n_params
+                                        );
   
   /** 
 	 * BtSong::stop:
@@ -370,8 +370,8 @@ static void bt_song_class_init(BtSongClass *klass) {
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,
                                         G_TYPE_NONE, // return type
-                                        0, // n_params
-                                        NULL /* param data */ );
+                                        0 // n_params
+                                        );
 
   g_object_class_install_property(gobject_class,SONG_APP,
                                   g_param_spec_object("app",
