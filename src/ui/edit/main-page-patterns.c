@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.67 2005-07-12 06:33:30 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.68 2005-07-12 16:21:03 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -226,6 +226,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 	GtkListStore *store;
 	GtkTreeIter menu_iter;
 	gint index=-1;
+	gboolean is_internal;
 
   // update pattern menu
   store=gtk_list_store_new(2,G_TYPE_STRING,BT_TYPE_PATTERN);
@@ -233,16 +234,18 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
-      g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-      GST_INFO("  adding \"%s\"",str);
-			gtk_list_store_append(store,&menu_iter);
-			gtk_list_store_set(store,&menu_iter,
-				PATTERN_MENU_LABEL,str,
-				PATTERN_MENU_PATTERN,pattern,
-				-1);
-			index++;	// count so that we can activate the last one
+      g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
+			if(!is_internal) {
+				GST_INFO("  adding \"%s\"",str);
+				gtk_list_store_append(store,&menu_iter);
+				gtk_list_store_set(store,&menu_iter,
+					PATTERN_MENU_LABEL,str,
+					PATTERN_MENU_PATTERN,pattern,
+					-1);
+				index++;	// count so that we can activate the last one
+				g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
+			}
 			g_free(str);
-			g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
     }
 		g_list_free(list);
   }

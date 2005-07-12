@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.54 2005-07-12 11:44:43 ensonic Exp $
+/* $Id: pattern.c,v 1.55 2005-07-12 16:20:31 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -22,7 +22,8 @@ enum {
 	PATTERN_NAME,
   PATTERN_LENGTH,
   PATTERN_VOICES,
-  PATTERN_MACHINE
+  PATTERN_MACHINE,
+	PATTERN_IS_INTERNAL
 };
 
 struct _BtPatternPrivate {
@@ -35,6 +36,8 @@ struct _BtPatternPrivate {
 	gchar *id;
 	/* the display name of the pattern */
 	gchar *name;
+	/* command patterns are internal (the are not editable) */
+	gboolean is_internal;
 
   /* the number of ticks */
   gulong length;
@@ -424,12 +427,14 @@ Error:
  */
 BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machine, BtPatternCmd cmd) {
   BtPattern *self;
-  gchar *mid,*id;
+  gchar *mid,*id,*name;
   GValue *event;
+	gchar *cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
   
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
-  id=g_strdup_printf("%s   break",mid);
-  if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",_("  break"),"length",1,"machine",machine,NULL)))) {
+  id=g_strdup_printf("%s   %s",mid,cmd_names[cmd]);
+	name=g_strdup_printf("   %s",_(cmd_names[cmd]));
+  if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",1,"machine",machine,"is-internal",TRUE,NULL)))) {
     goto Error;
   }
   if(!bt_pattern_init_data(self)) {
@@ -444,11 +449,13 @@ BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machin
   bt_machine_add_pattern(machine,self);
   g_free(mid);
 	g_free(id);
+	g_free(name);
   return(self);
 Error:
   g_object_try_unref(self);
   g_free(mid);
 	g_free(id);
+	g_free(name);
   return(NULL);
 }
 
@@ -751,6 +758,9 @@ static void bt_pattern_get_property(GObject      *object,
     case PATTERN_MACHINE: {
       g_value_set_object(value, self->priv->machine);
     } break;
+    case PATTERN_IS_INTERNAL: {
+      g_value_set_boolean(value, self->priv->is_internal);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -807,9 +817,13 @@ static void bt_pattern_set_property(GObject      *object,
       g_object_try_weak_unref(self->priv->machine);
       self->priv->machine = BT_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->machine);
+			// @todo shouldn't we just listen to notify::voices too and resize patterns automatically
       g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
       GST_DEBUG("set the machine for pattern: %p",self->priv->machine);
     } break;
+		case PATTERN_IS_INTERNAL: {
+      self->priv->is_internal = g_value_get_boolean(value);
+		} break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -881,7 +895,7 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                         G_ABS_STRUCT_OFFSET(BtPatternClass,changed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
+                                        g_cclosure_marshal_VOID__ULONG,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         G_TYPE_ULONG // param data
@@ -928,9 +942,16 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
 
   g_object_class_install_property(gobject_class,PATTERN_MACHINE,
                                   g_param_spec_object("machine",
-                                     "machine contruct prop",
+                                     "machine construct prop",
                                      "Machine object, the pattern belongs to",
                                      BT_TYPE_MACHINE, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,PATTERN_IS_INTERNAL,
+                                  g_param_spec_boolean("is-internal",
+                                     "is-internal construct prop",
+                                     "internal (cmd-pattern) indicator",
+                                     FALSE,
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
 }

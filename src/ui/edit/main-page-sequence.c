@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.83 2005-07-12 06:33:30 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.84 2005-07-12 16:21:04 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -521,6 +521,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   GList *node,*list;
   gchar *str,key[2]={0,};
 	gulong index=0;
+	gboolean is_internal;
 
   GST_INFO("refresh pattern list");
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
@@ -550,7 +551,11 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
   if(BT_IS_PROCESSOR_MACHINE(machine)) {
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thruh"),-1);
+    gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thru"),-1);
+  }
+	if(BT_IS_SOURCE_MACHINE(machine)) {
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,"_",1,_("  solo"),-1);
   }
 	
   if(machine) {
@@ -558,16 +563,18 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 		g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 		for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
-      g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-			//GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,pattern_keys[index]);
-			key[0]=(index<64)?pattern_keys[index]:' ';
-			//if(index<64) key[0]=pattern_keys[index];
-			//else key[0]=' ';
-      //GST_DEBUG("  with shortcut \"%s\"",key);
-      gtk_list_store_append(store, &tree_iter);
-      gtk_list_store_set(store,&tree_iter,0,key,1,str,-1);
+      g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
+			if(!is_internal) {
+				//GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,pattern_keys[index]);
+				key[0]=(index<64)?pattern_keys[index]:' ';
+				//if(index<64) key[0]=pattern_keys[index];
+				//else key[0]=' ';
+				//GST_DEBUG("  with shortcut \"%s\"",key);
+				gtk_list_store_append(store, &tree_iter);
+				gtk_list_store_set(store,&tree_iter,0,key,1,str,-1);
+				index++;
+			}
       g_free(str);
-			index++;
     }
 		g_list_free(list);
   }
@@ -820,6 +827,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       BtMachine *machine=bt_main_page_sequence_get_current_machine(self);
       if(BT_IS_PROCESSOR_MACHINE(machine)) {
   			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_THRU,"pattern",NULL,NULL);
+        str="***";
+		  	change=TRUE;
+			  res=TRUE;
+      }
+      else if(BT_IS_SOURCE_MACHINE(machine)) {
+				// @todo fix whenremoving timelinetrack
+				//g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_SOLO,"pattern",NULL,NULL);
         str="***";
 		  	change=TRUE;
 			  res=TRUE;

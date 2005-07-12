@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.131 2005-07-12 12:46:17 ensonic Exp $
+/* $Id: machine.c,v 1.132 2005-07-12 16:20:31 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -501,21 +501,22 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
 /*
  * bt_machine_on_pattern_changed:
  * @pattern: the #BtPattern that changed
+ * @tick: the tick line that changed 
  * @user_data: the #BtMachine the pattern belongs to
  *
  * Updates all the control-data of the machine, whenever a pattern has changed.
  */
-static void bt_machine_on_pattern_changed(const BtPattern *pattern,gpointer user_data) {
+static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,gpointer user_data) {
   BtMachine *self=BT_MACHINE(user_data);
 #ifdef USE_GST_CONTROLLER
   BtSequence *sequence;
   GList *list,*node;
   gulong i,j,k;
-  gulong tick,pattern_length;
+  gulong tick_offset,pattern_length;
   GstClockTime timestamp,tick_time;
 #endif
   
-  GST_DEBUG("pattern of machine '%s' has changed",self->priv->plugin_name); 
+  GST_DEBUG("pattern of machine '%s' has changed in tick %ld",self->priv->plugin_name,tick); 
   // @todo finish implementation of bt_machine_on_pattern_changed()
   // @todo we need to handle commands in the sequence (stop, mute, ...) and patterns stoping each other
   //       -> therefore each list-entry needs to be tick-pos + length
@@ -530,9 +531,9 @@ static void bt_machine_on_pattern_changed(const BtPattern *pattern,gpointer user
   list=bt_sequence_get_pattern_positions(sequence,self,pattern);
   // go over list and update all controller queues
   for(node=list;node;node=g_list_next(node)) {  
-    tick=GPOINTER_TO_UINT(node->data);
+    tick_offset=GPOINTER_TO_UINT(node->data);
     for(i=0;i<pattern_length;i++) {
-      timestamp=tick*tick_time;
+      timestamp=tick_offset*tick_time;
       for(j=0;j<self->priv->global_params;j++) {
         // the method below currently is static
         //value=bt_pattern_get_global_event_data(pattern,i,j);
@@ -555,7 +556,7 @@ static void bt_machine_on_pattern_changed(const BtPattern *pattern,gpointer user
           //else { ... }
         }
       }
-      tick++;
+      tick_offset++;
     }
   }
   // cleanup
@@ -792,8 +793,17 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_DEBUG("  this will be the master for the song");
     g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
-  //add the machine to the setup of the song
-  // @todo the method should get the setup as an parameter (faster when bulk adding)
+	// prepare internal patterns for the machine
+	bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
+	bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
+	if(BT_IS_SOURCE_MACHINE(self)) {
+		bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO);
+	}
+	if(BT_IS_PROCESSOR_MACHINE(self)) {
+		bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
+	}
+  // add the machine to the setup of the song
+  // @todo the method should get the setup as an parameter (faster when bulk adding) (store it in the class?)
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
   g_assert(setup!=NULL);
   bt_setup_add_machine(setup,self);
