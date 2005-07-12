@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.53 2005-07-12 06:33:29 ensonic Exp $
+/* $Id: pattern.c,v 1.54 2005-07-12 11:44:43 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -65,6 +65,24 @@ static guint signals[LAST_SIGNAL]={0,};
  * - the input and output gain
  */
 static gulong internal_params=1;
+
+//-- enums
+
+GType bt_pattern_cmd_get_type(void) {
+  static GType type = 0;
+  if(type==0) {
+    static GEnumValue values[] = {
+      { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","just working" },
+			{ BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
+      { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "be quiet immediately" },
+      { BT_PATTERN_CMD_SOLO,  "BT_PATTERN_CMD_SOLO",  "be the only one playing" },
+      { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","be uneffective (pass through)" },
+      { 0, NULL, NULL},
+    };
+    type = g_enum_register_static("BtPatternCmdType", values);
+  }
+  return type;
+}
 
 //-- helper methods
 
@@ -394,16 +412,17 @@ Error:
 }
 
 /**
- * bt_pattern_new_break_event:
+ * bt_pattern_new_with_event:
  * @song: the song the new instance belongs to
  * @machine: the machine the pattern belongs to
+ * @cmd: the 
  *
- * Create a new default pattern instance containg a break event.
+ * Create a new default pattern instance containg the given @cmd event.
  * It will be automatically added to the machines pattern list.
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtPattern *bt_pattern_new_break_event(const BtSong *song, const BtMachine *machine) {
+BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machine, BtPatternCmd cmd) {
   BtPattern *self;
   gchar *mid,*id;
   GValue *event;
@@ -418,9 +437,8 @@ BtPattern *bt_pattern_new_break_event(const BtSong *song, const BtMachine *machi
   }
   event=bt_pattern_get_internal_event_data(self,0,0);
   //bt_pattern_init_internal_event(self,event,0);
-  g_value_init(event,BT_TYPE_MACHINE_STATE);
-  // @todo shit, we don't have BT_MACHINE_STATE_BREAK, so we better have a BtPatternCmd enum
-  g_value_set_enum(event,BT_MACHINE_STATE_NORMAL);
+  g_value_init(event,BT_TYPE_PATTERN_CMD);
+  g_value_set_enum(event,cmd);
   
 	// add the pattern to the machine
   bt_machine_add_pattern(machine,self);

@@ -1,4 +1,4 @@
-/* $Id: pattern-methods.h,v 1.12 2005-07-12 06:33:30 ensonic Exp $
+/* $Id: pattern-methods.h,v 1.13 2005-07-12 11:44:43 ensonic Exp $
  * defines all public methods of the pattern class
  */
 
@@ -8,6 +8,8 @@
 #include "pattern.h"
 
 extern BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, gulong length, const BtMachine *machine);
+extern BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machine, BtPatternCmd cmd);
+
 extern BtPattern *bt_pattern_copy(const BtPattern *self);
 
 extern gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *name, GError **error);

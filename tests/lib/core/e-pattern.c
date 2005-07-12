@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.2 2005-07-12 06:33:30 ensonic Exp $
+/* $Id: e-pattern.c,v 1.3 2005-07-12 11:44:43 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -74,6 +74,7 @@ START_TEST(test_btpattern_enlarge_length) {
 	/* create a new song */
 	song=bt_song_new(app);
 	/* try to create a source machine */
+	// @todo try "bml-ErsKick" before and fall back to "sinesrc" as long as we don't have multi-voice machine in gst
 	machine=BT_MACHINE(bt_source_machine_new(song,"gen","sinesrc",0L));
 	fail_unless(machine!=NULL, NULL);
 	

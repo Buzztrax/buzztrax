@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.129 2005-07-07 21:44:58 ensonic Exp $
+/* $Id: machine.c,v 1.130 2005-07-12 11:44:43 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -506,12 +506,14 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
  * Updates all the control-data of the machine, whenever a pattern has changed.
  */
 static void bt_machine_on_pattern_changed(const BtPattern *pattern,gpointer user_data) {
+#ifdef USE_GST_CONTROLLER
   BtMachine *self=BT_MACHINE(user_data);
   BtSequence *sequence;
   GList *list,*node;
   gulong i,j,k;
   gulong tick,pattern_length;
   GstClockTime timestamp,tick_time;
+#endif
   
   GST_DEBUG("pattern of machine '%s' has changed",self->priv->plugin_name); 
   // @todo finish implementation of bt_machine_on_pattern_changed()

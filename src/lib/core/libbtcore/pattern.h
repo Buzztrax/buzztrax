@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.13 2005-07-04 20:53:45 ensonic Exp $
+/* $Id: pattern.h,v 1.14 2005-07-12 11:44:43 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -41,7 +41,30 @@ struct _BtPatternClass {
   void (*changed_event)(const BtPattern *pattern, gpointer user_data);
 };
 
+#define BT_TYPE_PATTERN_CMD       (bt_pattern_cmd_get_type())
+
+/**
+ * BtPatternCmd:
+ * @BT_PATTERN_CMD_NORMAL: just working
+ * @BT_PATTERN_CMD_BREAK: no more notes
+ * @BT_PATTERN_CMD_MUTE: be quiet immediately
+ * @BT_PATTERN_CMD_SOLO: be the only one playing
+ * @BT_PATTERN_CMD_BYPASS: be uneffective (pass through)
+ *
+ * A pattern has a command field for every tick.
+ * The commands are only used in static internal patterns.
+ */
+typedef enum {
+  BT_PATTERN_CMD_NORMAL=0,
+  BT_PATTERN_CMD_BREAK,
+  BT_PATTERN_CMD_MUTE,
+  BT_PATTERN_CMD_SOLO,
+  BT_PATTERN_CMD_BYPASS
+} BtPatternCmd;
+
 /* used by PATTERN_TYPE */
 GType bt_pattern_get_type(void);
+/* used by PATTERN_CMD_TYPE */
+GType bt_pattern_cmd_get_type(void);
 
 #endif /* BT_PATTERN_H */

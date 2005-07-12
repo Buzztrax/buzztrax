@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.24 2005-04-08 13:35:38 ensonic Exp $
+/* $Id: application.c,v 1.25 2005-07-12 11:44:43 ensonic Exp $
  * base class for a buzztard based application
  */
  
@@ -32,7 +32,7 @@ static GObjectClass *parent_class=NULL;
 static void error_cb(GstElement *bin, GstElement *error_element, GError *error, const gchar *debug_msg, gpointer user_data) {
   gboolean *p_got_error=(gboolean *)user_data;
   	 
-  GST_WARNING("An error occured: %s\n", error->message);
+  GST_WARNING("An error occurred: %s\n", error->message);
   	 
   *p_got_error=TRUE;
 }

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.40 2005-07-04 17:54:20 ensonic Exp $
+## $Id: Makefile.am,v 1.41 2005-07-12 11:44:38 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -82,7 +82,7 @@ install-data-local:
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)
 
-.PHONY: coverage splint todo valgrind
+.PHONY: coverage splint todo valgrind dict
 
 if USE_COVERAGE
 coverage::
@@ -104,3 +104,7 @@ if USE_VALGRIND
 valgrind::
 	$(MAKE) -C tests valgrind
 endif
+
+dict::
+	echo "personal_ws" >$(PACKAGE).aspell_dict
+	@find . -name tags -exec grep -v "$\!" {} \; | cut -f1 | sort | uniq >>$(PACKAGE).aspell_dict

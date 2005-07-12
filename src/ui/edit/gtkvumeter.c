@@ -46,6 +46,12 @@ GtkType gtk_vumeter_get_type (void)
     return vumeter_type;
 }
 
+/**
+ * gtk_vumeter_new:
+ * @vertical: %TRUE for a vertical VUMeter, %FALSE for horizontal VUMeter.
+ *
+ * Creates a new VUMeter widget.
+ */
 GtkWidget* gtk_vumeter_new (gboolean vertical)
 {
     GtkVUMeter *vumeter;
@@ -383,6 +389,17 @@ static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter,
     return ((gint)draw_level);
 }
 
+/**
+ * gtk_vumeter_set_min_max:
+ * @vumeter: the vumeter widget to change the level bounds
+ * @min: the new minimum level shown (level that is 0%)
+ * @max: the new maximum level shown (level that is 100%)
+ *
+ * Sets the minimum and maximum of the VU Meters scale.
+ * The positions are irrelevant as the widget will rearrange them.
+ * It will also increment max by one if min == max.
+ * And finally it will clamp the current level into the min,max range.
+ */
 void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
 {
     g_return_if_fail (vumeter != NULL);
@@ -398,6 +415,15 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
     gtk_widget_queue_draw (GTK_WIDGET(vumeter)); 
 }
 
+/**
+ * gtk_vumeter_set_levels:
+ * @vumeter: the vumeter widget to change the current level
+ * @rms: the new rms level shown
+ * @peak: the new peak level shown
+ *
+ * Sets new level values for the level display.
+ * They are clamped to the min max range.
+ */
 void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
 {
     g_return_if_fail (vumeter != NULL);
@@ -412,9 +438,23 @@ void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
 void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff)
 {
     g_return_if_fail (vumeter != NULL);
-    g_return_if_fail (GTK_IS_VUMETER (vumeter));  
+    g_return_if_fail (GTK_IS_VUMETER (vumeter));
+	
+		// @todo implement me
+		// slow, medium, fast
 }
 
+/**
+ * gtk_vumeter_set_scale:
+ * @vumeter: the vumeter widget to change the scaling type
+ * @level: gint for the scale either GTK_VUMETER_SCALE_LINEAR or GTK_VUMETER_SCALE_LOG
+ *
+ * Sets the scale of the VU Meter.
+ * It is either log or linear and defaults to linear.
+ * No matter which scale you set the input should always be linear, gtkVUMeter
+ * does the log calculation. 0db is red. -6db is yellow. -18db is green.
+ * Whatever min turns into is dark green.
+ */
 void gtk_vumeter_set_scale (GtkVUMeter *vumeter, gint scale)
 {
     g_return_if_fail (vumeter != NULL);
