@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.82 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.83 2005-07-12 06:33:30 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -403,6 +403,9 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         case BT_TIMELINETRACK_TYPE_STOP:
           str="===";
           break;
+        case BT_TIMELINETRACK_TYPE_THRU:
+          str="***";
+          break;
         default:
           str="???";
           GST_ERROR("implement me");
@@ -522,14 +525,6 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   GST_INFO("refresh pattern list");
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
 
-  //-- append default rows
-  gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
-  gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
-  gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
-	
 	machine=bt_main_page_sequence_get_current_machine(self);
 	if(machine!=self->priv->machine) {
 		if(self->priv->machine) {
@@ -545,6 +540,18 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 		}
 		self->priv->machine=machine;
 	}
+
+  //-- append default rows
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
+  if(BT_IS_PROCESSOR_MACHINE(machine)) {
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thruh"),-1);
+  }
 	
   if(machine) {
     //-- append pattern rows
@@ -808,6 +815,16 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       str="===";
 			change=TRUE;
 			res=TRUE;
+		}
+		else if(event->keyval=='_') {
+      BtMachine *machine=bt_main_page_sequence_get_current_machine(self);
+      if(BT_IS_PROCESSOR_MACHINE(machine)) {
+  			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_THRU,"pattern",NULL,NULL);
+        str="***";
+		  	change=TRUE;
+			  res=TRUE;
+      }
+      g_object_unref(machine);
 		}
 		else if(event->keyval==' ') {
 			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_EMPTY,"pattern",NULL,NULL);

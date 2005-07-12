@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.74 2005-06-14 07:19:53 ensonic Exp $
+/* $Id: song-io-native.c,v 1.75 2005-07-12 06:33:29 ensonic Exp $
  * class for native song input and output
  */
  
@@ -372,7 +372,7 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
   BtMachine *machine;
   BtPattern *pattern;
 	xmlChar *id,*machine_id,*pattern_name,*length_str;
-  glong length,voices;
+  glong length;
 	GError *tmp_error=NULL;
 	
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -383,10 +383,9 @@ static gboolean bt_song_io_native_load_pattern(const BtSongIONative *self, const
   length=atol(length_str);
   // get the related machine
   if((machine=bt_setup_get_machine_by_id(setup,machine_id))) {
-    g_object_get(G_OBJECT(machine),"voices",&voices,NULL);
     // create pattern, add to machine's pattern-list and load data
-    GST_INFO("  new pattern(\"%s\",%d,%d) --------------------",id,length,voices);
-    if((pattern=bt_pattern_new(song,id,pattern_name,length,voices,machine))) {
+    GST_INFO("  new pattern(\"%s\",%d) --------------------",id,length);
+    if((pattern=bt_pattern_new(song,id,pattern_name,length,machine))) {
     	//bt_song_io_native_load_properties(self,song,xml_node->children,pattern);
 			if(!bt_song_io_native_load_pattern_data(self,pattern,song_doc,xml_node->children,&tmp_error)) {
 				GST_WARNING("corrupt file: \"%s\"",tmp_error->message);
@@ -528,12 +527,15 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
 						xmlFree(pattern_id);
 					}
 					if(command) {
-						// mute, stop
+						// mute, stop, thruh
 						if(!strncmp(command,"stop\0",5)) {
 							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,NULL);
 						}
 						else if(!strncmp(command,"mute\0",5)) {
 							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,NULL);
+						}
+						else if(!strncmp(command,"thru\0",5)) {
+							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_THRU,NULL);
 						}
 						else GST_ERROR("  unknown command \"%s\"",command);
 						xmlFree(command);
@@ -1053,6 +1055,9 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
 								break;
 							case BT_TIMELINETRACK_TYPE_STOP:
 								xmlNewProp(xml_child_node,"command","stop");
+								break;
+							case BT_TIMELINETRACK_TYPE_THRU:
+								xmlNewProp(xml_child_node,"command","thru");
 								break;
 							case BT_TIMELINETRACK_TYPE_PATTERN:
 								g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);

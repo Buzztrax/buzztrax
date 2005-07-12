@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.19 2005-04-29 10:25:35 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.20 2005-07-12 06:33:29 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -282,22 +282,40 @@ BtMainWindowPrivate
 </SECTION>
 
 <SECTION>
-<FILE>btpatternpreferencesdialog</FILE>
-<TITLE>BtPatternPreferencesDialog</TITLE>
-BtPatternPreferencesDialog
+<FILE>btpatternpropertiesdialog</FILE>
+<TITLE>BtPatternPropertiesDialog</TITLE>
+BtPatternPropertiesDialog
 bt_pattern_preferences_dialog_new
 bt_pattern_properties_dialog_apply
 <SUBSECTION Standard>
-BtPatternPreferencesDialogClass
-BT_PATTERN_PREFERENCES_DIALOG
-BT_IS_PATTERN_PREFERENCES_DIALOG
-BT_PATTERN_PREFERENCES_DIALOG_CLASS
-BT_IS_PATTERN_PREFERENCES_DIALOG_CLASS
-BT_PATTERN_PREFERENCES_DIALOG_GET_CLASS
-BT_TYPE_PATTERN_PREFERENCES_DIALOG
+BtPatternPropertiesDialogClass
+BT_PATTERN_PROPERTIES_DIALOG
+BT_IS_PATTERN_PROPERTIES_DIALOG
+BT_PATTERN_PROPERTIES_DIALOG_CLASS
+BT_IS_PATTERN_PROPERTIES_DIALOG_CLASS
+BT_PATTERN_PROPERTIES_DIALOG_GET_CLASS
+BT_TYPE_PATTERN_PROPERTIES_DIALOG
 <SUBSECTION Private>
 bt_pattern_preferences_dialog_get_type
-BtPatternPreferencesDialogPrivate
+BtPatternPropertiesDialogPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsequenceview</FILE>
+<TITLE>BtSequenceView</TITLE>
+BtSequenceView
+bt_sequence_view_new
+<SUBSECTION Standard>
+BtSequenceViewClass
+BT_SEQUENCE_VIEW
+BT_IS_SEQUENCE_VIEW
+BT_SEQUENCE_VIEW_CLASS
+BT_IS_SEQUENCE_VIEW_CLASS
+BT_SEQUENCE_VIEW_GET_CLASS
+BT_TYPE_SEQUENCE_VIEW
+<SUBSECTION Private>
+bt_sequence_view_get_type
+BtSequenceViewPrivate
 </SECTION>
 
 <SECTION>
@@ -373,6 +391,27 @@ BT_TYPE_WIRE_CANVAS_ITEM
 <SUBSECTION Private>
 bt_wire_canvas_item_get_type
 BtWireCanvasItemPrivate
+</SECTION>
+
+<SECTION>
+<FILE>gtkvumeter</FILE>
+<TITLE>GtkVUMeter</TITLE>
+GtkVUMeter
+gtk_vu_meter_new
+gtk_vumeter_set_min_max
+gtk_vumeter_set_levels
+gtk_vumeter_set_peaks_falloff
+gtk_vumeter_set_scale
+<SUBSECTION Standard>
+GtkVUMeterClass
+GTK_VUMETER
+GTK_IS_VUMETER
+GTK_VUMETER_CLASS
+GTK_IS_VUMETER_CLASS
+GTK_VUMETER_GET_CLASS
+GTK_TYPE_VUMETER
+<SUBSECTION Private>
+gtk_vu_meter_get_type
 </SECTION>
 
 <SECTION>

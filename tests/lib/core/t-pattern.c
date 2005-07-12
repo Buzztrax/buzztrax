@@ -1,4 +1,4 @@
-/* $Id: t-pattern.c,v 1.1 2005-07-04 14:05:11 ensonic Exp $
+/* $Id: t-pattern.c,v 1.2 2005-07-12 06:33:30 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -32,15 +32,15 @@ START_TEST(test_btpattern_obj1) {
 	song=bt_song_new(app);
 	
 	// assertions make test abort (signal 6) :(
-	pattern=bt_pattern_new(song,"pattern-id","pattern-name",1,1,NULL);
+	pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,NULL);
 	fail_unless(pattern == NULL, NULL);
 	g_object_try_unref(pattern);
 
-	pattern=bt_pattern_new(song,NULL,"pattern-name",1,1,NULL);
+	pattern=bt_pattern_new(song,NULL,"pattern-name",1L,NULL);
 	fail_unless(pattern == NULL, NULL);
 	g_object_try_unref(pattern);
 
-	pattern=bt_pattern_new(song,NULL,NULL,1,1,NULL);
+	pattern=bt_pattern_new(song,NULL,NULL,1L,NULL);
 	fail_unless(pattern == NULL, NULL);
 	g_object_try_unref(pattern);
 

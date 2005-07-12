@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.66 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.67 2005-07-12 06:33:30 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -593,7 +593,6 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	BtSong *song;
 	BtMachine *machine;
 	BtPattern *pattern;
-	glong voices=0;
 	gchar *mid,*id,*name;
 	GtkWidget *dialog;
 
@@ -605,11 +604,10 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 	g_object_get(G_OBJECT(machine),"id",&mid,NULL);
 
-	if(bt_machine_is_polyphonic(machine)) voices=1;
 	name=bt_machine_get_unique_pattern_name(machine);
 	id=g_strdup_printf("%s %s",mid,name);
 	// new_pattern
-	pattern=bt_pattern_new(song, id, name, /*length=*/16, voices, machine);
+	pattern=bt_pattern_new(song, id, name, /*length=*/16, machine);
 
 	// pattern_properties
 	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));

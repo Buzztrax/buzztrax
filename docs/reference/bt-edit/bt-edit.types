@@ -1,5 +1,6 @@
 #include <libbtcore/core.h>
 #include <bt-edit.h>
+#include "gtkvumeter.h"
 
 bt_edit_application_get_type
 bt_machine_canvas_item_get_type

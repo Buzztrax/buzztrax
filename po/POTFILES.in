@@ -1,3 +1,4 @@
+src/lib/core/pattern.c
 src/lib/core/song-io-native.c
 src/ui/cmd/bt-cmd.c
 src/ui/cmd/cmd-application.c
