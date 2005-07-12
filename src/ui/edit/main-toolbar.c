@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.54 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.55 2005-07-12 12:46:30 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -372,11 +372,14 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   // add gtk_vumeter widgets and update from level_callback
   for(i=0;i<MAX_VUMETER;i++) {
     self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
+		// @idea have distinct tooltips
+		gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),GTK_WIDGET(self->priv->vumeter[i]),_("playback volume"),NULL);
     gtk_vumeter_set_min_max(self->priv->vumeter[i], -900, 0);
     gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LOG);
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
     gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,0);
   }
+
   gtk_widget_set_size_request(GTK_WIDGET(box),150,-1);
   // add gain-control
 	self->priv->volume=GTK_SCALE(gtk_hscale_new_with_range(/*min=*/0.0,/*max=*/1.0,/*step=*/0.01));

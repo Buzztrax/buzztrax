@@ -223,14 +223,14 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
             NULL, widget, "trough", 0, 0, width, widget->allocation.height);
         /* draw background gradient */
         for (index = rms_level; index < peak_level; index++) {
-	  	      gdk_draw_line (widget->window, vumeter->b_gc[index], width - index - 1, 1, width - index - 1, height);   
+            gdk_draw_line (widget->window, vumeter->b_gc[index], width - index - 1, 1, width - index - 1, height);   
         }
         /* draw foreground gradient */
         for (index = peak_level; index < width - 2; index++) {
-	          gdk_draw_line (widget->window, vumeter->f_gc[index], width - index - 1, 1, width - index - 1, height);            
+            gdk_draw_line (widget->window, vumeter->f_gc[index], width - index - 1, 1, width - index - 1, height);            
         }        
     }
-		return(TRUE);
+    return(TRUE);
 }
 
 static void gtk_vumeter_free_colors (GtkVUMeter *vumeter)
@@ -402,13 +402,12 @@ static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter,
  */
 void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
 {
-    g_return_if_fail (vumeter != NULL);
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->max = MAX(max, min);
     vumeter->min = MIN(min, max);
     if (vumeter->max == vumeter->min) {
-	    vumeter->max++;
+        vumeter->max++;
     }
     vumeter->rms_level = CLAMP (vumeter->rms_level, vumeter->min, vumeter->max);
     vumeter->peak_level = CLAMP (vumeter->peak_level, vumeter->min, vumeter->max);
@@ -426,7 +425,6 @@ void gtk_vumeter_set_min_max (GtkVUMeter *vumeter, gint min, gint max)
  */
 void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
 {
-    g_return_if_fail (vumeter != NULL);
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
 
     vumeter->rms_level = CLAMP (rms, vumeter->min, vumeter->max);
@@ -435,13 +433,23 @@ void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
     gtk_widget_queue_draw (GTK_WIDGET(vumeter));    
 }
 
+/**
+ * gtk_vumeter_set_peaks_falloff:
+ * @vumeter: the vumeter widget to change the current level
+ * @peaks_falloff: controls the speed to the peak decay
+ *
+ * Sets the speed for the peaks to decay.
+ *
+ * PLEASE NOTE: the falloff is not yet implemented
+ */
 void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff)
 {
-    g_return_if_fail (vumeter != NULL);
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
 	
-		// @todo implement me
-		// slow, medium, fast
+    if (peaks_falloff > GTK_VUMETER_PEAKS_FALLOFF_FAST) {
+        peaks_falloff = GTK_VUMETER_PEAKS_FALLOFF_FAST;
+    }
+    vumeter->peaks_falloff=peaks_falloff;
 }
 
 /**
@@ -457,7 +465,6 @@ void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff)
  */
 void gtk_vumeter_set_scale (GtkVUMeter *vumeter, gint scale)
 {
-    g_return_if_fail (vumeter != NULL);
     g_return_if_fail (GTK_IS_VUMETER (vumeter));  
     
     if (scale != vumeter->scale) {

@@ -24,26 +24,26 @@ typedef struct _GtkVUMeter      GtkVUMeter;
 typedef struct _GtkVUMeterClass GtkVUMeterClass;
     
 struct _GtkVUMeter {
-  GtkWidget   widget;
+    GtkWidget   widget;
   
-  GdkColormap *colormap;
-  gint        colors;
+    GdkColormap *colormap;
+    gint        colors;
   
-  GdkGC       **f_gc;
-  GdkGC       **b_gc;
-  GdkColor    *f_colors;
-  GdkColor    *b_colors;
+    GdkGC       **f_gc;
+    GdkGC       **b_gc;
+    GdkColor    *f_colors;
+    GdkColor    *b_colors;
   
-  gboolean    vertical;
-  gint        rms_level;
-  gint        min;
-  gint        max;
+    gboolean    vertical;
+    gint        rms_level;
+    gint        min;
+    gint        max;
   
-  gint        peaks_falloff;
-  gint delay_peak_level;
-  gint        peak_level;
+    gint        peaks_falloff;
+    gint        delay_peak_level;
+    gint        peak_level;
     
-  gint        scale;
+    gint        scale;
 };
 
 struct _GtkVUMeterClass {
