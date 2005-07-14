@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.55 2005-07-12 16:20:31 ensonic Exp $
+/* $Id: pattern.c,v 1.56 2005-07-14 21:44:10 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -89,10 +89,17 @@ GType bt_pattern_cmd_get_type(void) {
 
 //-- helper methods
 
+/*
+ * bt_pattern_init_data:
+ * @self: the pattern to initialize the event data for
+ *
+ * Allocates and initializes the memory for the event data grid.
+ *
+ * Returns: %TRUE for success
+ */
 static gboolean bt_pattern_init_data(const BtPattern *self) {
   gboolean ret=FALSE;
   gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-  //GValue *data;
 
   if(self->priv->machine==NULL) return(TRUE);
   if(data_count==0) return(TRUE);
@@ -104,27 +111,18 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
 
   GST_DEBUG("sizes : %d*(%d+%d+%d*%d)=%d",self->priv->length,internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params,data_count);
   if((self->priv->data=g_try_new0(GValue,data_count))) {
-    // initialize the GValues (can we use memcpy for the tick-lines)
-    /*
-    data=self->priv->data;
-    for(i=0;i<self->priv->length;i++) {
-      for(k=0;k<self->priv->global_params;k++) {
-        g_value_init(data,bt_machine_get_global_param_type(self->priv->machine,k));
-        data++;
-      }
-      for(j=0;j<self->priv->voices;j++) {
-        for(k=0;k<self->priv->voice_params;k++) {
-          g_value_init(data,bt_machine_get_voice_param_type(self->priv->machine,k));
-          data++;
-        }
-      }
-    }
-    */
     ret=TRUE;
   }
   return(ret);
 }
 
+/*
+ * bt_pattern_resize_data_length:
+ * @self: the pattern to resize the length
+ * @length: the old length
+ *
+ * Resizes the event data grid to the new length. Keeps previous values.
+ */
 static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) {
 	gulong old_data_count=length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
 	gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
@@ -133,8 +131,9 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
   // allocate new space
 	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
 		if(data) {
+      gulong count=MIN(old_data_count,new_data_count);
 			// copy old values over
-			memcpy(self->priv->data,data,MIN(old_data_count,new_data_count*sizeof(GValue)));
+			memcpy(self->priv->data,data,count*sizeof(GValue));
 			// free old data
 			g_free(data);
 		}
@@ -149,6 +148,13 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 	}
 }
 
+/*
+ * bt_pattern_resize_data_voices:
+ * @self: the pattern to resize the voice number
+ * @voices: the old number of voices
+ *
+ * Resizes the event data grid to the new number of voices. Keeps previous values.
+ */
 static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) {
 	//gulong old_data_count=self->priv->length*(internal_params+self->priv->global_params+voices*self->priv->voice_params);
 	gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
@@ -432,7 +438,7 @@ BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machin
 	gchar *cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
   
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
-  id=g_strdup_printf("%s   %s",mid,cmd_names[cmd]);
+  id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
 	name=g_strdup_printf("   %s",_(cmd_names[cmd]));
   if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",1,"machine",machine,"is-internal",TRUE,NULL)))) {
     goto Error;
@@ -654,6 +660,24 @@ gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voi
 		return(bt_pattern_get_event(self,event));
 	}
 	return(NULL);
+}
+
+/**
+ * bt_pattern_get_cmd:
+ * @self: the pattern to query the command from
+ * @tick: the tick (time) position starting with 0
+ *
+ * Returns the command id in the specified tick row.
+ *
+ * Returns: the command id
+ */
+BtPatternCmd bt_pattern_get_cmd(const BtPattern *self,gulong tick) {
+	GValue *event;
+
+	if((event=bt_pattern_get_internal_event_data(self,tick,0)) && G_IS_VALUE(event)) {
+		return(g_value_get_enum(event));
+	}
+  return(BT_PATTERN_CMD_NORMAL);
 }
 
 /**

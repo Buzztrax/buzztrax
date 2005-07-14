@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.7 2005-07-04 14:05:11 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.8 2005-07-14 21:44:10 ensonic Exp $
  * core library unit tests
  */
 
@@ -20,7 +20,6 @@ extern Suite *bt_song_suite(void);
 extern Suite *bt_song_io_suite(void);
 extern Suite *bt_song_info_suite(void);
 extern Suite *bt_source_machine_suite(void);
-extern Suite *bt_timeline_suite(void);
 extern Suite *bt_wire_suite(void);
 extern Suite *bt_settings_suite(void);
 
@@ -61,7 +60,6 @@ int main(int argc, char **argv) {
 	srunner_add_suite(sr, bt_song_io_suite());
 	srunner_add_suite(sr, bt_song_info_suite());
 	srunner_add_suite(sr, bt_source_machine_suite());
-	srunner_add_suite(sr, bt_timeline_suite());
 	srunner_add_suite(sr, bt_wire_suite());
 	srunner_add_suite(sr, bt_settings_suite());
   // this make tracing errors with gdb easier (use env CK_FORK="no" gdb ...)

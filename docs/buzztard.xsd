@@ -5,7 +5,6 @@
 	targetNamespace="http://www.buzztard.org/"
 	elementFormDefault="qualified">
 
-  <xsd:attribute name="command" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
   <xsd:attribute name="voices" type="xsd:integer"/>
@@ -200,9 +199,7 @@
   <xsd:element name="position">
     <xsd:complexType>
       <xsd:attribute ref="time" use="required"/>
-      <!-- we need either one, pattern or command
-      <xsd:attribute ref="pattern" minOccurs="0" maxOccurs="1"/>
-      <xsd:attribute ref="command" minOccurs="0" maxOccurs="1"/>
+      <xsd:attribute ref="pattern" use="required"/>
       -->
     </xsd:complexType>
   </xsd:element>

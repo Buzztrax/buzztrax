@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.14 2005-07-07 21:44:59 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.15 2005-07-14 21:44:10 ensonic Exp $
  * defines all public methods of the sequence class
  */
 
@@ -6,13 +6,17 @@
 #define BT_SEQUENCE_METHODS_H
 
 #include "sequence.h"
-#include "timeline.h"
+#include "pattern.h"
+#include "machine.h"
 
 extern BtSequence *bt_sequence_new(const BtSong *song);
 
-extern BtTimeLine *bt_sequence_get_timeline_by_time(const BtSequence *self,const gulong time);
-extern BtMachine *bt_sequence_get_machine_by_track(const BtSequence *self,const gulong track);
-extern void bt_sequence_set_machine_by_track(const BtSequence *self,const gulong track,const BtMachine *machine);
+extern BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track);
+extern void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine);
+extern gchar *bt_sequence_get_label(const BtSequence *self,const gulong time);
+extern void bt_sequence_set_label(const BtSequence *self,const gulong time, gchar *label);
+extern BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,const gulong track);
+extern void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,BtPattern *pattern);
 
 extern GstClockTime bt_sequence_get_bar_time(const BtSequence *self);
 extern GstClockTime bt_sequence_get_loop_time(const BtSequence *self);

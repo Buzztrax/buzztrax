@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.28 2005-06-24 16:54:41 ensonic Exp $
+## $Id: Makefile.am,v 1.29 2005-07-14 21:44:10 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -33,8 +33,6 @@ libbtcore_la_SOURCES = \
 	song-io.c libbtcore/song-io.h libbtcore/song-io-methods.h \
 	song-io-native.c libbtcore/song-io-native.h libbtcore/song-io-native-methods.h \
 	source-machine.c libbtcore/source-machine.h libbtcore/source-machine-methods.h \
-	timeline.c libbtcore/timeline.h libbtcore/timeline-methods.h \
-	timelinetrack.c libbtcore/timelinetrack.h libbtcore/timelinetrack-methods.h \
 	wavetable.c libbtcore/wavetable.h libbtcore/wavetable-methods.h \
 	wave.c libbtcore/wave.h libbtcore/wave-methods.h \
 	wavelevel.c libbtcore/wavelevel.h libbtcore/wavelevel-methods.h \

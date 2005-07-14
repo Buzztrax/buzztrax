@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.84 2005-07-12 16:21:04 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.85 2005-07-14 21:44:10 ensonic Exp $
  * class for the editor main sequence page
  */
 
@@ -82,7 +82,10 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
-static gchar *pattern_keys="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar *sink_pattern_keys     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar *source_pattern_keys   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar *processor_pattern_keys="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar *pattern_keys;
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);
 static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data);
@@ -324,8 +327,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtSetup *setup;
   BtSequence *sequence;
   BtMachine *machine;
-  BtTimeLine *timeline;
-  BtTimeLineTrack *timelinetrack;
   BtPattern *pattern;
 	GtkWidget *label;
   gchar *str;
@@ -337,8 +338,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   GType *store_types;
   GtkTreeIter tree_iter;
   GtkTreeViewColumn *tree_col;
-  gulong pattern_type;
   gboolean free_str;
+  gboolean is_internal;
 
   GST_INFO("refresh sequence table");
   
@@ -368,7 +369,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   g_free(store_types);
   // add patterns
   for(i=0;i<timeline_ct;i++) {
-    timeline=bt_sequence_get_timeline_by_time(sequence,i);
     gtk_list_store_append(store, &tree_iter);
     // set position, highlight-color
     gtk_list_store_set(store,&tree_iter,
@@ -377,45 +377,48 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 			-1);
 		pos++;
     // set label
-    g_object_get(G_OBJECT(timeline),"label",&str,NULL);
-    if(str) {
+    if((str=bt_sequence_get_label(sequence,i))) {
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
       g_free(str);
     }
     // set patterns
     for(j=0;j<track_ct;j++) {
-      timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,j);
-      g_object_get(G_OBJECT(timelinetrack),"type",&pattern_type,NULL);
       free_str=FALSE;
-      switch(pattern_type) {
-        case BT_TIMELINETRACK_TYPE_EMPTY:
-          str=" ";
-          break;
-        case BT_TIMELINETRACK_TYPE_PATTERN:
-          g_object_get(G_OBJECT(timelinetrack),"pattern",&pattern,NULL);
+      if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
+        g_object_get(pattern,"is-internal",&is_internal,NULL);
+        if(!is_internal) {
           g_object_get(G_OBJECT(pattern),"name",&str,NULL);
           g_object_try_unref(pattern);
           free_str=TRUE;
-          break;
-        case BT_TIMELINETRACK_TYPE_MUTE:
-          str="---";
-          break;
-        case BT_TIMELINETRACK_TYPE_STOP:
-          str="===";
-          break;
-        case BT_TIMELINETRACK_TYPE_THRU:
-          str="***";
-          break;
-        default:
-          str="???";
-          GST_ERROR("implement me");
+        }
+        else {
+          BtPatternCmd cmd=bt_pattern_get_cmd(pattern,0);
+          switch(cmd) {
+            case BT_PATTERN_CMD_BREAK:
+              str="---";
+              break;
+            case BT_PATTERN_CMD_MUTE:
+              str="===";
+              break;
+            case BT_PATTERN_CMD_SOLO:
+              str="***";
+              break;
+            case BT_PATTERN_CMD_BYPASS:
+              str="###";
+              break;
+            default:
+              str="???";
+              GST_ERROR("implement me");
+          }
+        }        
+      }
+      else {
+        str=" ";
       }
       //GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
       gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
       if(free_str) g_free(str);
-      g_object_unref(timelinetrack);
     }
-    g_object_unref(timeline);
   }
 	// create a filterd model to realize step filtering
 	filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
@@ -428,7 +431,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   sequence_table_init(self);
   // add column for each machine
   for(j=0;j<track_ct;j++) {
-    machine=bt_sequence_get_machine_by_track(sequence,j);
+    machine=bt_sequence_get_machine(sequence,j);
     renderer=gtk_cell_renderer_text_new();
     //g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
 		g_object_set(G_OBJECT(renderer),
@@ -543,6 +546,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
 	}
 
   //-- append default rows
+  pattern_keys=sink_pattern_keys;
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
   gtk_list_store_append(store, &tree_iter);
@@ -552,10 +556,12 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   if(BT_IS_PROCESSOR_MACHINE(machine)) {
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thru"),-1);
+    pattern_keys=processor_pattern_keys;
   }
 	if(BT_IS_SOURCE_MACHINE(machine)) {
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,0,"_",1,_("  solo"),-1);
+    pattern_keys=source_pattern_keys;
   }
 	
   if(machine) {
@@ -644,7 +650,7 @@ static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
 		g_object_get(sequence,"tracks",&number_of_tracks,NULL);
 		g_object_set(sequence,"tracks",(gulong)(number_of_tracks+1),NULL);
 		// set the machine for the new track
-		bt_sequence_set_machine_by_track(sequence,number_of_tracks,machine);
+		bt_sequence_set_machine(sequence,number_of_tracks,machine);
 		// reinit the view
 		sequence_table_refresh(self,song);
 		sequence_model_recolorize(self);
@@ -799,57 +805,32 @@ static gboolean on_sequence_table_move_cursor(GtkTreeView *treeview, GtkMovement
 
 static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSong *song;
+  BtSequence *sequence;
 	gboolean res=FALSE;
-	BtTimeLineTrack *timelinetrack;
 	gchar *str=NULL;
 	gboolean free_str=FALSE;
 	gboolean change=FALSE;
+  gulong time,track;
 
   g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 	
 	GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
 	// determine timeline and timelinetrack from cursor pos
-	if((timelinetrack=bt_main_page_sequence_get_current_timelinetrack(self))) {
+  if(bt_main_page_sequence_get_current_pos(self,&time,&track)) {
 		// look up pattern for key
-		if(event->keyval=='-') {
-			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,"pattern",NULL,NULL);
-			str="---";
-			change=TRUE;
-			res=TRUE;
-		}
-		else if(event->keyval==',') {
-			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,"pattern",NULL,NULL);
-      str="===";
-			change=TRUE;
-			res=TRUE;
-		}
-		else if(event->keyval=='_') {
-      BtMachine *machine=bt_main_page_sequence_get_current_machine(self);
-      if(BT_IS_PROCESSOR_MACHINE(machine)) {
-  			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_THRU,"pattern",NULL,NULL);
-        str="***";
-		  	change=TRUE;
-			  res=TRUE;
-      }
-      else if(BT_IS_SOURCE_MACHINE(machine)) {
-				// @todo fix whenremoving timelinetrack
-				//g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_SOLO,"pattern",NULL,NULL);
-        str="***";
-		  	change=TRUE;
-			  res=TRUE;
-      }
-      g_object_unref(machine);
-		}
-		else if(event->keyval==' ') {
-			g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_EMPTY,"pattern",NULL,NULL);
+    if(event->keyval==' ') {
+      bt_sequence_set_pattern(sequence,time,track,NULL);
 			str=" ";
 			change=TRUE;
 			res=TRUE;
 		}
 		else if(event->keyval==GDK_Return) {	/* GDK_KP_Enter */
 			BtPattern *pattern;
-			g_object_get(timelinetrack,"pattern",&pattern,NULL);
-			if(pattern) {
+			if((pattern=bt_sequence_get_pattern(sequence,time,track))) {
 				BtMainWindow *main_window;
 				BtMainPages *pages;
 				BtMainPagePatterns *patterns_page;
@@ -875,11 +856,11 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			if(pos) {
 				BtMachine *machine;
 
-				if((machine=bt_main_page_sequence_get_current_machine(self))) {
+				if((machine=bt_sequence_get_machine(sequence,track))) {
 					BtPattern *pattern;
 				
 					if((pattern=bt_machine_get_pattern_by_index(machine,((gulong)pos-(gulong)pattern_keys)))) {
-						g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_PATTERN,"pattern",pattern,NULL);
+            bt_sequence_set_pattern(sequence,time,track,pattern);
 						g_object_get(G_OBJECT(pattern),"name",&str,NULL);
           	g_object_unref(pattern);
           	free_str=TRUE;
@@ -931,11 +912,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 			GST_WARNING("  nothing assgned to this key");
 		}
 		if(free_str) g_free(str);
-		g_object_unref(timelinetrack);
 	}
 	else {
 		GST_WARNING("  can't locate timelinetrack related to curos pos");
 	}
+  // release the references
+  g_object_try_unref(sequence);
+  g_object_try_unref(song);
 	return(res);
 }
 
@@ -1266,7 +1249,7 @@ Error:
 
 /**
  * bt_main_page_sequence_get_current_machine:
- * @self: the pattern subpage
+ * @self: the sequence subpage
  *
  * Get the currently active #BtMachine as determined by the cursor position in
  * the sequence table.
@@ -1288,7 +1271,7 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
     GST_DEBUG("  >>> active track is %d",track);
 		g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 		g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-    machine=bt_sequence_get_machine_by_track(sequence,track-2);
+    machine=bt_sequence_get_machine(sequence,track-2);
 		// release the references
 		g_object_try_unref(sequence);
 		g_object_try_unref(song);
@@ -1297,20 +1280,21 @@ BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *s
 }
 
 /**
- * bt_main_page_sequence_get_current_timelinetrack:
- * @self: the pattern subpage
+ * bt_main_page_sequence_get_current_pos:
+ * @self: the sequence subpage
+ * @time: pointer for time result
+ * @track: pointer for track result
  *
- * Get the currently active #BtTimeLineTrack as determined by the cursor position in
- * the sequence table.
- * Unref the timelinetrack, when done with it.
+ * Get the currently cursor position in the sequence table.
+ * The result will be place in the respective pointers.
+ * If one is NULL, no value is returned for it.
  *
- * Returns: the #BtTimeLineTrack instance or %NULL in case of an error
+ * Returns: %TRUE if the cursor is at a valid track position
  */
-BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPageSequence *self) {
-	BtTimeLineTrack *timelinetrack=NULL;
+gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gulong *time,gulong *track) {
+  gboolean res=FALSE;
   BtSong *song;
   BtSequence *sequence;
-	BtTimeLine *timeline;
   GtkTreePath *path;
   GtkTreeViewColumn *column;
 
@@ -1323,23 +1307,22 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(column && path) {
     GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-    glong track=g_list_index(columns,(gpointer)column);
-		GtkTreeModel *store;
-		GtkTreeIter iter;
+    glong col=g_list_index(columns,(gpointer)column);
 
     g_list_free(columns);
-		if(track>1) { // first two tracks are pos and label
+		if(col>1) { // first two tracks are pos and label
+  		GtkTreeModel *store;
+	  	GtkTreeIter iter;
 			// get iter from path
 			store=gtk_tree_view_get_model(self->priv->sequence_table);
 			if(gtk_tree_model_get_iter(store,&iter,path)) {
 				gulong row;
 				// get pos from iter and then the timeline
 				gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
-				if((timeline=bt_sequence_get_timeline_by_time(sequence,row))) {
-					timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,track-2);
-					GST_DEBUG("  found one at %d,%d",track-2,row);
-					g_object_unref(timeline);
-				}
+        GST_DEBUG("  found one at %d,%d",col-2,row);
+        if(time) *time=row;
+        if(track) *track=col-2;
+        res=TRUE;
 			}
 		}
   }
@@ -1347,8 +1330,7 @@ BtTimeLineTrack *bt_main_page_sequence_get_current_timelinetrack(const BtMainPag
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);
-	// is already ref'ed by bt_timeline_get_timelinetrack_by_index()
-	return(timelinetrack);
+	return(res);
 }
 
 //-- wrapper

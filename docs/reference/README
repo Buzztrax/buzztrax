@@ -1,7 +1,10 @@
-$Id: README,v 1.10 2004-10-05 15:46:08 ensonic Exp $
+$Id: README,v 1.11 2005-07-14 21:44:09 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
+
+find missing classes
+  find src/lib/core/libbtcore -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq | /usr/bin/diff -u - docs/reference/bt-core/bt-core.types
   
 using g_object based sub systems
   the XXX_init() function of the subsystem need to be added to SCANOBJ_OPTIONS

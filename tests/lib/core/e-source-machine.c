@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.3 2005-07-12 06:33:30 ensonic Exp $
+/* $Id: e-source-machine.c,v 1.4 2005-07-14 21:44:10 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -63,15 +63,12 @@ START_TEST(test_btsourcemachine_obj1){
 	g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
 	/* the list should not be null */
 	fail_unless(list!=NULL, NULL);
-	node=list;
+	node=g_list_last(list);
 
-	/* the returned pointer should be point to the same pattern, that we added
+	/* the returned pointer should point to the same pattern, that we added
 	to the machine before */
 	ref_pattern=node->data;
 	fail_unless(ref_pattern==pattern, NULL);
-
-	/* the list should contain only one element */
-	fail_unless(g_list_length(list)==1, NULL);
 	
 	g_list_free(list);
 }

@@ -1,4 +1,4 @@
-/* $Id: pattern-methods.h,v 1.13 2005-07-12 11:44:43 ensonic Exp $
+/* $Id: pattern-methods.h,v 1.14 2005-07-14 21:44:10 ensonic Exp $
  * defines all public methods of the pattern class
  */
 
@@ -19,6 +19,8 @@ extern gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, 
 extern gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value);
 extern gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong param);
 extern gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param);
+
+extern BtPatternCmd bt_pattern_get_cmd(const BtPattern *self,gulong tick);
 
 extern gboolean bt_pattern_tick_has_data(const BtPattern *self, gulong tick);
 

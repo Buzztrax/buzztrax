@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.42 2005-07-12 11:44:43 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.43 2005-07-14 21:44:09 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -113,6 +113,7 @@ bt_pattern_set_global_event
 bt_pattern_set_voice_event
 bt_pattern_get_global_event
 bt_pattern_get_voice_event
+bt_pattern_get_cmd
 bt_pattern_tick_has_data
 bt_pattern_play_tick
 <SUBSECTION Standard>
@@ -190,9 +191,12 @@ BtProcessorMachinePrivate
 <TITLE>BtSequence</TITLE>
 BtSequence
 bt_sequence_new
-bt_sequence_get_timeline_by_time
-bt_sequence_get_machine_by_track
-bt_sequence_set_machine_by_track
+bt_sequence_get_machine
+bt_sequence_set_machine
+bt_sequence_get_label
+bt_sequence_set_label
+bt_sequence_get_pattern
+bt_sequence_set_pattern
 bt_sequence_get_bar_time
 bt_sequence_get_loop_time
 bt_sequence_get_pattern_positions
@@ -375,47 +379,6 @@ BT_TYPE_SOURCE_MACHINE
 <SUBSECTION Private>
 bt_source_machine_get_type
 BtSourceMachinePrivate
-</SECTION>
-
-<SECTION>
-<FILE>bttimeline</FILE>
-<TITLE>BtTimeLine</TITLE>
-BtTimeLine
-bt_timeline_new
-bt_timeline_get_timelinetrack_by_index
-bt_timeline_update_playline
-<SUBSECTION Standard>
-BtTimeLineClass
-BT_TIMELINE
-BT_IS_TIMELINE
-BT_TIMELINE_CLASS
-BT_IS_TIMELINE_CLASS
-BT_TIMELINE_GET_CLASS
-BT_TYPE_TIMELINE
-<SUBSECTION Private>
-bt_timeline_get_type
-BtTimeLinePrivate
-</SECTION>
-
-<SECTION>
-<FILE>bttimelinetrack</FILE>
-<TITLE>BtTimeLineTrack</TITLE>
-BtTimeLineTrack
-BtTimeLineTrackType
-bt_timelinetrack_new
-<SUBSECTION Standard>
-BtTimeLineTrackClass
-BT_TIMELINETRACK
-BT_IS_TIMELINETRACK
-BT_TIMELINETRACK_CLASS
-BT_IS_TIMELINETRACK_CLASS
-BT_TIMELINETRACK_GET_CLASS
-BT_TYPE_TIMELINETRACK
-BT_TYPE_TIMELINETRACK_TYPE
-<SUBSECTION Private>
-bt_timelinetrack_get_type
-BtTimeLineTrackPrivate
-bt_timelinetrack_type_get_type
 </SECTION>
 
 <SECTION>

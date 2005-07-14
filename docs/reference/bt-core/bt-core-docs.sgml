@@ -20,8 +20,6 @@
 <!ENTITY BtSongIO SYSTEM "xml/btsongio.xml">
 <!ENTITY BtSongIONative SYSTEM "xml/btsongionative.xml">
 <!ENTITY BtSourceMachine SYSTEM "xml/btsourcemachine.xml">
-<!ENTITY BtTimeLine SYSTEM "xml/bttimeline.xml">
-<!ENTITY BtTimeLineTrack SYSTEM "xml/bttimelinetrack.xml">
 <!ENTITY BtWave SYSTEM "xml/btwave.xml">
 <!ENTITY BtWavelevel SYSTEM "xml/btwavelevel.xml">
 <!ENTITY BtWavetable SYSTEM "xml/btwavetable.xml">
@@ -116,8 +114,6 @@
     &BtSongIO;
     &BtSongIONative;
     &BtSourceMachine;
-    &BtTimeLine;
-    &BtTimeLineTrack;
     &BtWave;
     &BtWavelevel;
     &BtWavetable;

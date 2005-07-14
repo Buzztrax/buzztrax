@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.20 2005-07-12 06:33:29 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.21 2005-07-14 21:44:09 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -189,7 +189,7 @@ BtMainPagePatternsPrivate
 BtMainPageSequence
 bt_main_page_sequence_new
 bt_main_page_sequence_get_current_machine
-bt_main_page_sequence_get_current_timelinetrack
+bt_main_page_sequence_get_current_pos
 <SUBSECTION Standard>
 BtMainPageSequenceClass
 BT_MAIN_PAGE_SEQUENCE

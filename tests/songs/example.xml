@@ -69,7 +69,7 @@
       <track index="0" machine="sine1">
         <position time="0" pattern="sine1_beep"/>
         <position time="48" pattern="sine1_beep"/>
-        <position time="64" comand="stop"/>
+        <position time="64" pattern="sine1___break"/>
       </track>
     </tracks>
   </sequence>

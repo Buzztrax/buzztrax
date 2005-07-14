@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.75 2005-07-12 06:33:29 ensonic Exp $
+/* $Id: song-io-native.c,v 1.76 2005-07-14 21:44:10 ensonic Exp $
  * class for native song input and output
  */
  
@@ -470,7 +470,6 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
     cxpath_get_object(song_doc,BT_SONG_IO_NATIVE_GET_CLASS(self)->xpath_get_sequence_labels,root_node),
     XPATH_NODESET)))
   {
-    BtTimeLine *timeline;
     xmlChar *time_str,*name;
 		gint i;
 		xmlNodeSetPtr items=(xmlNodeSetPtr)items_xpoptr->nodesetval;
@@ -482,11 +481,8 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
       if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"label\0",6))) {
         time_str=xmlGetProp(xml_node,"time");
         name=xmlGetProp(xml_node,"name");
-        if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
-          GST_INFO("  new timeline.label(%s,\"%s\")",time_str,name);
-          g_object_set(G_OBJECT(timeline),"label",name,NULL);
-          g_object_unref(timeline);
-        }
+        GST_INFO("  new label(%s,\"%s\")",time_str,name);
+        bt_sequence_set_label(sequence,atol(time_str),name);
         xmlFree(time_str);xmlFree(name);
       }
 		}
@@ -500,52 +496,25 @@ static gboolean bt_song_io_native_load_sequence_labels(const BtSongIONative *sel
 static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative *self, const BtSong *song, const BtMachine *machine, glong index, xmlNodePtr xml_node) {
   BtSequence *sequence;
   BtPattern *pattern;
-  BtTimeLine *timeline;
-  BtTimeLineTrack *timelinetrack;
-  xmlChar *time_str,*pattern_id,*command;
+  xmlChar *time_str,*pattern_id;
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 
-  bt_sequence_set_machine_by_track(sequence,index,machine);
+  bt_sequence_set_machine(sequence,index,machine);
   while(xml_node) {
     if(!xmlNodeIsText(xml_node)) {
       time_str=xmlGetProp(xml_node,"time");
       pattern_id=xmlGetProp(xml_node,"pattern");
-      command=xmlGetProp(xml_node,"comand");
-      GST_DEBUG("  at %s, pattern \"%s\" or command \"%s\"",time_str,safe_string(pattern_id),safe_string(command));
-			// get timeline from sequence
-			if((timeline=bt_sequence_get_timeline_by_time(sequence,atol(time_str)))) {
-				// get timelinetrack from timeline
-				if((timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,index))) {
-					if(pattern_id) {
-						// get pattern by name from machine
-						if((pattern=bt_machine_get_pattern_by_id(machine,pattern_id))) {
-							g_object_set(timelinetrack,"pattern",pattern,"type",BT_TIMELINETRACK_TYPE_PATTERN,NULL);
-							g_object_unref(pattern);
-						}
-						else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
-						xmlFree(pattern_id);
-					}
-					if(command) {
-						// mute, stop, thruh
-						if(!strncmp(command,"stop\0",5)) {
-							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_STOP,NULL);
-						}
-						else if(!strncmp(command,"mute\0",5)) {
-							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_MUTE,NULL);
-						}
-						else if(!strncmp(command,"thru\0",5)) {
-							g_object_set(timelinetrack,"type",BT_TIMELINETRACK_TYPE_THRU,NULL);
-						}
-						else GST_ERROR("  unknown command \"%s\"",command);
-						xmlFree(command);
-					}
-					g_object_unref(timelinetrack);
+      GST_DEBUG("  at %s, pattern \"%s\"",time_str,safe_string(pattern_id));
+			if(pattern_id) {
+				// get pattern by name from machine
+				if((pattern=bt_machine_get_pattern_by_id(machine,pattern_id))) {
+          bt_sequence_set_pattern(sequence,atol(time_str),index,pattern);
+  				g_object_unref(pattern);
 				}
-				else GST_ERROR("  unknown timelinetrack index \"%d\"",index);
-				g_object_unref(timeline);
+				else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
+				xmlFree(pattern_id);
 			}
-			else GST_ERROR("  unknown timeline index \"%s\"",time_str);
 			xmlFree(time_str);
 		}
 		xml_node=xml_node->next;
@@ -991,7 +960,6 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
 static gboolean bt_song_io_native_save_sequence_labels(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
 	xmlNodePtr xml_node;
 	BtSequence *sequence;
-	BtTimeLine *timeline;
 	gchar *time_str,*label;
 	gulong i,length;
 	
@@ -1000,16 +968,12 @@ static gboolean bt_song_io_native_save_sequence_labels(const BtSongIONative *sel
 
 	// iterate over timelines
 	for(i=0;i<length;i++) {
-		if((timeline=bt_sequence_get_timeline_by_time(sequence,i))) {
-			g_object_get(G_OBJECT(timeline),"label",&label,NULL);
-			if(label) {
-				xml_node=xmlNewChild(root_node,NULL,"label",NULL);
-				time_str=g_strdup_printf("%lu",i);
-				xmlNewProp(xml_node,"name",label);g_free(label);
-				xmlNewProp(xml_node,"time",time_str);g_free(time_str);
-			}
+		if((label=bt_sequence_get_label(sequence,i))) {
+			xml_node=xmlNewChild(root_node,NULL,"label",NULL);
+			time_str=g_strdup_printf("%lu",i);
+			xmlNewProp(xml_node,"name",label);g_free(label);
+			xmlNewProp(xml_node,"time",time_str);g_free(time_str);
 		}
-		g_object_unref(timeline);
 	}
 	g_object_try_unref(sequence);
 	
@@ -1021,9 +985,6 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
 	BtSequence *sequence;
 	BtMachine *machine;
 	BtPattern *pattern;
-	BtTimeLine *timeline;
-	BtTimeLineTrack *timelinetrack;
-	BtTimeLineTrackType type;
 	gchar *time_str,*track_str,*machine_id,*pattern_id;
 	gulong i,j,length,tracks;
 	
@@ -1033,7 +994,7 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
 	// iterate over tracks
 	for(j=0;j<tracks;j++) {
 		xml_node=xmlNewChild(root_node,NULL,"track",NULL);
-		machine=bt_sequence_get_machine_by_track(sequence,j);
+		machine=bt_sequence_get_machine(sequence,j);
 		g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
 		track_str=g_strdup_printf("%lu",j);
 		xmlNewProp(xml_node,"index",track_str);g_free(track_str);
@@ -1041,36 +1002,13 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
 		g_object_unref(machine);
 		// iterate over timelines
 		for(i=0;i<length;i++) {
-			if((timeline=bt_sequence_get_timeline_by_time(sequence,i))) {
-				if((timelinetrack=bt_timeline_get_timelinetrack_by_index(timeline,j))) {
-					// get pattern type and pattern
-					g_object_get(G_OBJECT(timelinetrack),"pattern",&pattern,"type",&type,NULL);
-					if(type!=BT_TIMELINETRACK_TYPE_EMPTY) {
-						xml_child_node=xmlNewChild(xml_node,NULL,"position",NULL);
-						time_str=g_strdup_printf("%lu",i);
-						xmlNewProp(xml_child_node,"time",time_str);g_free(time_str);
-						switch(type) {
-							case BT_TIMELINETRACK_TYPE_MUTE:
-								xmlNewProp(xml_child_node,"command","mute");
-								break;
-							case BT_TIMELINETRACK_TYPE_STOP:
-								xmlNewProp(xml_child_node,"command","stop");
-								break;
-							case BT_TIMELINETRACK_TYPE_THRU:
-								xmlNewProp(xml_child_node,"command","thru");
-								break;
-							case BT_TIMELINETRACK_TYPE_PATTERN:
-								g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
-								xmlNewProp(xml_child_node,"pattern",pattern_id);g_free(pattern_id);
-								break;
-							case BT_TIMELINETRACK_TYPE_EMPTY:	// we catch this above
-								g_return_val_if_reached(FALSE);
-								break;
-						}					
-					}
-					g_object_unref(timelinetrack);
-				}
-				g_object_unref(timeline);
+			// get pattern
+      if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
+				xml_child_node=xmlNewChild(xml_node,NULL,"position",NULL);
+				time_str=g_strdup_printf("%lu",i);
+				xmlNewProp(xml_child_node,"time",time_str);g_free(time_str);
+				g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
+				xmlNewProp(xml_child_node,"pattern",pattern_id);g_free(pattern_id);
 			}
 		}
 	}

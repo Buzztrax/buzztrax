@@ -22,8 +22,6 @@ libbtcore_HEADERS = \
 	song-io.h song-io-methods.h \
 	song-io-native.h song-io-native-methods.h \
 	source-machine.h source-machine-methods.h \
-	timeline.h timeline-methods.h \
-	timelinetrack.h timelinetrack-methods.h \
 	wavetable.h wavetable-methods.h \
 	wave.h wave-methods.h \
 	wavelevel.h wavelevel-methods.h \

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.41 2005-07-12 11:44:38 ensonic Exp $
+## $Id: Makefile.am,v 1.42 2005-07-14 21:44:05 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -105,6 +105,6 @@ valgrind::
 	$(MAKE) -C tests valgrind
 endif
 
-dict::
+dict:: tags
 	echo "personal_ws" >$(PACKAGE).aspell_dict
 	@find . -name tags -exec grep -v "$\!" {} \; | cut -f1 | sort | uniq >>$(PACKAGE).aspell_dict
