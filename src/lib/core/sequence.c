@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.66 2005-07-14 21:44:10 ensonic Exp $
+/* $Id: sequence.c,v 1.67 2005-07-14 22:03:35 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -247,6 +247,50 @@ static void bt_sequence_limit_play_pos(const BtSequence *self) {
 	}
 }
 
+/**
+ * bt_sequence_update_playline:
+ * @self: the sequence instance that holds the tracks
+ * @playline: the current play-cursor
+ *
+ * Enter new patterns into the playline and stop or mute patterns
+ */
+static void bt_sequence_update_playline(const BtSequence *self, const BtPlayLine *playline) {
+  gulong i;
+  BtPattern *pattern;
+  
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(BT_IS_PLAYLINE(playline));
+
+  /* DEBUG
+  if(self->priv->labels[self->priv->play_pos]) {
+    GST_INFO("  label=\"%s\"",self->priv->labels[self->priv->play_pos]);
+  }*/
+  
+  for(i=0;i<self->priv->tracks;i++) {
+    // enter new patterns into the playline and stop or mute patterns
+    if((pattern=bt_sequence_get_pattern(self,self->priv->play_pos,i))) {
+      /*
+      g_object_get_property(G_OBJECT(*timelinetrack),"type", &pattern_type);
+      switch(g_value_get_enum(&pattern_type)) {
+        case BT_TIMELINETRACK_TYPE_EMPTY:
+          break;
+        case BT_TIMELINETRACK_TYPE_PATTERN:
+          g_object_get(G_OBJECT(*timelinetrack),"pattern",&pattern,NULL);
+          bt_playline_set_pattern(playline,i,pattern);
+          g_object_try_unref(pattern);
+          break;
+        case BT_TIMELINETRACK_TYPE_STOP:
+          bt_playline_set_pattern(playline,i,NULL);
+          break;
+        default:
+          GST_ERROR("implement me");
+      }
+      */
+      g_object_unref(pattern);
+    }
+  }
+}
+
 //-- constructor methods
 
 /**
@@ -282,9 +326,9 @@ Error:
  * @self: the #BtSequence that holds the tracks
  * @track: the requested track index
  *
- * fetches the #BtMachine for the given @track.
+ * Fetches the #BtMachine for the given @track. Unref when done.
  *
- * Returns: the #BtMachine pointer or %NULL in case of an error
+ * Returns: a reference to the #BtMachine pointer or %NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
@@ -299,7 +343,8 @@ BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
  * @track: the requested track index
  * @machine: the #BtMachine
  *
- * sets #BtMachine for the respective @track.
+ * Sets the #BtMachine for the respective @track.
+ * This should only be done once for each track.
  */
 void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine) {
 	g_return_if_fail(BT_IS_SEQUENCE(self));
@@ -316,6 +361,15 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
   }
 }
 
+/**
+ * bt_sequence_get_label:
+ * @self: the #BtSequence that holds the labels
+ * @time: the requested time position
+ *
+ * Fetches the label for the given @time position. Free when done.
+ *
+ * Returns: a copy of the label or %NULL in case of an error
+ */
 gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
   g_return_val_if_fail(time<self->priv->length,NULL);
@@ -323,6 +377,14 @@ gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
   return(g_strdup(self->priv->labels[time]));
 }
 
+/**
+ * bt_sequence_set_label:
+ * @self: the #BtSequence that holds the labels
+ * @time: the requested time position
+ * @label: the new label
+ *
+ * Sets a new label for the respective @time position.
+ */
 void bt_sequence_set_label(const BtSequence *self,const gulong time, gchar *label) {
 	g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
@@ -331,6 +393,16 @@ void bt_sequence_set_label(const BtSequence *self,const gulong time, gchar *labe
   self->priv->labels[time]=g_strdup(label);
 }
 
+/**
+ * bt_sequence_get_pattern:
+ * @self: the #BtSequence that holds the patterns
+ * @time: the requested time position
+ * @track: the requested track index
+ *
+ * Fetches the pattern for the given @time and @track position. Unref when done.
+ *
+ * Returns: a reference to the #BtPattern or %NULL when empty
+ */
 BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,const gulong track) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
   g_return_val_if_fail(time<self->priv->length,NULL);
@@ -339,6 +411,15 @@ BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,cons
   return(g_object_try_ref(self->priv->patterns[time*self->priv->tracks+track]));
 }
 
+/**
+ * bt_sequence_set_pattern:
+ * @self: the #BtSequence that holds the patterns
+ * @time: the requested time position
+ * @track: the requested track index
+ * @pattern: the #BtPattern
+ *
+ * Sets the #BtPattern for the respective @time and @track position.
+ */
 void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,BtPattern *pattern) {
   gulong index;
   g_return_if_fail(BT_IS_SEQUENCE(self));
@@ -478,8 +559,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
 
 					g_object_notify(G_OBJECT(self),"play-pos");
           // enter new patterns into the playline and stop or mute patterns
-          // @todo replace
-          //bt_timeline_update_playline(self->priv->timelines[self->priv->play_pos],playline);
+          bt_sequence_update_playline(self,playline);
           // play the patterns in the cursor
           bt_playline_play(playline);
         }
