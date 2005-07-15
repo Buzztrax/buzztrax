@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.56 2005-07-14 21:44:10 ensonic Exp $
+/* $Id: pattern.c,v 1.57 2005-07-15 22:26:26 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -10,7 +10,8 @@
 //-- signal ids
 
 enum {
-  CHANGED_EVENT,
+  GLOBAL_PARAM_CHANGED_EVENT,
+  VOICE_PARAM_CHANGED_EVENT,
   LAST_SIGNAL
 };
 
@@ -588,7 +589,7 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
 		}
 		if(bt_pattern_set_event(self,event,value)) {
       // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[CHANGED_EVENT],0,tick);
+      g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
     }
 		return(TRUE);
 	}
@@ -616,7 +617,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
 		}
 		if(bt_pattern_set_event(self,event,value)) {
       // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[CHANGED_EVENT],0,tick);
+      g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
     }
 		return(TRUE);
 	}
@@ -660,6 +661,45 @@ gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voi
 		return(bt_pattern_get_event(self,event));
 	}
 	return(NULL);
+}
+
+/**
+ * bt_pattern_test_global_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @param: the number of the global parameter starting with 0
+ *
+ * Tests if there is an event in the specified cell.
+ *
+ * Returns: %TRUE if there is an event
+ */
+gboolean bt_pattern_test_global_event(const BtPattern *self, gulong tick, gulong param) {
+	GValue *event;
+
+	if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
+		return(TRUE);
+	}
+	return(FALSE);
+}
+
+/**
+ * bt_pattern_test_voice_event:
+ * @self: the pattern the cell belongs to
+ * @tick: the tick (time) position starting with 0
+ * @voice: the voice number starting with 0
+ * @param: the number of the global parameter starting with 0
+ *
+ * Tests if there is an event in the specified cell.
+ *
+ * Returns: %TRUE if there is an event
+ */
+gboolean bt_pattern_test_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param) {
+	GValue *event;
+
+	if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
+		return(TRUE);
+	}
+	return(FALSE);
 }
 
 /**
@@ -905,24 +945,48 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
   gobject_class->dispose      = bt_pattern_dispose;
   gobject_class->finalize     = bt_pattern_finalize;
   
-  klass->changed_event = NULL;
+  klass->global_param_changed_event = NULL;
+  klass->voice_param_changed_event = NULL;
   
   /** 
-	 * BtPattern::changed:
+	 * BtPattern::global-param-changed:
    * @self: the pattern object that emitted the signal
+	 * @tick: the tick position inside the pattern
+	 * @param: the global parameter index
 	 *
-	 * signals that the data of this pattern has been changed
+	 * signals that a global param of this pattern has been changed
 	 */
-  signals[CHANGED_EVENT] = g_signal_new("changed",
+  signals[GLOBAL_PARAM_CHANGED_EVENT] = g_signal_new("global-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtPatternClass,changed_event),
+                                        G_ABS_STRUCT_OFFSET(BtPatternClass,global_param_changed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__ULONG,
+                                        bt_marshal_VOID__ULONG_ULONG,
                                         G_TYPE_NONE, // return type
-                                        1, // n_params
-                                        G_TYPE_ULONG // param data
+                                        2, // n_params
+                                        G_TYPE_ULONG,G_TYPE_ULONG // param data
+                                        );
+
+	/** 
+	 * BtPattern::voice-param-changed:
+   * @self: the pattern object that emitted the signal
+	 * @tick: the tick position inside the pattern
+	 * @voice: the voice number
+	 * @param: the voice parameter index
+	 *
+	 * signals that a voice param of this pattern has been changed
+	 */
+  signals[VOICE_PARAM_CHANGED_EVENT] = g_signal_new("voice-param-changed",
+                                        G_TYPE_FROM_CLASS(klass),
+                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
+                                        G_ABS_STRUCT_OFFSET(BtPatternClass,voice_param_changed_event),
+                                        NULL, // accumulator
+                                        NULL, // acc data
+                                        bt_marshal_VOID__ULONG_ULONG_ULONG,
+                                        G_TYPE_NONE, // return type
+                                        3, // n_params
+                                        G_TYPE_ULONG,G_TYPE_ULONG,G_TYPE_ULONG // param data
                                         );
 
   g_object_class_install_property(gobject_class,PATTERN_SONG,

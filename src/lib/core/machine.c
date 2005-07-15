@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.133 2005-07-15 15:07:57 ensonic Exp $
+/* $Id: machine.c,v 1.134 2005-07-15 22:26:26 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -536,24 +536,28 @@ static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,g
       timestamp=tick_offset*tick_time;
       for(j=0;j<self->priv->global_params;j++) {
         // the method below currently is static
-        //value=bt_pattern_get_global_event_data(pattern,i,j);
-        //if(G_IS_VALUE(data)) {
-        //  gst_controller_set(self->priv->global_controller,self->priv->global_names[j],timestamp,value);
-        //}
-        //else {
-        //  gst_controller_unset(self->priv->global_controller,self->priv->global_names[j],timestamp);
-        //  // or better have
-        //  gst_controller_unset_range(self->priv->global_controller,self->priv->global_names[j],start_time,end_time);
-        //}
+				/*
+        value=bt_pattern_get_global_event_data(pattern,i,j);
+        if(G_IS_VALUE(data)) {
+          gst_controller_set(self->priv->global_controller,self->priv->global_names[j],timestamp,value);
+        }
+        else {
+          gst_controller_unset(self->priv->global_controller,self->priv->global_names[j],timestamp);
+          // or better have
+          gst_controller_unset_range(self->priv->global_controller,self->priv->global_names[j],start_time,end_time);
+        }
+				*/
       }
       for(k=0;k<self->priv->voices;k++) {
         for(j=0;j<self->priv->voice_params;j++) {
           // the method below currently is static
-          //value=bt_pattern_get_voice_event_data(pattern,i,k,j);
-          //if(G_IS_VALUE(data)) {
-          //  gst_controller_set(self->priv->voice_controllers[k],self->priv->voice_names[j],timestamp,value);
-          //}
-          //else { ... }
+				  /*
+          value=bt_pattern_get_voice_event_data(pattern,i,k,j);
+          if(G_IS_VALUE(data)) {
+            gst_controller_set(self->priv->voice_controllers[k],self->priv->voice_names[j],timestamp,value);
+          }
+          else { ... }
+					*/
         }
       }
       tick_offset++;

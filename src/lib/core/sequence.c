@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.67 2005-07-14 22:03:35 ensonic Exp $
+/* $Id: sequence.c,v 1.68 2005-07-15 22:26:26 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -57,6 +57,9 @@ struct _BtSequencePrivate {
   gboolean volatile is_playing;
 	
 	gulong play_pos,play_start,play_end;
+	
+	/* manages damage regions for updating gst-controller queues after changes */
+	GHashTable *damage;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -253,6 +256,7 @@ static void bt_sequence_limit_play_pos(const BtSequence *self) {
  * @playline: the current play-cursor
  *
  * Enter new patterns into the playline and stop or mute patterns
+ * OBSOLETE soon
  */
 static void bt_sequence_update_playline(const BtSequence *self, const BtPlayLine *playline) {
   gulong i;
@@ -269,6 +273,7 @@ static void bt_sequence_update_playline(const BtSequence *self, const BtPlayLine
   for(i=0;i<self->priv->tracks;i++) {
     // enter new patterns into the playline and stop or mute patterns
     if((pattern=bt_sequence_get_pattern(self,self->priv->play_pos,i))) {
+			bt_playline_set_pattern(playline,i,pattern);
       /*
       g_object_get_property(G_OBJECT(*timelinetrack),"type", &pattern_type);
       switch(g_value_get_enum(&pattern_type)) {
@@ -289,6 +294,261 @@ static void bt_sequence_update_playline(const BtSequence *self, const BtPlayLine
       g_object_unref(pattern);
     }
   }
+}
+
+static void bt_sequence_damage_hash_free(gpointer user_data) {
+	g_hash_table_destroy((GHashTable *)user_data);
+}
+
+/*
+ * bt_sequence_get_number_of_pattern_uses:
+ * @self: the sequence to count the patterns in
+ * @this_pattern: the pattern to check for
+ *
+ * Count the number of times a pattern is in use.
+ *
+ * Returns: the pattern count
+ */
+static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence *self,const BtPattern *this_pattern) {
+	gulong res=0;
+	BtMachine *machine;
+	BtPattern *that_pattern;
+	gulong i,j=0;
+	
+	g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+	g_return_val_if_fail(BT_IS_PATTERN(this_pattern),0);
+	
+	g_object_get(G_OBJECT(this_pattern),"machine",&machine,NULL);
+	for(i=0;i<self->priv->tracks;i++) {
+		// track uses the same machine
+		if(self->priv->machines[i]==machine) {
+			for(j=0;j<self->priv->length;j++) {
+				// time has a pattern
+				if((that_pattern=bt_sequence_get_pattern(self,j,i))) {
+					if(that_pattern==this_pattern) res++;
+					g_object_unref(that_pattern);
+				}
+			}
+		}
+	}	
+	g_object_unref(machine);
+	return(res);
+}
+
+/*
+ * bt_sequence_test_pattern:
+ * @self: the #BtSequence that holds the patterns
+ * @time: the requested time position
+ * @track: the requested track index
+ *
+ * Checks if there is any pattern at the given location.
+ * Avoides the reffing overhead of bt_sequence_get_pattern().
+ *
+ * Returns: %TRUE if there is a pattern at the given location
+ */
+static gboolean bt_sequence_test_pattern(const BtSequence *self,const gulong time,const gulong track) {
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  g_return_val_if_fail(time<self->priv->length,FALSE);
+  g_return_val_if_fail(track<self->priv->tracks,FALSE);
+  
+  return(self->priv->patterns[time*self->priv->tracks+track]!=NULL);
+}
+
+static void bt_sequence_invalidate_param(const BtSequence *self,const BtMachine *machine,const gulong time,gulong param) {
+	GHashTable *hash,*param_hash;
+
+	// mark region covered by change as damaged
+	hash=g_hash_table_lookup(self->priv->damage,machine);
+	if(!hash) {
+		hash=g_hash_table_new_full(NULL,NULL,NULL,bt_sequence_damage_hash_free);
+		g_hash_table_insert(self->priv->damage,(gpointer)machine,hash);
+	}
+	param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(param));
+	if(!param_hash) {
+		param_hash=g_hash_table_new(NULL,NULL);
+		g_hash_table_insert(hash,GUINT_TO_POINTER(param),param_hash);
+	}
+	g_hash_table_insert(param_hash,GUINT_TO_POINTER(time),GUINT_TO_POINTER(TRUE));
+}
+	
+/*
+ * bt_sequence_invalidate_global_param:
+ *
+ * Marks the given tick for the global param of the given machine as invalid.
+ */
+static void bt_sequence_invalidate_global_param(const BtSequence *self,const BtMachine *machine,const gulong time,gulong param) {
+	bt_sequence_invalidate_param(self,machine,time,param);
+}
+
+/*
+ * bt_sequence_invalidate_voice_param:
+ *
+ * Marks the given tick for the voice param of the given machine and voice as invalid.
+ */
+static void bt_sequence_invalidate_voice_param(const BtSequence *self,const BtMachine *machine,const gulong time,gulong voice,gulong param) {
+	gulong global_params,voice_params;
+	
+	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+	bt_sequence_invalidate_param(self,machine,time,(global_params+voice*voice_params)+param);
+}
+
+/*
+ * bt_sequence_invalidate_pattern_region:
+ * @self: the sequence that hold the patterns
+ * @time: the sequence time-offset of the pattern
+ * @track: the track of the pattern
+ * @pattern: the pattern that has been added or removed
+ *
+ * Calculated the damage region for the given pattern and location.
+ * Adds the region to the repair-queue.
+ */
+static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const gulong time,const gulong track,const BtPattern *pattern) {
+	BtMachine *machine;
+	gulong i,j,k;
+  gulong length;
+	gulong global_params,voice_params,voices;
+
+	// determine region of change
+	g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
+	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+	// check if from time+1 to time+length another pattern starts (in this track)
+	for(i=1;i<length;i++) {
+		if(bt_sequence_test_pattern(self,time+i,track)) break;
+	}
+	length=i-1;
+	// mark region covered by new pattern as damaged
+	for(i=0;i<length;i++) {
+		// check global params
+		for(j=0;i<global_params;j++) {
+			if(bt_pattern_test_global_event(pattern,i,j)) {
+				// mark region covered by change as damaged
+				bt_sequence_invalidate_global_param(self,machine,time+i,j);
+			}
+		}
+		// check voices
+		for(k=0;k<voices;k++) {
+			// check voice params
+			for(j=0;i<voice_params;j++) {
+				// mark region covered by change as damaged
+				bt_sequence_invalidate_voice_param(self,machine,time+i,k,j);
+			}
+		}
+	}
+	g_object_unref(machine);
+}
+
+static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer value,gpointer user_data) {
+	/*
+	BtSequence *self=BT_SEQUENCE(user_data[0]);
+	BtMachine *machine=BT_MACHINE(user_data[1]);
+	//gulong param=GPOINTER_TO_UINT(user_data[2]);
+	gulong tick=GPOINTER_TO_UINT(key);
+	gulong i,j;
+	BtPattern *patternNULL;
+
+	// find all patterns with tick-offsets that are intersected by the tick of the damage
+	for(i=0;i<self->priv->tracks;i++) {
+		// track uses the same machine
+		if(self->priv->machines[i]==machine) {
+	    // go from tick position upwards to find pattern for track
+			for(j=tick;j>=0;j--) {
+				if((pattern=bt_sequence_get_pattern(self,j,i))) break;
+			}
+	    // get value at tick position or NULL
+		}
+	}
+	//bt_machine_global_controller_set_value(machine,param,time,value);	// if(!value) then unset()
+	*/
+	return(TRUE);
+}
+
+static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer value,gpointer user_data) {
+	/*
+	BtSequence *self=BT_SEQUENCE(user_data[0]);
+	BtMachine *machine=BT_MACHINE(user_data[1]);
+	gulong param=GPOINTER_TO_UINT(user_data[2]);
+	gulong voice=GPOINTER_TO_UINT(user_data[3]);
+	gulong tick=GPOINTER_TO_UINT(key);
+
+	// find all patterns with tick-offsets that are intersected by the tick of the damage
+	// get the value of the right most pattern -> controller queue
+  bt_machine_voice_controller_set_value(machine,param,voice,time,value);	// if(!value) then unset()
+	*/
+	return(TRUE);
+}
+
+/*
+ * bt_sequence_repair_damage:
+ *
+ * Works through the repair queue and rebuilds controller queues, where needed.
+ */
+static void bt_sequence_repair_damage(const BtSequence *self) {
+	gulong i,j,k;
+	BtMachine *machine;
+	gulong global_params,voice_params,voices;
+	GHashTable *hash,*param_hash;
+	gpointer hash_params[4];
+
+	// repair damage
+	for(i=0;i<self->priv->tracks;i++) {
+		machine=bt_sequence_get_machine(self,i);
+		g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+		hash=g_hash_table_lookup(self->priv->damage,machine);
+		// repair damage of global params
+		for(j=0;i<global_params;j++) {
+			param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j));
+			hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);
+			g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
+		}
+		// repair damage of voices
+		for(k=0;k<voices;k++) {
+			// repair damage of voice params
+			for(j=0;i<voice_params;j++) {
+				param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER((global_params+k*voice_params)+j));
+				hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);hash_params[3]=GUINT_TO_POINTER(k);
+				g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
+			}
+		}
+		g_object_unref(machine);
+	}
+}
+
+//-- event handler
+
+static void bt_sequence_on_pattern_global_param_changed(const BtPattern *pattern,gulong tick,gulong param,gpointer user_data) {
+	BtSequence *self=BT_SEQUENCE(user_data);
+	
+	/*
+	// @todo for all occurences
+		// mark region covered by change as damaged
+		bt_sequence_invalidate_global_param(self,machine,time+tick,param);
+	*/
+	// repair damage
+	bt_sequence_repair_damage(self);
+}
+
+static void bt_sequence_on_pattern_voice_param_changed(const BtPattern *pattern,gulong tick,gulong voice,gulong param,gpointer user_data) {
+	BtSequence *self=BT_SEQUENCE(user_data);
+	
+	/*
+	// @todo for all occurences
+		// mark region covered by change as damaged
+		bt_sequence_invalidate_voice_param(self,machine,time+tick,voice,param);
+	*/
+	// repair damage
+	bt_sequence_repair_damage(self);
+}
+
+static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *pattern,gpointer user_data) {
+	BtSequence *self=BT_SEQUENCE(user_data);
+
+	/*
+	// @todo for all occurences
+		// mark region covered by change as damaged
+		bt_sequence_invalidate_pattern_region(self,time,track,pattern);
+	*/
+	// repair damage
+	bt_sequence_repair_damage(self);
 }
 
 //-- constructor methods
@@ -354,7 +614,8 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
   // @todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
   // as it should not be allowed to change the machine later on
   if(!self->priv->machines[track]) {
-    self->priv->machines[track]=g_object_ref((gpointer)machine);
+    self->priv->machines[track]=g_object_ref(G_OBJECT(machine));
+		g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
   }
   else {
     GST_ERROR("machine has already be set!");
@@ -385,7 +646,7 @@ gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
  *
  * Sets a new label for the respective @time position.
  */
-void bt_sequence_set_label(const BtSequence *self,const gulong time, gchar *label) {
+void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar *label) {
 	g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
   
@@ -420,15 +681,36 @@ BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,cons
  *
  * Sets the #BtPattern for the respective @time and @track position.
  */
-void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,BtPattern *pattern) {
+void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,const BtPattern *pattern) {
   gulong index;
+	
   g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
   g_return_if_fail(track<self->priv->tracks);
   
   index=time*self->priv->tracks+track;
-  g_object_try_unref(self->priv->patterns[index]);
-  self->priv->patterns[index]=g_object_try_ref(pattern);
+	// take out the old pattern
+	if(self->priv->patterns[index]) {
+		// detatch a signal handler if this was the last usage
+		if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
+			g_signal_handlers_disconnect_matched(self->priv->patterns[index],G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_global_param_changed,NULL);
+			g_signal_handlers_disconnect_matched(self->priv->patterns[index],G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_voice_param_changed,NULL);
+		}
+		// mark region covered by old pattern as damaged
+		bt_sequence_invalidate_pattern_region(self,time,track,self->priv->patterns[index]);
+		g_object_unref(self->priv->patterns[index]);
+	}
+	// enter the new pattern
+  self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
+	// attatch a signal handler if this is the first usage
+	if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
+		g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
+		g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
+	}
+	// mark region covered by new pattern as damaged
+	bt_sequence_invalidate_pattern_region(self,time,track,pattern);
+	// repair damage
+	bt_sequence_repair_damage(self);
 }
 
 /**
@@ -762,10 +1044,10 @@ static void bt_sequence_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
 	g_mutex_free(self->priv->is_playing_mutex);
-  //g_free(self->priv->timelines);
   g_free(self->priv->machines);
   g_free(self->priv->labels);
   g_free(self->priv->patterns);
+	g_hash_table_destroy(self->priv->damage);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -780,7 +1062,7 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
   self->priv->is_playing_mutex=g_mutex_new();
-
+	self->priv->damage=g_hash_table_new_full(NULL,NULL,NULL,bt_sequence_damage_hash_free);
 }
 
 static void bt_sequence_class_init(BtSequenceClass *klass) {

@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.43 2005-07-14 21:44:09 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.44 2005-07-15 22:26:18 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -113,6 +113,8 @@ bt_pattern_set_global_event
 bt_pattern_set_voice_event
 bt_pattern_get_global_event
 bt_pattern_get_voice_event
+bt_pattern_test_global_event
+bt_pattern_test_voice_event
 bt_pattern_get_cmd
 bt_pattern_tick_has_data
 bt_pattern_play_tick
