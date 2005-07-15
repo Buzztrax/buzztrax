@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.11 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: source-machine.h,v 1.12 2005-07-15 15:08:16 ensonic Exp $
  * class for a source machine
  */
 
@@ -41,5 +41,20 @@ struct _BtSourceMachineClass {
 /* used by SOURCE_MACHINE_TYPE */
 GType bt_source_machine_get_type(void);
 
-#endif // BT_SOURCE_MACHINE_H
+/**
+ * BtSourceMachinePatternIndex:
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_BREAK: 
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE:
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_SOLO:
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_OFFSET:
+ *
+ * Use this with bt_machine_get_pattern_by_index() to get the command patterns.
+ */
+typedef enum {
+  BT_SOURCE_MACHINE_PATTERN_INDEX_BREAK=0,
+  BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE,
+  BT_SOURCE_MACHINE_PATTERN_INDEX_SOLO,
+	BT_SOURCE_MACHINE_PATTERN_INDEX_OFFSET
+} BtSourceMachinePatternIndex;
 
+#endif // BT_SOURCE_MACHINE_H

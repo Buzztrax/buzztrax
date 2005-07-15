@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.132 2005-07-12 16:20:31 ensonic Exp $
+/* $Id: machine.c,v 1.133 2005-07-15 15:07:57 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -799,7 +799,7 @@ gboolean bt_machine_new(BtMachine *self) {
 	if(BT_IS_SOURCE_MACHINE(self)) {
 		bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO);
 	}
-	if(BT_IS_PROCESSOR_MACHINE(self)) {
+	else if(BT_IS_PROCESSOR_MACHINE(self)) {
 		bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
 	}
   // add the machine to the setup of the song
