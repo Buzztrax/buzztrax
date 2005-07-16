@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.16 2005-07-15 22:26:26 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.17 2005-07-16 18:56:44 ensonic Exp $
  * defines all public methods of the sequence class
  */
 
@@ -20,8 +20,6 @@ extern void bt_sequence_set_pattern(const BtSequence *self,const gulong time,con
 
 extern GstClockTime bt_sequence_get_bar_time(const BtSequence *self);
 extern GstClockTime bt_sequence_get_loop_time(const BtSequence *self);
-
-extern GList *bt_sequence_get_pattern_positions(const BtSequence *self,const BtMachine *machine,const BtPattern *pattern);
 
 extern gboolean bt_sequence_play(const BtSequence *self);
 extern gboolean bt_sequence_stop(const BtSequence *self);

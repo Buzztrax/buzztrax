@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.57 2005-07-15 22:26:26 ensonic Exp $
+/* $Id: pattern.c,v 1.58 2005-07-16 18:56:43 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -210,57 +210,6 @@ static GValue *bt_pattern_get_internal_event_data(const BtPattern *self, gulong 
   if(!(param<internal_params)) { GST_ERROR("param beyond internal_params");return(NULL); }
 
   index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
-       + param;
-  return(&self->priv->data[index]);
-}
-
-/*
- * bt_pattern_get_global_event_data:
- * @self: the pattern to search for the global param
- * @tick: the tick (time) position starting with 0
- * @param: the number of the global parameter starting with 0
- *
- * Fetches a cell from the given location in the pattern
- *
- * Returns: the GValue or %NULL if out of the pattern range
- */
-static GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param) {
-  gulong index;
-
-  g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
-
-  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
-  if(!(param<self->priv->global_params)) { GST_ERROR("param beyond global_params");return(NULL); }
-
-  index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
-       +       internal_params+param;
-  return(&self->priv->data[index]);
-}
-
-/*
- * bt_pattern_get_voice_event_data:
- * @self: the pattern to search for the voice param
- * @tick: the tick (time) position starting with 0
- * @voice: the voice number starting with 0
- * @param: the number of the voice parameter starting with 0
- *
- * Fetches a cell from the given location in the pattern
- *
- * Returns: the GValue or %NULL if out of the pattern range
- */
-static GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param) {
-  gulong index;
-
-  g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
-
-  if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
-  if(!(voice<self->priv->voices)) { GST_ERROR("voice beyond voices");return(NULL); }
-  if(!(param<self->priv->voice_params)) { GST_ERROR("param beyond voice_ params");return(NULL); }
-
-  index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
-       +       internal_params+self->priv->global_params+(voice*self->priv->voice_params)
        + param;
   return(&self->priv->data[index]);
 }
@@ -567,6 +516,59 @@ gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name
 		g_propagate_error(error, tmp_error);
 	}
   return(ret);
+}
+
+/**
+ * bt_pattern_get_global_event_data:
+ * @self: the pattern to search for the global param
+ * @tick: the tick (time) position starting with 0
+ * @param: the number of the global parameter starting with 0
+ *
+ * Fetches a cell from the given location in the pattern. If there is no event
+ * there, then the %GValue is uninitialized. Test with G_IS_VALUE(event).
+ *
+ * Returns: the GValue or %NULL if out of the pattern range
+ */
+GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param) {
+  gulong index;
+
+  g_assert(BT_IS_PATTERN(self));
+	g_return_val_if_fail(self->priv->data,NULL);
+
+  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d",tick,self->priv->length);return(NULL); }
+  if(!(param<self->priv->global_params)) { GST_ERROR("param=%d beyond global_params=%d",param,self->priv->global_params);return(NULL); }
+
+  index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
+       +       internal_params+param;
+  return(&self->priv->data[index]);
+}
+
+/**
+ * bt_pattern_get_voice_event_data:
+ * @self: the pattern to search for the voice param
+ * @tick: the tick (time) position starting with 0
+ * @voice: the voice number starting with 0
+ * @param: the number of the voice parameter starting with 0
+ *
+ * Fetches a cell from the given location in the pattern. If there is no event
+ * there, then the %GValue is uninitialized. Test with G_IS_VALUE(event).
+ *
+ * Returns: the GValue or %NULL if out of the pattern range
+ */
+GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param) {
+  gulong index;
+
+  g_assert(BT_IS_PATTERN(self));
+	g_return_val_if_fail(self->priv->data,NULL);
+
+  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d ",tick,self->priv->length);return(NULL); }
+  if(!(voice<self->priv->voices)) { GST_ERROR("voice=%d  beyond voices=%d ",voice,self->priv->voices);return(NULL); }
+  if(!(param<self->priv->voice_params)) { GST_ERROR("param=%d  beyond voice_ params=%d",param,self->priv->voice_params);return(NULL); }
+
+  index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
+       +       internal_params+self->priv->global_params+(voice*self->priv->voice_params)
+       + param;
+  return(&self->priv->data[index]);
 }
 
 /**

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.135 2005-07-16 12:20:12 ensonic Exp $
+/* $Id: machine.c,v 1.136 2005-07-16 18:56:43 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -499,74 +499,6 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
 #endif
 
 /*
- * bt_machine_on_pattern_changed:
- * @pattern: the #BtPattern that changed
- * @tick: the tick line that changed 
- * @user_data: the #BtMachine the pattern belongs to
- *
- * Updates all the control-data of the machine, whenever a pattern has changed.
-static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,gpointer user_data) {
-  BtMachine *self=BT_MACHINE(user_data);
-#ifdef USE_GST_CONTROLLER
-  BtSequence *sequence;
-  GList *list,*node;
-  gulong i,j,k;
-  gulong tick_offset,pattern_length;
-  GstClockTime timestamp,tick_time;
-#endif
-  
-  GST_DEBUG("pattern of machine '%s' has changed in tick %ld",self->priv->plugin_name,tick); 
-  // @todo finish implementation of bt_machine_on_pattern_changed()
-  // @todo we need to handle commands in the sequence (stop, mute, ...) and patterns stoping each other
-  //       -> therefore each list-entry needs to be tick-pos + length
-  // @todo care about several patterns play for the same machine
-  //       e.g. track 1: notes, track 2: envelope
-#ifdef USE_GST_CONTROLLER
-  // get some data
-  g_object_get(self->priv->song,"sequence",&sequence,NULL);
-  g_object_get(G_OBJECT(pattern),"length",&pattern_length,NULL);
-  tick_time=bt_sequence_get_bar_time(sequence);
-  // ask sequence about a list with tick-positions for this pattern
-  list=bt_sequence_get_pattern_positions(sequence,self,pattern);
-  // go over list and update all controller queues
-  for(node=list;node;node=g_list_next(node)) {  
-    tick_offset=GPOINTER_TO_UINT(node->data);
-    for(i=0;i<pattern_length;i++) {
-      timestamp=tick_offset*tick_time;
-      for(j=0;j<self->priv->global_params;j++) {
-        // the method below currently is static
-        value=bt_pattern_get_global_event_data(pattern,i,j);
-        if(G_IS_VALUE(data)) {
-          gst_controller_set(self->priv->global_controller,self->priv->global_names[j],timestamp,value);
-        }
-        else {
-          gst_controller_unset(self->priv->global_controller,self->priv->global_names[j],timestamp);
-          // or better have
-          gst_controller_unset_range(self->priv->global_controller,self->priv->global_names[j],start_time,end_time);
-        }
-				
-      }
-      for(k=0;k<self->priv->voices;k++) {
-        for(j=0;j<self->priv->voice_params;j++) {
-          // the method below currently is static
-          value=bt_pattern_get_voice_event_data(pattern,i,k,j);
-          if(G_IS_VALUE(data)) {
-            gst_controller_set(self->priv->voice_controllers[k],self->priv->voice_names[j],timestamp,value);
-          }
-          else { ... }
-        }
-      }
-      tick_offset++;
-    }
-  }
-  // cleanup
-  g_list_free(list);
-  g_object_try_unref(sequence);
-#endif
-}
-*/
-
-/*
  * bt_machine_get_property_meta_value:
  * @value: the value that will hold the result
  * @property: the paramspec object to get the meta data from
@@ -623,12 +555,11 @@ gboolean bt_machine_new(BtMachine *self) {
     self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
     g_free(name);
   }
-  GST_INFO("machine element instantiated");
-
   if(!self->priv->machines[PART_MACHINE]) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
   }
+  GST_INFO("machine element instantiated");
   // we need to make sure the machine is from the right class
   {
     GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
@@ -726,6 +657,8 @@ gboolean bt_machine_new(BtMachine *self) {
         if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
           GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
         }
+        // @todo set interpolation mode depending on type (trigger=0, others=smoothed)
+        // gst_controller_set_interpolation_mode(controller,"prop1",mode);
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;
       }
@@ -1728,6 +1661,49 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index
 	}
 	return(str);
 }
+
+//-- controller handling
+
+#ifdef USE_GST_CONTROLLER
+/**
+ * bt_machine_global_controller_change_value:
+ * @self: the machine to change the param for
+ * @param: the global parameter index
+ * @time: the time stamp of the change
+ * @value: the new value or %NULL to unset a previous one
+ *
+ * Depending on wheter the given value is NULL, sets or unsets the controller
+ * value for the specified param and at the given time.
+ */
+void bt_machine_global_controller_change_value(const BtMachine *self,gulong param,gulong time,GValue *value) {
+  if(value) {
+    gst_controller_set(self->priv->global_controller,self->priv->global_names[param],time,value);
+  }
+  else {
+    gst_controller_unset(self->priv->global_controller,self->priv->global_names[param],time);
+  }
+}
+
+/**
+ * bt_machine_voice_controller_change_value:
+ * @self: the machine to change the param for
+ * @param: the voice parameter index
+ * @param: the voice number
+ * @time: the time stamp of the change
+ * @value: the new value or %NULL to unset a previous one
+ *
+ * Depending on wheter the given value is NULL, sets or unsets the controller
+ * value for the specified param and at the given time.
+ */
+void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param,gulong voice,gulong time,GValue *value) {
+  if(value) {
+    gst_controller_set(self->priv->voice_controllers[voice],self->priv->voice_names[param],time,value);
+  }
+  else {
+    gst_controller_unset(self->priv->voice_controllers[voice],self->priv->voice_names[param],time);
+  }
+}
+#endif
 
 //-- debug helper
 

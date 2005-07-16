@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.44 2005-07-15 22:26:18 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.45 2005-07-16 18:56:34 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -67,6 +67,8 @@ bt_machine_get_unique_pattern_name
 bt_machine_is_polyphonic
 bt_machine_get_global_param_index
 bt_machine_get_voice_param_index
+bt_machine_get_global_dparam
+bt_machine_get_voice_dparam
 bt_machine_get_global_param_spec
 bt_machine_get_voice_param_spec
 bt_machine_get_global_param_type
@@ -85,6 +87,8 @@ bt_machine_is_global_param_trigger
 bt_machine_is_voice_param_trigger
 bt_machine_describe_global_param_value
 bt_machine_describe_voice_param_value
+bt_machine_global_controller_change_value
+bt_machine_voice_controller_change_value
 <SUBSECTION Standard>
 BtMachineClass
 BT_MACHINE
@@ -109,6 +113,8 @@ bt_pattern_new_with_event
 bt_pattern_copy
 bt_pattern_get_global_param_index
 bt_pattern_get_voice_param_index
+bt_pattern_get_global_event_data
+bt_pattern_get_voice_event_data
 bt_pattern_set_global_event
 bt_pattern_set_voice_event
 bt_pattern_get_global_event
@@ -201,7 +207,6 @@ bt_sequence_get_pattern
 bt_sequence_set_pattern
 bt_sequence_get_bar_time
 bt_sequence_get_loop_time
-bt_sequence_get_pattern_positions
 bt_sequence_play
 bt_sequence_stop
 <SUBSECTION Standard>
