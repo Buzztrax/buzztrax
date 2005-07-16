@@ -25,4 +25,5 @@ libbtcore_HEADERS = \
 	wavetable.h wavetable-methods.h \
 	wave.h wave-methods.h \
 	wavelevel.h wavelevel-methods.h \
-	wire.h wire-methods.h
+	wire.h wire-methods.h \
+  ../marshal.h

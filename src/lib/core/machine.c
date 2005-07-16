@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.134 2005-07-15 22:26:26 ensonic Exp $
+/* $Id: machine.c,v 1.135 2005-07-16 12:20:12 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -505,7 +505,6 @@ static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
  * @user_data: the #BtMachine the pattern belongs to
  *
  * Updates all the control-data of the machine, whenever a pattern has changed.
- */
 static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,gpointer user_data) {
   BtMachine *self=BT_MACHINE(user_data);
 #ifdef USE_GST_CONTROLLER
@@ -536,7 +535,6 @@ static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,g
       timestamp=tick_offset*tick_time;
       for(j=0;j<self->priv->global_params;j++) {
         // the method below currently is static
-				/*
         value=bt_pattern_get_global_event_data(pattern,i,j);
         if(G_IS_VALUE(data)) {
           gst_controller_set(self->priv->global_controller,self->priv->global_names[j],timestamp,value);
@@ -546,18 +544,16 @@ static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,g
           // or better have
           gst_controller_unset_range(self->priv->global_controller,self->priv->global_names[j],start_time,end_time);
         }
-				*/
+				
       }
       for(k=0;k<self->priv->voices;k++) {
         for(j=0;j<self->priv->voice_params;j++) {
           // the method below currently is static
-				  /*
           value=bt_pattern_get_voice_event_data(pattern,i,k,j);
           if(G_IS_VALUE(data)) {
             gst_controller_set(self->priv->voice_controllers[k],self->priv->voice_names[j],timestamp,value);
           }
           else { ... }
-					*/
         }
       }
       tick_offset++;
@@ -568,6 +564,7 @@ static void bt_machine_on_pattern_changed(const BtPattern *pattern,gulong tick,g
   g_object_try_unref(sequence);
 #endif
 }
+*/
 
 /*
  * bt_machine_get_property_meta_value:
@@ -1027,7 +1024,6 @@ void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern) {
 
   if(!g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_append(self->priv->patterns,g_object_ref(G_OBJECT(pattern)));
-    g_signal_connect(G_OBJECT(pattern),"changed",G_CALLBACK(bt_machine_on_pattern_changed),(gpointer)self);
     // @todo do we need to manually invoke bt_machine_on_pattern_changed() once?
     g_signal_emit(G_OBJECT(self),signals[PATTERN_ADDED_EVENT], 0, pattern);
     bt_song_set_unsaved(self->priv->song,TRUE);
