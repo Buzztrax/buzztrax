@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.69 2005-07-16 18:56:44 ensonic Exp $
+/* $Id: sequence.c,v 1.70 2005-07-18 16:07:35 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -302,7 +302,7 @@ static void bt_sequence_update_playline(const BtSequence *self, const BtPlayLine
  * Helper function to cleanup the damage hashtables
  *
 static void bt_sequence_damage_hash_free(gpointer user_data) {
-	g_hash_table_destroy((GHashTable *)user_data);
+	if(user_data) g_hash_table_destroy((GHashTable *)user_data);
 }
 */
 
@@ -338,6 +338,7 @@ static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence *self,cons
 		}
 	}	
 	g_object_unref(machine);
+	GST_INFO("get pattern uses = %d",res);
 	return(res);
 }
 
@@ -414,6 +415,8 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
   gulong length;
 	gulong global_params,voice_params,voices;
 
+	GST_INFO("invalidate pattern region for tick=%5d, track=%3d",time,track);
+
 	// determine region of change
 	g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
 	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
@@ -459,6 +462,8 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   GValue *value=NULL,*cur_value;
 	BtPattern *pattern=NULL;
 
+	GST_INFO("repair global damage entry for tick=%5d",tick);
+
 	// find all patterns with tick-offsets that are intersected by the tick of the damage
 	for(i=0;i<self->priv->tracks;i++) {
 		// track uses the same machine
@@ -499,6 +504,8 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   GValue *value=NULL,*cur_value;
 	BtPattern *pattern=NULL;
 
+	GST_INFO("repair voice damage entry for tick=%5d",tick);
+
 	// find all patterns with tick-offsets that are intersected by the tick of the damage
 	for(i=0;i<self->priv->tracks;i++) {
 		// track uses the same machine
@@ -534,6 +541,8 @@ static void bt_sequence_repair_damage(const BtSequence *self) {
 	GHashTable *hash,*param_hash;
 	gpointer hash_params[4];
 
+	GST_INFO("repair damage");
+	
 	// repair damage
 	for(i=0;i<self->priv->tracks;i++) {
 		machine=bt_sequence_get_machine(self,i);

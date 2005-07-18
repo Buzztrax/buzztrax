@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.4 2005-07-14 21:44:10 ensonic Exp $
+/* $Id: e-source-machine.c,v 1.5 2005-07-18 16:07:36 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -31,6 +31,38 @@ START_TEST(test_btsourcemachine_obj1){
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSourceMachine *machine=NULL;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	
+	/* try to create a source machine */
+	machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0);
+	fail_unless(machine!=NULL, NULL);
+
+	g_object_unref(machine);
+	g_object_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
+
+/**
+* In this example we show how to create a source machine and adding a
+* newly created pattern to it. Then we try to get the pattern back from
+* the machine by its id.
+*
+* We check also, if we can create a pattern iterator and getting the added
+* pattern back from the newly created iterator.
+*/
+START_TEST(test_btsourcemachine_obj2){
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSourceMachine *machine=NULL;
 	BtPattern *pattern=NULL;
 	BtPattern *ref_pattern=NULL;
 	GList *list,*node;
@@ -52,9 +84,6 @@ START_TEST(test_btsourcemachine_obj1){
 	pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
 	fail_unless(pattern!=NULL, NULL);
 	
-	/* try to add a new pattern */
-	bt_machine_add_pattern(BT_MACHINE(machine),pattern);
-	
 	/* try to get the same pattern back per id */
 	ref_pattern=bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
 	fail_unless(ref_pattern==pattern, NULL);
@@ -71,13 +100,19 @@ START_TEST(test_btsourcemachine_obj1){
 	fail_unless(ref_pattern==pattern, NULL);
 	
 	g_list_free(list);
+
+	g_object_unref(pattern);
+	g_object_unref(machine);
+	g_object_unref(song);
+	g_object_checked_unref(app);
 }
 END_TEST
 
 TCase *bt_source_machine_example_case(void) {
   TCase *tc = tcase_create("BtSourceMachineExamples");
 
-  tcase_add_test(tc,test_btsourcemachine_obj1);
+	tcase_add_test(tc,test_btsourcemachine_obj1);
+  tcase_add_test(tc,test_btsourcemachine_obj2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

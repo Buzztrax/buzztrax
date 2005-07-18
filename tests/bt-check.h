@@ -1,6 +1,9 @@
-/* $Id: bt-check.h,v 1.2 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: bt-check.h,v 1.3 2005-07-18 16:07:36 ensonic Exp $
  * testing helpers
  */
+
+#ifndef BT_CHECK_H
+#define BT_CHECK_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +17,7 @@
 #include <gst/gst.h>
 //-- buzztard
 #include <libbtcore/core.h>
+#include "bt-test-plugin.h"
 
 extern guint test_argc;
 extern gchar **test_argvptr;
@@ -43,3 +47,5 @@ extern void setup_log_capture(void);
 
 extern gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 extern gboolean check_gobject_properties(GObject *toCheck);
+
+#endif /* BT_CHECK_H */
