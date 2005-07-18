@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.3 2005-07-12 11:44:43 ensonic Exp $
+/* $Id: e-pattern.c,v 1.4 2005-07-18 22:46:44 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -17,6 +17,34 @@ static void test_teardown(void) {
 }
 
 //-- tests
+
+START_TEST(test_btpattern_obj) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtMachine *machine=NULL;
+	BtPattern *pattern=NULL;
+
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+	/* create a new song */
+	song=bt_song_new(app);
+	/* create a source machine */
+	machine=BT_MACHINE(bt_source_machine_new(song,"gen","sinesrc",0L));
+	fail_unless(machine!=NULL, NULL);
+	
+	/* try to create a pattern */
+	pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+	fail_unless(pattern!=NULL, NULL);
+
+	g_object_try_unref(pattern);
+	g_object_try_unref(machine);
+  g_object_try_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
 
 START_TEST(test_btpattern_copy) {
 	BtApplication *app=NULL;
@@ -176,6 +204,7 @@ END_TEST
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");
 
+  tcase_add_test(tc,test_btpattern_obj);
 	tcase_add_test(tc,test_btpattern_copy);
 	tcase_add_test(tc,test_btpattern_enlarge_length);
 	tcase_add_test(tc,test_btpattern_shrink_length);

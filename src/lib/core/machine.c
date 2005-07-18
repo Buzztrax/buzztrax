@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.136 2005-07-16 18:56:43 ensonic Exp $
+/* $Id: machine.c,v 1.137 2005-07-18 22:46:43 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -524,6 +524,24 @@ static void bt_machine_get_property_meta_value(GValue *value,GParamSpec *propert
   }
 }
 
+//-- signal handler
+
+void bt_machine_on_bpm_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer user_data) {
+  BtMachine *self=BT_MACHINE(user_data);
+  gulong bpm;
+  
+  g_object_get(song_info,"bpm",&bpm,NULL);
+  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,-1);
+}
+
+void bt_machine_on_tpb_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer user_data) {
+  BtMachine *self=BT_MACHINE(user_data);
+  gulong tpb;
+  
+  g_object_get(song_info,"tpb",&tpb,NULL);
+  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,-1);
+}
+
 //-- constructor methods
 
 /**
@@ -713,6 +731,21 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_INFO("  instance is monophonic!");
   }
 #endif
+  // check if the elemnt implements the GstTempo interface
+  if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
+    BtSongInfo *song_info;
+    gulong bpm,tpb;
+    
+    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    // @todo handle stpb later (subtick per beat)
+    g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
+    gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
+    
+    g_signal_connect(G_OBJECT(song_info),"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
+    g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
+    g_object_unref(song_info);
+  }
+
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_MACHINE]);
   GST_INFO("  added machine to bin, obj->ref_count=%d",G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
@@ -1869,12 +1902,21 @@ static void bt_machine_set_property(GObject      *object,
 
 static void bt_machine_dispose(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
+  BtSongInfo *song_info;
   guint i;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  // disconnect notify handlers
+  g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+  if(song_info) {
+    g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);
+    g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_tpb_changed,NULL);
+    g_object_unref(song_info);
+  }
   
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin

@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.6 2005-07-14 21:44:10 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.7 2005-07-18 22:46:44 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -53,7 +53,7 @@ START_TEST(test_btsequence_obj1) {
 END_TEST
 
 /* try to add a NULL machine to the sequence */
-START_TEST(test_btsequence_obj2) {
+START_TEST(test_btsequence_track1) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSequence *sequence=NULL;
@@ -71,14 +71,14 @@ START_TEST(test_btsequence_obj2) {
 	bt_sequence_set_machine(sequence,0,NULL);
 	fail_unless(check_has_error_trapped(), NULL);
 	
-	g_object_try_unref(G_OBJECT(sequence));
-	g_object_checked_unref(G_OBJECT(song));
+	g_object_try_unref(sequence);
+	g_object_try_unref(song);
 	g_object_checked_unref(app);
 }
 END_TEST
 
 /* try to set a new machine for the sequence with NULL for the sequence parameter */
-START_TEST(test_btsequence_obj3) {
+START_TEST(test_btsequence_track2) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
 	BtSourceMachine *machine=NULL;
@@ -100,8 +100,40 @@ START_TEST(test_btsequence_obj3) {
 	bt_sequence_set_machine(NULL,0,BT_MACHINE(machine));
 	fail_unless(check_has_error_trapped(), NULL);
 	
-	g_object_try_unref(G_OBJECT(machine));
-	g_object_checked_unref(G_OBJECT(song));
+	g_object_try_unref(machine);
+	g_object_try_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
+
+/* try to add a machine to the sequence b3eyond the number of tracks */
+START_TEST(test_btsequence_track3) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSequence *sequence=NULL;
+  BtMachine *machine;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+	song=bt_song_new(app);
+	g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
+	fail_unless(sequence!=NULL,NULL);
+  /* create a source machine */
+	machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+	fail_unless(machine!=NULL,NULL);
+  /* enlarge tracks */
+	g_object_set(sequence,"tracks",4L,NULL);
+  
+	check_init_error_trapp("bt_sequence_set_machine","track<self->priv->tracks");
+	bt_sequence_set_machine(sequence,0,machine);
+	fail_unless(check_has_error_trapped(), NULL);
+	
+  g_object_try_unref(machine);
+	g_object_try_unref(sequence);
+	g_object_try_unref(song);
 	g_object_checked_unref(app);
 }
 END_TEST
@@ -111,8 +143,9 @@ TCase *bt_sequence_test_case(void) {
 
 	tcase_add_test(tc,test_btsequence_properties);
   tcase_add_test(tc,test_btsequence_obj1);
-	tcase_add_test(tc,test_btsequence_obj2);
-	tcase_add_test(tc,test_btsequence_obj3);
+	tcase_add_test(tc,test_btsequence_track1);
+	tcase_add_test(tc,test_btsequence_track2);
+  tcase_add_test(tc,test_btsequence_track3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
