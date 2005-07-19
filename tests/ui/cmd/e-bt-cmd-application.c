@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.1 2005-04-16 10:48:58 ensonic Exp $ 
+/* $Id: e-bt-cmd-application.c,v 1.2 2005-07-19 13:13:37 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -8,6 +8,7 @@
 //-- fixtures
 
 static void test_setup(void) {
+	bt_init(NULL,NULL,NULL);
 	GST_DEBUG_CATEGORY_INIT(bt_cmd_debug, "bt-cmd", 0, "music production environment / command ui");
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_cmd_debug,GST_LEVEL_DEBUG);

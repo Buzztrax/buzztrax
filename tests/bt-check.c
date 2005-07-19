@@ -166,6 +166,13 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 	return ret;
 }
 
+// test plugins
+
+void check_register_plugins(void) {
+	// this is a hack to persuade the linker to not optimize out these :(
+	if(!bt_test_mono_source_get_type()) g_print("registering mono-src faild");
+}
+
 // property tests
 
 static gboolean check_read_int_param(GParamSpec *paramspec, GObject *toCheck) {

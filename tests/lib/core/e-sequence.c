@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.3 2005-07-18 22:46:44 ensonic Exp $
+/* $Id: e-sequence.c,v 1.4 2005-07-19 13:13:37 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -301,14 +301,15 @@ START_TEST(test_btsequence_enlarge_both_vals) {
   for(i=0;i<length;i++) {
     for(j=0;j<tracks;j++) {
       pattern2=bt_sequence_get_pattern(sequence,i,j);
-      fail_unless(pattern2==NULL, NULL);
-      g_object_try_unref(pattern2);
+      fail_unless(pattern2==NULL, "pattern!=NULL at %d,%d",i,j);
     }
   }
   
   /* set pattern twice */
   bt_sequence_set_pattern(sequence,0,0,pattern1);
+	mark_point();
   bt_sequence_set_pattern(sequence,7,1,pattern1);
+	mark_point();
   
   /* now pattern should be at time=0,track=0 */
   pattern2=bt_sequence_get_pattern(sequence,0,0);

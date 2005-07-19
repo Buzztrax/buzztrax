@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.8 2005-07-14 21:44:10 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.9 2005-07-19 13:13:37 ensonic Exp $
  * core library unit tests
  */
 
@@ -35,18 +35,17 @@ int main(int argc, char **argv) {
 
 	//g_mem_set_vtable(glib_mem_profiler_table);
 
+  g_type_init();
   setup_log(argc,argv);
 	setup_log_capture();
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
-  g_type_init();
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-	gst_debug_set_colored(FALSE);
 
   sr=srunner_create(bt_core_suite());
 	srunner_add_suite(sr, bt_machine_suite());

@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.h,v 1.1 2005-07-18 16:07:36 ensonic Exp $
+/* $Id: bt-test-plugin.h,v 1.2 2005-07-19 13:13:36 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -10,7 +10,7 @@
 
 //-- test_mono_source
 
-#define BT_TYPE_TEST_MONO_SOURCE    				(bt_sequence_get_type ())
+#define BT_TYPE_TEST_MONO_SOURCE    				(bt_test_mono_source_get_type ())
 #define BT_TEST_MONO_SOURCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_TEST_MONO_SOURCE, BtTestMonoSource))
 #define BT_TEST_MONO_SOURCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_TEST_MONO_SOURCE, BtTestMonoSourceClass))
 #define BT_IS_TEST_MONO_SOURCE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_TEST_MONO_SOURCE))
@@ -21,18 +21,15 @@
 
 typedef struct _BtTestMonoSource BtTestMonoSource;
 typedef struct _BtTestMonoSourceClass BtTestMonoSourceClass;
-typedef struct _BtTestMonoSourcePrivate BtTestMonoSourcePrivate;
+//typedef struct _BtTestMonoSourcePrivate BtTestMonoSourcePrivate;
 
 /* monophonic source element */
 struct _BtTestMonoSource {
-  GObject parent;
-  
-  /*< private >*/
-  BtTestMonoSourcePrivate *priv;
+  GstElement parent;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
-  GObjectClass parent_class;
+  GstElementClass parent_class;
 };
 
 /* used by TEST_MONO_SOURCE_TYPE */

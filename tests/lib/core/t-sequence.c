@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.7 2005-07-18 22:46:44 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.8 2005-07-19 13:13:37 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -128,7 +128,7 @@ START_TEST(test_btsequence_track3) {
 	g_object_set(sequence,"tracks",4L,NULL);
   
 	check_init_error_trapp("bt_sequence_set_machine","track<self->priv->tracks");
-	bt_sequence_set_machine(sequence,0,machine);
+	bt_sequence_set_machine(sequence,5,machine);
 	fail_unless(check_has_error_trapped(), NULL);
 	
   g_object_try_unref(machine);

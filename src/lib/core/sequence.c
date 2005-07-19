@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.70 2005-07-18 16:07:35 ensonic Exp $
+/* $Id: sequence.c,v 1.71 2005-07-19 13:13:30 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -421,7 +421,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
 	g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
 	g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
 	// check if from time+1 to time+length another pattern starts (in this track)
-	for(i=1;i<length;i++) {
+	for(i=1;((i<length) && (time+i<self->priv->length));i++) {
 		if(bt_sequence_test_pattern(self,time+i,track)) break;
 	}
 	length=i-1;
@@ -545,25 +545,29 @@ static void bt_sequence_repair_damage(const BtSequence *self) {
 	
 	// repair damage
 	for(i=0;i<self->priv->tracks;i++) {
-		machine=bt_sequence_get_machine(self,i);
-		g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
-		hash=g_hash_table_lookup(self->priv->damage,machine);
-		// repair damage of global params
-		for(j=0;j<global_params;j++) {
-			param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j));
-			hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);
-			g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
-		}
-		// repair damage of voices
-		for(k=0;k<voices;k++) {
-			// repair damage of voice params
-			for(j=0;j<voice_params;j++) {
-				param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER((global_params+k*voice_params)+j));
-				hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);hash_params[3]=GUINT_TO_POINTER(k);
-				g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
+		if((machine=bt_sequence_get_machine(self,i))) {
+			GST_DEBUG("check damage for track %d",i);
+			g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
+			if((hash=g_hash_table_lookup(self->priv->damage,machine))) {
+				GST_DEBUG("repair damage for track %d",i);
+				// repair damage of global params
+				for(j=0;j<global_params;j++) {
+					param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j));
+					hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);
+					g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
+				}
+				// repair damage of voices
+				for(k=0;k<voices;k++) {
+					// repair damage of voice params
+					for(j=0;j<voice_params;j++) {
+						param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER((global_params+k*voice_params)+j));
+						hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);hash_params[3]=GUINT_TO_POINTER(k);
+						g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
+					}
+				}
 			}
+			g_object_unref(machine);
 		}
-		g_object_unref(machine);
 	}
 }
 
@@ -589,7 +593,7 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern *pattern
         that_pattern=bt_sequence_get_pattern(self,j,i);
         if(that_pattern==pattern) {
           // check if pattern plays long enough for the damage to happen
-          for(k=1;k<tick;k++) {
+          for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
             if(bt_sequence_test_pattern(self,j+k,i)) break;
           }
           if(k==tick) {
@@ -626,7 +630,7 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern *pattern,
         that_pattern=bt_sequence_get_pattern(self,j,i);
         if(that_pattern==pattern) {
           // check if pattern plays long enough for the damage to happen
-          for(k=1;k<tick;k++) {
+          for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
             if(bt_sequence_test_pattern(self,j+k,i)) break;
           }
           if(k==tick) {
@@ -733,6 +737,8 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
 	g_return_if_fail(BT_IS_MACHINE(machine));
   g_return_if_fail(track<self->priv->tracks);
 
+	GST_INFO("set machine for track %d",track);
+	
   // @todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
   // as it should not be allowed to change the machine later on
   if(!self->priv->machines[track]) {
@@ -772,6 +778,8 @@ void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar
 	g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
   
+	GST_INFO("set label for time %d",time);
+	
   g_free(self->priv->labels[time]);
   self->priv->labels[time]=g_strdup(label);
 }
@@ -810,9 +818,12 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
   g_return_if_fail(time<self->priv->length);
   g_return_if_fail(track<self->priv->tracks);
   
+	GST_INFO("set pattern for time %d, track %d",time,track);
+
   index=time*self->priv->tracks+track;
 	// take out the old pattern
 	if(self->priv->patterns[index]) {
+		GST_DEBUG("clean up for old pattern");
 		// detatch a signal handler if this was the last usage
 		if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
 			g_signal_handlers_disconnect_matched(self->priv->patterns[index],G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_sequence_on_pattern_global_param_changed,NULL);
@@ -822,6 +833,7 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
 		bt_sequence_invalidate_pattern_region(self,time,track,self->priv->patterns[index]);
 		g_object_unref(self->priv->patterns[index]);
 	}
+	GST_DEBUG("set new pattern");
 	// enter the new pattern
   self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
 	// attatch a signal handler if this is the first usage
@@ -833,6 +845,7 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
 	bt_sequence_invalidate_pattern_region(self,time,track,pattern);
 	// repair damage
 	bt_sequence_repair_damage(self);
+	GST_DEBUG("done");
 }
 
 /**
