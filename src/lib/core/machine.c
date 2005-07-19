@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.137 2005-07-18 22:46:43 ensonic Exp $
+/* $Id: machine.c,v 1.138 2005-07-19 22:04:27 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -1708,7 +1708,7 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  */
-void bt_machine_global_controller_change_value(const BtMachine *self,gulong param,gulong time,GValue *value) {
+void bt_machine_global_controller_change_value(const BtMachine *self,gulong param,GstClockTime time,GValue *value) {
   if(value) {
     gst_controller_set(self->priv->global_controller,self->priv->global_names[param],time,value);
   }
@@ -1728,7 +1728,7 @@ void bt_machine_global_controller_change_value(const BtMachine *self,gulong para
  * Depending on wheter the given value is NULL, sets or unsets the controller
  * value for the specified param and at the given time.
  */
-void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param,gulong voice,gulong time,GValue *value) {
+void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param,gulong voice,GstClockTime time,GValue *value) {
   if(value) {
     gst_controller_set(self->priv->voice_controllers[voice],self->priv->voice_names[param],time,value);
   }
@@ -1778,6 +1778,37 @@ void bt_machine_dbg_print_parts(const BtMachine *self) {
     self->priv->machines[PART_SPREADER]==self->src_elem?'>':' '
   );
 }
+
+#ifdef USE_GST_CONTROLLER
+void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
+  FILE *file;
+  gchar *name;
+  GList *list,*node;
+  GstTimedValue *tv;
+  
+  name=g_strdup_printf("/tmp/buzztard-%s_glob.dat",self->priv->id);
+  if((file=fopen(name,"wb"))) {
+    if((list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[0]))) {
+      for(node=list;node;node=g_list_next(node)) {
+        tv=(GstTimedValue *)node->data;
+        fprintf(file,"%"G_GUINT64_FORMAT" ",tv->timestamp);
+        switch(G_VALUE_TYPE(&tv->value)) {
+          case G_TYPE_INT: fprintf(file,"%d\n",g_value_get_int(&tv->value));break;
+          case G_TYPE_UINT: fprintf(file,"%u\n",g_value_get_uint(&tv->value));break;
+          case G_TYPE_LONG: fprintf(file,"%ld\n",g_value_get_long(&tv->value));break;
+          case G_TYPE_ULONG: fprintf(file,"%lu\n",g_value_get_ulong(&tv->value));break;
+          case G_TYPE_FLOAT: fprintf(file,"%f\n",g_value_get_float(&tv->value));break;
+          case G_TYPE_DOUBLE: fprintf(file,"%lf\n",g_value_get_double(&tv->value));break;
+          default: fprintf(file,"0\n");break;
+        }
+      }
+      g_list_free(list);
+    }
+    fclose(file);
+  }
+  g_free(name);
+}
+#endif
 
 //-- wrapper
 

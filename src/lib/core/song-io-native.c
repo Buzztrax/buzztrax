@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.76 2005-07-14 21:44:10 ensonic Exp $
+/* $Id: song-io-native.c,v 1.77 2005-07-19 22:04:27 ensonic Exp $
  * class for native song input and output
  */
  
@@ -668,11 +668,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   status=g_strdup_printf(_("Loading file \"%s\""),file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
   g_free(status);
-  
-  //DEBUG
-  //sleep(1);
-  //DEBUG
-  
+    
 	// @todo add gnome-vfs detection method. This method should detect the
 	// filetype of the given file and returns a gnome-vfs uri to open this
 	// file with gnome-vfs. For example if the given file is song.xml the method
@@ -715,9 +711,6 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 					bt_song_io_native_load_sequence( self,song,song_doc) &&
 				  bt_song_io_native_load_wavetable(self,song,song_doc)
 				) {
-					//DEBUG
-					//bt_song_write_to_xml_file(song);
-					//DEBUG
 					result=TRUE;
 				}
 			}
@@ -727,9 +720,6 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 	if(ctxt) xmlFreeParserCtxt(ctxt);
 	if(song_doc) xmlFreeDoc(song_doc);
   g_free(file_name);
-  //DEBUG
-  //sleep(1);
-  //DEBUG
   g_object_set(G_OBJECT(self),"status",NULL,NULL);
 	return(result);
 }

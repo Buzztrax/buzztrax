@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.32 2005-07-16 18:56:44 ensonic Exp $
+/* $Id: machine-methods.h,v 1.33 2005-07-19 22:04:28 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -68,12 +68,15 @@ extern gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulon
 // controller handling
 
 #ifdef USE_GST_CONTROLLER
-extern void bt_machine_global_controller_change_value(const BtMachine *self,gulong param,gulong time,GValue *value);
-extern void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param,gulong voice,gulong time,GValue *value);
+extern void bt_machine_global_controller_change_value(const BtMachine *self,gulong param,GstClockTime time,GValue *value);
+extern void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param,gulong voice,GstClockTime time,GValue *value);
 #endif
 
 // debug helper
 
 extern void bt_machine_dbg_print_parts(const BtMachine *self);
+#ifdef USE_GST_CONTROLLER
+extern void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self);
+#endif
 
 #endif // BT_MACHINE_METHDOS_H

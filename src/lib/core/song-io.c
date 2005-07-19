@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.38 2005-07-01 14:49:56 ensonic Exp $
+/* $Id: song-io.c,v 1.39 2005-07-19 22:04:28 ensonic Exp $
  * base class for song input and output
  */
  
@@ -52,7 +52,7 @@ static void bt_song_io_register_plugins(void) {
   if(dirp) {
     struct dirent *dire;
     GModule *plugin;
-    BtSongIODetect bt_song_io_plugin_detect=NULL;
+    gpointer bt_song_io_plugin_detect=NULL;
     gchar link_target[FILENAME_MAX],plugin_name[FILENAME_MAX];
     
     //   1.) scan plugin-folder (LIBDIR/songio)
@@ -67,10 +67,10 @@ static void bt_song_io_register_plugins(void) {
  			if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
         GST_INFO("    that is a shared object");
         //   3.) gets the address of GType bt_song_io_detect(const gchar *);
-        if(g_module_symbol(plugin,"bt_song_io_detect",(gpointer *)bt_song_io_plugin_detect)) {
+        if(g_module_symbol(plugin,"bt_song_io_detect",&bt_song_io_plugin_detect)) {
           GST_INFO("    and implements a songio subclass");
           //   4.) store the g_module handle and the function pointer in a list (uhm, global (static) variable)
-          plugins=g_list_append(plugins,(gpointer)bt_song_io_plugin_detect);
+          plugins=g_list_append(plugins,bt_song_io_plugin_detect);
         }
         else g_module_close(plugin);
       }
@@ -189,6 +189,25 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
 	if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
 		bt_song_io_update_filename(BT_SONG_IO(self),song);
 		g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
+    //DEBUG
+    //bt_song_write_to_xml_file(song);
+    {
+      BtSetup *setup;
+      BtMachine *machine;
+      GList *list,*node;
+      
+      g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+      g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+      for(node=list;node;node=g_list_next(node)) {
+        machine=BT_MACHINE(node->data);
+        if(BT_IS_SOURCE_MACHINE(machine)) {
+          bt_machine_dbg_dump_global_controller_queue(machine);
+        }
+      }
+      g_list_free(list);
+      g_object_unref(setup);
+    }
+    //DEBUG
 	}
 	return(result);
 }

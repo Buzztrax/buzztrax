@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.8 2005-07-19 13:13:37 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.9 2005-07-19 22:04:28 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -106,7 +106,7 @@ START_TEST(test_btsequence_track2) {
 }
 END_TEST
 
-/* try to add a machine to the sequence b3eyond the number of tracks */
+/* try to add a machine to the sequence beyond the number of tracks */
 START_TEST(test_btsequence_track3) {
 	BtApplication *app=NULL;
 	BtSong *song=NULL;
@@ -138,6 +138,35 @@ START_TEST(test_btsequence_track3) {
 }
 END_TEST
 
+/* try to add a label to the sequence beyond the sequence length */
+START_TEST(test_btsequence_length1) {
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSequence *sequence=NULL;
+	
+  GST_INFO("--------------------------------------------------------------------------------");
+
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+	song=bt_song_new(app);
+	g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
+	fail_unless(sequence!=NULL,NULL);
+
+  /* enlarge length */
+	g_object_set(sequence,"length",4L,NULL);
+	
+	check_init_error_trapp("bt_sequence_set_label","time<self->priv->length");
+	bt_sequence_set_label(sequence,5,"test");
+	fail_unless(check_has_error_trapped(), NULL);
+	
+	g_object_try_unref(sequence);
+	g_object_try_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
+
+
 TCase *bt_sequence_test_case(void) {
   TCase *tc = tcase_create("BtSequenceTests");
 
@@ -146,6 +175,7 @@ TCase *bt_sequence_test_case(void) {
 	tcase_add_test(tc,test_btsequence_track1);
 	tcase_add_test(tc,test_btsequence_track2);
   tcase_add_test(tc,test_btsequence_track3);
+  tcase_add_test(tc,test_btsequence_length1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

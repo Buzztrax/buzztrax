@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.71 2005-07-19 13:13:30 ensonic Exp $
+/* $Id: sequence.c,v 1.72 2005-07-19 22:04:27 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -480,9 +480,12 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
       }      
 		}
 	}
-  // @todo set controller value
+  // set controller value
 #ifdef USE_GST_CONTROLLER
-	//bt_machine_global_controller_change_value(machine,param,time,value);	// if(!value) then unset()
+  if(value) {
+    GstClockTime time=bt_sequence_get_bar_time(self)*tick;
+  	bt_machine_global_controller_change_value(machine,param,time,value);
+  }
 #endif
 	return(TRUE);
 }
@@ -522,9 +525,12 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
       }      
 		}
 	}
-  // @todo set controller value
+  // set controller value
 #ifdef USE_GST_CONTROLLER
-  //bt_machine_voice_controller_change_value(machine,param,voice,time,value);	// if(!value) then unset()
+  if(value) {
+    GstClockTime time=bt_sequence_get_bar_time(self)*tick;
+    bt_machine_voice_controller_change_value(machine,param,voice,time,value);
+  }
 #endif
 	return(TRUE);
 }
@@ -552,17 +558,19 @@ static void bt_sequence_repair_damage(const BtSequence *self) {
 				GST_DEBUG("repair damage for track %d",i);
 				// repair damage of global params
 				for(j=0;j<global_params;j++) {
-					param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j));
-					hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);
-					g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
+					if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j)))) {          
+					  hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);
+					  g_hash_table_foreach_remove(param_hash,bt_sequence_repair_global_damage_entry,&hash_params);
+          }
 				}
 				// repair damage of voices
 				for(k=0;k<voices;k++) {
 					// repair damage of voice params
 					for(j=0;j<voice_params;j++) {
-						param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER((global_params+k*voice_params)+j));
-						hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);hash_params[3]=GUINT_TO_POINTER(k);
-						g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
+						if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER((global_params+k*voice_params)+j)))) {
+						  hash_params[0]=(gpointer)self;hash_params[1]=machine;hash_params[2]=GUINT_TO_POINTER(j);hash_params[3]=GUINT_TO_POINTER(k);
+						  g_hash_table_foreach_remove(param_hash,bt_sequence_repair_voice_damage_entry,hash_params);
+            }
 					}
 				}
 			}
