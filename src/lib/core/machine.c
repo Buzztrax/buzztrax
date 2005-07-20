@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.138 2005-07-19 22:04:27 ensonic Exp $
+/* $Id: machine.c,v 1.139 2005-07-20 17:02:27 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -455,20 +455,28 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
     GstObject *voice_child;
     GParamSpec **properties,*property;
     guint number_of_properties;
-    gulong i,j;
+    gulong i,j,k;
 
     // bind params for new voices
     for(j=voices;j<self->priv->voices;j++) {
       self->priv->voice_controllers[j]=NULL;
       if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),j))) {
         if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
-          for(i=0;i<number_of_properties;i++) {
+          for(i=k=0;i<number_of_properties;i++) {
             property=properties[i];
             if(property->flags&GST_PARAM_CONTROLLABLE) {
               // bind params to the voice controller
               if(!(self->priv->voice_controllers[j]=gst_controller_new(G_OBJECT(voice_child), property->name, NULL))) {
                 GST_WARNING("failed to add property \"%s\" to the %d voice controller",property->name,j);
               }
+							// set interpolation mode depending on param type
+							if(bt_machine_is_voice_param_trigger(self,k)) {
+								gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_TRIGGER);
+							}
+							else { // one of GST_INTERPOLATE_NONE/LINEAR/...
+								gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_NONE);
+							}
+							k++;
             }
           }
         }
@@ -675,8 +683,13 @@ gboolean bt_machine_new(BtMachine *self) {
         if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
           GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
         }
-        // @todo set interpolation mode depending on type (trigger=0, others=smoothed)
-        // gst_controller_set_interpolation_mode(controller,"prop1",mode);
+        // set interpolation mode depending on param type
+				if(bt_machine_is_global_param_trigger(self,j)) {
+        	gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_TRIGGER);
+				}
+				else { // one of GST_INTERPOLATE_NONE/LINEAR/...
+					gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_NONE);
+				}
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;
       }
@@ -1616,14 +1629,10 @@ GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index
  * Tests if the global param is a trigger param
  * (like a key-note or a drum trigger).
  *
- * Returns: %true if it is a trigger
+ * Returns: %TRUE if it is a trigger
  */
 gboolean bt_machine_is_global_param_trigger(const BtMachine *self, gulong index) {
-  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-		GParamSpec *property=bt_machine_get_global_param_spec(self,index);
-		int flags=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-		if(!(flags&0x02)) return(TRUE);
-  }
+	if(!(self->priv->global_flags[index]&0x02)) return(TRUE);
 	return(FALSE);
 }
 
@@ -1635,14 +1644,10 @@ gboolean bt_machine_is_global_param_trigger(const BtMachine *self, gulong index)
  * Tests if the voice param is a trigger param
  * (like a key-note or a drum trigger).
  *
- * Returns: %true if it is a trigger
+ * Returns: %TRUE if it is a trigger
  */
 gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong index) {
-  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-		GParamSpec *property=bt_machine_get_voice_param_spec(self,index);
-		int flags=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-		if(!(flags&0x02)) return(TRUE);
-  }
+	if(!(self->priv->voice_flags[index]&0x02)) return(TRUE);
 	return(FALSE);
 }
 
