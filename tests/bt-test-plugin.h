@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.h,v 1.2 2005-07-19 13:13:36 ensonic Exp $
+/* $Id: bt-test-plugin.h,v 1.3 2005-07-21 22:06:10 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -21,7 +21,6 @@
 
 typedef struct _BtTestMonoSource BtTestMonoSource;
 typedef struct _BtTestMonoSourceClass BtTestMonoSourceClass;
-//typedef struct _BtTestMonoSourcePrivate BtTestMonoSourcePrivate;
 
 /* monophonic source element */
 struct _BtTestMonoSource {
@@ -36,6 +35,34 @@ struct _BtTestMonoSourceClass {
 GType bt_test_mono_source_get_type(void);
 
 //-- test_poly_source
+
+#define BT_TYPE_TEST_POLY_SOURCE    				(bt_test_mono_source_get_type ())
+#define BT_TEST_POLY_SOURCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_TEST_POLY_SOURCE, BtTestPolySource))
+#define BT_TEST_POLY_SOURCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_TEST_POLY_SOURCE, BtTestPolySourceClass))
+#define BT_IS_TEST_POLY_SOURCE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_TEST_POLY_SOURCE))
+#define BT_IS_TEST_POLY_SOURCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_TEST_POLY_SOURCE))
+#define BT_TEST_POLY_SOURCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_TEST_POLY_SOURCE, BtTestPolySourceClass))
+
+/* type macros */
+
+typedef struct _BtTestPolySource BtTestPolySource;
+typedef struct _BtTestPolySourceClass BtTestPolySourceClass;
+
+/* monophonic source element */
+struct _BtTestPolySource {
+  GstElement parent;
+  
+  // the number of voices the plugin has
+  gulong num_voices;
+  GList *voices;
+};
+/* structure of the test_mono_source class */
+struct _BtTestPolySourceClass {
+  GstElementClass parent_class;
+};
+
+/* used by TEST_POLY_SOURCE_TYPE */
+GType bt_test_poly_source_get_type(void);
 
 //-- test_mono_processor
 

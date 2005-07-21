@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.5 2005-07-18 16:07:36 ensonic Exp $
+/* $Id: e-source-machine.c,v 1.6 2005-07-21 22:06:11 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -52,7 +52,7 @@ START_TEST(test_btsourcemachine_obj1){
 END_TEST
 
 /**
-* In this example we show how to create a source machine and adding a
+* In this example we show how to create a mono source machine and adding a
 * newly created pattern to it. Then we try to get the pattern back from
 * the machine by its id.
 *
@@ -66,6 +66,7 @@ START_TEST(test_btsourcemachine_obj2){
 	BtPattern *pattern=NULL;
 	BtPattern *ref_pattern=NULL;
 	GList *list,*node;
+  gulong voices;
 	
 	GST_INFO("--------------------------------------------------------------------------------");
 	
@@ -77,13 +78,17 @@ START_TEST(test_btsourcemachine_obj2){
 	song=bt_song_new(app);
 	
 	/* try to create a source machine */
-	machine=bt_source_machine_new(song,"gen","sinesrc",0);
+	machine=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0);
 	fail_unless(machine!=NULL, NULL);
 	
 	/* try to create a pattern */
 	pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
 	fail_unless(pattern!=NULL, NULL);
-	
+
+  /* verify number of voices */
+  g_object_get(pattern,"voices",&voices,NULL);
+  fail_unless(voices==0, NULL);
+
 	/* try to get the same pattern back per id */
 	ref_pattern=bt_machine_get_pattern_by_id(BT_MACHINE(machine),"pattern-id");
 	fail_unless(ref_pattern==pattern, NULL);
@@ -99,8 +104,55 @@ START_TEST(test_btsourcemachine_obj2){
 	ref_pattern=node->data;
 	fail_unless(ref_pattern==pattern, NULL);
 	
+  /* cleanup */ 
 	g_list_free(list);
 
+	g_object_unref(pattern);
+	g_object_unref(machine);
+	g_object_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
+
+/**
+* In this example we show how to create a poly source machine and adding a
+* newly created pattern to it. The we change the number of voices in the machine
+* and check back the voices in the pattern.
+*/
+START_TEST(test_btsourcemachine_obj3){
+	BtApplication *app=NULL;
+	BtSong *song=NULL;
+	BtSourceMachine *machine=NULL;
+	BtPattern *pattern=NULL;
+  gulong voices;
+	
+	GST_INFO("--------------------------------------------------------------------------------");
+	
+	/* create a dummy app */
+	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  /* create a new song */
+	song=bt_song_new(app);
+	
+	/* try to create a source machine */
+	machine=bt_source_machine_new(song,"gen","buzztard-test-poly-source",1);
+	fail_unless(machine!=NULL, NULL);
+	
+	/* try to create a pattern */
+	pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
+	fail_unless(pattern!=NULL, NULL);
+  
+  /* verify number of voices */
+  g_object_get(pattern,"voices",&voices,NULL);
+  fail_unless(voices==1, NULL);
+  
+  /* change number of voices in the machine and verify again */
+	g_object_set(machine,"voices",4,NULL);
+  g_object_get(pattern,"voices",&voices,NULL);
+  fail_unless(voices==4, NULL);
+ 
+  /* cleanup */ 
 	g_object_unref(pattern);
 	g_object_unref(machine);
 	g_object_unref(song);
@@ -113,6 +165,7 @@ TCase *bt_source_machine_example_case(void) {
 
 	tcase_add_test(tc,test_btsourcemachine_obj1);
   tcase_add_test(tc,test_btsourcemachine_obj2);
+  tcase_add_test(tc,test_btsourcemachine_obj3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.73 2005-07-21 19:15:57 ensonic Exp $
+/* $Id: sequence.c,v 1.74 2005-07-21 22:06:10 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -865,11 +865,11 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
  *
  * Returns: the length of one sequence bar in microseconds
  */
+// @todo rename to bt_sequence_get_tick_time() ?
 GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
   BtSongInfo *song_info;
   GstClockTime wait_per_position;
-  gulong beats_per_minute,ticks_per_beat;
-  gdouble ticks_per_minute;
+  gulong beats_per_minute,ticks_per_beat,ticks_per_minute;
 
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),(GstClockTime)0);
 
@@ -882,7 +882,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
 	 */
 
   ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
-  wait_per_position=(GstClockTime)((GST_SECOND*60.0)/(gdouble)ticks_per_minute);
+  wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
 
   //res=(gulong)(wait_per_position/G_USEC_PER_SEC);
   // release the references

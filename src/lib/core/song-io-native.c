@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.77 2005-07-19 22:04:27 ensonic Exp $
+/* $Id: song-io-native.c,v 1.78 2005-07-21 22:06:10 ensonic Exp $
  * class for native song input and output
  */
  
@@ -315,7 +315,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
 	GError *tmp_error=NULL;
 	
 	g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
-
+  
   while(xml_node && ret) {
 		if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"tick\0",5))) {
       tick_str=xmlGetProp(xml_node,"time");
@@ -327,7 +327,7 @@ static gboolean bt_song_io_native_load_pattern_data(const BtSongIONative *self, 
         if(!xmlNodeIsText(xml_subnode)) {
           name=xmlGetProp(xml_subnode,"name");
           value=xmlGetProp(xml_subnode,"value");
-					//GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
+					GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
           if(!strncmp(xml_subnode->name,"globaldata\0",11)) {
             param=bt_pattern_get_global_param_index(pattern,name,&tmp_error);
 						if(!tmp_error) {

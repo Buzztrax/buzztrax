@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.140 2005-07-21 19:15:48 ensonic Exp $
+/* $Id: machine.c,v 1.141 2005-07-21 22:06:10 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -446,8 +446,11 @@ static void bt_machine_resize_pattern_voices(const BtMachine *self) {
 static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
   GST_INFO("changing machine voices from %d to %d",voices,self->priv->voices);
 
-#ifdef USE_GST_CONTROLLER
   if(!GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) return;
+
+  g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
+
+#ifdef USE_GST_CONTROLLER
   // @todo make it use g_renew0()
   // this is not as easy as it sounds (realloc does not know how big the old mem was)
   self->priv->voice_controllers=(GstController **)g_renew(gpointer, self->priv->voice_controllers ,self->priv->voices);
