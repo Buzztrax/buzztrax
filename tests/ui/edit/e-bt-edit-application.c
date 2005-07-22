@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.6 2005-07-22 11:46:54 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.7 2005-07-22 13:26:03 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -117,9 +117,9 @@ START_TEST(test_new1) {
 	// get window and close it
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
-	g_object_unref(main_window);
-	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
 
+	// close window
+	g_object_unref(main_window);
 	gtk_widget_destroy(GTK_WIDGET(main_window));
 	while(gtk_events_pending()) gtk_main_iteration();
 	//GST_INFO("mainlevel is %d",gtk_main_level());
@@ -152,9 +152,9 @@ START_TEST(test_load1) {
 	// get window and close it
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
+
+	// close window
 	g_object_unref(main_window);
-	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
-	
 	gtk_widget_destroy(GTK_WIDGET(main_window));
 	while(gtk_events_pending()) gtk_main_iteration();
 	//GST_INFO("mainlevel is %d",gtk_main_level());
@@ -202,8 +202,6 @@ START_TEST(test_tabs1) {
 	
 	// close window
 	g_object_unref(main_window);
-	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
-	
 	gtk_widget_destroy(GTK_WIDGET(main_window));
 	while(gtk_events_pending()) gtk_main_iteration();
 	//GST_INFO("mainlevel is %d",gtk_main_level());

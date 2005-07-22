@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.4 2005-07-19 13:13:37 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.5 2005-07-22 13:25:52 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -9,6 +9,7 @@
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 extern Suite *bt_edit_application_suite(void);
+extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
 
 guint test_argc=2;
@@ -32,6 +33,7 @@ int main(int argc, char **argv) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 	
   sr=srunner_create(bt_edit_application_suite());
+	srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
 	srunner_add_suite(sr, bt_settings_dialog_suite());
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);

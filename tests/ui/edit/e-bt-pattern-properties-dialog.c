@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.5 2005-07-22 13:26:03 ensonic Exp $
+/* $Id: e-bt-pattern-properties-dialog.c,v 1.1 2005-07-22 13:26:03 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -45,6 +45,9 @@ static void test_teardown(void) {
 START_TEST(test_create_dialog) {
 	BtEditApplication *app;
 	BtMainWindow *main_window;
+	BtSong *song;
+	BtMachine *machine=NULL;
+	BtPattern *pattern;
 	GtkWidget *dialog;
 
   GST_INFO("--------------------------------------------------------------------------------");
@@ -53,12 +56,26 @@ START_TEST(test_create_dialog) {
 	GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
 	fail_unless(app != NULL, NULL);
 
-	// get window and close it
-	g_object_get(app,"main-window",&main_window,NULL);
-	fail_unless(main_window != NULL, NULL);
+	// create a new song
+	bt_edit_application_new_song(app);
 
-	dialog=GTK_WIDGET(bt_settings_dialog_new(app));
+	// get window and close it
+	g_object_get(app,"main-window",&main_window,"song",&song,NULL);
+	fail_unless(main_window != NULL, NULL);
+	fail_unless(song != NULL, NULL);
+
+	// create a source machine
+	machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+	fail_unless(machine!=NULL, NULL);
+
+	// new_pattern
+	pattern=bt_pattern_new(song, "test", "test", /*length=*/16, machine);
+	fail_unless(pattern!=NULL, NULL);
+
+	// pattern_properties
+	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(app,pattern));
 	gtk_widget_show_all(dialog);
+	
 	// leave out that line! (modal dialog)
 	//gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
@@ -70,12 +87,15 @@ START_TEST(test_create_dialog) {
 	
 	// free application
 	GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  g_object_checked_unref(app);	
+	g_object_unref(pattern);
+	g_object_unref(machine);
+	g_object_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 
-TCase *bt_settings_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtSettingsDialogExamples");
+TCase *bt_pattern_properties_dialog_example_case(void) {
+  TCase *tc = tcase_create("BtPatternPropertiesDialogExamples");
 	
   tcase_add_test(tc,test_create_dialog);
   // we *must* use a checked fixture, as only this runns in the same context
