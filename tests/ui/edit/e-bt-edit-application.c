@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.5 2005-06-14 07:19:56 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.6 2005-07-22 11:46:54 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -167,15 +167,65 @@ START_TEST(test_load1) {
 }
 END_TEST
 
+// view all tabs
+START_TEST(test_tabs1) {
+	BtEditApplication *app;
+	BtMainWindow *main_window;
+	BtMainPages *pages;
+	BtSong *song;
+	guint i,num_pages;
+
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	app=bt_edit_application_new();
+	GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+	fail_unless(app != NULL, NULL);
+	
+	bt_edit_application_load_song(app,"songs/test-simple1.xml");
+	g_object_get(app,"song",&song,NULL);
+	fail_unless(song != NULL, NULL);
+	g_object_unref(song);
+	GST_INFO("song loaded");
+
+	// get window
+	g_object_get(app,"main-window",&main_window,NULL);
+	fail_unless(main_window != NULL, NULL);
+	
+	// view all tabs
+	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+	num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
+	for(i=0;i<num_pages;i++) {
+		gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
+		while(gtk_events_pending()) gtk_main_iteration();
+	}
+	g_object_unref(pages);
+	
+	// close window
+	g_object_unref(main_window);
+	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+	
+	gtk_widget_destroy(GTK_WIDGET(main_window));
+	while(gtk_events_pending()) gtk_main_iteration();
+	//GST_INFO("mainlevel is %d",gtk_main_level());
+	//while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+
+	// free application
+	GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+	
+}
+END_TEST
+
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");
 	
   tcase_add_test(tc,test_create_app);
   tcase_add_test(tc,test_new1);
   tcase_add_test(tc,test_load1);
+	tcase_add_test(tc,test_tabs1);
   // we *must* use a checked fixture, as only this runns in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
-	// we need to disable the default timeout of 3 seconds a little
+	// we need to disable the default timeout of 3 seconds
 	tcase_set_timeout(tc, 0);
   return(tc);
 }
