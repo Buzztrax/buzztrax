@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.58 2005-07-16 18:56:43 ensonic Exp $
+/* $Id: pattern.c,v 1.59 2005-07-22 15:26:26 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -125,7 +125,7 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
  * Resizes the event data grid to the new length. Keeps previous values.
  */
 static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) {
-	gulong old_data_count=length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+	gulong old_data_count=            length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
 	gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
 	GValue *data=self->priv->data;
 	
@@ -133,6 +133,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
 		if(data) {
       gulong count=MIN(old_data_count,new_data_count);
+			GST_DEBUG("keeping data count=%d, old=%d, new=%d",count,old_data_count,new_data_count);
 			// copy old values over
 			memcpy(self->priv->data,data,count*sizeof(GValue));
 			// free old data
@@ -168,6 +169,8 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 			gulong count=internal_params+self->priv->global_params+self->priv->voice_params*MIN(voices,self->priv->voices);
 			GValue *src,*dst;
 		
+			GST_DEBUG("keeping data count=%d",count);
+			
 			// copy old values over
       src=data;
       dst=self->priv->data;
@@ -285,9 +288,19 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
       GST_DEBUG("store int event %s",value);
     } break;
     case G_TYPE_UINT: {
-			gint val=atoi(value);
+			guint val=atoi(value);
       g_value_set_uint(event,val);
       GST_DEBUG("store uint event %s",value);
+    } break;
+    case G_TYPE_LONG: {
+			glong val=atol(value);
+      g_value_set_long(event,val);
+      GST_DEBUG("store long event %s",value);
+    } break;
+    case G_TYPE_ULONG: {
+			gulong val=atol(value);
+      g_value_set_ulong(event,val);
+      GST_DEBUG("store ulong event %s",value);
     } break;
     default:
       GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
@@ -323,6 +336,12 @@ static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
 			break;
     case G_TYPE_UINT:
 			res=g_strdup_printf("%u",g_value_get_uint(event));
+			break;
+    case G_TYPE_LONG:
+			res=g_strdup_printf("%ld",g_value_get_long(event));
+			break;
+    case G_TYPE_ULONG:
+			res=g_strdup_printf("%lu",g_value_get_ulong(event));
 			break;
     default:
       GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
