@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.141 2005-07-21 22:06:10 ensonic Exp $
+/* $Id: machine.c,v 1.142 2005-07-22 23:12:08 ensonic Exp $
  * base class for a machine
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -703,7 +703,10 @@ gboolean bt_machine_new(BtMachine *self) {
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
 
-    GST_INFO("  instance is polyphonic!");
+    GST_INFO("  instance is polyphonic!, initial voices=%d",self->priv->voices);
+    
+    g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
+    
     // register voice params
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
@@ -731,13 +734,15 @@ gboolean bt_machine_new(BtMachine *self) {
               self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
               bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
             }
-            // params are bound to machines voice controller on voice-property change (see bt_machine_resize_voices() )
             GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             j++;
           }
         }
       }
       g_free(properties);
+
+      // bind params to machines voice controller
+      bt_machine_resize_voices(self,0);
     }
     else {
       GST_WARNING("  can't get first voice child!");

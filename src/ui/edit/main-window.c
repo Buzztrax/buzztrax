@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.61 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: main-window.c,v 1.62 2005-07-22 23:12:21 ensonic Exp $
  * class for the editor main window
  */
 
@@ -216,7 +216,6 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
 	if(tabs_hide) {
 		gtk_notebook_set_show_tabs(GTK_NOTEBOOK(self->priv->pages),FALSE);
 	}
-
 
 	GST_INFO("new main_window shown");
   return(self);

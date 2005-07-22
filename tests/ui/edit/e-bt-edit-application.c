@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.7 2005-07-22 13:26:03 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.8 2005-07-22 23:12:22 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -63,10 +63,12 @@ START_TEST(test_create_app) {
 	GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
 	fail_unless(app != NULL, NULL);
 
-	// get window and close it
+	// get window
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
-	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+ 	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+
+  // close window
 	g_object_unref(main_window);
 	GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
 
@@ -114,10 +116,9 @@ START_TEST(test_new1) {
 	g_object_unref(song);
 	GST_INFO("song created");
 	
-	// get window and close it
+	// get window
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
-
 	// close window
 	g_object_unref(main_window);
 	gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -149,7 +150,7 @@ START_TEST(test_load1) {
 	g_object_unref(song);
 	GST_INFO("song loaded");
 
-	// get window and close it
+	// get window
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
 
@@ -190,7 +191,7 @@ START_TEST(test_tabs1) {
 	// get window
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
-	
+ 
 	// view all tabs
 	g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
 	num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));

@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.5 2005-07-22 13:26:03 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.6 2005-07-22 23:12:22 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -53,10 +53,11 @@ START_TEST(test_create_dialog) {
 	GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
 	fail_unless(app != NULL, NULL);
 
-	// get window and close it
+	// get window
 	g_object_get(app,"main-window",&main_window,NULL);
 	fail_unless(main_window != NULL, NULL);
 
+  // create, show and destroy dialog
 	dialog=GTK_WIDGET(bt_settings_dialog_new(app));
 	gtk_widget_show_all(dialog);
 	// leave out that line! (modal dialog)

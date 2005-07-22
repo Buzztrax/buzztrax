@@ -1,4 +1,4 @@
-/* $Id: e-bt-pattern-properties-dialog.c,v 1.1 2005-07-22 13:26:03 ensonic Exp $
+/* $Id: e-bt-pattern-properties-dialog.c,v 1.2 2005-07-22 23:12:22 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -72,10 +72,9 @@ START_TEST(test_create_dialog) {
 	pattern=bt_pattern_new(song, "test", "test", /*length=*/16, machine);
 	fail_unless(pattern!=NULL, NULL);
 
-	// pattern_properties
+  // create, show and destroy dialog
 	dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(app,pattern));
 	gtk_widget_show_all(dialog);
-	
 	// leave out that line! (modal dialog)
 	//gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);

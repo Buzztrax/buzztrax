@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.h,v 1.3 2005-07-21 22:06:10 ensonic Exp $
+/* $Id: bt-test-plugin.h,v 1.4 2005-07-22 23:12:21 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -36,7 +36,7 @@ GType bt_test_mono_source_get_type(void);
 
 //-- test_poly_source
 
-#define BT_TYPE_TEST_POLY_SOURCE    				(bt_test_mono_source_get_type ())
+#define BT_TYPE_TEST_POLY_SOURCE    				(bt_test_poly_source_get_type ())
 #define BT_TEST_POLY_SOURCE(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_TEST_POLY_SOURCE, BtTestPolySource))
 #define BT_TEST_POLY_SOURCE_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_TEST_POLY_SOURCE, BtTestPolySourceClass))
 #define BT_IS_TEST_POLY_SOURCE(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_TEST_POLY_SOURCE))
@@ -48,7 +48,7 @@ GType bt_test_mono_source_get_type(void);
 typedef struct _BtTestPolySource BtTestPolySource;
 typedef struct _BtTestPolySourceClass BtTestPolySourceClass;
 
-/* monophonic source element */
+/* polyphonic source element */
 struct _BtTestPolySource {
   GstElement parent;
   
@@ -56,7 +56,7 @@ struct _BtTestPolySource {
   gulong num_voices;
   GList *voices;
 };
-/* structure of the test_mono_source class */
+/* structure of the test_poly_source class */
 struct _BtTestPolySourceClass {
   GstElementClass parent_class;
 };

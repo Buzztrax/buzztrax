@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.4 2005-07-21 22:06:10 ensonic Exp $
+/* $Id: bt-test-plugin.c,v 1.5 2005-07-22 23:12:21 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -123,15 +123,16 @@ static void bt_test_poly_source_set_property(GObject *object,
     case ARG_VOICES:
       num_voices=self->num_voices;
       self->num_voices = g_value_get_ulong(value);
+      GST_INFO("changing voices from %d to %d",num_voices,self->num_voices);
       if(self->num_voices>num_voices) {
         for(i=num_voices;i<self->num_voices;i++) {
-          g_list_append(self->voices,g_object_new(BT_TYPE_TEST_MONO_SOURCE,NULL));
+          self->voices=g_list_append(self->voices,g_object_new(BT_TYPE_TEST_MONO_SOURCE,NULL));
         }
       }
       else if(self->num_voices<num_voices) {
         for(i=num_voices;i>self->num_voices;i--) {
           voice=g_list_nth_data(self->voices,(i-1));
-          g_list_remove(self->voices,voice);
+          self->voices=g_list_remove(self->voices,voice);
           g_object_unref(voice);
         }
       }

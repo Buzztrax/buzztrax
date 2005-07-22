@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.59 2005-07-22 15:26:26 ensonic Exp $
+/* $Id: pattern.c,v 1.60 2005-07-22 23:12:09 ensonic Exp $
  * class for an event pattern of a #BtMachine instance
  */
  
@@ -51,7 +51,7 @@ struct _BtPatternPrivate {
   /* the machine the pattern belongs to */
   BtMachine *machine;
 
-  /* an array of GValue
+  /* an array of GValues (not pointing to)
    * with the size of length*(internal_params+global_params+voices*voice_params)
    */
 	GValue *data;
@@ -139,6 +139,10 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
 			// free old data
 			g_free(data);
 		}
+    GST_DEBUG("extended pattern length from %d to %d : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+			length,self->priv->length,
+			new_data_count,self->priv->length,
+      internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
   }
 	else {
 		GST_WARNING("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
@@ -158,7 +162,7 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
  * Resizes the event data grid to the new number of voices. Keeps previous values.
  */
 static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) {
-	//gulong old_data_count=self->priv->length*(internal_params+self->priv->global_params+voices*self->priv->voice_params);
+	//gulong old_data_count=self->priv->length*(internal_params+self->priv->global_params+          voices*self->priv->voice_params);
 	gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
 	GValue *data=self->priv->data;
 	
@@ -166,22 +170,27 @@ static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) 
 	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
 		if(data) {
 			gulong i;
-			gulong count=internal_params+self->priv->global_params+self->priv->voice_params*MIN(voices,self->priv->voices);
-			GValue *src,*dst;
+			gulong count    =sizeof(GValue)*(internal_params+self->priv->global_params+self->priv->voice_params*MIN(voices,self->priv->voices));
+      gulong src_count=internal_params+self->priv->global_params+            voices*self->priv->voice_params;
+      gulong dst_count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
+			GValue *src=data;
+      GValue *dst=self->priv->data;
 		
-			GST_DEBUG("keeping data count=%d",count);
+			GST_DEBUG("keeping data count=%d, src_ct=%d, dst_ct=%d",count,src_count,dst_count);
 			
 			// copy old values over
-      src=data;
-      dst=self->priv->data;
 			for(i=0;i<self->priv->length;i++) {
-        memcpy(dst,src,count*sizeof(GValue));
-				src=&src[internal_params+self->priv->global_params+voices*self->priv->voice_params];
-				dst=&dst[internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params];			
+        memcpy(dst,src,count);
+				src=&src[src_count];
+				dst=&dst[dst_count];
 			}
 			// free old data
 			g_free(data);
 		}
+		GST_DEBUG("extended pattern voices from %d to %d : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+			voices,self->priv->voices,
+			new_data_count,self->priv->length,
+      internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
   }
 	else {
 		GST_WARNING("extending pattern voices from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
@@ -559,6 +568,8 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gul
 
   index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+param;
+
+  g_assert(index<(self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params)));
   return(&self->priv->data[index]);
 }
 
@@ -587,6 +598,8 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
   index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+self->priv->global_params+(voice*self->priv->voice_params)
        + param;
+  
+  g_assert(index<(self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params)));
   return(&self->priv->data[index]);
 }
 
@@ -632,7 +645,7 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
 gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value) {
 	GValue *event;
 
-	if((event=bt_pattern_get_voice_event_data(self,tick,voice, param))) {
+	if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
 		if(!G_IS_VALUE(event)) {
 			bt_pattern_init_voice_event(self,event,param);
 		}
@@ -951,7 +964,6 @@ static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
 
   self->priv = g_new0(BtPatternPrivate,1);
   self->priv->dispose_has_run = FALSE;
-  self->priv->voices=-1;
 }
 
 static void bt_pattern_class_init(BtPatternClass *klass) {
