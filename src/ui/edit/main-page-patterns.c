@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.68 2005-07-12 16:21:03 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.69 2005-07-25 20:38:50 ensonic Exp $
  * class for the editor main pattern page
  */
 
@@ -242,8 +242,8 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 					PATTERN_MENU_LABEL,str,
 					PATTERN_MENU_PATTERN,pattern,
 					-1);
-				index++;	// count so that we can activate the last one
 				g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
+        index++;	// count so that we can activate the last one
 			}
 			g_free(str);
     }
@@ -949,21 +949,16 @@ Error:
  * Returns: the #BtMachine instance or %NULL in case of an error
  */
 BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
-  glong index;
-  BtSong *song;
-  BtSetup *setup;
   BtMachine *machine=NULL;
+  GtkTreeIter iter;
+  GtkTreeModel *store;
 
   GST_INFO("get current machine");
   
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-
-  if((index=gtk_combo_box_get_active(self->priv->machine_menu))>-1) {
-		machine=bt_setup_get_machine_by_index(setup,index);
-	}
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  if(gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter)) {
+    store=gtk_combo_box_get_model(self->priv->machine_menu);
+    gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
+  }
   return(machine);
 }
 
@@ -978,27 +973,24 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
  * Returns: the #BtPattern instance or %NULL in case of an error
  */
 BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self) {
-  glong index;
-  BtSong *song;
-  BtSetup *setup;
   BtMachine *machine;
 	BtPattern *pattern=NULL;
-
+  GtkTreeIter iter;
+  GtkTreeModel *store;
+  
   GST_INFO("get current pattern");
   
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-
-  if((index=gtk_combo_box_get_active(self->priv->machine_menu))>-1) {
-		machine=bt_setup_get_machine_by_index(setup,index);
-		if((index=gtk_combo_box_get_active(self->priv->pattern_menu))>-1) {
-			pattern=bt_machine_get_pattern_by_index(machine,index);
-		}
-		g_object_try_unref(machine);
+  if(gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter)) {
+    store=gtk_combo_box_get_model(self->priv->machine_menu);
+    gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
+    if(machine) {
+      if(gtk_combo_box_get_active_iter(self->priv->pattern_menu,&iter)) {
+        store=gtk_combo_box_get_model(self->priv->pattern_menu);
+        gtk_tree_model_get(store,&iter,PATTERN_MENU_PATTERN,&pattern,-1);
+      }
+    }
 	}
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
-  return(pattern);
+  return(g_object_ref(pattern));
 }
 
 /**
@@ -1006,34 +998,26 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
  * @self: the pattern subpage
  * @pattern: the pattern to show
  *
- * Show the given pattern
+ * Show the given pattern. Will update machine and pattern menu.
  */
 void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern) {
-  BtSong *song;
-  BtSetup *setup;
 	BtMachine *machine;
-	GList *list;
-	
-	
+  GtkTreeIter iter;
+  GtkTreeModel *store;
+
 	g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
 	// update machine menu
-	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-	g_object_get(G_OBJECT(setup),"machines",&list,NULL);
-	g_signal_handler_block(self->priv->pattern_menu,self->priv->pattern_menu_changed);
-	gtk_combo_box_set_active(self->priv->machine_menu,g_list_index(list,machine));
-	g_signal_handler_unblock(self->priv->pattern_menu,self->priv->pattern_menu_changed);
-	g_list_free(list);
+  store=gtk_combo_box_get_model(self->priv->machine_menu);
+  machine_model_get_iter_by_machine(store,&iter,machine);
+  gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
 	// update pattern menu
-	g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
-	gtk_combo_box_set_active(self->priv->pattern_menu,g_list_index(list,pattern));
-	g_list_free(list);
+  store=gtk_combo_box_get_model(self->priv->pattern_menu);
+  pattern_model_get_iter_by_pattern(store,&iter,pattern);
+  gtk_combo_box_set_active_iter(self->priv->pattern_menu,&iter);
 	// focus pattern editor
 	gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   // release the references
 	g_object_try_unref(machine);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
 }
 
 //-- wrapper

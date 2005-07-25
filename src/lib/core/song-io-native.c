@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.78 2005-07-21 22:06:10 ensonic Exp $
+/* $Id: song-io-native.c,v 1.79 2005-07-25 20:38:43 ensonic Exp $
  * class for native song input and output
  */
  
@@ -133,8 +133,10 @@ static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, co
           key=xmlGetProp(xml_subnode,XML_CHAR_PTR("key"));
           value=xmlGetProp(xml_subnode,XML_CHAR_PTR("value"));
           GST_DEBUG("    [%s] => [%s]",key,value);
+          // @idea would be nice if we could use this instead
+          //g_object_set_data(object,key,value);
           g_hash_table_insert(properties,key,value);
-          // do not free, as the hashtable now owns the memory
+          // do not free, as the hastable now owns the memory
           //xmlFree(key);xmlFree(value);
         }
         xml_subnode=xml_subnode->next;
