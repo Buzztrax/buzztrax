@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.74 2005-07-21 22:06:10 ensonic Exp $
+/* $Id: sequence.c,v 1.75 2005-07-25 21:34:13 ensonic Exp $
  * class for the pattern sequence
  */
  
@@ -825,6 +825,19 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
   g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
   g_return_if_fail(track<self->priv->tracks);
+  g_return_if_fail(self->priv->machines[track]);
+  
+  if(pattern) {
+    BtMachine *machine;
+    g_return_if_fail(BT_IS_PATTERN(pattern));
+    g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+    if(self->priv->machines[track]!=machine) {
+      GST_WARNING("adding a pattern to a track with different machine");
+      g_object_unref(machine);
+      return;
+    }
+    g_object_unref(machine);
+  }
   
 	GST_INFO("set pattern for time %d, track %d",time,track);
 

@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.4 2005-07-19 13:13:37 ensonic Exp $
+/* $Id: e-sequence.c,v 1.5 2005-07-25 21:34:17 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -161,6 +161,7 @@ START_TEST(test_btsequence_enlarge_track) {
 	g_object_get(sequence,"tracks",&tracks,NULL);
 	fail_unless(tracks==16, NULL);
 	
+  /* clean up */
 	g_object_try_unref(sequence);
   g_object_try_unref(song);
 	g_object_checked_unref(app);
@@ -224,6 +225,7 @@ START_TEST(test_btsequence_enlarge_track_vals) {
   fail_unless(machine2==NULL, NULL);
   g_object_try_unref(machine2);
 
+  /* clean up */
   g_object_try_unref(machine1);
 	g_object_try_unref(sequence);
   g_object_try_unref(song);
@@ -257,6 +259,7 @@ START_TEST(test_btsequence_shrink_track) {
 	g_object_get(sequence,"tracks",&tracks,NULL);
 	fail_unless(tracks==8, NULL);
 
+  /* clean up */
 	g_object_try_unref(sequence);
   g_object_try_unref(song);
 	g_object_checked_unref(app);
@@ -292,10 +295,13 @@ START_TEST(test_btsequence_enlarge_both_vals) {
 	fail_unless(length==8, NULL);
 
   /* try to enlarge tracks */
-
 	g_object_set(sequence,"tracks",2L,NULL);
 	g_object_get(sequence,"tracks",&tracks,NULL);
 	fail_unless(tracks==2, NULL);
+  
+  /* set machine twice */
+  bt_sequence_set_machine(sequence,0,machine);
+  bt_sequence_set_machine(sequence,1,machine);
 
   /* nothing should be there for all times */
   for(i=0;i<length;i++) {
@@ -340,6 +346,55 @@ START_TEST(test_btsequence_enlarge_both_vals) {
   fail_unless(pattern2==NULL, NULL);
   g_object_try_unref(pattern2);
 	
+  /* clean up */
+  g_object_try_unref(pattern1);
+  g_object_try_unref(machine);
+	g_object_try_unref(sequence);
+  g_object_try_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
+
+START_TEST(test_btsequence_update) {
+	BtApplication *app;
+	BtSong *song;
+  BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern1,*pattern2;
+
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+	/* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+ 	/* create a source machine */
+	machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+	fail_unless(machine!=NULL, NULL);
+  /* create a pattern */
+	pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+	fail_unless(pattern1!=NULL, NULL);
+
+  /* enlarge length */
+	g_object_set(sequence,"length",4L,NULL);
+
+  /* set machine */
+  bt_sequence_set_machine(sequence,0,machine);
+
+  /* set pattern */
+  bt_sequence_set_pattern(sequence,0,0,pattern1);
+
+  /* remove the pattern from the machine */
+  bt_machine_remove_pattern(machine,pattern1);
+
+  /* nothing should be at time=0,track=0 */
+  pattern2=bt_sequence_get_pattern(sequence,0,0);
+  fail_unless(pattern2==NULL, NULL);
+  g_object_try_unref(pattern2);
+
+  /* clean up */
   g_object_try_unref(pattern1);
   g_object_try_unref(machine);
 	g_object_try_unref(sequence);
@@ -358,6 +413,7 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_btsequence_enlarge_track_vals);
   tcase_add_test(tc,test_btsequence_shrink_track);
   tcase_add_test(tc,test_btsequence_enlarge_both_vals);
+  tcase_add_test(tc,test_btsequence_update);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
