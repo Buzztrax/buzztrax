@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.10 2005-07-25 21:34:17 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.11 2005-07-25 21:38:57 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -170,6 +170,48 @@ START_TEST(test_btsequence_pattern1) {
 	BtApplication *app;
 	BtSong *song;
   BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern1,*pattern2,*pattern3;
+
+  GST_INFO("--------------------------------------------------------------------------------");
+
+	/* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+	/* create a new song */
+	song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+ 	/* create a source machine */
+	machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0));
+	fail_unless(machine!=NULL, NULL);
+  /* create a pattern */
+	pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+	fail_unless(pattern1!=NULL, NULL);
+
+  /* enlarge length & tracks */
+	g_object_set(sequence,"length",4L,"tracks",2L,NULL);
+
+  /* get pattern */
+  pattern2=bt_sequence_get_pattern(sequence,0,0);
+  /* set pattern (which should be rejected - no machine has been set) */
+  bt_sequence_set_pattern(sequence,0,0,pattern1);
+  /* get pattern again and verify */
+  pattern3=bt_sequence_get_pattern(sequence,0,0);
+  fail_unless(pattern2==pattern3, NULL);
+
+  /* clean up */
+  g_object_try_unref(pattern1);
+  g_object_try_unref(machine);
+	g_object_try_unref(sequence);
+  g_object_try_unref(song);
+	g_object_checked_unref(app);
+}
+END_TEST
+
+START_TEST(test_btsequence_pattern2) {
+	BtApplication *app;
+	BtSong *song;
+  BtSequence *sequence;
   BtMachine *machine1,*machine2;
   BtPattern *pattern1,*pattern2,*pattern3;
 
@@ -199,7 +241,7 @@ START_TEST(test_btsequence_pattern1) {
 
   /* get pattern */
   pattern2=bt_sequence_get_pattern(sequence,0,1);
-  /* set pattern (which should be rejected) */
+  /* set pattern (which should be rejected - wrong machine) */
   bt_sequence_set_pattern(sequence,0,1,pattern1);
   /* get pattern again and verify */
   pattern3=bt_sequence_get_pattern(sequence,0,1);
@@ -225,6 +267,7 @@ TCase *bt_sequence_test_case(void) {
   tcase_add_test(tc,test_btsequence_track3);
   tcase_add_test(tc,test_btsequence_length1);
   tcase_add_test(tc,test_btsequence_pattern1);
+  tcase_add_test(tc,test_btsequence_pattern2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
