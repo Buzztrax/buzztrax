@@ -1,7 +1,9 @@
-/* $Id: pattern.c,v 1.60 2005-07-22 23:12:09 ensonic Exp $
- * class for an event pattern of a #BtMachine instance
- */
- 
+// $Id: pattern.c,v 1.61 2005-07-26 06:43:44 waffel Exp $
+/**
+ * SECTION:btpattern
+ * @short_description: class for an event pattern of a #BtMachine instance
+ *
+ */  
 #define BT_CORE
 #define BT_PATTERN_C
 

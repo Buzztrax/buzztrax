@@ -1,6 +1,9 @@
-/* $Id: wave.c,v 1.8 2005-06-14 07:19:54 ensonic Exp $
- * class for wave
- */
+// $Id: wave.c,v 1.9 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btwave
+ * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
+ *
+ */ 
 
 #define BT_CORE
 #define BT_WAVE_C

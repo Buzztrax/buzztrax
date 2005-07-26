@@ -1,5 +1,10 @@
-/* $Id: wire.c,v 1.57 2005-05-25 09:52:52 ensonic Exp $
- * class for a machine to machine connection
+// $Id: wire.c,v 1.58 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btwire
+ * @short_description: class for a connection of two #BtMachines
+ */ 
+ 
+/*
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)

@@ -1,7 +1,17 @@
-/* $Id: settings.c,v 1.15 2005-04-27 09:45:20 ensonic Exp $
- * base class for buzztard settings handling
- */
-
+// $Id: settings.c,v 1.16 2005-07-26 06:43:46 waffel Exp $
+/**
+ * SECTION:btsettings
+ * @short_description: base class for buzztard settings handling
+ *
+ * Under the gnome platform GConf is a locical choice for settings managment.
+ * Unfortunately there currently is no port of GConf for other platforms.
+ * This class wraps the settings management. Depending on what settings managment
+ * capabillities the <code>configure</code> script find on the system one of the
+ * subclasses (#BtGConfSettings,#BtPlainfileSettings) will be used.
+ *
+ * In any case it is always sufficient to talk to this class instance.
+ * Single settings are accessed via normat g_object_get() and g_object_set() calls.
+ */ 
 #define BT_CORE
 #define BT_SETTINGS_C
 

@@ -1,6 +1,8 @@
-/* $Id: main-page-sequence.c,v 1.85 2005-07-14 21:44:10 ensonic Exp $
- * class for the editor main sequence page
- */
+// $Id: main-page-sequence.c,v 1.86 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainpagesequence
+ * @short_description: the editor main sequence page
+ */ 
 
 /* @todo:
  *  - moving cursor around

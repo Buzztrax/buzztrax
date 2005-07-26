@@ -1,6 +1,8 @@
-/* $Id: main-page-info.c,v 1.31 2005-07-04 20:53:45 ensonic Exp $
- * class for the editor main info page
- */
+// $Id: main-page-info.c,v 1.32 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainpageinfo
+ * @short_description: the editor main info page
+ */ 
 
 /* @todo
  * - use this tab as the first one?

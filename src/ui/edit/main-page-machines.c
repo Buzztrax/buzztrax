@@ -1,6 +1,8 @@
-/* $Id: main-page-machines.c,v 1.65 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor main machines page
- */
+// $Id: main-page-machines.c,v 1.66 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainpagemachines
+ * @short_description: the editor main machines page
+ */ 
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C

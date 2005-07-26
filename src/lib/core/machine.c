@@ -1,5 +1,50 @@
-/* $Id: machine.c,v 1.142 2005-07-22 23:12:08 ensonic Exp $
- * base class for a machine
+// $Id: machine.c,v 1.143 2005-07-26 06:43:43 waffel Exp $
+/**
+ * SECTION:btmachine
+ * @short_description: base class for signal processing machines
+ *
+ * The machine class cares about inserting additional low-level elemnts to do 
+ * signal conversion etc.. Further it provides general facillities like 
+ * input/output level monitoring.
+ *
+ * A machine can have several #GstElements:
+ * <variablelist>
+ *	<varlistentry>
+ *		<term>adder:</term>
+ *		<listitem><simpara>mixes all incomming signals</simpara></listitem>
+ *	</varlistentry>
+ *	<varlistentry>
+ *		<term>input volume:</term>
+ *		<listitem><simpara>gain for incomming signals</simpara></listitem>
+ *	</varlistentry>
+ *	<varlistentry>
+ *		<term>input level:</term>
+ *		<listitem><simpara>level meter for incomming signal</simpara></listitem>
+ *	</varlistentry>
+ *	<varlistentry>
+ *		<term>machine:</term>
+ *		<listitem><simpara>the real machine</simpara></listitem>
+ *	</varlistentry>
+ *	<varlistentry>
+ *		<term>output volume:</term>
+ *		<listitem><simpara>gain for outgoing signal</simpara></listitem>
+ *	</varlistentry>
+ *	<varlistentry>
+ *		<term>output level:</term>
+ *		<listitem><simpara>level meter for outgoing signal</simpara></listitem>
+ *	</varlistentry>
+ *	<varlistentry>
+ *		<term>spreader:</term>
+ *		<listitem><simpara>distibutes signal to outgoing connections</simpara></listitem>
+ *	</varlistentry>
+ * </variablelist>
+ * The adder and spreader elements are activated on demand.
+ * The volume controls and level meters are activated as requested via the API.
+ * It is recommended to only activate them, when needed. The instances are cached
+ * after deactivation (so that they can be easily reactivated) and destroyed with
+ * the #BtMachine object.
+ */ 
+/*
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)

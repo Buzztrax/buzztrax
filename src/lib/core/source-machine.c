@@ -1,6 +1,9 @@
-/* $Id: source-machine.c,v 1.24 2005-06-14 07:19:54 ensonic Exp $
- * class for a source machine
- */
+// $Id: source-machine.c,v 1.25 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btsourcemachine
+ * @short_description: class for signal processing machines with outputs only
+ *
+ */ 
  
 #define BT_CORE
 #define BT_SOURCE_MACHINE_C

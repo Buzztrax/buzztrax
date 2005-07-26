@@ -1,6 +1,8 @@
-/* $Id: main-toolbar.c,v 1.55 2005-07-12 12:46:30 ensonic Exp $
- * class for the editor main toolbar
- */
+// $Id: main-toolbar.c,v 1.56 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmaintoolbar
+ * @short_description: class for the editor main toolbar
+ */ 
 
 /* @todo: should we have separate the tolbars into several ones?
  * - common - load, save, ...

@@ -1,6 +1,9 @@
-/* $Id: sink-machine.c,v 1.40 2005-06-14 15:26:46 ensonic Exp $
- * class for a sink machine
- */
+// $Id: sink-machine.c,v 1.41 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btsinkmachine
+ * @short_description: class for signal processing machines with inputs only
+ *
+ */ 
  
 #define BT_CORE
 #define BT_SINK_MACHINE_C

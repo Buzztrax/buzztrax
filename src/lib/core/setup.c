@@ -1,7 +1,10 @@
-/* $Id: setup.c,v 1.70 2005-05-25 09:52:52 ensonic Exp $
- * class for machine and wire setup
- */
- 
+// $Id: setup.c,v 1.71 2005-07-26 06:43:46 waffel Exp $
+/**
+ * SECTION:btsetup
+ * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
+ * for a #BtSong instance
+ *
+ */ 
 /* @idea add a methods for dumping the setup as a dot-graph
  * machines and wires should be dumped with details (as subgraphs)!
  */

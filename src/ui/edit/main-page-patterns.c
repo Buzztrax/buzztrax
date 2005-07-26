@@ -1,6 +1,8 @@
-/* $Id: main-page-patterns.c,v 1.69 2005-07-25 20:38:50 ensonic Exp $
- * class for the editor main pattern page
- */
+// $Id: main-page-patterns.c,v 1.70 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainpagepatterns
+ * @short_description: the editor main pattern page
+ */ 
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_PATTERNS_C

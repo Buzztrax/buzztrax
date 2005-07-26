@@ -1,4 +1,10 @@
-/* $Id: bt-edit.c,v 1.20 2005-06-14 07:19:54 ensonic Exp $
+// $Id: bt-edit.c,v 1.21 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btedit
+ * @short_description: various helper for the graphical editor application
+ *
+ */ 
+/*
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-edit
  * to enable debug output add:

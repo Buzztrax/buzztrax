@@ -1,6 +1,8 @@
-/* $Id: settings-dialog.c,v 1.16 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor settings dialog
- */
+// $Id: settings-dialog.c,v 1.17 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btsettingsdialog
+ * @short_description: class for the editor settings dialog
+ */ 
 
 #define BT_EDIT
 #define BT_SETTINGS_DIALOG_C

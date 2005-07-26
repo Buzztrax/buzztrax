@@ -1,6 +1,8 @@
-/* $Id: main-page-waves.c,v 1.24 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor main waves page
- */
+// $Id: main-page-waves.c,v 1.25 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainpagewaves
+ * @short_description: the editor wavetable page
+ */ 
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C

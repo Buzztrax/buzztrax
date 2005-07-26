@@ -1,6 +1,10 @@
-/* $Id: processor-machine.c,v 1.26 2005-02-16 19:10:03 waffel Exp $
- * class for a processor machine
- */
+// $Id: processor-machine.c,v 1.27 2005-07-26 06:43:45 waffel Exp $
+/**
+ * SECTION:btprocessormachine
+ * @short_description: class for signal processing machines with inputs and 
+ * outputs
+ *
+ */ 
 
 #define BT_CORE
 #define BT_PROCESSOR_MACHINE_C

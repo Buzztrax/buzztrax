@@ -1,6 +1,10 @@
-/* $Id: sequence.c,v 1.75 2005-07-25 21:34:13 ensonic Exp $
- * class for the pattern sequence
- */
+// $Id: sequence.c,v 1.76 2005-07-26 06:43:45 waffel Exp $
+/**
+ * SECTION:btsequence
+ * @short_description: class for the event timeline of a #BtSong instance
+ *
+ * A sequence holds a list of events for each #BtMachine.
+ */ 
  
 #define BT_CORE
 #define BT_SEQUENCE_C

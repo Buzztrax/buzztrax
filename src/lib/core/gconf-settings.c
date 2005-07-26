@@ -1,5 +1,8 @@
-/* $Id: gconf-settings.c,v 1.18 2005-05-04 15:15:08 ensonic Exp $
- * gconf based implementation sub class for buzztard settings handling
+// $Id: gconf-settings.c,v 1.19 2005-07-26 06:43:42 waffel Exp $
+/**
+ * SECTION:btgconfsettings
+ * @short_description: gconf based implementation sub class for buzztard 
+ * settings handling
  */
 
 #define BT_CORE

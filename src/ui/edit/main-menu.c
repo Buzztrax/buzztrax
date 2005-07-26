@@ -1,6 +1,8 @@
-/* $Id: main-menu.c,v 1.42 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor main menu
- */
+// $Id: main-menu.c,v 1.43 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainmenu
+ * @short_description: class for the editor main menu
+ */ 
 
 #define BT_EDIT
 #define BT_MAIN_MENU_C

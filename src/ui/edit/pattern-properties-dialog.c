@@ -1,6 +1,8 @@
-/* $Id: pattern-properties-dialog.c,v 1.8 2005-06-27 17:32:04 ensonic Exp $
- * class for the pattern properties dialog
- */
+// $Id: pattern-properties-dialog.c,v 1.9 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btpatternpropertiesdialog
+ * @short_description: 
+ */ 
 
 #define BT_EDIT
 #define BT_PATTERN_PROPERTIES_DIALOG_C

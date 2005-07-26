@@ -1,6 +1,8 @@
-/* $Id: settings-page-audiodevices.c,v 1.13 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor settings audiodevices page
- */
+// $Id: settings-page-audiodevices.c,v 1.14 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btsettingspageaudiodevices
+ * @short_description: audio device configuration settings page
+ */ 
 
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C

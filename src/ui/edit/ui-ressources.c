@@ -1,6 +1,8 @@
-/* $Id: ui-ressources.c,v 1.2 2005-06-14 07:19:54 ensonic Exp $
- * singleton class that hold shared ui ressources
- */
+// $Id: ui-ressources.c,v 1.3 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btuiressources
+ * @short_description: common shared ui ressources like icons and colors
+ */ 
 
 #define BT_EDIT
 #define BT_UI_RESSOURCES_C

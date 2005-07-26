@@ -1,8 +1,10 @@
-/* $Id: song.c,v 1.76 2005-07-08 22:30:10 ensonic Exp $
- * song 
- *   holds all song related globals
+// $Id: song.c,v 1.77 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btsong
+ * @short_description: class of a song project object (contains #BtSongInfo, 
+ * #BtSetup, #BtSequence and #BtWavetable)
  *
- */
+ */ 
 
 #define BT_CORE
 #define BT_SONG_C

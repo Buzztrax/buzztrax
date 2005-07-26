@@ -1,6 +1,8 @@
-/* $Id: main-window.c,v 1.62 2005-07-22 23:12:21 ensonic Exp $
- * class for the editor main window
- */
+// $Id: main-window.c,v 1.63 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainwindow
+ * @short_description: root buzztard editor window
+ */ 
 
 #define BT_EDIT
 #define BT_MAIN_WINDOW_C

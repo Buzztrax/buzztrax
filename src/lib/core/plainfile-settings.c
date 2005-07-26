@@ -1,6 +1,9 @@
-/* $Id: plainfile-settings.c,v 1.11 2005-05-09 18:35:40 waffel Exp $
- * plain file based implementation sub class for buzztard settings handling
- */
+// $Id: plainfile-settings.c,v 1.12 2005-07-26 06:43:45 waffel Exp $
+/**
+ * SECTION:btplainfilesettings
+ * @short_description: plain file based implementation sub class for buzztard 
+ * settings handling
+ */ 
 
 /*
 idea is to use a XML file liek below

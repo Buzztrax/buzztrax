@@ -1,6 +1,9 @@
-/* $Id: song-info.c,v 1.32 2005-01-16 13:17:36 ensonic Exp $
- * class for a machine to machine connection
- */
+// $Id: song-info.c,v 1.33 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btsonginfo
+ * @short_description: class that keeps the meta-data for a #BtSong instance
+ *
+ */ 
  
 #define BT_CORE
 #define BT_SONG_INFO_C

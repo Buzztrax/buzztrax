@@ -1,6 +1,8 @@
-/* $Id: wire-canvas-item.c,v 1.22 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor wire views wire canvas item
- */
+// $Id: wire-canvas-item.c,v 1.23 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btwirecanvasitem
+ * @short_description: class for the editor wire views wire canvas item
+ */ 
 
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C

@@ -1,6 +1,9 @@
-/* $Id: edit-application.c,v 1.63 2005-06-14 07:19:54 ensonic Exp $
- * class for a gtk based buzztard editor application
- */
+// $Id: edit-application.c,v 1.64 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:bteditapplication
+ * @short_description: class for a gtk based buzztard editor application
+ *
+ */ 
  
 #define BT_EDIT
 #define BT_EDIT_APPLICATION_C

@@ -1,7 +1,9 @@
-/* $Id: sequence-view.c,v 1.10 2005-07-20 17:02:27 ensonic Exp $
- * class for the sequence view widget
- */
-
+// $Id: sequence-view.c,v 1.11 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btsequenceview
+ * @short_description: 
+ */ 
+ 
 #define BT_EDIT
 #define BT_SEQUENCE_VIEW_C
 

@@ -1,6 +1,8 @@
-/* $Id: machine-canvas-item.c,v 1.52 2005-07-08 22:30:10 ensonic Exp $
- * class for the editor machine views machine canvas item
- */
+// $Id: machine-canvas-item.c,v 1.53 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmachinecanvasitem
+ * @short_description: class for the editor machine views machine canvas item
+ */ 
 
 /* @todo more graphics:
  * - add level meter widgets

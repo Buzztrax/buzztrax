@@ -1,6 +1,8 @@
-/* $Id: main-pages.c,v 1.23 2005-06-14 07:19:54 ensonic Exp $
- * class for the editor main pages
- */
+// $Id: main-pages.c,v 1.24 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainpages
+ * @short_description: class for the editor main pages
+ */ 
 
 #define BT_EDIT
 #define BT_MAIN_PAGES_C

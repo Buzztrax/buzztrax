@@ -1,6 +1,8 @@
-/* $Id: song-io.c,v 1.40 2005-07-22 23:12:09 ensonic Exp $
- * base class for song input and output
- */
+// $Id: song-io.c,v 1.41 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btsongio
+ * @short_description: base class for song input and output
+ */ 
  
 #define BT_CORE
 #define BT_SONG_IO_C

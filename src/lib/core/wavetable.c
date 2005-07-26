@@ -1,6 +1,11 @@
-/* $Id: wavetable.c,v 1.9 2005-06-14 07:19:54 ensonic Exp $
- * class for wavetable
- */
+// $Id: wavetable.c,v 1.10 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btwavetable
+ * @short_description: the list of #BtWave items in a #BtSong
+ *
+ * Each wave table entry can constist of multiple #BtWaves, were each of the
+ * waves has a #BtWaveLevel with the data for a note range.
+ */ 
 
 #define BT_CORE
 #define BT_WAVETABLE_C

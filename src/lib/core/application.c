@@ -1,6 +1,22 @@
-/* $Id: application.c,v 1.25 2005-07-12 11:44:43 ensonic Exp $
- * base class for a buzztard based application
- */
+// $Id: application.c,v 1.26 2005-07-26 06:43:42 waffel Exp $
+/**
+ * SECTION:btapplication
+ * @short_description: base class for a buzztard based application
+ *
+ * Everyone who writes an application using the #btcore library should create a
+ * child of the <classname>BtApplication</classname> class.
+ *
+ * The base class automatically creates a #GstBin element as a thread.
+ * This can be retrieved via the bin property of an application instance.
+ * When creating #BtSong instances, the #BtApplication instance needs to be passed
+ * to the bt_song_new() constructor, so that it can retrieve the #GstBin element.
+ * <informalexample>
+ *  <programlisting language="c">song=bt_song_new(app)</programlisting>
+ * </informalexample>
+ *
+ * Another module the application base class maintains is a settings instance (see
+ * #BtSettings), that manages application preferences. 
+ */ 
  
 #define BT_CORE
 #define BT_APPLICATION_C

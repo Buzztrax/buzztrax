@@ -1,6 +1,10 @@
-/* $Id: song-io-native.c,v 1.79 2005-07-25 20:38:43 ensonic Exp $
- * class for native song input and output
- */
+// $Id: song-io-native.c,v 1.80 2005-07-26 06:43:51 waffel Exp $
+/**
+ * SECTION:btsongionative
+ * @short_description: class for song input and output in native zipped xml format
+ *
+ */ 
+
  
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_C

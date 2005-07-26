@@ -1,6 +1,8 @@
-/* $Id: main-statusbar.c,v 1.32 2005-07-07 21:45:00 ensonic Exp $
- * class for the editor main statusbar
- */
+// $Id: main-statusbar.c,v 1.33 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmainstatusbar
+ * @short_description: class for the editor main statusbar
+ */ 
 
 /* @todo:
  * - listen to play_pos,end changes in the sequence and update status

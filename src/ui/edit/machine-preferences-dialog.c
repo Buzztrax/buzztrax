@@ -1,6 +1,8 @@
-/* $Id: machine-preferences-dialog.c,v 1.15 2005-06-14 07:19:54 ensonic Exp $
- * class for the machine preferences dialog
- */
+// $Id: machine-preferences-dialog.c,v 1.16 2005-07-26 06:44:38 waffel Exp $
+/**
+ * SECTION:btmachinepreferencesdialog
+ * @short_description: machine non-realtime parameters
+ */ 
 
 #define BT_EDIT
 #define BT_MACHINE_PREFERENCES_DIALOG_C
