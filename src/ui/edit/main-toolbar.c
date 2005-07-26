@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.56 2005-07-26 06:44:38 waffel Exp $
+// $Id: main-toolbar.c,v 1.57 2005-07-26 20:39:44 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -83,17 +83,25 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 
   g_assert(user_data);
   
-  GST_INFO("song stop event occured");
+  GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
 	gdk_threads_try_enter();
+	// switch off play button
   gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button),FALSE);
+	// disable stop button
+	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
 	// reset level meters
 	for(i=0;i<MAX_VUMETER;i++) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
 	}
-	// disable stop button
-	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
 	gdk_threads_try_leave();
+	if(self->priv->player_thread) {
+		self->priv->player_thread=NULL;
+	}
+	else {
+		GST_WARNING("  no player thread!");
+	}
 	GST_INFO("song stop event handled");
+	GST_INFO("====");
 }
 
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
@@ -141,7 +149,13 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     BtSong *song;
     GError *error=NULL;
 
-    GST_INFO("toolbar play event occurred");
+		GST_INFO("====");
+    GST_INFO("toolbar play event occurred : thread_id=%p",g_thread_self());
+		if(self->priv->player_thread) {
+			GST_WARNING("  #### player thread still running!");
+			return;
+		}
+		
     // get song from app
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 
@@ -150,6 +164,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
       GST_ERROR("error creating player thread : \"%s\"", error->message);
       g_error_free(error);
     }
+		GST_INFO("player thread started : thread_id=%p",self->priv->player_thread);
 		gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
     // release the reference
     g_object_try_unref(song);
@@ -165,9 +180,10 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar stop event occurred");
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  bt_song_stop(song);
+ 	bt_song_stop(song);
+	// @todo what if the stop-event already zero-ed this
 	//g_thread_join(self->priv->player_thread);
-	//self->priv->player_thread=NULL;
+	GST_INFO("  song stopped");
   // release the reference
   g_object_try_unref(song);
 }

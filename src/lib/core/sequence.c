@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.77 2005-07-26 16:45:36 ensonic Exp $
+// $Id: sequence.c,v 1.78 2005-07-26 20:39:32 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -987,6 +987,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
 		if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
 			GST_ERROR("can't stop playing");res=FALSE;
 		}
+		GST_INFO("  playing done");
 	}
 	else {
 		GST_ERROR("can't start playing");res=FALSE;
@@ -1009,11 +1010,12 @@ gboolean bt_sequence_play(const BtSequence *self) {
 gboolean bt_sequence_stop(const BtSequence *self) {
 	
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+	
+	if(!self->priv->is_playing) return(TRUE);
 
-  g_mutex_lock(self->priv->is_playing_mutex);
+	g_mutex_lock(self->priv->is_playing_mutex);
   self->priv->is_playing=FALSE;
-  g_mutex_unlock(self->priv->is_playing_mutex);
-
+  g_mutex_lock(self->priv->is_playing_mutex);
   return(TRUE);
 }
 
