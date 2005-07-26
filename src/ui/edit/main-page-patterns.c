@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.70 2005-07-26 06:44:38 waffel Exp $
+// $Id: main-page-patterns.c,v 1.71 2005-07-26 16:45:53 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -951,7 +951,7 @@ Error:
  * Returns: the #BtMachine instance or %NULL in case of an error
  */
 BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self) {
-  BtMachine *machine=NULL;
+  BtMachine *machine;
   GtkTreeIter iter;
   GtkTreeModel *store;
 
@@ -960,8 +960,11 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
   if(gtk_combo_box_get_active_iter(self->priv->machine_menu,&iter)) {
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
+		if(machine) {
+			return(g_object_ref(machine));
+		}
   }
-  return(machine);
+  return(NULL);
 }
 
 /**
@@ -976,7 +979,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
  */
 BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self) {
   BtMachine *machine;
-	BtPattern *pattern=NULL;
+	BtPattern *pattern;
   GtkTreeIter iter;
   GtkTreeModel *store;
   
@@ -986,13 +989,17 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
     if(machine) {
+			GST_DEBUG("  got machine");
       if(gtk_combo_box_get_active_iter(self->priv->pattern_menu,&iter)) {
         store=gtk_combo_box_get_model(self->priv->pattern_menu);
         gtk_tree_model_get(store,&iter,PATTERN_MENU_PATTERN,&pattern,-1);
+				if(pattern) {
+					return(g_object_ref(pattern));
+				}
       }
     }
 	}
-  return(g_object_ref(pattern));
+  return(NULL);
 }
 
 /**

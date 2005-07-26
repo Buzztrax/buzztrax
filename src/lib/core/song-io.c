@@ -1,7 +1,17 @@
-// $Id: song-io.c,v 1.41 2005-07-26 06:43:51 waffel Exp $
+// $Id: song-io.c,v 1.42 2005-07-26 16:45:53 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
+ *
+ * A base class for #BtSong loader and saver implementations. A #SongIO module
+ * needs to be installed as a shared library into LIBDIR/songio. It is
+ * recognized, if it exports method named bt_song_io_detect(). At runtime the
+ * detect method of each module is called with the choosen file-name. The module
+ * should return its type if it can handle the format or %NULL else.
+ *
+ * Such a module should overwrite bt_song_io_load() and/or bt_song_io_save().
+ *
+ * There is an internal subclass of this called #BtSongIONative.
  */ 
  
 #define BT_CORE

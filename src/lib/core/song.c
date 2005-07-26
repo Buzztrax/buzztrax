@@ -1,9 +1,10 @@
-// $Id: song.c,v 1.77 2005-07-26 06:43:51 waffel Exp $
+// $Id: song.c,v 1.78 2005-07-26 16:45:53 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
  * #BtSetup, #BtSequence and #BtWavetable)
  *
+ * A song is the top-level container object to manage all song-related objects.
  */ 
 
 #define BT_CORE

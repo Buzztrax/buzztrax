@@ -1,8 +1,12 @@
-// $Id: pattern.c,v 1.61 2005-07-26 06:43:44 waffel Exp $
+// $Id: pattern.c,v 1.62 2005-07-26 16:45:36 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
  *
+ * A pattern contains a grid of events. Events are parameter changes in
+ * #BtMachine objects. The events are stored aas #GValues.
+ *
+ * The patterns are used in the #BtSequence to form the score of a song.
  */  
 #define BT_CORE
 #define BT_PATTERN_C

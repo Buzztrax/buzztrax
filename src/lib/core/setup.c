@@ -1,9 +1,11 @@
-// $Id: setup.c,v 1.71 2005-07-26 06:43:46 waffel Exp $
+// $Id: setup.c,v 1.72 2005-07-26 16:45:36 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
  * for a #BtSong instance
  *
+ * The setup manages virtual gear. That is used #BtMachines and the #BtWires
+ * that connect them.
  */ 
 /* @idea add a methods for dumping the setup as a dot-graph
  * machines and wires should be dumped with details (as subgraphs)!

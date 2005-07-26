@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.143 2005-07-26 06:43:43 waffel Exp $
+// $Id: machine.c,v 1.144 2005-07-26 16:45:35 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -43,6 +43,9 @@
  * It is recommended to only activate them, when needed. The instances are cached
  * after deactivation (so that they can be easily reactivated) and destroyed with
  * the #BtMachine object.
+ *
+ * Furthermore the machine handles a list of #BtPattern instances. These contain
+ * event patterns that form a #BtSequence.
  */ 
 /*
  * @todo try to derive this from GstBin!
@@ -517,14 +520,14 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
               if(!(self->priv->voice_controllers[j]=gst_controller_new(G_OBJECT(voice_child), property->name, NULL))) {
                 GST_WARNING("failed to add property \"%s\" to the %d voice controller",property->name,j);
               }
-							// set interpolation mode depending on param type
-							if(bt_machine_is_voice_param_trigger(self,k)) {
-								gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_TRIGGER);
-							}
-							else { // one of GST_INTERPOLATE_NONE/LINEAR/...
-								gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_NONE);
-							}
-							k++;
+              // set interpolation mode depending on param type
+              if(bt_machine_is_voice_param_trigger(self,k)) {
+                gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_TRIGGER);
+              }
+              else { // one of GST_INTERPOLATE_NONE/LINEAR/...
+                gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_NONE);
+              }
+              k++;
             }
           }
         }
@@ -732,12 +735,12 @@ gboolean bt_machine_new(BtMachine *self) {
           GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
         }
         // set interpolation mode depending on param type
-				if(bt_machine_is_global_param_trigger(self,j)) {
-        	gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_TRIGGER);
-				}
-				else { // one of GST_INTERPOLATE_NONE/LINEAR/...
-					gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_NONE);
-				}
+        if(bt_machine_is_global_param_trigger(self,j)) {
+          gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_TRIGGER);
+        }
+        else { // one of GST_INTERPOLATE_NONE/LINEAR/...
+          gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_NONE);
+        }
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;
       }
@@ -1335,6 +1338,7 @@ GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
 /**
  * bt_machine_get_voice_dparam:
  * @self: the machine to search for the voice param
+ * @voice: the voice index
  * @index: the offset in the list of voice params
  *
  * Retrieves the voice GstDParam

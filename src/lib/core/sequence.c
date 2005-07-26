@@ -1,9 +1,10 @@
-// $Id: sequence.c,v 1.76 2005-07-26 06:43:45 waffel Exp $
+// $Id: sequence.c,v 1.77 2005-07-26 16:45:36 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
  *
- * A sequence holds a list of events for each #BtMachine.
+ * A sequence holds grid of #BtPatterns, with labels on the time axis and
+ * #BtMachine instances on the track axis.
  */ 
  
 #define BT_CORE
@@ -937,63 +938,62 @@ GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
  */
 gboolean bt_sequence_play(const BtSequence *self) {
   gboolean res=TRUE;
+	GstElement *bin;
+	BtPlayLine *playline;
+	GstClockTime wait_per_position=bt_sequence_get_bar_time(self);
+	// DEBUG {
+	//GTimer *timer;
+	// }
   
 	g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
-
-  if((!self->priv->tracks) || (!self->priv->length)) {
-		GST_INFO("skip playing (no tracks or no timeline at all");
-		return(res);
+	
+	if((!self->priv->tracks) || (!self->priv->length) || self->priv->is_playing) {
+		GST_DEBUG(" song is empty or already playing");
+		return(FALSE);
 	}
-  else {
-    GstElement *bin;
-    BtPlayLine *playline;
-    GstClockTime wait_per_position=bt_sequence_get_bar_time(self);
-    // DEBUG {
-    //GTimer *timer;
-    // }
 
-    g_object_get(G_OBJECT(self->priv->song),"bin",&bin,NULL);
-		playline=bt_playline_new(self->priv->song,self->priv->tracks,wait_per_position);
-    
-    GST_INFO("song.duration = %d * %d usec = %ld sec",self->priv->length,wait_per_position,(gulong)(((GstClockTime)self->priv->length*(GstClockTime)wait_per_position)/GST_SECOND));
-		GST_INFO("  play_start,pos,end: %d,%d,%d",self->priv->play_start,self->priv->play_pos,self->priv->play_end);
-		GST_INFO("  loop_start,end: %d,%d",self->priv->loop_start,self->priv->loop_end);
-		GST_INFO("  length: %d",self->priv->length);
-  
-    if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
-      g_mutex_lock(self->priv->is_playing_mutex);
-      self->priv->is_playing=TRUE;
-      g_mutex_unlock(self->priv->is_playing_mutex);
-      //timer=g_timer_new();
-			//g_timer_start(timer);
+	g_object_get(G_OBJECT(self->priv->song),"bin",&bin,NULL);
+	playline=bt_playline_new(self->priv->song,self->priv->tracks,wait_per_position);
+	
+	GST_INFO("song.duration = %d * %d usec = %ld sec",self->priv->length,wait_per_position,(gulong)(((GstClockTime)self->priv->length*(GstClockTime)wait_per_position)/GST_SECOND));
+	GST_INFO("  play_start,pos,end: %d,%d,%d",self->priv->play_start,self->priv->play_pos,self->priv->play_end);
+	GST_INFO("  loop_start,end: %d,%d",self->priv->loop_start,self->priv->loop_end);
+	GST_INFO("  length: %d",self->priv->length);
 
-      do {
-				for(;((self->priv->play_pos<self->priv->play_end) && (self->priv->is_playing));self->priv->play_pos++) {
-          //GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
+	if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
+		g_mutex_lock(self->priv->is_playing_mutex);
+		self->priv->is_playing=TRUE;
+		g_mutex_unlock(self->priv->is_playing_mutex);
+		//timer=g_timer_new();
+		//g_timer_start(timer);
 
-					g_object_notify(G_OBJECT(self),"play-pos");
-          // enter new patterns into the playline and stop or mute patterns
-          bt_sequence_update_playline(self,playline);
-          // play the patterns in the cursor
-          bt_playline_play(playline);
-        }
-				self->priv->play_pos=self->priv->play_start;
+		do {
+			for(;((self->priv->play_pos<self->priv->play_end) && (self->priv->is_playing));self->priv->play_pos++) {
+				//GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
 				g_object_notify(G_OBJECT(self),"play-pos");
-      } while((self->priv->loop) && (self->priv->is_playing));
+				
+				// @todo the code below can be removed along with dparams,but copy the wait from playline!
+				// enter new patterns into the playline and stop or mute patterns
+				bt_sequence_update_playline(self,playline);
+				// play the patterns in the cursor
+				bt_playline_play(playline);
+			}
+			self->priv->play_pos=self->priv->play_start;
+			g_object_notify(G_OBJECT(self),"play-pos");
+		} while((self->priv->loop) && (self->priv->is_playing));
 
-      //g_timer_destroy(timer);
+		//g_timer_destroy(timer);
 
-      if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
-        GST_ERROR("can't stop playing");res=FALSE;
-      }
-    }
-    else {
-      GST_ERROR("can't start playing");res=FALSE;
-    }
-    // release the references
-    g_object_try_unref(playline);
-    g_object_try_unref(bin);
-  }
+		if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
+			GST_ERROR("can't stop playing");res=FALSE;
+		}
+	}
+	else {
+		GST_ERROR("can't start playing");res=FALSE;
+	}
+	// release the references
+	g_object_try_unref(playline);
+	g_object_try_unref(bin);
   return(res);
 }
 
