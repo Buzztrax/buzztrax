@@ -28,8 +28,8 @@ FIXXREF_OPTIONS=--extra-dir=$(glib_prefix)/share/gtk-doc/html/gobject \
 	--extra-dir=../bt-core
 
 # Used for dependencies.
-HFILE_GLOB=
-CFILE_GLOB=
+HFILE_GLOB=$(top_srcdir)/src/ui/cmd/*.c
+CFILE_GLOB=$(top_srcdir)/src/ui/cmd/*.h
 
 # Header files to ignore when scanning.
 IGNORE_HFILES=config.h

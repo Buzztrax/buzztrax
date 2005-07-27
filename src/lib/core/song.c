@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.78 2005-07-26 16:45:53 ensonic Exp $
+// $Id: song.c,v 1.79 2005-07-27 17:16:04 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -123,7 +123,9 @@ gboolean bt_song_play(const BtSong *self) {
 
   // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
-  res=bt_sequence_play(self->priv->sequence);
+  if(!(res=bt_sequence_play(self->priv->sequence))) {
+		GST_WARNING("playing song failed");
+	}
   // emit signal that we have finished playing
   g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
   return(res);

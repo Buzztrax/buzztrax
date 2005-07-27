@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.31 2005-07-26 20:39:44 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.32 2005-07-27 17:16:04 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -91,9 +91,6 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
 #ifdef USE_GST_CONTROLLER
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
-	// irks, how to get the current playing timestamp here :(
-	// irks.2 need to put value into GValue :(
-	//g_object_set_live_value(machine,name,timestamp,gvalue);
   g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
 #endif
   //gdk_threads_leave();

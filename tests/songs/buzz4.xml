@@ -50,12 +50,15 @@
   <sequence>
     <labels>
       <label time="0" name="start"/>
-      <label time="63" name="end"/>
+      <label time="95" name="end"/>
     </labels>
     <tracks>
       <track index="0" machine="gen">
         <position time="0" pattern="gen_beats"/>
         <position time="32" pattern="gen_beats"/>
+				<position time="48" pattern="gen_beats"/>
+				<position time="64" pattern="gen_beats"/>
+				<position time="80" pattern="gen_beats"/>
       </track>
     </tracks>
   </sequence>
