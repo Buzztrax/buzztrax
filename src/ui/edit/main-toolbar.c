@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.57 2005-07-26 20:39:44 ensonic Exp $
+// $Id: main-toolbar.c,v 1.58 2005-07-29 12:44:44 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -85,10 +85,12 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   
   GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
 	gdk_threads_try_enter();
-	// switch off play button
-  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button),FALSE);
 	// disable stop button
 	gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
+	// switch off play button
+  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button),FALSE);
+	// enable play button
+  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
 	// reset level meters
 	for(i=0;i<MAX_VUMETER;i++) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
@@ -149,6 +151,9 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     BtSong *song;
     GError *error=NULL;
 
+		// disable play button
+	  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),FALSE);
+		
 		GST_INFO("====");
     GST_INFO("toolbar play event occurred : thread_id=%p",g_thread_self());
 		if(self->priv->player_thread) {
