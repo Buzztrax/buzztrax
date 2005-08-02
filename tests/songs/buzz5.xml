@@ -59,9 +59,9 @@
       <label time="63" name="end"/>
     </labels>
     <tracks>
-      <track index="0" machine="guru2">
-        <position time="0" pattern="guru2_beeps"/>
-        <position time="32" pattern="guru2_beeps"/>
+      <track index="0" machine="bass2">
+        <position time="0" pattern="bass2_beeps"/>
+        <position time="32" pattern="bass2_beeps"/>
       </track>
     </tracks>
   </sequence>

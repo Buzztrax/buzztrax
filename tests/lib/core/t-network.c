@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.13 2005-06-15 08:17:51 ensonic Exp $
+/* $Id: t-network.c,v 1.14 2005-08-02 13:12:21 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -24,38 +24,35 @@ static void test_teardown(void) {
 */
 
 START_TEST(test_btcore_net1) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	gboolean song_ret;
-	
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSetup *setup=NULL;
+  gboolean song_ret;
+    
   GST_INFO("--------------------------------------------------------------------------------");
 
-	/* create a dummy app */
-	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	
-	/* get the setup for the song */
-	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-	fail_unless(setup!=NULL, NULL);
-	
+  song=bt_song_new(app);
+    
+  /* get the setup for the song */
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  fail_unless(setup!=NULL, NULL);
+    
   GST_DEBUG("test");
   
-	/* try to add a NULL wire to the setup */
-	bt_setup_add_wire(setup, NULL);
-	
-	/* try to start playing the song */
-	song_ret=bt_song_play(song);
-	fail_unless(song_ret==TRUE, NULL);
-	
-	/* stop the song */
-	bt_song_stop(song);
-	
+  /* try to add a NULL wire to the setup */
+  bt_setup_add_wire(setup, NULL);
+    
+  /* try to start playing the song */
+  song_ret=bt_song_play(song);
+  fail_unless(song_ret==FALSE, NULL);
+    
   g_object_unref(setup);  
-	g_object_unref(song);
+  g_object_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -63,7 +60,7 @@ END_TEST
 TCase *bt_network_test_case(void) {
   TCase *tc = tcase_create("BtNetworkTests");
 
-	tcase_add_test(tc,test_btcore_net1);
+  tcase_add_test(tc,test_btcore_net1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

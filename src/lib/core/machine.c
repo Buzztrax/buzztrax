@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.144 2005-07-26 16:45:35 ensonic Exp $
+// $Id: machine.c,v 1.145 2005-08-02 13:12:01 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2044,7 +2044,7 @@ static void bt_machine_dispose(GObject *object) {
     g_object_unref(self->priv->voice_dparams[i]);
   }
   //GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
-  // seems that gst_dpman_get_dparam() does not ref it, therefore we shouldn't unref it
+  // seems that gst_dpman_get_manager() does not ref it, therefore we shouldn't unref it
   //g_object_try_unref(self->priv->dparam_manager);
 #endif
   
