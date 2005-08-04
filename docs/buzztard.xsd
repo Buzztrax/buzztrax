@@ -22,29 +22,29 @@
   <xsd:attribute name="length" type="xsd:integer"/>
   <xsd:attribute name="time" type="xsd:integer"/>
   <xsd:attribute name="pattern" type="xsd:string"/>
-	<xsd:attribute name="name" type="xsd:string"/>
+  <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="url" type="xsd:string"/>
   
   <xsd:element name="info" type="xsd:string"/>
-	<xsd:element name="name" type="xsd:string"/>
+  <xsd:element name="name" type="xsd:string"/>
   <xsd:element name="genre" type="xsd:string"/>
-	<xsd:element name="bpm" type="xsd:integer"/>
-	<xsd:element name="tpb" type="xsd:integer"/>
-	<xsd:element name="bars" type="xsd:integer"/>
-	<xsd:element name="createdate" type="xsd:date"/>
-	<xsd:element name="changedate" type="xsd:date"/>
+  <xsd:element name="bpm" type="xsd:integer"/>
+  <xsd:element name="tpb" type="xsd:integer"/>
+  <xsd:element name="bars" type="xsd:integer"/>
+  <xsd:element name="createdate" type="xsd:dateTime"/>
+  <xsd:element name="changedate" type="xsd:dateTime"/>
 
   <xsd:element name="meta">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="info" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
+	<xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="genre" minOccurs="0" maxOccurs="1"/>
-				<xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
-				<xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
-				<xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
-				<xsd:element ref="createdate" minOccurs="1" maxOccurs="1"/>
-				<xsd:element ref="changedate" minOccurs="0" maxOccurs="1"/>
+	<xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
+	<xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
+	<xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
+	<xsd:element ref="createdate" minOccurs="1" maxOccurs="1"/>
+	<xsd:element ref="changedate" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -78,7 +78,6 @@
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="pluginname" use="required"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -200,7 +199,6 @@
     <xsd:complexType>
       <xsd:attribute ref="time" use="required"/>
       <xsd:attribute ref="pattern" use="required"/>
-      -->
     </xsd:complexType>
   </xsd:element>
   
