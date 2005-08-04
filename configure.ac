@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.53 2005-08-04 08:19:25 waffel Exp $
+# $Id: configure.ac,v 1.54 2005-08-04 09:04:39 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -187,7 +187,8 @@ AC_SUBST(with_desktop_dir)
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
   libxml-2.0 >= 2.5.0 \
-  gstreamer-0.8 >= 0.8.10 gstreamer-interfaces-0.8 >= 0.8 \
+  gstreamer-0.8 >= 0.8.10 gstreamer-interfaces-0.8 >= 0.8.10 \
+  gstreamer-controller >= 0.0.1 \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
@@ -221,16 +222,6 @@ PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.0.1, [
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
   ]
-)
-
-# checking for required gstreamer controller api
-# @todo remove this after the controller api is included in gstreamer
-AC_MSG_CHECKING(for gstreamer controller api)
-AC_DEFINE(USE_GST_CONTROLLER, [1], [use new gstreamer controller])
-  PKG_CHECK_MODULES(GSTCTRL_DEPS, gstreamer-controller >= 0.0.1, [
-      BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTCTRL_DEPS_CFLAGS"
-      BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTCTRL_DEPS_LIBS"
-    ]
 )
 
 #PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
