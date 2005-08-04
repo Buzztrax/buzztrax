@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.15 2005-07-20 17:02:26 ensonic Exp $
+/* $Id: core.c,v 1.16 2005-08-04 09:47:49 waffel Exp $
  */
 
 #define BT_CORE
@@ -49,13 +49,7 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
     gst_init(argc,argv);
   }
 	//-- initialize dynamic parameter control module
-#ifdef USE_GST_DPARAMS
-  gst_control_init(argc,argv);
-#endif
-#ifdef USE_GST_CONTROLLER
-	//gst_library_load("gstcontroller");
 	gst_controller_lib_init();
-#endif
 
 	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 

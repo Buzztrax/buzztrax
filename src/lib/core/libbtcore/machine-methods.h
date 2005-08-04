@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.34 2005-07-26 16:45:53 ensonic Exp $
+/* $Id: machine-methods.h,v 1.35 2005-08-04 09:47:50 waffel Exp $
  * defines all public methods of the machine base class
  */
 
@@ -33,11 +33,6 @@ extern gboolean bt_machine_is_polyphonic(const BtMachine *self);
 extern glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name, GError **error);
 extern glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name, GError **error);
 
-#ifdef USE_GST_DPARAMS
-extern GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index);
-extern GstDParam *bt_machine_get_voice_dparam(const BtMachine *self, gulong voice, gulong index);
-#endif
-
 extern GParamSpec *bt_machine_get_global_param_spec(const BtMachine *self, gulong index);
 extern GParamSpec *bt_machine_get_voice_param_spec(const BtMachine *self, gulong index);
 
@@ -67,16 +62,12 @@ extern gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulon
 
 // controller handling
 
-#ifdef USE_GST_CONTROLLER
 extern void bt_machine_global_controller_change_value(const BtMachine *self,gulong param,GstClockTime timestamp,GValue *value);
 extern void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param,gulong voice,GstClockTime timestamp,GValue *value);
-#endif
 
 // debug helper
 
 extern void bt_machine_dbg_print_parts(const BtMachine *self);
-#ifdef USE_GST_CONTROLLER
 extern void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self);
-#endif
 
 #endif // BT_MACHINE_METHDOS_H

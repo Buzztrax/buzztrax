@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.79 2005-07-27 17:16:04 ensonic Exp $
+// $Id: sequence.c,v 1.80 2005-08-04 09:47:49 waffel Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -486,12 +486,10 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
 		}
 	}
   // set controller value
-#ifdef USE_GST_CONTROLLER
   if(value) {
     GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
   	bt_machine_global_controller_change_value(machine,param,timestamp,value);
   }
-#endif
 	return(TRUE);
 }
 
@@ -531,12 +529,10 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
 		}
 	}
   // set controller value
-#ifdef USE_GST_CONTROLLER
   if(value) {
     GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
     bt_machine_voice_controller_change_value(machine,param,voice,timestamp,value);
   }
-#endif
 	return(TRUE);
 }
 

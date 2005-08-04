@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.145 2005-08-02 13:12:01 ensonic Exp $
+// $Id: machine.c,v 1.146 2005-08-04 09:47:49 waffel Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -135,15 +135,9 @@ struct _BtMachinePrivate {
   BtMachineState state;
 
   /* dynamic parameter control */
-#ifdef USE_GST_DPARAMS
-  GstDParamManager *dparam_manager;
-  GstDParam **global_dparams,**voice_dparams;
-#endif
-#ifdef USE_GST_CONTROLLER
   GstController *global_controller;
   GstController **voice_controllers;
   gchar **global_names,**voice_names;
-#endif
   GType *global_types,*voice_types; 
   guint *global_flags,*voice_flags;
   GValue *global_no_val,*voice_no_val;
@@ -498,7 +492,6 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
 
   g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
 
-#ifdef USE_GST_CONTROLLER
   // @todo make it use g_renew0()
   // this is not as easy as it sounds (realloc does not know how big the old mem was)
   self->priv->voice_controllers=(GstController **)g_renew(gpointer, self->priv->voice_controllers ,self->priv->voices);
@@ -534,28 +527,8 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
       }
     }
   }
-#endif
 }
 
-#ifdef USE_GST_DPARAMS
-static void bt_machine_set_param_value(GstDParam *dparam, GValue *event) {
-  // depending on the type, set the GValue
-  switch(G_VALUE_TYPE(event)) {
-    case G_TYPE_DOUBLE: {
-      //gchar *str=g_strdup_value_contents(event);
-      //GST_INFO("events for %s at track %d : \"%s\"",self->priv->id,index,str);
-      //g_free(str);
-      g_object_set_property(G_OBJECT(dparam),"value-double",event);
-      //g_object_set(G_OBJECT(dparam),"value-double",g_value_get_double(event),NULL);
-    } break;
-    case G_TYPE_INT: {
-      g_object_set_property(G_OBJECT(dparam),"value-int",event);
-    } break;
-    default:
-      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
-  }
-}
-#endif
 
 /*
  * bt_machine_get_property_meta_value:
@@ -614,10 +587,8 @@ void bt_machine_on_tpb_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer 
  */
 gboolean bt_machine_new(BtMachine *self) {
   BtSetup *setup;
-#ifdef USE_GST_CONTROLLER
   GParamSpec **properties;
   guint number_of_properties;
-#endif
 
   g_assert(BT_IS_MACHINE(self));
   g_assert(self->priv->machines[PART_MACHINE]==NULL);
@@ -665,47 +636,6 @@ gboolean bt_machine_new(BtMachine *self) {
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
   GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
   
-#ifdef USE_GST_DPARAMS
-  // get controllable parameters
-  if((self->priv->dparam_manager=gst_dpman_get_manager(self->priv->machines[PART_MACHINE]))) {
-    GParamSpec **specs;
-    GstDParam **dparam;
-    guint i;
-
-    // setting param mode - don't yet know which one should use
-    if(gst_dpman_set_mode(self->priv->dparam_manager, "asynchronous")) {
-      GST_DEBUG("  machine \"%s\" supports asynchronous dparams",self->priv->plugin_name);
-    // setting param mode. Only synchronized is currently supported
-    //if(gst_dpman_set_mode(self->priv->dparam_manager, "synchronous")) {
-      //GST_DEBUG("  machine \"%s\" supports synchronous dparams",self->priv->plugin_name);
-    
-      // get all dparams templates
-      specs=gst_dpman_list_dparam_specs(self->priv->dparam_manager);
-      // count the specs
-      for(i=0;specs[i];i++);
-      // right now, we have no voice params
-      self->priv->global_params=i;
-      self->priv->global_dparams=(GstDParam **)g_new0(gpointer,self->priv->global_params);
-      self->priv->global_types  =(GType *    )g_new0(GType    ,self->priv->global_params);
-      self->priv->global_flags  =(guint *    )g_new0(guint    ,self->priv->global_params);
-      self->priv->global_no_val =(GValue *   )g_new0(GValue   ,self->priv->global_params);
-      // iterate over all dparam
-      for(i=0,dparam=self->priv->global_dparams;specs[i];i++,dparam++) {
-        gboolean attach_ret=FALSE;
-      
-        self->priv->global_types[i]=G_PARAM_SPEC_VALUE_TYPE(specs[i]);
-        self->priv->global_dparams[i]=gst_dparam_new(self->priv->global_types[i]);
-        attach_ret=gst_dpman_attach_dparam(self->priv->dparam_manager,g_param_spec_get_name(specs[i]),self->priv->global_dparams[i]);
-        GST_DEBUG("    added global_param \"%s\"",g_param_spec_get_name(specs[i]));
-        g_return_val_if_fail(attach_ret == TRUE,FALSE);
-      }
-    }
-    else {
-      GST_DEBUG("  machine \"%s\" does not support syncronous mode",self->priv->plugin_name);
-    }
-  }
-#endif
-#ifdef USE_GST_CONTROLLER
   // register global params
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
     GParamSpec *property;
@@ -799,7 +729,6 @@ gboolean bt_machine_new(BtMachine *self) {
   else {
     GST_INFO("  instance is monophonic!");
   }
-#endif
   // check if the elemnt implements the GstTempo interface
   if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
     BtSongInfo *song_info;
@@ -1213,32 +1142,6 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
   g_assert(name);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
   
-#ifdef USE_GST_DPARAMS
-  if(self->priv->dparam_manager) {
-    GstDParam *dparam=NULL;
-    
-    if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
-      for(i=0;i<self->priv->global_params;i++) {
-        if(self->priv->global_dparams[i]==dparam) {
-          ret=i;
-          found=TRUE;
-          break;
-        }
-      }
-    }
-    if(!found && error) {
-      g_set_error (error, error_domain, /* errorcode= */0,
-                  "global param for name %s not found", name);
-    }
-  }
-  else {
-    if(error) {
-      g_set_error (error, error_domain, /* errorcode= */0,
-                  "machine does not support controlable params");
-    }
-  }
-#endif
-#ifdef USE_GST_CONTROLLER
   for(i=0;i<self->priv->global_params;i++) {
     if(!strcmp(self->priv->global_names[i],name)) {
       ret=i;
@@ -1250,7 +1153,6 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
     g_set_error (error, error_domain, /* errorcode= */0,
                 "global param for name %s not found", name);
   }
-#endif
   g_assert((found || (error && *error)));
   return(ret);
 }
@@ -1273,33 +1175,7 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
   g_assert(BT_IS_MACHINE(self));
   g_assert(name);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
-  
-#ifdef USE_GST_DPARAMS
-  if(self->priv->dparam_manager) {
-    GstDParam *dparam=NULL;
-    
-    if((dparam=gst_dpman_get_dparam(self->priv->dparam_manager,name))) {
-      for(i=0;i<self->priv->voice_params;i++) {
-        if(self->priv->voice_dparams[i]==dparam) {
-          ret=i;
-          found=TRUE;
-          break;
-        }
-      }
-    }
-    if(!found && error) {
-      g_set_error (error, error_domain, /* errorcode= */0,
-                  "voice param for name %s not found", name);
-    }
-  }
-  else {
-    if(error) {
-      g_set_error (error, error_domain, /* errorcode= */0,
-                  "machine does not support controlable params");
-    }
-  }    
-#endif
-#ifdef USE_GST_CONTROLLER
+ 
   for(i=0;i<self->priv->voice_params;i++) {
     if(!strcmp(self->priv->voice_names[i],name)) {
       ret=i;
@@ -1311,29 +1187,10 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
     g_set_error (error, error_domain, /* errorcode= */0,
                 "voice param for name %s not found", name);
   }
-#endif
   g_assert((found || (error && *error)));
   return(ret);
 }
 
-/**
- * bt_machine_get_global_dparam:
- * @self: the machine to search for the global param
- * @index: the offset in the list of global params
- *
- * Retrieves the global GstDParam
- *
- * Returns: the requested global GstDParam
- */
-#ifdef USE_GST_DPARAMS
-GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
-  g_assert(BT_IS_MACHINE(self));
-  g_assert(index<self->priv->global_params);
-  g_assert(self->priv->global_dparams);
-  
-  return(self->priv->global_dparams[index]);
-}
-#endif
 
 /**
  * bt_machine_get_voice_dparam:
@@ -1345,16 +1202,6 @@ GstDParam *bt_machine_get_global_dparam(const BtMachine *self, gulong index) {
  *
  * Returns: the requested voice GstDParam
  */
-#ifdef USE_GST_DPARAMS
-GstDParam *bt_machine_get_voice_dparam(const BtMachine *self, gulong voice, gulong index) {
-  g_assert(BT_IS_MACHINE(self));
-  g_assert(voice<self->priv->voices);
-  g_assert(index<self->priv->voice_params);
-  g_assert(self->priv->voice_dparams);
-  
-  return(self->priv->voice_dparams[voice*self->priv->voice_params+index]);
-}
-#endif
 
 /**
  * bt_machine_get_global_param_spec:
@@ -1369,16 +1216,10 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine *self, gulong index
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
   
-#ifdef USE_GST_DPARAMS
-  g_assert(self->priv->global_dparams);
-  return(GST_DPARAM_PARAM_SPEC(self->priv->global_dparams[index]));
-#endif
-#ifdef USE_GST_CONTROLLER
   return(g_object_class_find_property(
     G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
     self->priv->global_names[index])
   );
-#endif
 }
 
 /**
@@ -1394,16 +1235,10 @@ GParamSpec *bt_machine_get_voice_param_spec(const BtMachine *self, gulong index)
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->voice_params);
   
-#ifdef USE_GST_DPARAMS
-  g_assert(self->priv->voice_dparams);
-  return(GST_DPARAM_PARAM_SPEC(self->priv->voice_dparams[index]));
-#endif
-#ifdef USE_GST_CONTROLLER
   return(g_object_class_find_property(
     G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
     self->priv->voice_names[index])
   );
-#endif
 }
 
 /**
@@ -1452,14 +1287,8 @@ void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GVal
   g_assert(G_IS_VALUE(event));
   g_assert(index<self->priv->global_params);
   
-#ifdef USE_GST_DPARAMS
-  g_assert(self->priv->global_dparams);
-  bt_machine_set_param_value(self->priv->global_dparams[index],event);
-#endif
-#ifdef USE_GST_CONTROLLER
   GST_DEBUG("set value for %s.%s",self->priv->id,self->priv->global_names[index]);
   g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
-#endif
 }
 
 /**
@@ -1477,13 +1306,7 @@ void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulon
   g_assert(voice<self->priv->voices);
   g_assert(index<self->priv->voice_params);
 
-#ifdef USE_GST_DPARAMS
-  g_assert(self->priv->voice_dparams);
-  bt_machine_set_param_value(self->priv->voice_dparams[voice*self->priv->voice_params+index],event);
-#endif
-#ifdef USE_GST_CONTROLLER
   g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice)),self->priv->voice_names[index],event);
-#endif
 }
 
 /**
@@ -1533,13 +1356,7 @@ const gchar *bt_machine_get_global_param_name(const BtMachine *self, gulong inde
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->global_params);
   
-#ifdef USE_GST_DPARAMS
-  g_assert(self->priv->global_dparams);
-  return(GST_DPARAM_NAME(self->priv->global_dparams[index]));
-#endif
-#ifdef USE_GST_CONTROLLER
   return(self->priv->global_names[index]);
-#endif
 }
 
 /**
@@ -1555,13 +1372,7 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
   g_assert(BT_IS_MACHINE(self));
   g_assert(index<self->priv->voice_params);
   
-#ifdef USE_GST_DPARAMS
-  g_assert(self->priv->voice_dparams);
-  return(GST_DPARAM_NAME(self->priv->voice_dparams[index]));
-#endif
-#ifdef USE_GST_CONTROLLER
   return(self->priv->voice_names[index]);
-#endif
 }
 
 static GValue *bt_machine_get_param_min_value(const BtMachine *self, GParamSpec *property) {
@@ -1759,7 +1570,6 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index
 
 //-- controller handling
 
-#ifdef USE_GST_CONTROLLER
 /**
  * bt_machine_global_controller_change_value:
  * @self: the machine to change the param for
@@ -1798,7 +1608,6 @@ void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param
     gst_controller_unset(self->priv->voice_controllers[voice],self->priv->voice_names[param],timestamp);
   }
 }
-#endif
 
 //-- debug helper
 
@@ -1841,7 +1650,6 @@ void bt_machine_dbg_print_parts(const BtMachine *self) {
   );
 }
 
-#ifdef USE_GST_CONTROLLER
 void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
 	gulong i;
   FILE *file;
@@ -1874,7 +1682,6 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
 		g_free(name);
 	}
 }
-#endif
 
 //-- wrapper
 
@@ -2034,19 +1841,6 @@ static void bt_machine_dispose(GObject *object) {
 
   //GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
-#ifdef USE_GST_DPARAMS
-  for(i=0;i<self->priv->global_params;i++) {
-		gst_dparam_detach(self->priv->global_dparams[i]);
-    g_object_unref(self->priv->global_dparams[i]);
-  }
-  for(i=0;i<self->priv->voice_params;i++) {
-		gst_dparam_detach(self->priv->voice_dparams[i]);
-    g_object_unref(self->priv->voice_dparams[i]);
-  }
-  //GST_DEBUG("  releasing dparam manager: %p",self->priv->dparam_manager);
-  // seems that gst_dpman_get_manager() does not ref it, therefore we shouldn't unref it
-  //g_object_try_unref(self->priv->dparam_manager);
-#endif
   
   GST_DEBUG("  releasing patterns");
 
@@ -2082,15 +1876,9 @@ static void bt_machine_finalize(GObject *object) {
   g_free(self->priv->global_flags);
   g_free(self->priv->voice_types);
   g_free(self->priv->global_types);
-#ifdef USE_GST_DPARAMS
-  g_free(self->priv->voice_dparams);
-  g_free(self->priv->global_dparams);
-#endif
-#ifdef USE_GST_CONTROLLER
   g_free(self->priv->global_names);
   g_free(self->priv->voice_names);
   g_free(self->priv->voice_controllers);
-#endif
   // free list of patterns
   if(self->priv->patterns) {
     g_list_free(self->priv->patterns);

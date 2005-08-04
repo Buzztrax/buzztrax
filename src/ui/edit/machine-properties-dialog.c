@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.33 2005-07-29 08:24:11 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.34 2005-08-04 09:47:50 waffel Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -39,13 +39,8 @@ static GtkDialogClass *parent_class=NULL;
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data);
-
-#ifdef USE_GST_DPARAMS
-static void on_double_range_property_notify(const GstDParam *dparam,GParamSpec *property,gpointer user_data) {
-#endif
-#ifdef USE_GST_CONTROLLER
 static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
-#endif  
+ 
   GtkWidget *widget=GTK_WIDGET(user_data);
   gdouble value;
   
@@ -53,29 +48,17 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
   //GST_INFO("property value notify received : %s ",property->name);
 
   gdk_threads_try_enter();
-#ifdef USE_GST_DPARAMS
-  g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)dparam);
-  gtk_range_set_value(GTK_RANGE(widget),value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)dparam);
-#endif
-#ifdef USE_GST_CONTROLLER
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
   gtk_range_set_value(GTK_RANGE(widget),value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
-#endif
   gdk_threads_try_leave();
 }
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
-#ifdef USE_GST_DPARAMS
-  GstDParam *dparam=GST_DPARAM(user_data);
-#endif
-#ifdef USE_GST_CONTROLLER
+
   GstElement *machine=GST_ELEMENT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-#endif
   gdouble value;
   
   g_assert(user_data);
@@ -83,25 +66,13 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
 
   //gdk_threads_enter();
   value=gtk_range_get_value(range);
-#ifdef USE_GST_DPARAMS
-  g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
-  g_object_set(dparam,"value-double",value,NULL);
-  g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
-#endif
-#ifdef USE_GST_CONTROLLER
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
   g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
-#endif
   //gdk_threads_leave();
 }
 
-#ifdef USE_GST_DPARAMS
-static void on_int_range_property_notify(const GstDParam *dparam,GParamSpec *property,gpointer user_data) {
-#endif
-#ifdef USE_GST_CONTROLLER
 static void on_int_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
-#endif
   GtkWidget *widget=GTK_WIDGET(user_data);
   gint value;
   
@@ -109,29 +80,16 @@ static void on_int_range_property_notify(const GstElement *machine,GParamSpec *p
   //GST_INFO("property value notify received : %s ",property->name);
 
   gdk_threads_try_enter();
-#ifdef USE_GST_DPARAMS
-  g_object_get(G_OBJECT(dparam),property->name,&value,NULL);
-  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)dparam);
-  gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
-  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)dparam);
-#endif
-#ifdef USE_GST_CONTROLLER
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
   gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
-#endif
   gdk_threads_try_leave();
 }
 
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
-#ifdef USE_GST_DPARAMS
-  GstDParam *dparam=GST_DPARAM(user_data);
-#endif
-#ifdef USE_GST_CONTROLLER
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-#endif
   gint value;
   
   g_assert(user_data);
@@ -139,20 +97,12 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
 
   //gdk_threads_enter();
   value=(gint)gtk_range_get_value(range);
-#ifdef USE_GST_DPARAMS
-  g_signal_handlers_block_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
-  g_object_set(dparam,"value-int",value,NULL);
-  g_signal_handlers_unblock_matched(dparam,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
-#endif
-#ifdef USE_GST_CONTROLLER
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
-#endif
   //gdk_threads_leave();
 }
 
-#ifdef USE_GST_CONTROLLER
 static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
@@ -174,7 +124,6 @@ static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble 
   g_value_set_int(&int_value,(gint)value);
   return(bt_machine_describe_voice_param_value(machine,index,&int_value));
 }
-#endif
 
 //-- helper methods
 
@@ -189,9 +138,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GValue *range_min,*range_max;
   GType param_type;
   GstElement *machine;
-#ifdef USE_GST_DPARAMS
-  GstDParam *dparam;
-#endif
   
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
@@ -228,9 +174,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,voices);
 
   if(global_params+voices*voice_params) {
-#ifdef USE_GST_CONTROLLER
     gchar *signal_name;
-#endif
 
     // machine controls inside a scrolled window
     scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -259,9 +203,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         for(i=0,k=0;i<global_params;i++) {
           if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
           if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
-#ifdef USE_GST_DPARAMS
-          dparam=bt_machine_get_global_dparam(self->priv->machine,i);
-#endif
           property=bt_machine_get_global_param_spec(self->priv->machine,i);
           GST_INFO("global property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
           // get name
@@ -288,12 +229,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           else if(param_type==G_TYPE_INT) {
             gint value;
             
-#ifdef USE_GST_DPARAMS
-            g_object_get(G_OBJECT(dparam),"value-int",&value,NULL);
-#endif
-#ifdef USE_GST_CONTROLLER
             g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-#endif
             // @todo make it a check box when range ist 0...1 ?
             // @todo how to detect option menus
             //step=(int_property->maximum-int_property->minimum)/1024.0;
@@ -303,29 +239,18 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
             gtk_range_set_value(GTK_RANGE(widget),value);
             gtk_widget_set_name(GTK_WIDGET(widget),property->name);
             // @todo add numerical entry as well ?
-#ifdef USE_GST_DPARAMS
-            g_signal_connect(G_OBJECT(dparam), "notify::value-int", (GCallback)on_int_range_property_notify, (gpointer)widget);
-            g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_int_range_property_changed, (gpointer)dparam);
-#endif
-#ifdef USE_GST_CONTROLLER
             signal_name=g_strdup_printf("notify::%s",property->name);
             g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_int_range_property_notify, (gpointer)widget);
             g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_int_range_property_changed, (gpointer)machine);
             g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_int_range_global_property_format_value, (gpointer)self->priv->machine);
             g_free(signal_name);
-#endif
           }
           else if(param_type==G_TYPE_DOUBLE) {
             gdouble step,value;
             gdouble value_min=g_value_get_double(range_min);
             gdouble value_max=g_value_get_double(range_max);
     
-#ifdef USE_GST_DPARAMS
-            g_object_get(G_OBJECT(dparam),"value-double",&value,NULL);
-#endif
-#ifdef USE_GST_CONTROLLER
             g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-#endif
             step=(value_max-value_min)/1024.0;
             widget=gtk_hscale_new_with_range(value_min,value_max,step);
             gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
@@ -333,16 +258,10 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
             gtk_range_set_value(GTK_RANGE(widget),value);
             gtk_widget_set_name(GTK_WIDGET(widget),property->name);
             // @todo add numerical entry as well ?
-#ifdef USE_GST_DPARAMS
-            g_signal_connect(G_OBJECT(dparam), "notify::value-double", (GCallback)on_double_range_property_notify, (gpointer)widget);
-            g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_double_range_property_changed, (gpointer)dparam);
-#endif
-#ifdef USE_GST_CONTROLLER
             signal_name=g_strdup_printf("notify::%s",property->name);
             g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_range_property_notify, (gpointer)widget);
             g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_double_range_property_changed, (gpointer)machine);
             //g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_double_range_global_property_format_value, (gpointer)machine);        g_free(signal_name);
-#endif
           }
           else {
             gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
@@ -405,7 +324,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           if(param_type==G_TYPE_STRING) {
             widget=gtk_label_new("string");
           }
-#ifdef USE_GST_CONTROLLER
           else if(param_type==G_TYPE_INT) {
             gint value;
 
@@ -444,7 +362,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
             g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_double_range_property_changed, (gpointer)machine_voice);
             //g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_double_range_voice_property_format_value, (gpointer)machine);        g_free(signal_name);
           }
-#endif
           else {
             gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
             widget=gtk_label_new(str);g_free(str);
@@ -552,15 +469,10 @@ static void bt_machine_properties_dialog_set_property(GObject      *object,
 
 static void bt_machine_properties_dialog_dispose(GObject *object) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
-#ifdef USE_GST_DPARAMS
-  gulong i,global_params;
-  GstDParam *dparam;
-#endif
-#ifdef USE_GST_CONTROLLER
+
   gulong j,voices;
   GstElement *machine;
   GstObject *machine_voice;
-#endif
   
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -568,15 +480,6 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   // disconnect all handlers that are connected to dparams
-#ifdef USE_GST_DPARAMS
-  g_object_get(self->priv->machine,"global-params",&global_params,NULL);
-  for(i=0;i<global_params;i++) {
-    dparam=bt_machine_get_global_dparam(self->priv->machine,i);
-    g_signal_handlers_disconnect_matched(dparam,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
-    g_signal_handlers_disconnect_matched(dparam,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
-  }
-#endif
-#ifdef USE_GST_CONTROLLER
   g_object_get(self->priv->machine,"machine",&machine,"voices",&voices,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
@@ -586,7 +489,6 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
   }
   g_object_unref(machine);
-#endif
   
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);

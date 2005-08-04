@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.58 2005-07-18 22:46:43 ensonic Exp $
+/* $Id: core.h,v 1.59 2005-08-04 09:47:49 waffel Exp $
  */
 
 #ifndef BT_CORE_H
@@ -25,12 +25,9 @@
 #include <glib/gprintf.h>
 //-- gstreamer
 #include <gst/gst.h>
-#ifdef USE_GST_DPARAMS
-	#include <gst/control/control.h>
-#endif
-#ifdef USE_GST_CONTROLLER
-	#include <gst/controller/gst-controller.h>
-#endif
+#include <gst/controller/gst-controller.h>
+
+
 #include <gst/childbin/childbin.h>
 #include <gst/propertymeta/propertymeta.h>
 #include <gst/tempo/tempo.h>
