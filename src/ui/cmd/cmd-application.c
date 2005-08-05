@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.54 2005-06-14 07:19:54 ensonic Exp $
+// $Id: cmd-application.c,v 1.55 2005-08-05 08:59:47 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -54,17 +54,17 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 BtCmdApplication *bt_cmd_application_new(void) {
   BtCmdApplication *self;
   
-	if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL)))) {
-		goto Error;
-	}  
+  if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL)))) {
+    goto Error;
+  }  
   if(!(bt_application_new(BT_APPLICATION(self)))) {
-		goto Error;
-	}
-	GST_INFO("new cmd app created");
+    goto Error;
+  }
+  GST_INFO("new cmd app created");
   return(self);
 Error:
-	g_object_try_unref(self);
-	return(NULL);
+  g_object_try_unref(self);
+  return(NULL);
 }
 
 //-- methods
@@ -80,12 +80,12 @@ Error:
  */
 gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
   gboolean res=FALSE;
-	BtSong *song=NULL;
-	BtSongIO *loader=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
 
   g_assert(BT_IS_CMD_APPLICATION(self));
   
-	GST_INFO("application.play launched");
+  GST_INFO("application.play launched");
   
   if(!is_string(input_file_name)) {
     goto Error;
@@ -94,23 +94,23 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
   }
-	if(!(loader=bt_song_io_new(input_file_name))) {
+  if(!(loader=bt_song_io_new(input_file_name))) {
     goto Error;
   }
-	
-	GST_INFO("objects initialized");
-	
-	if(bt_song_io_load(loader,song)) {
+  
+  GST_INFO("objects initialized");
+  
+  if(bt_song_io_load(loader,song)) {
     // connection play and stop signals
-		g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(on_song_play), (gpointer)self);
-		g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
-		bt_song_play(song);
+    g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(on_song_play), (gpointer)self);
+    g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
+    bt_song_play(song);
     res=TRUE;
-	}
-	else {
-		GST_ERROR("could not load song \"%s\"",input_file_name);
+  }
+  else {
+    GST_ERROR("could not load song \"%s\"",input_file_name);
     goto Error;
-	}
+  }
 Error:
   g_object_try_unref(song);
   g_object_try_unref(loader);
@@ -130,79 +130,81 @@ Error:
  */
 gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
-	BtSong *song=NULL;
-	BtSongIO *loader=NULL;
-	FILE *output_file=NULL;
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  FILE *output_file=NULL;
 
   g_assert(BT_IS_CMD_APPLICATION(self));
 
-	GST_INFO("application.info launched");
+  GST_INFO("application.info launched");
 
   if(!is_string(input_file_name)) {
     goto Error;
   }
   // choose appropriate output
-	if (!is_string(output_file_name)) {
-		output_file=stdout; 
-	} else {
-		output_file = fopen(output_file_name,"wb");
-	}
+  if (!is_string(output_file_name)) {
+    output_file=stdout; 
+  } else {
+    output_file = fopen(output_file_name,"wb");
+  }
   // prepare song and song-io
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
   }
-	if(!(loader=bt_song_io_new(input_file_name))) {
+  if(!(loader=bt_song_io_new(input_file_name))) {
     goto Error;
   }
-	
-	GST_INFO("objects initialized");
-	
-	//if(bt_song_load(song,filename)) {
-	if(bt_song_io_load(loader,song)) {
+  
+  GST_INFO("objects initialized");
+  
+  //if(bt_song_load(song,filename)) {
+  if(bt_song_io_load(loader,song)) {
     BtSongInfo *song_info;
     BtSequence *sequence;
     BtSetup *setup;
     BtWavetable *wavetable;
-		BtMachine *machine;
-    gchar *name,*info,*id;
+    BtMachine *machine;
+    gchar *name,*info,*id,*create_dts,*change_dts;
     gulong length,tracks,n_patterns=0;
-		GList *machines,*wires,*patterns,*waves,*node;
-		GstBin *bin;
+    GList *machines,*wires,*patterns,*waves,*node;
+    GstBin *bin;
     
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
 
-		// print some info about the song
-    g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,NULL);
+    // print some info about the song
+    g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,"create-dts",&create_dts,"changed-dts",&change_dts,NULL);
     g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
-		g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
+    g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
+    g_fprintf(output_file,"song.song_info.created: \"%s\"\n",create_dts);g_free(create_dts);
+    g_fprintf(output_file,"song.song_info.changed: \"%s\"\n",change_dts);g_free(change_dts);
     g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
-		g_fprintf(output_file,"song.sequence.length: %lu\n",length);
-		g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
+    g_fprintf(output_file,"song.sequence.length: %lu\n",length);
+    g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
 
-		// print some statistics about the song (number of machines, wires, patterns)
-		g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);
-		g_fprintf(output_file,"song.setup.number_of_machines: %u\n",g_list_length(machines));
-		g_fprintf(output_file,"song.setup.number_of_wires: %u\n",g_list_length(wires));
-		for(node=machines;node;node=g_list_next(node)) {
-			g_object_get(G_OBJECT(node->data),"patterns",&patterns,NULL);
-			n_patterns+=g_list_length(patterns);
-			g_list_free(patterns);
-		}
-		g_fprintf(output_file,"song.setup.number_of_patterns: %lu\n",n_patterns);
-		g_list_free(machines);
-		g_list_free(wires);
-		g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
-		g_fprintf(output_file,"song.wavetable.number_of_waves: %u\n",g_list_length(waves));
-		g_list_free(waves);
-		g_object_get(G_OBJECT(self),"bin",&bin,NULL);
-		g_fprintf(output_file,"app.bin.number_of_elements: %u\n",g_list_length((GList *)gst_bin_get_list(bin)));
+    // print some statistics about the song (number of machines, wires, patterns)
+    g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);
+    g_fprintf(output_file,"song.setup.number_of_machines: %u\n",g_list_length(machines));
+    g_fprintf(output_file,"song.setup.number_of_wires: %u\n",g_list_length(wires));
+    for(node=machines;node;node=g_list_next(node)) {
+      g_object_get(G_OBJECT(node->data),"patterns",&patterns,NULL);
+      n_patterns+=g_list_length(patterns);
+      g_list_free(patterns);
+    }
+    g_fprintf(output_file,"song.setup.number_of_patterns: %lu\n",n_patterns);
+    g_list_free(machines);
+    g_list_free(wires);
+    g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
+    g_fprintf(output_file,"song.wavetable.number_of_waves: %u\n",g_list_length(waves));
+    g_list_free(waves);
+    g_object_get(G_OBJECT(self),"bin",&bin,NULL);
+    g_fprintf(output_file,"app.bin.number_of_elements: %u\n",g_list_length((GList *)gst_bin_get_list(bin)));
 
     // lookup the audio-sink machine and print some info about it
-		if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+    if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
       g_object_get(G_OBJECT(machine),"id",&id,"plugin_name",&name,NULL);
       g_fprintf(output_file,"machine.id: \"%s\"\n",id);g_free(id);
       g_fprintf(output_file,"machine.plugin_name: \"%s\"\n",name);g_free(name);
-			g_object_unref(machine);
+      g_object_unref(machine);
     }
 
     // release the references
@@ -211,19 +213,19 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_try_unref(setup);
     g_object_try_unref(wavetable);
     res=TRUE;
-		GST_INFO("finished succesfully");
-	}
-	else {
-		GST_ERROR("could not load song \"%s\"",input_file_name);
-		goto Error;
-	}
+    GST_INFO("finished succesfully");
+  }
+  else {
+    GST_ERROR("could not load song \"%s\"",input_file_name);
+    goto Error;
+  }
 Error:
   g_object_try_unref(song);
   g_object_try_unref(loader);
-	if (is_string(output_file_name)) {
-		fclose(output_file);
-	}
-	return(res);
+  if (is_string(output_file_name)) {
+    fclose(output_file);
+  }
+  return(res);
 }
 
 /**
@@ -239,9 +241,9 @@ Error:
  */
 gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
-	BtSong *song=NULL;
-	BtSongIO *loader=NULL,*saver=NULL;
-	
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL,*saver=NULL;
+  
   g_assert(BT_IS_CMD_APPLICATION(self));
 
   if(!is_string(input_file_name)) {
@@ -255,31 +257,31 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
   }
-	if(!(loader=bt_song_io_new(input_file_name))) {
+  if(!(loader=bt_song_io_new(input_file_name))) {
     goto Error;
   }
-	if(!(saver=bt_song_io_new(output_file_name))) {
+  if(!(saver=bt_song_io_new(output_file_name))) {
     goto Error;
   }
-	
-	GST_INFO("objects initialized");
-	
-	if(bt_song_io_load(loader,song)) {
-	   if(bt_song_io_save(saver,song)) {
+  
+  GST_INFO("objects initialized");
+  
+  if(bt_song_io_load(loader,song)) {
+     if(bt_song_io_save(saver,song)) {
       res=TRUE;
     }
     else {
       GST_ERROR("could not save song \"%s\"",output_file_name);
     }
- 	}
-	else {
-		GST_ERROR("could not load song \"%s\"",input_file_name);
-	}
+   }
+  else {
+    GST_ERROR("could not load song \"%s\"",input_file_name);
+  }
 Error:
   g_object_try_unref(song);
   g_object_try_unref(loader);
   g_object_try_unref(saver);
-	return(res);	
+  return(res);  
 }
 
 /**
@@ -307,14 +309,14 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   }
 
   /* @todo implement this like play, with a different sink (determine by output file name ?)
-	 * we can use the playline like normal play does, as gst_clock_wait() waits
+   * we can use the playline like normal play does, as gst_clock_wait() waits
    * for stream time not real time.
-	 * Only open question is how to use a different audiosink
-	 */
+   * Only open question is how to use a different audiosink
+   */
   g_printf("sorry this is not yet implemented\n");
 
 Error:
-	return(res);	
+  return(res);  
 }
 
 //-- wrapper
@@ -331,7 +333,7 @@ static void bt_cmd_application_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
- 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -346,7 +348,7 @@ static void bt_cmd_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -354,9 +356,9 @@ static void bt_cmd_application_set_property(GObject      *object,
 static void bt_cmd_application_dispose(GObject *object) {
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-	
+  
   GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -405,10 +407,10 @@ GType bt_cmd_application_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtCmdApplication),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_cmd_application_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_cmd_application_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(BT_TYPE_APPLICATION,"BtCmdApplication",&info,0);
+    type = g_type_register_static(BT_TYPE_APPLICATION,"BtCmdApplication",&info,0);
   }
   return type;
 }

@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.33 2005-07-26 06:43:51 waffel Exp $
+// $Id: song-info.c,v 1.34 2005-08-05 08:59:47 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -12,26 +12,28 @@
 
 enum {
   SONG_INFO_SONG=1,
-	SONG_INFO_FILE_NAME,
-	SONG_INFO_INFO,
-	SONG_INFO_NAME,
-	SONG_INFO_GENRE,
-	SONG_INFO_AUTHOR,
+  SONG_INFO_FILE_NAME,
+  SONG_INFO_INFO,
+  SONG_INFO_NAME,
+  SONG_INFO_GENRE,
+  SONG_INFO_AUTHOR,
   SONG_INFO_BPM,
   SONG_INFO_TPB,
-  SONG_INFO_BARS
+  SONG_INFO_BARS,
+  SONG_INFO_CREATE_DTS,
+  SONG_INFO_CHANGE_DTS
 };
 
 struct _BtSongInfoPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-	
-	/* the song the song-info belongs to */
-	BtSong *song;
+  
+  /* the song the song-info belongs to */
+  BtSong *song;
 
   /* the file name of the song */
   gchar *file_name;
-	
+  
   /* freeform info about the song */
   gchar *info;
   /* the name of the tune */
@@ -46,9 +48,14 @@ struct _BtSongInfoPrivate {
   gulong ticks_per_beat;
   /* how many bars per beat */
   gulong bars;
+  /* date stamps */
+  gchar *create_dts,*change_dts;
 };
 
 static GObjectClass *parent_class=NULL;
+
+// date time stamp format YYYY-MM-DDThh:mm:ssZ
+#define DTS_LEN 20
 
 //-- constructor methods
 
@@ -114,6 +121,12 @@ static void bt_song_info_get_property(GObject      *object,
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
+    case SONG_INFO_CREATE_DTS: {
+      g_value_set_string(value, self->priv->create_dts);
+    } break;
+    case SONG_INFO_CHANGE_DTS: {
+      g_value_set_string(value, self->priv->change_dts);
+    } break;
   }
 }
 
@@ -169,6 +182,32 @@ static void bt_song_info_set_property(GObject      *object,
       self->priv->bars = g_value_get_ulong(value);
       GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
     } break;
+    case SONG_INFO_CREATE_DTS: {
+      const gchar *dts = g_value_get_string(value);
+
+      if(dts) {
+        if(strlen(dts)==DTS_LEN) {
+          strcpy(self->priv->create_dts,dts);
+        }
+      }
+      else {
+        time_t now=time(NULL);
+        strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
+      }
+    } break;
+    case SONG_INFO_CHANGE_DTS: {
+      const gchar *dts = g_value_get_string(value);
+
+      if(dts) {
+        if(strlen(dts)==DTS_LEN) {
+          strcpy(self->priv->change_dts,dts);
+        }
+      }
+      else {
+        time_t now=time(NULL);
+        strftime(self->priv->change_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
+      }
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -178,11 +217,11 @@ static void bt_song_info_set_property(GObject      *object,
 static void bt_song_info_dispose(GObject *object) {
   BtSongInfo *self = BT_SONG_INFO(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	g_object_try_weak_unref(self->priv->song);
+  g_object_try_weak_unref(self->priv->song);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -194,11 +233,13 @@ static void bt_song_info_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_free(self->priv->file_name);
-	g_free(self->priv->info);
-	g_free(self->priv->name);
-	g_free(self->priv->genre);
-	g_free(self->priv->author);
+  g_free(self->priv->file_name);
+  g_free(self->priv->info);
+  g_free(self->priv->name);
+  g_free(self->priv->genre);
+  g_free(self->priv->author);
+  g_free(self->priv->create_dts);
+  g_free(self->priv->change_dts);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -208,15 +249,22 @@ static void bt_song_info_finalize(GObject *object) {
 
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   BtSongInfo *self = BT_SONG_INFO(instance);
-	
-	//GST_DEBUG("song_info_init self=%p",self);
+  time_t now=time(NULL);
+  
+  //GST_DEBUG("song_info_init self=%p",self);
   self->priv = g_new0(BtSongInfoPrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->name=g_strdup("unamed song");
   // @idea alternate bpm's a little at new_song (user defined range?)
-  self->priv->beats_per_minute=125;	// 1..1000
-  self->priv->ticks_per_beat=4;			// 1..128
-  self->priv->bars=4;								// 1..16
+  self->priv->beats_per_minute=125;  // 1..1000
+  self->priv->ticks_per_beat=4;      // 1..128
+  self->priv->bars=4;                // 1..16
+  // init dates 'YYYY-MM-DDThh:mm:ssZ'
+  self->priv->create_dts=g_new0(gchar,DTS_LEN+1);
+  self->priv->change_dts=g_new0(gchar,DTS_LEN+1);
+  strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
+  strcpy(self->priv->change_dts,self->priv->create_dts);
+  
 }
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
@@ -228,7 +276,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   gobject_class->get_property = bt_song_info_get_property;
   gobject_class->dispose      = bt_song_info_dispose;
   gobject_class->finalize     = bt_song_info_finalize;
-	
+  
   g_object_class_install_property(gobject_class,SONG_INFO_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
@@ -271,8 +319,8 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      NULL, /* default value */
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,SONG_INFO_BPM,
-																	g_param_spec_ulong("bpm",
+  g_object_class_install_property(gobject_class,SONG_INFO_BPM,
+                                  g_param_spec_ulong("bpm",
                                      "bpm prop",
                                      "how many beats should be played in a minute",
                                      1,
@@ -280,8 +328,8 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      125,
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,SONG_INFO_TPB,
-																	g_param_spec_ulong("tpb",
+  g_object_class_install_property(gobject_class,SONG_INFO_TPB,
+                                  g_param_spec_ulong("tpb",
                                      "tpb prop",
                                      "how many event fire in one fraction of a beat",
                                      1,
@@ -289,13 +337,27 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      4,
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,SONG_INFO_BARS,
-																	g_param_spec_ulong("bars",
+  g_object_class_install_property(gobject_class,SONG_INFO_BARS,
+                                  g_param_spec_ulong("bars",
                                      "bars prop",
                                      "how many bars per beat",
                                      1,
                                      16,
                                      4,
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_INFO_CREATE_DTS,
+                                  g_param_spec_string("create-dts",
+                                     "creation dts prop",
+                                     "song creation date time stamp",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_INFO_CHANGE_DTS,
+                                  g_param_spec_string("change-dts",
+                                     "changed dts prop",
+                                     "song changed date time stamp",
+                                     NULL, /* default value */
                                      G_PARAM_READWRITE));
 }
 
@@ -311,10 +373,10 @@ GType bt_song_info_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSongInfo),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_song_info_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_song_info_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSongInfo",&info,0);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtSongInfo",&info,0);
   }
   return type;
 }

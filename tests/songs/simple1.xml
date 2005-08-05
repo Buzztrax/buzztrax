@@ -5,14 +5,14 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
 	xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
-	<meta>
-		<info>a sine linked to the audio-sink with a simpple pattern</info>
+  <meta>
+    <info>a sine linked to the audio-sink with a simpple pattern</info>
     <name>simple 1</name>
-		<genre>dark-wave</genre>
+    <genre>dark-wave</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>8</bars>
-	</meta>
+  </meta>
 	
   <setup zoom="1.0">
     <machines>

@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.6 2005-07-26 20:39:44 ensonic Exp $
+/* $Id: bt-test-plugin.c,v 1.7 2005-08-05 08:59:48 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -59,17 +59,6 @@ static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
   g_object_class_override_property(gobject_class, ARG_TPB, "ticks-per-beat");
   g_object_class_override_property(gobject_class, ARG_STPT, "subticks-per-tick");
 
-#ifdef USE_GST_DPARAMS
-  g_object_class_install_property(gobject_class,ARG_ULONG,
-                                  g_param_spec_ulong("ulong",
-                                     "ulong prop",
-                                     "ulong number parameter for the test_mono_source",
-                                     0,
-                                     G_MAXULONG,
-                                     0,
-                                     G_PARAM_READWRITE));
-#endif
-#ifdef USE_GST_CONTROLLER
   g_object_class_install_property(gobject_class,ARG_ULONG,
                                   g_param_spec_ulong("ulong",
                                      "ulong prop",
@@ -78,7 +67,6 @@ static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
                                      G_MAXULONG,
                                      0,
                                      G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
-#endif
 }
 
 static void bt_test_mono_source_base_init(BtTestMonoSourceClass *klass) {
@@ -177,17 +165,6 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   g_object_class_override_property(gobject_class, ARG_STPT, "subticks-per-tick");
   g_object_class_override_property(gobject_class, ARG_VOICES, "voices");
 
-#ifdef USE_GST_DPARAMS
-  g_object_class_install_property(gobject_class,ARG_ULONG,
-                                  g_param_spec_ulong("ulong",
-                                     "ulong prop",
-                                     "ulong number parameter for the test_mono_source",
-                                     0,
-                                     G_MAXULONG,
-                                     0,
-                                     G_PARAM_READWRITE));
-#endif
-#ifdef USE_GST_CONTROLLER
   g_object_class_install_property(gobject_class,ARG_ULONG,
                                   g_param_spec_ulong("ulong",
                                      "ulong prop",
@@ -196,7 +173,6 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
                                      G_MAXULONG,
                                      0,
                                      G_PARAM_READWRITE|GST_PARAM_CONTROLLABLE));
-#endif
 }
 
 static void bt_test_poly_source_base_init(BtTestPolySourceClass *klass) {

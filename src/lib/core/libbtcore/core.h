@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.59 2005-08-04 09:47:49 waffel Exp $
+/* $Id: core.h,v 1.60 2005-08-05 08:59:47 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -11,13 +11,14 @@
 //-- ansi c
 #include <dirent.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 //-- locale
 #ifdef HAVE_X11_XLOCALE_H
-	/* defines a more portable setlocale for X11 (_Xsetlocale) */
-	#include <X11/Xlocale.h>
+/* defines a more portable setlocale for X11 (_Xsetlocale) */
+#include <X11/Xlocale.h>
 #else
-	#include <locale.h>
+#include <locale.h>
 #endif
 //-- glib/gobject
 #include <glib.h>
