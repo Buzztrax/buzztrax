@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2004 Stefan Sperling <stsp@binarchy.net>
- * 												 
+ *                          
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or 
@@ -51,30 +51,30 @@ struct BmxSectionEntry
 
 struct BmxCompressionValues
 {
-	word	wSum1;
-	word	wSum2;
-	word	wResult;
+  word  wSum1;
+  word  wSum2;
+  word  wResult;
 
-	word	*lpwTempData;
+  word  *lpwTempData;
 };
 
 struct BmxWavData
 {
     BmxWavData();
-		BmxWavData(int len);
+    BmxWavData(int len);
     ~BmxWavData();
     byte *buffer;
-		word size;
+    word size;
 };
 
 inline BmxWavData::BmxWavData() { 
     buffer = 0x0;
-		size = 0;
+    size = 0;
 }
 
 inline BmxWavData::BmxWavData(int len) { 
     buffer = new byte[len];
-		size = len;
+    size = len;
 }
 
 inline BmxWavData::~BmxWavData() {
@@ -123,30 +123,30 @@ inline BmxCwavSection::~BmxCwavSection()  {
 
 
 struct BmxWavtableEnvelopePoints {
-		word x,y;
-		byte flags;
+    word x,y;
+    byte flags;
 };
 
 struct BmxWavtableEnvelope {
     BmxWavtableEnvelope();
     ~BmxWavtableEnvelope();
-		word attack;
-		word decay;
-		word sustain;
-		word release;
-		byte subdiv;
-		byte flags;
-		word numberOfPoints;
+    word attack;
+    word decay;
+    word sustain;
+    word release;
+    byte subdiv;
+    byte flags;
+    word numberOfPoints;
     byte disabled;
-		BmxWavtableEnvelopePoints *points;
+    BmxWavtableEnvelopePoints *points;
 };
 
 inline BmxWavtableEnvelope::BmxWavtableEnvelope() {
-		points = 0x0;
+    points = 0x0;
 }
 
 inline BmxWavtableEnvelope::~BmxWavtableEnvelope() {
-		DELARR(points);
+    DELARR(points);
 }
 
 struct BmxWavtableLevel {
@@ -162,11 +162,11 @@ struct BmxWavtableLevel {
 };
 
 inline BmxWavtableLevel::BmxWavtableLevel() {
-		data = 0x0;
+    data = 0x0;
 }
 
 inline BmxWavtableLevel::~BmxWavtableLevel() {
-		if(data != 0x0) delete data;
+    if(data != 0x0) delete data;
 }
 
 struct BmxWavtSection
@@ -180,21 +180,21 @@ struct BmxWavtSection
       float volume;
       byte flags;
       
-      word	numberOfEnvelopes;
+      word  numberOfEnvelopes;
       BmxWavtableEnvelope *envelopes;
       
-      byte	numberOfLevels;
+      byte  numberOfLevels;
       BmxWavtableLevel *levels;
 };
 
 inline BmxWavtSection::BmxWavtSection() {
-		envelopes = 0x0;
-		levels = 0x0;
+    envelopes = 0x0;
+    levels = 0x0;
 }
 
 inline BmxWavtSection::~BmxWavtSection() {
-		DELARR(envelopes);
-		DELARR(levels);
+    DELARR(envelopes);
+    DELARR(levels);
 }
 
 
@@ -337,7 +337,7 @@ class BmxFile
     
     // BVER
     std::string buzzversion;
-		
+    
     // PARA
     dword numberOfMachines;
     BmxParaSection *para;
@@ -346,10 +346,10 @@ class BmxFile
     // MACH
     BmxMachSection *mach;
     
-		// WAVT
-		dword numberOfWaves;
-		BmxWavtSection *wavt;
-		
+    // WAVT
+    dword numberOfWaves;
+    BmxWavtSection *wavt;
+    
     // CWAV / WAVE
     BmxCwavSection *cwav;
     bool compressedWaveTable;
@@ -429,15 +429,15 @@ class BmxFile
     inline void printBverSection() {
         std::cout << " -- BVER Section\n " << buzzversion << std::endl << std::endl;
     }
-		
-		dword unpackBits(dword dwAmount);
-		dword countZeroBits(void);
-		void adjustFilePointer(void);
-		
-		void zeroCompressionValues(BmxCompressionValues *lpcv,dword dwBlockSize);
-		void tidyCompressionValues(BmxCompressionValues * lpcv);
-		bool decompressSwitch(BmxCompressionValues *lpcv,word *lpwOutputBuffer,dword dwBlockSize);
-		bool decompressWave(word *lpwOutputBuffer,dword dwNumSamples,bool bStereo);
+    
+    dword unpackBits(dword dwAmount);
+    dword countZeroBits(void);
+    void adjustFilePointer(void);
+    
+    void zeroCompressionValues(BmxCompressionValues *lpcv,dword dwBlockSize);
+    void tidyCompressionValues(BmxCompressionValues * lpcv);
+    bool decompressSwitch(BmxCompressionValues *lpcv,word *lpwOutputBuffer,dword dwBlockSize);
+    bool decompressWave(word *lpwOutputBuffer,dword dwNumSamples,bool bStereo);
 
 };
 

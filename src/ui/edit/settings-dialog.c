@@ -1,4 +1,4 @@
-// $Id: settings-dialog.c,v 1.17 2005-07-26 06:44:38 waffel Exp $
+// $Id: settings-dialog.c,v 1.18 2005-08-05 09:36:18 ensonic Exp $
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
@@ -15,7 +15,7 @@ enum {
 
 enum {
   SETTINGS_PAGE_AUDIO_DEVICES=0,
-	SETTINGS_PAGE_MIDI_DEVICES,
+  SETTINGS_PAGE_MIDI_DEVICES,
   SETTINGS_PAGE_COLORS,
   SETTINGS_PAGE_SHORTCUTS
 };
@@ -201,7 +201,7 @@ static void bt_settings_dialog_get_property(GObject      *object,
       g_value_set_object(value, self->priv->app);
     } break;
     default: {
- 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -218,18 +218,18 @@ static void bt_settings_dialog_set_property(GObject      *object,
     case SETTINGS_DIALOG_APP: {
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-			g_object_try_weak_ref(self->priv->app);
+      g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
     } break;
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
 
 static void bt_settings_dialog_dispose(GObject *object) {
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(object);
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -289,10 +289,10 @@ GType bt_settings_dialog_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSettingsDialog),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_settings_dialog_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_settings_dialog_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(GTK_TYPE_DIALOG,"BtSettingsDialog",&info,0);
+    type = g_type_register_static(GTK_TYPE_DIALOG,"BtSettingsDialog",&info,0);
   }
   return type;
 }

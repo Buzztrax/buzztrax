@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.72 2005-07-26 16:45:36 ensonic Exp $
+// $Id: setup.c,v 1.73 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -280,7 +280,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
       //     default: value==data.compare_value;
       //   }
       //-> what about: gst_value_compare()
-	    // @todo method puts key-key into a gvalue and gets the param-spec by name, then calls generalized search
+      // @todo method puts key-key into a gvalue and gets the param-spec by name, then calls generalized search
       //-> what about: g_param_values_cmp()
     }  
    

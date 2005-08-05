@@ -1,4 +1,4 @@
-/* $Id: t-settings.c,v 1.4 2005-06-14 07:19:55 ensonic Exp $ */
+/* $Id: t-settings.c,v 1.5 2005-08-05 09:36:19 ensonic Exp $ */
 
 #include "m-bt-core.h"
 
@@ -8,17 +8,17 @@
 static int variant=0;
 
 BtSettings *get_settings(void) {
-	BtSettings *settings=NULL;
-	
-	switch(variant) {
-		case 0:
-			settings=BT_SETTINGS(bt_gconf_settings_new());
-			break;
-		case 1:
-			settings=BT_SETTINGS(bt_plainfile_settings_new());
-			break;
-	}
-	return(settings);
+  BtSettings *settings=NULL;
+  
+  switch(variant) {
+    case 0:
+      settings=BT_SETTINGS(bt_gconf_settings_new());
+      break;
+    case 1:
+      settings=BT_SETTINGS(bt_plainfile_settings_new());
+      break;
+  }
+  return(settings);
 }
 
 //-- fixtures
@@ -41,15 +41,15 @@ START_TEST(test_btsettings_get_audiosink1) {
   gchar *saved_audiosink_name,*test_audiosink_name;
   
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-	
+  
   g_object_set(settings,"audiosink","fakesink",NULL);
-	
+  
   g_object_get(settings,"audiosink",&test_audiosink_name,NULL);
-	
+  
   fail_unless(!strcmp(test_audiosink_name,"fakesink"),"sink is %s",test_audiosink_name);
-	
+  
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-	
+  
   g_object_unref(settings);
   g_free(saved_audiosink_name);
   g_free(test_audiosink_name);

@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.18 2005-07-15 15:08:16 ensonic Exp $
+/* $Id: machine.h,v 1.19 2005-08-05 09:36:16 ensonic Exp $
  * base class for a machine
  */
 
@@ -9,10 +9,10 @@
 #include <glib-object.h>
 #include "pattern.h"
 
-#define BT_TYPE_MACHINE		         (bt_machine_get_type ())
-#define BT_MACHINE(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
-#define BT_MACHINE_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE, BtMachineClass))
-#define BT_IS_MACHINE(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE))
+#define BT_TYPE_MACHINE             (bt_machine_get_type ())
+#define BT_MACHINE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE, BtMachine))
+#define BT_MACHINE_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE, BtMachineClass))
+#define BT_IS_MACHINE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE))
 #define BT_IS_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE))
 #define BT_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE, BtMachineClass))
 
@@ -30,9 +30,9 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 struct _BtMachine {
   GObject parent;
 
-	/* convinience pointers (accessed alot by the wire object) */
-	GstElement *dst_elem;
-	GstElement *src_elem;
+  /* convinience pointers (accessed alot by the wire object) */
+  GstElement *dst_elem;
+  GstElement *src_elem;
 
   /*< private >*/
   BtMachinePrivate *priv;

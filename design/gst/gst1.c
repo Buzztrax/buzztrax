@@ -1,4 +1,4 @@
-/** $Id: gst1.c,v 1.10 2004-12-09 11:04:41 ensonic Exp $
+/** $Id: gst1.c,v 1.11 2005-08-05 09:36:12 ensonic Exp $
 * small example, how to create a pipeline with one source and one sink and how to
 * use dparams to control the volume. The volume in this example is decrementes from
 * the given volume to silence. After silence is reached, the example stpped.
@@ -10,7 +10,7 @@
 
 int main(int argc, char **argv) {
   /* elements used in pipeline */
-	GstElement *audiosink, *audiosrc, *pipeline, *audioconvert;
+  GstElement *audiosink, *audiosrc, *pipeline, *audioconvert;
   /* dynamic parameters manager*/
   GstDParamManager *audiosrcParam;
   /* one dynamic parameter, volume */
@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
   }
   
   /* init gstreamer */
-	gst_init(&argc, &argv);
+  gst_init(&argc, &argv);
   /* init gstreamer control */
   gst_control_init(&argc,&argv);
   
@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     g_object_set_property(G_OBJECT(volume), "value_float", set_val);
   }
   else {
-		fprintf(stderr,"Can't attach dparam\n");exit(-1);
+    fprintf(stderr,"Can't attach dparam\n");exit(-1);
   }
   
   /* add objects to the main pipeline */
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
   
   /* start playing */
   if(gst_element_set_state (pipeline, GST_STATE_PLAYING)) {
-		g_print("playing ...\n");
+    g_print("playing ...\n");
     while (gst_bin_iterate (GST_BIN (pipeline))){
       /* decrement the volume */
       set_to_value=set_to_value-0.01;

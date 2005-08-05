@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.h,v 1.3 2005-01-11 16:50:49 ensonic Exp $
+/* $Id: machine-preferences-dialog.h,v 1.4 2005-08-05 09:36:18 ensonic Exp $
  * class for the machine preferences dialog
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_MACHINE_PREFERENCES_DIALOG		         (bt_machine_preferences_dialog_get_type ())
-#define BT_MACHINE_PREFERENCES_DIALOG(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialog))
-#define BT_MACHINE_PREFERENCES_DIALOG_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogClass))
-#define BT_IS_MACHINE_PREFERENCES_DIALOG(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_PREFERENCES_DIALOG))
+#define BT_TYPE_MACHINE_PREFERENCES_DIALOG             (bt_machine_preferences_dialog_get_type ())
+#define BT_MACHINE_PREFERENCES_DIALOG(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialog))
+#define BT_MACHINE_PREFERENCES_DIALOG_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogClass))
+#define BT_IS_MACHINE_PREFERENCES_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MACHINE_PREFERENCES_DIALOG))
 #define BT_IS_MACHINE_PREFERENCES_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MACHINE_PREFERENCES_DIALOG))
 #define BT_MACHINE_PREFERENCES_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogClass))
 

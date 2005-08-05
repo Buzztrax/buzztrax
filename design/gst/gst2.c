@@ -1,4 +1,4 @@
-/** $Id: gst2.c,v 1.7 2005-03-18 17:18:57 ensonic Exp $
+/** $Id: gst2.c,v 1.8 2005-08-05 09:36:12 ensonic Exp $
  * small example on how to use clocks
  */
  
@@ -21,23 +21,23 @@ gboolean clockFunc(GstClock *clock, GstClockTime time, GstClockID id, gpointer u
       gst_main_quit ();
     }
     g_print("clock::is_active: %d\n",gst_clock_is_active (clock));
-		g_print("entry::status: %d (ok=0,early,restart)\n",GST_CLOCK_ENTRY_STATUS((GstClockEntry *)id));
+    g_print("entry::status: %d (ok=0,early,restart)\n",GST_CLOCK_ENTRY_STATUS((GstClockEntry *)id));
     
     return TRUE;
 }
 
 int main(int argc, char **argv) {
-	GstElement *audiosink, *audiosrc, *audioconvert, *thread;
+  GstElement *audiosink, *audiosrc, *audioconvert, *thread;
   GstClock *clock;
   GstClockID *clockId;
   GstDParamManager *audiosrcParam;
   
-	gst_init(&argc, &argv);
+  gst_init(&argc, &argv);
   gst_control_init(&argc,&argv);
   
   if (argc < 3) {
     g_print("usage: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
-		g_print("example: %s sinesrc esdsink 100\n",argv[0]);
+    g_print("example: %s sinesrc esdsink 100\n",argv[0]);
     exit(-1);
   }
   
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
   } else {
     gst_bin_use_clock(GST_BIN(thread), gst_system_clock_obtain());
     clock = gst_bin_get_clock(GST_BIN(thread));
-		g_print("using system clock which is instance_of(%s)\n",GST_OBJECT_NAME(clock));
+    g_print("using system clock which is instance_of(%s)\n",GST_OBJECT_NAME(clock));
   }
   
   g_print("clock::speed: %f\n",gst_clock_get_speed(clock));
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
   g_print("clock::flags: %d (single_sync=1,single_asych=2,peri_sync=4,peri_asych=8,resolution=16,speed=32)\n",GST_CLOCK_FLAGS(clock));
   clockId = gst_clock_new_periodic_id(clock, GST_SECOND*2, GST_SECOND*1 );
   g_print("entry result: %d (error=0,timeout,early,error,unsupported)\n",gst_clock_id_wait_async(clockId, &clockFunc, NULL));
-	g_print("entry::status: %d (ok=0,early,restart)\n",GST_CLOCK_ENTRY_STATUS((GstClockEntry *)clockId));
+  g_print("entry::status: %d (ok=0,early,restart)\n",GST_CLOCK_ENTRY_STATUS((GstClockEntry *)clockId));
   
   /* start playing */
   gst_element_set_state(thread, GST_STATE_PLAYING);

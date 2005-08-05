@@ -1,4 +1,4 @@
-/* $Id: song-info.h,v 1.11 2005-01-11 16:50:47 ensonic Exp $
+/* $Id: song-info.h,v 1.12 2005-08-05 09:36:17 ensonic Exp $
  * class for a song metadata
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_SONG_INFO		         (bt_song_info_get_type ())
-#define BT_SONG_INFO(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_INFO, BtSongInfo))
-#define BT_SONG_INFO_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_INFO, BtSongInfoClass))
-#define BT_IS_SONG_INFO(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SONG_INFO))
+#define BT_TYPE_SONG_INFO             (bt_song_info_get_type ())
+#define BT_SONG_INFO(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_INFO, BtSongInfo))
+#define BT_SONG_INFO_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_INFO, BtSongInfoClass))
+#define BT_IS_SONG_INFO(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SONG_INFO))
 #define BT_IS_SONG_INFO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SONG_INFO))
 #define BT_SONG_INFO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SONG_INFO, BtSongInfoClass))
 

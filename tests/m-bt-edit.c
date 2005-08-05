@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.5 2005-07-22 13:25:52 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.6 2005-08-05 09:36:19 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -23,21 +23,21 @@ int main(int argc, char **argv) {
   int nf; 
   SRunner *sr;
 
-	g_type_init();
+  g_type_init();
   setup_log(argc,argv);
   test_argv[0]=test_arg0;
   test_argv[1]=test_arg1;
   test_argvptr=test_argv;
  
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-	
+  
   sr=srunner_create(bt_edit_application_suite());
-	srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
-	srunner_add_suite(sr, bt_settings_dialog_suite());
+  srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
+  srunner_add_suite(sr, bt_settings_dialog_suite());
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
 
-	return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
+  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
 }

@@ -1,4 +1,4 @@
-// $Id: main-pages.c,v 1.24 2005-07-26 06:44:38 waffel Exp $
+// $Id: main-pages.c,v 1.25 2005-08-05 09:36:18 ensonic Exp $
 /**
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
@@ -11,11 +11,11 @@
 
 enum {
   MAIN_PAGES_APP=1,
-	MAIN_PAGES_MACHINES_PAGE,
-	MAIN_PAGES_PATTERNS_PAGE,
-	MAIN_PAGES_SEQUENCE_PAGE,
-	MAIN_PAGES_WAVES_PAGE,
-	MAIN_PAGES_INFO_PAGE
+  MAIN_PAGES_MACHINES_PAGE,
+  MAIN_PAGES_PATTERNS_PAGE,
+  MAIN_PAGES_SEQUENCE_PAGE,
+  MAIN_PAGES_WAVES_PAGE,
+  MAIN_PAGES_INFO_PAGE
 };
 
 
@@ -45,23 +45,23 @@ static GtkNotebookClass *parent_class=NULL;
 //-- helper methods
 
 static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,guint index,gchar *str,gchar *icon,gchar *tip) {
-	GtkWidget *label,*event_box,*box,*image;
+  GtkWidget *label,*event_box,*box,*image;
 
   label=gtk_label_new(str);
   gtk_widget_set_name(label,str);
   gtk_widget_show(label);
 
-	image=gtk_image_new_from_filename(icon);
-	gtk_widget_show(image);
-	
-	box=gtk_hbox_new(FALSE,6);
-	gtk_widget_show(box);
-	gtk_container_add(GTK_CONTAINER(box),image);
+  image=gtk_image_new_from_filename(icon);
+  gtk_widget_show(image);
+  
+  box=gtk_hbox_new(FALSE,6);
+  gtk_widget_show(box);
+  gtk_container_add(GTK_CONTAINER(box),image);
   gtk_container_add(GTK_CONTAINER(box),label);
-	
+  
   event_box=gtk_event_box_new();
-	gtk_container_add(GTK_CONTAINER(event_box),box);
-	
+  gtk_container_add(GTK_CONTAINER(event_box),box);
+  
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),index),event_box);
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,tip,NULL);
 }
@@ -69,45 +69,45 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
 static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   GtkTooltips *tips;
 
-	GST_DEBUG("!!!! self=%p",self);
-	
+  GST_DEBUG("!!!! self=%p",self);
+  
   tips=gtk_tooltips_new();
   
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
-	//GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
-	
+  //GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+  
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINES_PAGE,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
-	
+  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINES_PAGE,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
+  
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERNS_PAGE,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
-	
+  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERNS_PAGE,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
+  
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
+  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
   self->priv->waves_page=bt_main_page_waves_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVES_PAGE,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
+  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVES_PAGE,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
   self->priv->info_page=bt_main_page_info_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
-	bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_PAGE,_("song information"),"tab_info.png",_("song meta data editor"));
+  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_PAGE,_("song information"),"tab_info.png",_("song meta data editor"));
 
-	// @idea add widgets for machine help view
-	// GTK_STOCK_HELP icon
-	// embed mozilla/gtk-html
+  // @idea add widgets for machine help view
+  // GTK_STOCK_HELP icon
+  // embed mozilla/gtk-html
 
-	GST_DEBUG("  done");
-	return(TRUE);
+  GST_DEBUG("  done");
+  return(TRUE);
 }
 
 //-- constructor methods
@@ -170,7 +170,7 @@ static void bt_main_pages_get_property(GObject      *object,
       g_value_set_object(value, self->priv->info_page);
     } break;
     default: {
- 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -187,18 +187,18 @@ static void bt_main_pages_set_property(GObject      *object,
     case MAIN_PAGES_APP: {
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-			g_object_try_weak_ref(self->priv->app);
+      g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_pages: %p",self->priv->app);
     } break;
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
 
 static void bt_main_pages_dispose(GObject *object) {
   BtMainPages *self = BT_MAIN_PAGES(object);
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -291,10 +291,10 @@ GType bt_main_pages_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtMainPages),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_main_pages_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_main_pages_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(GTK_TYPE_NOTEBOOK,"BtMainPages",&info,0);
+    type = g_type_register_static(GTK_TYPE_NOTEBOOK,"BtMainPages",&info,0);
   }
   return type;
 }

@@ -1,4 +1,4 @@
-/** $Id: gst4.c,v 1.2 2005-03-18 17:18:57 ensonic Exp $
+/** $Id: gst4.c,v 1.3 2005-08-05 09:36:12 ensonic Exp $
  * try to reproduce what I belive is a bug in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.8 --cflags --libs` gst4.c -o gst4
@@ -20,10 +20,10 @@
 int main(int argc, char **argv) {
   GstBin *bin;
   /* elements used in pipeline */
-	GstElement *audiosink, *elem, *audiosrc;
+  GstElement *audiosink, *elem, *audiosrc;
   
   /* init gstreamer */
-	gst_init(&argc, &argv);
+  gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   
   /* create a new bin to hold the elements */

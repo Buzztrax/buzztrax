@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.43 2005-08-04 09:47:49 waffel Exp $
+// $Id: song-io.c,v 1.44 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -30,11 +30,11 @@ struct _BtSongIOPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   
-	/* used to load or save the song file */
-	gchar *file_name;
+  /* used to load or save the song file */
+  gchar *file_name;
 
-	/* informs about the progress of the loader */
-	gchar *status;
+  /* informs about the progress of the loader */
+  gchar *status;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -76,7 +76,7 @@ static void bt_song_io_register_plugins(void) {
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
       GST_INFO("    found file \"%s\"",dire->d_name);
       //   2.) try to open each as g_module
- 			if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
+       if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
         GST_INFO("    that is a shared object");
         //   3.) gets the address of GType bt_song_io_detect(const gchar *);
         if(g_module_symbol(plugin,"bt_song_io_detect",&bt_song_io_plugin_detect)) {
@@ -87,7 +87,7 @@ static void bt_song_io_register_plugins(void) {
         else g_module_close(plugin);
       }
     }
-		closedir(dirp);
+    closedir(dirp);
   }
 }
 
@@ -110,7 +110,7 @@ static GType bt_song_io_detect(const gchar *file_name) {
   if(!plugins) bt_song_io_register_plugins();
   
   // try all registered plugins
-	for(node=plugins;node;node=g_list_next(node)) {
+  for(node=plugins;node;node=g_list_next(node)) {
     detect=(BtSongIODetect)node->data;
     GST_INFO("  trying ...");
     // the detect function return a GType if the file matches to the plugin or NULL otheriwse
@@ -119,28 +119,28 @@ static GType bt_song_io_detect(const gchar *file_name) {
       break;
     }
   }
-	//return(BT_TYPE_SONG_IO_NATIVE);
+  //return(BT_TYPE_SONG_IO_NATIVE);
   return(type);
 }
 
 static void bt_song_io_update_filename(const BtSongIO *self, const BtSong *song) {
-	BtSongInfo *song_info;
-	gchar *file_path,*file_name;
+  BtSongInfo *song_info;
+  gchar *file_path,*file_name;
 
-	g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
-	// file_name is last part from file_path
-	file_name=g_strrstr(file_path,G_DIR_SEPARATOR_S);
-	if(file_name) {
-		file_name++;
-	}
-	else {
-		file_name=file_path;
-	}
-	//GST_INFO("file name is : %s",file_name);
-	g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-	g_object_set(song_info,"file-name",file_name,NULL);
-	g_free(file_path);
-	g_object_try_unref(song_info);
+  g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
+  // file_name is last part from file_path
+  file_name=g_strrstr(file_path,G_DIR_SEPARATOR_S);
+  if(file_name) {
+    file_name++;
+  }
+  else {
+    file_name=file_path;
+  }
+  //GST_INFO("file name is : %s",file_name);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_set(song_info,"file-name",file_name,NULL);
+  g_free(file_path);
+  g_object_try_unref(song_info);
 }
 
 //-- constructor methods
@@ -155,13 +155,13 @@ static void bt_song_io_update_filename(const BtSongIO *self, const BtSong *song)
  */
 BtSongIO *bt_song_io_new(const gchar *file_name) {
   BtSongIO *self=NULL;
-	GType type = 0;
-	
-	if(!is_string(file_name)) {
+  GType type = 0;
+  
+  if(!is_string(file_name)) {
     GST_WARNING("filename should not be empty");
-		return NULL;
-	}
-	type=bt_song_io_detect(file_name);
+    return NULL;
+  }
+  type=bt_song_io_detect(file_name);
   if(type) {
     self=BT_SONG_IO(g_object_new(type,NULL));
     if(self) {
@@ -175,13 +175,13 @@ BtSongIO *bt_song_io_new(const gchar *file_name) {
 //-- methods
 
 static gboolean bt_song_io_real_load(const gpointer _self, const BtSong *song) {
-	GST_ERROR("virtual method bt_song_io_real_load(self,song) called");
-	return(FALSE);	// this is a base class that can't load anything
+  GST_ERROR("virtual method bt_song_io_real_load(self,song) called");
+  return(FALSE);  // this is a base class that can't load anything
 }
 
 static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
-	GST_ERROR("virtual method bt_song_io_real_save(self,song) called");
-	return(FALSE);	// this is a base class that can't save anything
+  GST_ERROR("virtual method bt_song_io_real_save(self,song) called");
+  return(FALSE);  // this is a base class that can't save anything
 }
 
 //-- wrapper
@@ -196,11 +196,11 @@ static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
-	gboolean result;
-	
-	if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
-		bt_song_io_update_filename(BT_SONG_IO(self),song);
-		g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
+  gboolean result;
+  
+  if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
+    bt_song_io_update_filename(BT_SONG_IO(self),song);
+    g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
     //DEBUG
     //bt_song_write_to_xml_file(song);
     {
@@ -220,8 +220,8 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
       g_object_unref(setup);
     }
     //DEBUG
-	}
-	return(result);
+  }
+  return(result);
 }
 
 /**
@@ -234,13 +234,13 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
-	gboolean result;
+  gboolean result;
 
-	if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
-		bt_song_io_update_filename(BT_SONG_IO(self),song);
-		g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
-	}
-	return(result);
+  if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
+    bt_song_io_update_filename(BT_SONG_IO(self),song);
+    g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
+  }
+  return(result);
 }
 
 //-- class internals
@@ -254,10 +254,10 @@ static void bt_song_io_get_property(GObject      *object,
   BtSongIO *self = BT_SONG_IO(object);
   return_if_disposed();
   switch (property_id) {
-		case SONG_IO_FILE_NAME: {
+    case SONG_IO_FILE_NAME: {
       g_value_set_string(value, self->priv->file_name);
     } break;
-		case SONG_IO_STATUS: {
+    case SONG_IO_STATUS: {
       g_value_set_string(value, self->priv->status);
     } break;
     default: {
@@ -289,7 +289,7 @@ static void bt_song_io_set_property(GObject      *object,
 static void bt_song_io_dispose(GObject *object) {
   BtSongIO *self = BT_SONG_IO(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -326,18 +326,18 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
   gobject_class->get_property = bt_song_io_get_property;
   gobject_class->dispose      = bt_song_io_dispose;
   gobject_class->finalize     = bt_song_io_finalize;
-	
+  
   klass->load           = bt_song_io_real_load;
   klass->save           = bt_song_io_real_save;
-	
-	g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
+  
+  g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "filename prop",
                                      "filename for load save operations",
                                      NULL, /* default value */
                                      G_PARAM_READABLE));
 
-	g_object_class_install_property(gobject_class,SONG_IO_STATUS,
+  g_object_class_install_property(gobject_class,SONG_IO_STATUS,
                                   g_param_spec_string("status",
                                      "status prop",
                                      "status of load save operations",
@@ -357,10 +357,10 @@ GType bt_song_io_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSongIO),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_song_io_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_song_io_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSongIO",&info,0);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtSongIO",&info,0);
   }
   return type;
 }

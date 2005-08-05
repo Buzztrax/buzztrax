@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.41 2005-07-26 06:43:51 waffel Exp $
+// $Id: sink-machine.c,v 1.42 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -49,50 +49,50 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   g_object_get(app,"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
   if(is_string(audiosink_name)) {
-		GST_INFO("get audiosink from config");
-		plugin_name=audiosink_name;
-	}  else if(is_string(system_audiosink_name)) {
-		GST_INFO("get audiosink from system config");
-		plugin_name=system_audiosink_name;
-	}
-	if (plugin_name) {
-		// this can be a whole pipeline like "audioconvert ! osssink sync=false"
-		// seek for the last '!'
-		if(!(sink_name=g_strrstr(plugin_name,"!"))) {
-			sink_name=plugin_name;
-		}
-		else {
-			// skip '!' and spaces
-			sink_name++;
-			while(*sink_name==' ') sink_name++;
-		}
-		// if there is a space following put '\0' in there
-		if((eon=strstr(sink_name," "))) {
-			*eon='\0';
-		}
-		plugin_name=sink_name;
-	}
-	if (!is_string(plugin_name)) {
-		GST_INFO("get audiosink from gst registry by rank");
+    GST_INFO("get audiosink from config");
+    plugin_name=audiosink_name;
+  }  else if(is_string(system_audiosink_name)) {
+    GST_INFO("get audiosink from system config");
+    plugin_name=system_audiosink_name;
+  }
+  if (plugin_name) {
+    // this can be a whole pipeline like "audioconvert ! osssink sync=false"
+    // seek for the last '!'
+    if(!(sink_name=g_strrstr(plugin_name,"!"))) {
+      sink_name=plugin_name;
+    }
+    else {
+      // skip '!' and spaces
+      sink_name++;
+      while(*sink_name==' ') sink_name++;
+    }
+    // if there is a space following put '\0' in there
+    if((eon=strstr(sink_name," "))) {
+      *eon='\0';
+    }
+    plugin_name=sink_name;
+  }
+  if (!is_string(plugin_name)) {
+    GST_INFO("get audiosink from gst registry by rank");
     // iterate over gstreamer-audiosink list and choose element with highest rank
     GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
-		GstElementFactory *factory;
-		guint max_rank=0,cur_rank;
-		
-		node=audiosink_names;
-		while(node) {
-			factory=gst_element_factory_find(node->data);
-			cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
-			//GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
-			if((cur_rank>max_rank) || (!plugin_name)) {
-      	plugin_name=node->data;
-				max_rank=cur_rank;
-			}
-			node=g_list_next(node);
+    GstElementFactory *factory;
+    guint max_rank=0,cur_rank;
+    
+    node=audiosink_names;
+    while(node) {
+      factory=gst_element_factory_find(node->data);
+      cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
+      //GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
+      if((cur_rank>max_rank) || (!plugin_name)) {
+        plugin_name=node->data;
+        max_rank=cur_rank;
+      }
+      node=g_list_next(node);
     }
     g_list_free(audiosink_names);
   }
-	GST_INFO("using audio sink : \"%s\"",plugin_name);
+  GST_INFO("using audio sink : \"%s\"",plugin_name);
   if(!is_string(plugin_name)) {
     GST_ERROR("no audiosink configured/register");
     goto Error;
@@ -111,7 +111,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   return(self);
 Error:
   g_free(system_audiosink_name);
-	g_free(audiosink_name);
+  g_free(audiosink_name);
   g_object_try_unref(settings);
   g_object_try_unref(app);
   g_object_try_unref(self);
@@ -126,11 +126,11 @@ Error:
  *
  *
 BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id, const gchar *format) {
- 	// get gst mimetype from the extension
+   // get gst mimetype from the extension
   // and then look at all encoders which supply that mimetype
-	// check elements in "codec/encoder/audio", "codec/muxer/audio"
-	// build caps using this mimetype
-	// gst_element_factory_can_src_caps()
+  // check elements in "codec/encoder/audio", "codec/muxer/audio"
+  // build caps using this mimetype
+  // gst_element_factory_can_src_caps()
 }
 */
 
@@ -165,14 +165,14 @@ static void bt_sink_machine_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
 
 static void bt_sink_machine_dispose(GObject *object) {
   BtSinkMachine *self = BT_SINK_MACHINE(object);
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -201,7 +201,7 @@ static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	//BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
+  //BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_MACHINE);
   
@@ -223,10 +223,10 @@ GType bt_sink_machine_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSinkMachine),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_sink_machine_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_sink_machine_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(BT_TYPE_MACHINE,"BtSinkMachine",&info,0);
+    type = g_type_register_static(BT_TYPE_MACHINE,"BtSinkMachine",&info,0);
   }
   return type;
 }

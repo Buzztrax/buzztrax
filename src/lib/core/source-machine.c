@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.25 2005-07-26 06:43:51 waffel Exp $
+// $Id: source-machine.c,v 1.26 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -70,7 +70,7 @@ static void bt_source_machine_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -85,7 +85,7 @@ static void bt_source_machine_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -93,7 +93,7 @@ static void bt_source_machine_set_property(GObject      *object,
 static void bt_source_machine_dispose(GObject *object) {
   BtSourceMachine *self = BT_SOURCE_MACHINE(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -121,7 +121,7 @@ static void bt_source_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_source_machine_class_init(BtSourceMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-	//BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
+  //BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_MACHINE);
   
@@ -143,10 +143,10 @@ GType bt_source_machine_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSourceMachine),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_source_machine_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_source_machine_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(BT_TYPE_MACHINE,"BtSourceMachine",&info,0);
+    type = g_type_register_static(BT_TYPE_MACHINE,"BtSourceMachine",&info,0);
   }
   return type;
 }

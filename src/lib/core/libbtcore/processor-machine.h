@@ -1,4 +1,4 @@
-/* $Id: processor-machine.h,v 1.12 2005-07-15 15:08:16 ensonic Exp $
+/* $Id: processor-machine.h,v 1.13 2005-08-05 09:36:17 ensonic Exp $
  * class for a processor machine
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_PROCESSOR_MACHINE		         (bt_processor_machine_get_type ())
-#define BT_PROCESSOR_MACHINE(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachine))
-#define BT_PROCESSOR_MACHINE_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachineClass))
-#define BT_IS_PROCESSOR_MACHINE(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PROCESSOR_MACHINE))
+#define BT_TYPE_PROCESSOR_MACHINE             (bt_processor_machine_get_type ())
+#define BT_PROCESSOR_MACHINE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachine))
+#define BT_PROCESSOR_MACHINE_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachineClass))
+#define BT_IS_PROCESSOR_MACHINE(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PROCESSOR_MACHINE))
 #define BT_IS_PROCESSOR_MACHINE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_PROCESSOR_MACHINE))
 #define BT_PROCESSOR_MACHINE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachineClass))
 
@@ -54,7 +54,7 @@ typedef enum {
   BT_PROCESSOR_MACHINE_PATTERN_INDEX_BREAK=0,
   BT_PROCESSOR_MACHINE_PATTERN_INDEX_MUTE,
   BT_PROCESSOR_MACHINE_PATTERN_INDEX_BYPASS,
-	BT_PROCESSOR_MACHINE_PATTERN_INDEX_OFFSET
+  BT_PROCESSOR_MACHINE_PATTERN_INDEX_OFFSET
 } BtProcessorMachinePatternIndex;
 
 #endif // BT_PROCESSOR_MACHINE_H

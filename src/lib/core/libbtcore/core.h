@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.60 2005-08-05 08:59:47 ensonic Exp $
+/* $Id: core.h,v 1.61 2005-08-05 09:36:16 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -42,32 +42,32 @@
 #include <popt.h>
 //-- i18n
 #ifdef ENABLE_NLS
-	#include <langinfo.h>
-	#include <libintl.h>
+  #include <langinfo.h>
+  #include <libintl.h>
 
-	#define _(String) dgettext(PACKAGE,String)
-	#ifdef GITK_LIB_C
-		#define __(String) dgettext(client_package_name,String)
-	#endif
-	#ifdef gettext_noop
-		#define N_(String) gettext_noop(String)
-	#else
-		#define N_(String) (String)
-	#endif
+  #define _(String) dgettext(PACKAGE,String)
+  #ifdef GITK_LIB_C
+    #define __(String) dgettext(client_package_name,String)
+  #endif
+  #ifdef gettext_noop
+    #define N_(String) gettext_noop(String)
+  #else
+    #define N_(String) (String)
+  #endif
 #else /* NLS is disabled */
-	#define _(String) (String)
-	#define __(String) (String)
-	#define N_(String) (String)
-	#ifdef gettext
-		#undef gettext
-	#endif
-	#define gettext(String) (String)
-	#ifdef dgettext
-		#undef dgettext
-	#endif
-	#define dgettext(Domain,String) (String)
-	#define textdomain(Domain)
-	#define bindtextdomain(Package, Directory)
+  #define _(String) (String)
+  #define __(String) (String)
+  #define N_(String) (String)
+  #ifdef gettext
+    #undef gettext
+  #endif
+  #define gettext(String) (String)
+  #ifdef dgettext
+    #undef dgettext
+  #endif
+  #define dgettext(Domain,String) (String)
+  #define textdomain(Domain)
+  #define bindtextdomain(Package, Directory)
 #endif
 //-- gconf
 #ifdef USE_GCONF
@@ -114,11 +114,11 @@
  * Returns the offset, in bytes, of a member of a struct.
  *
  * Returns: the offset of member from the start of struct_type.
- */	
+ */  
 #define G_ABS_STRUCT_OFFSET(struct_type, member)    \
     ((guint) ((guint8*) &((struct_type*) 0)->member))
-	
-	
+  
+  
 #define XML_CHAR_PTR(str) ((xmlChar *)(str))
 
 //-- global defines ------------------------------------------------------------
@@ -142,16 +142,16 @@
 
 //-- misc
 #ifdef BT_CORE
-	/**
-	 * GST_CAT_DEFAULT:
-	 *
-	 * default loging category. We use gstreamers logging facillities as we use
-	 * gstreamer anyway. All buzztard logging categories are prefixed with "bt_".
-	 */
-	#define GST_CAT_DEFAULT bt_core_debug
-	#ifndef BT_CORE_C
-		GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
-	#endif
+  /**
+   * GST_CAT_DEFAULT:
+   *
+   * default loging category. We use gstreamers logging facillities as we use
+   * gstreamer anyway. All buzztard logging categories are prefixed with "bt_".
+   */
+  #define GST_CAT_DEFAULT bt_core_debug
+  #ifndef BT_CORE_C
+    GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
+  #endif
 #endif
 
 /**
@@ -231,8 +231,8 @@
 #define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 #ifndef BT_CORE_C
-	extern void bt_init(int *argc, char ***argv, struct poptOption *options);
+  extern void bt_init(int *argc, char ***argv, struct poptOption *options);
 #endif
 
-	
+  
 #endif // BT_CORE_H

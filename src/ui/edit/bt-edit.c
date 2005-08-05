@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.21 2005-07-26 06:44:38 waffel Exp $
+// $Id: bt-edit.c,v 1.22 2005-08-05 09:36:17 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: various helper for the graphical editor application
@@ -25,34 +25,34 @@ static void usage(int argc, char **argv, const struct poptOption *options) {
 }
 
 int main(int argc, char **argv) {
-	gboolean res=FALSE;
+  gboolean res=FALSE;
   gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
-	BtEditApplication *app;
+  BtEditApplication *app;
 
-	struct poptOption options[] = {
-		{"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
-		{"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &command,     0, "command name", "{load}" },
-		{"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &input_file_name, 	0, "input file name", "SONGFILE" },
-		POPT_TABLEEND
-	};
+  struct poptOption options[] = {
+    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
+    {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &command,     0, "command name", "{load}" },
+    {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &input_file_name,   0, "input file name", "SONGFILE" },
+    POPT_TABLEEND
+  };
   
-	// in case we ever want to use a custom theme for buzztard:
-	// gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S"buzztard"G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
-	
-  if(!g_thread_supported()) {	// are g_threads() already initialized
-		g_thread_init(NULL);
-	}
-	gdk_threads_init();
-	bt_threads_init();
+  // in case we ever want to use a custom theme for buzztard:
+  // gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S"buzztard"G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
+  
+  if(!g_thread_supported()) {  // are g_threads() already initialized
+    g_thread_init(NULL);
+  }
+  gdk_threads_init();
+  bt_threads_init();
 
   // init gtk (before or after bt_init ?)
-	// @todo when starting bt-edit with --help it does not print help for gtk
+  // @todo when starting bt-edit with --help it does not print help for gtk
   gtk_init(&argc,&argv);
-	// init buzztard core with own popt options
-	bt_init(&argc,&argv,options);
+  // init buzztard core with own popt options
+  bt_init(&argc,&argv,options);
 
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
@@ -61,36 +61,36 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-	gdk_threads_enter();
-	app=bt_edit_application_new();
+  gdk_threads_enter();
+  app=bt_edit_application_new();
   if(command) {
     // depending on the popt options call the correct method
     if(!strncmp(command,"load",4)) {
       if(!input_file_name) {
-				usage(argc, argv, options);
-				// if commandline options where wrong, just start
-				res=bt_edit_application_run(app);
-			}
+        usage(argc, argv, options);
+        // if commandline options where wrong, just start
+        res=bt_edit_application_run(app);
+      }
       else {
-				res=bt_edit_application_load_and_run(app,input_file_name);
-			}
+        res=bt_edit_application_load_and_run(app,input_file_name);
+      }
     }
     else {
-			usage(argc, argv, options);
-			// if commandline options where wrong, just start
-			res=bt_edit_application_run(app);
-		}
+      usage(argc, argv, options);
+      // if commandline options where wrong, just start
+      res=bt_edit_application_run(app);
+    }
   }
   else {
     res=bt_edit_application_run(app);
   }
-	gdk_threads_leave();
-	
+  gdk_threads_leave();
+  
   GST_DEBUG("exiting ...");
-	// free application
+  // free application
   {
     GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   }
-	g_object_unref(app);
-	return(!res);
+  g_object_unref(app);
+  return(!res);
 }

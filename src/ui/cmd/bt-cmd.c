@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.24 2005-02-11 20:37:22 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.25 2005-08-05 09:36:17 ensonic Exp $
  * You can try to run the uninstalled program via
  *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
  * to enable debug output add:
@@ -21,25 +21,25 @@ static void usage(int argc, char **argv, const struct poptOption *options) {
 }
 
 int main(int argc, char **argv) {
-	gboolean res=FALSE;
+  gboolean res=FALSE;
   gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL,*output_file_name=NULL;
-	BtCmdApplication *app;
+  BtCmdApplication *app;
 
-	struct poptOption options[] = {
-		{"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
-		{"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, "command name", "{info, play, convert, encode}" },
-		{"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name, 	0, "input file name", "SONGFILE" },
-		{"output-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &output_file_name,	0, "output file name", "SONGFILE" },
-		POPT_TABLEEND
-	};
+  struct poptOption options[] = {
+    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
+    {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, "command name", "{info, play, convert, encode}" },
+    {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name,   0, "input file name", "SONGFILE" },
+    {"output-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &output_file_name,  0, "output file name", "SONGFILE" },
+    POPT_TABLEEND
+  };
 
-	// init buzztard core with own popt options
-	bt_init(&argc,&argv,options);
+  // init buzztard core with own popt options
+  bt_init(&argc,&argv,options);
   
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
 
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
   if(!command) usage(argc, argv, options);
   g_printf("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
 
-	app=bt_cmd_application_new();
+  app=bt_cmd_application_new();
   // depending on the popt options call the correct method
   if(!strncmp(command,"play",4)) {
     if(!input_file_name) usage(argc, argv, options);
@@ -68,9 +68,9 @@ int main(int argc, char **argv) {
     res=bt_cmd_application_encode(app,input_file_name,output_file_name);
   }
   else usage(argc, argv, options);
-	
-	// free application
-	g_object_unref(app);
-	
-	return(!res);
+  
+  // free application
+  g_object_unref(app);
+  
+  return(!res);
 }

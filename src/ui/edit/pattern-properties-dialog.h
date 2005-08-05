@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.h,v 1.1 2005-04-22 17:34:20 ensonic Exp $
+/* $Id: pattern-properties-dialog.h,v 1.2 2005-08-05 09:36:18 ensonic Exp $
  * class for the pattern properties dialog
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_PATTERN_PROPERTIES_DIALOG		         (bt_pattern_properties_dialog_get_type ())
-#define BT_PATTERN_PROPERTIES_DIALOG(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialog))
-#define BT_PATTERN_PROPERTIES_DIALOG_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialogClass))
-#define BT_IS_PATTERN_PROPERTIES_DIALOG(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PATTERN_PROPERTIES_DIALOG))
+#define BT_TYPE_PATTERN_PROPERTIES_DIALOG             (bt_pattern_properties_dialog_get_type ())
+#define BT_PATTERN_PROPERTIES_DIALOG(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialog))
+#define BT_PATTERN_PROPERTIES_DIALOG_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialogClass))
+#define BT_IS_PATTERN_PROPERTIES_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PATTERN_PROPERTIES_DIALOG))
 #define BT_IS_PATTERN_PROPERTIES_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_PATTERN_PROPERTIES_DIALOG))
 #define BT_PATTERN_PROPERTIES_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialogClass))
 

@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.3 2005-06-14 07:19:56 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.4 2005-08-05 09:36:19 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -20,37 +20,37 @@ static void test_teardown(void) {
 //-- tests
 
 START_TEST(test_btsinkmachine_settings1) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSinkMachine *machine=NULL;
-	BtSettings *settings=NULL;
-	gchar *saved_audiosink_name;
-	
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSinkMachine *machine=NULL;
+  BtSettings *settings=NULL;
+  gchar *saved_audiosink_name;
+  
   GST_INFO("--------------------------------------------------------------------------------");
-	/* create a dummy app */
+  /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	
+  song=bt_song_new(app);
+  
   settings=BT_SETTINGS(bt_gconf_settings_new());
   
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-	
-	g_object_set(settings,"audiosink","osssink sync=false",NULL);
-	
-	machine=bt_sink_machine_new(song,"master");
-	fail_unless(machine!=NULL, NULL);
-	
-	
+  
+  g_object_set(settings,"audiosink","osssink sync=false",NULL);
+  
+  machine=bt_sink_machine_new(song,"master");
+  fail_unless(machine!=NULL, NULL);
+  
+  
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-	
+  
   g_object_unref(settings);
-	g_free(saved_audiosink_name);
-	g_object_unref(machine);
-	g_object_unref(song);
-	g_object_unref(app);
+  g_free(saved_audiosink_name);
+  g_object_unref(machine);
+  g_object_unref(song);
+  g_object_unref(app);
 }
 END_TEST;
 
@@ -61,45 +61,45 @@ END_TEST;
 * instantiable.
 */
 START_TEST(test_btsinkmachine_settings2) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSinkMachine *machine=NULL;
-	BtSettings *settings=NULL;
-	gchar *saved_audiosink_name;
-	
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSinkMachine *machine=NULL;
+  BtSettings *settings=NULL;
+  gchar *saved_audiosink_name;
+  
   GST_INFO("--------------------------------------------------------------------------------");
-	/* create a dummy app */
+  /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	
+  song=bt_song_new(app);
+  
   settings=BT_SETTINGS(bt_gconf_settings_new());
   
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-	
-	g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
-	
-	machine=bt_sink_machine_new(song,"master");
-	fail_unless(machine!=NULL, NULL);
-	
-	
+  
+  g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
+  
+  machine=bt_sink_machine_new(song,"master");
+  fail_unless(machine!=NULL, NULL);
+  
+  
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-	
+  
   g_object_unref(settings);
-	g_free(saved_audiosink_name);
-	g_object_unref(machine);
-	g_object_unref(song);
-	g_object_unref(app);
+  g_free(saved_audiosink_name);
+  g_object_unref(machine);
+  g_object_unref(song);
+  g_object_unref(app);
 }
 END_TEST;
 
 TCase *bt_sink_machine_test_case(void) {
   TCase *tc = tcase_create("BtSinkMachineTests");
 
-	tcase_add_test(tc,test_btsinkmachine_settings1);
-	tcase_add_test(tc,test_btsinkmachine_settings2);
+  tcase_add_test(tc,test_btsinkmachine_settings1);
+  tcase_add_test(tc,test_btsinkmachine_settings2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

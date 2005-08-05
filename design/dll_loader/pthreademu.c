@@ -76,10 +76,10 @@ void wine_pthread_init_process( const struct wine_pthread_functions *functions )
 
 void wine_pthread_get_stack_info (void** stack_base, size_t* stack_size)
 {
-	/* retrieve the stack info (except for main thread) */
-	
+  /* retrieve the stack info (except for main thread) */
+  
 #ifdef HAVE_PTHREAD_GETATTR_NP
-	pthread_attr_t attr;
+  pthread_attr_t attr;
         pthread_getattr_np( pthread_self(), &attr );
         pthread_attr_getstack( &attr, stack_base, stack_size );
 #else
@@ -190,17 +190,17 @@ void wine_pthread_exit_thread( struct wine_pthread_thread_info *info )
  */
 void wine_pthread_abort_thread( int status )
 {
-	extern void* initial_teb;
+  extern void* initial_teb;
 
-//	fprintf (stderr, "abort teb = %p\n", NtCurrentTeb());
+//  fprintf (stderr, "abort teb = %p\n", NtCurrentTeb());
 
-//	if (wine_pthread_get_current_teb() == initial_teb) {
-//		_exit (status);
-//	}
+//  if (wine_pthread_get_current_teb() == initial_teb) {
+//    _exit (status);
+//  }
 
-	pthread_detach( pthread_self() );  /* no one will be joining with us */
-	write(1, "thread exiting\n", 15);
-	pthread_exit( (void *)status );
+  pthread_detach( pthread_self() );  /* no one will be joining with us */
+  write(1, "thread exiting\n", 15);
+  pthread_exit( (void *)status );
 }
 
 #endif  /* HAVE_PTHREAD_H */

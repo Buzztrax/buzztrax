@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.23 2005-07-26 06:44:38 waffel Exp $
+// $Id: wire-canvas-item.c,v 1.24 2005-08-05 09:36:19 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -13,12 +13,12 @@
 
 enum {
   WIRE_CANVAS_ITEM_APP=1,
-	WIRE_CANVAS_ITEM_MACHINES_PAGE,
+  WIRE_CANVAS_ITEM_MACHINES_PAGE,
   WIRE_CANVAS_ITEM_WIRE,
   WIRE_CANVAS_ITEM_W,
   WIRE_CANVAS_ITEM_H,
-	WIRE_CANVAS_ITEM_SRC,
-	WIRE_CANVAS_ITEM_DST
+  WIRE_CANVAS_ITEM_SRC,
+  WIRE_CANVAS_ITEM_DST
 };
 
 
@@ -130,22 +130,22 @@ static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble
 //-- event handler
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
-	BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-	BtMachine *src,*dst;
-	
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+  BtMachine *src,*dst;
+  
   g_assert(user_data);
-	
-	g_object_get(self->priv->src,"machine",&src,NULL);
-	g_object_get(self->priv->dst,"machine",&dst,NULL);
-	
-	GST_INFO("machine has been removed, checking connected wires");
-	if((src==machine) || (dst==machine)) {
-		GST_INFO("machine this wire is connected to has been removed");
-		bt_setup_remove_wire(setup,self->priv->wire);
-		bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
-	}
-	g_object_try_unref(src);
-	g_object_try_unref(dst);
+  
+  g_object_get(self->priv->src,"machine",&src,NULL);
+  g_object_get(self->priv->dst,"machine",&dst,NULL);
+  
+  GST_INFO("machine has been removed, checking connected wires");
+  if((src==machine) || (dst==machine)) {
+    GST_INFO("machine this wire is connected to has been removed");
+    bt_setup_remove_wire(setup,self->priv->wire);
+    bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
+  }
+  g_object_try_unref(src);
+  g_object_try_unref(dst);
 }
 
 void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
@@ -154,7 +154,7 @@ void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_d
   GHashTable *properties;  
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GnomeCanvasPoints *points;
-	
+  
   //GST_INFO("wire pos has changed : machine_item=%p, user_data=%p",machine_item,user_data);
 
   g_object_get(self->priv->src,"machine",&src_machine,NULL);
@@ -186,20 +186,20 @@ void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_d
 
 static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-	BtSong *song;
-	BtSetup *setup;
-	
+  BtSong *song;
+  BtSetup *setup;
+  
   g_assert(user_data);
-	GST_INFO("context_menu disconnect event occurred");
-		
- 	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
- 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  GST_INFO("context_menu disconnect event occurred");
+    
+   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-	bt_setup_remove_wire(setup,self->priv->wire);
-	bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
-		
-	g_object_try_unref(setup);
-	g_object_try_unref(song);
+  bt_setup_remove_wire(setup,self->priv->wire);
+  bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
+    
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
 }
 
 //-- helper methods
@@ -222,37 +222,37 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
  * Returns: the new instance or %NULL in case of an error
  */
 BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_machines,BtWire *wire,gdouble pos_xs,gdouble pos_ys,gdouble pos_xe,gdouble pos_ye,BtMachineCanvasItem *src_machine_item,BtMachineCanvasItem *dst_machine_item) {
-	BtWireCanvasItem *self;
-	BtEditApplication *app;
-	GnomeCanvas *canvas;
-	BtSong *song;
-	BtSetup *setup;
+  BtWireCanvasItem *self;
+  BtEditApplication *app;
+  GnomeCanvas *canvas;
+  BtSong *song;
+  BtSetup *setup;
 
-	g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
- 	g_object_get(G_OBJECT(app),"song",&song,NULL);
- 	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
+   g_object_get(G_OBJECT(app),"song",&song,NULL);
+   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   self=BT_WIRE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
-                          	BT_TYPE_WIRE_CANVAS_ITEM,
-														"machines-page",main_page_machines,
-                          	"app", app,
-                          	"wire", wire,
-                          	"x", pos_xs,
-                          	"y", pos_ys,
-                          	"w", (pos_xe-pos_xs),
-                          	"h", (pos_ye-pos_ys),
-                          	"src", src_machine_item,
-                          	"dst", dst_machine_item,
-                          	NULL));
+                            BT_TYPE_WIRE_CANVAS_ITEM,
+                            "machines-page",main_page_machines,
+                            "app", app,
+                            "wire", wire,
+                            "x", pos_xs,
+                            "y", pos_ys,
+                            "w", (pos_xe-pos_xs),
+                            "h", (pos_ye-pos_ys),
+                            "src", src_machine_item,
+                            "dst", dst_machine_item,
+                            NULL));
   gnome_canvas_item_lower_to_bottom(GNOME_CANVAS_ITEM(self));
-	g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
 
-	//GST_INFO("wire canvas item added");
+  //GST_INFO("wire canvas item added");
 
-	g_object_try_unref(setup);
-	g_object_try_unref(song);
-	g_object_try_unref(canvas);
-	g_object_try_unref(app);
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
+  g_object_try_unref(canvas);
+  g_object_try_unref(app);
   return(self);
 }
 
@@ -293,7 +293,7 @@ static void bt_wire_canvas_item_get_property(GObject      *object,
       g_value_set_object(value, self->priv->dst);
     } break;
     default: {
- 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -315,7 +315,7 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
     case WIRE_CANVAS_ITEM_MACHINES_PAGE: {
       g_object_try_weak_unref(self->priv->main_page_machines);
       self->priv->main_page_machines = BT_MAIN_PAGE_MACHINES(g_value_get_object(value));
-			g_object_try_weak_ref(self->priv->main_page_machines);
+      g_object_try_weak_ref(self->priv->main_page_machines);
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case WIRE_CANVAS_ITEM_WIRE: {
@@ -346,53 +346,53 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       }
     } break;
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
 
 static void bt_wire_canvas_item_dispose(GObject *object) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-	GST_DEBUG("!!!! self=%p",self);
-	if(self->priv->src) {
-		g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->src),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
-	}
-	if(self->priv->dst) {
-		g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
-	}
+  GST_DEBUG("!!!! self=%p",self);
+  if(self->priv->src) {
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->src),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
+  }
+  if(self->priv->dst) {
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
+  }
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
-	g_object_try_weak_unref(self->priv->main_page_machines);
+  g_object_try_weak_unref(self->priv->main_page_machines);
 
-	GST_DEBUG("  unrefing done");
-	  
-	gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+  GST_DEBUG("  unrefing done");
+    
+  gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
-	GST_DEBUG("  chaining up");  
+  GST_DEBUG("  chaining up");  
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
-	GST_DEBUG("  done");
+  GST_DEBUG("  done");
 }
 
 static void bt_wire_canvas_item_finalize(GObject *object) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
 
-	GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv);
 
-	GST_DEBUG("  chaining up");
+  GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
-	GST_DEBUG("  done");
+  GST_DEBUG("  done");
 }
 
 /**
@@ -459,11 +459,11 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
       break;
   }
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
-	if(!res) {
-		if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
-			res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
-		}
-	}
+  if(!res) {
+    if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
+      res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
+    }
+  }
   return res;
 }
 
@@ -480,7 +480,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   menu_item=gtk_menu_item_new_with_label(_("Disconnect"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-	g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_disconnect_activate),(gpointer)self);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_disconnect_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -527,7 +527,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #endif
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_WIRE,
+  g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_WIRE,
                                   g_param_spec_object("wire",
                                      "wire contruct prop",
                                      "Set wire object, the item belongs to",
@@ -537,8 +537,8 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #endif
                                      G_PARAM_READWRITE));
 
- 	g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_W,
-																	g_param_spec_double("w",
+   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_W,
+                                  g_param_spec_double("w",
                                      "width prop",
                                      "width of the wire",
                                      -10000.0,
@@ -546,8 +546,8 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      1.0,
                                      G_PARAM_READWRITE));
 
- 	g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_H,
-																	g_param_spec_double("h",
+   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_H,
+                                  g_param_spec_double("h",
                                      "height prop",
                                      "height of the wire",
                                      -10000.0,
@@ -588,10 +588,10 @@ GType bt_wire_canvas_item_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtWireCanvasItem),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_wire_canvas_item_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_wire_canvas_item_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(GNOME_TYPE_CANVAS_GROUP,"BtWireCanvasItem",&info,0);
+    type = g_type_register_static(GNOME_TYPE_CANVAS_GROUP,"BtWireCanvasItem",&info,0);
   }
   return type;
 }

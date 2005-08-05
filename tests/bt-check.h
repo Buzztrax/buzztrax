@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.3 2005-07-18 16:07:36 ensonic Exp $
+/* $Id: bt-check.h,v 1.4 2005-08-05 09:36:19 ensonic Exp $
  * testing helpers
  */
 
@@ -26,7 +26,7 @@ extern gchar **test_argvptr;
   #define GST_CAT_DEFAULT bt_check_debug
 #endif
 #ifndef BT_CHECK
-	GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
+  GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
 //-- testing helper methods
@@ -36,7 +36,7 @@ extern gchar **test_argvptr;
   gpointer __objref;\
   g_object_add_weak_pointer((gpointer)obj,&__objref);\
   g_object_unref((gpointer)obj);\
-	fail_unless(__objref == NULL, NULL);\
+  fail_unless(__objref == NULL, NULL);\
 }
 
 extern void check_init_error_trapp(gchar *method, gchar *test);

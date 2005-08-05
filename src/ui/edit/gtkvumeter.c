@@ -196,9 +196,9 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
     vumeter = GTK_VUMETER (widget);
     rms_level = gtk_vumeter_sound_level_to_draw_level (vumeter, 
-						       vumeter->rms_level);
+                   vumeter->rms_level);
     peak_level = gtk_vumeter_sound_level_to_draw_level (vumeter, 
-						       vumeter->peak_level);
+                   vumeter->peak_level);
     if (vumeter->vertical == TRUE) {
         width = widget->allocation.width - 2;
         height = widget->allocation.height;
@@ -367,7 +367,7 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
 }
 
 static gint gtk_vumeter_sound_level_to_draw_level (GtkVUMeter *vumeter, 
-						   gint sound_level)
+               gint sound_level)
 {
     gdouble draw_level;
     gdouble level, min, max, height;
@@ -445,7 +445,7 @@ void gtk_vumeter_set_levels (GtkVUMeter *vumeter, gint rms, gint peak)
 void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff)
 {
     g_return_if_fail (GTK_IS_VUMETER (vumeter));
-	
+  
     if (peaks_falloff > GTK_VUMETER_PEAKS_FALLOFF_FAST) {
         peaks_falloff = GTK_VUMETER_PEAKS_FALLOFF_FAST;
     }

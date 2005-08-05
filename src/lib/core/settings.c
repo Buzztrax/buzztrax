@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.16 2005-07-26 06:43:46 waffel Exp $
+// $Id: settings.c,v 1.17 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -62,7 +62,7 @@ static void bt_settings_set_property(GObject      *object,
 static void bt_settings_dispose(GObject *object) {
   BtSettings *self = BT_SETTINGS(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -100,8 +100,8 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
   gobject_class->dispose      = bt_settings_dispose;
   gobject_class->finalize     = bt_settings_finalize;
 
-	//klass->get           = bt_settings_real_get;
-	//klass->set           = bt_settings_real_set;
+  //klass->get           = bt_settings_real_get;
+  //klass->set           = bt_settings_real_set;
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",
@@ -158,10 +158,10 @@ GType bt_settings_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSettings),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_settings_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_settings_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtSettings",&info,G_TYPE_FLAG_ABSTRACT);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtSettings",&info,G_TYPE_FLAG_ABSTRACT);
   }
   return type;
 }

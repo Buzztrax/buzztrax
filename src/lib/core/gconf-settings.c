@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.19 2005-07-26 06:43:42 waffel Exp $
+// $Id: gconf-settings.c,v 1.20 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -28,11 +28,11 @@ static BtSettingsClass *parent_class=NULL;
 //-- event handler
 
 static void bt_gconf_settings_notify_toolbar_style(GConfClient *client, guint cnxn_id, GConfEntry  *entry, gpointer user_data) {
-	BtGConfSettings *self=BT_GCONF_SETTINGS(user_data);
-	
-	GST_INFO("!!!  gconf notify for toolbar style");
-	
-	g_object_notify(G_OBJECT(self),"toolbar-style");
+  BtGConfSettings *self=BT_GCONF_SETTINGS(user_data);
+  
+  GST_INFO("!!!  gconf notify for toolbar style");
+  
+  g_object_notify(G_OBJECT(self),"toolbar-style");
 }
 
 //-- constructor methods
@@ -47,13 +47,13 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient *client, guint cn
 BtGConfSettings *bt_gconf_settings_new(void) {
   BtGConfSettings *self;
   if(!(self=BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL)))) {
-		goto Error;
-	}
-	// register notify handlers for some properties
-	gconf_client_notify_add(self->priv->client,
-				 BT_GCONF_PATH_GNOME"/toolbar_style",
-				 bt_gconf_settings_notify_toolbar_style,
-				 (gpointer)self, NULL, NULL);
+    goto Error;
+  }
+  // register notify handlers for some properties
+  gconf_client_notify_add(self->priv->client,
+         BT_GCONF_PATH_GNOME"/toolbar_style",
+         bt_gconf_settings_notify_toolbar_style,
+         (gpointer)self, NULL, NULL);
   
   //bt_settings_new(BT_SETTINGS(self));
   return(self);
@@ -79,59 +79,59 @@ static void bt_gconf_settings_get_property(GObject      *object,
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
-			if(prop) {
-				GST_DEBUG("application reads audiosink gconf_settings : '%s'",prop);
-				g_value_set_string(value, prop);
-				g_free(prop);
-			}
-			else {
-				GST_DEBUG("application reads [def] audiosink gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-				g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-			}
+      if(prop) {
+        GST_DEBUG("application reads audiosink gconf_settings : '%s'",prop);
+        g_value_set_string(value, prop);
+        g_free(prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] audiosink gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
+        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+      }
     } break;
-		case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",NULL);
-			if(prop) {
-				GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
-				g_value_set_boolean(value, prop);
-			}
-			else {
-				GST_DEBUG("application reads [def] system toolbar-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
-				g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
-			}
+      if(prop) {
+        GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
+        g_value_set_boolean(value, prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] system toolbar-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
+        g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
+      }
 
     } break;
-		case BT_SETTINGS_MENU_TABS_HIDE: {
+    case BT_SETTINGS_MENU_TABS_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",NULL);
-			if(prop) {
-				GST_DEBUG("application reads system tabs-hide gconf_settings : %d",prop);
-				g_value_set_boolean(value, prop);
-			}
-			else {
-				GST_DEBUG("application reads [def] system tabs-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
-				g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
-			}
+      if(prop) {
+        GST_DEBUG("application reads system tabs-hide gconf_settings : %d",prop);
+        g_value_set_boolean(value, prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] system tabs-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
+        g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
+      }
 
     } break;
-		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
-			if(prop) {
-				GST_DEBUG("application reads grid-density gconf_settings : '%s'",prop);
-				g_value_set_string(value, prop);
-				g_free(prop);
-			}
-			else {
-				GST_DEBUG("application reads [def] grid-density gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
-				g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
-			}
-		} break;
+      if(prop) {
+        GST_DEBUG("application reads grid-density gconf_settings : '%s'",prop);
+        g_value_set_string(value, prop);
+        g_free(prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] grid-density gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
+        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+      }
+    } break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
       GST_DEBUG("application reads system audiosink gconf_settings : '%s'",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
-		case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GNOME"/toolbar_style",NULL);
       GST_DEBUG("application reads system toolbar style gconf_settings : '%s'",prop);
       g_value_set_string(value, prop);
@@ -153,35 +153,35 @@ static void bt_gconf_settings_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
-			gboolean gconf_ret=FALSE;
+      gboolean gconf_ret=FALSE;
       gchar *prop=g_value_dup_string(value);
       GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",prop,NULL);
       g_free(prop);
-			g_return_if_fail(gconf_ret == TRUE);
+      g_return_if_fail(gconf_ret == TRUE);
     } break;
-		case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
-			gboolean gconf_ret=FALSE;
+    case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
+      gboolean gconf_ret=FALSE;
       gboolean prop=g_value_get_boolean(value);
       GST_DEBUG("application writes toolbar-hide gconf_settings : %d",prop);
       gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",prop,NULL);
-			g_return_if_fail(gconf_ret == TRUE);
-		} break;
-		case BT_SETTINGS_MENU_TABS_HIDE: {
-			gboolean gconf_ret=FALSE;
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_MENU_TABS_HIDE: {
+      gboolean gconf_ret=FALSE;
       gboolean prop=g_value_get_boolean(value);
       GST_DEBUG("application writes tabs-hide gconf_settings : %d",prop);
       gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",prop,NULL);
-			g_return_if_fail(gconf_ret == TRUE);
-		} break;
-		case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
-			gboolean gconf_ret=FALSE;
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
+      gboolean gconf_ret=FALSE;
       gchar *prop=g_value_dup_string(value);
       GST_DEBUG("application writes grid-density gconf_settings : %s",prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",prop,NULL);
       g_free(prop);
-			g_return_if_fail(gconf_ret == TRUE);
-		} break;
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -191,15 +191,15 @@ static void bt_gconf_settings_set_property(GObject      *object,
 static void bt_gconf_settings_dispose(GObject *object) {
   BtGConfSettings *self = BT_GCONF_SETTINGS(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
   
   // unregister directories to watch
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,NULL);
-	// shutdown gconf client
-	gconf_client_suggest_sync(self->priv->client,NULL);
+  // shutdown gconf client
+  gconf_client_suggest_sync(self->priv->client,NULL);
   g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
@@ -254,10 +254,10 @@ GType bt_gconf_settings_get_type(void) {
       NULL, // class_data
       (guint16)(sizeof(BtGConfSettings)),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_gconf_settings_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_gconf_settings_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(BT_TYPE_SETTINGS,"BtGConfSettings",&info,0);
+    type = g_type_register_static(BT_TYPE_SETTINGS,"BtGConfSettings",&info,0);
   }
   return type;
 }

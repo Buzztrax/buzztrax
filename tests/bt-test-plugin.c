@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.7 2005-08-05 08:59:48 ensonic Exp $
+/* $Id: bt-test-plugin.c,v 1.8 2005-08-05 09:36:19 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -7,14 +7,14 @@
 //-- property ids
 
 enum {
-  ARG_BPM=1,	// tempo iface
+  ARG_BPM=1,  // tempo iface
   ARG_TPB,
   ARG_STPT,
-  ARG_VOICES,	// child bin iface
+  ARG_VOICES,  // child bin iface
   ARG_ULONG,
   ARG_DOUBLE,
   ARG_SWITCH,
-	ARG_COUNT
+  ARG_COUNT
 };
 
 //-- tempo interface implementation
@@ -71,10 +71,10 @@ static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
 
 static void bt_test_mono_source_base_init(BtTestMonoSourceClass *klass) {
   static const GstElementDetails details = {
-		"Monophonic source for unit tests",
-		"Source/Audio/MonoSource",
-		"Use in unit tests",
-		"Stefan Kost <ensonic@users.sf.net>"
+    "Monophonic source for unit tests",
+    "Source/Audio/MonoSource",
+    "Use in unit tests",
+    "Stefan Kost <ensonic@users.sf.net>"
   };
   GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
@@ -86,22 +86,22 @@ GType bt_test_mono_source_get_type(void) {
   if (type == 0) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtTestMonoSourceClass),
-      (GBaseInitFunc)bt_test_mono_source_base_init, 	// base_init
+      (GBaseInitFunc)bt_test_mono_source_base_init,   // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_test_mono_source_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
       G_STRUCT_SIZE(BtTestMonoSource),
       0,    // n_preallocs
-	    NULL, // instance_init
-			NULL  // value_table
+      NULL, // instance_init
+      NULL  // value_table
     };
     static const GInterfaceInfo tempo_interface_info = {
       (GInterfaceInitFunc) bt_test_tempo_interface_init,          /* interface_init */
       NULL,               /* interface_finalize */
       NULL                /* interface_data */
     };
-		type = g_type_register_static(GST_TYPE_ELEMENT,"BtTestMonoSource",&info,0);
+    type = g_type_register_static(GST_TYPE_ELEMENT,"BtTestMonoSource",&info,0);
     g_type_add_interface_static(type, GST_TYPE_TEMPO, &tempo_interface_info);
   }
   return type;
@@ -177,10 +177,10 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
 
 static void bt_test_poly_source_base_init(BtTestPolySourceClass *klass) {
   static const GstElementDetails details = {
-		"Polyphonic source for unit tests",
-		"Source/Audio/PolySource",
-		"Use in unit tests",
-		"Stefan Kost <ensonic@users.sf.net>"
+    "Polyphonic source for unit tests",
+    "Source/Audio/PolySource",
+    "Use in unit tests",
+    "Stefan Kost <ensonic@users.sf.net>"
   };
   GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
@@ -192,15 +192,15 @@ GType bt_test_poly_source_get_type(void) {
   if (type == 0) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtTestPolySourceClass),
-      (GBaseInitFunc)bt_test_poly_source_base_init, 	// base_init
+      (GBaseInitFunc)bt_test_poly_source_base_init,   // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_test_poly_source_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
       G_STRUCT_SIZE(BtTestPolySource),
       0,    // n_preallocs
-	    NULL, // instance_init
-			NULL  // value_table
+      NULL, // instance_init
+      NULL  // value_table
     };
     static const GInterfaceInfo tempo_interface_info = {
       (GInterfaceInitFunc) bt_test_tempo_interface_init,          /* interface_init */
@@ -218,7 +218,7 @@ GType bt_test_poly_source_get_type(void) {
       NULL                /* interface_data */
     };
 
-		type = g_type_register_static(GST_TYPE_ELEMENT,"BtTestPolySource",&info,0);
+    type = g_type_register_static(GST_TYPE_ELEMENT,"BtTestPolySource",&info,0);
     g_type_add_interface_static(type, GST_TYPE_TEMPO, &tempo_interface_info);
     g_type_add_interface_static(type, GST_TYPE_CHILD_PROXY, &child_proxy_interface_info);
     g_type_add_interface_static(type, GST_TYPE_CHILD_BIN, &child_bin_interface_info);
@@ -235,12 +235,12 @@ GType bt_test_poly_source_get_type(void) {
 static gboolean bt_test_plugin_init (GstPlugin * plugin) {
   //GST_INFO("registering unit test plugin");
 
-	gst_element_register(plugin,"buzztard-test-mono-source",GST_RANK_NONE,BT_TYPE_TEST_MONO_SOURCE);
-	gst_element_register(plugin,"buzztard-test-poly-source",GST_RANK_NONE,BT_TYPE_TEST_POLY_SOURCE);
-	//gst_element_register(plugin,"buzztard-test-mono-processor",GST_RANK_NONE,BT_TYPE_TEST_MONO_PROCESSOR);
-	//gst_element_register(plugin,"buzztard-test-poly-processor",GST_RANK_NONE,BT_TYPE_TEST_POLY_PROCESSOR);
+  gst_element_register(plugin,"buzztard-test-mono-source",GST_RANK_NONE,BT_TYPE_TEST_MONO_SOURCE);
+  gst_element_register(plugin,"buzztard-test-poly-source",GST_RANK_NONE,BT_TYPE_TEST_POLY_SOURCE);
+  //gst_element_register(plugin,"buzztard-test-mono-processor",GST_RANK_NONE,BT_TYPE_TEST_MONO_PROCESSOR);
+  //gst_element_register(plugin,"buzztard-test-poly-processor",GST_RANK_NONE,BT_TYPE_TEST_POLY_PROCESSOR);
   
-	// it not looks like we need to do it 
+  // it not looks like we need to do it 
   //gst_registry_pool_add_plugin(plugin);
   return TRUE;
 }

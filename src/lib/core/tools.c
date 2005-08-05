@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.15 2005-03-12 12:11:41 ensonic Exp $
+/* $Id: tools.c,v 1.16 2005-08-05 09:36:16 ensonic Exp $
  */
  
 #define BT_CORE
@@ -25,7 +25,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   sl=(gsize)(strlen(class_filter));
   
   elements=gst_registry_pool_feature_list(GST_TYPE_ELEMENT_FACTORY);
-	for(node=elements;node;node=g_list_next(node)) {
+  for(node=elements;node;node=g_list_next(node)) {
     element=GST_ELEMENT_FACTORY(node->data);
     //GST_DEBUG("  %s: %s", GST_OBJECT_NAME(element),gst_element_factory_get_klass(element));
     if(!g_ascii_strncasecmp(gst_element_factory_get_klass(element),class_filter,sl)) {

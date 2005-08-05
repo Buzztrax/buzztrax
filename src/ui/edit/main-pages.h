@@ -1,4 +1,4 @@
-/* $Id: main-pages.h,v 1.8 2005-04-30 13:14:14 ensonic Exp $
+/* $Id: main-pages.h,v 1.9 2005-08-05 09:36:18 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_MAIN_PAGES		        (bt_main_pages_get_type ())
-#define BT_MAIN_PAGES(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGES, BtMainPages))
-#define BT_MAIN_PAGES_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGES, BtMainPagesClass))
-#define BT_IS_MAIN_PAGES(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGES))
+#define BT_TYPE_MAIN_PAGES            (bt_main_pages_get_type ())
+#define BT_MAIN_PAGES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGES, BtMainPages))
+#define BT_MAIN_PAGES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGES, BtMainPagesClass))
+#define BT_IS_MAIN_PAGES(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGES))
 #define BT_IS_MAIN_PAGES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGES))
 #define BT_MAIN_PAGES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGES, BtMainPagesClass))
 
@@ -42,11 +42,11 @@ struct _BtMainPagesClass {
 GType bt_main_pages_get_type(void);
 
 enum {
-	BT_MAIN_PAGES_MACHINES_PAGE=0,
-	BT_MAIN_PAGES_PATTERNS_PAGE,
-	BT_MAIN_PAGES_SEQUENCE_PAGE,
-	BT_MAIN_PAGES_WAVES_PAGE,
-	BT_MAIN_PAGES_INFO_PAGE
+  BT_MAIN_PAGES_MACHINES_PAGE=0,
+  BT_MAIN_PAGES_PATTERNS_PAGE,
+  BT_MAIN_PAGES_SEQUENCE_PAGE,
+  BT_MAIN_PAGES_WAVES_PAGE,
+  BT_MAIN_PAGES_INFO_PAGE
 };
 
 #endif // BT_MAIN_PAGES_H

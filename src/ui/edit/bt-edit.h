@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.28 2005-06-14 07:19:54 ensonic Exp $
+/* $Id: bt-edit.h,v 1.29 2005-08-05 09:36:17 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -41,7 +41,7 @@
   #define GST_CAT_DEFAULT bt_edit_debug
 #endif
 #if defined(BT_EDIT) && !defined(BT_EDIT_APPLICATION_C)
-	GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
+  GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
 
 //-- gnome canvas has a broken design,

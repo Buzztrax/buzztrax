@@ -1,4 +1,4 @@
-/* $Id: t-source-machine.c,v 1.2 2005-04-27 16:31:07 ensonic Exp $
+/* $Id: t-source-machine.c,v 1.3 2005-08-05 09:36:19 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -23,22 +23,22 @@ static void test_teardown(void) {
 * try to create a machine with not exising plugin name
 */
 START_TEST(test_btsourcemachine_obj1) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSourceMachine *machine=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	/* create a dummy app */
-	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSourceMachine *machine=NULL;
+  
+  GST_INFO("--------------------------------------------------------------------------------");
+  
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	
-	/* try to create a source machine with wrong pluginname (not existing)*/
-	machine=bt_source_machine_new(song,"id","nonsense",1);
-	fail_unless(machine==NULL, NULL);
+  song=bt_song_new(app);
+  
+  /* try to create a source machine with wrong pluginname (not existing)*/
+  machine=bt_source_machine_new(song,"id","nonsense",1);
+  fail_unless(machine==NULL, NULL);
 }
 END_TEST
 
@@ -47,40 +47,40 @@ END_TEST
 * here we mean the plugin-name from gst
 */
 START_TEST(test_btsourcemachine_obj2) {
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSourceMachine *machine=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	/* create a dummy app */
-	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSourceMachine *machine=NULL;
+  
+  GST_INFO("--------------------------------------------------------------------------------");
+  
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	
-	/* try to create a source machine with wrong plugin type (sink instead of source) */
-	machine=bt_source_machine_new(song,"id","esdsink",1);
-	fail_unless(machine==NULL, NULL);
+  song=bt_song_new(app);
+  
+  /* try to create a source machine with wrong plugin type (sink instead of source) */
+  machine=bt_source_machine_new(song,"id","esdsink",1);
+  fail_unless(machine==NULL, NULL);
 }
 END_TEST
 
 START_TEST(test_btsourcemachine_obj3){
   BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSourceMachine *machine=NULL;
-	gulong testIdx=0;
+  BtSong *song=NULL;
+  BtSourceMachine *machine=NULL;
+  gulong testIdx=0;
   GError *error=NULL;
   
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	/* create a dummy app */
+  GST_INFO("--------------------------------------------------------------------------------");
+  
+  /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
+  song=bt_song_new(app);
   
   /* try to create a normal sink machine */
   machine=bt_source_machine_new(song,"id","sinesrc",0);
@@ -100,7 +100,7 @@ TCase *bt_source_machine_test_case(void) {
   TCase *tc = tcase_create("BtSourceMachineTests");
 
   tcase_add_test(tc,test_btsourcemachine_obj1);
-	tcase_add_test(tc,test_btsourcemachine_obj2);
+  tcase_add_test(tc,test_btsourcemachine_obj2);
   tcase_add_test(tc,test_btsourcemachine_obj3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);

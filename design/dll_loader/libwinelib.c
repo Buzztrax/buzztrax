@@ -71,32 +71,32 @@ void* initial_teb;
 static void
 setup_signal (int sig)
 {
-	struct sigaction sigact;
-	struct sigaction oldact;
+  struct sigaction sigact;
+  struct sigaction oldact;
 
-	sigact.sa_handler = (void (*)(int)) sharedwine_signal_handler;
-	sigact.sa_flags = SA_RESTART|SA_SIGINFO;
-	sigact.sa_sigaction = (void (*)(int signal, siginfo_t* info, void *ptr)) sharedwine_signal_handler;
-	sigemptyset (&sigact.sa_mask);
-	sigaddset  (&sigact.sa_mask, SIGINT);
-	sigaddset  (&sigact.sa_mask, SIGUSR2);
+  sigact.sa_handler = (void (*)(int)) sharedwine_signal_handler;
+  sigact.sa_flags = SA_RESTART|SA_SIGINFO;
+  sigact.sa_sigaction = (void (*)(int signal, siginfo_t* info, void *ptr)) sharedwine_signal_handler;
+  sigemptyset (&sigact.sa_mask);
+  sigaddset  (&sigact.sa_mask, SIGINT);
+  sigaddset  (&sigact.sa_mask, SIGUSR2);
 
-	if (sigaction (sig, &sigact, NULL)) {
-		printf("could not install signal handler for signal %d", sig);
-	}
+  if (sigaction (sig, &sigact, NULL)) {
+    printf("could not install signal handler for signal %d", sig);
+  }
 }
 
 void
 redirect_signals ()
 {
-	setup_signal (SIGINT);
-	setup_signal (SIGFPE);
-	setup_signal (SIGILL);
-	setup_signal (SIGSEGV);
-	setup_signal (SIGABRT);
-	setup_signal (SIGTERM);
-	setup_signal (SIGBUS);
-	setup_signal (SIGTRAP);
+  setup_signal (SIGINT);
+  setup_signal (SIGFPE);
+  setup_signal (SIGILL);
+  setup_signal (SIGSEGV);
+  setup_signal (SIGABRT);
+  setup_signal (SIGTERM);
+  setup_signal (SIGBUS);
+  setup_signal (SIGTRAP);
 }
 
 /* The per-thread signal stack size */
@@ -155,87 +155,87 @@ static pthread_mutex_t proxy_thread_lock;
 
 static DWORD WINAPI new_thread_proxy (LPVOID param)
 {
-	int request_pipe[2];
-	NTSTATUS status;
-	struct __server_request_info sri;
-	struct new_thread_request *req = &sri.u.req.new_thread_request;
-	int fd = -1;
-	TEB *teb;
-	struct wine_pthread_thread_info thread_info;
-	ULONG size;
+  int request_pipe[2];
+  NTSTATUS status;
+  struct __server_request_info sri;
+  struct new_thread_request *req = &sri.u.req.new_thread_request;
+  int fd = -1;
+  TEB *teb;
+  struct wine_pthread_thread_info thread_info;
+  ULONG size;
 
-	if (pipe (proxy_pripe_request)) {
-		printf("cannot set up proxy request pipe (%s)", strerror (errno));
-		return (DWORD)-1;
-	}
+  if (pipe (proxy_pripe_request)) {
+    printf("cannot set up proxy request pipe (%s)", strerror (errno));
+    return (DWORD)-1;
+  }
 
-	if (pipe (proxy_pripe_status)) {
-		printf("cannot set up proxy reply pipe (%s)", strerror (errno));
-		return (DWORD)-1;
-	}
+  if (pipe (proxy_pripe_status)) {
+    printf("cannot set up proxy reply pipe (%s)", strerror (errno));
+    return (DWORD)-1;
+  }
 
-	while (1) {
-		
-		/* wait for a request size to be written */
-		
-		if (read (proxy_pripe_request[0], &sri, sizeof (sri)) != sizeof (sri)) {
-			printf("cannot read new thread request from proxy request pipe (%s)", strerror (errno));
-			return (DWORD)-1;
-		}
+  while (1) {
+    
+    /* wait for a request size to be written */
+    
+    if (read (proxy_pripe_request[0], &sri, sizeof (sri)) != sizeof (sri)) {
+      printf("cannot read new thread request from proxy request pipe (%s)", strerror (errno));
+      return (DWORD)-1;
+    }
 
-		if (pipe (request_pipe) >= 0) {
+    if (pipe (request_pipe) >= 0) {
 
-			/* set up a new request pipe */
-			
-			fcntl (request_pipe[1], F_SETFD, 1); /* set close on exec flag */
-			/* server_*/ send_fd (request_pipe[0]);
-			
-			req->request_fd = request_pipe[0];
-			
-			if ((status = server_call (req)) == 0) {
-				fd = request_pipe[1];
-			} else {
-				close (request_pipe[0]);
-				close (request_pipe[1]);
-			}
-		}
+      /* set up a new request pipe */
+      
+      fcntl (request_pipe[1], F_SETFD, 1); /* set close on exec flag */
+      /* server_*/ send_fd (request_pipe[0]);
+      
+      req->request_fd = request_pipe[0];
+      
+      if ((status = server_call (req)) == 0) {
+        fd = request_pipe[1];
+      } else {
+        close (request_pipe[0]);
+        close (request_pipe[1]);
+      }
+    }
 
-		/* create a new TEB. the "thread_info" structure seems to be
-		   the most convenient way of passing back the result.
-		 */
+    /* create a new TEB. the "thread_info" structure seems to be
+       the most convenient way of passing back the result.
+     */
 
-		teb = shared_alloc_teb (&size);
+    teb = shared_alloc_teb (&size);
 
-		thread_info.stack_base = NULL;
-		thread_info.stack_size = 0;
-		thread_info.teb_base   = teb;
-		thread_info.teb_size   = size;
-		thread_info.teb_sel    = teb->teb_sel;
-		
-		/* send back the result, request fd and the newly allocated TEB info */
+    thread_info.stack_base = NULL;
+    thread_info.stack_size = 0;
+    thread_info.teb_base   = teb;
+    thread_info.teb_size   = size;
+    thread_info.teb_sel    = teb->teb_sel;
+    
+    /* send back the result, request fd and the newly allocated TEB info */
 
-		if (write (proxy_pripe_status[1], &sri, sizeof (sri)) != sizeof (sri)) {
-			printf("cannot write request/reply back to proxy reply pipe (%s)", strerror (errno));
-			/* XXX free teb */
-			return (DWORD)-1;
-		}
-		
-		if (write (proxy_pripe_status[1], &fd, sizeof (fd)) != sizeof (status)) {
-			printf("cannot write status back to proxy reply pipe (%s)", strerror (errno));
-			/* XXX free teb */
-			return (DWORD)-1;
-		}
+    if (write (proxy_pripe_status[1], &sri, sizeof (sri)) != sizeof (sri)) {
+      printf("cannot write request/reply back to proxy reply pipe (%s)", strerror (errno));
+      /* XXX free teb */
+      return (DWORD)-1;
+    }
+    
+    if (write (proxy_pripe_status[1], &fd, sizeof (fd)) != sizeof (status)) {
+      printf("cannot write status back to proxy reply pipe (%s)", strerror (errno));
+      /* XXX free teb */
+      return (DWORD)-1;
+    }
 
-		if (write (proxy_pripe_status[1], &thread_info, sizeof (thread_info)) != sizeof (thread_info)) {
-			printf("cannot write thread info to proxy reply pipe (%s)", strerror (errno));
-			/* XXX free teb */
-			return (DWORD)-1;
-		}
+    if (write (proxy_pripe_status[1], &thread_info, sizeof (thread_info)) != sizeof (thread_info)) {
+      printf("cannot write thread info to proxy reply pipe (%s)", strerror (errno));
+      /* XXX free teb */
+      return (DWORD)-1;
+    }
 
-		close (request_pipe[0]);
-	}
+    close (request_pipe[0]);
+  }
 
-	return 0;
+  return 0;
 }
 
 extern int wine_shared_premain ();
@@ -243,152 +243,152 @@ extern int wine_shared_premain ();
 int WINAPI
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow)
 {
-	int jmpstat = 1;
+  int jmpstat = 1;
 
-	if (CreateThread (NULL, 0, new_thread_proxy, NULL, 0, NULL) == NULL) {
-		printf("could not create new thread proxy");
-	}
+  if (CreateThread (NULL, 0, new_thread_proxy, NULL, 0, NULL) == NULL) {
+    printf("could not create new thread proxy");
+  }
 
-	if (wine_shared_premain ()) {
-		jmpstat = 2;
-	} 
-	
-	// return to caller.
+  if (wine_shared_premain ()) {
+    jmpstat = 2;
+  } 
+  
+  // return to caller.
 
-	longjmp (jump, jmpstat);
+  longjmp (jump, jmpstat);
 }
 
 /*
-	WineLoadLibrary is used by System.Windows.Forms to import the Wine dlls
+  WineLoadLibrary is used by System.Windows.Forms to import the Wine dlls
 */
 void *
 WineLoadLibrary(char *dll)
 {
-	return(LoadLibraryA(dll));
+  return(LoadLibraryA(dll));
 }
 
 void *
 WineGetProcAddress(void *handle, char *function)
 {
-	return((void *)GetProcAddress((HINSTANCE__*)handle, function));
+  return((void *)GetProcAddress((HINSTANCE__*)handle, function));
 }
 
 static void*
 get_stack_base ()
 {
-	void* ret;
-	__asm__ ( "movl %%ebp, %0" : "=r" (ret));
-	return ret;
+  void* ret;
+  __asm__ ( "movl %%ebp, %0" : "=r" (ret));
+  return ret;
 }
 
 static inline void*
 get_stack_ptr ()
 {
-	void* ret;
-	__asm__ ( "movl %%esp, %0" : "=r" (ret));
-	return ret;
+  void* ret;
+  __asm__ ( "movl %%esp, %0" : "=r" (ret));
+  return ret;
 }
 
 int
 SharedWineInit(void (*sighandler)(int,siginfo_t*,void*))
 {
-	char Error[1024]="";
-	char *WineArguments[] = {"sharedapp", LIBPATH "/libtest.so", NULL};
-	void* stackbase;
-	size_t stacksize;
-	void *ntdll;
-	void *ntso;
-	char ntdllpath[PATH_MAX+1];
-	char* dlerr;
-	
-	sharedwine_signal_handler = sighandler;
+  char Error[1024]="";
+  char *WineArguments[] = {"sharedapp", LIBPATH "/libtest.so", NULL};
+  void* stackbase;
+  size_t stacksize;
+  void *ntdll;
+  void *ntso;
+  char ntdllpath[PATH_MAX+1];
+  char* dlerr;
+  
+  sharedwine_signal_handler = sighandler;
 
-	if (setjmp(jump) == 0) {
+  if (setjmp(jump) == 0) {
 
-		wine_init(2, WineArguments, Error, sizeof(Error));
-		
-		if (Error[0]!='\0') {
-			printf("Wine initialization error:%s\n", Error);
-			return -1;
-		}
-	}
+    wine_init(2, WineArguments, Error, sizeof(Error));
+    
+    if (Error[0]!='\0') {
+      printf("Wine initialization error:%s\n", Error);
+      return -1;
+    }
+  }
 
-	redirect_signals ();
-	
-	initial_teb = NtCurrentTeb();
+  redirect_signals ();
+  
+  initial_teb = NtCurrentTeb();
 
-	/* set the stack limits so that any exception handling based on
-	   tracking stack boundaries has a chance of working.
-	*/
+  /* set the stack limits so that any exception handling based on
+     tracking stack boundaries has a chance of working.
+  */
 
-	NtCurrentTeb()->Tib.StackBase  = (void*) ~0UL;
-	NtCurrentTeb()->Tib.StackLimit = 0;
+  NtCurrentTeb()->Tib.StackBase  = (void*) ~0UL;
+  NtCurrentTeb()->Tib.StackLimit = 0;
 
-	putenv ("_WINE_SHAREDLIB_PATH=" DLLPATH);
+  putenv ("_WINE_SHAREDLIB_PATH=" DLLPATH);
 
-	/* Loading this will pull in many other DLLs that would
-	   otherwise be loaded+unloaded over and over again
-	   during plugin discovery.
-	*/
+  /* Loading this will pull in many other DLLs that would
+     otherwise be loaded+unloaded over and over again
+     during plugin discovery.
+  */
 
-	if (WineLoadLibrary ("user32.dll") == NULL) {
-		printf("cannot load Windows DLL user32");
-		return 1;
-	}
+  if (WineLoadLibrary ("user32.dll") == NULL) {
+    printf("cannot load Windows DLL user32");
+    return 1;
+  }
 
-	if (WineLoadLibrary ("comdlg32.dll") == NULL) {
-		printf("cannot load Windows DLL comdlg32");
-		return 1;
-	}
+  if (WineLoadLibrary ("comdlg32.dll") == NULL) {
+    printf("cannot load Windows DLL comdlg32");
+    return 1;
+  }
 
-	if (WineLoadLibrary ("oleaut32.dll") == NULL) {
-		printf("cannot load Windows DLL oleaut32");
-		return 1;
-	}
+  if (WineLoadLibrary ("oleaut32.dll") == NULL) {
+    printf("cannot load Windows DLL oleaut32");
+    return 1;
+  }
 
-	/* set up the functions and data we need to be able to adopt
-	   threads.
-	*/
+  /* set up the functions and data we need to be able to adopt
+     threads.
+  */
 
   #define GET_SYMBOL(res,type,handle,name) if((res=(type)WineGetProcAddress (handle,name))==NULL) { printf("cannot find Windows function %s", name); return -1; }
-	
-	if ((ntdll = WineLoadLibrary( "ntdll.dll")) == NULL) {
-		printf("cannot load Windows DLL ntdll");
-		return 1;
-	}
+  
+  if ((ntdll = WineLoadLibrary( "ntdll.dll")) == NULL) {
+    printf("cannot load Windows DLL ntdll");
+    return 1;
+  }
 
-	GET_SYMBOL(ntallocatevm, NtAllocateVirtualMemory_ptr, ntdll, "NtAllocateVirtualMemory");
-	GET_SYMBOL(ntfreevm, NtFreeVirtualMemory_ptr, ntdll, "NtFreeVirtualMemory");
-	GET_SYMBOL(ntprotectvm, NtProtectVirtualMemory_ptr, ntdll, "NtProtectVirtualMemory");
-	GET_SYMBOL(acquirepeblock, RtlAcquirePebLock_ptr, ntdll, "RtlAcquirePebLock");
-	GET_SYMBOL(releasepeblock, RtlReleasePebLock_ptr, ntdll, "RtlReleasePebLock");
+  GET_SYMBOL(ntallocatevm, NtAllocateVirtualMemory_ptr, ntdll, "NtAllocateVirtualMemory");
+  GET_SYMBOL(ntfreevm, NtFreeVirtualMemory_ptr, ntdll, "NtFreeVirtualMemory");
+  GET_SYMBOL(ntprotectvm, NtProtectVirtualMemory_ptr, ntdll, "NtProtectVirtualMemory");
+  GET_SYMBOL(acquirepeblock, RtlAcquirePebLock_ptr, ntdll, "RtlAcquirePebLock");
+  GET_SYMBOL(releasepeblock, RtlReleasePebLock_ptr, ntdll, "RtlReleasePebLock");
 
-	tls_link_head = NtCurrentTeb()->TlsLinks;
-	peb = NtCurrentTeb()->Peb;
-	htask16 = NtCurrentTeb()->htask16;
+  tls_link_head = NtCurrentTeb()->TlsLinks;
+  peb = NtCurrentTeb()->Peb;
+  htask16 = NtCurrentTeb()->htask16;
 
-	sprintf (ntdllpath, "%s/ntdll.dll.so", DLLPATH);
+  sprintf (ntdllpath, "%s/ntdll.dll.so", DLLPATH);
 
-	if ((ntso = dlopen (ntdllpath, RTLD_NOW|RTLD_GLOBAL)) == NULL) {
-		printf("cannot open NT DLL (%s)", ntdllpath);
-		return -1;
-	}
+  if ((ntso = dlopen (ntdllpath, RTLD_NOW|RTLD_GLOBAL)) == NULL) {
+    printf("cannot open NT DLL (%s)", ntdllpath);
+    return -1;
+  }
 
-	server_call = (unsigned int (*)(void*))dlsym (ntso, "wine_server_call");
-	if ((dlerr = dlerror ()) != NULL) {
-		printf("cannot find wine_server_call (%s)", dlerr);
-		return -1;
-	}
-	send_fd = (void (*)(int))dlsym (ntso, "wine_server_send_fd");
-	if ((dlerr = dlerror ()) != NULL) {
-		printf("cannot find wine_server_send_fd (%s)", dlerr);
-		return -1;
-	}
-	init_thread = (void (*)(int, int, void*))dlsym (ntso, "server_init_thread");
-	if ((dlerr = dlerror ()) != NULL) {
-		printf("cannot find server_init_thread (%s)", dlerr);
-		return -1;
-	}
+  server_call = (unsigned int (*)(void*))dlsym (ntso, "wine_server_call");
+  if ((dlerr = dlerror ()) != NULL) {
+    printf("cannot find wine_server_call (%s)", dlerr);
+    return -1;
+  }
+  send_fd = (void (*)(int))dlsym (ntso, "wine_server_send_fd");
+  if ((dlerr = dlerror ()) != NULL) {
+    printf("cannot find wine_server_send_fd (%s)", dlerr);
+    return -1;
+  }
+  init_thread = (void (*)(int, int, void*))dlsym (ntso, "server_init_thread");
+  if ((dlerr = dlerror ()) != NULL) {
+    printf("cannot find server_init_thread (%s)", dlerr);
+    return -1;
+  }
 
         return 0;
 }
@@ -415,24 +415,24 @@ wine_adopt_thread (void)
         req->suspend    = FALSE;
         req->inherit    = 0;  /* FIXME */
 
-	pthread_mutex_lock (&proxy_thread_lock);
+  pthread_mutex_lock (&proxy_thread_lock);
 
-	if (write (proxy_pripe_request[1], &__req, sizeof (__req)) != sizeof (__req) ||
-	    read (proxy_pripe_status[0], &__req, sizeof (__req)) != sizeof (__req) ||
-	    read (proxy_pripe_status[0], &request_fd, sizeof (request_fd)) != sizeof (request_fd) ||
-	    read (proxy_pripe_status[0], &thread_info, sizeof (thread_info)) != sizeof (thread_info))
+  if (write (proxy_pripe_request[1], &__req, sizeof (__req)) != sizeof (__req) ||
+      read (proxy_pripe_status[0], &__req, sizeof (__req)) != sizeof (__req) ||
+      read (proxy_pripe_status[0], &request_fd, sizeof (request_fd)) != sizeof (request_fd) ||
+      read (proxy_pripe_status[0], &thread_info, sizeof (thread_info)) != sizeof (thread_info))
 
-	{
-		printf("cannot read/write proxy thread request (%s)", strerror (errno));
-	}
+  {
+    printf("cannot read/write proxy thread request (%s)", strerror (errno));
+  }
 
-	pthread_mutex_unlock (&proxy_thread_lock);
-	
+  pthread_mutex_unlock (&proxy_thread_lock);
+  
         if (request_fd >= 0)
         {
             tid = reply->tid;
         }
-	
+  
     }
     SERVER_END_REQ;
 

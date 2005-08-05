@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.62 2005-07-26 16:45:36 ensonic Exp $
+// $Id: pattern.c,v 1.63 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -26,25 +26,25 @@ enum {
 enum {
   PATTERN_SONG=1,
   PATTERN_ID,
-	PATTERN_NAME,
+  PATTERN_NAME,
   PATTERN_LENGTH,
   PATTERN_VOICES,
   PATTERN_MACHINE,
-	PATTERN_IS_INTERNAL
+  PATTERN_IS_INTERNAL
 };
 
 struct _BtPatternPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-	
-	/* the song the pattern belongs to */
-	BtSong *song;
-	/* the id, we can use to lookup the pattern */
-	gchar *id;
-	/* the display name of the pattern */
-	gchar *name;
-	/* command patterns are internal (the are not editable) */
-	gboolean is_internal;
+  
+  /* the song the pattern belongs to */
+  BtSong *song;
+  /* the id, we can use to lookup the pattern */
+  gchar *id;
+  /* the display name of the pattern */
+  gchar *name;
+  /* command patterns are internal (the are not editable) */
+  gboolean is_internal;
 
   /* the number of ticks */
   gulong length;
@@ -60,7 +60,7 @@ struct _BtPatternPrivate {
   /* an array of GValues (not pointing to)
    * with the size of length*(internal_params+global_params+voices*voice_params)
    */
-	GValue *data;
+  GValue *data;
 };
 
 static GQuark error_domain=0;
@@ -83,7 +83,7 @@ GType bt_pattern_cmd_get_type(void) {
   if(type==0) {
     static GEnumValue values[] = {
       { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","just working" },
-			{ BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
+      { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
       { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "be quiet immediately" },
       { BT_PATTERN_CMD_SOLO,  "BT_PATTERN_CMD_SOLO",  "be the only one playing" },
       { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","be uneffective (pass through)" },
@@ -110,7 +110,7 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
 
   if(self->priv->machine==NULL) return(TRUE);
   if(data_count==0) return(TRUE);
-		
+    
   if(self->priv->data) {
     GST_INFO("data has already been initialized");
     return(TRUE);
@@ -131,33 +131,33 @@ static gboolean bt_pattern_init_data(const BtPattern *self) {
  * Resizes the event data grid to the new length. Keeps previous values.
  */
 static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) {
-	gulong old_data_count=            length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-	gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-	GValue *data=self->priv->data;
-	
+  gulong old_data_count=            length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  GValue *data=self->priv->data;
+  
   // allocate new space
-	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
-		if(data) {
+  if((self->priv->data=g_try_new0(GValue,new_data_count))) {
+    if(data) {
       gulong count=MIN(old_data_count,new_data_count);
-			GST_DEBUG("keeping data count=%d, old=%d, new=%d",count,old_data_count,new_data_count);
-			// copy old values over
-			memcpy(self->priv->data,data,count*sizeof(GValue));
-			// free old data
-			g_free(data);
-		}
+      GST_DEBUG("keeping data count=%d, old=%d, new=%d",count,old_data_count,new_data_count);
+      // copy old values over
+      memcpy(self->priv->data,data,count*sizeof(GValue));
+      // free old data
+      g_free(data);
+    }
     GST_DEBUG("extended pattern length from %d to %d : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
-			length,self->priv->length,
-			new_data_count,self->priv->length,
+      length,self->priv->length,
+      new_data_count,self->priv->length,
       internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
   }
-	else {
-		GST_WARNING("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
-			length,self->priv->length,
-			new_data_count,self->priv->length,
+  else {
+    GST_WARNING("extending pattern length from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+      length,self->priv->length,
+      new_data_count,self->priv->length,
       internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
-		//self->priv->data=data;
-		//self->priv->length=length;
-	}
+    //self->priv->data=data;
+    //self->priv->length=length;
+  }
 }
 
 /*
@@ -168,44 +168,44 @@ static void bt_pattern_resize_data_length(const BtPattern *self, gulong length) 
  * Resizes the event data grid to the new number of voices. Keeps previous values.
  */
 static void bt_pattern_resize_data_voices(const BtPattern *self, gulong voices) {
-	//gulong old_data_count=self->priv->length*(internal_params+self->priv->global_params+          voices*self->priv->voice_params);
-	gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
-	GValue *data=self->priv->data;
-	
+  //gulong old_data_count=self->priv->length*(internal_params+self->priv->global_params+          voices*self->priv->voice_params);
+  gulong new_data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  GValue *data=self->priv->data;
+  
   // allocate new space
-	if((self->priv->data=g_try_new0(GValue,new_data_count))) {
-		if(data) {
-			gulong i;
-			gulong count    =sizeof(GValue)*(internal_params+self->priv->global_params+self->priv->voice_params*MIN(voices,self->priv->voices));
+  if((self->priv->data=g_try_new0(GValue,new_data_count))) {
+    if(data) {
+      gulong i;
+      gulong count    =sizeof(GValue)*(internal_params+self->priv->global_params+self->priv->voice_params*MIN(voices,self->priv->voices));
       gulong src_count=internal_params+self->priv->global_params+            voices*self->priv->voice_params;
       gulong dst_count=internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params;
-			GValue *src=data;
+      GValue *src=data;
       GValue *dst=self->priv->data;
-		
-			GST_DEBUG("keeping data count=%d, src_ct=%d, dst_ct=%d",count,src_count,dst_count);
-			
-			// copy old values over
-			for(i=0;i<self->priv->length;i++) {
+    
+      GST_DEBUG("keeping data count=%d, src_ct=%d, dst_ct=%d",count,src_count,dst_count);
+      
+      // copy old values over
+      for(i=0;i<self->priv->length;i++) {
         memcpy(dst,src,count);
-				src=&src[src_count];
-				dst=&dst[dst_count];
-			}
-			// free old data
-			g_free(data);
-		}
-		GST_DEBUG("extended pattern voices from %d to %d : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
-			voices,self->priv->voices,
-			new_data_count,self->priv->length,
+        src=&src[src_count];
+        dst=&dst[dst_count];
+      }
+      // free old data
+      g_free(data);
+    }
+    GST_DEBUG("extended pattern voices from %d to %d : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+      voices,self->priv->voices,
+      new_data_count,self->priv->length,
       internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
   }
-	else {
-		GST_WARNING("extending pattern voices from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
-			voices,self->priv->voices,
-			new_data_count,self->priv->length,
+  else {
+    GST_WARNING("extending pattern voices from %d to %d failed : data_count=%d = length=%d * ( ip=%d + gp=%d + voices=%d * vp=%d )",
+      voices,self->priv->voices,
+      new_data_count,self->priv->length,
       internal_params,self->priv->global_params,self->priv->voices,self->priv->voice_params);
-		//self->priv->data=data;
-		//self->priv->voices=voices;
-	}
+    //self->priv->data=data;
+    //self->priv->voices=voices;
+  }
 }
 
 /*
@@ -222,7 +222,7 @@ static GValue *bt_pattern_get_internal_event_data(const BtPattern *self, gulong 
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
+  g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick beyond length");return(NULL); }
   if(!(param<internal_params)) { GST_ERROR("param beyond internal_params");return(NULL); }
@@ -265,7 +265,7 @@ static void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gu
 
   //GST_DEBUG("at %d",param);
   g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));
-	g_assert(G_IS_VALUE(event));
+  g_assert(G_IS_VALUE(event));
 }
 
 
@@ -288,32 +288,32 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE: {
       //gdouble val=atof(value); // this is dependend on the locale
-			gdouble val=g_ascii_strtod(value,NULL);
+      gdouble val=g_ascii_strtod(value,NULL);
       g_value_set_double(event,val);
       GST_DEBUG("store double event %s",value);
     } break;
     case G_TYPE_BOOLEAN: {
-			gint val=atoi(value);
+      gint val=atoi(value);
       g_value_set_boolean(event,val);
       GST_DEBUG("store boolean event %s",value);
     } break;
     case G_TYPE_INT: {
-			gint val=atoi(value);
+      gint val=atoi(value);
       g_value_set_int(event,val);
       GST_DEBUG("store int event %s",value);
     } break;
     case G_TYPE_UINT: {
-			guint val=atoi(value);
+      guint val=atoi(value);
       g_value_set_uint(event,val);
       GST_DEBUG("store uint event %s",value);
     } break;
     case G_TYPE_LONG: {
-			glong val=atol(value);
+      glong val=atol(value);
       g_value_set_long(event,val);
       GST_DEBUG("store long event %s",value);
     } break;
     case G_TYPE_ULONG: {
-			gulong val=atol(value);
+      gulong val=atol(value);
       g_value_set_ulong(event,val);
       GST_DEBUG("store ulong event %s",value);
     } break;
@@ -334,35 +334,35 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
  * Returns: a newly allocated string with the data or %NULL on error
  */
 static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
-	gchar *res=NULL;
+  gchar *res=NULL;
   g_assert(BT_IS_PATTERN(self));
   g_assert(G_IS_VALUE(event));
-	
+  
   // depending on the type, set the result
   switch(G_VALUE_TYPE(event)) {
     case G_TYPE_DOUBLE:
       res=g_strdup_printf("%lf",g_value_get_double(event));
-			break;
+      break;
     case G_TYPE_BOOLEAN:
-			res=g_strdup_printf("%d",g_value_get_boolean(event));
-			break;
+      res=g_strdup_printf("%d",g_value_get_boolean(event));
+      break;
     case G_TYPE_INT:
-			res=g_strdup_printf("%d",g_value_get_int(event));
-			break;
+      res=g_strdup_printf("%d",g_value_get_int(event));
+      break;
     case G_TYPE_UINT:
-			res=g_strdup_printf("%u",g_value_get_uint(event));
-			break;
+      res=g_strdup_printf("%u",g_value_get_uint(event));
+      break;
     case G_TYPE_LONG:
-			res=g_strdup_printf("%ld",g_value_get_long(event));
-			break;
+      res=g_strdup_printf("%ld",g_value_get_long(event));
+      break;
     case G_TYPE_ULONG:
-			res=g_strdup_printf("%lu",g_value_get_ulong(event));
-			break;
+      res=g_strdup_printf("%lu",g_value_get_ulong(event));
+      break;
     default:
       GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
       return(NULL);
   }
-	return(res);
+  return(res);
 }
 
 //-- constructor methods
@@ -388,7 +388,7 @@ BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name
   g_assert(id);
   g_assert(name);
   g_assert(BT_IS_MACHINE(machine));
-	
+  
   g_object_get(G_OBJECT(machine),"voices",&voices,NULL);
   if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",length,"voices",voices,"machine",machine,NULL)))) {
     goto Error;
@@ -396,7 +396,7 @@ BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name
   if(!bt_pattern_init_data(self)) {
     goto Error;
   }
-	// add the pattern to the machine
+  // add the pattern to the machine
   bt_machine_add_pattern(machine,self);
   return(self);
 Error:
@@ -419,11 +419,11 @@ BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machin
   BtPattern *self;
   gchar *mid,*id,*name;
   GValue *event;
-	gchar *cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
+  gchar *cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
   
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
   id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
-	name=g_strdup_printf("   %s",_(cmd_names[cmd]));
+  name=g_strdup_printf("   %s",_(cmd_names[cmd]));
   if(!(self=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",song,"id",id,"name",name,"length",1,"machine",machine,"is-internal",TRUE,NULL)))) {
     goto Error;
   }
@@ -435,17 +435,17 @@ BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machin
   g_value_init(event,BT_TYPE_PATTERN_CMD);
   g_value_set_enum(event,cmd);
   
-	// add the pattern to the machine
+  // add the pattern to the machine
   bt_machine_add_pattern(machine,self);
   g_free(mid);
-	g_free(id);
-	g_free(name);
+  g_free(id);
+  g_free(name);
   return(self);
 Error:
   g_object_try_unref(self);
   g_free(mid);
-	g_free(id);
-	g_free(name);
+  g_free(id);
+  g_free(name);
   return(NULL);
 }
 
@@ -458,36 +458,36 @@ Error:
  * Returns: the new instance or %NULL in case of an error
  */
 BtPattern *bt_pattern_copy(const BtPattern *self) {
-	BtPattern *pattern;
-	BtSong *song;
-	BtMachine *machine;
-	gchar *id,*name,*mid;
-	glong length;
-	
-	g_assert(BT_IS_PATTERN(self));
-	
-	GST_INFO("copying pattern");
-	
-	g_object_get(G_OBJECT(self),"song",&song,"length",&length,"machine",&machine,NULL);
-	g_object_get(G_OBJECT(machine),"id",&mid,NULL);
-	
-	name=bt_machine_get_unique_pattern_name(machine);
-	id=g_strdup_printf("%s %s",mid,name);
+  BtPattern *pattern;
+  BtSong *song;
+  BtMachine *machine;
+  gchar *id,*name,*mid;
+  glong length;
+  
+  g_assert(BT_IS_PATTERN(self));
+  
+  GST_INFO("copying pattern");
+  
+  g_object_get(G_OBJECT(self),"song",&song,"length",&length,"machine",&machine,NULL);
+  g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+  
+  name=bt_machine_get_unique_pattern_name(machine);
+  id=g_strdup_printf("%s %s",mid,name);
 
-	if((pattern=bt_pattern_new(song,id,name,length,machine))) {
-		gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
+  if((pattern=bt_pattern_new(song,id,name,length,machine))) {
+    gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
 
-		// copy data
-		memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
-		GST_INFO("  data copied");
-	}
+    // copy data
+    memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
+    GST_INFO("  data copied");
+  }
 
-	g_free(mid);
-	g_free(id);
-	g_free(name);
-	g_object_unref(machine);
+  g_free(mid);
+  g_free(id);
+  g_free(name);
+  g_object_unref(machine);
 
-	return(pattern);
+  return(pattern);
 }
 
 //-- methods
@@ -505,20 +505,20 @@ BtPattern *bt_pattern_copy(const BtPattern *self) {
  * error variable. You should always check for error if you use this function.
  */
 gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *name, GError **error) {
-	gulong ret=0;
-	GError *tmp_error=NULL;
-	
+  gulong ret=0;
+  GError *tmp_error=NULL;
+  
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
-	g_return_val_if_fail(error == NULL || *error == NULL, 0);
-	
-	ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
-	
-	if (tmp_error!=NULL) {
-		//g_set_error (error, error_domain, /* errorcode= */0,
-		//					 	"global dparam for name %s not found", name);
-		g_propagate_error(error, tmp_error);
-	}
+  g_return_val_if_fail(error == NULL || *error == NULL, 0);
+  
+  ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
+  
+  if (tmp_error!=NULL) {
+    //g_set_error (error, error_domain, /* errorcode= */0,
+    //             "global dparam for name %s not found", name);
+    g_propagate_error(error, tmp_error);
+  }
   return(ret);
 }
 
@@ -535,20 +535,20 @@ gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *nam
  * error variable. You should always check for error if you use this function.
  */
 gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name, GError **error) {
-	gulong ret=0;
-	GError *tmp_error=NULL;
-	
+  gulong ret=0;
+  GError *tmp_error=NULL;
+  
   g_assert(BT_IS_PATTERN(self));
   g_assert(name);
-	g_return_val_if_fail(error == NULL || *error == NULL, 0);
-	
-	ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
-	
-	if (tmp_error!=NULL) {
-		//g_set_error (error, error_domain, /* errorcode= */0,
-		//						"voice dparam for name %s not found", name);
-		g_propagate_error(error, tmp_error);
-	}
+  g_return_val_if_fail(error == NULL || *error == NULL, 0);
+  
+  ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
+  
+  if (tmp_error!=NULL) {
+    //g_set_error (error, error_domain, /* errorcode= */0,
+    //            "voice dparam for name %s not found", name);
+    g_propagate_error(error, tmp_error);
+  }
   return(ret);
 }
 
@@ -567,7 +567,7 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gul
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
+  g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d",tick,self->priv->length);return(NULL); }
   if(!(param<self->priv->global_params)) { GST_ERROR("param=%d beyond global_params=%d",param,self->priv->global_params);return(NULL); }
@@ -595,7 +595,7 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
-	g_return_val_if_fail(self->priv->data,NULL);
+  g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d ",tick,self->priv->length);return(NULL); }
   if(!(voice<self->priv->voices)) { GST_ERROR("voice=%d  beyond voices=%d ",voice,self->priv->voices);return(NULL); }
@@ -621,19 +621,19 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
  * Returns: %TRUE for success
  */
 gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong param, const gchar *value) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_global_event_data(self,tick,param))) {
-		if(!G_IS_VALUE(event)) {
-			bt_pattern_init_global_event(self,event,param);
-		}
-		if(bt_pattern_set_event(self,event,value)) {
+  if((event=bt_pattern_get_global_event_data(self,tick,param))) {
+    if(!G_IS_VALUE(event)) {
+      bt_pattern_init_global_event(self,event,param);
+    }
+    if(bt_pattern_set_event(self,event,value)) {
       // notify others that the data has been changed
       g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
     }
-		return(TRUE);
-	}
-	return(FALSE);
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 /**
@@ -649,19 +649,19 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
  * Returns: %TRUE for success
  */
 gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
-		if(!G_IS_VALUE(event)) {
-			bt_pattern_init_voice_event(self,event,param);
-		}
-		if(bt_pattern_set_event(self,event,value)) {
+  if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
+    if(!G_IS_VALUE(event)) {
+      bt_pattern_init_voice_event(self,event,param);
+    }
+    if(bt_pattern_set_event(self,event,value)) {
       // notify others that the data has been changed
       g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
     }
-		return(TRUE);
-	}
-	return(FALSE);
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 /**
@@ -675,12 +675,12 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong param) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
-		return(bt_pattern_get_event(self,event));
-	}
-	return(NULL);
+  if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
+    return(bt_pattern_get_event(self,event));
+  }
+  return(NULL);
 }
 
 /**
@@ -695,12 +695,12 @@ gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong pa
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
-		return(bt_pattern_get_event(self,event));
-	}
-	return(NULL);
+  if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
+    return(bt_pattern_get_event(self,event));
+  }
+  return(NULL);
 }
 
 /**
@@ -714,12 +714,12 @@ gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voi
  * Returns: %TRUE if there is an event
  */
 gboolean bt_pattern_test_global_event(const BtPattern *self, gulong tick, gulong param) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
-		return(TRUE);
-	}
-	return(FALSE);
+  if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 /**
@@ -734,12 +734,12 @@ gboolean bt_pattern_test_global_event(const BtPattern *self, gulong tick, gulong
  * Returns: %TRUE if there is an event
  */
 gboolean bt_pattern_test_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
-		return(TRUE);
-	}
-	return(FALSE);
+  if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 /**
@@ -752,11 +752,11 @@ gboolean bt_pattern_test_voice_event(const BtPattern *self, gulong tick, gulong 
  * Returns: the command id
  */
 BtPatternCmd bt_pattern_get_cmd(const BtPattern *self,gulong tick) {
-	GValue *event;
+  GValue *event;
 
-	if((event=bt_pattern_get_internal_event_data(self,tick,0)) && G_IS_VALUE(event)) {
-		return(g_value_get_enum(event));
-	}
+  if((event=bt_pattern_get_internal_event_data(self,tick,0)) && G_IS_VALUE(event)) {
+    return(g_value_get_enum(event));
+  }
   return(BT_PATTERN_CMD_NORMAL);
 }
 
@@ -785,13 +785,13 @@ gboolean bt_pattern_tick_has_data(const BtPattern *self, gulong tick) {
   }
   for(j=0;j<self->priv->voices;j++) {
     for(k=0;k<self->priv->voice_params;k++) {
-			if(G_IS_VALUE(data)) {
-				return(TRUE);
-			}
+      if(G_IS_VALUE(data)) {
+        return(TRUE);
+      }
       data++;
     }
   }
-	return(FALSE);
+  return(FALSE);
 }
 
 /**
@@ -812,19 +812,19 @@ void bt_pattern_play_tick(const BtPattern *self, gulong tick) {
     if(G_IS_VALUE(data)) {
       bt_machine_set_global_param_value(self->priv->machine,k,data);
     }
-		else {
-			bt_machine_set_global_param_no_value(self->priv->machine,k);
-		}
+    else {
+      bt_machine_set_global_param_no_value(self->priv->machine,k);
+    }
     data++;
   }
   for(j=0;j<self->priv->voices;j++) {
     for(k=0;k<self->priv->voice_params;k++) {
-			if(G_IS_VALUE(data)) {
-				bt_machine_set_voice_param_value(self->priv->machine,j,k,data);
-			}
-			else {
-				bt_machine_set_voice_param_no_value(self->priv->machine,j,k);
-			}
+      if(G_IS_VALUE(data)) {
+        bt_machine_set_voice_param_value(self->priv->machine,j,k,data);
+      }
+      else {
+        bt_machine_set_voice_param_no_value(self->priv->machine,j,k);
+      }
       data++;
     }
   }
@@ -897,37 +897,37 @@ static void bt_pattern_set_property(GObject      *object,
       g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
       GST_DEBUG("set the display name for the pattern: %s",self->priv->name);
-			bt_song_set_unsaved(self->priv->song,TRUE);
+      bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case PATTERN_LENGTH: {
       length=self->priv->length;
       self->priv->length = g_value_get_ulong(value);
       if(length!=self->priv->length) {
-				GST_DEBUG("set the length for pattern: %d",self->priv->length);
-				bt_pattern_resize_data_length(self,length);
-				bt_song_set_unsaved(self->priv->song,TRUE);
-			}
+        GST_DEBUG("set the length for pattern: %d",self->priv->length);
+        bt_pattern_resize_data_length(self,length);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+      }
     } break;
     case PATTERN_VOICES: {
       voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
-			if(voices!=self->priv->voices) {
-				GST_DEBUG("set the voices for pattern: %d",self->priv->voices);
-				bt_pattern_resize_data_voices(self,voices);
-				bt_song_set_unsaved(self->priv->song,TRUE);
-			}
+      if(voices!=self->priv->voices) {
+        GST_DEBUG("set the voices for pattern: %d",self->priv->voices);
+        bt_pattern_resize_data_voices(self,voices);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+      }
     } break;
     case PATTERN_MACHINE: {
       g_object_try_weak_unref(self->priv->machine);
       self->priv->machine = BT_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->machine);
-			// @todo shouldn't we just listen to notify::voices too and resize patterns automatically
+      // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
       g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
       GST_DEBUG("set the machine for pattern: %p",self->priv->machine);
     } break;
-		case PATTERN_IS_INTERNAL: {
+    case PATTERN_IS_INTERNAL: {
       self->priv->is_internal = g_value_get_boolean(value);
-		} break;
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -937,12 +937,12 @@ static void bt_pattern_set_property(GObject      *object,
 static void bt_pattern_dispose(GObject *object) {
   BtPattern *self = BT_PATTERN(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_weak_unref(self->priv->song);
+  g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -955,8 +955,8 @@ static void bt_pattern_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-	g_free(self->priv->id);
-	g_free(self->priv->name);
+  g_free(self->priv->id);
+  g_free(self->priv->name);
   g_free(self->priv->data);
   g_free(self->priv);
 
@@ -975,8 +975,8 @@ static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_pattern_class_init(BtPatternClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-	error_domain=g_quark_from_static_string("BtPattern");
-	
+  error_domain=g_quark_from_static_string("BtPattern");
+  
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
 
   gobject_class->set_property = bt_pattern_set_property;
@@ -988,13 +988,13 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
   klass->voice_param_changed_event = NULL;
   
   /** 
-	 * BtPattern::global-param-changed:
+   * BtPattern::global-param-changed:
    * @self: the pattern object that emitted the signal
-	 * @tick: the tick position inside the pattern
-	 * @param: the global parameter index
-	 *
-	 * signals that a global param of this pattern has been changed
-	 */
+   * @tick: the tick position inside the pattern
+   * @param: the global parameter index
+   *
+   * signals that a global param of this pattern has been changed
+   */
   signals[GLOBAL_PARAM_CHANGED_EVENT] = g_signal_new("global-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -1007,15 +1007,15 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                         G_TYPE_ULONG,G_TYPE_ULONG // param data
                                         );
 
-	/** 
-	 * BtPattern::voice-param-changed:
+  /** 
+   * BtPattern::voice-param-changed:
    * @self: the pattern object that emitted the signal
-	 * @tick: the tick position inside the pattern
-	 * @voice: the voice number
-	 * @param: the voice parameter index
-	 *
-	 * signals that a voice param of this pattern has been changed
-	 */
+   * @tick: the tick position inside the pattern
+   * @voice: the voice number
+   * @param: the voice parameter index
+   *
+   * signals that a voice param of this pattern has been changed
+   */
   signals[VOICE_PARAM_CHANGED_EVENT] = g_signal_new("voice-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
@@ -1049,8 +1049,8 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                      "unamed", /* default value */
                                      G_PARAM_READWRITE));
 
- 	g_object_class_install_property(gobject_class,PATTERN_LENGTH,
-																	g_param_spec_ulong("length",
+   g_object_class_install_property(gobject_class,PATTERN_LENGTH,
+                                  g_param_spec_ulong("length",
                                      "length prop",
                                      "length of the pattern in ticks",
                                      1,
@@ -1058,8 +1058,8 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
                                      1,
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,PATTERN_VOICES,
-																	g_param_spec_ulong("voices",
+  g_object_class_install_property(gobject_class,PATTERN_VOICES,
+                                  g_param_spec_ulong("voices",
                                      "voices prop",
                                      "number of voices in the pattern",
                                      0,
@@ -1095,10 +1095,10 @@ GType bt_pattern_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtPattern),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_pattern_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_pattern_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtPattern",&info,0);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtPattern",&info,0);
   }
   return type;
 }

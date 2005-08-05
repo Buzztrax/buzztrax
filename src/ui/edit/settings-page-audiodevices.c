@@ -1,4 +1,4 @@
-// $Id: settings-page-audiodevices.c,v 1.14 2005-07-26 06:44:38 waffel Exp $
+// $Id: settings-page-audiodevices.c,v 1.15 2005-08-05 09:36:19 ensonic Exp $
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
@@ -78,22 +78,22 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
-	
-	str=g_strdup_printf(_("system default (%s)"),system_audiosink_name);
-	gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
-	g_free(str);
+  
+  str=g_strdup_printf(_("system default (%s)"),system_audiosink_name);
+  gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
+  g_free(str);
   // add audio sinks gstreamer provides
-	for(node=self->priv->audiosink_names,ct=1;node;node=g_list_next(node),ct++) {
+  for(node=self->priv->audiosink_names,ct=1;node;node=g_list_next(node),ct++) {
     if(!use_system_audiosink) {
       // compare with audiosink_name and set audiosink_index if equal
       if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
     }
-		gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
   }
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
-	// @todo add pages/subdialogs for each audiosink with its settings
+  // @todo add pages/subdialogs for each audiosink with its settings
   
   g_free(audiosink_name);
   g_free(system_audiosink_name);
@@ -152,7 +152,7 @@ static void bt_settings_page_audiodevices_get_property(GObject      *object,
       g_value_set_object(value, self->priv->app);
     } break;
     default: {
- 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -169,18 +169,18 @@ static void bt_settings_page_audiodevices_set_property(GObject      *object,
     case SETTINGS_PAGE_AUDIODEVICES_APP: {
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-			g_object_try_weak_ref(self->priv->app);
+      g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_page_audiodevices: %p",self->priv->app);
     } break;
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
 
 static void bt_settings_page_audiodevices_dispose(GObject *object) {
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(object);
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
@@ -241,10 +241,10 @@ GType bt_settings_page_audiodevices_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtSettingsPageAudiodevices),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_settings_page_audiodevices_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_settings_page_audiodevices_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(GTK_TYPE_TABLE,"BtSettingsPageAudiodevices",&info,0);
+    type = g_type_register_static(GTK_TYPE_TABLE,"BtSettingsPageAudiodevices",&info,0);
   }
   return type;
 }

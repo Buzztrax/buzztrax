@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.16 2005-08-04 09:47:49 waffel Exp $
+/* $Id: core.c,v 1.17 2005-08-05 09:36:16 ensonic Exp $
  */
 
 #define BT_CORE
@@ -37,23 +37,23 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
  */
 void bt_init(int *argc, char ***argv, struct poptOption *options) {
   
-	//-- initialize gobject
-	g_type_init();
+  //-- initialize gobject
+  g_type_init();
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
 
-	//-- initialize gstreamer with popt options
+  //-- initialize gstreamer with popt options
   if(options) {
     gst_init_with_popt_table(argc,argv,(GstPoptOption*)options);
   }
   else {
     gst_init(argc,argv);
   }
-	//-- initialize dynamic parameter control module
-	gst_controller_lib_init();
+  //-- initialize dynamic parameter control module
+  gst_controller_lib_init();
 
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
-	//-- initialize libxml
+  //-- initialize libxml
   // set own error handler
   //xmlSetGenericErrorFunc("libxml-error: ",&gitk_libxmlxslt_error_func);
   // initialize the xml parser
@@ -61,6 +61,6 @@ void bt_init(int *argc, char ***argv, struct poptOption *options) {
   // xmlInitParser does that for us
   //xmlXPathInit();
   xmlSubstituteEntitiesDefault(1);
-  xmlLoadExtDtdDefaultValue=TRUE;						// always load DTD default values (even when not validating)
-	xmlDoValidityCheckingDefaultValue=FALSE;	// do not validate files (we load xsl files as well
+  xmlLoadExtDtdDefaultValue=TRUE;            // always load DTD default values (even when not validating)
+  xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files (we load xsl files as well
 }

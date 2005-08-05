@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.9 2005-07-26 06:43:51 waffel Exp $
+// $Id: wave.c,v 1.10 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -21,26 +21,26 @@ enum {
 
 enum {
   WAVE_SONG=1,
-	WAVE_WAVELEVELS,
-	WAVE_INDEX,
-	WAVE_NAME,
-	WAVE_FILE_NAME
+  WAVE_WAVELEVELS,
+  WAVE_INDEX,
+  WAVE_NAME,
+  WAVE_FILE_NAME
 };
 
 struct _BtWavePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-	
-	/* the song the wave belongs to */
-	BtSong *song;
+  
+  /* the song the wave belongs to */
+  BtSong *song;
 
-	/* each wave has an index number, the list of waves can have empty slots */
-	gulong index;	
-	/* the name of the wave and the the sample file */
-	gchar *name;
-	gchar *file_name;
-	
-	GList *wavelevels;		// each entry points to a BtWavelevel
+  /* each wave has an index number, the list of waves can have empty slots */
+  gulong index;  
+  /* the name of the wave and the the sample file */
+  gchar *name;
+  gchar *file_name;
+  
+  GList *wavelevels;    // each entry points to a BtWavelevel
 };
 
 static GObjectClass *parent_class=NULL;
@@ -62,23 +62,23 @@ static GObjectClass *parent_class=NULL;
  */
 BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name,gulong index) {
   BtWave *self;
-	BtWavetable *wavetable;
+  BtWavetable *wavetable;
 
-	g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
   if(!(self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"file-name",file_name,"index",index,NULL)))) {
-		goto Error;
-	}
-	// add the wave to the wavetable of the song
-	g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
-	g_assert(wavetable!=NULL);
-	bt_wavetable_add_wave(wavetable,self);
-	g_object_unref(wavetable);
+    goto Error;
+  }
+  // add the wave to the wavetable of the song
+  g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
+  g_assert(wavetable!=NULL);
+  bt_wavetable_add_wave(wavetable,self);
+  g_object_unref(wavetable);
 
   return(self);
 Error:
-	g_object_try_unref(self);
-	return(NULL);
+  g_object_try_unref(self);
+  return(NULL);
 }
 
 //-- private methods
@@ -96,20 +96,20 @@ Error:
  * Returns: %TRUE for success, %FALSE otheriwse
  */
 gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel) {
-	gboolean ret=FALSE;
-	
-	g_return_val_if_fail(BT_IS_WAVE(self),FALSE);
-	g_return_val_if_fail(BT_IS_WAVELEVEL(wavelevel),FALSE);
+  gboolean ret=FALSE;
+  
+  g_return_val_if_fail(BT_IS_WAVE(self),FALSE);
+  g_return_val_if_fail(BT_IS_WAVELEVEL(wavelevel),FALSE);
 
   if(!g_list_find(self->priv->wavelevels,wavelevel)) {
-		ret=TRUE;
+    ret=TRUE;
     self->priv->wavelevels=g_list_append(self->priv->wavelevels,g_object_ref(G_OBJECT(wavelevel)));
-		//g_signal_emit(G_OBJECT(self),signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
-	}
+    //g_signal_emit(G_OBJECT(self),signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
+  }
   else {
     GST_WARNING("trying to add wavelevel again"); 
   }
-	return ret;
+  return ret;
 }
 
 //-- wrapper
@@ -128,12 +128,12 @@ static void bt_wave_get_property(GObject      *object,
     case WAVE_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
-		case WAVE_WAVELEVELS: {
-			g_value_set_pointer(value,g_list_copy(self->priv->wavelevels));
-		} break;
+    case WAVE_WAVELEVELS: {
+      g_value_set_pointer(value,g_list_copy(self->priv->wavelevels));
+    } break;
     case WAVE_INDEX: {
-			g_value_set_ulong(value, self->priv->index);
-		} break;
+      g_value_set_ulong(value, self->priv->index);
+    } break;
     case WAVE_NAME: {
       g_value_set_string(value, self->priv->name);
     } break;
@@ -163,7 +163,7 @@ static void bt_wave_set_property(GObject      *object,
     } break;
     case WAVE_INDEX: {
       self->priv->index = g_value_get_ulong(value);
-			GST_DEBUG("set the index for wave: %d",self->priv->index);
+      GST_DEBUG("set the index for wave: %d",self->priv->index);
     } break;
     case WAVE_NAME: {
       g_free(self->priv->name);
@@ -183,27 +183,27 @@ static void bt_wave_set_property(GObject      *object,
 
 static void bt_wave_dispose(GObject *object) {
   BtWave *self = BT_WAVE(object);
-	GList* node;
+  GList* node;
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_object_try_weak_unref(self->priv->song);
-	// unref list of wavelevels
-	if(self->priv->wavelevels) {
-		node=self->priv->wavelevels;
-		while(node) {
+  g_object_try_weak_unref(self->priv->song);
+  // unref list of wavelevels
+  if(self->priv->wavelevels) {
+    node=self->priv->wavelevels;
+    while(node) {
       {
         GObject *obj=node->data;
         GST_DEBUG("  free wavelevels : %p (%d)",obj,obj->ref_count);
       }
       g_object_try_unref(node->data);
       node->data=NULL;
-			node=g_list_next(node);
-		}
-	}
+      node=g_list_next(node);
+    }
+  }
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -215,13 +215,13 @@ static void bt_wave_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	// free list of wavelevels
-	if(self->priv->wavelevels) {
-		g_list_free(self->priv->wavelevels);
-		self->priv->wavelevels=NULL;
-	}
-	g_free(self->priv->name);
-	g_free(self->priv->file_name);
+  // free list of wavelevels
+  if(self->priv->wavelevels) {
+    g_list_free(self->priv->wavelevels);
+    self->priv->wavelevels=NULL;
+  }
+  g_free(self->priv->name);
+  g_free(self->priv->file_name);
   g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -245,7 +245,7 @@ static void bt_wave_class_init(BtWaveClass *klass) {
   gobject_class->dispose      = bt_wave_dispose;
   gobject_class->finalize     = bt_wave_finalize;
 
-	g_object_class_install_property(gobject_class,WAVE_SONG,
+  g_object_class_install_property(gobject_class,WAVE_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the wave belongs to",
@@ -258,23 +258,23 @@ static void bt_wave_class_init(BtWaveClass *klass) {
                                      "A copy of the list of wavelevels",
                                      G_PARAM_READABLE));
 
-	g_object_class_install_property(gobject_class,WAVE_INDEX,
+  g_object_class_install_property(gobject_class,WAVE_INDEX,
                                   g_param_spec_ulong("index",
                                      "index prop",
                                      "The index of the wave in the wavtable",
-																		 0,
-																		 G_MAXULONG,
+                                     0,
+                                     G_MAXULONG,
                                      0, /* default value */
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,WAVE_NAME,
+  g_object_class_install_property(gobject_class,WAVE_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "The name of the wave",
                                      "unamed wave", /* default value */
                                      G_PARAM_READWRITE));
 
-	g_object_class_install_property(gobject_class,WAVE_FILE_NAME,
+  g_object_class_install_property(gobject_class,WAVE_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "file-name prop",
                                      "The file-name of the wave",
@@ -294,10 +294,10 @@ GType bt_wave_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtWave),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_wave_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_wave_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtWave",&info,0);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtWave",&info,0);
   }
   return type;
 }

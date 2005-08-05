@@ -1,4 +1,4 @@
-// $Id: plainfile-settings.c,v 1.12 2005-07-26 06:43:45 waffel Exp $
+// $Id: plainfile-settings.c,v 1.13 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
@@ -65,12 +65,12 @@ static void bt_plainfile_settings_get_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK:
-		case BT_SETTINGS_SYSTEM_AUDIOSINK: {
+    case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       g_value_set_string(value, "esdsink");
     } break;
-		case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
       g_value_set_string(value, "both");
-			} break;
+      } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -101,7 +101,7 @@ static void bt_plainfile_settings_set_property(GObject      *object,
 static void bt_plainfile_settings_dispose(GObject *object) {
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
@@ -152,10 +152,10 @@ GType bt_plainfile_settings_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtPlainfileSettings),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_plainfile_settings_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_plainfile_settings_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(BT_TYPE_SETTINGS,"BtPlainfileSettings",&info,0);
+    type = g_type_register_static(BT_TYPE_SETTINGS,"BtPlainfileSettings",&info,0);
   }
   return type;
 }

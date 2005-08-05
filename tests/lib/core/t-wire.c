@@ -1,4 +1,4 @@
-/* $Id: t-wire.c,v 1.7 2005-04-15 17:05:14 ensonic Exp $
+/* $Id: t-wire.c,v 1.8 2005-08-05 09:36:19 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -23,39 +23,39 @@ static void test_teardown(void) {
 * try to create a wire with the same machine as source and dest 
 */
 START_TEST(test_btwire_obj1){
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtWire *wire=NULL;
-	// machine
-	BtProcessorMachine *machine=NULL;
-	
-	GST_INFO("--------------------------------------------------------------------------------");
-	
-	/* create a dummy app */
-	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtWire *wire=NULL;
+  // machine
+  BtProcessorMachine *machine=NULL;
+  
+  GST_INFO("--------------------------------------------------------------------------------");
+  
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
+  song=bt_song_new(app);
+  fail_unless(song!=NULL,NULL);
   
-	/* try to create a source machine */
-	machine=bt_processor_machine_new(song,"id","volume",1);
+  /* try to create a source machine */
+  machine=bt_processor_machine_new(song,"id","volume",1);
   fail_unless(machine!=NULL,NULL);
   
   check_init_error_trapp("bt_wire_new","src_machine!=dst_machine");
-	/* try to add the machine twice to the wire */
-	wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine));
+  /* try to add the machine twice to the wire */
+  wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine));
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(wire==NULL,NULL);
 }
 END_TEST
 
 START_TEST(test_btwire_obj2){
-	BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSetup *setup=NULL;
-	BtWire *wire1=NULL;
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSetup *setup=NULL;
+  BtWire *wire1=NULL;
   BtWire *wire2=NULL;
   BtSourceMachine *source=NULL;
   BtProcessorMachine *sink1=NULL;
@@ -63,18 +63,18 @@ START_TEST(test_btwire_obj2){
   
   GST_INFO("--------------------------------------------------------------------------------");
   
-	/* create a dummy app */
-	app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song!=NULL,NULL);
+  song=bt_song_new(app);
+  fail_unless(song!=NULL,NULL);
   g_object_get(song,"setup",&setup,NULL);
-	fail_unless(setup!=NULL, NULL);
+  fail_unless(setup!=NULL, NULL);
  
   /* try to create a source machine */
-	source=bt_source_machine_new(song,"id","sinesrc",1);
+  source=bt_source_machine_new(song,"id","sinesrc",1);
   fail_unless(source!=NULL,NULL);
   
   /* try to create a volume machine */

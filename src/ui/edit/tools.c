@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.9 2005-04-25 14:50:27 ensonic Exp $
+/* $Id: tools.c,v 1.10 2005-08-05 09:36:19 ensonic Exp $
  * gui helper
  */
 
@@ -115,13 +115,13 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   GtkWidget *label,*icon,*box;
   gchar *str; 
   GtkWidget *dialog;
-	
-	g_assert(BT_IS_MAIN_WINDOW(self));
-	g_assert(title);
-	g_assert(headline);
-	g_assert(message);
+  
+  g_assert(BT_IS_MAIN_WINDOW(self));
+  g_assert(title);
+  g_assert(headline);
+  g_assert(message);
 
-	dialog = gtk_dialog_new_with_buttons(title,
+  dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                         GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
@@ -133,7 +133,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   
-	// @idea if headline is NULL use title ?
+  // @idea if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
   gtk_label_set_markup(GTK_LABEL(label),str);
@@ -163,12 +163,12 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   gchar *str; 
   GtkWidget *dialog;
 
-	g_assert(BT_IS_MAIN_WINDOW(self));
-	g_assert(title);
-	g_assert(headline);
-	g_assert(message);
-	
-	dialog = gtk_dialog_new_with_buttons(title,
+  g_assert(BT_IS_MAIN_WINDOW(self));
+  g_assert(title);
+  g_assert(headline);
+  g_assert(message);
+  
+  dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                         GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
@@ -181,7 +181,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   
-	// @idea if headline is NULL use title ?
+  // @idea if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
   gtk_label_set_markup(GTK_LABEL(label),str);
@@ -216,19 +216,19 @@ static GThread *main_thread = NULL;
  *
  * Initialises gdk thread locking helpers. Do call this together like in:
  * <informalexample><programlisting language="c">
- * if(!g_thread_supported()) {	// are g_threads() already initialized
- *		g_thread_init(NULL);
- *		gdk_threads_init();
- *		bt_threads_init();
- *	}</programlisting>
+ * if(!g_thread_supported()) {  // are g_threads() already initialized
+ *    g_thread_init(NULL);
+ *    gdk_threads_init();
+ *    bt_threads_init();
+ *  }</programlisting>
  * </informalexample>
  */
 void bt_threads_init(void) {
-	main_thread=g_thread_self();
+  main_thread=g_thread_self();
 }
 
 static gboolean bt_threads_in_main_thread(void) {
-	return(main_thread==g_thread_self());
+  return(main_thread==g_thread_self());
 }
 
 /**
@@ -239,7 +239,7 @@ static gboolean bt_threads_in_main_thread(void) {
  * To unlock use that matching gdk_threads_try_leave().
  */
 void gdk_threads_try_enter(void) {
-	if(!bt_threads_in_main_thread())	gdk_threads_enter();
+  if(!bt_threads_in_main_thread())  gdk_threads_enter();
 }
 
 /**
@@ -249,7 +249,7 @@ void gdk_threads_try_enter(void) {
  * gdk_threads_try_enter().
  */
 void gdk_threads_try_leave(void) {
-	if (!bt_threads_in_main_thread()) gdk_threads_leave();
+  if (!bt_threads_in_main_thread()) gdk_threads_leave();
 }
 
 
@@ -265,19 +265,19 @@ void gdk_threads_try_leave(void) {
  */
 GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
 
-	g_return_val_if_fail(style_name,GTK_TOOLBAR_BOTH);
-	
-	if (!strcmp(style_name,"icons")) {
-		return(GTK_TOOLBAR_ICONS);
-	}
-	else if (!strcmp(style_name,"both")) {
-		return(GTK_TOOLBAR_BOTH);
-	}
-	else if (!strcmp(style_name,"both-horiz")) {
-		return(GTK_TOOLBAR_BOTH_HORIZ);
-	}
-	else if (!strcmp(style_name,"text")) {
-		return(GTK_TOOLBAR_TEXT);
-	}
-	return(GTK_TOOLBAR_BOTH);
+  g_return_val_if_fail(style_name,GTK_TOOLBAR_BOTH);
+  
+  if (!strcmp(style_name,"icons")) {
+    return(GTK_TOOLBAR_ICONS);
+  }
+  else if (!strcmp(style_name,"both")) {
+    return(GTK_TOOLBAR_BOTH);
+  }
+  else if (!strcmp(style_name,"both-horiz")) {
+    return(GTK_TOOLBAR_BOTH_HORIZ);
+  }
+  else if (!strcmp(style_name,"text")) {
+    return(GTK_TOOLBAR_TEXT);
+  }
+  return(GTK_TOOLBAR_BOTH);
 }

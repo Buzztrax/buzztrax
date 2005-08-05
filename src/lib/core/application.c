@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.26 2005-07-26 06:43:42 waffel Exp $
+// $Id: application.c,v 1.27 2005-08-05 09:36:12 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -31,14 +31,14 @@ enum {
 struct _BtApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-	
-	/* the main gstreamer container element */
-	GstElement *bin;
+  
+  /* the main gstreamer container element */
+  GstElement *bin;
   /* a reference to the buzztard settings object */
   BtSettings *settings;
-	
-	/* bin->error indicator */
-	gboolean got_error;
+  
+  /* bin->error indicator */
+  gboolean got_error;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -47,9 +47,9 @@ static GObjectClass *parent_class=NULL;
 
 static void error_cb(GstElement *bin, GstElement *error_element, GError *error, const gchar *debug_msg, gpointer user_data) {
   gboolean *p_got_error=(gboolean *)user_data;
-  	 
+     
   GST_WARNING("An error occurred: %s\n", error->message);
-  	 
+     
   *p_got_error=TRUE;
 }
 
@@ -137,20 +137,20 @@ static void bt_application_set_property(GObject      *object,
 static void bt_application_dispose(GObject *object) {
   BtApplication *self = BT_APPLICATION(object);
 
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
-	g_object_try_unref(self->priv->bin);
+  g_object_try_unref(self->priv->bin);
   g_object_try_unref(self->priv->settings);
 
-	GST_DEBUG("  chaining up");
+  GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
-	GST_DEBUG("  done");
+  GST_DEBUG("  done");
 }
 
 static void bt_application_finalize(GObject *object) {
@@ -160,20 +160,20 @@ static void bt_application_finalize(GObject *object) {
 
   g_free(self->priv);
 
-	GST_DEBUG("  chaining up");
+  GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
-	GST_DEBUG("  done");
+  GST_DEBUG("  done");
 }
 
 static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   BtApplication *self = BT_APPLICATION(instance);
   self->priv = g_new0(BtApplicationPrivate,1);
   self->priv->dispose_has_run = FALSE;
-	self->priv->bin = gst_thread_new("thread");
+  self->priv->bin = gst_thread_new("thread");
   g_assert(GST_IS_BIN(self->priv->bin));
-	g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
+  g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {
@@ -187,14 +187,14 @@ static void bt_application_class_init(BtApplicationClass *klass) {
   gobject_class->finalize     = bt_application_finalize;
 
   g_object_class_install_property(gobject_class,APPLICATION_BIN,
-																	g_param_spec_object("bin",
+                                  g_param_spec_object("bin",
                                      "bin ro prop",
                                      "applications top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
                                      G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,APPLICATION_SETTINGS,
-																	g_param_spec_object("settings",
+                                  g_param_spec_object("settings",
                                      "settings ro prop",
                                      "applications configuration settings",
                                      BT_TYPE_SETTINGS, /* object type */
@@ -213,10 +213,10 @@ GType bt_application_get_type(void) {
       NULL, // class_data
       (guint16)(sizeof(BtApplication)),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_application_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_application_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(G_TYPE_OBJECT,"BtApplication",&info,0);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtApplication",&info,0);
   }
   return type;
 }

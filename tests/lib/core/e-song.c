@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.5 2005-04-20 17:37:08 ensonic Exp $
+/* $Id: e-song.c,v 1.6 2005-08-05 09:36:19 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -29,17 +29,17 @@ static void play_event_test(void) {
 // test if the default constructor works as expected
 START_TEST(test_btsong_obj1) {
   BtApplication *app=NULL;
-	BtSong *song;
-	
+  BtSong *song;
+  
   GST_INFO("--------------------------------------------------------------------------------");
 
-	/* create a dummy app */
+  /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-		
-	/* create a new song */
-	song=bt_song_new(app);
-	fail_unless(song != NULL, NULL);
+    
+  /* create a new song */
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
   g_object_checked_unref(song);
 
   g_object_checked_unref(app);
@@ -49,30 +49,30 @@ END_TEST
 // test if the song loading works without failure
 START_TEST(test_btsong_load1) {
   BtApplication *app=NULL;
-	BtSong *song;
-	BtSongIO *loader;
-	gboolean load_ret = FALSE;
-	
+  BtSong *song;
+  BtSongIO *loader;
+  gboolean load_ret = FALSE;
+  
   GST_INFO("--------------------------------------------------------------------------------");
   
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
-	song=bt_song_new(app);
-	fail_unless(song != NULL, NULL);
-	//gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
-	loader=bt_song_io_new("songs/test-simple1.xml");
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
+  loader=bt_song_io_new("songs/test-simple1.xml");
   mark_point();
-	fail_unless(loader != NULL, NULL);
-	//gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
-	load_ret = bt_song_io_load(loader,song);
+  fail_unless(loader != NULL, NULL);
+  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
+  load_ret = bt_song_io_load(loader,song);
   mark_point();
-	fail_unless(load_ret, NULL);
+  fail_unless(load_ret, NULL);
   
   mark_point();
   g_object_checked_unref(loader);
   mark_point();
-	g_object_checked_unref(song);
+  g_object_checked_unref(song);
   mark_point();
   g_object_checked_unref(app);
 }
@@ -81,32 +81,32 @@ END_TEST
 // test if subsequent song loading works without failure
 START_TEST(test_btsong_load2) {
   BtApplication *app=NULL;
-	BtSong *song;
-	BtSongIO *loader;
-	gboolean load_ret = FALSE;
-	
+  BtSong *song;
+  BtSongIO *loader;
+  gboolean load_ret = FALSE;
+  
   GST_INFO("--------------------------------------------------------------------------------");
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
-	song=bt_song_new(app);
-	fail_unless(song != NULL, NULL);
-	loader=bt_song_io_new("songs/test-simple1.xml");
-	fail_unless(loader != NULL, NULL);
-	load_ret = bt_song_io_load(loader,song);
-	fail_unless(load_ret, NULL);
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_new("songs/test-simple1.xml");
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
   g_object_checked_unref(loader);
-	g_object_checked_unref(song);
+  g_object_checked_unref(song);
 
-	song=bt_song_new(app);
-	fail_unless(song != NULL, NULL);
-	loader=bt_song_io_new("songs/test-simple2.xml");
-	fail_unless(loader != NULL, NULL);
-	load_ret = bt_song_io_load(loader,song);
-	fail_unless(load_ret, NULL);
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_new("songs/test-simple2.xml");
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
   g_object_checked_unref(loader);
-	g_object_checked_unref(song);
+  g_object_checked_unref(song);
   
   g_object_checked_unref(app);
 }
@@ -115,27 +115,27 @@ END_TEST
 // test if the song play routine works without failure
 START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
-	BtSong *song=NULL;
-	BtSongIO *loader=NULL;
-	gboolean load_ret = FALSE;
-	
+  BtSong *song=NULL;
+  BtSongIO *loader=NULL;
+  gboolean load_ret = FALSE;
+  
   GST_INFO("--------------------------------------------------------------------------------");
 
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
-	song=bt_song_new(app);
-	fail_unless(song != NULL, NULL);
-	loader=bt_song_io_new("songs/test-simple1.xml");
-	fail_unless(loader != NULL, NULL);
-	load_ret = bt_song_io_load(loader,song);
-	fail_unless(load_ret, NULL);
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  loader=bt_song_io_new("songs/test-simple1.xml");
+  fail_unless(loader != NULL, NULL);
+  load_ret = bt_song_io_load(loader,song);
+  fail_unless(load_ret, NULL);
   play_signal_invoke=FALSE;
-	g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(play_event_test), NULL);
-	bt_song_play(song);
-	fail_unless(play_signal_invoke, NULL);
+  g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(play_event_test), NULL);
+  bt_song_play(song);
+  fail_unless(play_signal_invoke, NULL);
   g_object_checked_unref(loader);
-	g_object_checked_unref(song);
+  g_object_checked_unref(song);
 
   g_object_checked_unref(app);
 }
@@ -145,7 +145,7 @@ END_TEST
 // wavetable
 START_TEST(test_btsong_new1){
   BtApplication *app=NULL;
-	BtSong *song=NULL;
+  BtSong *song=NULL;
   BtSetup *setup=NULL;
   BtSequence *sequence=NULL;
   BtSongInfo *songinfo=NULL;
@@ -158,8 +158,8 @@ START_TEST(test_btsong_new1){
   bt_application_new(app);
 
   // create a new, empty song
-	song=bt_song_new(app);
-	fail_unless(song != NULL, NULL);
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
   
   // get the setup property
   g_object_get(song,"setup",&setup,NULL);
@@ -194,7 +194,7 @@ TCase *bt_song_example_case(void) {
   tcase_add_test(tc,test_btsong_obj1);
   tcase_add_test(tc,test_btsong_load1);
   tcase_add_test(tc,test_btsong_load2);
-	tcase_add_test(tc,test_btsong_play1);
+  tcase_add_test(tc,test_btsong_play1);
   tcase_add_test(tc,test_btsong_new1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);

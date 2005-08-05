@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.9 2005-07-19 13:13:37 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.10 2005-08-05 09:36:19 ensonic Exp $
  * core library unit tests
  */
 
@@ -33,11 +33,11 @@ int main(int argc, char **argv) {
   int nf; 
   SRunner *sr;
 
-	//g_mem_set_vtable(glib_mem_profiler_table);
+  //g_mem_set_vtable(glib_mem_profiler_table);
 
   g_type_init();
   setup_log(argc,argv);
-	setup_log_capture();
+  setup_log_capture();
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
@@ -48,26 +48,26 @@ int main(int argc, char **argv) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 
   sr=srunner_create(bt_core_suite());
-	srunner_add_suite(sr, bt_machine_suite());
-	srunner_add_suite(sr, bt_network_suite());
-	srunner_add_suite(sr, bt_pattern_suite());
-	srunner_add_suite(sr, bt_processor_machine_suite());
-	srunner_add_suite(sr, bt_sequence_suite());
-	srunner_add_suite(sr, bt_setup_suite());
-	srunner_add_suite(sr, bt_sink_machine_suite());
-	srunner_add_suite(sr, bt_song_suite());
-	srunner_add_suite(sr, bt_song_io_suite());
-	srunner_add_suite(sr, bt_song_info_suite());
-	srunner_add_suite(sr, bt_source_machine_suite());
-	srunner_add_suite(sr, bt_wire_suite());
-	srunner_add_suite(sr, bt_settings_suite());
+  srunner_add_suite(sr, bt_machine_suite());
+  srunner_add_suite(sr, bt_network_suite());
+  srunner_add_suite(sr, bt_pattern_suite());
+  srunner_add_suite(sr, bt_processor_machine_suite());
+  srunner_add_suite(sr, bt_sequence_suite());
+  srunner_add_suite(sr, bt_setup_suite());
+  srunner_add_suite(sr, bt_sink_machine_suite());
+  srunner_add_suite(sr, bt_song_suite());
+  srunner_add_suite(sr, bt_song_io_suite());
+  srunner_add_suite(sr, bt_song_info_suite());
+  srunner_add_suite(sr, bt_source_machine_suite());
+  srunner_add_suite(sr, bt_wire_suite());
+  srunner_add_suite(sr, bt_settings_suite());
   // this make tracing errors with gdb easier (use env CK_FORK="no" gdb ...)
   //srunner_set_fork_status(sr,CK_NOFORK);
-	srunner_run_all(sr,CK_NORMAL);
+  srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
-	
-	//g_mem_profile();
+  
+  //g_mem_profile();
 
-	return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
+  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
 }

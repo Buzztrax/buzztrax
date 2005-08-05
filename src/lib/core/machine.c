@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.146 2005-08-04 09:47:49 waffel Exp $
+// $Id: machine.c,v 1.147 2005-08-05 09:36:16 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -9,34 +9,34 @@
  *
  * A machine can have several #GstElements:
  * <variablelist>
- *	<varlistentry>
- *		<term>adder:</term>
- *		<listitem><simpara>mixes all incomming signals</simpara></listitem>
- *	</varlistentry>
- *	<varlistentry>
- *		<term>input volume:</term>
- *		<listitem><simpara>gain for incomming signals</simpara></listitem>
- *	</varlistentry>
- *	<varlistentry>
- *		<term>input level:</term>
- *		<listitem><simpara>level meter for incomming signal</simpara></listitem>
- *	</varlistentry>
- *	<varlistentry>
- *		<term>machine:</term>
- *		<listitem><simpara>the real machine</simpara></listitem>
- *	</varlistentry>
- *	<varlistentry>
- *		<term>output volume:</term>
- *		<listitem><simpara>gain for outgoing signal</simpara></listitem>
- *	</varlistentry>
- *	<varlistentry>
- *		<term>output level:</term>
- *		<listitem><simpara>level meter for outgoing signal</simpara></listitem>
- *	</varlistentry>
- *	<varlistentry>
- *		<term>spreader:</term>
- *		<listitem><simpara>distibutes signal to outgoing connections</simpara></listitem>
- *	</varlistentry>
+ *  <varlistentry>
+ *    <term>adder:</term>
+ *    <listitem><simpara>mixes all incomming signals</simpara></listitem>
+ *  </varlistentry>
+ *  <varlistentry>
+ *    <term>input volume:</term>
+ *    <listitem><simpara>gain for incomming signals</simpara></listitem>
+ *  </varlistentry>
+ *  <varlistentry>
+ *    <term>input level:</term>
+ *    <listitem><simpara>level meter for incomming signal</simpara></listitem>
+ *  </varlistentry>
+ *  <varlistentry>
+ *    <term>machine:</term>
+ *    <listitem><simpara>the real machine</simpara></listitem>
+ *  </varlistentry>
+ *  <varlistentry>
+ *    <term>output volume:</term>
+ *    <listitem><simpara>gain for outgoing signal</simpara></listitem>
+ *  </varlistentry>
+ *  <varlistentry>
+ *    <term>output level:</term>
+ *    <listitem><simpara>level meter for outgoing signal</simpara></listitem>
+ *  </varlistentry>
+ *  <varlistentry>
+ *    <term>spreader:</term>
+ *    <listitem><simpara>distibutes signal to outgoing connections</simpara></listitem>
+ *  </varlistentry>
  * </variablelist>
  * The adder and spreader elements are activated on demand.
  * The volume controls and level meters are activated as requested via the API.
@@ -704,7 +704,7 @@ gboolean bt_machine_new(BtMachine *self) {
         for(i=j=0;i<number_of_properties;i++) {
           property=properties[i];
           if(property->flags&GST_PARAM_CONTROLLABLE) {
-						GST_DEBUG("    adding voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
+            GST_DEBUG("    adding voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             // add voice param
             self->priv->voice_names[j]=property->name;
             self->priv->voice_types[j]=property->value_type;
@@ -758,15 +758,15 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_DEBUG("  this will be the master for the song");
     g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
-	// prepare internal patterns for the machine
-	bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
-	bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
-	if(BT_IS_SOURCE_MACHINE(self)) {
-		bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO);
-	}
-	else if(BT_IS_PROCESSOR_MACHINE(self)) {
-		bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
-	}
+  // prepare internal patterns for the machine
+  bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
+  bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
+  if(BT_IS_SOURCE_MACHINE(self)) {
+    bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO);
+  }
+  else if(BT_IS_PROCESSOR_MACHINE(self)) {
+    bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
+  }
   // add the machine to the setup of the song
   // @todo the method should get the setup as an parameter (faster when bulk adding) (store it in the class?)
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
@@ -1500,8 +1500,8 @@ GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index
  * Returns: %TRUE if it is a trigger
  */
 gboolean bt_machine_is_global_param_trigger(const BtMachine *self, gulong index) {
-	if(!(self->priv->global_flags[index]&0x02)) return(TRUE);
-	return(FALSE);
+  if(!(self->priv->global_flags[index]&0x02)) return(TRUE);
+  return(FALSE);
 }
 
 /**
@@ -1515,8 +1515,8 @@ gboolean bt_machine_is_global_param_trigger(const BtMachine *self, gulong index)
  * Returns: %TRUE if it is a trigger
  */
 gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong index) {
-	if(!(self->priv->voice_flags[index]&0x02)) return(TRUE);
-	return(FALSE);
+  if(!(self->priv->voice_flags[index]&0x02)) return(TRUE);
+  return(FALSE);
 }
 
 /**
@@ -1532,7 +1532,7 @@ gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong index) 
  */
 gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event) {
   gchar *str=NULL;
-	GstElement *machine=self->priv->machines[PART_MACHINE];
+  GstElement *machine=self->priv->machines[PART_MACHINE];
 
   if(GST_IS_PROPERTY_META(machine)) {
     str=gst_property_meta_describe_property(GST_PROPERTY_META(machine),index,event);
@@ -1553,19 +1553,19 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong inde
  */
 gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event) {
   gchar *str=NULL;
-	GstElement *machine=self->priv->machines[PART_MACHINE];
-	
-	if(GST_IS_CHILD_PROXY(machine)) {
+  GstElement *machine=self->priv->machines[PART_MACHINE];
+  
+  if(GST_IS_CHILD_PROXY(machine)) {
     GstObject *voice_child;
 
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),0))) {
-			if(GST_IS_PROPERTY_META(voice_child)) {
-				str=gst_property_meta_describe_property(GST_PROPERTY_META(voice_child),index,event);
-			}
-		}
-	}
-	return(str);
+      if(GST_IS_PROPERTY_META(voice_child)) {
+        str=gst_property_meta_describe_property(GST_PROPERTY_META(voice_child),index,event);
+      }
+    }
+  }
+  return(str);
 }
 
 //-- controller handling
@@ -1651,36 +1651,36 @@ void bt_machine_dbg_print_parts(const BtMachine *self) {
 }
 
 void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
-	gulong i;
+  gulong i;
   FILE *file;
   gchar *name;
   GList *list,*node;
   GstTimedValue *tv;
   
-	for(i=0;i<self->priv->global_params;i++) {
-		name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
-		if((file=fopen(name,"wb"))) {
-			fprintf(file,"# global param \"%s\" for machine \"%s\"\n",self->priv->global_names[i],self->priv->id);
-			if((list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]))) {
-				for(node=list;node;node=g_list_next(node)) {
-					tv=(GstTimedValue *)node->data;
-					fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" ",GST_TIME_ARGS(tv->timestamp),tv->timestamp);
-					switch(G_VALUE_TYPE(&tv->value)) {
-						case G_TYPE_INT: fprintf(file,"%d\n",g_value_get_int(&tv->value));break;
-						case G_TYPE_UINT: fprintf(file,"%u\n",g_value_get_uint(&tv->value));break;
-						case G_TYPE_LONG: fprintf(file,"%ld\n",g_value_get_long(&tv->value));break;
-						case G_TYPE_ULONG: fprintf(file,"%lu\n",g_value_get_ulong(&tv->value));break;
-						case G_TYPE_FLOAT: fprintf(file,"%f\n",g_value_get_float(&tv->value));break;
-						case G_TYPE_DOUBLE: fprintf(file,"%lf\n",g_value_get_double(&tv->value));break;
-						default: fprintf(file,"0\n");break;
-					}
-				}
-				g_list_free(list);
-			}
-			fclose(file);
-		}
-		g_free(name);
-	}
+  for(i=0;i<self->priv->global_params;i++) {
+    name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
+    if((file=fopen(name,"wb"))) {
+      fprintf(file,"# global param \"%s\" for machine \"%s\"\n",self->priv->global_names[i],self->priv->id);
+      if((list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]))) {
+        for(node=list;node;node=g_list_next(node)) {
+          tv=(GstTimedValue *)node->data;
+          fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" ",GST_TIME_ARGS(tv->timestamp),tv->timestamp);
+          switch(G_VALUE_TYPE(&tv->value)) {
+            case G_TYPE_INT: fprintf(file,"%d\n",g_value_get_int(&tv->value));break;
+            case G_TYPE_UINT: fprintf(file,"%u\n",g_value_get_uint(&tv->value));break;
+            case G_TYPE_LONG: fprintf(file,"%ld\n",g_value_get_long(&tv->value));break;
+            case G_TYPE_ULONG: fprintf(file,"%lu\n",g_value_get_ulong(&tv->value));break;
+            case G_TYPE_FLOAT: fprintf(file,"%f\n",g_value_get_float(&tv->value));break;
+            case G_TYPE_DOUBLE: fprintf(file,"%lf\n",g_value_get_double(&tv->value));break;
+            default: fprintf(file,"0\n");break;
+          }
+        }
+        g_list_free(list);
+      }
+      fclose(file);
+    }
+    g_free(name);
+  }
 }
 
 //-- wrapper
@@ -1781,7 +1781,7 @@ static void bt_machine_set_property(GObject      *object,
       voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
       if(voices!=self->priv->voices) {
-				GST_DEBUG("set the voices for machine: %d",self->priv->voices);
+        GST_DEBUG("set the voices for machine: %d",self->priv->voices);
         bt_machine_resize_voices(self,voices);
         bt_machine_resize_pattern_voices(self);
         bt_song_set_unsaved(self->priv->song,TRUE);

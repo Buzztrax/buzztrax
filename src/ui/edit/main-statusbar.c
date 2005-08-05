@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.33 2005-07-26 06:44:38 waffel Exp $
+// $Id: main-statusbar.c,v 1.34 2005-08-05 09:36:18 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -59,7 +59,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
 
   // update statusbar fields
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id); 
-	gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
+  gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
 }
 
 static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
@@ -69,19 +69,19 @@ static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer
   
   g_assert(user_data);
 
-	g_object_get(G_OBJECT(sequence),"play-pos",&pos,NULL);
+  g_object_get(G_OBJECT(sequence),"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
   // update elapsed statusbar
   msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-	str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
+  str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
   // update statusbar fields
-	gdk_threads_try_enter();
+  gdk_threads_try_enter();
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id);
-	gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
-	gdk_threads_try_leave();
- 	g_free(str);
+  gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
+  gdk_threads_try_leave();
+   g_free(str);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -96,7 +96,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-	g_return_if_fail(song);
+  g_return_if_fail(song);
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   // get new song length
@@ -104,13 +104,13 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("  new msec : %lu",msec);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-	str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
+  str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
   // update statusbar fields
   gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id); 
-	gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
- 	g_free(str);
+  gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
+   g_free(str);
   // subscribe to play-pos changes of song->sequence
-	g_signal_connect(G_OBJECT(sequence), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
   g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
   // release the references
   g_object_try_unref(sequence);
@@ -200,7 +200,7 @@ static void bt_main_statusbar_get_property(GObject      *object,
       g_value_set_object(value, self->priv->app);
     } break;
     default: {
- 			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -217,7 +217,7 @@ static void bt_main_statusbar_set_property(GObject      *object,
     case MAIN_STATUSBAR_APP: {
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
-			g_object_try_weak_ref(self->priv->app);
+      g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for main_statusbar: %p",self->priv->app);
     } break;
     case MAIN_STATUSBAR_STATUS: {
@@ -232,20 +232,20 @@ static void bt_main_statusbar_set_property(GObject      *object,
       //GST_DEBUG("set the status-text for main_statusbar");
     } break;
     default: {
-			G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
 
 static void bt_main_statusbar_dispose(GObject *object) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
-	return_if_disposed();
+  return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-	
+  
   g_object_try_weak_unref(self->priv->app);
-	
+  
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
@@ -305,10 +305,10 @@ GType bt_main_statusbar_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtMainStatusbar),
       0,   // n_preallocs
-	    (GInstanceInitFunc)bt_main_statusbar_init, // instance_init
-			NULL // value_table
+      (GInstanceInitFunc)bt_main_statusbar_init, // instance_init
+      NULL // value_table
     };
-		type = g_type_register_static(GTK_TYPE_HBOX,"BtMainStatusbar",&info,0);
+    type = g_type_register_static(GTK_TYPE_HBOX,"BtMainStatusbar",&info,0);
   }
   return type;
 }

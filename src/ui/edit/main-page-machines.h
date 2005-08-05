@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.9 2005-01-11 16:50:49 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.10 2005-08-05 09:36:18 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_MAIN_PAGE_MACHINES		        (bt_main_page_machines_get_type ())
-#define BT_MAIN_PAGE_MACHINES(obj)		        (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachines))
-#define BT_MAIN_PAGE_MACHINES_CLASS(klass)	  (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesClass))
-#define BT_IS_MAIN_PAGE_MACHINES(obj)	        (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_MACHINES))
+#define BT_TYPE_MAIN_PAGE_MACHINES            (bt_main_page_machines_get_type ())
+#define BT_MAIN_PAGE_MACHINES(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachines))
+#define BT_MAIN_PAGE_MACHINES_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesClass))
+#define BT_IS_MAIN_PAGE_MACHINES(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_MACHINES))
 #define BT_IS_MAIN_PAGE_MACHINES_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_MACHINES))
 #define BT_MAIN_PAGE_MACHINES_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesClass))
 

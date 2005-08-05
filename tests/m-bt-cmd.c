@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.4 2005-07-19 13:13:37 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.5 2005-08-05 09:36:19 ensonic Exp $
  * command line app unit tests
  */
 
@@ -22,12 +22,12 @@ int main(int argc, char **argv) {
 
   g_type_init();
   setup_log(argc,argv);
-	setup_log_capture();
+  setup_log_capture();
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-	GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
@@ -39,5 +39,5 @@ int main(int argc, char **argv) {
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
 
-	return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
+  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
 }

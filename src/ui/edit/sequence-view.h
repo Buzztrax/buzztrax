@@ -1,4 +1,4 @@
-/* $Id: sequence-view.h,v 1.1 2005-02-05 16:28:31 ensonic Exp $
+/* $Id: sequence-view.h,v 1.2 2005-08-05 09:36:18 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -8,10 +8,10 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_SEQUENCE_VIEW		         (bt_sequence_view_get_type ())
-#define BT_SEQUENCE_VIEW(obj)		         (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceView))
-#define BT_SEQUENCE_VIEW_CLASS(klass)	   (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
-#define BT_IS_SEQUENCE_VIEW(obj)	       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE_VIEW))
+#define BT_TYPE_SEQUENCE_VIEW             (bt_sequence_view_get_type ())
+#define BT_SEQUENCE_VIEW(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceView))
+#define BT_SEQUENCE_VIEW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
+#define BT_IS_SEQUENCE_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE_VIEW))
 #define BT_IS_SEQUENCE_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE_VIEW))
 #define BT_SEQUENCE_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
 
