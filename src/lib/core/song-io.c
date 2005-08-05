@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.44 2005-08-05 09:36:16 ensonic Exp $
+// $Id: song-io.c,v 1.45 2005-08-05 17:13:01 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -235,6 +235,12 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
  */
 gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
   gboolean result;
+	BtSongInfo *song_info;
+	
+	// this updates the time-stamp
+	g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+	g_object_set(G_OBJECT(song_info),"change-dts",NULL,NULL);
+	g_object_try_unref(song_info);
 
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);

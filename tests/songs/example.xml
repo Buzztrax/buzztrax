@@ -2,19 +2,19 @@
 
 <!-- xsd:schemaLocation="http://www.buzztard.org buzztard.xsd" -->
 <buzztard
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
-	<meta>
-		<info>what a lovely tune</info>
+  <meta>
+    <info>what a lovely tune</info>
     <name>example</name>
-		<genre>dark-wave</genre>
+    <genre>dark-wave</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
-	</meta>
-	
+  </meta>
+  
   <setup zoom="1.0">    
     <machines>
       <sink id="audio_sink">
@@ -23,11 +23,11 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <processor id="amp1" pluginname="volume">
+      <processor id="amp1" plugin-name="volume">
         <machineui xpos="50" ypos="30"/>
       </processor>
       
-      <source id="sine1" pluginname="sinesrc" voices="2">
+      <source id="sine1" plugin-name="sinesrc" voices="2">
         <machineui xpos="20" ypos="80"/>
         <globaldata name="volume" value="80"/>
         <globaldata name="bpm" value="4"/>
@@ -47,15 +47,15 @@
       <tick time="0">
         <globaldata name="waveform" value="sine"/>
         <voicedata voice="0" name="note" value="C-3"/>
-				<voicedata voice="0" name="volume" value="1.0"/>
-				<voicedata voice="1" name="note" value="E-3"/>
-				<voicedata voice="1" name="volume" value="1.0"/>
+        <voicedata voice="0" name="volume" value="1.0"/>
+        <voicedata voice="1" name="note" value="E-3"/>
+        <voicedata voice="1" name="volume" value="1.0"/>
       </tick>
       <tick time="1">
         <voicedata voice="0" name="note" value="D-3"/>
-				<voicedata voice="0" name="volume" value="1.0"/>
-				<voicedata voice="1" name="note" value="F-3"/>
-				<voicedata voice="1" name="volume" value="0.8"/>
+        <voicedata voice="0" name="volume" value="1.0"/>
+        <voicedata voice="1" name="note" value="F-3"/>
+        <voicedata voice="1" name="volume" value="0.8"/>
       </tick>
     </pattern>
   </patterns>
@@ -75,10 +75,10 @@
   </sequence>
   
   <wavetable>
-	  <!-- loading file from harddisk -->
-		<wave index="0" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
-		<!-- loading file from song archive -->
-		<wave index="1" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
-	</wavetable>
+    <!-- loading file from harddisk -->
+    <wave index="0" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
+    <!-- loading file from song archive -->
+    <wave index="1" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
+  </wavetable>
   
 </buzztard>

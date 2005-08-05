@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.55 2005-08-05 08:59:47 ensonic Exp $
+// $Id: cmd-application.c,v 1.56 2005-08-05 17:13:01 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -172,7 +172,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
 
     // print some info about the song
-    g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,"create-dts",&create_dts,"changed-dts",&change_dts,NULL);
+    g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,"create-dts",&create_dts,"change-dts",&change_dts,NULL);
     g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
     g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
     g_fprintf(output_file,"song.song_info.created: \"%s\"\n",create_dts);g_free(create_dts);

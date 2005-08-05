@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
     <info>one sine-amp combin playing a fast pattern and one sine playing a slow one</info>
@@ -25,21 +25,21 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <processor id="amp1" pluginname="volume">
+      <processor id="amp1" plugin-name="volume">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="-0.3"/>
         </properties>
       </processor>
 
-      <processor id="amp2" pluginname="volume">
+      <processor id="amp2" plugin-name="volume">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="+0.3"/>
         </properties>
       </processor>
 
-      <source id="sine1" pluginname="sinesrc" voices="0">
+      <source id="sine1" plugin-name="sinesrc" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -47,7 +47,7 @@
         <globaldata name="volume" value="1.0"/>
       </source>
 
-      <source id="sine2" pluginname="sinesrc" voices="0">
+      <source id="sine2" plugin-name="sinesrc" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
@@ -67,41 +67,41 @@
     <pattern id="sine1_beeps_up" machine="sine1" name="beeps_up" length="16">
       <tick time="0">
         <globaldata name="freq" value="440,0"/>
-	<globaldata name="volume" value="1,0"/>
+  <globaldata name="volume" value="1,0"/>
       </tick>
       <tick time="4">
         <globaldata name="freq" value="880,0"/>
-	<globaldata name="volume" value="1,0"/>
+  <globaldata name="volume" value="1,0"/>
       </tick>
       <tick time="8">
         <globaldata name="freq" value="1760,0"/>
-	<globaldata name="volume" value="1,0"/>
+  <globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
     <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
       <tick time="0">
         <globaldata name="freq" value="1760.0"/>
-	<globaldata name="volume" value="1.0"/>
+  <globaldata name="volume" value="1.0"/>
       </tick>
       <tick time="4">
         <globaldata name="freq" value="880.0"/>
-	<globaldata name="volume" value="1.0"/>
+  <globaldata name="volume" value="1.0"/>
       </tick>
       <tick time="8">
         <globaldata name="freq" value="440.0"/>
-	<globaldata name="volume" value="1.0"/>
+  <globaldata name="volume" value="1.0"/>
       </tick>
     </pattern>
     <pattern id="sine2_beeps1" machine="sine2" name="beeps1" length="1">
       <tick time="0">
         <globaldata name="freq" value="660,0"/>
-	<globaldata name="volume" value="1,0"/>
+  <globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
     <pattern id="sine2_beeps2" machine="sine2" name="beeps2" length="1">
       <tick time="0">
         <globaldata name="freq" value="1320,0"/>
-	<globaldata name="volume" value="1,0"/>
+  <globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
     <pattern id="amp1_fade" machine="amp1" name="fade" length="16">

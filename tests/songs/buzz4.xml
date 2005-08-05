@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
-	<meta>
-		<info>one buzz generator</info>
-	    <name>buzz 4</name>
-		<genre>dark-wave</genre>
-    	<bpm>120</bpm>
-	    <tpb>4</tpb>
-    	<bars>16</bars>
-	</meta>
-	
+  <meta>
+    <info>one buzz generator</info>
+      <name>buzz 4</name>
+    <genre>dark-wave</genre>
+      <bpm>120</bpm>
+      <tpb>4</tpb>
+      <bars>16</bars>
+  </meta>
+  
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink">
@@ -25,7 +25,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <source id="gen" pluginname="bml-GoaKick" voices="0">
+      <source id="gen" plugin-name="bml-GoaKick" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>

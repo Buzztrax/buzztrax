@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	targetNamespace="http://www.buzztard.org/"
-	elementFormDefault="qualified">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.buzztard.org/"
+  elementFormDefault="qualified">
 
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
@@ -11,7 +11,7 @@
   <xsd:attribute name="zoom" type="xsd:float"/>
   <xsd:attribute name="id" type="xsd:string"/>
   <xsd:attribute name="index" type="xsd:integer"/>
-  <xsd:attribute name="pluginname" type="xsd:string"/>
+  <xsd:attribute name="plugin-name" type="xsd:string"/>
   <xsd:attribute name="xpos" type="xsd:integer"/>
   <xsd:attribute name="ypos" type="xsd:integer"/>
   <xsd:attribute name="src" type="xsd:string"/>
@@ -31,20 +31,20 @@
   <xsd:element name="bpm" type="xsd:integer"/>
   <xsd:element name="tpb" type="xsd:integer"/>
   <xsd:element name="bars" type="xsd:integer"/>
-  <xsd:element name="createdate" type="xsd:dateTime"/>
-  <xsd:element name="changedate" type="xsd:dateTime"/>
+  <xsd:element name="create-dts" type="xsd:dateTime"/>
+  <xsd:element name="change-dts" type="xsd:dateTime"/>
 
   <xsd:element name="meta">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="info" minOccurs="0" maxOccurs="1"/>
-	<xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="name" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="genre" minOccurs="0" maxOccurs="1"/>
-	<xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
-	<xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
-	<xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
-	<xsd:element ref="createdate" minOccurs="1" maxOccurs="1"/>
-	<xsd:element ref="changedate" minOccurs="0" maxOccurs="1"/>
+        <xsd:element ref="bpm" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="tpb" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="bars" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="create-dts" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="change-dts" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

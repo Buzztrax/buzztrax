@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
-	<meta>
-		<info>three buzz generators</info>
-	    <name>buzz 6</name>
-		<genre>dark-wave</genre>
-    	<bpm>120</bpm>
-	    <tpb>4</tpb>
-    	<bars>16</bars>
-	</meta>
-	
+  <meta>
+    <info>three buzz generators</info>
+      <name>buzz 6</name>
+    <genre>dark-wave</genre>
+      <bpm>120</bpm>
+      <tpb>4</tpb>
+      <bars>16</bars>
+  </meta>
+  
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink">
@@ -25,7 +25,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <source id="bd" pluginname="bml-ErsKick" voices="1">
+      <source id="bd" plugin-name="bml-ErsKick" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -33,7 +33,7 @@
         <globaldata name="volume" value="1.0"/>
       </source>
 
-      <source id="snr" pluginname="bml-ErsSnare" voices="1">
+      <source id="snr" plugin-name="bml-ErsSnare" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
@@ -41,7 +41,7 @@
         <globaldata name="volume" value="1.0"/>
       </source>
 
-    <source id="hh" pluginname="bml-ErsHihat" voices="1">
+    <source id="hh" plugin-name="bml-ErsHihat" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.5"/>

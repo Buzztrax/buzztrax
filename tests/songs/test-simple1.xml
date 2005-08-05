@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
-	<meta>
-		<info>what a lovely tune</info>
+  <meta>
+    <info>what a lovely tune</info>
     <name>test simple 1</name>
-		<genre>dark-wave</genre>
+    <genre>dark-wave</genre>
     <bpm>100</bpm>
     <tpb>8</tpb>
     <bars>16</bars>
-		<createdate>2005-04-30+10:00</createdate>
-	</meta>
-	
+    <createdate>2005-04-30+10:00</createdate>
+  </meta>
+  
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink">
@@ -25,7 +25,7 @@
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="200"/>
       </sink>
-      <source id="sine1" pluginname="sinesrc" voices="0">
+      <source id="sine1" plugin-name="sinesrc" voices="0">
         <properties>
           <property key="xpos" value="0.2"/>
           <property key="ypos" value="0.2"/>
@@ -43,15 +43,15 @@
     <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
       <tick time="0">
         <globaldata name="freq" value="440,0"/>
-				<globaldata name="volume" value="1,0"/>
+        <globaldata name="volume" value="1,0"/>
       </tick>
       <tick time="1">
         <globaldata name="freq" value="880,0"/>
-				<globaldata name="volume" value="1,0"/>
+        <globaldata name="volume" value="1,0"/>
       </tick>
       <tick time="2">
         <globaldata name="freq" value="1760,0"/>
-				<globaldata name="volume" value="1,0"/>
+        <globaldata name="volume" value="1,0"/>
       </tick>
     </pattern>
   </patterns>

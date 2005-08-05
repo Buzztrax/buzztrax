@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-	xmlns="http://www.buzztard.org/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
-	xsd:noNamespaceSchemaLocation="buzztard.xsd">
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
-	<meta>
-		<info>what a lovely tune</info>
+  <meta>
+    <info>what a lovely tune</info>
     <name>test simple 2</name>
-		<genre>dark-wave</genre>
+    <genre>dark-wave</genre>
     <bpm>100</bpm>
     <tpb>8</tpb>
     <bars>16</bars>
-	</meta>
-	
+  </meta>
+  
   <setup>
     <machines>
       <sink id="audio_sink">
       </sink>
-      <source id="sine1" pluginname="sinesrc" voices="0">
+      <source id="sine1" plugin-name="sinesrc" voices="0">
       </source>
     </machines>
     
