@@ -1,15 +1,21 @@
-// $Id: bt-edit.c,v 1.22 2005-08-05 09:36:17 ensonic Exp $
+// $Id: bt-edit.c,v 1.23 2005-08-15 19:12:18 ensonic Exp $
 /**
  * SECTION:btedit
- * @short_description: various helper for the graphical editor application
+ * @short_description: buzztard graphical editor application
  *
- */ 
-/*
+ * Implements the body of the buzztard GUI editor.
+ * 
  * You can try to run the uninstalled program via
+ * <informalexample><programlisting>
  *   libtool --mode=execute bt-edit
+ * </programlisting></informalexample>
  * to enable debug output add:
+ * <informalexample><programlisting>
  *  --gst-debug="*:2,bt-*:3" for not-so-much-logdata or
  *  --gst-debug="*:2,bt-*:4" for a-lot-logdata
+ * </programlisting></informalexample>
+ *
+ * Example songs can be found in <filename>./test/songs/</filename>.
  */
 
 #define BT_EDIT

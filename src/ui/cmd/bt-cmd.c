@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.26 2005-08-15 18:26:30 ensonic Exp $
+// $Id: bt-cmd.c,v 1.27 2005-08-15 19:12:18 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
