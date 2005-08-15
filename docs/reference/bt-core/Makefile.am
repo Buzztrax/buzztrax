@@ -62,4 +62,4 @@ DOC_OVERRIDES =
 #DOC_OVERRIDES = $(DOC_MODULE)-overrides.txt
 
 # include generic part
-include $(top_srcdir)/docs/reference/gtk-doc.make
+include $(top_srcdir)/gtk-doc.make

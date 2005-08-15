@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.5 2004-09-29 11:23:17 ensonic Exp $
+# $Id: autogen.sh,v 1.6 2005-08-15 21:14:16 ensonic Exp $
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0
@@ -318,12 +318,14 @@ version_check "automake" "$AUTOMAKE automake automake-1.7 automake17 automake-1.
               "ftp://ftp.gnu.org/pub/gnu/automake/" 1 6 || DIE=1
 version_check "autopoint" "autopoint" \
               "ftp://ftp.gnu.org/pub/gnu/gettext/" 0 12 1 || DIE=1
+version_check "gtkdocize" "" \
+              "ftp://ftp.gnome.org/pub/gnome/sources/gtk-doc/" 1 4
 version_check "intltoolize" "" \
-              "ftp://ftp.gnome.org/pub/GNOME/stable/sources/intltool" 0 1 5 || DIE=1
+              "ftp://ftp.gnome.org/pub/gnome/sources/intltool/" 0 1 5 || DIE=1
 version_check "libtoolize" "libtoolize" \
               "ftp://ftp.gnu.org/pub/gnu/libtool/" 1 5 0 || DIE=1
 version_check "pkg-config" "" \
-              "http://www.freedesktop.org/software/pkgconfig" 0 8 0 || DIE=1
+              "ftp://ftp.gnome.org/pub/gnome/sources/pkgconfig/" 0 8 0 || DIE=1
 
 die_check $DIE
 
@@ -355,6 +357,9 @@ tool_run "$aclocal" "$ACLOCAL_FLAGS"
 
 tool_run "$intltoolize" "--copy --force --automake"
 tool_run "$libtoolize" "--copy --force"
+if test -n "$gtkdocize"; then
+  tool_run "$gtkdocize" "--copy"
+fi
 tool_run "$autoheader"
 
 # touch the stamp-h.in build stamp so we don't re-run autoheader in maintainer mode -- wingo

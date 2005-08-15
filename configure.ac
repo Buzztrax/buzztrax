@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.56 2005-08-13 08:54:14 ensonic Exp $
+# $Id: configure.ac,v 1.57 2005-08-15 21:14:16 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -14,6 +14,7 @@
 AC_INIT([buzztard], [0.0.1], [buzztard-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
+AC_CONFIG_MACRO_DIR(m4)
 
 BT_MAJOR_VERSION=0
 BT_MINOR_VERSION=0
