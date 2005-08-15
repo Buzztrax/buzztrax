@@ -1,11 +1,21 @@
-/* $Id: bt-cmd.c,v 1.25 2005-08-05 09:36:17 ensonic Exp $
- * You can try to run the uninstalled program via
- *   libtool --mode=execute bt-cmd --command=info --input-file=<filename>
- * to enable debug output add:
- *  --gst-debug="*:2,bt-*:3" for not-so-much-logdata or
- *  --gst-debug="*:2,bt-*:4" for a-lot-logdata
+/* $Id: bt-cmd.c,v 1.26 2005-08-15 18:26:30 ensonic Exp $
+/**
+ * SECTION:btcmd
+ * @short_description: buzztard commandline tool
  *
- * example songs can be found in ./test/songs/
+ * Implements the body of the buzztard commandline tool.
+ *
+ * You can try to run the uninstalled program via
+ * <informalexample><programlisting>
+ *  libtool --mode=execute bt-cmd --command=info --input-file=&lt;filename&gt;
+ * </programlisting></informalexample>
+ * to enable debug output add:
+ * <informalexample><programlisting>
+ *  --gst-debug="*:2,bt-*:3" for not-so-much-logdata or
+ *  --gst-debug="*:2,bt-*:4" for a-lot-of-log-data
+ * </programlisting></informalexample>
+ *
+ * Example songs can be found in <filename>./test/songs/</filename>.
  */
 
 #define BT_CMD
