@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.25 2005-07-19 13:13:36 ensonic Exp $
+## $Id: Makefile.am,v 1.26 2005-08-17 16:58:56 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -20,7 +20,7 @@ if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
 
 noinst_LTLIBRARIES = libbt-check.la
-libbt_check_la_LIBADD = -lm -lcheck $(BASE_DEPS_LIBS)
+libbt_check_la_LIBADD = -lm -lcheck $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
 	bt-test-plugin.c bt-test-plugin.h
@@ -52,6 +52,7 @@ INCLUDES = \
 	-DDATADIR=\"$(datadir)/buzztard\" \
 	-DG_LOG_DOMAIN=\"buzztard-check\" \
 	$(BASE_DEPS_CFLAGS) \
+	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)\
  @VALGRIND_CFLAGS@
 endif

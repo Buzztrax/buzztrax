@@ -1,12 +1,15 @@
-/* $Id: m-bt-edit.c,v 1.6 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.7 2005-08-17 16:58:56 ensonic Exp $
  * graphical editor app unit tests
  */
 
 #define BT_CHECK
  
 #include "bt-check.h"
+#include "../src/ui/edit/bt-edit.h"
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
+GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_edit_application_suite(void);
 extern Suite *bt_pattern_properties_dialog_suite(void);
@@ -17,6 +20,42 @@ gchar *test_arg0="check_buzzard";
 gchar *test_arg1="--sync";
 gchar *test_argv[1];
 gchar **test_argvptr;
+
+void bt_edit_setup(void) {
+  g_type_init();
+  if(!g_thread_supported()) {  // are g_threads() already initialized
+    g_thread_init(NULL);
+  }
+  gdk_threads_init();
+  bt_threads_init();
+
+  gtk_init(NULL,NULL);
+  bt_init(NULL,NULL,NULL);
+  add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+
+  setup_log_capture();
+  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+  g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
+
+  GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
+  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
+  gst_debug_set_colored(FALSE);
+
+	//check_setup_test_display();
+
+  gdk_threads_try_enter();
+	
+  GST_INFO("================================================================================");
+}
+
+void bt_edit_teardown(void) {
+  gdk_threads_try_leave();
+
+	//check_shutdown_test_display();
+}
 
 /* start the test run */
 int main(int argc, char **argv) {
@@ -38,6 +77,6 @@ int main(int argc, char **argv) {
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
-
+	
   return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
 }

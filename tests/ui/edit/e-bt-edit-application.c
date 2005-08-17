@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.9 2005-08-05 09:36:19 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.10 2005-08-17 16:58:56 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -8,35 +8,11 @@
 //-- fixtures
 
 static void test_setup(void) {
-  g_type_init();
-  if(!g_thread_supported()) {  // are g_threads() already initialized
-    g_thread_init(NULL);
-  }
-  gdk_threads_init();
-  bt_threads_init();
-
-  gtk_init(NULL,NULL);
-  bt_init(NULL,NULL,NULL);
-  add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
-
-  setup_log_capture();
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-  g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-
-  GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
-  gst_debug_set_colored(FALSE);
-
-  gdk_threads_try_enter();
-
-  GST_INFO("================================================================================");
+  bt_edit_setup();
 }
 
 static void test_teardown(void) {
-  gdk_threads_try_leave();
+	bt_edit_teardown();
 }
 
 //-- helper
