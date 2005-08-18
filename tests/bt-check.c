@@ -590,98 +590,115 @@ static GdkDisplay *default_display=NULL,*test_display=NULL;
 static volatile gboolean wait_for_server;
 
 static void __test_server_watch(GPid pid,gint status,gpointer data) {
-	if(status==0) {
-		GST_INFO("test x server %d process finished okay",pid);
-	}
-	else {
-		GST_WARNING("test x server %d process finished with error %d",pid,status);
-	}
-	wait_for_server=FALSE;
-	g_spawn_close_pid(pid);
-	server_pid=0;
+  if(status==0) {
+    GST_INFO("test x server %d process finished okay",pid);
+  }
+  else {
+    GST_WARNING("test x server %d process finished with error %d",pid,status);
+  }
+  wait_for_server=FALSE;
+  g_spawn_close_pid(pid);
+  server_pid=0;
 }
 
 void check_setup_test_display(void) {
-	gulong flags=G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL;
-	GError *error=NULL;
-	gchar display_name[3],display_file[18];
-	gint display_number;
-	gchar *argv[]={
-		"Xvfb",
-		"-ac",":9","-screen","0","1024x786x16",
-		NULL
-	};
-	gboolean found=FALSE,trying=TRUE;
+  //gulong flags=G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL;
+  gulong flags=G_SPAWN_SEARCH_PATH;
+  GError *error=NULL;
+  gchar display_name[3],display_file[18];
+  gint display_number;
+  gchar *argv[]={
+    "Xvfb",
+    ":9",
+    "-ac",
+    "-nolisten","tcp",
+    "-reset",
+    "-terminate",
+    "-screen","0","1024x786x16",
+    NULL
+  };
+  gboolean found=FALSE,trying=TRUE;
 
-	server_pid=0;
-	display_number=0;
+  server_pid=0;
+  display_number=0;
 
-	// try display ids starting with '0'
-	while(trying) {
-		wait_for_server=TRUE;
-		g_sprintf(display_name,":%1d",display_number);
-		g_sprintf(display_file,"/tmp/.X11-unix/X%1d",display_number);
-		
-		// this display is not yet in use
-		if(!g_file_test(display_file, G_FILE_TEST_EXISTS)) {
-			// create the testing server
-			argv[2]=display_name;
-			if(!(g_spawn_async(NULL,argv,NULL,flags,NULL,NULL,&server_pid,&error))) {
-				GST_ERROR("error creating virtual x-server : \"%s\"", error->message);
-				g_error_free(error);
-			}
-			else {
-				g_child_watch_add(server_pid,__test_server_watch,NULL);
-	
-				while(wait_for_server) {
-					if(g_file_test(display_file, G_FILE_TEST_EXISTS)) {
-						wait_for_server=trying=FALSE;
-						found=TRUE;
-					}
-					else {
-						sleep(1);
-					}
-				}
-			}
-		}
-		if(!found) {
-			display_number++;
-			// stop after trying the first ten displays
-			if(display_number==10) trying=FALSE;
-		}
+  // try display ids starting with '0'
+  while(trying) {
+    wait_for_server=TRUE;
+    g_sprintf(display_name,":%1d",display_number);
+    g_sprintf(display_file,"/tmp/.X11-unix/X%1d",display_number);
+    
+    // this display is not yet in use
+    if(!g_file_test(display_file, G_FILE_TEST_EXISTS)) {
+      // create the testing server
+      argv[1]=display_name;
+      if(!(g_spawn_async(NULL,argv,NULL,flags,NULL,NULL,&server_pid,&error))) {
+        GST_ERROR("error creating virtual x-server : \"%s\"", error->message);
+        g_error_free(error);
+      }
+      else {
+        g_child_watch_add(server_pid,__test_server_watch,NULL);
+  
+        while(wait_for_server) {
+          // try also waiting for /tmp/X%1d-lock" files
+          if(g_file_test(display_file, G_FILE_TEST_EXISTS)) {
+            wait_for_server=trying=FALSE;
+            found=TRUE;
+          }
+          else {
+            sleep(1);
+          }
+        }
+        //sleep(2);
+      }
+    }
+    if(!found) {
+      display_number++;
+      // stop after trying the first ten displays
+      if(display_number==10) trying=FALSE;
+    }
   }
-	
-	if(found) {
-		GST_INFO("display \"%s\" is up (pid=%d)",display_name,server_pid);
-		// activate the display for use with gtk
-		display_manager = gdk_display_manager_get();
-		default_display = gdk_display_manager_get_default_display(display_manager);
-		if((test_display = gdk_display_open(display_name))) {
-			gdk_display_manager_set_default_display(display_manager,test_display);
-		}
-		else {
-			GST_WARNING("failed to open display: \"%s\"",display_name);
-		}
-	}
+  
+  if(found) {
+    GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
+    // activate the display for use with gtk
+    display_manager = gdk_display_manager_get();
+    default_display = gdk_display_manager_get_default_display(display_manager);
+    if((test_display = gdk_display_open(display_name))) {
+      gdk_display_manager_set_default_display(display_manager,test_display);
+      GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
+    }
+    else {
+      GST_WARNING("failed to open display: \"%s\"",display_name);
+    }
+  }
 }
 
 void check_shutdown_test_display(void) {
-	if(server_pid) {
-		// restore default and close our display
-		gdk_display_manager_set_default_display(display_manager,default_display);
-		gdk_display_close(test_display);
-		test_display=NULL;
-	
-		wait_for_server=TRUE;
-		// kill the testing server
-		kill(server_pid, SIGINT);
-		// wait for the server to finish
-		while(wait_for_server) {
-			sleep(1);
-		}
-		GST_INFO("display has been shut down");
-	}
-	else {
-		GST_WARNING("no test display");
-	}
+  if(server_pid) {
+    wait_for_server=TRUE;
+
+    GST_INFO("trying to shut down test server %d",server_pid);
+    // restore default and close our display
+    GST_DEBUG("display_manager=%p, test_display=%p,\"%s\" default_display=%p,\"%s\"",
+        display_manager,
+        test_display,gdk_display_get_name(test_display),
+        default_display,gdk_display_get_name(default_display));
+    gdk_display_manager_set_default_display(display_manager,default_display);
+    GST_INFO("display has been restored");
+    gdk_display_close(test_display);
+    test_display=NULL;
+    GST_INFO("display has been closed");
+
+    // kill the testing server - @todo try other signals (SIGINT,...)
+    //kill(server_pid, SIGTERM);
+    // wait for the server to finish (use waitpid() here ?)
+    //while(wait_for_server) {
+      //sleep(1);
+    //}
+    GST_INFO("test server has been shut down");
+  }
+  else {
+    GST_WARNING("no test display");
+  }
 }

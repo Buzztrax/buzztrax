@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.7 2005-08-17 16:58:56 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.8 2005-08-18 21:24:26 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -44,7 +44,7 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
   gst_debug_set_colored(FALSE);
 
-	//check_setup_test_display();
+  check_setup_test_display();
 
   gdk_threads_try_enter();
 	
@@ -52,9 +52,11 @@ void bt_edit_setup(void) {
 }
 
 void bt_edit_teardown(void) {
+  GST_INFO("................................................................................");
   gdk_threads_try_leave();
 
-	//check_shutdown_test_display();
+  check_shutdown_test_display();
+  GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
 }
 
 /* start the test run */

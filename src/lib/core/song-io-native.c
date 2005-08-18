@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.82 2005-08-05 17:13:01 ensonic Exp $
+// $Id: song-io-native.c,v 1.83 2005-08-18 21:24:26 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -187,7 +187,7 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
                 !strncmp(property_name,"author",6) ||
                 !strncmp(property_name,"create-dts",10) ||
                 !strncmp(property_name,"change-dts",10)
-							) {
+              ) {
                 g_object_set(G_OBJECT(song_info),property_name,elem,NULL);
               }
               else if(!strncmp(property_name,"bpm",3) ||
@@ -218,12 +218,12 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
   GST_INFO(" got setup.machines root node");
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   while(xml_node) {
-		if(!xmlNodeIsText(xml_node)) {
-			machine=NULL;
-			id=xmlGetProp(xml_node,XML_CHAR_PTR("id"));
-			plugin_name=xmlGetProp(xml_node,XML_CHAR_PTR("plugin-name"));
-			name=bt_setup_get_unique_machine_id(setup,id);
-			// parse additional params
+    if(!xmlNodeIsText(xml_node)) {
+      machine=NULL;
+      id=xmlGetProp(xml_node,XML_CHAR_PTR("id"));
+      plugin_name=xmlGetProp(xml_node,XML_CHAR_PTR("plugin-name"));
+      name=bt_setup_get_unique_machine_id(setup,id);
+      // parse additional params
       if( (voices_str=xmlGetProp(xml_node,XML_CHAR_PTR("voices"))) ) {
         voices=atol(voices_str);
       }
@@ -683,49 +683,48 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   // file with gnome-vfs. For example if the given file is song.xml the method
   // should return file:/home/waffel/buzztard/songs/song.xml
   
-  // @todo add zip file processing
-  /*
+  /* @todo add zip file processing
    * zip_file=bt_zip_file_new(file_name,BT_ZIP_FILE_MODE_READ);
-   * xml_doc=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
+   * xml_doc_buffer=bt_zip_file_read_file(zip_file,"song.xml",&xml_doc_size);
    */
   
   // @todo read from zip_file
-  /* ctxt=xmlCreateMemoryParserCtxt(xml_doc,xml_doc_size) */
-  if((ctxt=xmlCreateFileParserCtxt(file_name))) {
-    ctxt->validate=FALSE;
-    xmlParseDocument(ctxt);
-    if(!ctxt->valid) {
-      GST_WARNING("the supplied document is not a XML/Buzztard document");
-    }
-    else if(!ctxt->wellFormed) {
-      GST_WARNING("the supplied document is not a wellformed XML document");
-    }
-    else {
-      xmlNodePtr xml_node;
-      song_doc=ctxt->myDoc;
-      if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
-        GST_WARNING("xmlDoc is empty");
+  if((ctxt=xmlNewParserCtxt())) {
+    //song_doc=xmlCtxtReadMemory(ctxt,xml_doc_buffer,xml_doc_size,file_name,NULL,0L)
+    if((song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L))) {
+      if(!ctxt->valid) {
+        GST_WARNING("the supplied document is not a XML/Buzztard document");
       }
-      else if((ns=xmlSearchNsByHref(song_doc,xml_node,(const xmlChar *)BT_NS_URL))==NULL) {
-        GST_WARNING("no or incorrect namespace found in xmlDoc");
-      }
-      else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
-        GST_WARNING("wrong document type root node in xmlDoc src");
+      else if(!ctxt->wellFormed) {
+        GST_WARNING("the supplied document is not a wellformed XML document");
       }
       else {
-        GST_INFO("file looks good!");
-        if(bt_song_io_native_load_song_info(self,song,song_doc) &&
-          bt_song_io_native_load_setup(    self,song,song_doc) &&
-          bt_song_io_native_load_patterns( self,song,song_doc) &&
-          bt_song_io_native_load_sequence( self,song,song_doc) &&
-          bt_song_io_native_load_wavetable(self,song,song_doc)
-        ) {
-          result=TRUE;
+        xmlNodePtr xml_node;
+        if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
+          GST_WARNING("xmlDoc is empty");
         }
-      }
-    }    
+        else if((ns=xmlSearchNsByHref(song_doc,xml_node,(const xmlChar *)BT_NS_URL))==NULL) {
+          GST_WARNING("no or incorrect namespace found in xmlDoc");
+        }
+        else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
+          GST_WARNING("wrong document type root node in xmlDoc src");
+        }
+        else {
+          GST_INFO("file looks good!");
+          if(bt_song_io_native_load_song_info(self,song,song_doc) &&
+            bt_song_io_native_load_setup(    self,song,song_doc) &&
+            bt_song_io_native_load_patterns( self,song,song_doc) &&
+            bt_song_io_native_load_sequence( self,song,song_doc) &&
+            bt_song_io_native_load_wavetable(self,song,song_doc)
+          ) {
+            result=TRUE;
+          }
+        }
+      }    
+    }
+    else GST_ERROR("failed to read xml file \"%s\"",file_name);
   }
-  else GST_ERROR("failed to create file-parser context for \"%s\"",file_name);
+  else GST_ERROR("failed to create file-parser context");
   if(ctxt) xmlFreeParserCtxt(ctxt);
   if(song_doc) xmlFreeDoc(song_doc);
   g_free(file_name);
@@ -759,22 +758,22 @@ static gboolean bt_song_io_native_save_properties(const BtSongIONative *self, co
 }
 
 static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
-	BtSongInfo *song_info;
-	xmlNodePtr xml_node;
-	gchar *name,*genre,*author,*info;
-	gchar *create_dts,*change_dts;
-	gulong bpm,tpb,bars;
-	gchar num[20];
-	
-	GST_INFO("saving the meta-data to the song");
+  BtSongInfo *song_info;
+  xmlNodePtr xml_node;
+  gchar *name,*genre,*author,*info;
+  gchar *create_dts,*change_dts;
+  gulong bpm,tpb,bars;
+  gchar num[20];
+  
+  GST_INFO("saving the meta-data to the song");
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-	
-	xml_node=xmlNewChild(root_node,NULL,"meta",NULL);
-	g_object_get(G_OBJECT(song_info),
-		"name",&name,"genre",&genre,"author",&author,"info",&info,
-		"create-dts",&create_dts,"change-dts",&change_dts,
-	  "bpm",&bpm,"tpb",&tpb,"bars",&bars,
-		NULL);
+  
+  xml_node=xmlNewChild(root_node,NULL,"meta",NULL);
+  g_object_get(G_OBJECT(song_info),
+    "name",&name,"genre",&genre,"author",&author,"info",&info,
+    "create-dts",&create_dts,"change-dts",&change_dts,
+    "bpm",&bpm,"tpb",&tpb,"bars",&bars,
+    NULL);
   if(info) {
     xmlNewChild(xml_node,NULL,"info",info);
     g_free(info);
@@ -788,63 +787,63 @@ static gboolean bt_song_io_native_save_song_info(const BtSongIONative *self, con
     g_free(genre);
   }
   if(author) {
-		xmlNewChild(xml_node,NULL,"author",author);
-  	g_free(author);
-	}
+    xmlNewChild(xml_node,NULL,"author",author);
+    g_free(author);
+  }
   if(create_dts) {
-		xmlNewChild(xml_node,NULL,"create-dts",create_dts);
-  	g_free(create_dts);
-	}
+    xmlNewChild(xml_node,NULL,"create-dts",create_dts);
+    g_free(create_dts);
+  }
   if(change_dts) {
-		xmlNewChild(xml_node,NULL,"change-dts",change_dts);
-  	g_free(change_dts);
-	}
-	sprintf(num,"%lu",bpm);
-	xmlNewChild(xml_node,NULL,"bpm",num);
-	sprintf(num,"%lu",tpb);
-	xmlNewChild(xml_node,NULL,"tpb",num);
-	sprintf(num,"%lu",bars);
-	xmlNewChild(xml_node,NULL,"bars",num);
-	
-	g_object_try_unref(song_info);
-	return(TRUE);
+    xmlNewChild(xml_node,NULL,"change-dts",change_dts);
+    g_free(change_dts);
+  }
+  sprintf(num,"%lu",bpm);
+  xmlNewChild(xml_node,NULL,"bpm",num);
+  sprintf(num,"%lu",tpb);
+  xmlNewChild(xml_node,NULL,"tpb",num);
+  sprintf(num,"%lu",bars);
+  xmlNewChild(xml_node,NULL,"bars",num);
+  
+  g_object_try_unref(song_info);
+  return(TRUE);
 }
 
 static gboolean bt_song_io_native_save_setup_machines(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
-	xmlNodePtr xml_node=NULL;
-	BtSetup *setup;
-	BtMachine *machine;
-	GList *machines,*node;
-	gchar *id,*plugin_name;
+  xmlNodePtr xml_node=NULL;
+  BtSetup *setup;
+  BtMachine *machine;
+  GList *machines,*node;
+  gchar *id,*plugin_name;
 
-	g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-	g_object_get(G_OBJECT(setup),"machines",&machines,NULL);
-	
-	for(node=machines;node;node=g_list_next(node)) {
-		machine=BT_MACHINE(node->data);
-		g_object_get(G_OBJECT(machine),"id",&id,"plugin-name",&plugin_name,NULL);
-		if(BT_IS_PROCESSOR_MACHINE(machine)) {
-			xml_node=xmlNewChild(root_node,NULL,"processor",NULL);
-			xmlNewProp(xml_node,"plugin-name",plugin_name);
-		}
-		else if(BT_IS_SINK_MACHINE(machine)) {
-			xml_node=xmlNewChild(root_node,NULL,"sink",NULL);
-		}
-		else if(BT_IS_SOURCE_MACHINE(machine)) {
-			xml_node=xmlNewChild(root_node,NULL,"source",NULL);
-			xmlNewProp(xml_node,"plugin-name",plugin_name);
-		}
-		if(xml_node) {
-			xmlNewProp(xml_node,"id",id);
-		}
-		g_free(id);
-		if(plugin_name) g_free(plugin_name);
-		bt_song_io_native_save_properties(self,song,xml_node,G_OBJECT(machine));
-	}
-	g_list_free(machines);
-	g_object_try_unref(setup);
-	
-	return(TRUE);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(setup),"machines",&machines,NULL);
+  
+  for(node=machines;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+    g_object_get(G_OBJECT(machine),"id",&id,"plugin-name",&plugin_name,NULL);
+    if(BT_IS_PROCESSOR_MACHINE(machine)) {
+      xml_node=xmlNewChild(root_node,NULL,"processor",NULL);
+      xmlNewProp(xml_node,"plugin-name",plugin_name);
+    }
+    else if(BT_IS_SINK_MACHINE(machine)) {
+      xml_node=xmlNewChild(root_node,NULL,"sink",NULL);
+    }
+    else if(BT_IS_SOURCE_MACHINE(machine)) {
+      xml_node=xmlNewChild(root_node,NULL,"source",NULL);
+      xmlNewProp(xml_node,"plugin-name",plugin_name);
+    }
+    if(xml_node) {
+      xmlNewProp(xml_node,"id",id);
+    }
+    g_free(id);
+    if(plugin_name) g_free(plugin_name);
+    bt_song_io_native_save_properties(self,song,xml_node,G_OBJECT(machine));
+  }
+  g_list_free(machines);
+  g_object_try_unref(setup);
+  
+  return(TRUE);
 }
 
 static gboolean bt_song_io_native_save_setup_wires(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {

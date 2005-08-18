@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.10 2005-08-17 16:58:56 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.11 2005-08-18 21:24:26 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -12,7 +12,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_edit_teardown();
+  bt_edit_teardown();
 }
 
 //-- helper
@@ -198,7 +198,7 @@ TCase *bt_edit_application_example_case(void) {
   tcase_add_test(tc,test_new1);
   tcase_add_test(tc,test_load1);
   tcase_add_test(tc,test_tabs1);
-  // we *must* use a checked fixture, as only this runns in the same context
+  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   // we need to disable the default timeout of 3 seconds
   tcase_set_timeout(tc, 0);
