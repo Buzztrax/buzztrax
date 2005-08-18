@@ -588,6 +588,8 @@ static GPid server_pid;
 static GdkDisplayManager *display_manager=NULL;
 static GdkDisplay *default_display=NULL,*test_display=NULL;
 static volatile gboolean wait_for_server;
+static gchar display_name[3];
+static gint display_number;
 
 static void __test_server_watch(GPid pid,gint status,gpointer data) {
   if(status==0) {
@@ -601,19 +603,18 @@ static void __test_server_watch(GPid pid,gint status,gpointer data) {
   server_pid=0;
 }
 
-void check_setup_test_display(void) {
+void check_setup_test_server(void) {
   //gulong flags=G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL;
   gulong flags=G_SPAWN_SEARCH_PATH;
   GError *error=NULL;
-  gchar display_name[3],display_file[18];
-  gint display_number;
+  gchar display_file[18];
   gchar *argv[]={
     "Xvfb",
     ":9",
     "-ac",
     "-nolisten","tcp",
-    "-reset",
-    "-terminate",
+    /*"-reset",
+    "-terminate",*/
     "-screen","0","1024x786x16",
     NULL
   };
@@ -658,8 +659,14 @@ void check_setup_test_display(void) {
       if(display_number==10) trying=FALSE;
     }
   }
+  if(!found) {
+    display_number=-1;
+  }
+}
+
+void check_setup_test_display(void) {
   
-  if(found) {
+  if(display_number>-1) {
     GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
     // activate the display for use with gtk
     display_manager = gdk_display_manager_get();
@@ -675,7 +682,7 @@ void check_setup_test_display(void) {
 }
 
 void check_shutdown_test_display(void) {
-  if(server_pid) {
+  if(test_display) {
     wait_for_server=TRUE;
 
     GST_INFO("trying to shut down test server %d",server_pid);
@@ -689,16 +696,25 @@ void check_shutdown_test_display(void) {
     gdk_display_close(test_display);
     test_display=NULL;
     GST_INFO("display has been closed");
-
-    // kill the testing server - @todo try other signals (SIGINT,...)
-    //kill(server_pid, SIGTERM);
-    // wait for the server to finish (use waitpid() here ?)
-    //while(wait_for_server) {
-      //sleep(1);
-    //}
-    GST_INFO("test server has been shut down");
   }
   else {
     GST_WARNING("no test display");
+  }
+}
+
+void check_shutdown_test_server(void) {
+  if(server_pid) {
+    wait_for_server=TRUE;
+
+    // kill the testing server - @todo try other signals (SIGINT,...)
+    kill(server_pid, SIGTERM);
+    // wait for the server to finish (use waitpid() here ?)
+    while(wait_for_server) {
+      sleep(1);
+    }
+    GST_INFO("test server has been shut down");
+  }
+  else {
+    GST_WARNING("no test server");
   }
 }

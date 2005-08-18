@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.8 2005-08-18 21:24:26 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.9 2005-08-18 21:49:50 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -72,6 +72,8 @@ int main(int argc, char **argv) {
  
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+
+  check_setup_test_server();
   
   sr=srunner_create(bt_edit_application_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
@@ -79,6 +81,8 @@ int main(int argc, char **argv) {
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
+
+  check_shutdown_test_server();
 	
   return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
 }

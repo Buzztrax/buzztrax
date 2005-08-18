@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.5 2005-08-17 16:58:56 ensonic Exp $
+/* $Id: bt-check.h,v 1.6 2005-08-18 21:49:50 ensonic Exp $
  * testing helpers
  */
 
@@ -49,7 +49,9 @@ extern gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 
 extern gboolean check_gobject_properties(GObject *toCheck);
 
+extern void check_setup_test_server(void);
 extern void check_setup_test_display(void);
 extern void check_shutdown_test_display(void);
+extern void check_shutdown_test_server(void);
 
 #endif /* BT_CHECK_H */
