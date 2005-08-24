@@ -65,7 +65,7 @@ static void check_print_handler(const gchar * const message) {
 
 static void check_log_handler(const gchar * const log_domain, const GLogLevelFlags log_level, const gchar * const message, gpointer const user_data) {
     gchar *msg,*level;
-    
+
     switch(log_level&G_LOG_LEVEL_MASK) {
       case G_LOG_LEVEL_ERROR:     level="ERROR";break;
       case G_LOG_LEVEL_CRITICAL:  level="CRITICAL";break;
@@ -75,9 +75,10 @@ static void check_log_handler(const gchar * const log_domain, const GLogLevelFla
       case G_LOG_LEVEL_DEBUG:     level="DEBUG";break;
       default:                    level="???";break;
     }
-    msg=g_strdup_printf("%s-%s %s",log_domain,level,message);
+
+    msg=g_alloca(strlen(log_domain)+strlen(level)+strlen(message)+3);
+    g_sprintf(msg,"%s-%s %s",log_domain,level,message);
     check_print_handler(msg);
-    g_free(msg);
 }
 
 /**

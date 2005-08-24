@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.83 2005-08-18 21:24:26 ensonic Exp $
+// $Id: song-io-native.c,v 1.84 2005-08-24 14:04:24 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -113,6 +113,15 @@ xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr cons
     GST_ERROR("failed to get xpath context");
   }
   return(result);
+}
+
+//-- string formatting helper
+
+static const gchar *strfmt_ulong(gulong val) {
+  static gchar str[20];
+
+  g_sprintf(str,"%lu",val);
+  return(str);
 }
 
 //-- loader helper methods
@@ -669,14 +678,15 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   xmlParserCtxtPtr ctxt=NULL;
   xmlDocPtr song_doc=NULL;
   xmlNsPtr ns=NULL;
-  gchar *file_name,*status;
+  gchar *file_name,*status,*msg;
   
   g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
   GST_INFO("native io will now load song from \"%s\"",file_name);
 
-  status=g_strdup_printf(_("Loading file \"%s\""),file_name);
+  msg=_("Loading file \"%s\"");
+  status=g_alloca(strlen(msg)+strlen(file_name));
+  g_sprintf(status,msg,file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
-  g_free(status);
     
   // @todo add gnome-vfs detection method. This method should detect the
   // filetype of the given file and returns a gnome-vfs uri to open this
@@ -894,7 +904,8 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
   BtMachine *machine;
   xmlNodePtr xml_node,xml_child_node;
   gulong i,j,k,length,voices,global_params,voice_params;
-  gchar *time_str,*voice_str,*value;
+  const gchar *voice_str;
+  gchar *value;
   
   g_object_get(G_OBJECT(pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
   g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
@@ -905,8 +916,7 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
     // check if there are any GValues stored ?
     if(bt_pattern_tick_has_data(pattern,i)) {
       xml_node=xmlNewChild(root_node,NULL,"tick",NULL);
-      time_str=g_strdup_printf("%lu",i);
-      xmlNewProp(xml_node,"time",time_str);g_free(time_str);
+      xmlNewProp(xml_node,"time",strfmt_ulong(i));
       // save tick data
       for(j=0;j<global_params;j++) {
         if((value=bt_pattern_get_global_event(pattern,i,j))) {
@@ -916,7 +926,7 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
         }
       }
       for(j=0;j<voices;j++) {
-        voice_str=g_strdup_printf("%lu",j);
+        voice_str=strfmt_ulong(j);
         for(k=0;k<voice_params;k++) {
           if((value=bt_pattern_get_voice_event(pattern,i,j,k))) {
             xml_child_node=xmlNewChild(xml_node,NULL,"voicedata",NULL);
@@ -925,7 +935,6 @@ static gboolean bt_song_io_native_save_pattern_data(const BtSongIONative *self, 
             xmlNewProp(xml_child_node,"value",value);g_free(value);
           }
         }
-        g_free(voice_str);
       }
     }
   }
@@ -939,7 +948,7 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
   BtMachine *machine;
   BtPattern *pattern;
   GList *machines,*patterns,*node1,*node2;
-  gchar *id,*machine_id,*name,*length_str;
+  gchar *id,*machine_id,*name;
   gulong length;
 
   xml_node=xmlNewChild(root_node,NULL,"patterns",NULL);
@@ -957,14 +966,14 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
       
       xml_child_node=xmlNewChild(xml_node,NULL,"pattern",NULL);
       // generate "id"
-      id=g_strdup_printf("%s_%s",machine_id,name);
+      id=g_alloca(strlen(machine_id)+strlen(name)+2);
+      g_sprintf(id,"%s_%s",machine_id,name);
       g_object_set(G_OBJECT(pattern),"id",id,NULL);
       // save attributes
-      length_str=g_strdup_printf("%lu",length);
-      xmlNewProp(xml_child_node,"id",id);g_free(id);
+      xmlNewProp(xml_child_node,"id",id);
       xmlNewProp(xml_child_node,"machine",machine_id);
       xmlNewProp(xml_child_node,"name",name);g_free(name);
-      xmlNewProp(xml_child_node,"length",length_str);g_free(length_str);
+      xmlNewProp(xml_child_node,"length",strfmt_ulong(length));
       // save tick data
       bt_song_io_native_save_pattern_data(self,pattern,xml_child_node);
     }
@@ -980,7 +989,7 @@ static gboolean bt_song_io_native_save_patterns(const BtSongIONative *self, cons
 static gboolean bt_song_io_native_save_sequence_labels(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
   xmlNodePtr xml_node;
   BtSequence *sequence;
-  gchar *time_str,*label;
+  gchar *label;
   gulong i,length;
   
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
@@ -990,9 +999,8 @@ static gboolean bt_song_io_native_save_sequence_labels(const BtSongIONative *sel
   for(i=0;i<length;i++) {
     if((label=bt_sequence_get_label(sequence,i))) {
       xml_node=xmlNewChild(root_node,NULL,"label",NULL);
-      time_str=g_strdup_printf("%lu",i);
       xmlNewProp(xml_node,"name",label);g_free(label);
-      xmlNewProp(xml_node,"time",time_str);g_free(time_str);
+      xmlNewProp(xml_node,"time",strfmt_ulong(i));
     }
   }
   g_object_try_unref(sequence);
@@ -1005,7 +1013,7 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
   BtSequence *sequence;
   BtMachine *machine;
   BtPattern *pattern;
-  gchar *time_str,*track_str,*machine_id,*pattern_id;
+  gchar *machine_id,*pattern_id;
   gulong i,j,length,tracks;
   
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
@@ -1016,8 +1024,7 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
     xml_node=xmlNewChild(root_node,NULL,"track",NULL);
     machine=bt_sequence_get_machine(sequence,j);
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
-    track_str=g_strdup_printf("%lu",j);
-    xmlNewProp(xml_node,"index",track_str);g_free(track_str);
+    xmlNewProp(xml_node,"index",strfmt_ulong(j));
     xmlNewProp(xml_node,"machine",machine_id);g_free(machine_id);
     g_object_unref(machine);
     // iterate over timelines
@@ -1025,8 +1032,7 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
       // get pattern
       if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
         xml_child_node=xmlNewChild(xml_node,NULL,"position",NULL);
-        time_str=g_strdup_printf("%lu",i);
-        xmlNewProp(xml_child_node,"time",time_str);g_free(time_str);
+        xmlNewProp(xml_child_node,"time",strfmt_ulong(i));
         g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
         xmlNewProp(xml_child_node,"pattern",pattern_id);g_free(pattern_id);
       }
@@ -1057,7 +1063,7 @@ static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, con
   xmlNodePtr xml_node;
   GList *waves,*node;
   gulong index;
-  gchar *name,*file_name,*index_str;
+  gchar *name,*file_name;
 
   xml_node=xmlNewChild(root_node,NULL,"wavetable",NULL);
   g_object_get(G_OBJECT(song),"wavetable",&wavetable,NULL);
@@ -1068,8 +1074,7 @@ static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, con
     
     xml_node=xmlNewChild(root_node,NULL,"wave",NULL);
     g_object_get(G_OBJECT(wave),"index",&index,"name",&name,"file-name",&file_name,NULL);
-    index_str=g_strdup_printf("%lu",index);
-    xmlNewProp(xml_node,"index",index_str);g_free(index_str);
+    xmlNewProp(xml_node,"index",strfmt_ulong(index));
     xmlNewProp(xml_node,"name",name);g_free(name);
     xmlNewProp(xml_node,"url",file_name);g_free(file_name);
     
@@ -1088,15 +1093,15 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
   gboolean result=FALSE;
   xmlDocPtr song_doc=NULL;
   xmlNodePtr root_node=NULL;
-
-  gchar *file_name,*status;
+  gchar *file_name,*status,*msg;
   
   g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
   GST_INFO("native io will now save song to \"%s\"",file_name);
 
-  status=g_strdup_printf(_("Saving file \"%s\""),file_name);
+  msg=_("Saving file \"%s\"");
+  status=g_alloca(strlen(msg)+strlen(file_name));
+  g_sprintf(status,msg,file_name);
   g_object_set(G_OBJECT(self),"status",status,NULL);
-  g_free(status);
 
   if((song_doc=xmlNewDoc("1.0"))) {
     // create the root-node
