@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.147 2005-08-05 09:36:16 ensonic Exp $
+// $Id: machine.c,v 1.148 2005-08-24 13:25:34 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -523,6 +523,7 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
               k++;
             }
           }
+					g_free(properties);
         }
       }
     }

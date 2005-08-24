@@ -539,10 +539,9 @@ static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck
 /** test gobject properties
  * @toCheck: the object to examine
  *
- * one can use
- * g_object_class_find_property()
- * to get a list of gobject properties.
- * The function can then apply some tests to each of them.
+ * The function runs tests against all registered properties of the given
+ * object. Depending on the flags and the type of the properties, tests include
+ * read/write and boundary checks.
  */
 
 gboolean check_gobject_properties(GObject *toCheck) {
@@ -576,6 +575,7 @@ gboolean check_gobject_properties(GObject *toCheck) {
       }
     }
   }
+  g_free(return_params);
   if (check_read && check_write && check_readwrite) {
     ret=TRUE;
   }

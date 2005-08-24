@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.72 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.73 2005-08-24 13:25:35 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1081,6 +1081,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   g_object_try_unref(self->priv->pattern);
   
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+	gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
