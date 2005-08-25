@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.27 2005-08-05 09:36:12 ensonic Exp $
+// $Id: application.c,v 1.28 2005-08-25 19:35:24 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -45,6 +45,7 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
+/*
 static void error_cb(GstElement *bin, GstElement *error_element, GError *error, const gchar *debug_msg, gpointer user_data) {
   gboolean *p_got_error=(gboolean *)user_data;
      
@@ -52,6 +53,7 @@ static void error_cb(GstElement *bin, GstElement *error_element, GError *error, 
      
   *p_got_error=TRUE;
 }
+*/
 
 //-- constructor methods
 
@@ -171,9 +173,9 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   BtApplication *self = BT_APPLICATION(instance);
   self->priv = g_new0(BtApplicationPrivate,1);
   self->priv->dispose_has_run = FALSE;
-  self->priv->bin = gst_thread_new("thread");
+  self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_BIN(self->priv->bin));
-  g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
+  //g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {

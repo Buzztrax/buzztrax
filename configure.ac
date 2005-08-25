@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.57 2005-08-15 21:14:16 ensonic Exp $
+# $Id: configure.ac,v 1.58 2005-08-25 19:35:24 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -187,9 +187,8 @@ AC_SUBST(with_desktop_dir)
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
-  libxml-2.0 >= 2.5.0 \
-  gstreamer-0.8 >= 0.8.10 gstreamer-interfaces-0.8 >= 0.8.8 \
-  gstreamer-controller >= 0.0.1 \
+  libxml-2.0 >= 2.6.0 \
+  gstreamer-0.9 >= 0.9 gstreamer-controller-0.9 >= 0.9 \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \

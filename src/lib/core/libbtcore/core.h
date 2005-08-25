@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.61 2005-08-05 09:36:16 ensonic Exp $
+/* $Id: core.h,v 1.62 2005-08-25 19:35:24 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -234,5 +234,11 @@
   extern void bt_init(int *argc, char ***argv, struct poptOption *options);
 #endif
 
-  
+/*
+@idea g_alloca_printf
+	
+#define g_alloca_printf(str,format,...) \
+sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
+*/
+
 #endif // BT_CORE_H

@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.16 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: song-io.h,v 1.17 2005-08-25 19:35:24 ensonic Exp $
  * base class for song input and output
  */
 
@@ -32,6 +32,28 @@ struct _BtSongIO {
   /*< private >*/
   BtSongIOPrivate *priv;
 };
+
+/**
+ * bt_song_io_virtual_load:
+ * @self: song-io instance
+ * @song: song object to load
+ *
+ * Subclasses will override this methods with the loader function.
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*bt_song_io_virtual_load)(const gpointer self, const BtSong *song);
+/**
+ * bt_song_io_virtual_save:
+ * @self: song-io instance
+ * @song: song object to save
+ *
+ * Subclasses will override this methods with the saver function.
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*bt_song_io_virtual_save)(const gpointer self, const BtSong *song);
+
 /**
  * BtSongIOClass:
  * @load: virtual method for loading a song
@@ -43,8 +65,8 @@ struct _BtSongIOClass {
   GObjectClass parent_class;
 
   /* class methods */
-  gboolean (*load)(const gpointer self, const BtSong *song);
-  gboolean (*save)(const gpointer self, const BtSong *song);
+  bt_song_io_virtual_load load;
+  bt_song_io_virtual_save save;
 
   void (*status_changed)(const BtSongIO *songio, gpointer user_data);
 };
