@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.59 2005-08-05 09:36:16 ensonic Exp $
+// $Id: wire.c,v 1.60 2005-08-25 23:38:33 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -93,16 +93,16 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
     if(!gst_element_link_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL)) {
       gst_element_unlink_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL);
       if(!self->priv->scale) {
-        gchar *name=g_strdup_printf("audioscale_%p",self);
-        self->priv->scale=gst_element_factory_make("audioscale",name);
+        gchar *name=g_strdup_printf("audioresample_%p",self);
+        self->priv->scale=gst_element_factory_make("audioresample",name);
         g_assert(self->priv->scale!=NULL);
         g_free(name);
       }
       gst_bin_add(self->priv->bin, self->priv->scale);
-      GST_DEBUG("trying to link machines with scale");
+      GST_DEBUG("trying to link machines with resample");
       if(!gst_element_link_many(src->src_elem, self->priv->scale, dst->dst_elem, NULL)) {
         gst_element_unlink_many(src->src_elem, self->priv->scale, dst->dst_elem, NULL);
-        GST_DEBUG("trying to link machines with convert and scale");
+        GST_DEBUG("trying to link machines with convert and resample");
         if(!gst_element_link_many(src->src_elem, self->priv->convert, self->priv->scale, dst->dst_elem, NULL)) {
           gst_element_unlink_many(src->src_elem, self->priv->convert, self->priv->scale, dst->dst_elem, NULL);
           GST_DEBUG("trying to link machines with scale and convert");

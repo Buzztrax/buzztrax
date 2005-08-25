@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.28 2005-08-25 19:35:24 ensonic Exp $
+// $Id: application.c,v 1.29 2005-08-25 23:38:33 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -44,6 +44,28 @@ struct _BtApplicationPrivate {
 static GObjectClass *parent_class=NULL;
 
 //-- helper
+
+static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
+  gboolean res=TRUE;
+  //BtApplication *self = BT_APPLICATION(user_data);
+  
+  GST_INFO("received bus message");
+  switch(GST_MESSAGE_TYPE(message)) {
+    case GST_MESSAGE_WARNING:
+    case GST_MESSAGE_ERROR:{
+      GError *gerror;
+      gchar *debug;
+
+      gst_message_parse_error (message, &gerror, &debug);
+      gst_object_default_error (GST_MESSAGE_SRC (message), gerror, debug);
+      g_error_free (gerror);
+      g_free (debug);
+      break;
+    }
+  }
+  gst_message_unref(message);
+  return(res);
+}
 
 /*
 static void error_cb(GstElement *bin, GstElement *error_element, GError *error, const gchar *debug_msg, gpointer user_data) {
@@ -171,10 +193,15 @@ static void bt_application_finalize(GObject *object) {
 
 static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   BtApplication *self = BT_APPLICATION(instance);
+  GstBus *bus;
+  
   self->priv = g_new0(BtApplicationPrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_BIN(self->priv->bin));
+  
+  bus=gst_element_get_bus(self->priv->bin);
+  gst_bus_add_watch(bus,bus_handler,(gpointer)self);
   //g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
 }
 

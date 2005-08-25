@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.56 2005-08-05 17:13:01 ensonic Exp $
+// $Id: cmd-application.c,v 1.57 2005-08-25 23:38:33 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -197,7 +197,8 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_fprintf(output_file,"song.wavetable.number_of_waves: %u\n",g_list_length(waves));
     g_list_free(waves);
     g_object_get(G_OBJECT(self),"bin",&bin,NULL);
-    g_fprintf(output_file,"app.bin.number_of_elements: %u\n",g_list_length((GList *)gst_bin_get_list(bin)));
+    g_fprintf(output_file,"app.bin.number_of_elements: %u\n",GST_BIN_NUMCHILDREN(bin));
+    g_object_unref(bin);
 
     // lookup the audio-sink machine and print some info about it
     if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
