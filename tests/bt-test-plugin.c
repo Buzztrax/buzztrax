@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.8 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: bt-test-plugin.c,v 1.9 2005-08-26 22:40:17 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -52,9 +52,40 @@ static void bt_test_child_proxy_interface_init(gpointer g_iface, gpointer iface_
 
 //-- test_mono_source
 
+static void bt_test_mono_source_get_property(GObject *object,
+                               guint         property_id,
+                               GValue       *value,
+                               GParamSpec   *pspec)
+{
+  BtTestMonoSource *self = BT_TEST_MONO_SOURCE(object);
+
+  switch (property_id) {
+    case ARG_ULONG: {
+      g_value_set_ulong(value, self->ulong_val);
+    } break;
+  }
+}  
+
+static void bt_test_mono_source_set_property(GObject *object,
+                              guint         property_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
+{
+  BtTestMonoSource *self = BT_TEST_MONO_SOURCE(object);
+  
+  switch (property_id) {
+    case ARG_ULONG:
+      self->ulong_val = g_value_get_ulong(value);
+      break;
+  }
+}
+
 static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
+  gobject_class->set_property = bt_test_mono_source_set_property;
+  gobject_class->get_property = bt_test_mono_source_get_property;
+  
   g_object_class_override_property(gobject_class, ARG_BPM, "beats-per-minute");
   g_object_class_override_property(gobject_class, ARG_TPB, "ticks-per-beat");
   g_object_class_override_property(gobject_class, ARG_STPT, "subticks-per-tick");
@@ -109,7 +140,20 @@ GType bt_test_mono_source_get_type(void) {
 
 //-- test_poly_source
 
-/* sets the given properties for this object */
+static void bt_test_poly_source_get_property(GObject *object,
+                               guint         property_id,
+                               GValue       *value,
+                               GParamSpec   *pspec)
+{
+  BtTestPolySource *self = BT_TEST_POLY_SOURCE(object);
+
+  switch (property_id) {
+    case ARG_ULONG: {
+      g_value_set_ulong(value, self->ulong_val);
+    } break;
+  }
+}  
+
 static void bt_test_poly_source_set_property(GObject *object,
                               guint         property_id,
                               const GValue *value,
@@ -158,6 +202,7 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   gobject_class->set_property = bt_test_poly_source_set_property;
+  gobject_class->get_property = bt_test_poly_source_get_property;
   gobject_class->finalize     = bt_test_poly_source_finalize;
   
   g_object_class_override_property(gobject_class, ARG_BPM, "beats-per-minute");

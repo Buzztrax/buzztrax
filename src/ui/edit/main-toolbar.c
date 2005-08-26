@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.59 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-toolbar.c,v 1.60 2005-08-26 22:40:17 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -212,15 +212,40 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_try_unref(song);
 }
 
+/* 0.8
 static void on_song_level_change(GstElement *element, gdouble time, gint channel, gdouble rms, gdouble peak, gdouble decay, gpointer user_data) {
+*/
+static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer user_data) {
+  gboolean res=FALSE;
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  
-  g_assert(user_data);
 
-  //GST_INFO("%d  %.3f  %.3f %.3f %.3f", channel,time,rms,peak,decay);
-  gdk_threads_try_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
-  gtk_vumeter_set_levels(self->priv->vumeter[channel], (gint)(rms*10.0), (gint)(peak*10.0));
-  gdk_threads_try_leave();
+  g_assert(user_data);
+  
+  //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
+  switch(GST_MESSAGE_TYPE(message)) {
+    case GST_MESSAGE_APPLICATION: {
+      const GstStructure *structure=gst_message_get_structure(message);
+      const GValue *l_rms,*l_peak /*,*l_decay*/;
+      gdouble rms, peak /*, decay*/;
+      guint i;
+
+      l_rms=(GValue *)gst_structure_get_value(structure, "rms");
+      l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+      //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+      for(i=0;i<gst_value_list_get_size(l_rms);i++) {
+        rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
+        peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
+        //GST_INFO("%d  %.3f  %.3f %.3f %.3f", channel,time,rms,peak,decay);
+        //gdk_threads_try_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
+        gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
+        //gdk_threads_try_leave();
+      }
+      //gst_message_unref(message);
+      res=TRUE;
+      break;
+    }
+  }
+  return(res);
 }
 
 static void on_song_volume_change(GtkRange *range,gpointer user_data) {
@@ -284,12 +309,15 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"master",&master,NULL);
   if(master) {
     GstPad *pad;
+    GstBus *bus;
     gdouble volume;
 
     // get the input_level property from audio_sink
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
-    // connect to the level signal
-    g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
+    // connect to the level bus-message
+    bus=gst_element_get_bus(level);
+    gst_bus_add_watch(bus,on_song_level_change,(gpointer)self);
+    //g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
@@ -308,7 +336,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   g_object_try_unref(master);
   g_object_try_unref(song);
-
 }
 
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {

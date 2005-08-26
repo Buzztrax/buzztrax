@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.29 2005-08-25 23:38:33 ensonic Exp $
+// $Id: application.c,v 1.30 2005-08-26 22:40:17 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -46,10 +46,10 @@ static GObjectClass *parent_class=NULL;
 //-- helper
 
 static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
-  gboolean res=TRUE;
+  gboolean res=FALSE;
   //BtApplication *self = BT_APPLICATION(user_data);
   
-  GST_INFO("received bus message");
+  //GST_INFO("received bus message");
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_WARNING:
     case GST_MESSAGE_ERROR:{
@@ -60,10 +60,11 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
       gst_object_default_error (GST_MESSAGE_SRC (message), gerror, debug);
       g_error_free (gerror);
       g_free (debug);
+      res=TRUE;
       break;
     }
   }
-  gst_message_unref(message);
+  //gst_message_unref(message);
   return(res);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.h,v 1.6 2005-08-05 17:13:01 ensonic Exp $
+/* $Id: bt-test-plugin.h,v 1.7 2005-08-26 22:40:17 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -25,6 +25,9 @@ typedef struct _BtTestMonoSourceClass BtTestMonoSourceClass;
 /* monophonic source element */
 struct _BtTestMonoSource {
   GstElement parent;
+
+  // test properties
+  gulong ulong_val;
 };
 /* structure of the test_mono_source class */
 struct _BtTestMonoSourceClass {
@@ -52,6 +55,9 @@ typedef struct _BtTestPolySourceClass BtTestPolySourceClass;
 struct _BtTestPolySource {
   GstElement parent;
   
+  // test properties
+  gulong ulong_val;
+
   // the number of voices the plugin has
   gulong num_voices;
   GList *voices;
