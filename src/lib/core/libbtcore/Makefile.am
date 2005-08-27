@@ -11,7 +11,6 @@ libbtcore_HEADERS = \
 	machine.h machine-methods.h \
 	pattern.h pattern-methods.h \
 	plainfile-settings.h plainfile-settings-methods.h \
-	playline.h playline-methods.h \
 	processor-machine.h processor-machine-methods.h \
 	sequence.h sequence-methods.h \
 	settings.h settings-methods.h \

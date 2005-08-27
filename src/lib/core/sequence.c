@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.81 2005-08-05 09:36:16 ensonic Exp $
+// $Id: sequence.c,v 1.82 2005-08-27 12:48:24 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -252,52 +252,6 @@ static void bt_sequence_limit_play_pos(const BtSequence *self) {
   if(self->priv->play_pos<self->priv->play_start) {
     self->priv->play_pos=self->priv->play_start;
     g_object_notify(G_OBJECT(self),"play-pos");
-  }
-}
-
-/**
- * bt_sequence_update_playline:
- * @self: the sequence instance that holds the tracks
- * @playline: the current play-cursor
- *
- * Enter new patterns into the playline and stop or mute patterns
- * OBSOLETE soon
- */
-static void bt_sequence_update_playline(const BtSequence *self, const BtPlayLine *playline) {
-  gulong i;
-  BtPattern *pattern;
-  
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(BT_IS_PLAYLINE(playline));
-
-  /* DEBUG
-  if(self->priv->labels[self->priv->play_pos]) {
-    GST_INFO("  label=\"%s\"",self->priv->labels[self->priv->play_pos]);
-  }*/
-  
-  for(i=0;i<self->priv->tracks;i++) {
-    // enter new patterns into the playline and stop or mute patterns
-    if((pattern=bt_sequence_get_pattern(self,self->priv->play_pos,i))) {
-      bt_playline_set_pattern(playline,i,pattern);
-      /*
-      g_object_get_property(G_OBJECT(*timelinetrack),"type", &pattern_type);
-      switch(g_value_get_enum(&pattern_type)) {
-        case BT_TIMELINETRACK_TYPE_EMPTY:
-          break;
-        case BT_TIMELINETRACK_TYPE_PATTERN:
-          g_object_get(G_OBJECT(*timelinetrack),"pattern",&pattern,NULL);
-          bt_playline_set_pattern(playline,i,pattern);
-          g_object_try_unref(pattern);
-          break;
-        case BT_TIMELINETRACK_TYPE_STOP:
-          bt_playline_set_pattern(playline,i,NULL);
-          break;
-        default:
-          GST_ERROR("implement me");
-      }
-      */
-      g_object_unref(pattern);
-    }
   }
 }
 
@@ -935,8 +889,10 @@ GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
 gboolean bt_sequence_play(const BtSequence *self) {
   gboolean res=TRUE;
   GstElement *bin;
-  BtPlayLine *playline;
   GstClockTime wait_per_position=bt_sequence_get_bar_time(self);
+  GstClock *clock;
+  GstClockID clock_id;
+  GstClockReturn wait_ret;
   // DEBUG {
   //GTimer *timer;
   // }
@@ -949,7 +905,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
   }
 
   g_object_get(G_OBJECT(self->priv->song),"bin",&bin,NULL);
-  playline=bt_playline_new(self->priv->song,self->priv->tracks,wait_per_position);
+  clock=gst_pipeline_get_clock(GST_PIPELINE(bin));
+  clock_id=gst_clock_new_periodic_id(clock,0,wait_per_position);
   
   GST_INFO("song.duration = %d * %d usec = %ld sec",self->priv->length,wait_per_position,(gulong)(((GstClockTime)self->priv->length*(GstClockTime)wait_per_position)/GST_SECOND));
   GST_INFO("  play_start,pos,end: %d,%d,%d",self->priv->play_start,self->priv->play_pos,self->priv->play_end);
@@ -967,12 +924,10 @@ gboolean bt_sequence_play(const BtSequence *self) {
       for(;((self->priv->play_pos<self->priv->play_end) && (self->priv->is_playing));self->priv->play_pos++) {
         //GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
         g_object_notify(G_OBJECT(self),"play-pos");
-        
-        // @todo the code below can be removed along with dparams,but copy the wait from playline!
-        // enter new patterns into the playline and stop or mute patterns
-        bt_sequence_update_playline(self,playline);
-        // play the patterns in the cursor
-        bt_playline_play(playline);
+        // seems to block our app, even though it runs in a thread
+        if((wait_ret=gst_clock_id_wait(clock_id,NULL))!=GST_CLOCK_OK) {
+          GST_WARNING("gst_clock_id_wait() returned %d",wait_ret);
+        }
       }
       self->priv->play_pos=self->priv->play_start;
       g_object_notify(G_OBJECT(self),"play-pos");
@@ -989,7 +944,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
     GST_ERROR("can't start playing");res=FALSE;
   }
   // release the references
-  g_object_try_unref(playline);
+  gst_clock_id_unref(clock_id);
+  g_object_try_unref(clock);
   g_object_try_unref(bin);
   return(res);
 }

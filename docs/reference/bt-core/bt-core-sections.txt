@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.47 2005-08-25 19:35:24 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.48 2005-08-27 12:48:24 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -151,27 +151,6 @@ BT_PLAINFILE_SETTINGS_GET_CLASS
 <SUBSECTION Private>
 bt_plainfile_settings_get_type
 BtPlainfileSettingsPrivate
-</SECTION>
-
-
-<SECTION>
-<FILE>btplayline</FILE>
-<TITLE>BtPlayLine</TITLE>
-BtPlayLine
-bt_playline_new
-bt_playline_set_pattern
-bt_playline_play
-<SUBSECTION Standard>
-BtPlayLineClass
-BT_PLAYLINE
-BT_IS_PLAYLINE
-BT_PLAYLINE_CLASS
-BT_IS_PLAYLINE_CLASS
-BT_PLAYLINE_GET_CLASS
-BT_TYPE_PLAYLINE
-<SUBSECTION Private>
-bt_playline_get_type
-BtPlayLinePrivate
 </SECTION>
 
 <SECTION>

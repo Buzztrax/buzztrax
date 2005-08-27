@@ -5,7 +5,6 @@ bt_gconf_settings_get_type
 bt_machine_get_type
 bt_pattern_get_type
 bt_plainfile_settings_get_type
-bt_playline_get_type
 bt_processor_machine_get_type
 bt_sequence_get_type
 bt_settings_get_type

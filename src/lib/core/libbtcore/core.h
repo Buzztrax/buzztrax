@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.62 2005-08-25 19:35:24 ensonic Exp $
+/* $Id: core.h,v 1.63 2005-08-27 12:48:24 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -85,7 +85,6 @@
 #include "wire-methods.h"
 #include "setup-methods.h"
 #include "pattern-methods.h"
-#include "playline-methods.h"
 #include "sequence-methods.h"
 #include "song-io-methods.h"
 #include "song-io-native-methods.h"

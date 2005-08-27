@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.30 2005-07-15 22:26:25 ensonic Exp $
+## $Id: Makefile.am,v 1.31 2005-08-27 12:48:24 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -24,7 +24,6 @@ libbtcore_la_SOURCES = \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h libbtcore/machine-private.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
 	plainfile-settings.c libbtcore/plainfile-settings.h libbtcore/plainfile-settings-methods.h \
-	playline.c libbtcore/playline.h libbtcore/playline-methods.h \
 	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	settings.c libbtcore/settings.h libbtcore/settings-methods.h libbtcore/settings-private.h \

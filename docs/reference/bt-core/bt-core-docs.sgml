@@ -9,7 +9,6 @@
 <!ENTITY BtMachine SYSTEM "xml/btmachine.xml">
 <!ENTITY BtPattern SYSTEM "xml/btpattern.xml">
 <!ENTITY BtPlainfileSettings SYSTEM "xml/btplainfilesettings.xml">
-<!ENTITY BtPlayLine SYSTEM "xml/btplayline.xml">
 <!ENTITY BtProcessorMachine SYSTEM "xml/btprocessormachine.xml">
 <!ENTITY BtSequence SYSTEM "xml/btsequence.xml">
 <!ENTITY BtSettings SYSTEM "xml/btsettings.xml">
@@ -103,7 +102,6 @@
     &BtMachine;
     &BtPattern;
     &BtPlainfileSettings;
-    &BtPlayLine;
     &BtProcessorMachine;
     &BtSequence;
     &BtSettings;
