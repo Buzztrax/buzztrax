@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.60 2005-08-26 22:40:17 ensonic Exp $
+// $Id: main-toolbar.c,v 1.61 2005-08-29 22:21:03 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -77,6 +77,12 @@ static gint gst_caps_get_channels(GstCaps *caps) {
 
 //-- event handler
 
+static gboolean on_song_playback_update(gpointer user_data) {
+  BtSong *self=BT_SONG(user_data);
+
+  return(bt_song_update_playback_position(self));
+}
+
 static void on_song_stop(const BtSong *song, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gint i;
@@ -84,7 +90,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   g_assert(user_data);
   
   GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
-  gdk_threads_try_enter();
+  ////gdk_threads_try_enter();
   // disable stop button
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
   // switch off play button
@@ -95,13 +101,15 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   for(i=0;i<MAX_VUMETER;i++) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
   }
-  gdk_threads_try_leave();
+  ////gdk_threads_try_leave();
+  /*
   if(self->priv->player_thread) {
     self->priv->player_thread=NULL;
   }
   else {
     GST_WARNING("  no player thread!");
   }
+  */
   GST_INFO("song stop event handled");
   GST_INFO("====");
 }
@@ -149,27 +157,36 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
     BtSong *song;
-    GError *error=NULL;
+    //GError *error=NULL;
 
     // disable play button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),FALSE);
     
     GST_INFO("====");
+    /*
     GST_INFO("toolbar play event occurred : thread_id=%p",g_thread_self());
     if(self->priv->player_thread) {
       GST_WARNING("  #### player thread still running!");
       return;
     }
+    */
     
     // get song from app
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-
+    
+    // start playback
+    bt_song_play(song);
+    g_timeout_add(1000,on_song_playback_update,song);
+    
     //-- start playing in a thread
+    /*
     if(!(self->priv->player_thread=g_thread_create((GThreadFunc)&bt_song_play, (gpointer)song, TRUE, &error))) {
       GST_ERROR("error creating player thread : \"%s\"", error->message);
       g_error_free(error);
     }
     GST_INFO("player thread started : thread_id=%p",self->priv->player_thread);
+    */
+    
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
     // release the reference
     g_object_try_unref(song);
@@ -185,7 +202,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar stop event occurred");
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-   bt_song_stop(song);
+  bt_song_stop(song);
   // @todo what if the stop-event already zero-ed this
   //g_thread_join(self->priv->player_thread);
   GST_INFO("  song stopped");

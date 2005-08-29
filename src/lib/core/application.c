@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.31 2005-08-29 17:27:57 ensonic Exp $
+// $Id: application.c,v 1.32 2005-08-29 22:21:03 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -44,6 +44,8 @@ struct _BtApplicationPrivate {
 static GObjectClass *parent_class=NULL;
 
 //-- helper
+
+//-- handler
 
 static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
   gboolean res=FALSE;
@@ -203,6 +205,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   
   bus=gst_element_get_bus(self->priv->bin);
   gst_bus_add_watch(bus,bus_handler,(gpointer)self);
+  gst_object_ref(bus);
   //g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
 }
 

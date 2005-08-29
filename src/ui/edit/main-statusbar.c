@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.34 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-statusbar.c,v 1.35 2005-08-29 22:21:03 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -62,26 +62,28 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
 }
 
-static void on_sequence_tick(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
+static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
-  gchar *str;
+  BtSequence *sequence;
+  gchar str[2+2+3+3];
   gulong msec,sec,min,pos;
   
   g_assert(user_data);
 
-  g_object_get(G_OBJECT(sequence),"play-pos",&pos,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
   // update elapsed statusbar
   msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-  str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
+  // 
+  g_sprintf(str,"%02lu:%02lu.%03lu",min,sec,msec);
   // update statusbar fields
-  gdk_threads_try_enter();
+  //gdk_threads_try_enter();
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id);
   gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
-  gdk_threads_try_leave();
-   g_free(str);
+  //gdk_threads_try_leave();
+  g_object_unref(sequence);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -110,7 +112,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
    g_free(str);
   // subscribe to play-pos changes of song->sequence
-  g_signal_connect(G_OBJECT(sequence), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
   g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
   // release the references
   g_object_try_unref(sequence);

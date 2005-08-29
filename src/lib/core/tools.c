@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.16 2005-08-05 09:36:16 ensonic Exp $
+/* $Id: tools.c,v 1.17 2005-08-29 22:21:03 ensonic Exp $
  */
  
 #define BT_CORE
@@ -37,7 +37,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   return(res);
 }
 
-
+#ifndef HAVE_GLIB_2_8
 gpointer g_try_malloc0(gulong n_bytes) {
   gpointer mem;
 
@@ -46,3 +46,4 @@ gpointer g_try_malloc0(gulong n_bytes) {
   }
   return(mem);
 }
+#endif

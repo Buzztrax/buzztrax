@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.80 2005-08-05 09:36:16 ensonic Exp $
+// $Id: song.c,v 1.81 2005-08-29 22:21:03 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -30,7 +30,9 @@ enum {
   SONG_SEQUENCE,
   SONG_SETUP,
   SONG_WAVETABLE,
-  SONG_UNSAVED
+  SONG_UNSAVED,
+  SONG_PLAY_POS,
+  SONG_IS_PLAYING
 };
 
 struct _BtSongPrivate {
@@ -44,6 +46,11 @@ struct _BtSongPrivate {
   
   /* whenever the song is changed, unsave should be set TRUE */
   gboolean unsaved;
+  
+  /* the playback position of the song */
+  gulong play_pos;
+  /* flag to signal playing state */
+  gboolean is_playing;
 
   /* the application that currently uses the song */
   BtApplication *app;
@@ -56,6 +63,32 @@ struct _BtSongPrivate {
 static GObjectClass *parent_class=NULL;
 
 static guint signals[LAST_SIGNAL]={0,};
+
+//-- handler
+
+static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
+  gboolean res=FALSE;
+  BtSong *self = BT_SONG(user_data);
+  
+  //GST_INFO("received bus message");
+  switch(GST_MESSAGE_TYPE(message)) {
+    case GST_MESSAGE_EOS:
+      GST_INFO("received EOS bus message");
+      bt_song_stop(self);
+      res=TRUE;
+      break;
+    case GST_MESSAGE_SEGMENT_START:
+      GST_INFO("received SEGMENT_START bus message");
+      res=TRUE;
+      break;
+    case GST_MESSAGE_SEGMENT_DONE:
+      GST_INFO("received SEGMENT_DONE bus message");
+      res=TRUE;
+      break;
+  }
+  //gst_message_unref(message);
+  return(res);
+}
 
 //-- constructor methods
 
@@ -80,14 +113,24 @@ static guint signals[LAST_SIGNAL]={0,};
 BtSong *bt_song_new(const BtApplication *app) {
   BtSong *self=NULL;
   GstBin *bin;
+  GstBus *bus;
   
   g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
   g_object_get(G_OBJECT(app),"bin",&bin,NULL);
-  self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL));
-  g_object_try_unref(bin);
+  if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
+    goto Error;
+  }
+  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  gst_bus_add_watch(bus,bus_handler,(gpointer)self);
+  g_object_unref(bus);
+  g_object_unref(bin);
   GST_INFO("  new song created: %p",self);
   return(self);
+Error:
+  g_object_try_unref(self);
+  g_object_unref(bin);
+  return(NULL);
 }
 
 //-- methods
@@ -117,18 +160,42 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_play(const BtSong *self) {
-  gboolean res;
+  //gboolean res;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
-
+  
+  // do not play again
+  if(self->priv->is_playing) return(TRUE);
+  
+  // prepare playback
+  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+    GST_WARNING("can't go to paused state");
+    return(FALSE);
+  }
+  
+  // TODO seek to start time
+  self->priv->play_pos=0;
+  
+  // TODO add bus_watch to catch seek_end
+  
+  // prepare playback
+  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+    GST_WARNING("can't go to playing state");
+    return(FALSE);
+  }
+  // @todo remove play- and stop-event, replace by notify::is_playing
+  self->priv->is_playing=TRUE;
   // emit signal that we start playing
   g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
+
+  /* old code (0.8)
   if(!(res=bt_sequence_play(self->priv->sequence))) {
     GST_WARNING("playing song failed");
   }
   // emit signal that we have finished playing
   g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
-  return(res);
+  */
+  return(TRUE);
 }
 
 /**
@@ -140,12 +207,26 @@ gboolean bt_song_play(const BtSong *self) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_stop(const BtSong *self) {
-  gboolean res;
+  //gboolean res;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
-  
+
+  // do not play again
+  if(!self->priv->is_playing) return(TRUE);
+    
+  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL)==GST_STATE_FAILURE) {
+    GST_WARNING("can't go to null state");
+    return(FALSE);
+  }
+  // @todo remove play- and stop-event, replace by notify::is_playing
+  self->priv->is_playing=FALSE;
+  // emit signal that we stoped playing
+  g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
+ 
+  /* old code (0.8)
   res=bt_sequence_stop(self->priv->sequence);
-  return(res);
+  */
+  return(TRUE);
 }
 
 /**
@@ -176,6 +257,34 @@ gboolean bt_song_continue(const BtSong *self) {
   // @todo reuse play position
   // @todo sequence playing stuff needs to be updated to support pause/continue
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
+}
+
+/**
+ * bt_song_update_playback_position:
+ * @self: the song that should update its playback-pos counter
+ *
+ * Updates the playback-position counter to fire all notify::playback-pos
+ * handlers.
+ *
+ * Returns: %FALSE if the song is not playing
+ */
+gboolean bt_song_update_playback_position(const BtSong *self) {
+  GstQuery *query;
+  gint64 pos_cur,pos_end;
+  
+  if(!self->priv->is_playing) return(FALSE);
+  //GST_INFO("query playback-pos");
+  
+  // query playback position and update self->priv->play-pos;
+  query=gst_query_new_position(GST_FORMAT_TIME);
+  gst_element_query(GST_ELEMENT(self->priv->bin),query);
+  gst_query_parse_position(query,NULL,&pos_cur,&pos_end);
+  gst_query_unref(query);
+  GST_INFO("query playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT,pos_cur,pos_end);
+  // update self->priv->play-pos (in ticks)
+  self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
+  g_object_notify(G_OBJECT(self),"play-pos");
+  return(TRUE);
 }
 
 /**
@@ -234,6 +343,12 @@ static void bt_song_get_property(GObject      *object,
     case SONG_UNSAVED: {
       g_value_set_boolean(value, self->priv->unsaved);
     } break;
+    case SONG_PLAY_POS: {
+      g_value_set_ulong(value, self->priv->play_pos);
+    } break;
+    case SONG_IS_PLAYING: {
+      g_value_set_boolean(value, self->priv->is_playing);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -269,6 +384,13 @@ static void bt_song_set_property(GObject      *object,
     case SONG_UNSAVED: {
       self->priv->unsaved = g_value_get_boolean(value);
       GST_DEBUG("set the unsaved flag for the song: %d",self->priv->unsaved);
+    } break;
+    case SONG_PLAY_POS: {
+      self->priv->play_pos = g_value_get_ulong(value);
+      // @todo limit playpos
+      //bt_sequence_limit_play_pos(self);
+      // @todo seek on playpos changes (if playing)
+      GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -322,12 +444,10 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   
   GST_DEBUG("song_init self=%p",self);
   self->priv = g_new0(BtSongPrivate,1);
-  self->priv->dispose_has_run = FALSE;
   self->priv->song_info = bt_song_info_new(self);
   self->priv->sequence  = bt_sequence_new(self);
   self->priv->setup     = bt_setup_new(self);
   self->priv->wavetable = bt_wavetable_new(self);
-  self->priv->unsaved   = FALSE;
   GST_DEBUG("  done");
 }
 
@@ -433,6 +553,22 @@ static void bt_song_class_init(BtSongClass *klass) {
                                      "tell wheter the current state of the song has been saved",
                                      TRUE,
                                      G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_PLAY_POS,
+                                  g_param_spec_ulong("play-pos",
+                                     "play-pos prop",
+                                     "position of the play cursor of the sequence in timeline bars",
+                                     0,
+                                     G_MAXLONG,  // loop-positions are LONG as well
+                                     0,
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_IS_PLAYING,
+                                  g_param_spec_boolean("is-playing",
+                                     "is-playing prop",
+                                     "tell wheter the song is playing right now or not",
+                                     FALSE,
+                                     G_PARAM_READABLE));
 }
 
 /**

@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.82 2005-08-27 12:48:24 ensonic Exp $
+// $Id: sequence.c,v 1.83 2005-08-29 22:21:03 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -913,6 +913,14 @@ gboolean bt_sequence_play(const BtSequence *self) {
   GST_INFO("  loop_start,end: %d,%d",self->priv->loop_start,self->priv->loop_end);
   GST_INFO("  length: %d",self->priv->length);
 
+  // prepare playback
+  if(gst_element_set_state(bin,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+    GST_WARNING("can't go to paused state");
+    return(FALSE);
+  }
+  
+  // send seek to starting time
+
   if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
     g_mutex_lock(self->priv->is_playing_mutex);
     self->priv->is_playing=TRUE;
@@ -928,6 +936,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
         if((wait_ret=gst_clock_id_wait(clock_id,NULL))!=GST_CLOCK_OK) {
           GST_WARNING("gst_clock_id_wait() returned %d",wait_ret);
         }
+        // try to figure if above is broken
+        //usleep(wait_per_position);
       }
       self->priv->play_pos=self->priv->play_start;
       g_object_notify(G_OBJECT(self),"play-pos");
