@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.30 2005-08-26 22:40:17 ensonic Exp $
+// $Id: application.c,v 1.31 2005-08-29 17:27:57 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -199,7 +199,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = g_new0(BtApplicationPrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->bin = gst_pipeline_new("song");
-  g_assert(GST_IS_BIN(self->priv->bin));
+  g_assert(GST_IS_ELEMENT(self->priv->bin));
   
   bus=gst_element_get_bus(self->priv->bin);
   gst_bus_add_watch(bus,bus_handler,(gpointer)self);

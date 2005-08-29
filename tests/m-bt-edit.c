@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.9 2005-08-18 21:49:50 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.10 2005-08-29 17:27:58 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -73,6 +73,11 @@ int main(int argc, char **argv) {
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 
+  if(!g_thread_supported()) {  // are g_threads() already initialized
+    g_thread_init(NULL);
+  }
+  gdk_threads_init();
+  gtk_init(NULL,NULL);
   check_setup_test_server();
   
   sr=srunner_create(bt_edit_application_suite());

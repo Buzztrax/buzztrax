@@ -686,6 +686,9 @@ void check_shutdown_test_display(void) {
   if(test_display) {
     wait_for_server=TRUE;
 
+    g_assert(GDK_IS_DISPLAY(test_display));
+    g_assert(GDK_IS_DISPLAY(default_display));
+
     GST_INFO("trying to shut down test server %d",server_pid);
     // restore default and close our display
     GST_DEBUG("display_manager=%p, test_display=%p,\"%s\" default_display=%p,\"%s\"",
@@ -695,8 +698,8 @@ void check_shutdown_test_display(void) {
     gdk_display_manager_set_default_display(display_manager,default_display);
     GST_INFO("display has been restored");
     gdk_display_close(test_display);
-    test_display=NULL;
     GST_INFO("display has been closed");
+    test_display=NULL;
   }
   else {
     GST_WARNING("no test display");
@@ -707,8 +710,8 @@ void check_shutdown_test_server(void) {
   if(server_pid) {
     wait_for_server=TRUE;
 
-    // kill the testing server - @todo try other signals (SIGINT,...)
-    kill(server_pid, SIGTERM);
+    // kill the testing server - @todo try other signals (SIGQUIT, SIGTERM).
+    kill(server_pid, SIGINT);
     // wait for the server to finish (use waitpid() here ?)
     while(wait_for_server) {
       sleep(1);
