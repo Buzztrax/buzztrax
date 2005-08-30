@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.81 2005-08-29 22:21:03 ensonic Exp $
+// $Id: song.c,v 1.82 2005-08-30 21:12:20 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -86,7 +86,6 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
       res=TRUE;
       break;
   }
-  //gst_message_unref(message);
   return(res);
 }
 
@@ -175,9 +174,7 @@ gboolean bt_song_play(const BtSong *self) {
   
   // TODO seek to start time
   self->priv->play_pos=0;
-  
-  // TODO add bus_watch to catch seek_end
-  
+ 
   // prepare playback
   if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)==GST_STATE_FAILURE) {
     GST_WARNING("can't go to playing state");
@@ -239,8 +236,6 @@ gboolean bt_song_stop(const BtSong *self) {
  */
 gboolean bt_song_pause(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
-  // @todo remember play position
-  // @todo sequence playing stuff needs to be updated to support pause/continue
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
 }
 
@@ -254,8 +249,6 @@ gboolean bt_song_pause(const BtSong *self) {
  */
 gboolean bt_song_continue(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
-  // @todo reuse play position
-  // @todo sequence playing stuff needs to be updated to support pause/continue
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
 }
 

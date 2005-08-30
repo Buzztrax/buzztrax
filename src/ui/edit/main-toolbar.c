@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.61 2005-08-29 22:21:03 ensonic Exp $
+// $Id: main-toolbar.c,v 1.62 2005-08-30 21:12:20 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -43,7 +43,10 @@ struct _BtMainToolbarPrivate {
   GtkWidget *play_button;
   GtkWidget *stop_button;
   
-  /* player variables */
+	/* update handler id */
+	guint playback_update_id;
+	
+  /* @todo OBSOLETE player variables */
   GThread* player_thread;
 };
 
@@ -90,7 +93,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   g_assert(user_data);
   
   GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
-  ////gdk_threads_try_enter();
+  //gdk_threads_try_enter();
   // disable stop button
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
   // switch off play button
@@ -101,7 +104,7 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
   for(i=0;i<MAX_VUMETER;i++) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
   }
-  ////gdk_threads_try_leave();
+  //gdk_threads_try_leave();
   /*
   if(self->priv->player_thread) {
     self->priv->player_thread=NULL;
@@ -110,8 +113,9 @@ static void on_song_stop(const BtSong *song, gpointer user_data) {
     GST_WARNING("  no player thread!");
   }
   */
+	g_source_remove(self->priv->playback_update_id);
+
   GST_INFO("song stop event handled");
-  GST_INFO("====");
 }
 
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
@@ -162,7 +166,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     // disable play button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),FALSE);
     
-    GST_INFO("====");
+    GST_INFO("toolbar play event occurred");
     /*
     GST_INFO("toolbar play event occurred : thread_id=%p",g_thread_self());
     if(self->priv->player_thread) {
@@ -176,7 +180,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     
     // start playback
     bt_song_play(song);
-    g_timeout_add(1000,on_song_playback_update,song);
+    self->priv->playback_update_id=g_timeout_add(1000,on_song_playback_update,song);
     
     //-- start playing in a thread
     /*
@@ -233,14 +237,12 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
 static void on_song_level_change(GstElement *element, gdouble time, gint channel, gdouble rms, gdouble peak, gdouble decay, gpointer user_data) {
 */
 static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer user_data) {
-  gboolean res=FALSE;
-  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-
   g_assert(user_data);
   
   //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_APPLICATION: {
+			BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
       const GstStructure *structure=gst_message_get_structure(message);
       const GValue *l_rms,*l_peak /*,*l_decay*/;
       gdouble rms, peak /*, decay*/;
@@ -252,17 +254,16 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
       for(i=0;i<gst_value_list_get_size(l_rms);i++) {
         rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
         peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-        //GST_INFO("%d  %.3f  %.3f %.3f %.3f", channel,time,rms,peak,decay);
+        GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
         //gdk_threads_try_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
         gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
         //gdk_threads_try_leave();
       }
-      //gst_message_unref(message);
-      res=TRUE;
       break;
     }
   }
-  return(res);
+	// pop off *all* messages
+  return(TRUE);
 }
 
 static void on_song_volume_change(GtkRange *range,gpointer user_data) {
@@ -285,14 +286,14 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
     channels=gst_caps_get_channels(caps);
     GST_INFO("!!!  input level src has %d output channels",channels);
 
-    gdk_threads_try_enter();
+    //gdk_threads_try_enter();
     for(i=0;i<channels;i++) {
       gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
     }
     for(i=channels;i<MAX_VUMETER;i++) {
       gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
     }
-    gdk_threads_try_leave();
+    //gdk_threads_try_leave();
   }
 }
 

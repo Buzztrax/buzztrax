@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.88 2005-08-29 22:21:03 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.89 2005-08-30 21:12:20 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -918,16 +918,13 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
           GST_DEBUG("  left click to column %d, row %d",track,row);
           if(track==0) {
             BtSequence *song;
-            BtSequence *sequence;
 
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-            gdk_threads_try_enter();
+            //gdk_threads_try_enter();
             // @idea use a keyboard qualifier to set loop_start and end?
             // adjust play pointer
-            g_object_set(sequence,"play-pos",row,NULL);
-            gdk_threads_try_leave();
-            g_object_unref(sequence);
+            g_object_set(song,"play-pos",row,NULL);
+            //gdk_threads_try_leave();
             g_object_unref(song);
           }
           else {

@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.11 2005-08-18 21:24:26 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.12 2005-08-30 21:12:20 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -42,7 +42,7 @@ START_TEST(test_create_app) {
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
-   GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+  GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
 
   // close window
   g_object_unref(main_window);

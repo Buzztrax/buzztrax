@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.32 2005-08-29 22:21:03 ensonic Exp $
+// $Id: application.c,v 1.33 2005-08-30 21:12:20 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -48,10 +48,9 @@ static GObjectClass *parent_class=NULL;
 //-- handler
 
 static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
-  gboolean res=FALSE;
   //BtApplication *self = BT_APPLICATION(user_data);
   
-  //GST_INFO("received bus message");
+  //GST_INFO("received bus message: %p",message);
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_WARNING:
     case GST_MESSAGE_ERROR:{
@@ -62,12 +61,11 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
       gst_object_default_error (GST_MESSAGE_SRC (message), gerror, debug);
       g_error_free (gerror);
       g_free (debug);
-      res=TRUE;
       break;
     }
   }
-  //gst_message_unref(message);
-  return(res);
+	// pop off *all* messages
+  return(TRUE);
 }
 
 /*
@@ -204,7 +202,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   
   bus=gst_element_get_bus(self->priv->bin);
-  gst_bus_add_watch(bus,bus_handler,(gpointer)self);
+  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
   gst_object_ref(bus);
   //g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
 }

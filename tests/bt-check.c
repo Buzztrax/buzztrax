@@ -614,6 +614,7 @@ void check_setup_test_server(void) {
     ":9",
     "-ac",
     "-nolisten","tcp",
+		"-fp","/usr/share/fonts/misc",
     /*"-reset",
     "-terminate",*/
     "-screen","0","1024x786x16",
@@ -663,22 +664,28 @@ void check_setup_test_server(void) {
   if(!found) {
     display_number=-1;
   }
+	else {
+		GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
+	}
 }
 
 void check_setup_test_display(void) {
   
   if(display_number>-1) {
-    GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
     // activate the display for use with gtk
-    display_manager = gdk_display_manager_get();
-    default_display = gdk_display_manager_get_default_display(display_manager);
-    if((test_display = gdk_display_open(display_name))) {
-      gdk_display_manager_set_default_display(display_manager,test_display);
-      GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
-    }
-    else {
-      GST_WARNING("failed to open display: \"%s\"",display_name);
-    }
+    if((display_manager = gdk_display_manager_get())) {
+			default_display = gdk_display_manager_get_default_display(display_manager);
+			if((test_display = gdk_display_open(display_name))) {
+				gdk_display_manager_set_default_display(display_manager,test_display);
+				GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
+			}
+			else {
+				GST_WARNING("failed to open display: \"%s\"",display_name);
+			}
+		}
+		else {
+			GST_WARNING("can't get display-manager");
+		}
   }
 }
 
@@ -686,6 +693,7 @@ void check_shutdown_test_display(void) {
   if(test_display) {
     wait_for_server=TRUE;
 
+		g_assert(GDK_IS_DISPLAY_MANAGER(display_manager));
     g_assert(GDK_IS_DISPLAY(test_display));
     g_assert(GDK_IS_DISPLAY(default_display));
 
@@ -697,7 +705,13 @@ void check_shutdown_test_display(void) {
         default_display,gdk_display_get_name(default_display));
     gdk_display_manager_set_default_display(display_manager,default_display);
     GST_INFO("display has been restored");
-    gdk_display_close(test_display);
+		// TODO here it hangs
+    //gdk_display_close(test_display);
+		/* gdk_display_close does basically (which still hangs):
+		//g_object_run_dispose (G_OBJECT (test_display));
+		GST_INFO("test_display has been disposed");
+    //g_object_unref (test_display);
+		*/
     GST_INFO("display has been closed");
     test_display=NULL;
   }
@@ -707,14 +721,18 @@ void check_shutdown_test_display(void) {
 }
 
 void check_shutdown_test_server(void) {
+	
   if(server_pid) {
+		guint wait_count=5;
     wait_for_server=TRUE;
+		GST_INFO("shuting down test server");
 
     // kill the testing server - @todo try other signals (SIGQUIT, SIGTERM).
     kill(server_pid, SIGINT);
     // wait for the server to finish (use waitpid() here ?)
-    while(wait_for_server) {
+    while(wait_for_server && wait_count) {
       sleep(1);
+			wait_count--;
     }
     GST_INFO("test server has been shut down");
   }
