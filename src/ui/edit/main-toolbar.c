@@ -1,10 +1,10 @@
-// $Id: main-toolbar.c,v 1.62 2005-08-30 21:12:20 ensonic Exp $
+// $Id: main-toolbar.c,v 1.63 2005-08-31 14:53:24 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
  */ 
 
-/* @todo: should we have separate the tolbars into several ones?
+/* @todo: should we have separate the toolbars?
  * - common - load, save, ...
  * - volume - gain, levels
  * - load - cpu load
@@ -86,36 +86,41 @@ static gboolean on_song_playback_update(gpointer user_data) {
   return(bt_song_update_playback_position(self));
 }
 
-static void on_song_stop(const BtSong *song, gpointer user_data) {
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-  gint i;
+  gboolean is_playing;
 
   g_assert(user_data);
   
-  GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
-  //gdk_threads_try_enter();
-  // disable stop button
-  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
-  // switch off play button
-  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button),FALSE);
-  // enable play button
-  gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
-  // reset level meters
-  for(i=0;i<MAX_VUMETER;i++) {
-    gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
-  }
-  //gdk_threads_try_leave();
-  /*
-  if(self->priv->player_thread) {
-    self->priv->player_thread=NULL;
-  }
-  else {
-    GST_WARNING("  no player thread!");
-  }
-  */
-	g_source_remove(self->priv->playback_update_id);
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  if(!is_playing) {
+    gint i;
+  
+    GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
+    //gdk_threads_try_enter();
+    // disable stop button
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
+    // switch off play button
+    gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button),FALSE);
+    // enable play button
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
+    // reset level meters
+    for(i=0;i<MAX_VUMETER;i++) {
+      gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
+    }
+    //gdk_threads_try_leave();
+    /*
+    if(self->priv->player_thread) {
+      self->priv->player_thread=NULL;
+    }
+    else {
+      GST_WARNING("  no player thread!");
+    }
+    */
+    g_source_remove(self->priv->playback_update_id);
 
-  GST_INFO("song stop event handled");
+    GST_INFO("song stop event handled");
+  }
 }
 
 static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
@@ -349,7 +354,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // connect volumne event
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
   }
-  g_signal_connect(G_OBJECT(song),"stop",G_CALLBACK(on_song_stop),(gpointer)self);
+  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   g_object_try_unref(master);

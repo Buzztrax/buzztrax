@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.21 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: song.h,v 1.22 2005-08-31 14:53:24 ensonic Exp $
  * class for a basic buzztard song
  */
  
@@ -35,16 +35,12 @@ struct _BtSong {
 };
 /**
  * BtSongClass:
- * @play_event: default play signal handler
- * @stop_event: default stop signal handler
  *
  * class of a song project object
  */
 struct _BtSongClass {
   GObjectClass parent_class;
-  
-  void (*play_event)(const BtSong *song, gpointer user_data);
-  void (*stop_event)(const BtSong *song, gpointer user_data);
+ 
 };
 
 /* used by SONG_TYPE */

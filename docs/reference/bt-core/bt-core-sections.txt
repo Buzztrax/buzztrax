@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.49 2005-08-29 22:21:02 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.50 2005-08-31 14:53:24 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -98,14 +98,18 @@ BT_TYPE_MACHINE
 BT_TYPE_MACHINE_STATE
 <SUBSECTION Private>
 bt_machine_get_type
-BtMachinePrivate
 bt_machine_state_get_type
+BtMachinePrivate
+bt_machine_dbg_dump_global_controller_queue
+bt_machine_dbg_print_parts
+
 </SECTION>
 
 <SECTION>
 <FILE>btpattern</FILE>
 <TITLE>BtPattern</TITLE>
 BtPattern
+BtPatternCmd
 bt_pattern_new
 bt_pattern_new_with_event
 bt_pattern_copy
@@ -130,8 +134,10 @@ BT_PATTERN_CLASS
 BT_IS_PATTERN_CLASS
 BT_PATTERN_GET_CLASS
 BT_TYPE_PATTERN
+BT_TYPE_PATTERN_CMD
 <SUBSECTION Private>
 bt_pattern_get_type
+bt_pattern_cmd_get_type
 BtPatternPrivate
 </SECTION>
 
@@ -157,6 +163,7 @@ BtPlainfileSettingsPrivate
 <FILE>btprocessormachine</FILE>
 <TITLE>BtProcessorMachine</TITLE>
 BtProcessorMachine
+BtProcessorMachinePatternIndex
 bt_processor_machine_new
 <SUBSECTION Standard>
 BtProcessorMachineClass
@@ -252,6 +259,7 @@ BtSetupPrivate
 <FILE>btsinkmachine</FILE>
 <TITLE>BtSinkMachine</TITLE>
 BtSinkMachine
+BtSinkMachinePatternIndex
 bt_sink_machine_new
 <SUBSECTION Standard>
 BtSinkMachineClass
@@ -355,6 +363,7 @@ BtSongIONativePrivate
 <FILE>btsourcemachine</FILE>
 <TITLE>BtSourceMachine</TITLE>
 BtSourceMachine
+BtSourceMachinePatternIndex
 bt_source_machine_new
 <SUBSECTION Standard>
 BtSourceMachineClass
@@ -456,6 +465,7 @@ safe_string
 return_if_disposed
 G_STRUCT_SIZE
 G_ABS_STRUCT_OFFSET
+XML_CHAR_PTR
 g_object_try_ref
 g_object_try_unref
 g_object_try_weak_ref

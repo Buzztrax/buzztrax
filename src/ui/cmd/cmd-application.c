@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.57 2005-08-25 23:38:33 ensonic Exp $
+// $Id: cmd-application.c,v 1.58 2005-08-31 14:53:24 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -24,22 +24,17 @@ static BtApplicationClass *parent_class=NULL;
 
 //-- helper methods
 
-/**
- * play_event:
+/*
+ * on_song_is_playing_notify:
  *
- * signal callback funktion
+ * playback status signal callback function
  */
-static void on_song_play(const BtSong *song, gpointer user_data) {
-  GST_INFO("start playing - invoked per signal : song=%p, user_data=%p",song,user_data);
-}
-
-/**
- * stop_event:
- *
- * signal callback funktion
- */
-static void on_song_stop(const BtSong *song, gpointer user_data) {
-  GST_INFO("stoped playing - invoked per signal : song=%p, user_data=%p",song,user_data);
+static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {
+  gboolean is_playing;
+  
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  GST_INFO("%s playing - invoked per signal : song=%p, user_data=%p",
+    (is_playing?"started":"stopped"),song,user_data);
 }
 
 //-- constructor methods
@@ -102,8 +97,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   
   if(bt_song_io_load(loader,song)) {
     // connection play and stop signals
-    g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(on_song_play), (gpointer)self);
-    g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
+    g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
     bt_song_play(song);
     res=TRUE;
   }
@@ -309,10 +303,8 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
     goto Error;
   }
 
-  /* @todo implement this like play, with a different sink (determine by output file name ?)
-   * we can use the playline like normal play does, as gst_clock_wait() waits
-   * for stream time not real time.
-   * Only open question is how to use a different audiosink
+  /* @todo implement this like play, with a different sink
+   * open question is how to use a different audiosink - determine by output file name ?
    */
   g_printf("sorry this is not yet implemented\n");
 

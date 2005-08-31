@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.63 2005-08-27 12:48:24 ensonic Exp $
+/* $Id: core.h,v 1.64 2005-08-31 14:53:24 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -103,7 +103,7 @@
 #include "gconf-settings-methods.h"
 #endif
 
-//-- defines for workarounds----------------------------------------------------
+//-- defines for workarounds ---------------------------------------------------
 
 /**
  * G_ABS_STRUCT_OFFSET:
@@ -117,7 +117,11 @@
 #define G_ABS_STRUCT_OFFSET(struct_type, member)    \
     ((guint) ((guint8*) &((struct_type*) 0)->member))
   
-  
+/**
+ * XML_CHAR_PTR:
+ *
+ * Cast to xmlChar*
+ */
 #define XML_CHAR_PTR(str) ((xmlChar *)(str))
 
 //-- global defines ------------------------------------------------------------

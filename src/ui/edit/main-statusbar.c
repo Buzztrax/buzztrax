@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.35 2005-08-29 22:21:03 ensonic Exp $
+// $Id: main-statusbar.c,v 1.36 2005-08-31 14:53:24 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -51,15 +51,20 @@ static GtkHBoxClass *parent_class=NULL;
 
 //-- event handler
 
-static void on_song_stop(const BtSong *song, gpointer user_data) {
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
-  gchar *str="00:00.000";
+  gboolean is_playing;
 
   g_assert(user_data);
 
-  // update statusbar fields
-  gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id); 
-  gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  if(!is_playing) {
+    gchar *str="00:00.000";
+
+    // update statusbar fields
+    gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id); 
+    gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
+  }
 }
 
 static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {
@@ -113,7 +118,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
    g_free(str);
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
-  g_signal_connect(G_OBJECT(song), "stop", G_CALLBACK(on_song_stop), (gpointer)self);
+  g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   // release the references
   g_object_try_unref(sequence);
   g_object_try_unref(song);

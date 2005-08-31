@@ -1,11 +1,14 @@
-// $Id: song.c,v 1.82 2005-08-30 21:12:20 ensonic Exp $
+// $Id: song.c,v 1.83 2005-08-31 14:53:24 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
  * #BtSetup, #BtSequence and #BtWavetable)
  *
  * A song is the top-level container object to manage all song-related objects.
- */ 
+ *
+ * To load or save a song, use a #BtSongIO object. These implement loading and
+ * saving for different file-formats.
+ */
 
 #define BT_CORE
 #define BT_SONG_C
@@ -15,8 +18,6 @@
 //-- signal ids
 
 enum {
-  PLAY_EVENT,
-  STOP_EVENT,
   LAST_SIGNAL
 };
 
@@ -62,7 +63,7 @@ struct _BtSongPrivate {
 
 static GObjectClass *parent_class=NULL;
 
-static guint signals[LAST_SIGNAL]={0,};
+//static guint signals[LAST_SIGNAL]={0,};
 
 //-- handler
 
@@ -180,10 +181,8 @@ gboolean bt_song_play(const BtSong *self) {
     GST_WARNING("can't go to playing state");
     return(FALSE);
   }
-  // @todo remove play- and stop-event, replace by notify::is_playing
   self->priv->is_playing=TRUE;
-  // emit signal that we start playing
-  g_signal_emit(G_OBJECT(self), signals[PLAY_EVENT], 0);
+  g_object_notify(G_OBJECT(self),"is-playing");
 
   /* old code (0.8)
   if(!(res=bt_sequence_play(self->priv->sequence))) {
@@ -215,10 +214,8 @@ gboolean bt_song_stop(const BtSong *self) {
     GST_WARNING("can't go to null state");
     return(FALSE);
   }
-  // @todo remove play- and stop-event, replace by notify::is_playing
   self->priv->is_playing=FALSE;
-  // emit signal that we stoped playing
-  g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
+  g_object_notify(G_OBJECT(self),"is-playing");
  
   /* old code (0.8)
   res=bt_sequence_stop(self->priv->sequence);
@@ -453,43 +450,6 @@ static void bt_song_class_init(BtSongClass *klass) {
   gobject_class->get_property = bt_song_get_property;
   gobject_class->dispose      = bt_song_dispose;
   gobject_class->finalize     = bt_song_finalize;
-
-  klass->play_event = NULL;
-  klass->stop_event = NULL;
-
-  /** 
-   * BtSong::play:
-   * @self: the song object that emitted the signal
-   *
-   * signals that this song has started to play
-   */
-  signals[PLAY_EVENT] = g_signal_new("play",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtSongClass,play_event),
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
-                                        G_TYPE_NONE, // return type
-                                        0 // n_params
-                                        );
-  
-  /** 
-   * BtSong::stop:
-   * @self: the song object that emitted the signal
-   *
-   * signals that this song has finished to play
-   */
-  signals[STOP_EVENT] = g_signal_new("stop",
-                                        G_TYPE_FROM_CLASS(klass),
-                                        G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtSongClass,stop_event),
-                                        NULL, // accumulator
-                                        NULL, // acc data
-                                        g_cclosure_marshal_VOID__VOID,
-                                        G_TYPE_NONE, // return type
-                                        0 // n_params
-                                        );
 
   g_object_class_install_property(gobject_class,SONG_APP,
                                   g_param_spec_object("app",
