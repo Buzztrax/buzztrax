@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.83 2005-08-31 14:53:24 ensonic Exp $
+// $Id: song.c,v 1.84 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -160,37 +160,34 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_play(const BtSong *self) {
-  //gboolean res;
-
+  GstElementStateReturn res;
+  
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   
   // do not play again
   if(self->priv->is_playing) return(TRUE);
   
+  GST_INFO("prepare playback");
+  
   // prepare playback
-  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_FAILURE) {
     GST_WARNING("can't go to paused state");
     return(FALSE);
   }
+  GST_DEBUG("state change returned %d",res);
   
-  // TODO seek to start time
+  // @todo seek to start time
   self->priv->play_pos=0;
- 
-  // prepare playback
-  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+
+  // start playback
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_FAILURE) {
     GST_WARNING("can't go to playing state");
     return(FALSE);
   }
+  GST_DEBUG("state change returned %d",res);
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
 
-  /* old code (0.8)
-  if(!(res=bt_sequence_play(self->priv->sequence))) {
-    GST_WARNING("playing song failed");
-  }
-  // emit signal that we have finished playing
-  g_signal_emit(G_OBJECT(self), signals[STOP_EVENT], 0);
-  */
   return(TRUE);
 }
 
@@ -203,23 +200,23 @@ gboolean bt_song_play(const BtSong *self) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_stop(const BtSong *self) {
-  //gboolean res;
-
+  GstElementStateReturn res;
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // do not play again
   if(!self->priv->is_playing) return(TRUE);
-    
-  if(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL)==GST_STATE_FAILURE) {
-    GST_WARNING("can't go to null state");
+
+  GST_INFO("stopping playback");
+  
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_FAILURE) {
+    GST_WARNING("can't go to ready state");
     return(FALSE);
   }
+  GST_DEBUG("state change returned %d",res);
+  
   self->priv->is_playing=FALSE;
   g_object_notify(G_OBJECT(self),"is-playing");
- 
-  /* old code (0.8)
-  res=bt_sequence_stop(self->priv->sequence);
-  */
+
   return(TRUE);
 }
 
@@ -393,7 +390,7 @@ static void bt_song_dispose(GObject *object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
+ 
   //DEBUG
   bt_song_write_to_xml_file(self);
   //DEBUG

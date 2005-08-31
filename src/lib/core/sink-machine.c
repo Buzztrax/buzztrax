@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.42 2005-08-05 09:36:16 ensonic Exp $
+// $Id: sink-machine.c,v 1.43 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -38,6 +38,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   BtSinkMachine *self=NULL;
   BtApplication *app;
   BtSettings *settings;
+  //GstElement *elem;
   gchar *audiosink_name,*system_audiosink_name,*sink_name,*eon;
   gchar *plugin_name=NULL;
 
@@ -103,7 +104,11 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   }
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
-  }  
+  }
+  //g_object_get(G_OBJECT (self), "machine", &elem, NULL);
+  //g_object_set(G_OBJECT (elem), "sync", FALSE, NULL);
+  //g_object_unref(elem);
+  
   g_free(system_audiosink_name);
   g_free(audiosink_name);
   g_object_try_unref(settings);

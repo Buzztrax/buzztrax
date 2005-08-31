@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.33 2005-08-30 21:12:20 ensonic Exp $
+// $Id: application.c,v 1.34 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -67,16 +67,6 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
 	// pop off *all* messages
   return(TRUE);
 }
-
-/*
-static void error_cb(GstElement *bin, GstElement *error_element, GError *error, const gchar *debug_msg, gpointer user_data) {
-  gboolean *p_got_error=(gboolean *)user_data;
-     
-  GST_WARNING("An error occurred: %s\n", error->message);
-     
-  *p_got_error=TRUE;
-}
-*/
 
 //-- constructor methods
 
@@ -165,6 +155,8 @@ static void bt_application_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
+  //gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL);
+
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
@@ -203,8 +195,10 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   
   bus=gst_element_get_bus(self->priv->bin);
   gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
-  gst_object_ref(bus);
-  //g_signal_connect(self->priv->bin,"error", G_CALLBACK(error_cb),&self->priv->got_error);
+  g_object_unref(bus);
+  
+  // if we enable this we get lots of diagnostics
+  //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {

@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.89 2005-08-30 21:12:20 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.90 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -700,21 +700,21 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
   g_object_get(G_OBJECT(sequence),"length",&sequence_length,NULL);
   play_pos=(gdouble)pos/(gdouble)sequence_length;
-  g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
+  if(play_pos<=1.0) {
+    g_object_set(self->priv->sequence_table,"play-position",play_pos,NULL);
+  }
 
   //GST_INFO("sequence tick received : %d",pos);
   
   // do nothing for invisible rows
   if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) return;
   // scroll  to make play pos visible
-  //gdk_threads_try_enter();
   if((path=gtk_tree_path_new_from_indices(pos,-1))) {
     // that would try to keep the cursor in the middle (means it will scroll more)
     gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
     //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
     gtk_tree_path_free(path);
   }
-  //gdk_threads_try_leave();
   g_object_unref(sequence);
 }
 
@@ -920,11 +920,9 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
             BtSequence *song;
 
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            //gdk_threads_try_enter();
             // @idea use a keyboard qualifier to set loop_start and end?
             // adjust play pointer
             g_object_set(song,"play-pos",row,NULL);
-            //gdk_threads_try_leave();
             g_object_unref(song);
           }
           else {

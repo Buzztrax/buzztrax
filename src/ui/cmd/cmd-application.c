@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.58 2005-08-31 14:53:24 ensonic Exp $
+// $Id: cmd-application.c,v 1.59 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -22,6 +22,8 @@ struct _BtCmdApplicationPrivate {
 
 static BtApplicationClass *parent_class=NULL;
 
+static gboolean is_playing=FALSE;
+
 //-- helper methods
 
 /*
@@ -29,9 +31,7 @@ static BtApplicationClass *parent_class=NULL;
  *
  * playback status signal callback function
  */
-static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {
-  gboolean is_playing;
-  
+static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {  
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   GST_INFO("%s playing - invoked per signal : song=%p, user_data=%p",
     (is_playing?"started":"stopped"),song,user_data);
@@ -76,6 +76,7 @@ Error:
 gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
   gboolean res=FALSE;
   BtSong *song=NULL;
+  BtSequence *sequence=NULL;
   BtSongIO *loader=NULL;
 
   g_assert(BT_IS_CMD_APPLICATION(self));
@@ -96,16 +97,47 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
+    gulong msec,sec,min,pos;
+
+    g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+
     // connection play and stop signals
     g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
-    bt_song_play(song);
-    res=TRUE;
+    if(bt_song_play(song)) {
+      GST_INFO("playing started");
+      while(is_playing) {
+        bt_song_update_playback_position(song);
+        g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+
+        // update elapsed statusbar
+        msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
+        min=(gulong)(msec/60000);msec-=(min*60000);
+        sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+        printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
+      
+        // @todo get song->play-pos and print progress
+        usleep(500);
+      }
+      printf("\n");
+      /*
+      GMainLoop *main_loop; // make global
+      main_loop=g_main_loop_new(NULL,FALSE);
+      g_timeout_add(1000,bt_song_play_pos_changed,song); // ggf. main-loop beenden
+      g_main_loop_run(main_loop);
+      */
+      res=TRUE;
+    }
+    else {
+      GST_ERROR("could not play song \"%s\"",input_file_name);
+      goto Error;
+    }
   }
   else {
     GST_ERROR("could not load song \"%s\"",input_file_name);
     goto Error;
   }
 Error:
+  g_object_try_unref(sequence);
   g_object_try_unref(song);
   g_object_try_unref(loader);
   return(res);
@@ -174,6 +206,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
     g_fprintf(output_file,"song.sequence.length: %lu\n",length);
     g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
+    // @todo print play-time
 
     // print some statistics about the song (number of machines, wires, patterns)
     g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);

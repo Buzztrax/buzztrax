@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.23 2005-08-15 19:12:18 ensonic Exp $
+// $Id: bt-edit.c,v 1.24 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -94,9 +94,7 @@ int main(int argc, char **argv) {
   
   GST_DEBUG("exiting ...");
   // free application
-  {
-    GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  }
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_unref(app);
   return(!res);
 }

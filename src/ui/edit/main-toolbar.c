@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.63 2005-08-31 14:53:24 ensonic Exp $
+// $Id: main-toolbar.c,v 1.64 2005-08-31 22:41:40 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -45,9 +45,6 @@ struct _BtMainToolbarPrivate {
   
 	/* update handler id */
 	guint playback_update_id;
-	
-  /* @todo OBSOLETE player variables */
-  GThread* player_thread;
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
@@ -96,8 +93,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(!is_playing) {
     gint i;
   
-    GST_INFO("song stop event occured : thread_id=%p",g_thread_self());
-    //gdk_threads_try_enter();
+    GST_INFO("song stop event occured");
     // disable stop button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
     // switch off play button
@@ -108,15 +104,6 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     for(i=0;i<MAX_VUMETER;i++) {
       gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
     }
-    //gdk_threads_try_leave();
-    /*
-    if(self->priv->player_thread) {
-      self->priv->player_thread=NULL;
-    }
-    else {
-      GST_WARNING("  no player thread!");
-    }
-    */
     g_source_remove(self->priv->playback_update_id);
 
     GST_INFO("song stop event handled");
@@ -166,37 +153,20 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
     BtSong *song;
-    //GError *error=NULL;
+
+    GST_INFO("toolbar play event occurred");
 
     // disable play button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),FALSE);
     
-    GST_INFO("toolbar play event occurred");
-    /*
-    GST_INFO("toolbar play event occurred : thread_id=%p",g_thread_self());
-    if(self->priv->player_thread) {
-      GST_WARNING("  #### player thread still running!");
-      return;
-    }
-    */
-    
-    // get song from app
+    // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    
-    // start playback
     bt_song_play(song);
     self->priv->playback_update_id=g_timeout_add(1000,on_song_playback_update,song);
-    
-    //-- start playing in a thread
-    /*
-    if(!(self->priv->player_thread=g_thread_create((GThreadFunc)&bt_song_play, (gpointer)song, TRUE, &error))) {
-      GST_ERROR("error creating player thread : \"%s\"", error->message);
-      g_error_free(error);
-    }
-    GST_INFO("player thread started : thread_id=%p",self->priv->player_thread);
-    */
-    
+
+    // enable stop button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
+    
     // release the reference
     g_object_try_unref(song);
   }
@@ -212,8 +182,6 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   bt_song_stop(song);
-  // @todo what if the stop-event already zero-ed this
-  //g_thread_join(self->priv->player_thread);
   GST_INFO("  song stopped");
   // release the reference
   g_object_try_unref(song);
@@ -238,9 +206,6 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_try_unref(song);
 }
 
-/* 0.8
-static void on_song_level_change(GstElement *element, gdouble time, gint channel, gdouble rms, gdouble peak, gdouble decay, gpointer user_data) {
-*/
 static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer user_data) {
   g_assert(user_data);
   
@@ -249,8 +214,8 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
     case GST_MESSAGE_APPLICATION: {
 			BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
       const GstStructure *structure=gst_message_get_structure(message);
-      const GValue *l_rms,*l_peak /*,*l_decay*/;
-      gdouble rms, peak /*, decay*/;
+      const GValue *l_rms,*l_peak;
+      gdouble rms, peak;
       guint i;
 
       l_rms=(GValue *)gst_structure_get_value(structure, "rms");
@@ -260,9 +225,7 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
         rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
         peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
         GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
-        //gdk_threads_try_enter();// do we need this here?, input level is running in a thread and sending this event -> means yes
         gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
-        //gdk_threads_try_leave();
       }
       break;
     }
@@ -291,14 +254,12 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
     channels=gst_caps_get_channels(caps);
     GST_INFO("!!!  input level src has %d output channels",channels);
 
-    //gdk_threads_try_enter();
     for(i=0;i<channels;i++) {
       gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
     }
     for(i=channels;i<MAX_VUMETER;i++) {
       gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
     }
-    //gdk_threads_try_leave();
   }
 }
 
@@ -340,7 +301,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // connect to the level bus-message
     bus=gst_element_get_bus(level);
     gst_bus_add_watch(bus,on_song_level_change,(gpointer)self);
-    //g_signal_connect(level, "level", G_CALLBACK(on_song_level_change), self);
+    g_object_unref(bus);
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
