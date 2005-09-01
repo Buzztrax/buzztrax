@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.64 2005-08-31 22:41:40 ensonic Exp $
+// $Id: main-toolbar.c,v 1.65 2005-09-01 14:27:58 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -162,7 +162,7 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     bt_song_play(song);
-    self->priv->playback_update_id=g_timeout_add(1000,on_song_playback_update,song);
+    self->priv->playback_update_id=g_timeout_add(500,on_song_playback_update,song);
 
     // enable stop button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
@@ -280,7 +280,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
   BtSinkMachine *master;
-  GstElement *level;
+  GstElement *level,*bin;
 
   g_assert(user_data);
 
@@ -290,7 +290,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
 
-  g_object_get(G_OBJECT(song),"master",&master,NULL);
+  g_object_get(G_OBJECT(song),"master",&master,"bin",&bin,NULL);
   if(master) {
     GstPad *pad;
     GstBus *bus;
@@ -298,9 +298,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     // get the input_level property from audio_sink
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
-    // connect to the level bus-message
-    bus=gst_element_get_bus(level);
-    gst_bus_add_watch(bus,on_song_level_change,(gpointer)self);
+    // @todo connect to the pipeline bus-message
+    bus=gst_element_get_bus(bin);
+    //gst_bus_add_watch(bus,on_song_level_change,(gpointer)self);
+		gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,on_song_level_change,(gpointer)self,NULL);
     g_object_unref(bus);
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
@@ -318,6 +319,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+	g_object_try_unref(bin);
   g_object_try_unref(master);
   g_object_try_unref(song);
 }
@@ -515,10 +517,16 @@ static void bt_main_toolbar_set_property(GObject      *object,
 
 static void bt_main_toolbar_dispose(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
+	BtSong *song;
+	
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+	
+	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+	g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+	g_object_unref(song);
   
   g_object_try_weak_unref(self->priv->app);
 

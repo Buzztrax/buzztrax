@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.84 2005-08-31 22:41:40 ensonic Exp $
+// $Id: song.c,v 1.85 2005-09-01 14:27:58 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -122,7 +122,8 @@ BtSong *bt_song_new(const BtApplication *app) {
     goto Error;
   }
   bus=gst_element_get_bus(GST_ELEMENT(bin));
-  gst_bus_add_watch(bus,bus_handler,(gpointer)self);
+  //gst_bus_add_watch(bus,bus_handler,(gpointer)self);
+	gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
   g_object_unref(bus);
   g_object_unref(bin);
   GST_INFO("  new song created: %p",self);

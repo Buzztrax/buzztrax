@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.34 2005-08-31 22:41:40 ensonic Exp $
+// $Id: application.c,v 1.35 2005-09-01 14:27:58 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -50,6 +50,14 @@ static GObjectClass *parent_class=NULL;
 static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
   //BtApplication *self = BT_APPLICATION(user_data);
   
+	/* @todo distribute pipeline message
+	 * - have a hashmap with a list per message type
+	 * - depending on the type walk the callback list and
+   *	 invoke the callbacks until one returns TRUE
+	 * bt_application_add_bus_watch(app,msg_type,callback,user_data);
+	 * bt_application_remove_bus_watch(app,msg_type,callback);
+	 */
+	
   //GST_INFO("received bus message: %p",message);
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_WARNING:
@@ -194,7 +202,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   
   bus=gst_element_get_bus(self->priv->bin);
-  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
+  gst_bus_add_watch_full(bus,G_PRIORITY_LOW,bus_handler,(gpointer)self,NULL);
   g_object_unref(bus);
   
   // if we enable this we get lots of diagnostics
