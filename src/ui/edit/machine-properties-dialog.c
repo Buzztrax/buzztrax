@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.34 2005-08-04 09:47:50 waffel Exp $
+// $Id: machine-properties-dialog.c,v 1.35 2005-09-01 22:05:04 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -276,6 +276,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         }
         gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         gtk_container_add(GTK_CONTAINER(expander),table);
+      }
+      else {
+        GST_INFO("all global params skipped");
       }
     }
     if(voices*voice_params) {

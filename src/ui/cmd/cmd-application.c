@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.59 2005-08-31 22:41:40 ensonic Exp $
+// $Id: cmd-application.c,v 1.60 2005-09-01 22:05:04 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -97,25 +97,26 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
-    gulong msec,sec,min,pos;
+    gulong msec,sec,min;
+    gulong length,pos=0;
 
-    g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+    g_object_get(G_OBJECT(sequence),"length",&length,NULL);
 
     // connection play and stop signals
     g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
     if(bt_song_play(song)) {
       GST_INFO("playing started");
-      while(is_playing) {
+      while(is_playing && (pos<length)) {
         bt_song_update_playback_position(song);
         g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
 
-        // update elapsed statusbar
+        // get song->play-pos and print progress
         msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
         min=(gulong)(msec/60000);msec-=(min*60000);
         sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
         printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
-      
-        // @todo get song->play-pos and print progress
+
         usleep(500);
       }
       printf("\n");
@@ -194,6 +195,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     gulong length,tracks,n_patterns=0;
     GList *machines,*wires,*patterns,*waves,*node;
     GstBin *bin;
+    gulong msec,sec,min;
     
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
 
@@ -206,7 +208,11 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
     g_fprintf(output_file,"song.sequence.length: %lu\n",length);
     g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
-    // @todo print play-time
+    // print playing-time
+    msec=(gulong)((length*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
+    min=(gulong)(msec/60000);msec-=(min*60000);
+    sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+    g_fprintf(output_file,"song.sequence.playing_time: %02lu:%02lu.%03lu\n",min,sec,msec);
 
     // print some statistics about the song (number of machines, wires, patterns)
     g_object_get(G_OBJECT(setup),"machines",&machines,"wires",&wires,NULL);

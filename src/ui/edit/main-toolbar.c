@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.65 2005-09-01 14:27:58 ensonic Exp $
+// $Id: main-toolbar.c,v 1.66 2005-09-01 22:05:04 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -293,16 +293,15 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"master",&master,"bin",&bin,NULL);
   if(master) {
     GstPad *pad;
-    GstBus *bus;
     gdouble volume;
 
     // get the input_level property from audio_sink
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
     // @todo connect to the pipeline bus-message
-    bus=gst_element_get_bus(bin);
+    //bus=gst_element_get_bus(bin);
     //gst_bus_add_watch(bus,on_song_level_change,(gpointer)self);
-		gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,on_song_level_change,(gpointer)self,NULL);
-    g_object_unref(bus);
+    //g_object_unref(bus);
+		bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);

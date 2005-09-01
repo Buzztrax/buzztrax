@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.35 2005-09-01 14:27:58 ensonic Exp $
+// $Id: application.c,v 1.36 2005-09-01 22:05:03 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -37,39 +37,51 @@ struct _BtApplicationPrivate {
   /* a reference to the buzztard settings object */
   BtSettings *settings;
   
-  /* bin->error indicator */
-  gboolean got_error;
+  /* application bus-handlers */
+  GList *bus_handlers;
 };
 
 static GObjectClass *parent_class=NULL;
+
+typedef struct {
+  GstBusHandler handler;
+  gpointer user_data;
+} BtBusWatchEntry;
 
 //-- helper
 
 //-- handler
 
+/*
+ * bus_handler:
+ *
+ * distribute pipeline-bus message
+ * walks the callback list and invoke the callbacks until one returns TRUE
+ */
 static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
-  //BtApplication *self = BT_APPLICATION(user_data);
+  BtApplication *self = BT_APPLICATION(user_data);
+  BtBusWatchEntry *entry;
+  gboolean handled=FALSE;
+  GList* node;
   
-	/* @todo distribute pipeline message
-	 * - have a hashmap with a list per message type
-	 * - depending on the type walk the callback list and
-   *	 invoke the callbacks until one returns TRUE
-	 * bt_application_add_bus_watch(app,msg_type,callback,user_data);
-	 * bt_application_remove_bus_watch(app,msg_type,callback);
-	 */
-	
-  //GST_INFO("received bus message: %p",message);
-  switch(GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_WARNING:
-    case GST_MESSAGE_ERROR:{
-      GError *gerror;
-      gchar *debug;
-
-      gst_message_parse_error (message, &gerror, &debug);
-      gst_object_default_error (GST_MESSAGE_SRC (message), gerror, debug);
-      g_error_free (gerror);
-      g_free (debug);
-      break;
+  for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
+    entry=(BtBusWatchEntry *)node->data;
+    handled=entry->handler(bus,message,entry->user_data);
+	}
+  if(!handled) {
+    //GST_INFO("process unhandled bus message: %p",message);
+    switch(GST_MESSAGE_TYPE(message)) {
+      case GST_MESSAGE_WARNING:
+      case GST_MESSAGE_ERROR:{
+        GError *gerror;
+        gchar *debug;
+  
+        gst_message_parse_error (message, &gerror, &debug);
+        gst_object_default_error (GST_MESSAGE_SRC (message), gerror, debug);
+        g_error_free (gerror);
+        g_free (debug);
+        break;
+      }
     }
   }
 	// pop off *all* messages
@@ -117,6 +129,52 @@ Error:
 
 //-- methods
 
+/**
+ * bt_application_add_bus_watch:
+ * @self: the application instance
+ * @handler : function to call when a message is received.
+ * @user_data : user data passed to handler
+ *
+ * The #BtApplication class manages communication with the #GstBus of the loaded
+ * #BtSong. To process bus messages register a handler with this method.
+ */
+void bt_application_add_bus_watch(const BtApplication *self,GstBusHandler handler,gpointer user_data) {
+  BtBusWatchEntry *entry;
+  GList* node;
+  
+  for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
+    entry=(BtBusWatchEntry *)node->data;
+    if((entry->handler==handler) && (entry->user_data==user_data)) {
+      GST_WARNING("trying to register bus_watch again");
+      return;
+    }
+  }
+  entry=g_new(BtBusWatchEntry,1);
+  entry->handler=handler;
+  entry->user_data=user_data;
+  self->priv->bus_handlers=g_list_prepend(self->priv->bus_handlers,entry);
+}
+
+/**
+ * bt_application_remove_bus_watch:
+ * @self: the application instance
+ * @handler : function to remove from the handler list.
+ *
+ * Unregister a handler previously registered using bt_application_add_bus_watch().
+ */
+void bt_application_remove_bus_watch(const BtApplication *self,GstBusHandler handler) {
+  BtBusWatchEntry *entry;
+  GList* node;
+  
+  for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
+    entry=(BtBusWatchEntry *)node->data;
+    if(entry->handler==handler) {
+      self->priv->bus_handlers=g_list_remove(self->priv->bus_handlers,entry);
+      break;
+    }
+  }
+}
+
 //-- wrapper
 
 //-- class internals
@@ -163,11 +221,10 @@ static void bt_application_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  //gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL);
-
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
+
   g_object_try_unref(self->priv->bin);
   g_object_try_unref(self->priv->settings);
 
@@ -182,6 +239,17 @@ static void bt_application_finalize(GObject *object) {
   BtApplication *self = BT_APPLICATION(object);
 
   GST_DEBUG("!!!! self=%p",self);
+
+  // free list of bus-handlers
+  if(self->priv->bus_handlers) {
+    GList* node;
+    for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
+      g_free(node->data);
+      node->data=NULL;
+    }
+    g_list_free(self->priv->bus_handlers);
+    self->priv->bus_handlers=NULL;
+  }
 
   g_free(self->priv);
 
@@ -201,8 +269,11 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   
+  // does not make a difference
+  //gst_pipeline_auto_clock(GST_PIPELINE(self->priv->bin));
+  
   bus=gst_element_get_bus(self->priv->bin);
-  gst_bus_add_watch_full(bus,G_PRIORITY_LOW,bus_handler,(gpointer)self,NULL);
+  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
   g_object_unref(bus);
   
   // if we enable this we get lots of diagnostics

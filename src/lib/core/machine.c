@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.148 2005-08-24 13:25:34 ensonic Exp $
+// $Id: machine.c,v 1.149 2005-09-01 22:05:03 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -661,6 +661,9 @@ gboolean bt_machine_new(BtMachine *self) {
           self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
           bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
         }
+        else {
+          self->priv->global_flags[j]=0x02;//MPF_STATE
+        }
         // bind param to machines global controller
         if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
           GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
@@ -712,6 +715,9 @@ gboolean bt_machine_new(BtMachine *self) {
             if(GST_IS_PROPERTY_META(voice_child)) {
               self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
               bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
+            }
+            else {
+              self->priv->voice_flags[j]=0x02;//MPF_STATE
             }
             GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
             j++;
@@ -1396,6 +1402,10 @@ static GValue *bt_machine_get_param_min_value(const BtMachine *self, GParamSpec 
         GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         g_value_set_uint(value,uint_property->minimum);
       }  break;
+      case G_TYPE_DOUBLE: {
+        GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+        g_value_set_double(value,double_property->minimum);
+      }  break;
       default:
         GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
     }
@@ -1452,6 +1462,10 @@ static GValue *bt_machine_get_param_max_value(const BtMachine *self, GParamSpec 
       case G_TYPE_UINT: {
         GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         g_value_set_uint(value,uint_property->maximum);
+      }  break;
+      case G_TYPE_DOUBLE: {
+        GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+        g_value_set_double(value,double_property->maximum);
       }  break;
       default:
         GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));

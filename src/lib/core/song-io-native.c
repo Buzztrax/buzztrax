@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.84 2005-08-24 14:04:24 ensonic Exp $
+// $Id: song-io-native.c,v 1.85 2005-09-01 22:05:03 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -236,7 +236,7 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
       if( (voices_str=xmlGetProp(xml_node,XML_CHAR_PTR("voices"))) ) {
         voices=atol(voices_str);
       }
-      else voices=1;
+      else voices=0;
       if(!strncmp(xml_node->name,"sink\0",5)) {
         GST_INFO("  new sink_machine(\"%s\") -----------------",id);
         // create new sink machine

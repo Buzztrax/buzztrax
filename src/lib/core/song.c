@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.85 2005-09-01 14:27:58 ensonic Exp $
+// $Id: song.c,v 1.86 2005-09-01 22:05:03 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -113,7 +113,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
 BtSong *bt_song_new(const BtApplication *app) {
   BtSong *self=NULL;
   GstBin *bin;
-  GstBus *bus;
+  //GstBus *bus;
   
   g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
@@ -121,10 +121,11 @@ BtSong *bt_song_new(const BtApplication *app) {
   if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
     goto Error;
   }
-  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  //bus=gst_element_get_bus(GST_ELEMENT(bin));
   //gst_bus_add_watch(bus,bus_handler,(gpointer)self);
-	gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
-  g_object_unref(bus);
+	//gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
+  //g_object_unref(bus);
+  bt_application_add_bus_watch(app,bus_handler,(gpointer)self);
   g_object_unref(bin);
   GST_INFO("  new song created: %p",self);
   return(self);
