@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.86 2005-09-01 22:05:03 ensonic Exp $
+// $Id: song.c,v 1.87 2005-09-02 22:31:41 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -162,7 +162,7 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_play(const BtSong *self) {
-  GstElementStateReturn res;
+  GstStateChangeReturn res;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   
@@ -172,7 +172,7 @@ gboolean bt_song_play(const BtSong *self) {
   GST_INFO("prepare playback");
   
   // prepare playback
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_FAILURE) {
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
     return(FALSE);
   }
@@ -182,7 +182,7 @@ gboolean bt_song_play(const BtSong *self) {
   self->priv->play_pos=0;
 
   // start playback
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_FAILURE) {
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to playing state");
     return(FALSE);
   }
@@ -202,7 +202,7 @@ gboolean bt_song_play(const BtSong *self) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_stop(const BtSong *self) {
-  GstElementStateReturn res;
+  GstStateChangeReturn res;
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // do not play again
@@ -210,7 +210,7 @@ gboolean bt_song_stop(const BtSong *self) {
 
   GST_INFO("stopping playback");
   
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_FAILURE) {
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to ready state");
     return(FALSE);
   }
@@ -232,7 +232,7 @@ gboolean bt_song_stop(const BtSong *self) {
  */
 gboolean bt_song_pause(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
-  return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_CHANGE_FAILURE);
 }
 
 /**
@@ -245,7 +245,7 @@ gboolean bt_song_pause(const BtSong *self) {
  */
 gboolean bt_song_continue(const BtSong *self) {
   g_assert(BT_IS_SONG(self));
-  return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_FAILURE);
+  return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_CHANGE_FAILURE);
 }
 
 /**

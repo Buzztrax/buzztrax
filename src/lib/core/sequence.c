@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.83 2005-08-29 22:21:03 ensonic Exp $
+// $Id: sequence.c,v 1.84 2005-09-02 22:31:41 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -914,14 +914,14 @@ gboolean bt_sequence_play(const BtSequence *self) {
   GST_INFO("  length: %d",self->priv->length);
 
   // prepare playback
-  if(gst_element_set_state(bin,GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+  if(gst_element_set_state(bin,GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
     return(FALSE);
   }
   
   // send seek to starting time
 
-  if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_FAILURE) {
+  if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_CHANGE_FAILURE) {
     g_mutex_lock(self->priv->is_playing_mutex);
     self->priv->is_playing=TRUE;
     g_mutex_unlock(self->priv->is_playing_mutex);
@@ -945,7 +945,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
     self->priv->is_playing=FALSE;
     //g_timer_destroy(timer);
 
-    if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_FAILURE) {
+    if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_CHANGE_FAILURE) {
       GST_ERROR("can't stop playing");res=FALSE;
     }
     GST_INFO("  playing done");

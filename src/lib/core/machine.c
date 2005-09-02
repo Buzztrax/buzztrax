@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.150 2005-09-02 16:32:41 ensonic Exp $
+// $Id: machine.c,v 1.151 2005-09-02 22:31:41 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -190,7 +190,7 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
       wire=BT_WIRE(node->data);
       g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
       GST_INFO("  setting element '%s' to paused",self->priv->id);
-      if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+      if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
         GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
         res=FALSE;
       }
@@ -203,7 +203,7 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
     g_list_free(wires);
   }
   else {
-    if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+    if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
       GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
       res=FALSE;
     }
@@ -224,7 +224,7 @@ static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
       wire=BT_WIRE(node->data);
       g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
       GST_INFO("  setting element '%s' to playing",self->priv->id);
-      if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+      if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
         GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
         res=FALSE;
       }
@@ -237,7 +237,7 @@ static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
     g_list_free(wires);
   }
   else {
-    if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+    if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
       GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
       res=FALSE;
     }

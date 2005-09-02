@@ -1,4 +1,4 @@
-/** $Id: states.c,v 1.1 2005-09-02 16:32:41 ensonic Exp $
+/** $Id: states.c,v 1.2 2005-09-02 22:31:40 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` states.c -o states
@@ -9,7 +9,7 @@
 
 #define SINK_NAME "alsasink"
 //#define SINK_NAME "esdsink"
-#define ELEM_NAME "volume"
+#define ELEM_NAME "audioconvert"
 #define SRC_NAME "sinesrc"
 
 
@@ -20,6 +20,9 @@ int main(int argc, char **argv) {
 	GstElement *src1,*src2;
 	GstElement *vol1,*vol2;
 	GstElement *mix;
+  GstClock *clock;
+  GstClockID clock_id;
+  GstClockReturn wait_ret;
   
   /* init gstreamer */
   gst_init(&argc, &argv);
@@ -27,7 +30,8 @@ int main(int argc, char **argv) {
   
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("song");
-  
+  clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
+ 
   /* make a sink */
   if(!(sink = gst_element_factory_make (SINK_NAME, "sink"))) {
     fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
@@ -45,11 +49,11 @@ int main(int argc, char **argv) {
   if(!(src1 = gst_element_factory_make (SRC_NAME, "src1"))) {
     fprintf(stderr,"Can't create element \""SRC_NAME"\"\n");exit (-1);
   }
-	g_object_set(src1,"freq",440,NULL);
+	g_object_set(src1,"freq",440.0,NULL);
   if(!(src2 = gst_element_factory_make (SRC_NAME, "src2"))) {
     fprintf(stderr,"Can't create element \""SRC_NAME"\"\n");exit (-1);
   }
-	g_object_set(src2,"freq",2000,NULL);
+	g_object_set(src2,"freq",2000.0,NULL);
   
   /* make a mixer */
   if(!(mix = gst_element_factory_make ("adder", "mix"))) {
@@ -60,39 +64,60 @@ int main(int argc, char **argv) {
   gst_bin_add_many (GST_BIN (bin), src1,src2, vol1,vol2, mix, sink, NULL);
   
   /* link elements */
-  gst_element_link_many (src1, vol1, mix, sink, NULL);
-	gst_element_link_many (src2, vol2, mix, NULL);
-  
+  if(!gst_element_link_many (src1, vol1, mix, sink, NULL)) {
+    fprintf(stderr,"Can't link first part\n");exit (-1);
+  }
+	if(!gst_element_link_many (src2, vol2, mix, NULL)) {
+    fprintf(stderr,"Can't link second part\n");exit (-1);
+  }
+ 
+  /* prepare playing */
+  if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't prepare playing\n");exit(-1);
+  }
+
+  clock_id = gst_clock_new_periodic_id (clock,
+    gst_clock_get_time (clock)+(5 * GST_SECOND), (6 * GST_SECOND));
+
   /* start playing */
-  if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+  if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't start playing\n");exit(-1);
   }
 
 	/* do the state tests */
 	
 	puts("play everything");
-	getchar();
-	
-  if(gst_element_set_state (src2, GST_STATE_PAUSED)==GST_STATE_FAILURE) {
+	if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
+      GST_WARNING ("clock_id_wait returned: %d", wait_ret);
+  }
+
+  if(gst_element_set_state (src2, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't pause src2\n");exit(-1);
   }
+  //gst_element_unlink(src2,vol2);
 	puts("paused source2");
-	getchar();
-
-  if(gst_element_set_state (src1, GST_STATE_PAUSED)==GST_STATE_FAILURE) {
-    fprintf(stderr,"Can't pause src1\n");exit(-1);
+	if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
+      GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
-  if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_FAILURE) {
+  if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't continue src2\n");exit(-1);
   }
+  if(gst_element_set_state (src1, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't pause src1\n");exit(-1);
+  }
+  //gst_element_link(src2,vol2);
+  //gst_element_unlink(src1,vol1);
 	puts("continued source2, paused source1");
-	getchar();
+	if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
+      GST_WARNING ("clock_id_wait returned: %d", wait_ret);
+  }
 	
   /* stop the pipeline */
   gst_element_set_state (bin, GST_STATE_NULL);
   
   /* we don't need a reference to these objects anymore */
-  gst_object_unref (GST_OBJECT (bin));
+  g_object_unref (G_OBJECT (clock));
+  g_object_unref (G_OBJECT (bin));
 
   exit (0);
 }
