@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.149 2005-09-01 22:05:03 ensonic Exp $
+// $Id: machine.c,v 1.150 2005-09-02 16:32:41 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -810,7 +810,7 @@ gboolean bt_machine_enable_input_level(BtMachine *self) {
     GST_ERROR("failed to create input level analyser for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
   }
   g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
-    "interval",0.1,"signal",TRUE,
+    "interval",0.1,"message",TRUE,
     "peak-ttl",0.2,"peak-falloff", 20.0,
     NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_INPUT_LEVEL]);
@@ -1018,7 +1018,6 @@ void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern) 
   if(g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
     g_signal_emit(G_OBJECT(self),signals[PATTERN_REMOVED_EVENT], 0, pattern);
-    // @todo update the controller
     g_object_unref(G_OBJECT(pattern));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
