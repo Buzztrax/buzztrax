@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.67 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-page-machines.c,v 1.68 2005-09-03 13:40:30 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -313,6 +313,24 @@ static gboolean bt_main_page_machine_check_wire(const BtMainPageMachines *self) 
 
 //-- event handler
 
+static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  GHashTable *properties;
+  
+  g_assert(user_data);
+  GST_INFO("new machine has been added");
+
+  g_object_get(machine,"properties",&properties,NULL);
+  if(properties) {
+    gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+    g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
+    g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
+  }
+
+  // draw machine
+  machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   BtSong *song;
@@ -328,6 +346,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
   machine_view_refresh(self,setup);
+  g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   // release the reference
   g_object_try_unref(setup);
   g_object_try_unref(song);
@@ -441,75 +460,6 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
   g_object_unref(settings);
 
   bt_main_page_machine_draw_grid(self);
-}
-
-static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
-  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *machine;
-  gchar *name,*id;
-
-  g_assert(user_data);
-  name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
-  GST_DEBUG("adding source machine \"%s\"",name);
-  
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  id=bt_setup_get_unique_machine_id(setup,name);
-  if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,1)))) {
-    GHashTable *properties;
-    
-    g_object_get(machine,"properties",&properties,NULL);
-    if(properties) {
-      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-      g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
-      g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
-    }
-
-    // draw machine
-    machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
-    g_object_unref(machine);
-  }
-  g_free(id);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
-}
-
-static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
-  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
-  BtSong *song;
-  BtSetup *setup;
-  BtMachine *machine;
-  gchar *name,*id;
-  
-  g_assert(user_data);
-  name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
-  GST_DEBUG("adding processor machine \"%s\"",name);
-  
-  
-  g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(song,"setup",&setup,NULL);
-  
-  id=bt_setup_get_unique_machine_id(setup,name);
-  if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,1)))) {
-    GHashTable *properties;
-
-    g_object_get(machine,"properties",&properties,NULL);
-    if(properties) {
-      gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-      g_hash_table_insert(properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_x/MACHINE_VIEW_ZOOM_X))));
-      g_hash_table_insert(properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,(self->priv->mouse_y/MACHINE_VIEW_ZOOM_Y))));
-    }
-
-    // draw machine
-    machine_item_new(self,machine,self->priv->mouse_x,self->priv->mouse_y);
-    g_object_unref(machine);
-  }
-  g_free(id);
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
 }
 
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
@@ -631,8 +581,8 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 //-- helper methods
 
 static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachines *self) {
-  GtkWidget *menu_item,*menu,*submenu,*image;
-  // @todo make it a new class that derives from gtk_menu and that hides the complexity of the machine sub menu
+  GtkWidget *menu_item,*menu,*image;
+
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 
   //menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
@@ -641,44 +591,10 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
-  // add sub-menu  
-  menu=gtk_menu_new();
-  gtk_widget_set_name(menu,_("add menu"));
+  // add machine selection sub-menu
+  menu=GTK_WIDGET(bt_machine_menu_new(self->priv->app));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),menu);
 
-  menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=bt_ui_ressources_get_image_by_machine_type(BT_TYPE_SOURCE_MACHINE);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_widget_show(menu_item);
-  // add another submenu
-  submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("generators menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
-
-  menu_item=gtk_menu_item_new_with_label("Sine");
-  gtk_widget_set_name(menu_item,"sinesrc");
-  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-  gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_source_machine_add_activated),(gpointer)self);
-  
-  menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
-  gtk_menu_shell_append(GTK_MENU_SHELL(menu),menu_item);
-  image=bt_ui_ressources_get_image_by_machine_type(BT_TYPE_PROCESSOR_MACHINE);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_widget_show(menu_item);
-  // add another submenu
-  submenu=gtk_menu_new();
-  gtk_widget_set_name(submenu,_("effects menu"));
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
-
-  menu_item=gtk_menu_item_new_with_label("Volume");
-  gtk_widget_set_name(menu_item,"volume");
-  gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-  gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_processor_machine_add_activated),(gpointer)self);
-
-  // continue with main menu
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_set_sensitive(menu_item,FALSE);

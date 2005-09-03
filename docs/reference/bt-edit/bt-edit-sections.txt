@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.22 2005-08-15 19:12:17 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.23 2005-09-03 13:40:29 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -50,6 +50,24 @@ BT_TYPE_MACHINE_CANVAS_ITEM
 <SUBSECTION Private>
 bt_machine_canvas_item_get_type
 BtMachineCanvasItemPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmachinemenu</FILE>
+<TITLE>BtMachineMenu</TITLE>
+BtMachineMenu
+bt_machine_menu_new
+<SUBSECTION Standard>
+BtMachineMenuClass
+BT_MACHINE_MENU
+BT_IS_MACHINE_MENU
+BT_MACHINE_MENU_CLASS
+BT_IS_MACHINE_MENU_CLASS
+BT_MACHINE_MENU_GET_CLASS
+BT_TYPE_MACHINE_MENU
+<SUBSECTION Private>
+bt_machine_menu_get_type
+BtMachineMenuPrivate
 </SECTION>
 
 <SECTION>
@@ -160,6 +178,13 @@ BT_TYPE_MAIN_PAGE_MACHINES
 <SUBSECTION Private>
 bt_main_page_machines_get_type
 BtMainPageMachinesPrivate
+MACHINE_VIEW_ZOOM_Y
+MACHINE_VIEW_ZOOM_FC
+MACHINE_VIEW_MACHINE_SIZE_X
+MACHINE_VIEW_MACHINE_SIZE_Y
+MACHINE_VIEW_GRID_FC
+MACHINE_VIEW_WIRE_PAD_SIZE
+MACHINE_VIEW_ZOOM_X
 </SECTION>
 
 <SECTION>
@@ -285,7 +310,7 @@ BtMainWindowPrivate
 <FILE>btpatternpropertiesdialog</FILE>
 <TITLE>BtPatternPropertiesDialog</TITLE>
 BtPatternPropertiesDialog
-bt_pattern_preferences_dialog_new
+bt_pattern_properties_dialog_new
 bt_pattern_properties_dialog_apply
 <SUBSECTION Standard>
 BtPatternPropertiesDialogClass
@@ -296,7 +321,7 @@ BT_IS_PATTERN_PROPERTIES_DIALOG_CLASS
 BT_PATTERN_PROPERTIES_DIALOG_GET_CLASS
 BT_TYPE_PATTERN_PROPERTIES_DIALOG
 <SUBSECTION Private>
-bt_pattern_preferences_dialog_get_type
+bt_pattern_properties_dialog_get_type
 BtPatternPropertiesDialogPrivate
 </SECTION>
 
@@ -397,7 +422,7 @@ BtWireCanvasItemPrivate
 <FILE>gtkvumeter</FILE>
 <TITLE>GtkVUMeter</TITLE>
 GtkVUMeter
-gtk_vu_meter_new
+gtk_vumeter_new
 gtk_vumeter_set_min_max
 gtk_vumeter_set_levels
 gtk_vumeter_set_peaks_falloff
@@ -411,7 +436,7 @@ GTK_IS_VUMETER_CLASS
 GTK_VUMETER_GET_CLASS
 GTK_TYPE_VUMETER
 <SUBSECTION Private>
-gtk_vu_meter_get_type
+gtk_vumeter_get_type
 </SECTION>
 
 <SECTION>

@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.43 2005-08-31 22:41:40 ensonic Exp $
+// $Id: sink-machine.c,v 1.44 2005-09-03 13:40:30 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -80,8 +80,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
     GstElementFactory *factory;
     guint max_rank=0,cur_rank;
     
-    node=audiosink_names;
-    while(node) {
+    for(node=audiosink_names;node;node=g_list_next(node)) {
       factory=gst_element_factory_find(node->data);
       cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
       //GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
@@ -89,7 +88,6 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
         plugin_name=node->data;
         max_rank=cur_rank;
       }
-      node=g_list_next(node);
     }
     g_list_free(audiosink_names);
   }

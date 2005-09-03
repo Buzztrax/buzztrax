@@ -6,6 +6,7 @@
 <!ENTITY btedit SYSTEM "xml/btedit.xml">
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
 <!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
+<!ENTITY BtMachineMenu SYSTEM "xml/btmachinemenu.xml">
 <!ENTITY BtMachinePreferencesDialog SYSTEM "xml/btmachinepreferencesdialog.xml">
 <!ENTITY BtMachinePropertiesDialog SYSTEM "xml/btmachinepropertiesdialog.xml">
 <!ENTITY BtMainMenu SYSTEM "xml/btmainmenu.xml">
@@ -58,6 +59,7 @@
     &btedit;
     &BtEditApplication;
     &BtMachineCanvasItem;
+    &BtMachineMenu;
 		&BtMachinePreferencesDialog;
 		&BtMachinePropertiesDialog;
     &BtMainWindow;

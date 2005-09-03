@@ -12,6 +12,7 @@ noinst_LTLIBRARIES      = libbtedit.la
 libbtedit_la_SOURCES   = \
 	edit-application.c edit-application.h edit-application-methods.h \
 	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\
+	machine-menu.c machine-menu.h machine-menu-methods.h \
 	machine-properties-dialog.c machine-properties-dialog.h machine-properties-dialog-methods.h \
 	machine-preferences-dialog.c machine-preferences-dialog.h machine-preferences-dialog-methods.h \
 	main-window.c main-window.h main-window-methods.h \

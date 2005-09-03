@@ -1,10 +1,8 @@
-// $Id: machine-properties-dialog.c,v 1.36 2005-09-03 11:52:43 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.37 2005-09-03 13:40:30 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
  */ 
-
-// @todo need version of callbacks for voice-params
 
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C

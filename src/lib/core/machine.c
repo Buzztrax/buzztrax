@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.151 2005-09-02 22:31:41 ensonic Exp $
+// $Id: machine.c,v 1.152 2005-09-03 13:40:30 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -735,6 +735,7 @@ gboolean bt_machine_new(BtMachine *self) {
   }
   else {
     GST_INFO("  instance is monophonic!");
+    self->priv->voices=0;
   }
   // check if the elemnt implements the GstTempo interface
   if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
@@ -1118,15 +1119,12 @@ gchar *bt_machine_get_unique_pattern_name(const BtMachine *self) {
  * Returns: %TRUE for polyphic machines, %FALSE for monophonic ones
  */
 gboolean bt_machine_is_polyphonic(const BtMachine *self) {
+  gboolean res;
   g_assert(BT_IS_MACHINE(self));
-  
-#ifdef HAVE_GST_POLYVOICE_POLY_VOICE_H
-  GST_DEBUG(" is machine \"%s\" poly ? %d",self->priv->id,GST_IS_PARENT(self->priv->machines[PART_MACHINE]));
-  
-  return(GST_IS_PARENT(self->priv->machines[PART_MACHINE]));
-#else
-  return(FALSE);
-#endif
+
+  res=GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE]);
+  GST_INFO(" is machine \"%s\" polyphonic ? %d",self->priv->id,res);
+  return(res);
 }
 
 /**
