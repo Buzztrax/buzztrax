@@ -8,7 +8,7 @@
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
 ]>
-<book id="index">
+<book id="index" xmlns:xi="http://www.w3.org/2003/XInclude">
   <bookinfo>
     <title>Buzztard Bt-Cmd Reference Manual</title>
     <releaseinfo>for Buzztard &BT_VERSION;</releaseinfo>
@@ -36,12 +36,18 @@
     </para>
     &btcmd;
     &BtCmdApplication;
+    <!-- produces entity errors, because the entities from top are copied to the
+         xml fragments and don't resolve there (version.entities)
+    <xi:include href="xml/btcmd.xml"/>
+    <xi:include href="xml/btcmdapplication.xml"/>
+    -->
   </chapter>
 
-	<chapter id="objecttree">
-		<title>Object Hierarchy</title>
-		&object-tree-index;
-	</chapter>
+  <chapter id="objecttree">
+    <title>Object Hierarchy</title>
+    <!--&object-tree-index;-->
+    <xi:include href="xml/tree_index.sgml"/>
+  </chapter>
 
   <index id="api-index">
     <title>API Index</title>
