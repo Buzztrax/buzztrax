@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.44 2005-09-03 13:40:30 ensonic Exp $
+// $Id: sink-machine.c,v 1.45 2005-09-07 13:26:15 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -129,11 +129,21 @@ Error:
  *
  *
 BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id, const gchar *format) {
-   // get gst mimetype from the extension
+  // get gst mimetype from the extension
   // and then look at all encoders which supply that mimetype
   // check elements in "codec/encoder/audio", "codec/muxer/audio"
   // build caps using this mimetype
   // gst_element_factory_can_src_caps()
+	// problem here is that we need extra option for each encoder (e.g. quality)
+
+  // if the decoder needs multiple elements use a bin and ghostpads
+
+  // example chains:
+     oggmux ! vorbis ! filesink location="song.ogg"
+     lame ! filesink location="song.mp3"
+     # wavenc (./gst-plugins-good/gst/wavenc/gstwavenc)
+		 # aiff
+		 # flac (./gst-plugins-good/ext/flac/gstflacenc)
 }
 */
 
