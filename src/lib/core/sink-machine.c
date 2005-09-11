@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.46 2005-09-11 19:45:14 ensonic Exp $
+// $Id: sink-machine.c,v 1.47 2005-09-11 19:56:43 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -30,10 +30,12 @@ static gchar *bt_sink_machine_determine_plugin_name(const BtSettings *settings) 
   if(is_string(audiosink_name)) {
     GST_INFO("get audiosink from config");
     plugin_name=audiosink_name;
+    audiosink_name=NULL;
   }
   else if(is_string(system_audiosink_name)) {
     GST_INFO("get audiosink from system config");
     plugin_name=system_audiosink_name;
+    system_audiosink_name=NULL;
   }
   if(plugin_name) {
     gchar *sink_name,*eon;
