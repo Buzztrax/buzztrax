@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.64 2005-08-31 14:53:24 ensonic Exp $
+/* $Id: core.h,v 1.65 2005-09-11 19:45:15 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -26,7 +26,7 @@
 #include <glib/gprintf.h>
 //-- gstreamer
 #include <gst/gst.h>
-#include <gst/controller/gst-controller.h>
+#include <gst/controller/gstcontroller.h>
 
 
 #include <gst/childbin/childbin.h>
