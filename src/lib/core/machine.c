@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.152 2005-09-03 13:40:30 ensonic Exp $
+// $Id: machine.c,v 1.153 2005-09-12 22:43:54 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -641,10 +641,38 @@ gboolean bt_machine_new(BtMachine *self) {
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
     GParamSpec *property;
     guint i,j;
+    GParamSpec **child_properties=NULL;
+    guint number_of_child_properties;
+    gboolean skip;
+
+    // check if the elemnt implements the GstChildProxy interface
+    if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
+      GstObject *voice_child;
+      // get child for voice 0
+      if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
+        child_properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_child_properties);
+      }
+    }
     
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
-      if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->global_params++;
+      if(properties[i]->flags&GST_PARAM_CONTROLLABLE) {
+        // TODO check if this param is also registered as child param, if so skip
+        skip=FALSE;
+        /* this break the machine-preferences dialog fow now :(
+        if(child_properties) {
+          for(j=0;j<number_of_child_properties;j++) {
+            if(!strcmp(properties[i]->name,child_properties[j]->name)) {
+              skip=TRUE;
+              properties[i]->flags&=~GST_PARAM_CONTROLLABLE;
+              GST_DEBUG("    skipping global_param [%d] \"%s\"",i,properties[i]->name);
+              break;
+            }
+          }
+        }
+        */
+        if(!skip) self->priv->global_params++;
+      }
     }
     self->priv->global_types =(GType *     )g_new0(GType   ,self->priv->global_params);
     self->priv->global_names =(gchar **    )g_new0(gpointer,self->priv->global_params);
@@ -680,6 +708,7 @@ gboolean bt_machine_new(BtMachine *self) {
       }
     }
     g_free(properties);
+    g_free(child_properties);
   }
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
@@ -1154,10 +1183,12 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
     }
   }  
   if(!found && error) {
+    GST_WARNING("global param for name %s not found", name);
     g_set_error (error, error_domain, /* errorcode= */0,
                 "global param for name %s not found", name);
   }
-  g_assert((found || (error && *error)));
+  //g_assert((found || (error && *error)));
+  g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
   return(ret);
 }
 
@@ -1188,10 +1219,11 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
     }
   }  
   if(!found && error) {
+    GST_WARNING("voice param for name %s not found", name);
     g_set_error (error, error_domain, /* errorcode= */0,
                 "voice param for name %s not found", name);
   }
-  g_assert((found || (error && *error)));
+  g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
   return(ret);
 }
 

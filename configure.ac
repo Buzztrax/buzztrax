@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.58 2005-08-25 19:35:24 ensonic Exp $
+# $Id: configure.ac,v 1.59 2005-09-12 22:43:54 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -76,6 +76,11 @@ AC_ISC_POSIX
 AC_PROG_LIBTOOL
 AC_PROG_INTLTOOL
 AM_PROG_CC_STDC
+
+AC_CHECK_PROG(have_xvfb, [Xvfb], [yes])
+if test "$have_xvfb" = "yes"; then
+  AC_DEFINE(HAVE_XVFB, [1], [Define to 1 if ui unit tests can be run under Xvfb])
+fi
 
 # Initialise gettext
 AM_GNU_GETTEXT([external],[need-ngettext])
@@ -155,7 +160,7 @@ AM_CONDITIONAL(USE_VALGRIND, test x$VALGRIND != xno)dnl
 
 VALGRIND_CPPFLAGS=
 if test $ac_cv_use_valgrind != no; then
-   AC_DEFINE(HAVE_VALGRIND, 1, [Define if valgrind is to be used.])
+   AC_DEFINE(HAVE_VALGRIND, 1, [Define to 1 if valgrind is to be used.])
    if test -f $ac_cv_use_valgrind/valgrind.h; then
       VALGRIND_CFLAGS=-I$ac_cv_use_valgrind
    elif test -f $ac_cv_use_valgrind/include/valgrind.h; then

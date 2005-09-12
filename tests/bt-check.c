@@ -605,6 +605,7 @@ static void __test_server_watch(GPid pid,gint status,gpointer data) {
 }
 
 void check_setup_test_server(void) {
+#ifdef HAVE_XVFB
   //gulong flags=G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL;
   gulong flags=G_SPAWN_SEARCH_PATH;
   GError *error=NULL;
@@ -667,10 +668,11 @@ void check_setup_test_server(void) {
 	else {
 		GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
 	}
+#endif
 }
 
 void check_setup_test_display(void) {
-  
+#ifdef HAVE_XVFB
   if(display_number>-1) {
     // activate the display for use with gtk
     if((display_manager = gdk_display_manager_get())) {
@@ -687,9 +689,11 @@ void check_setup_test_display(void) {
 			GST_WARNING("can't get display-manager");
 		}
   }
+#endif
 }
 
 void check_shutdown_test_display(void) {
+#ifdef HAVE_XVFB
   if(test_display) {
     wait_for_server=TRUE;
 
@@ -718,10 +722,11 @@ void check_shutdown_test_display(void) {
   else {
     GST_WARNING("no test display");
   }
+#endif
 }
 
 void check_shutdown_test_server(void) {
-	
+#ifdef HAVE_XVFB
   if(server_pid) {
 		guint wait_count=5;
     wait_for_server=TRUE;
@@ -739,4 +744,5 @@ void check_shutdown_test_server(void) {
   else {
     GST_WARNING("no test server");
   }
+#endif
 }

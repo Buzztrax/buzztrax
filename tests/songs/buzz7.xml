@@ -24,7 +24,14 @@
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
       </sink>
-      
+
+      <processor id="delay1" plugin-name="bml-Ninja" voices="1">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+      </processor>
+
       <source id="bd" plugin-name="bml-ErsKick" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
@@ -51,9 +58,10 @@
     </machines>
     
     <wires>
-      <wire src="bd" dst="audio_sink" gain="1.0" pan="-50"/>
-      <wire src="snr" dst="audio_sink" gain="1.0" pan="-50"/>
-      <wire src="hh" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="delay1" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="bd" dst="delay1" gain="1.0" pan="-50"/>
+      <wire src="snr" dst="delay1" gain="1.0" pan="-50"/>
+      <wire src="hh" dst="delay1" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
   
