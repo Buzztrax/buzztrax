@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.16 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: t-network.c,v 1.17 2005-09-13 22:55:43 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -39,8 +39,6 @@ BT_START_TEST(test_btcore_net1) {
   /* get the setup for the song */
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
-    
-  GST_DEBUG("test");
   
   /* try to add a NULL wire to the setup */
   bt_setup_add_wire(setup, NULL);
