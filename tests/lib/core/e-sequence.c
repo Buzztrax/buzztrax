@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.7 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-sequence.c,v 1.8 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -19,7 +19,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-START_TEST(test_btsequence_enlarge_length) {
+BT_START_TEST(test_btsequence_enlarge_length) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSequence *sequence;
@@ -45,9 +45,9 @@ START_TEST(test_btsequence_enlarge_length) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_enlarge_length_vals) {
+BT_START_TEST(test_btsequence_enlarge_length_vals) {
   BtApplication *app;
   BtSong *song;
   BtSequence *sequence;
@@ -103,9 +103,9 @@ START_TEST(test_btsequence_enlarge_length_vals) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_shrink_length) {
+BT_START_TEST(test_btsequence_shrink_length) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSequence *sequence;
@@ -135,9 +135,9 @@ START_TEST(test_btsequence_shrink_length) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_enlarge_track) {
+BT_START_TEST(test_btsequence_enlarge_track) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSequence *sequence;
@@ -166,9 +166,9 @@ START_TEST(test_btsequence_enlarge_track) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_enlarge_track_vals) {
+BT_START_TEST(test_btsequence_enlarge_track_vals) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSequence *sequence;
@@ -231,9 +231,9 @@ START_TEST(test_btsequence_enlarge_track_vals) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_shrink_track) {
+BT_START_TEST(test_btsequence_shrink_track) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSequence *sequence;
@@ -264,9 +264,9 @@ START_TEST(test_btsequence_shrink_track) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_enlarge_both_vals) {
+BT_START_TEST(test_btsequence_enlarge_both_vals) {
   BtApplication *app;
   BtSong *song;
   BtSequence *sequence;
@@ -353,9 +353,9 @@ START_TEST(test_btsequence_enlarge_both_vals) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btsequence_update) {
+BT_START_TEST(test_btsequence_update) {
   BtApplication *app;
   BtSong *song;
   BtSequence *sequence;
@@ -401,7 +401,7 @@ START_TEST(test_btsequence_update) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_sequence_example_case(void) {
   TCase *tc = tcase_create("BtSequenceExamples");

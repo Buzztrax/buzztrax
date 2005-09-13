@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.60 2005-09-01 22:05:04 ensonic Exp $
+// $Id: cmd-application.c,v 1.61 2005-09-13 22:12:12 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -115,6 +115,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
         msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
         min=(gulong)(msec/60000);msec-=(min*60000);
         sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+        // @todo add a -q (--quiet) options as this isn't nice for tests
         printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
 
         usleep(500);

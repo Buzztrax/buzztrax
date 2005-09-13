@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.15 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-network.c,v 1.16 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -17,26 +17,24 @@ static void test_teardown(void) {
   //puts(__FILE__":teardown");
 }
 
-/**
+/*
 * try to check if we can create a network of NULL machines and NULL wires
 *
 * this is a negative test
 */
-
-START_TEST(test_btcore_net1) {
+BT_START_TEST(test_btcore_net1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   gboolean song_ret;
     
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
   /* create a new song */
   song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
     
   /* get the setup for the song */
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -57,7 +55,7 @@ START_TEST(test_btcore_net1) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_network_test_case(void) {
   TCase *tc = tcase_create("BtNetworkTests");

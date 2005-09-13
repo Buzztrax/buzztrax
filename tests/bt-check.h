@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.7 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: bt-check.h,v 1.8 2005-09-13 22:12:13 ensonic Exp $
  * testing helpers
  */
 
@@ -28,6 +28,19 @@ extern gchar **test_argvptr;
 #ifndef BT_CHECK
   GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
 #endif
+
+//-- wrappers for START_TEST and END_TEST
+
+#define BT_START_TEST(__testname) \
+static void __testname (void)\
+{\
+  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
+  tcase_fn_start (""# __testname, __FILE__, __LINE__);
+
+#define BT_END_TEST \
+  GST_DEBUG ("test end ----------------------------------------------------------------------"); \
+}
+
 
 //-- testing helper methods
 

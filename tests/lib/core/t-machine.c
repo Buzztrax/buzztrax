@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.7 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-machine.c,v 1.8 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -23,13 +23,13 @@ static void test_teardown(void) {
  * unfortunately glib manages again to error out here in a fashion that exits the app :(
  */
 /*
-START_TEST(test_btmachine_abstract) {
+BT_START_TEST(test_btmachine_abstract) {
   BtMachine *machine;
   
   machine=g_object_new(BT_TYPE_MACHINE,NULL);
   fail_unless(machine==NULL,NULL);
 }
-END_TEST
+BT_END_TEST
 */
 
 /*
@@ -40,7 +40,7 @@ END_TEST
 * 4) test if volume still is muted
 */
 #ifdef __NOT_USED
-START_TEST(test_btmachine_state1) {
+BT_START_TEST(test_btmachine_state1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -100,7 +100,7 @@ START_TEST(test_btmachine_state1) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 #endif
 
 /*
@@ -109,7 +109,7 @@ END_TEST
 * 2) solo sinesrc2
 * 3) test that sinesrc1 is not solo
 */
-START_TEST(test_btmachine_state2) {
+BT_START_TEST(test_btmachine_state2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -168,7 +168,7 @@ START_TEST(test_btmachine_state2) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");

@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.8 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-pattern.c,v 1.9 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -18,7 +18,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-START_TEST(test_btpattern_obj1) {
+BT_START_TEST(test_btpattern_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -44,9 +44,9 @@ START_TEST(test_btpattern_obj1) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btpattern_obj2) {
+BT_START_TEST(test_btpattern_obj2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -72,9 +72,9 @@ START_TEST(test_btpattern_obj2) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btpattern_copy) {
+BT_START_TEST(test_btpattern_copy) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -114,10 +114,10 @@ START_TEST(test_btpattern_copy) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 
-START_TEST(test_btpattern_enlarge_length) {
+BT_START_TEST(test_btpattern_enlarge_length) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -173,9 +173,9 @@ START_TEST(test_btpattern_enlarge_length) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btpattern_shrink_length) {
+BT_START_TEST(test_btpattern_shrink_length) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -227,9 +227,9 @@ START_TEST(test_btpattern_shrink_length) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btpattern_enlarge_voices) {
+BT_START_TEST(test_btpattern_enlarge_voices) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -284,9 +284,9 @@ START_TEST(test_btpattern_enlarge_voices) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btpattern_shrink_voices) {
+BT_START_TEST(test_btpattern_shrink_voices) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine=NULL;
@@ -338,7 +338,7 @@ START_TEST(test_btpattern_shrink_voices) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_pattern_example_case(void) {
   TCase *tc = tcase_create("BtPatternExamples");

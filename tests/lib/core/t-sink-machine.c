@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.5 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.6 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -19,7 +19,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-START_TEST(test_btsinkmachine_settings1) {
+BT_START_TEST(test_btsinkmachine_settings1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
@@ -52,7 +52,7 @@ START_TEST(test_btsinkmachine_settings1) {
   g_object_unref(song);
   g_object_unref(app);
 }
-END_TEST;
+BT_END_TEST;
 
 /**
 * Try to create a sink machine, if we set the sink property with the gconf 
@@ -60,7 +60,7 @@ END_TEST;
 * should be replaced by the sink machine to "ossink" and the machine should be 
 * instantiable.
 */
-START_TEST(test_btsinkmachine_settings2) {
+BT_START_TEST(test_btsinkmachine_settings2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
@@ -93,7 +93,7 @@ START_TEST(test_btsinkmachine_settings2) {
   g_object_unref(song);
   g_object_unref(app);
 }
-END_TEST;
+BT_END_TEST;
 
 TCase *bt_sink_machine_test_case(void) {
   TCase *tc = tcase_create("BtSinkMachineTests");

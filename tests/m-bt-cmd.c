@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.6 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.7 2005-09-13 22:12:13 ensonic Exp $
  * command line app unit tests
  */
 
@@ -30,7 +30,6 @@ void bt_cmd_setup(void) {
 void bt_cmd_teardown(void) {
 }
 
-
 /* start the test run */
 int main(int argc, char **argv) {
   int nf; 
@@ -42,6 +41,7 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
+  // this causes the test binary to immediately fail, huh?
 	//g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");

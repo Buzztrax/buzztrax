@@ -1,4 +1,4 @@
-/* $Id: e-song-info.c,v 1.3 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-song-info.c,v 1.4 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -21,7 +21,7 @@ static void test_teardown(void) {
 * song info class. We load a example song and try to retrive the creation date
 * from it.
 */
-START_TEST(test_btsonginfo_createdate) {
+BT_START_TEST(test_btsonginfo_createdate) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSongIO *loader;
@@ -56,7 +56,7 @@ START_TEST(test_btsonginfo_createdate) {
   g_object_checked_unref(app);
 
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_song_info_example_case(void) {
   TCase *tc = tcase_create("BtSongInfoExamples");

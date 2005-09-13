@@ -1,4 +1,4 @@
-/* $Id: t-pattern.c,v 1.4 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-pattern.c,v 1.5 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -18,7 +18,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-START_TEST(test_btpattern_obj1) {
+BT_START_TEST(test_btpattern_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtPattern *pattern=NULL;
@@ -47,7 +47,7 @@ START_TEST(test_btpattern_obj1) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_pattern_test_case(void) {
   TCase *tc = tcase_create("BtPatternTests");

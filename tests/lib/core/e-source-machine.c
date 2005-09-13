@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.8 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-source-machine.c,v 1.9 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -27,7 +27,7 @@ static void test_teardown(void) {
 * We check also, if we can create a pattern iterator and getting the added
 * pattern back from the newly created iterator.
 */
-START_TEST(test_btsourcemachine_obj1){
+BT_START_TEST(test_btsourcemachine_obj1){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
@@ -49,7 +49,7 @@ START_TEST(test_btsourcemachine_obj1){
   g_object_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this example we show how to create a mono source machine and adding a
@@ -59,7 +59,7 @@ END_TEST
 * We check also, if we can create a pattern iterator and getting the added
 * pattern back from the newly created iterator.
 */
-START_TEST(test_btsourcemachine_obj2){
+BT_START_TEST(test_btsourcemachine_obj2){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
@@ -112,14 +112,14 @@ START_TEST(test_btsourcemachine_obj2){
   g_object_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this example we show how to create a poly source machine and adding a
 * newly created pattern to it. The we change the number of voices in the machine
 * and check back the voices in the pattern.
 */
-START_TEST(test_btsourcemachine_obj3){
+BT_START_TEST(test_btsourcemachine_obj3){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
@@ -158,7 +158,7 @@ START_TEST(test_btsourcemachine_obj3){
   g_object_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_source_machine_example_case(void) {
   TCase *tc = tcase_create("BtSourceMachineExamples");

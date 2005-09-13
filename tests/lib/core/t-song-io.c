@@ -1,4 +1,4 @@
-/* $Id: t-song-io.c,v 1.11 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-song-io.c,v 1.12 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -20,67 +20,57 @@ static void test_teardown(void) {
 //-- tests
 
 // try to create a songIO object with NULL pointer
-START_TEST(test_btsong_io_obj1) {
+BT_START_TEST(test_btsong_io_obj1) {
   BtSongIO *songIO;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   songIO=bt_song_io_new(NULL);
   fail_unless(songIO == NULL, NULL);
 }
-END_TEST
+BT_END_TEST
 
 // try to create a songIO object with empty string
-START_TEST(test_btsong_io_obj2) {
+BT_START_TEST(test_btsong_io_obj2) {
   BtSongIO *songIO;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   songIO=bt_song_io_new("");
   fail_unless(songIO==NULL, NULL);
 }
-END_TEST
+BT_END_TEST
 
 // try to create a songIO object with wrong song name
-START_TEST(test_btsong_io_obj3) {
+BT_START_TEST(test_btsong_io_obj3) {
   BtSongIO *songIO;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   songIO=bt_song_io_new("test");
   fail_unless(songIO==NULL, NULL);
 }
-END_TEST
+BT_END_TEST
 
 // try to create a songIO object with a nativ file name
 // this test is a positiv test
-START_TEST(test_btsong_io_obj4) {
+BT_START_TEST(test_btsong_io_obj4) {
   BtSongIO *songIO;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   songIO=bt_song_io_new("test.xml");
   // check if the type of songIO is native
   fail_unless(BT_IS_SONG_IO_NATIVE(songIO), NULL);
   fail_unless(songIO!=NULL, NULL);
   g_object_checked_unref(songIO);
 }
-END_TEST
+BT_END_TEST
 
 // try to create a songIO object with a file name that contains mixed case letters
 // this test is a positiv test
-START_TEST(test_btsong_io_obj5) {
+BT_START_TEST(test_btsong_io_obj5) {
   BtSongIO *songIO;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   songIO=bt_song_io_new("test.XmL");
   // check if the type of songIO is native
   fail_unless(BT_IS_SONG_IO_NATIVE(songIO), NULL);
   fail_unless(songIO!=NULL, NULL);
   g_object_checked_unref(songIO);
 }
-END_TEST
+BT_END_TEST
 
 
 TCase *bt_song_io_test_case(void) {

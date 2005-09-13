@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.14 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-network.c,v 1.15 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -21,7 +21,7 @@ static void test_teardown(void) {
 * try to check if we can simple connect a sine machine to an sink. We also try
 * to start play after connecting the machines.
 */
-START_TEST(test_btcore_net_example1) {
+BT_START_TEST(test_btcore_net_example1) {
   BtApplication *app=NULL;
   // the song
   BtSong *song=NULL;
@@ -33,8 +33,6 @@ START_TEST(test_btcore_net_example1) {
   BtMachine *machine;
   // wires
   BtWire *wire, *wire1=NULL;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -97,13 +95,13 @@ START_TEST(test_btcore_net_example1) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * try to check if we can connect two sine machines to one sink. We also try
 * to start play after connecting the machines.
 */
-START_TEST(test_btcore_net_example2) {
+BT_START_TEST(test_btcore_net_example2) {
   BtApplication *app=NULL;
   // the song
   BtSong *song=NULL;
@@ -115,8 +113,6 @@ START_TEST(test_btcore_net_example2) {
   // wires
   BtWire *wire1=NULL, *wire2=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -171,13 +167,13 @@ START_TEST(test_btcore_net_example2) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * try to check if we can connect two sine machines to one effect and this to the
 * sink. We also try to start play after connecting the machines.
 */
-START_TEST(test_btcore_net_example3) {
+BT_START_TEST(test_btcore_net_example3) {
   BtApplication *app=NULL;
   // the song
   BtSong *song=NULL;
@@ -190,8 +186,6 @@ START_TEST(test_btcore_net_example3) {
   // wires
   BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -256,7 +250,7 @@ START_TEST(test_btcore_net_example3) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_network_example_case(void) {
   TCase *tc = tcase_create("BtNetworkExamples");

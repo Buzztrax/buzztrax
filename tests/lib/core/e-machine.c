@@ -1,4 +1,4 @@
-/* $Id: e-machine.c,v 1.3 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-machine.c,v 1.4 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -18,7 +18,7 @@ static void test_teardown(void) {
 
 //-- tests
 
-START_TEST(test_btmachine_insert_input_level1) {
+BT_START_TEST(test_btmachine_insert_input_level1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine;
@@ -43,9 +43,9 @@ START_TEST(test_btmachine_insert_input_level1) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btmachine_insert_input_level2) {
+BT_START_TEST(test_btmachine_insert_input_level2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine1,*machine2;
@@ -79,7 +79,7 @@ START_TEST(test_btmachine_insert_input_level2) {
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
   
 TCase *bt_machine_example_case(void) {
   TCase *tc = tcase_create("BtMachineExamples");

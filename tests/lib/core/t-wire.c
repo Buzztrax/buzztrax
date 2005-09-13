@@ -1,4 +1,4 @@
-/* $Id: t-wire.c,v 1.9 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-wire.c,v 1.10 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -22,14 +22,12 @@ static void test_teardown(void) {
 /**
 * try to create a wire with the same machine as source and dest 
 */
-START_TEST(test_btwire_obj1){
+BT_START_TEST(test_btwire_obj1){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtWire *wire=NULL;
   // machine
   BtProcessorMachine *machine=NULL;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -49,9 +47,9 @@ START_TEST(test_btwire_obj1){
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(wire==NULL,NULL);
 }
-END_TEST
+BT_END_TEST
 
-START_TEST(test_btwire_obj2){
+BT_START_TEST(test_btwire_obj2){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -60,8 +58,6 @@ START_TEST(test_btwire_obj2){
   BtSourceMachine *source=NULL;
   BtProcessorMachine *sink1=NULL;
   BtProcessorMachine *sink2=NULL;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -96,7 +92,7 @@ START_TEST(test_btwire_obj2){
   fail_unless(wire2!=NULL,NULL);
 
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_wire_test_case(void) {
   TCase *tc = tcase_create("BtWireTests");

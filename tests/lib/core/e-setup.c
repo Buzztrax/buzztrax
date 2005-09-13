@@ -1,4 +1,4 @@
-/* $Id: e-setup.c,v 1.22 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-setup.c,v 1.23 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -26,7 +26,7 @@ static void test_teardown(void) {
 * if the machine was added nice.
 *
 */
-START_TEST(test_btsetup_obj1){
+BT_START_TEST(test_btsetup_obj1){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -35,8 +35,6 @@ START_TEST(test_btsetup_obj1){
   BtMachine *ref_machine=NULL;
   GList *list,*node;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -65,14 +63,14 @@ START_TEST(test_btsetup_obj1){
   
   g_list_free(list);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this test case we demonstrate how to create a wire and adding the newly
 * created wire to the setup. After that, we try to get the same wire back, if
 * we give the source or dest machine.
 */
-START_TEST(test_btsetup_obj2) {
+BT_START_TEST(test_btsetup_obj2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -84,8 +82,6 @@ START_TEST(test_btsetup_obj2) {
   BtWire *ref_wire=NULL;
   GList *list;
     
-  GST_INFO("--------------------------------------------------------------------------------");
-  
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -136,21 +132,19 @@ START_TEST(test_btsetup_obj2) {
   fail_unless(ref_wire==wire, NULL);
   g_object_try_unref(ref_wire);  
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this test we demonstrate how to remove a machine from the setup after the 
 * same machine is added to the setup.
 */
-START_TEST(test_btsetup_obj3) {
+BT_START_TEST(test_btsetup_obj3) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
   BtSourceMachine *source=NULL;
   BtMachine *ref_machine=NULL;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -177,13 +171,13 @@ START_TEST(test_btsetup_obj3) {
   ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
   fail_unless(ref_machine==NULL, NULL);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this test we demonstrate how to remove a wire from the setup after the 
 * same wire is added to the setup.
 */
-START_TEST(test_btsetup_obj4) {
+BT_START_TEST(test_btsetup_obj4) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -193,9 +187,6 @@ START_TEST(test_btsetup_obj4) {
   // wire
   BtWire *wire=NULL;
   BtWire *ref_wire=NULL;
-  
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -230,12 +221,12 @@ START_TEST(test_btsetup_obj4) {
   ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
   fail_unless(ref_wire==NULL,NULL);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this example we show you how to get wires by source machines.
 */
-START_TEST(test_btsetup_wire1) {
+BT_START_TEST(test_btsetup_wire1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -247,9 +238,6 @@ START_TEST(test_btsetup_wire1) {
   BtWire *ref_wire=NULL;
   /* wire list */
   GList* wire_list=NULL;
-  
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -282,12 +270,12 @@ START_TEST(test_btsetup_wire1) {
   g_list_free(wire_list);
   
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this example we show you how to get wires by a destination machine.
 */
-START_TEST(test_btsetup_wire2) {
+BT_START_TEST(test_btsetup_wire2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -299,9 +287,6 @@ START_TEST(test_btsetup_wire2) {
   BtWire *ref_wire=NULL;
   /* wire list */
   GList* wire_list=NULL;
-  
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -334,12 +319,12 @@ START_TEST(test_btsetup_wire2) {
   g_list_free(wire_list);
   
 }
-END_TEST
+BT_END_TEST
 
 /**
 * In this example you can see, how we get a source machine back by its type.
 */
-START_TEST(test_btsetup_machine1) {
+BT_START_TEST(test_btsetup_machine1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -348,8 +333,6 @@ START_TEST(test_btsetup_machine1) {
   BtMachine *ref_machine=NULL;
   // Gtype of the machine
   GType machine_type;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -370,7 +353,7 @@ START_TEST(test_btsetup_machine1) {
   fail_unless(BT_IS_SOURCE_MACHINE(ref_machine),NULL);
   fail_unless(ref_machine==BT_MACHINE(source),NULL);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_setup_example_case(void) {
   TCase *tc = tcase_create("BtSetupExamples");

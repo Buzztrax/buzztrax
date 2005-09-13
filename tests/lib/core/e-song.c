@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.7 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: e-song.c,v 1.8 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -27,12 +27,10 @@ static void play_event_test(void) {
 }
 
 // test if the default constructor works as expected
-START_TEST(test_btsong_obj1) {
+BT_START_TEST(test_btsong_obj1) {
   BtApplication *app=NULL;
   BtSong *song;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -44,16 +42,14 @@ START_TEST(test_btsong_obj1) {
 
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test if the song loading works without failure
-START_TEST(test_btsong_load1) {
+BT_START_TEST(test_btsong_load1) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSongIO *loader;
   gboolean load_ret = FALSE;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -76,17 +72,15 @@ START_TEST(test_btsong_load1) {
   mark_point();
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test if subsequent song loading works without failure
-START_TEST(test_btsong_load2) {
+BT_START_TEST(test_btsong_load2) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSongIO *loader;
   gboolean load_ret = FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
   
@@ -110,17 +104,15 @@ START_TEST(test_btsong_load2) {
   
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test if the song play routine works without failure
-START_TEST(test_btsong_play1) {
+BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSongIO *loader=NULL;
   gboolean load_ret = FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -139,11 +131,11 @@ START_TEST(test_btsong_play1) {
 
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test, if a newly created song contains empty setup, sequence, song-info and 
 // wavetable
-START_TEST(test_btsong_new1){
+BT_START_TEST(test_btsong_new1){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
@@ -151,8 +143,6 @@ START_TEST(test_btsong_new1){
   BtSongInfo *songinfo=NULL;
   BtWavetable *wavetable=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   // create a dummy application
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -186,7 +176,7 @@ START_TEST(test_btsong_new1){
   
   
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_song_example_case(void) {
   TCase *tc = tcase_create("BtSongExamples");

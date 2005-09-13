@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.20 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: t-song.c,v 1.21 2005-09-13 22:12:13 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -26,12 +26,11 @@ static void play_event_test(void) {
   play_signal_invoke=TRUE;
 }
 
-START_TEST(test_btsong_properties) {
+BT_START_TEST(test_btsong_properties) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   gboolean check_prop_ret=FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -40,31 +39,27 @@ START_TEST(test_btsong_properties) {
   check_prop_ret=check_gobject_properties(G_OBJECT(song));
   fail_unless(check_prop_ret==TRUE,NULL);
 }
-END_TEST
+BT_END_TEST
 
 // test if the default constructor handles NULL
-START_TEST(test_btsong_obj1) {
+BT_START_TEST(test_btsong_obj1) {
   BtSong *song;
   
-  GST_INFO("--------------------------------------------------------------------------------");
- 
   /* create a new song */
   check_init_error_trapp("bt_song_new","BT_IS_APPLICATION(app)");
   song=bt_song_new(NULL);
   fail_unless(song == NULL, NULL);
   fail_unless(check_has_error_trapped(), NULL);
 }
-END_TEST
+BT_END_TEST
 
 
 
 // play without loading a song
-START_TEST(test_btsong_play1) {
+BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -79,16 +74,14 @@ START_TEST(test_btsong_play1) {
 
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test if we can get a empty setup from an empty song
-START_TEST(test_btsong_setup1) {
+BT_START_TEST(test_btsong_setup1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -103,18 +96,16 @@ START_TEST(test_btsong_setup1) {
 
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 /**
 * test if the play method from the song works as aspected if the self parameter
 * is NULL
 */
-START_TEST(test_btsong_play2) {
+BT_START_TEST(test_btsong_play2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -125,7 +116,7 @@ START_TEST(test_btsong_play2) {
   bt_song_play(NULL);
   fail_unless(check_has_error_trapped(),NULL);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_song_test_case(void) {
   TCase *tc = tcase_create("BtSongTests");

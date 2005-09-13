@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.12 2005-09-13 21:17:16 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.13 2005-09-13 22:12:13 ensonic Exp $
  * core library unit tests
  */
 
@@ -35,10 +35,6 @@ void bt_core_setup(void) {
   bt_init(NULL,NULL,NULL);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
 	gst_debug_set_colored(FALSE);
-
-	//g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
-  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
 }
 
 void bt_core_teardown(void) {
@@ -57,6 +53,11 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
+  // this causes the test binary to immediately fail, huh?
+	//g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
+
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);

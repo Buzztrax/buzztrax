@@ -24,11 +24,11 @@ static gchar *__log_file_name=NULL;
 void check_init_error_trapp(gchar *method, gchar *test) {
   __check_method=method;
   __check_test=test;
-  __fatal_mask=g_log_set_always_fatal(0);
+  //__fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
 }
 
 gboolean check_has_error_trapped(void) {
-  g_log_set_always_fatal(__fatal_mask);
+  //g_log_set_always_fatal(__fatal_mask);
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
   return(__check_error_trapped);
 }
