@@ -1,6 +1,7 @@
-test*
+test
 mv
-net*
-gst*
-gui*
+net
+gst
+gui
 browser
+link
