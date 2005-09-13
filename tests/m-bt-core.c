@@ -1,12 +1,14 @@
-/* $Id: m-bt-core.c,v 1.10 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.11 2005-09-13 18:51:00 ensonic Exp $
  * core library unit tests
  */
 
 #define BT_CHECK
  
 #include "bt-check.h"
+#include "../src/lib/core/libbtcore/core.h"
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 
 extern Suite *bt_core_suite(void);
 extern Suite *bt_machine_suite(void);
@@ -28,6 +30,16 @@ gchar *test_arg0="check_buzzard";
 gchar *test_argv[1];
 gchar **test_argvptr;
 
+/* common setup and teardown code */
+void bt_core_setup(void) {
+  bt_init(NULL,NULL,NULL);
+  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+	gst_debug_set_colored(FALSE);
+}
+
+void bt_core_teardown(void) {
+}
+
 /* start the test run */
 int main(int argc, char **argv) {
   int nf; 
@@ -41,11 +53,15 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+	gst_debug_set_colored(FALSE);
+
+	g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
 
   sr=srunner_create(bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());

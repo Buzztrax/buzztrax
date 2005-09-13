@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.6 2005-08-02 13:12:21 ensonic Exp $
+/* $Id: e-sequence.c,v 1.7 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,12 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -42,7 +42,7 @@ START_TEST(test_btsequence_enlarge_length) {
   fail_unless(length==16, NULL);
   
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -100,7 +100,7 @@ START_TEST(test_btsequence_enlarge_length_vals) {
   fail_unless(label2==NULL, NULL);
   
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -132,7 +132,7 @@ START_TEST(test_btsequence_shrink_length) {
   fail_unless(length==8, NULL);
 
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -163,7 +163,7 @@ START_TEST(test_btsequence_enlarge_track) {
   
   /* clean up */
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -228,7 +228,7 @@ START_TEST(test_btsequence_enlarge_track_vals) {
   /* clean up */
   g_object_try_unref(machine1);
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -261,7 +261,7 @@ START_TEST(test_btsequence_shrink_track) {
 
   /* clean up */
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -350,7 +350,7 @@ START_TEST(test_btsequence_enlarge_both_vals) {
   g_object_try_unref(pattern1);
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -398,7 +398,7 @@ START_TEST(test_btsequence_update) {
   g_object_try_unref(pattern1);
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST

@@ -1,4 +1,4 @@
-/** $Id: m-bt-core.h,v 1.2 2005-07-04 14:05:11 ensonic Exp $
+/** $Id: m-bt-core.h,v 1.3 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include <check.h>
@@ -10,3 +10,8 @@
 //-- globals
 
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
+
+//-- prototypes
+
+extern void bt_core_setup(void);
+extern void bt_core_teardown(void);

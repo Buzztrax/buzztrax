@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.19 2005-08-26 22:40:17 ensonic Exp $
+/* $Id: t-setup.c,v 1.20 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,12 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -109,6 +109,7 @@ START_TEST(test_btsetup_obj2){
   fail_unless(wire1 != NULL, NULL);
   
   /* try to add again the same wire */
+	// @todo this test fails now
   wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
   fail_unless(wire2 == NULL, NULL);
   
@@ -132,6 +133,7 @@ START_TEST(test_btsetup_obj3) {
   
   GST_INFO("--------------------------------------------------------------------------------");
   
+	// @todo trap critical errors
   check_init_error_trapp("bt_setup_new","BT_IS_SONG(song)");
   setup=bt_setup_new(NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -159,6 +161,7 @@ START_TEST(test_btsetup_obj4) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
+	// @todo trap critical errors
   check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
   bt_setup_add_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -186,6 +189,7 @@ START_TEST(test_btsetup_obj5) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
+	// @todo trap critical errors
   check_init_error_trapp("bt_setup_add_machine","BT_IS_MACHINE(machine)");
   bt_setup_add_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -213,6 +217,7 @@ START_TEST(test_btsetup_obj6) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
+	// @todo trap critical errors
   check_init_error_trapp("bt_setup_add_wire","BT_IS_SETUP(self)");
   bt_setup_add_wire(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -267,6 +272,7 @@ START_TEST(test_btsetup_obj8) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
+	// @todo trap critical errors
   check_init_error_trapp("bt_setup_get_machine_by_id","BT_IS_SETUP(self)");
   bt_setup_get_machine_by_id(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -294,6 +300,7 @@ START_TEST(test_btsetup_obj9) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
+	// @todo trap critical errors
   check_init_error_trapp("bt_setup_get_machine_by_id",NULL);
   bt_setup_get_machine_by_id(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -985,7 +992,7 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_wire2);
   tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
-  // we need to raise the default timeout of 3 seconds
+  // we need to raise the default timeout of 3 seconds (even 15 seems not to be enough)
   tcase_set_timeout(tc, 10);
   return(tc);
 }

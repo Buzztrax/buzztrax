@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.7 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: e-pattern.c,v 1.8 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,12 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
 }
 
 //-- tests
@@ -41,7 +41,7 @@ START_TEST(test_btpattern_obj1) {
 
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -69,7 +69,7 @@ START_TEST(test_btpattern_obj2) {
 
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -88,6 +88,7 @@ START_TEST(test_btpattern_copy) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
+	
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
   fail_unless(machine!=NULL, NULL);
@@ -110,7 +111,7 @@ START_TEST(test_btpattern_copy) {
   g_object_try_unref(pattern1);
   g_object_try_unref(pattern2);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -169,7 +170,7 @@ START_TEST(test_btpattern_enlarge_length) {
   /* cleanup */
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -223,7 +224,7 @@ START_TEST(test_btpattern_shrink_length) {
   /* cleanup */
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -280,7 +281,7 @@ START_TEST(test_btpattern_enlarge_voices) {
   /* cleanup */
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -334,7 +335,7 @@ START_TEST(test_btpattern_shrink_voices) {
   /* cleanup */
   g_object_try_unref(pattern);
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST

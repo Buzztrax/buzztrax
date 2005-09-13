@@ -1,4 +1,4 @@
-/* $Id: e-processor-machine.c,v 1.2 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: e-processor-machine.c,v 1.3 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,12 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
 }
 
 //-- tests
@@ -36,7 +36,7 @@ START_TEST(test_btprocessormachine_obj1) {
   fail_unless(machine != NULL, NULL);
 
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST

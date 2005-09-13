@@ -1,4 +1,4 @@
-/* $Id: t-core.c,v 1.5 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: t-core.c,v 1.6 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,10 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
+	//bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	//bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 

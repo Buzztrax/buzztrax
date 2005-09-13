@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.60 2005-08-25 23:38:33 ensonic Exp $
+// $Id: wire.c,v 1.61 2005-09-13 18:51:00 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -92,6 +92,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
     GST_DEBUG("trying to link machines with convert");
     if(!gst_element_link_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL)) {
       gst_element_unlink_many(src->src_elem, self->priv->convert, dst->dst_elem, NULL);
+			/*
       if(!self->priv->scale) {
         gchar *name=g_strdup_printf("audioresample_%p",self);
         self->priv->scale=gst_element_factory_make("audioresample",name);
@@ -108,10 +109,12 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
           GST_DEBUG("trying to link machines with scale and convert");
           if(!gst_element_link_many(src->src_elem, self->priv->scale, self->priv->convert, dst->dst_elem, NULL)) {
             gst_element_unlink_many(src->src_elem, self->priv->scale, self->priv->convert, dst->dst_elem, NULL);
+			*/
             GST_DEBUG("failed to link the machines");
             // print out the content of both machines (using GST_DEBUG)
             bt_machine_dbg_print_parts(src);bt_machine_dbg_print_parts(dst);
             res=FALSE;
+			/*
           }
           else {
             self->priv->src_elem=self->priv->convert;
@@ -130,6 +133,7 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
         self->priv->dst_elem=self->priv->scale;
         GST_DEBUG("  wire okay with scale");
       }
+			*/
     }
     else {
       self->priv->src_elem=self->priv->convert;
@@ -261,7 +265,6 @@ static gboolean bt_wire_connect(BtWire *self) {
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed");goto Error;
   }
-  //bt_setup_add_wire(setup,self);
   res=TRUE;
   GST_DEBUG("linking machines succeeded");
 Error:

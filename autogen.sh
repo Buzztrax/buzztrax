@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.6 2005-08-15 21:14:16 ensonic Exp $
+# $Id: autogen.sh,v 1.7 2005-09-13 18:50:59 ensonic Exp $
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0
@@ -380,11 +380,11 @@ test ! -z "$CONFIGURE_DEF_OPT" && echo "  ./configure default flags: $CONFIGURE_
 test ! -z "$CONFIGURE_EXT_OPT" && echo "  ./configure external flags: $CONFIGURE_EXT_OPT"
 echo
 
-echo ./configure $CONFIGURE_DEF_OPT $CONFIGURE_EXT_OPT
-./configure $CONFIGURE_DEF_OPT $CONFIGURE_EXT_OPT || {
+echo ./configure $@
+./configure $@ || {
         echo "  configure failed"
         exit 1
 }
 
-echo "Now type 'make' to compile $package."
+echo "Now type 'make' to build."
 

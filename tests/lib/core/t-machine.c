@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.6 2005-08-05 08:59:48 ensonic Exp $
+/* $Id: t-machine.c,v 1.7 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,12 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -90,6 +90,15 @@ START_TEST(test_btmachine_state1) {
   g_object_set(source,"state",BT_MACHINE_STATE_NORMAL,NULL);
   g_object_get(volume,"state",&state_ref,NULL);
   fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
+	
+	g_object_unref(wire_proc_sink);
+	g_object_unref(wire_src_proc);
+	g_object_unref(sink);
+	g_object_unref(volume);
+	g_object_unref(source);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 #endif
@@ -149,6 +158,15 @@ START_TEST(test_btmachine_state2) {
   g_object_set(sine2,"state",BT_MACHINE_STATE_SOLO,NULL);
   g_object_get(sine1,"state",&state_ref,NULL);
   fail_unless(state_ref!=BT_MACHINE_STATE_SOLO,NULL);
+
+	g_object_unref(wire_sine1_sink);
+	g_object_unref(wire_sine2_sink);
+	g_object_unref(sink);
+	g_object_unref(sine2);
+	g_object_unref(sine1);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 END_TEST
 

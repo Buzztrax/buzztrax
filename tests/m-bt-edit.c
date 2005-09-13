@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.11 2005-08-30 21:12:20 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.12 2005-09-13 18:51:00 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -21,6 +21,7 @@ gchar *test_arg1="--sync";
 gchar *test_argv[1];
 gchar **test_argvptr;
 
+/* common setup and teardown code */
 void bt_edit_setup(void) {
   g_type_init();
 	/*
@@ -36,7 +37,7 @@ void bt_edit_setup(void) {
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
   setup_log_capture();
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
   g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
@@ -74,6 +75,7 @@ int main(int argc, char **argv) {
  
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+	gst_debug_set_colored(FALSE);
 
 	/*
   if(!g_thread_supported()) {  // are g_threads() already initialized

@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.63 2005-08-05 09:36:16 ensonic Exp $
+// $Id: pattern.c,v 1.64 2005-09-13 18:50:59 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -486,7 +486,7 @@ BtPattern *bt_pattern_copy(const BtPattern *self) {
   g_free(id);
   g_free(name);
   g_object_unref(machine);
-
+  g_object_unref(song);
   return(pattern);
 }
 

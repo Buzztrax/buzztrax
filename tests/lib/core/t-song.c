@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.19 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: t-song.c,v 1.20 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -10,12 +10,12 @@ static gboolean play_signal_invoke=FALSE;
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -136,5 +136,7 @@ TCase *bt_song_test_case(void) {
   tcase_add_test(tc,test_btsong_play2);
   tcase_add_test(tc,test_btsong_setup1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  // we need to raise the default timeout of 3 seconds
+  tcase_set_timeout(tc, 10);
   return(tc);
 }

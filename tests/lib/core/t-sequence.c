@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.12 2005-08-05 09:36:19 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.13 2005-09-13 18:51:00 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -8,12 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  bt_core_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
+	bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -72,7 +72,7 @@ START_TEST(test_btsequence_track1) {
   fail_unless(check_has_error_trapped(), NULL);
   
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -101,7 +101,7 @@ START_TEST(test_btsequence_track2) {
   fail_unless(check_has_error_trapped(), NULL);
   
   g_object_try_unref(machine);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -133,7 +133,7 @@ START_TEST(test_btsequence_track3) {
   
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -161,7 +161,7 @@ START_TEST(test_btsequence_length1) {
   fail_unless(check_has_error_trapped(), NULL);
   
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -203,7 +203,7 @@ START_TEST(test_btsequence_pattern1) {
   g_object_try_unref(pattern1);
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST
@@ -252,7 +252,7 @@ START_TEST(test_btsequence_pattern2) {
   g_object_try_unref(machine1);
   g_object_try_unref(machine2);
   g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 END_TEST

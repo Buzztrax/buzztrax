@@ -1,4 +1,4 @@
-/** $Id: m-bt-cmd.h,v 1.1 2005-04-16 10:48:58 ensonic Exp $
+/** $Id: m-bt-cmd.h,v 1.2 2005-09-13 18:51:00 ensonic Exp $
  */
 
 #include <check.h>
@@ -9,3 +9,8 @@
 
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
 GST_DEBUG_CATEGORY_EXTERN(bt_cmd_debug);
+
+//-- prototypes
+
+extern void bt_cmd_setup(void);
+extern void bt_cmd_teardown(void);

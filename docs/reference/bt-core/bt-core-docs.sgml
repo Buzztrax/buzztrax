@@ -51,31 +51,31 @@
     <orderedlist>
       <listitem>
         <para>
-					It is never valid to supply <symbol>NULL</symbol> for an object
-        	reference,unless it is explicitly said so.
-				</para>
+          It is never valid to supply <symbol>NULL</symbol> for an object
+          reference,unless it is explicitly said so.
+        </para>
       </listitem>
       <listitem>
         <para>
-					Methods do checking of preconditions using <function>g_return_if_fail()</function>
-        	or <function>g_return_val_if_fail()</function>.
-        	Therefore watch for the glib log messages indicating wrong API usage.
-				</para>
+          Methods do checking of preconditions using <function>g_return_if_fail()</function>
+          or <function>g_return_val_if_fail()</function>.
+          Therefore watch for the glib log messages indicating wrong API usage.
+        </para>
       </listitem>
       <listitem>
         <para>
-					All methods that return a pointer to an object, increase the reference counter.
-					Therefore you should do release this reference by calling <function>g_object_unref()</function>
-					when you are done with the object.
-				</para>
+          All methods that return a pointer to an object, increase the reference counter.
+          Therefore you should do release this reference by calling <function>g_object_unref()</function>
+          when you are done with the object.
+        </para>
       </listitem>
       <listitem>
         <para>
-					When a return value is marked as <type>const</type> e.g. <type>const gchar *</type>
-					or <type>const BtObjectName *</type> then this is a static reference.
-					You must not call <function>g_free()</function> or <function>g_object_unref()</function>
-					on it.
-				</para>
+          When a return value is marked as <type>const</type> e.g. <type>const gchar *</type>
+          or <type>const BtObjectName *</type> then this is a static reference.
+          You must not call <function>g_free()</function> or <function>g_object_unref()</function>
+          on it.
+        </para>
       </listitem>
     </orderedlist>
   </chapter>
@@ -91,12 +91,12 @@
       Please make sure you have read section <link linkend="conventions">conventions</link>
       before reading further.
     </para>
-		<para>
+    <para>
       All data structures are encapsulated in objects based on <link linkend="GObject">GObject</link>.
       Central starting points are <link linkend="BtApplication">BtApplication</link> and <link linkend="BtSong">BtSong</link>.
       All the objects that belong to a song have their song-instance as their member.
       Likewise all objects that belong to the applications have their application instance as a member.
-		</para>
+    </para>
     &BtApplication;
     &BtGConfSettings;
     &BtMachine;
@@ -118,10 +118,10 @@
     &BtWire;
   </chapter>
 
-	<chapter id="objecttree">
-		<title>Object Hierarchy</title>
-		&object-tree-index;
-	</chapter>
+  <chapter id="objecttree">
+    <title>Object Hierarchy</title>
+    &object-tree-index;
+  </chapter>
 
   <index id="api-index">
     <title>API Index</title>

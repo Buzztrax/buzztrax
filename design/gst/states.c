@@ -1,4 +1,4 @@
-/** $Id: states.c,v 1.2 2005-09-02 22:31:40 ensonic Exp $
+/** $Id: states.c,v 1.3 2005-09-13 18:50:59 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` states.c -o states
@@ -12,6 +12,18 @@
 #define ELEM_NAME "audioconvert"
 #define SRC_NAME "sinesrc"
 
+static void query_and_print(GstElement *element, GstQuery *query) {
+	gint64 pos_cur,pos_end;
+
+	if(gst_element_query(element,query)) {
+		gst_query_parse_position(query,NULL,&pos_cur,&pos_end);
+		printf("%s playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT"\n",
+			GST_OBJECT_NAME(element),pos_cur,pos_end);
+	}
+	else {
+		printf("%s playback-pos : cur=??? end=???\n",GST_OBJECT_NAME(element));
+	}
+}
 
 int main(int argc, char **argv) {
   GstElement *bin;
@@ -23,6 +35,10 @@ int main(int argc, char **argv) {
   GstClock *clock;
   GstClockID clock_id;
   GstClockReturn wait_ret;
+	GstQuery *query;
+	GstStateChangeReturn res;
+	GstState state_now1,state_pending1;
+	GstState state_now2,state_pending2;
   
   /* init gstreamer */
   gst_init(&argc, &argv);
@@ -70,14 +86,20 @@ int main(int argc, char **argv) {
 	if(!gst_element_link_many (src2, vol2, mix, NULL)) {
     fprintf(stderr,"Can't link second part\n");exit (-1);
   }
- 
+	
+	/* make a position query */
+	if(!(query=gst_query_new_position(GST_FORMAT_TIME))) {
+		fprintf(stderr,"Can't make a position query\n");exit (-1);
+	}
+
+	
   /* prepare playing */
   if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't prepare playing\n");exit(-1);
   }
 
   clock_id = gst_clock_new_periodic_id (clock,
-    gst_clock_get_time (clock)+(5 * GST_SECOND), (6 * GST_SECOND));
+    gst_clock_get_time (clock)+(6 * GST_SECOND), (6 * GST_SECOND));
 
   /* start playing */
   if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
@@ -87,6 +109,8 @@ int main(int argc, char **argv) {
 	/* do the state tests */
 	
 	puts("play everything");
+	query_and_print(src1,query);
+	query_and_print(src2,query);
 	if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
       GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
@@ -94,20 +118,32 @@ int main(int argc, char **argv) {
   if(gst_element_set_state (src2, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't pause src2\n");exit(-1);
   }
-  //gst_element_unlink(src2,vol2);
-	puts("paused source2");
+	if((res=gst_element_get_state (src2, &state_now2, &state_pending2, NULL))!=GST_STATE_CHANGE_SUCCESS) {
+    fprintf(stderr,"Failed to pause src2\n");exit(-1);
+	}
+
+	printf("paused source2 (state=%d)\n",state_now2);
+	query_and_print(src1,query);
+	query_and_print(src2,query);
 	if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
       GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
   if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't continue src2\n");exit(-1);
   }
+	if((res=gst_element_get_state (src2, &state_now2, &state_pending2, NULL))!=GST_STATE_CHANGE_SUCCESS) {
+    fprintf(stderr,"Failed to pause src2\n");exit(-1);
+	}
   if(gst_element_set_state (src1, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't pause src1\n");exit(-1);
   }
-  //gst_element_link(src2,vol2);
-  //gst_element_unlink(src1,vol1);
-	puts("continued source2, paused source1");
+	if((res=gst_element_get_state (src1, &state_now1, &state_pending1, NULL))!=GST_STATE_CHANGE_SUCCESS) {
+    fprintf(stderr,"Failed to pause src2\n");exit(-1);
+	}
+
+	printf("continued source2 (state=%d), paused source1 (state=%d)\n",state_now2,state_now1);
+	query_and_print(src1,query);
+	query_and_print(src2,query);
 	if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
       GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
@@ -116,6 +152,7 @@ int main(int argc, char **argv) {
   gst_element_set_state (bin, GST_STATE_NULL);
   
   /* we don't need a reference to these objects anymore */
+	gst_query_unref(query);
   g_object_unref (G_OBJECT (clock));
   g_object_unref (G_OBJECT (bin));
 

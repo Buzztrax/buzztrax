@@ -13,21 +13,23 @@
  * Check for certain log-output.
  */
 
-gboolean __check_error_trapped=FALSE;
-gchar *__check_method=NULL;
-gchar *__check_test=NULL;
+static gboolean __check_error_trapped=FALSE;
+static gchar *__check_method=NULL;
+static gchar *__check_test=NULL;
+static GLogLevelFlags __fatal_mask=0;
 
 // is set during setup_log_capture()
-gchar *__log_file_name=NULL;
+static gchar *__log_file_name=NULL;
 
 void check_init_error_trapp(gchar *method, gchar *test) {
   __check_method=method;
   __check_test=test;
-  g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
+  __fatal_mask=g_log_set_always_fatal(0);
 }
 
 gboolean check_has_error_trapped(void) {
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+  g_log_set_always_fatal(__fatal_mask);
+  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
   return(__check_error_trapped);
 }
 

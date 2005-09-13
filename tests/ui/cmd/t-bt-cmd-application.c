@@ -1,4 +1,4 @@
-/* $Id: t-bt-cmd-application.c,v 1.3 2005-08-05 09:36:19 ensonic Exp $ 
+/* $Id: t-bt-cmd-application.c,v 1.4 2005-09-13 18:51:00 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -8,15 +8,12 @@
 //-- fixtures
 
 static void test_setup(void) {
-  bt_init(NULL,NULL,NULL);
-  GST_DEBUG_CATEGORY_INIT(bt_cmd_debug, "bt-cmd", 0, "music production environment / command ui");
-  gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_cmd_debug,GST_LEVEL_DEBUG);
+  bt_cmd_setup();
   GST_INFO("================================================================================");
 }
 
 static void test_teardown(void) {
-  
+  bt_cmd_teardown();
 }
 
 //-- tests

@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.6 2005-08-18 21:49:50 ensonic Exp $
+/* $Id: bt-check.h,v 1.7 2005-09-13 18:51:00 ensonic Exp $
  * testing helpers
  */
 
@@ -34,6 +34,8 @@ extern gchar **test_argvptr;
 #define g_object_checked_unref(obj) \
 {\
   gpointer __objref;\
+	g_assert(obj);\
+	GST_INFO("object %p ->ref_count: %d",obj,G_OBJECT(obj)->ref_count);\
   g_object_add_weak_pointer((gpointer)obj,&__objref);\
   g_object_unref((gpointer)obj);\
   fail_unless(__objref == NULL, NULL);\
