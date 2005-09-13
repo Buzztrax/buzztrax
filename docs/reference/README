@@ -1,4 +1,4 @@
-$Id: README,v 1.11 2005-07-14 21:44:09 ensonic Exp $
+$Id: README,v 1.12 2005-09-13 21:17:16 ensonic Exp $
 
 rebuild buzztard.types via
   find $(top_srcdir)/src -name "*.h" -exec grep -oe "bt_.*_get_type" {} \; | sort | uniq
@@ -17,9 +17,9 @@ what to document where
   object properties
     extracted from g_param_spec
   signals
-		inside source-code
-	file long descriptions
-		in tmpl/xxx.sgml
+    inside source-code
+  file long descriptions
+    top of c-sources
 
 files to look into
   <module>-docs.sgml
@@ -31,15 +31,15 @@ files to look into
       put standard gobject entries into <SUBSECTION Standard>
       put private  gobject entries into <SUBSECTION Private>
   templ/*.sgml
-    - add extra documentation to sections
+    temporary files
 		
 to make the hierarchy work
-	if a documentation file entry (in the section file) is related to an object 
-	(e.g. BtSongInfo),
-	it needs to be of the same name as the object,
+  if a documentation file entry (in the section file) is related to an object 
+  (e.g. BtSongInfo),
+  it needs to be of the same name as the object,
   but all lowercase: BtSongInfo -> btsonginfo.sgml
-	and the type of the object must be named "BtSongInfo"
-	and not e.g. "BtSongInfoType"
+  and the type of the object must be named "BtSongInfo"
+  and not e.g. "BtSongInfoType"
 
 to force rebuilding the docs
   rm docs/reference/bt-*/*.stamp

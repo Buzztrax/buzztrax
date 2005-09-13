@@ -66,12 +66,9 @@ GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/src/ui/cmd/libbtcmd.la
 
-GTKDOC_CC=$(LIBTOOL) --mode=compile $(CC)
-GTKDOC_LD=$(LIBTOOL) --mode=link $(CC)
-
 # include generic part
 include $(top_srcdir)/gtk-doc.make
 
 # Other files to distribute
 # e.g. EXTRA_DIST += version.xml.in
-EXTRA_DIST += 
+EXTRA_DIST +=

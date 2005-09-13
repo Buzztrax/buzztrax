@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.37 2005-09-03 13:40:30 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.38 2005-09-13 21:17:16 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -365,7 +365,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         
         // add voice machine controls into the table
         table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
-        for(i=0,k=0;i<global_params;i++) {
+        for(i=0,k=0;i<voice_params;i++) {
           if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) continue;
 
           property=bt_machine_get_voice_param_spec(self->priv->machine,i);

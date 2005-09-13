@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
+
+  <meta>
+    <info>one buzz generator and one buzz effect</info>
+      <name>buzz 8</name>
+    <genre>dark-wave</genre>
+      <bpm>120</bpm>
+      <tpb>4</tpb>
+      <bars>16</bars>
+  </meta>
+  
+  <setup zoom="1.0">
+    <machines>
+      <sink id="audio_sink">
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="145"/>
+      </sink>
+
+      <processor id="delay1" plugin-name="bml-Ninja" voices="1">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+      </processor>
+
+      <source id="gen" plugin-name="bml-GoaKick" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+      </source>
+    </machines>
+    
+    <wires>
+      <wire src="gen" dst="delay1" gain="1.0" pan="0"/>
+      <wire src="delay1" dst="audio_sink" gain="1.0" pan="0"/>
+    </wires>    
+  </setup>
+  
+  <patterns>
+    <pattern id="gen_beats" machine="gen" name="beats" length="16">
+      <tick time="0">
+        <globaldata name="Trigger" value="10"/>
+        <globaldata name="Tone" value="40"/>
+      </tick>
+      <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+      <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+    </pattern>
+  </patterns>
+  
+  <sequence>
+    <labels>
+      <label time="0" name="start"/>
+      <label time="95" name="end"/>
+    </labels>
+    <tracks>
+      <track index="0" machine="gen">
+        <position time="0" pattern="gen_beats"/>
+        <position time="32" pattern="gen_beats"/>
+        <position time="48" pattern="gen_beats"/>
+        <position time="64" pattern="gen_beats"/>
+        <position time="80" pattern="gen_beats"/>
+      </track>
+    </tracks>
+  </sequence>
+  
+  <wavetable/>
+
+</buzztard>

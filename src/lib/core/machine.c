@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.153 2005-09-12 22:43:54 ensonic Exp $
+// $Id: machine.c,v 1.154 2005-09-13 21:17:16 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -657,9 +657,8 @@ gboolean bt_machine_new(BtMachine *self) {
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
       if(properties[i]->flags&GST_PARAM_CONTROLLABLE) {
-        // TODO check if this param is also registered as child param, if so skip
+        // check if this param is also registered as child param, if so skip
         skip=FALSE;
-        /* this break the machine-preferences dialog fow now :(
         if(child_properties) {
           for(j=0;j<number_of_child_properties;j++) {
             if(!strcmp(properties[i]->name,child_properties[j]->name)) {
@@ -670,7 +669,6 @@ gboolean bt_machine_new(BtMachine *self) {
             }
           }
         }
-        */
         if(!skip) self->priv->global_params++;
       }
     }

@@ -6,8 +6,8 @@
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>three buzz generators</info>
-      <name>buzz 6</name>
+    <info>three buzz generators and one buzz effect</info>
+      <name>buzz 7</name>
     <genre>dark-wave</genre>
       <bpm>120</bpm>
       <tpb>4</tpb>

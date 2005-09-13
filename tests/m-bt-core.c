@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.11 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.12 2005-09-13 21:17:16 ensonic Exp $
  * core library unit tests
  */
 
@@ -35,6 +35,10 @@ void bt_core_setup(void) {
   bt_init(NULL,NULL,NULL);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
 	gst_debug_set_colored(FALSE);
+
+	//g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
 }
 
 void bt_core_teardown(void) {
@@ -58,10 +62,6 @@ int main(int argc, char **argv) {
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
 	gst_debug_set_colored(FALSE);
-
-	g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
 
   sr=srunner_create(bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());
