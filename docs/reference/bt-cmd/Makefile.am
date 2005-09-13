@@ -1,35 +1,42 @@
 ## Process this file with automake to produce Makefile.in
 
+# We require automake 1.6 at least.
+AUTOMAKE_OPTIONS = 1.6
+
 # The name of the module, e.g. 'glib'.
 DOC_MODULE=bt-cmd
 
-# The top-level SGML file. Change it if you want.
+# The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
-# documenting functions and macros.
+# documenting the functions and macros.
 DOC_SOURCE_DIR=$(top_srcdir)/src/ui/cmd
 
-# Extra options to pass to gtkdoc-scanobj or gtkdoc-scangobj.
-SCANOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
+# Extra options to pass to gtkdoc-scangobj. Not normally needed.
+SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
 
 # Extra options to supply to gtkdoc-scan.
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
 
 # Extra options to supply to gtkdoc-mkdb.
-MKDB_OPTIONS=--output-format=xml --sgml-mode
+MKDB_OPTIONS=--sgml-mode --output-format=xml
 
-# Extra options to supply to gtkdoc-fixref.
+# Extra options to supply to gtkdoc-mktmpl
+# e.g. MKTMPL_OPTIONS=--only-section-tmpl
+MKTMPL_OPTIONS=
+
+# Extra options to supply to gtkdoc-fixref. Not normally needed.
 FIXXREF_OPTIONS=--extra-dir=$(glib_prefix)/share/gtk-doc/html/gobject \
 	--extra-dir=$(glib_prefix)/share/gtk-doc/html/glib \
 	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer \
 	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer-libs \
 	--extra-dir=../bt-core
 
-# Used for dependencies.
-HFILE_GLOB=$(top_srcdir)/src/ui/cmd/*.c
-CFILE_GLOB=$(top_srcdir)/src/ui/cmd/*.h
+# Used for dependencies. The docs will be rebuilt if any of these change.
+HFILE_GLOB=$(top_srcdir)/src/ui/cmd/*.h
+CFILE_GLOB=$(top_srcdir)/src/ui/cmd/*.c
 
 # Header files to ignore when scanning.
 IGNORE_HFILES=config.h
@@ -38,14 +45,18 @@ IGNORE_HFILES=config.h
 HTML_IMAGES =
 
 # Extra SGML files that are included by $(DOC_MAIN_SGML_FILE).
+# e.g. content_files=running.sgml building.sgml changes-2.0.sgml
 content_files =
 
-# Other files to distribute.
-extra_files =
+# SGML files where gtk-doc abbrevations (#GtkWidget) are expanded
+# These files must be listed here *and* in content_files
+# e.g. expand_content_files=running.sgml
+expand_content_files=
 
-# CFLAGS and LDFLAGS for compiling scan program. Only needed if your app/lib
-# contains GtkObjects/GObjects and you want to document signals and properties.
-GTKDOC_CFLAGS = \
+# CFLAGS and LDFLAGS for compiling gtkdoc-scangobj with your library.
+# Only needed if you are using gtkdoc-scangobj to dynamically query widget
+# signals and properties.
+INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/ui/cmd \
 	-I$(top_builddir) \
@@ -58,11 +69,9 @@ GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
 GTKDOC_CC=$(LIBTOOL) --mode=compile $(CC)
 GTKDOC_LD=$(LIBTOOL) --mode=link $(CC)
 
-# If you need to override some of the declarations, place them in the
-# $(DOC_MODULE)-overrides.txt file and uncomment the second line here.
-DOC_OVERRIDES =
-#DOC_OVERRIDES = $(DOC_MODULE)-overrides.txt
-
-
 # include generic part
 include $(top_srcdir)/gtk-doc.make
+
+# Other files to distribute
+# e.g. EXTRA_DIST += version.xml.in
+EXTRA_DIST += 
