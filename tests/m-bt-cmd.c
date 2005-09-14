@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.7 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.8 2005-09-14 00:01:25 ensonic Exp $
  * command line app unit tests
  */
 
@@ -21,10 +21,16 @@ gchar **test_argvptr;
 /* common setup and teardown code */
 void bt_cmd_setup(void) {
   bt_init(NULL,NULL,NULL);
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   GST_DEBUG_CATEGORY_INIT(bt_cmd_debug, "bt-cmd", 0, "music production environment / command ui");
+  // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING);
+  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_cmd_debug,GST_LEVEL_DEBUG);
-	gst_debug_set_colored(FALSE);
+  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+  // no ansi color codes in logfiles please
+  gst_debug_set_colored(FALSE);
 }
 
 void bt_cmd_teardown(void) {
@@ -41,15 +47,9 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
   
-  // this causes the test binary to immediately fail, huh?
-	//g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-	gst_debug_set_colored(FALSE);
-
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
+  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  
   sr=srunner_create(bt_cmd_application_suite());
   // this make tracing errors with gdb easier
   //srunner_set_fork_status(sr,CK_NOFORK);

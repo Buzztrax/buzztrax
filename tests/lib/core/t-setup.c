@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.21 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: t-setup.c,v 1.22 2005-09-14 00:01:28 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -151,7 +151,7 @@ BT_START_TEST(test_btsetup_obj4) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
-	// @todo trap critical errors
+  // @todo trap critical errors
   check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
   bt_setup_add_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);

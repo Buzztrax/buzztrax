@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.17 2005-09-13 22:55:43 ensonic Exp $
+/* $Id: t-network.c,v 1.18 2005-09-14 00:01:28 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -41,13 +41,15 @@ BT_START_TEST(test_btcore_net1) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to add a NULL wire to the setup */
+  check_init_error_trapp("bt_setup_add_wire","BT_IS_WIRE");
   bt_setup_add_wire(setup, NULL);
+  fail_unless(check_has_error_trapped(), NULL);
     
   /* try to start playing the song */
-	/* @todo even though the bin is empty one can set it to play */
+  /* @todo even though the bin is empty one can set it to play */
   song_ret=bt_song_play(song);
   //fail_unless(song_ret==FALSE, NULL);
-	fail_unless(song_ret==TRUE, NULL);
+  fail_unless(song_ret==TRUE, NULL);
     
   g_object_unref(setup);  
   g_object_checked_unref(song);

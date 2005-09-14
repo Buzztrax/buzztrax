@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.9 2005-08-26 22:40:17 ensonic Exp $
+/* $Id: bt-test-plugin.c,v 1.10 2005-09-14 00:01:24 ensonic Exp $
  * test gstreamer element for unit tests
  */
 
@@ -32,6 +32,7 @@ static void bt_test_tempo_interface_init(gpointer g_iface, gpointer iface_data) 
 //-- child proxy interface implementation
 
 static GstObject *bt_test_child_proxy_get_child_by_index (GstChildProxy *child_proxy, guint index) {
+  GST_INFO("getting child %d of %d",index,BT_TEST_POLY_SOURCE(child_proxy)->num_voices);
   g_return_val_if_fail(index<BT_TEST_POLY_SOURCE(child_proxy)->num_voices,NULL);
   
   return(g_list_nth_data(BT_TEST_POLY_SOURCE(child_proxy)->voices,index));

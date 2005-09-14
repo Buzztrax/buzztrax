@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.9 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-pattern.c,v 1.10 2005-09-14 00:01:28 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -31,6 +31,8 @@ BT_START_TEST(test_btpattern_obj1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
+
   /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
   fail_unless(machine!=NULL, NULL);
@@ -59,6 +61,8 @@ BT_START_TEST(test_btpattern_obj2) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
+
   /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
   fail_unless(machine!=NULL, NULL);
@@ -88,6 +92,7 @@ BT_START_TEST(test_btpattern_copy) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
+  fail_unless(song!=NULL, NULL);
 	
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));

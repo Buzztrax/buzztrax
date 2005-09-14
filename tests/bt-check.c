@@ -24,12 +24,12 @@ static gchar *__log_file_name=NULL;
 void check_init_error_trapp(gchar *method, gchar *test) {
   __check_method=method;
   __check_test=test;
-  //__fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
+  __fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
 }
 
 gboolean check_has_error_trapped(void) {
-  //g_log_set_always_fatal(__fatal_mask);
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
+  g_log_set_always_fatal(__fatal_mask);
+  g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
   return(__check_error_trapped);
 }
 
@@ -137,8 +137,6 @@ void setup_log_capture(void) {
   (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
 #endif
   (void)g_set_printerr_handler(check_print_handler);
-  // no ansi color codes in logfiles please
-  gst_debug_set_colored(FALSE);
 }
 
 

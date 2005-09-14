@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.12 2005-09-13 18:51:00 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.13 2005-09-14 00:01:25 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -24,13 +24,13 @@ gchar **test_argvptr;
 /* common setup and teardown code */
 void bt_edit_setup(void) {
   g_type_init();
-	/*
+  /*
   if(!g_thread_supported()) {  // are g_threads() already initialized
     g_thread_init(NULL);
   }
   gdk_threads_init();
   bt_threads_init();
-	*/
+  */
 
   gtk_init(NULL,NULL);
   bt_init(NULL,NULL,NULL);
@@ -45,7 +45,7 @@ void bt_edit_setup(void) {
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
-  gst_debug_set_colored(FALSE);
+
 
   check_setup_test_display();
 
@@ -75,14 +75,13 @@ int main(int argc, char **argv) {
  
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-	gst_debug_set_colored(FALSE);
 
-	/*
+  /*
   if(!g_thread_supported()) {  // are g_threads() already initialized
     g_thread_init(NULL);
   }
   gdk_threads_init();
-	*/
+  */
   gtk_init(NULL,NULL);
   check_setup_test_server();
   

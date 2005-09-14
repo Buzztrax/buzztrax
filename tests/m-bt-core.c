@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.13 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.14 2005-09-14 00:01:25 ensonic Exp $
  * core library unit tests
  */
 
@@ -33,8 +33,14 @@ gchar **test_argvptr;
 /* common setup and teardown code */
 void bt_core_setup(void) {
   bt_init(NULL,NULL,NULL);
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+  // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);
+  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
-	gst_debug_set_colored(FALSE);
+  // no ansi color codes in logfiles please
+  gst_debug_set_colored(FALSE);
 }
 
 void bt_core_teardown(void) {
@@ -52,17 +58,8 @@ int main(int argc, char **argv) {
   setup_log_capture();
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
-  
-  // this causes the test binary to immediately fail, huh?
-	//g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  //g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG); // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-	gst_debug_set_colored(FALSE);
+  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   sr=srunner_create(bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());

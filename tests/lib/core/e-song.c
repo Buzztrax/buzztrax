@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.8 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-song.c,v 1.9 2005-09-14 00:01:28 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -22,7 +22,7 @@ static void test_teardown(void) {
 //-- tests
 
 // helper method to test the play signal
-static void play_event_test(void) {
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   play_signal_invoke=TRUE;
 }
 
@@ -122,13 +122,16 @@ BT_START_TEST(test_btsong_play1) {
   fail_unless(loader != NULL, NULL);
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);
+
   play_signal_invoke=FALSE;
-  g_signal_connect(G_OBJECT(song), "play", G_CALLBACK(play_event_test), NULL);
+  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
   bt_song_play(song);
+  sleep(1);
   fail_unless(play_signal_invoke, NULL);
+  bt_song_stop(song);
+
   g_object_checked_unref(loader);
   g_object_checked_unref(song);
-
   g_object_checked_unref(app);
 }
 BT_END_TEST
