@@ -1,4 +1,4 @@
-/* $Id: e-song-info.c,v 1.4 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-song-info.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -27,8 +27,6 @@ BT_START_TEST(test_btsonginfo_createdate) {
   BtSongIO *loader;
   BtSongInfo *song_info=NULL;
   gchar *create_dts=NULL;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
 
   // creating new empty app
   app=g_object_new(BT_TYPE_APPLICATION,NULL);

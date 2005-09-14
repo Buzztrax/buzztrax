@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.6 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.7 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -26,7 +26,6 @@ BT_START_TEST(test_btsinkmachine_settings1) {
   BtSettings *settings=NULL;
   gchar *saved_audiosink_name;
   
-  GST_INFO("--------------------------------------------------------------------------------");
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -67,7 +66,6 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   BtSettings *settings=NULL;
   gchar *saved_audiosink_name;
   
-  GST_INFO("--------------------------------------------------------------------------------");
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);

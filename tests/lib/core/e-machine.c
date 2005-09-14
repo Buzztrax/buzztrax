@@ -1,4 +1,4 @@
-/* $Id: e-machine.c,v 1.4 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-machine.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -23,8 +23,6 @@ BT_START_TEST(test_btmachine_insert_input_level1) {
   BtSong *song=NULL;
   BtMachine *machine;
   gboolean res;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -51,8 +49,6 @@ BT_START_TEST(test_btmachine_insert_input_level2) {
   BtMachine *machine1,*machine2;
   BtWire *wire;
   gboolean res;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);

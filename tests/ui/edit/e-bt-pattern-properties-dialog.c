@@ -1,4 +1,4 @@
-/* $Id: e-bt-pattern-properties-dialog.c,v 1.4 2005-08-17 16:58:56 ensonic Exp $
+/* $Id: e-bt-pattern-properties-dialog.c,v 1.5 2005-09-14 10:16:35 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -18,15 +18,13 @@ static void test_teardown(void) {
 //-- tests
 
 // create app and then unconditionally destroy window
-START_TEST(test_create_dialog) {
+BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
   BtMachine *machine=NULL;
   BtPattern *pattern;
   GtkWidget *dialog;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -67,7 +65,7 @@ START_TEST(test_create_dialog) {
   g_object_unref(song);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_pattern_properties_dialog_example_case(void) {
   TCase *tc = tcase_create("BtPatternPropertiesDialogExamples");

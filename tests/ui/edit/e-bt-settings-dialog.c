@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.8 2005-08-17 16:58:56 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.9 2005-09-14 10:16:35 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -18,12 +18,10 @@ static void test_teardown(void) {
 //-- tests
 
 // create app and then unconditionally destroy window
-START_TEST(test_create_dialog) {
+BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   GtkWidget *dialog;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -49,7 +47,7 @@ START_TEST(test_create_dialog) {
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);  
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_settings_dialog_example_case(void) {
   TCase *tc = tcase_create("BtSettingsDialogExamples");

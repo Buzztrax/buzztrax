@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.8 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-sequence.c,v 1.9 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -24,8 +24,6 @@ BT_START_TEST(test_btsequence_enlarge_length) {
   BtSong *song;
   BtSequence *sequence;
   gulong length;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -53,8 +51,6 @@ BT_START_TEST(test_btsequence_enlarge_length_vals) {
   BtSequence *sequence;
   gchar *label1="test",*label2;
   gulong i,length;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -111,8 +107,6 @@ BT_START_TEST(test_btsequence_shrink_length) {
   BtSequence *sequence;
   gulong length;
 
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -143,8 +137,6 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   BtSequence *sequence;
   gulong tracks;
 
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -174,8 +166,6 @@ BT_START_TEST(test_btsequence_enlarge_track_vals) {
   BtSequence *sequence;
   BtMachine *machine1,*machine2;
   gulong tracks;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -239,8 +229,6 @@ BT_START_TEST(test_btsequence_shrink_track) {
   BtSequence *sequence;
   gulong tracks;
 
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -273,8 +261,6 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   BtMachine *machine;
   BtPattern *pattern1,*pattern2;
   gulong i,j,length,tracks;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -361,8 +347,6 @@ BT_START_TEST(test_btsequence_update) {
   BtSequence *sequence;
   BtMachine *machine;
   BtPattern *pattern1,*pattern2;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);

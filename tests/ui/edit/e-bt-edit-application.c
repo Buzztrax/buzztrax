@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.12 2005-08-30 21:12:20 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.13 2005-09-14 10:16:35 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -29,11 +29,9 @@ static gboolean timeout(gpointer data) {
 //-- tests
 
 // create app and then unconditionally destroy window
-START_TEST(test_create_app) {
+BT_START_TEST(test_create_app) {
   BtEditApplication *app;
   BtMainWindow *main_window;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -67,19 +65,17 @@ START_TEST(test_create_app) {
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);  
 }
-END_TEST
+BT_END_TEST
 
 // create a new song
 /* fails with gtk-2.4
  * -> when destroying menus one gets
  * (bt-edit:22237): Gtk-WARNING **: mnemonic "g" wasn't removed for widget (0x856cd40)
  */
-START_TEST(test_new1) {
+BT_START_TEST(test_new1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -106,15 +102,13 @@ START_TEST(test_new1) {
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // load a song
-START_TEST(test_load1) {
+BT_START_TEST(test_load1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -142,17 +136,15 @@ START_TEST(test_load1) {
   g_object_checked_unref(app);
   
 }
-END_TEST
+BT_END_TEST
 
 // view all tabs
-START_TEST(test_tabs1) {
+BT_START_TEST(test_tabs1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtMainPages *pages;
   BtSong *song;
   guint i,num_pages;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -189,7 +181,7 @@ START_TEST(test_tabs1) {
   g_object_checked_unref(app);
   
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");

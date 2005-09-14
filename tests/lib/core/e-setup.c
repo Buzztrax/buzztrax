@@ -1,4 +1,4 @@
-/* $Id: e-setup.c,v 1.23 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-setup.c,v 1.24 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -44,7 +44,7 @@ BT_START_TEST(test_btsetup_obj1){
   g_object_get(song,"setup",&setup,NULL);
   
   /* try to create generator1 with sinesrc */
-  gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
+  gen1 = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(gen1!=NULL, NULL);
   
   g_object_get(G_OBJECT(setup),"machines",&list,NULL);
@@ -92,11 +92,11 @@ BT_START_TEST(test_btsetup_obj2) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to create sink machine with esd sink */
-  sink = bt_sink_machine_new(song,"sink1");
+  sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
   /* try to create the wire */
@@ -156,11 +156,11 @@ BT_START_TEST(test_btsetup_obj3) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to get the machine back from the setup */
-  ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
+  ref_machine=bt_setup_get_machine_by_id(setup, "src");
   fail_unless(ref_machine!=NULL, NULL);
   g_object_unref(ref_machine);
   
@@ -168,7 +168,7 @@ BT_START_TEST(test_btsetup_obj3) {
   bt_setup_remove_machine(setup, BT_MACHINE(source));
   
   /* try to get the machine back from the setup, the ref_machine should be null */
-  ref_machine=bt_setup_get_machine_by_id(setup, "generator1");
+  ref_machine=bt_setup_get_machine_by_id(setup, "src");
   fail_unless(ref_machine==NULL, NULL);
 }
 BT_END_TEST
@@ -198,11 +198,11 @@ BT_START_TEST(test_btsetup_obj4) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to create sink machine with esd sink */
-  sink = bt_sink_machine_new(song,"sink1");
+  sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
   /* try to create the wire */
@@ -249,11 +249,11 @@ BT_START_TEST(test_btsetup_wire1) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to create sink machine with esd sink */
-  sink = bt_sink_machine_new(song,"sink1");
+  sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
   /* try to create the wire */
@@ -298,11 +298,11 @@ BT_START_TEST(test_btsetup_wire2) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to create sink machine with esd sink */
-  sink = bt_sink_machine_new(song,"sink1");
+  sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
   /* try to create the wire */
@@ -344,7 +344,7 @@ BT_START_TEST(test_btsetup_machine1) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* now try to get the machine back via bt_setup_get_machine_by_type */

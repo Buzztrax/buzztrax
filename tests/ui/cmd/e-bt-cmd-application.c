@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.4 2005-09-13 18:51:00 ensonic Exp $ 
+/* $Id: e-bt-cmd-application.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -13,15 +13,13 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_cmd_teardown();
+  bt_cmd_teardown();
 }
 
 //-- tests
 
-START_TEST(test_create_app) {
+BT_START_TEST(test_create_app) {
   BtCmdApplication *app;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   app=bt_cmd_application_new();
   fail_unless(app != NULL, NULL);
@@ -29,48 +27,42 @@ START_TEST(test_create_app) {
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 
 // postive test, this test should not fail
-START_TEST(test_play1) {
+BT_START_TEST(test_play1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   ret = bt_cmd_application_play(app, "songs/test-simple1.xml");
   fail_unless(ret==TRUE, NULL);
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // postive test, this test should not fail
-START_TEST(test_play2) {
+BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   ret = bt_cmd_application_play(app, "songs/test-simple2.xml");
   fail_unless(ret==TRUE, NULL);
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // Tests if the info method works as expected.
 // This is a positive test.
-START_TEST(test_info1) {
+BT_START_TEST(test_info1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   gchar *tmp_file_name;
     
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   tmp_file_name=tmpnam(NULL);
   ret = bt_cmd_application_info(app, "songs/test-simple1.xml", tmp_file_name);
@@ -79,7 +71,7 @@ START_TEST(test_info1) {
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 TCase *bt_cmd_application_example_case(void) {
   TCase *tc = tcase_create("BtCmdApplicationExamples");

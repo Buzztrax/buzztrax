@@ -1,4 +1,4 @@
-/* $Id: t-bt-cmd-application.c,v 1.4 2005-09-13 18:51:00 ensonic Exp $ 
+/* $Id: t-bt-cmd-application.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -20,14 +20,12 @@ static void test_teardown(void) {
 
 // tests if the play method works without exceptions if we put NULL as filename.
 // This test is a negative test
-START_TEST(test_play1) {
+BT_START_TEST(test_play1) {
   BtCmdApplication *app=NULL;
   gboolean ret=FALSE;
   GstBin *bin=NULL;
   BtSettings *settings=NULL;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
   ret = bt_cmd_application_play(app, NULL);
@@ -38,54 +36,48 @@ START_TEST(test_play1) {
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // file not found test. this is a negative test
-START_TEST(test_play2) {
+BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   ret = bt_cmd_application_play(app, "");
   fail_unless(ret==FALSE, NULL);
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test if the info method works with NULL argument for the filename,
 // This is a negative test
-START_TEST(test_info1) {
+BT_START_TEST(test_info1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   ret = bt_cmd_application_info(app, NULL, NULL);
   fail_unless(ret==FALSE, NULL);
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 // test if the info method works with a empty filename.
 // This is a negative test
-START_TEST(test_info2) {
+BT_START_TEST(test_info2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  GST_INFO("--------------------------------------------------------------------------------");
-
   app=bt_cmd_application_new();
   ret = bt_cmd_application_info(app, "", NULL);
   fail_unless(ret==FALSE, NULL);
   // free application
   g_object_checked_unref(app);
 }
-END_TEST
+BT_END_TEST
 
 
 TCase *bt_cmd_application_test_case(void) {

@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.22 2005-09-14 00:01:28 ensonic Exp $
+/* $Id: t-setup.c,v 1.23 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -93,7 +93,7 @@ BT_START_TEST(test_btsetup_obj2){
   g_object_get(song,"setup",&setup,NULL);
   
   /* create the source machine */
-  source=bt_source_machine_new(song,"gen","sinesrc",0);
+  source=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0);
   
   /* create the sink machine */
   sink=bt_sink_machine_new(song,"sink");
@@ -383,7 +383,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
   fail_unless(setup!=NULL,NULL);
   
   /* create source machine */
-  src_machine=bt_source_machine_new(song,"src","sinesrc",0);
+  src_machine=bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   
   /* try to get the wires */
   check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_SETUP(self)");
@@ -442,7 +442,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
   fail_unless(setup!=NULL,NULL);
   
   /* create source machine */
-  src_machine=bt_source_machine_new(song,"src","sinesrc",0);
+  src_machine=bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   
   /* remove machine from setup */
   bt_setup_remove_machine(setup, BT_MACHINE(src_machine));
@@ -703,7 +703,7 @@ BT_START_TEST(test_btsetup_obj17) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete generator1 with sinesrc */
-  gen = bt_source_machine_new(song,"generator1","sinesrc",0);
+  gen = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(gen!=NULL, NULL);
   
   check_init_error_trapp("bt_setup_remove_machine",
@@ -738,11 +738,11 @@ BT_START_TEST(test_btsetup_obj18) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete generator1 with sinesrc */
-  source = bt_source_machine_new(song,"generator1","sinesrc",0);
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to create sink machine with esd sink */
-  sink = bt_sink_machine_new(song,"sink1");
+  sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
   /* try to create the wire */

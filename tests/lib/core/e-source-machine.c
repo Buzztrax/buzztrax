@@ -1,4 +1,4 @@
-/* $Id: e-source-machine.c,v 1.9 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-source-machine.c,v 1.10 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -31,8 +31,6 @@ BT_START_TEST(test_btsourcemachine_obj1){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -67,8 +65,6 @@ BT_START_TEST(test_btsourcemachine_obj2){
   BtPattern *ref_pattern=NULL;
   GList *list,*node;
   gulong voices;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -124,9 +120,8 @@ BT_START_TEST(test_btsourcemachine_obj3){
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
   BtPattern *pattern=NULL;
+  GstElement *element;
   gulong voices;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -138,6 +133,12 @@ BT_START_TEST(test_btsourcemachine_obj3){
   /* try to create a source machine */
   machine=bt_source_machine_new(song,"gen","buzztard-test-poly-source",1);
   fail_unless(machine!=NULL, NULL);
+
+  /* verify the number of voices */
+  g_object_get(machine,"machine",&element,NULL);
+  voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
+  g_object_unref(element);
+  fail_unless(voices==1, NULL);
   
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));

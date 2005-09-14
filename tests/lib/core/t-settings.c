@@ -1,4 +1,4 @@
-/* $Id: t-settings.c,v 1.7 2005-09-13 22:12:13 ensonic Exp $ */
+/* $Id: t-settings.c,v 1.8 2005-09-14 10:16:34 ensonic Exp $ */
 
 #include "m-bt-core.h"
 
@@ -36,7 +36,6 @@ static void test_teardown(void) {
 
 //-- tests
 BT_START_TEST(test_btsettings_get_audiosink1) {
-  GST_INFO("--------------------------------------------------------------------------------");
   BtSettings *settings=get_settings();
   gchar *saved_audiosink_name,*test_audiosink_name;
   

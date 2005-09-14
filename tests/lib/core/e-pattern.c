@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.10 2005-09-14 00:01:28 ensonic Exp $
+/* $Id: e-pattern.c,v 1.11 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -23,8 +23,6 @@ BT_START_TEST(test_btpattern_obj1) {
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -53,8 +51,9 @@ BT_START_TEST(test_btpattern_obj2) {
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
-
-  GST_INFO("--------------------------------------------------------------------------------");
+  
+  GstElement *element;
+  gulong voices;
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -66,6 +65,11 @@ BT_START_TEST(test_btpattern_obj2) {
   /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
   fail_unless(machine!=NULL, NULL);
+  
+  g_object_get(machine,"machine",&element,NULL);
+  voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
+  g_object_unref(element);
+  fail_unless(voices==2, NULL);
   
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
@@ -84,8 +88,6 @@ BT_START_TEST(test_btpattern_copy) {
   BtMachine *machine=NULL;
   BtPattern *pattern1=NULL,*pattern2=NULL;
   gulong length1,length2,voices1,voices2;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -129,8 +131,6 @@ BT_START_TEST(test_btpattern_enlarge_length) {
   BtPattern *pattern=NULL;
   gulong length;
   gchar *data;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -188,8 +188,6 @@ BT_START_TEST(test_btpattern_shrink_length) {
   gulong length;
   gchar *data;
 
-  GST_INFO("--------------------------------------------------------------------------------");
-
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -241,8 +239,6 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
   BtPattern *pattern=NULL;
   gulong voices;
   gchar *data;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -298,8 +294,6 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   BtPattern *pattern=NULL;
   gulong voices;
   gchar *data;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);

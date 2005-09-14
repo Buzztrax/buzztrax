@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.154 2005-09-13 21:17:16 ensonic Exp $
+// $Id: machine.c,v 1.155 2005-09-14 10:16:34 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -486,9 +486,12 @@ static void bt_machine_resize_pattern_voices(const BtMachine *self) {
  * Adjust the private data structure after a change in the number of voices.
  */
 static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
-  GST_INFO("changing machine voices from %d to %d",voices,self->priv->voices);
+  GST_INFO("changing machine %p voices from %d to %d",self->priv->machines[PART_MACHINE],voices,self->priv->voices);
 
-  if(!GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) return;
+  if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE]))) {
+    GST_WARNING("machine %p is NULL or not polyphonic!",self->priv->machines[PART_MACHINE]);
+    return;
+  }
 
   g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
 
@@ -603,6 +606,10 @@ gboolean bt_machine_new(BtMachine *self) {
     gchar *name=bt_machine_make_name(self);
     self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
     g_free(name);
+    // initialize iface properties
+    if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
+      g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
+    }
   }
   if(!self->priv->machines[PART_MACHINE]) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
@@ -635,7 +642,7 @@ gboolean bt_machine_new(BtMachine *self) {
   }
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
-  GST_INFO("  instantiated machine \"%s\", obj->ref_count=%d",self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
+  GST_INFO("  instantiated machine %p, \"%s\", obj->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
   
   // register global params
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
@@ -648,6 +655,9 @@ gboolean bt_machine_new(BtMachine *self) {
     // check if the elemnt implements the GstChildProxy interface
     if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
       GstObject *voice_child;
+      // DEBUG
+      GST_DEBUG("number of voices = %d\n",gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
+      // DEBUG
       // get child for voice 0
       if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
         child_properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_child_properties);
@@ -781,7 +791,7 @@ gboolean bt_machine_new(BtMachine *self) {
 
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_MACHINE]);
-  GST_INFO("  added machine to bin, obj->ref_count=%d",G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
+  GST_INFO("  added machine %p to bin, obj->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);

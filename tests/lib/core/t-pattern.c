@@ -1,4 +1,4 @@
-/* $Id: t-pattern.c,v 1.5 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: t-pattern.c,v 1.6 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -22,8 +22,6 @@ BT_START_TEST(test_btpattern_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtPattern *pattern=NULL;
-
-  GST_INFO("--------------------------------------------------------------------------------");
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);

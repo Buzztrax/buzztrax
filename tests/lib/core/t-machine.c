@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.8 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: t-machine.c,v 1.9 2005-09-14 10:16:34 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -53,8 +53,6 @@ BT_START_TEST(test_btmachine_state1) {
   BtWire *wire_proc_sink=NULL;
   // machine states
   BtMachineState state_ref;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -122,8 +120,6 @@ BT_START_TEST(test_btmachine_state2) {
   BtWire *wire_sine2_sink=NULL;
   // machine states
   BtMachineState state_ref;
-  
-  GST_INFO("--------------------------------------------------------------------------------");
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
