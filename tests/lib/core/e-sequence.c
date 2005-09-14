@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.9 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: e-sequence.c,v 1.10 2005-09-14 15:22:56 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -238,6 +238,7 @@ BT_START_TEST(test_btsequence_shrink_track) {
   
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==0, NULL);
+	g_object_set(sequence,"length",1L,NULL);
 
   g_object_set(sequence,"tracks",16L,NULL);
   g_object_get(sequence,"tracks",&tracks,NULL);
@@ -362,7 +363,7 @@ BT_START_TEST(test_btsequence_update) {
   fail_unless(pattern1!=NULL, NULL);
 
   /* enlarge length */
-  g_object_set(sequence,"length",4L,NULL);
+  g_object_set(sequence,"length",4L,"tracks",1L,NULL);
 
   /* set machine */
   bt_sequence_set_machine(sequence,0,machine);

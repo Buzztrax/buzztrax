@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.87 2005-09-02 22:31:41 ensonic Exp $
+// $Id: song.c,v 1.88 2005-09-14 15:22:55 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -394,7 +394,7 @@ static void bt_song_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
  
   //DEBUG
-  bt_song_write_to_xml_file(self);
+  //bt_song_write_to_xml_file(self);
   //DEBUG
 
   GST_DEBUG("!!!! self=%p",self);

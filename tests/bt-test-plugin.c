@@ -1,5 +1,11 @@
-/* $Id: bt-test-plugin.c,v 1.11 2005-09-14 10:16:34 ensonic Exp $
- * test gstreamer element for unit tests
+/* $Id: bt-test-plugin.c,v 1.12 2005-09-14 15:22:56 ensonic Exp $ */
+/**
+ * SECTION::bttestplugin:
+ * @short_description: test gstreamer element for unit tests
+ *
+ * Two test elements for unit-tests. The Polyphonic elemnt use the monophonic
+ * one for their voices. Thus prefix the parameter names with 'g-' for 'global'
+ * (in the monophonic class) and 'v-' for 'voice' in the poly class.
  */
 
 #include "bt-check.h"
@@ -92,7 +98,7 @@ static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
   g_object_class_override_property(gobject_class, ARG_STPT, "subticks-per-tick");
 
   g_object_class_install_property(gobject_class,ARG_ULONG,
-                                  g_param_spec_ulong("ulong",
+                                  g_param_spec_ulong("g-ulong",
                                      "ulong prop",
                                      "ulong number parameter for the test_mono_source",
                                      0,
@@ -215,7 +221,7 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   g_object_class_override_property(gobject_class, ARG_VOICES, "voices");
 
   g_object_class_install_property(gobject_class,ARG_ULONG,
-                                  g_param_spec_ulong("ulong",
+                                  g_param_spec_ulong("v-ulong",
                                      "ulong prop",
                                      "ulong number parameter for the test_mono_source",
                                      0,

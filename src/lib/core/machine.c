@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.155 2005-09-14 10:16:34 ensonic Exp $
+// $Id: machine.c,v 1.156 2005-09-14 15:22:55 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -655,9 +655,8 @@ gboolean bt_machine_new(BtMachine *self) {
     // check if the elemnt implements the GstChildProxy interface
     if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
       GstObject *voice_child;
-      // DEBUG
-      GST_DEBUG("number of voices = %d\n",gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
-      // DEBUG
+
+      g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
       // get child for voice 0
       if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
         child_properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_child_properties);

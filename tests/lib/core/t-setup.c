@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.23 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: t-setup.c,v 1.24 2005-09-14 15:22:56 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -125,7 +125,6 @@ BT_END_TEST
 BT_START_TEST(test_btsetup_obj3) {
   BtSetup *setup=NULL;
   
-	// @todo trap critical errors
   check_init_error_trapp("bt_setup_new","BT_IS_SONG(song)");
   setup=bt_setup_new(NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -151,7 +150,6 @@ BT_START_TEST(test_btsetup_obj4) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
-  // @todo trap critical errors
   check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
   bt_setup_add_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -177,7 +175,6 @@ BT_START_TEST(test_btsetup_obj5) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
-	// @todo trap critical errors
   check_init_error_trapp("bt_setup_add_machine","BT_IS_MACHINE(machine)");
   bt_setup_add_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -203,7 +200,6 @@ BT_START_TEST(test_btsetup_obj6) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
-	// @todo trap critical errors
   check_init_error_trapp("bt_setup_add_wire","BT_IS_SETUP(self)");
   bt_setup_add_wire(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -738,7 +734,7 @@ BT_START_TEST(test_btsetup_obj18) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete generator1 with sinesrc */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","sinesrc",0);
   fail_unless(source!=NULL, NULL);
   
   /* try to create sink machine with esd sink */

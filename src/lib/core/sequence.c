@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.84 2005-09-02 22:31:41 ensonic Exp $
+// $Id: sequence.c,v 1.85 2005-09-14 15:22:55 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -183,6 +183,8 @@ static void bt_sequence_resize_data_tracks(const BtSequence *self, gulong tracks
   BtPattern **patterns=self->priv->patterns;
   BtMachine **machines=self->priv->machines;
   
+	GST_DEBUG("resize to new_data_count=%d",new_data_count);
+	
   // allocate new space
   if((self->priv->patterns=(BtPattern **)g_try_new0(GValue,new_data_count))) {
     if(patterns) {
@@ -226,7 +228,7 @@ static void bt_sequence_resize_data_tracks(const BtSequence *self, gulong tracks
       if(tracks>self->priv->tracks) {
         gulong i;
         for(i=self->priv->tracks;i<tracks;i++) {
-          g_object_unref(machines[i]);
+          g_object_try_unref(machines[i]);
         }
       }
       g_free(machines);
@@ -378,6 +380,10 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
 
   // determine region of change
   g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
+	if(!length) {
+		GST_WARNING("pattern has length 0");
+		return;
+	}
   g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
   // check if from time+1 to time+length another pattern starts (in this track)
   for(i=1;((i<length) && (time+i<self->priv->length));i++) {
@@ -1069,7 +1075,6 @@ static void bt_sequence_set_property(GObject      *object,
       self->priv->tracks = g_value_get_ulong(value);
       if(tracks!=self->priv->tracks) {
         GST_DEBUG("set the tracks for sequence: %lu",self->priv->tracks);
-        //bt_sequence_init_timelinetracks(self);
         bt_sequence_resize_data_tracks(self,tracks);
         bt_song_set_unsaved(self->priv->song,TRUE);
       }

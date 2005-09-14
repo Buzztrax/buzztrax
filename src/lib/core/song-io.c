@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.45 2005-08-05 17:13:01 ensonic Exp $
+// $Id: song-io.c,v 1.46 2005-09-14 15:22:55 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -202,7 +202,8 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
     //DEBUG
-    //bt_song_write_to_xml_file(song);
+    /*
+		bt_song_write_to_xml_file(song);
     {
       BtSetup *setup;
       BtMachine *machine;
@@ -219,6 +220,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
       g_list_free(list);
       g_object_unref(setup);
     }
+		*/
     //DEBUG
   }
   return(result);

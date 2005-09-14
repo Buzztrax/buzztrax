@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.14 2005-09-13 22:12:13 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.15 2005-09-14 15:22:56 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -178,11 +178,15 @@ BT_START_TEST(test_btsequence_pattern1) {
   /* enlarge length & tracks */
   g_object_set(sequence,"length",4L,"tracks",2L,NULL);
 
-  /* get pattern */
+  /* get current pattern */
   pattern2=bt_sequence_get_pattern(sequence,0,0);
+	
   /* set pattern (which should be rejected - no machine has been set) */
+	check_init_error_trapp("bt_sequence_set_pattern","self->priv->machines[track]");
   bt_sequence_set_pattern(sequence,0,0,pattern1);
-  /* get pattern again and verify */
+	fail_unless(check_has_error_trapped(), NULL);
+	
+  /* get pattern again and verify that it has not been changed*/
   pattern3=bt_sequence_get_pattern(sequence,0,0);
   fail_unless(pattern2==pattern3, NULL);
 

@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.9 2005-09-14 00:01:24 ensonic Exp $
+/* $Id: bt-check.h,v 1.10 2005-09-14 15:22:56 ensonic Exp $
  * testing helpers
  */
 
@@ -38,7 +38,7 @@ static void __testname (void)\
   tcase_fn_start (""# __testname, __FILE__, __LINE__);
 
 #define BT_END_TEST \
-  GST_DEBUG ("test end ----------------------------------------------------------------------"); \
+  GST_DEBUG ("test end ----------------------------------------------------------------------\n"); \
 }
 
 

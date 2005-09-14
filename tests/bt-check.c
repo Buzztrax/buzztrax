@@ -1,5 +1,7 @@
-/* $Id
- * testing helpes
+/* $Id: bt-check.c,v 1.16 2005-09-14 15:22:56 ensonic Exp $ */
+/**
+ * SECTION::btcheck:
+ * @short_description: testing helpers
  */
 
 #include "bt-check.h"
@@ -622,6 +624,7 @@ void check_setup_test_server(void) {
     NULL
   };
   gboolean found=FALSE,trying=TRUE;
+	// @todo on suse fonts are under : /usr/X11R6/lib/X11/fonts/misc (get path from configure)
 
   server_pid=0;
   display_number=0;
