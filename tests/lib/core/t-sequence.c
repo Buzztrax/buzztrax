@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.15 2005-09-14 15:22:56 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.16 2005-09-15 07:13:39 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -44,8 +44,8 @@ BT_START_TEST(test_btsequence_obj1) {
   
   check_init_error_trapp("bt_sequence_new","BT_IS_SONG(song)");
   sequence=bt_sequence_new(NULL);
-  fail_unless(sequence == NULL, NULL);
   fail_unless(check_has_error_trapped(), NULL);
+  fail_unless(sequence == NULL, NULL);
 }
 BT_END_TEST
 

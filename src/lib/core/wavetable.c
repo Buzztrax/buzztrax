@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.11 2005-08-05 09:36:16 ensonic Exp $
+// $Id: wavetable.c,v 1.12 2005-09-15 07:13:39 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -53,7 +53,7 @@ static GObjectClass *parent_class=NULL;
 BtWavetable *bt_wavetable_new(const BtSong *song) {
   BtWavetable *self;
 
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_assert(BT_IS_SONG(song));
 
   if(!(self=BT_WAVETABLE(g_object_new(BT_TYPE_WAVETABLE,"song",song,NULL)))) {
     goto Error;

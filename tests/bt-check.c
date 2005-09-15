@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.16 2005-09-14 15:22:56 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.17 2005-09-15 07:13:39 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -26,12 +26,12 @@ static gchar *__log_file_name=NULL;
 void check_init_error_trapp(gchar *method, gchar *test) {
   __check_method=method;
   __check_test=test;
+  __check_error_trapped=FALSE;
   __fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
 }
 
 gboolean check_has_error_trapped(void) {
   g_log_set_always_fatal(__fatal_mask);
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR);
   return(__check_error_trapped);
 }
 
@@ -50,10 +50,9 @@ static void check_print_handler(const gchar * const message) {
     if((sl>1) && (message[sl-1]!='\n')) add_nl=TRUE;
   
     //-- check message contents
-    //__check_error_trapped=(strstr(message,"assertion failed:")!=NULL);
-    __check_error_trapped=TRUE;
-    if(__check_method) __check_error_trapped&=(strstr(message,__check_method)!=NULL);
-    if(__check_test) __check_error_trapped&=(strstr(message,__check_test)!=NULL);
+    if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
+    else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
+    else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
 
     if((logfile=fopen(__log_file_name, "a")) || (logfile=fopen(__log_file_name, "w"))) {
       (void)fwrite(message,strlen(message),1,logfile);
@@ -131,12 +130,12 @@ void setup_log_capture(void) {
 #ifdef HAVE_GLIB_2_6
   (void)g_log_set_default_handler(check_log_handler,NULL);
 #else
-  (void)g_log_set_handler(G_LOG_DOMAIN  ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GStreamer"   ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GLib"        ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO|G_LOG_LEVEL_MESSAGE|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_ERROR|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler(G_LOG_DOMAIN  ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("GStreamer"   ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("GLib"        ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
 #endif
   (void)g_set_printerr_handler(check_print_handler);
 }
@@ -607,7 +606,7 @@ static void __test_server_watch(GPid pid,gint status,gpointer data) {
 }
 
 void check_setup_test_server(void) {
-#ifdef HAVE_XVFB
+#ifdef XVFB_PATH
   //gulong flags=G_SPAWN_SEARCH_PATH|G_SPAWN_STDOUT_TO_DEV_NULL|G_SPAWN_STDERR_TO_DEV_NULL;
   gulong flags=G_SPAWN_SEARCH_PATH;
   GError *error=NULL;
@@ -624,7 +623,9 @@ void check_setup_test_server(void) {
     NULL
   };
   gboolean found=FALSE,trying=TRUE;
-	// @todo on suse fonts are under : /usr/X11R6/lib/X11/fonts/misc (get path from configure)
+	/* @todo on suse fonts are under : /usr/X11R6/lib/X11/fonts/misc
+   * from configure we now get XVFB_PATH=/usr/X11R6/bin/Xvfb
+   */
 
   server_pid=0;
   display_number=0;
@@ -675,7 +676,7 @@ void check_setup_test_server(void) {
 }
 
 void check_setup_test_display(void) {
-#ifdef HAVE_XVFB
+#ifdef XVFB_PATH
   if(display_number>-1) {
     // activate the display for use with gtk
     if((display_manager = gdk_display_manager_get())) {
@@ -696,7 +697,7 @@ void check_setup_test_display(void) {
 }
 
 void check_shutdown_test_display(void) {
-#ifdef HAVE_XVFB
+#ifdef XVFB_PATH
   if(test_display) {
     wait_for_server=TRUE;
 
@@ -729,7 +730,7 @@ void check_shutdown_test_display(void) {
 }
 
 void check_shutdown_test_server(void) {
-#ifdef HAVE_XVFB
+#ifdef XVFB_PATH
   if(server_pid) {
 		guint wait_count=5;
     wait_for_server=TRUE;

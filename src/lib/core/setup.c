@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.73 2005-08-05 09:36:16 ensonic Exp $
+// $Id: setup.c,v 1.74 2005-09-15 07:13:39 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -62,7 +62,7 @@ static guint signals[LAST_SIGNAL]={0,};
 BtSetup *bt_setup_new(const BtSong *song) {
   BtSetup *self;
 
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_assert(BT_IS_SONG(song));
 
   self=BT_SETUP(g_object_new(BT_TYPE_SETUP,"song",song,NULL));
   return(self);

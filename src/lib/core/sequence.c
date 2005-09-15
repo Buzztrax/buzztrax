@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.85 2005-09-14 15:22:55 ensonic Exp $
+// $Id: sequence.c,v 1.86 2005-09-15 07:13:39 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -660,7 +660,7 @@ static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *p
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
   
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_assert(BT_IS_SONG(song));
   
   if(!(self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL)))) {
     goto Error;

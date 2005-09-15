@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.14 2005-09-14 00:01:25 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.15 2005-09-15 07:13:39 ensonic Exp $
  * core library unit tests
  */
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
 
-  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   sr=srunner_create(bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());

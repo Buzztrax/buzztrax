@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.59 2005-09-12 22:43:54 ensonic Exp $
+# $Id: configure.ac,v 1.60 2005-09-15 07:13:39 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -77,9 +77,9 @@ AC_PROG_LIBTOOL
 AC_PROG_INTLTOOL
 AM_PROG_CC_STDC
 
-AC_CHECK_PROG(have_xvfb, [Xvfb], [yes])
-if test "$have_xvfb" = "yes"; then
-  AC_DEFINE(HAVE_XVFB, [1], [Define to 1 if ui unit tests can be run under Xvfb])
+AC_PATH_PROG(xvfb_path, [Xvfb], [no])
+if test "x$xvfb_path" != "xno" ; then
+  AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
 fi
 
 # Initialise gettext
