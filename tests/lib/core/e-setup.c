@@ -1,4 +1,8 @@
-/* $Id: e-setup.c,v 1.24 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: e-setup.c,v 1.25 2005-09-16 10:33:25 ensonic Exp $
+ */
+
+/* @todo write tests for:
+ * bt_setup_get_unique_machine_id()
  */
 
 #include "m-bt-core.h"

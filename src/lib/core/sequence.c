@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.86 2005-09-15 07:13:39 ensonic Exp $
+// $Id: sequence.c,v 1.87 2005-09-16 10:33:25 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -376,7 +376,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
   gulong length;
   gulong global_params,voice_params,voices;
 
-  GST_INFO("invalidate pattern region for tick=%5d, track=%3d",time,track);
+  GST_INFO("invalidate pattern %p region for tick=%5d, track=%3d",pattern,time,track);
 
   // determine region of change
   g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
@@ -627,10 +627,14 @@ static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *p
   BtPattern *that_pattern;
   gulong i,j;
 
-  // for all occurences of pattern
+  GST_DEBUG("repair damage after a pattern %p has been removed",pattern);
+
+  // for all tracks
   for(i=0;i<self->priv->tracks;i++) {
     that_machine=bt_sequence_get_machine(self,i);
+    // does the track belong to the given machine?
     if(that_machine==machine) {
+      // for all occurance of pattern
       for(j=0;j<self->priv->length;j++) {
         that_pattern=bt_sequence_get_pattern(self,j,i);
         if(that_pattern==pattern) {
@@ -686,8 +690,8 @@ Error:
  * Returns: a reference to the #BtMachine pointer or %NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
-  g_return_val_if_fail(track<self->priv->tracks,NULL);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(track<self->priv->tracks);
 
   return(g_object_try_ref(self->priv->machines[track]));
 }
@@ -702,9 +706,9 @@ BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
  * This should only be done once for each track.
  */
 void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine) {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
-  g_return_if_fail(BT_IS_MACHINE(machine));
-  g_return_if_fail(track<self->priv->tracks);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(BT_IS_MACHINE(machine));
+  g_assert(track<self->priv->tracks);
 
   GST_INFO("set machine for track %d",track);
   
@@ -729,8 +733,8 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
  * Returns: a copy of the label or %NULL in case of an error
  */
 gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
-  g_return_val_if_fail(time<self->priv->length,NULL);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(time<self->priv->length);
   
   return(g_strdup(self->priv->labels[time]));
 }
@@ -744,8 +748,8 @@ gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
  * Sets a new label for the respective @time position.
  */
 void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar *label) {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
-  g_return_if_fail(time<self->priv->length);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(time<self->priv->length);
   
   GST_INFO("set label for time %d",time);
   
@@ -764,9 +768,9 @@ void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar
  * Returns: a reference to the #BtPattern or %NULL when empty
  */
 BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,const gulong track) {
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
-  g_return_val_if_fail(time<self->priv->length,NULL);
-  g_return_val_if_fail(track<self->priv->tracks,NULL);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(time<self->priv->length);
+  g_assert(track<self->priv->tracks);
   
   return(g_object_try_ref(self->priv->patterns[time*self->priv->tracks+track]));
 }
@@ -776,17 +780,17 @@ BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,cons
  * @self: the #BtSequence that holds the patterns
  * @time: the requested time position
  * @track: the requested track index
- * @pattern: the #BtPattern
+ * @pattern: the #BtPattern or %NULL to unset
  *
  * Sets the #BtPattern for the respective @time and @track position.
  */
 void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,const BtPattern *pattern) {
   gulong index;
   
-  g_return_if_fail(BT_IS_SEQUENCE(self));
-  g_return_if_fail(time<self->priv->length);
-  g_return_if_fail(track<self->priv->tracks);
-  g_return_if_fail(self->priv->machines[track]);
+  g_assert(BT_IS_SEQUENCE(self));
+  g_assert(time<self->priv->length);
+  g_assert(track<self->priv->tracks);
+  g_assert(self->priv->machines[track]);
   
   if(pattern) {
     BtMachine *machine;
@@ -800,7 +804,7 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
     g_object_unref(machine);
   }
   
-  GST_INFO("set pattern for time %d, track %d",time,track);
+  GST_INFO("set pattern %p for time %d, track %d",pattern,time,track);
 
   index=time*self->priv->tracks+track;
   // take out the old pattern
@@ -815,18 +819,24 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
     bt_sequence_invalidate_pattern_region(self,time,track,self->priv->patterns[index]);
     g_object_unref(self->priv->patterns[index]);
   }
-  GST_DEBUG("set new pattern");
-  // enter the new pattern
-  self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
-  // attatch a signal handler if this is the first usage
-  if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
-    g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
-    g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
+  if(pattern) {
+    GST_DEBUG("set new pattern");
+    // enter the new pattern
+    self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
+    // attatch a signal handler if this is the first usage
+    if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
+      g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
+      g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
+    }
+    // mark region covered by new pattern as damaged
+    bt_sequence_invalidate_pattern_region(self,time,track,pattern);
+    // repair damage
+    bt_sequence_repair_damage(self);
   }
-  // mark region covered by new pattern as damaged
-  bt_sequence_invalidate_pattern_region(self,time,track,pattern);
-  // repair damage
-  bt_sequence_repair_damage(self);
+  else {
+    GST_DEBUG("set empty pattern");
+    self->priv->patterns[index]=NULL;
+  }
   GST_DEBUG("done");
 }
 
@@ -845,7 +855,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
   GstClockTime wait_per_position;
   gulong beats_per_minute,ticks_per_beat,ticks_per_minute;
 
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),(GstClockTime)0);
+  g_assert(BT_IS_SEQUENCE(self));
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
@@ -877,7 +887,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
 GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
   GstClockTime res;
 
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),(GstClockTime)0);
+  g_assert(BT_IS_SEQUENCE(self));
 
   res=(GstClockTime)(self->priv->play_end-self->priv->play_start)*bt_sequence_get_bar_time(self);
   return(res);
@@ -895,7 +905,7 @@ GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
 gboolean bt_sequence_play(const BtSequence *self) {
   gboolean res=TRUE;
   GstElement *bin;
-  GstClockTime wait_per_position=bt_sequence_get_bar_time(self);
+  GstClockTime wait_per_position;
   GstClock *clock;
   GstClockID clock_id;
   GstClockReturn wait_ret;
@@ -903,13 +913,14 @@ gboolean bt_sequence_play(const BtSequence *self) {
   //GTimer *timer;
   // }
   
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  g_assert(BT_IS_SEQUENCE(self));
   
   if((!self->priv->tracks) || (!self->priv->length) || self->priv->is_playing) {
     GST_INFO(" song is empty or already playing");
     return(FALSE);
   }
 
+  wait_per_position=bt_sequence_get_bar_time(self);
   g_object_get(G_OBJECT(self->priv->song),"bin",&bin,NULL);
   clock=gst_pipeline_get_clock(GST_PIPELINE(bin));
   clock_id=gst_clock_new_periodic_id(clock,0,wait_per_position);
@@ -977,7 +988,7 @@ gboolean bt_sequence_play(const BtSequence *self) {
  */
 gboolean bt_sequence_stop(const BtSequence *self) {
   
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  g_assert(BT_IS_SEQUENCE(self));
   
   if(!self->priv->is_playing) return(TRUE);
 

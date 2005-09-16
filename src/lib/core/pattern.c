@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.64 2005-09-13 18:50:59 ensonic Exp $
+// $Id: pattern.c,v 1.65 2005-09-16 10:33:25 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -420,6 +420,9 @@ BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machin
   gchar *mid,*id,*name;
   GValue *event;
   gchar *cmd_names[]={ N_("normal"),N_("break"),N_("mute"),N_("solo"),N_("bypass") };
+
+  g_assert(BT_IS_SONG(song));
+  g_assert(BT_IS_MACHINE(machine));
   
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
   id=g_strdup_printf("%s___%s",mid,cmd_names[cmd]);
@@ -567,6 +570,7 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gul
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
   g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d",tick,self->priv->length);return(NULL); }
@@ -595,6 +599,7 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
   gulong index;
 
   g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
   g_return_val_if_fail(self->priv->data,NULL);
 
   if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d ",tick,self->priv->length);return(NULL); }
@@ -622,6 +627,9 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
  */
 gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong param, const gchar *value) {
   GValue *event;
+
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
 
   if((event=bt_pattern_get_global_event_data(self,tick,param))) {
     if(!G_IS_VALUE(event)) {
@@ -651,6 +659,9 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
 gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value) {
   GValue *event;
 
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
+
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
     if(!G_IS_VALUE(event)) {
       bt_pattern_init_voice_event(self,event,param);
@@ -677,6 +688,9 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
 gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong param) {
   GValue *event;
 
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
+
   if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
     return(bt_pattern_get_event(self,event));
   }
@@ -697,6 +711,9 @@ gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong pa
 gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param) {
   GValue *event;
 
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
+
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
     return(bt_pattern_get_event(self,event));
   }
@@ -715,6 +732,9 @@ gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voi
  */
 gboolean bt_pattern_test_global_event(const BtPattern *self, gulong tick, gulong param) {
   GValue *event;
+
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
 
   if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
     return(TRUE);
@@ -736,6 +756,9 @@ gboolean bt_pattern_test_global_event(const BtPattern *self, gulong tick, gulong
 gboolean bt_pattern_test_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param) {
   GValue *event;
 
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
+
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
     return(TRUE);
   }
@@ -753,6 +776,9 @@ gboolean bt_pattern_test_voice_event(const BtPattern *self, gulong tick, gulong 
  */
 BtPatternCmd bt_pattern_get_cmd(const BtPattern *self,gulong tick) {
   GValue *event;
+
+  g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
 
   if((event=bt_pattern_get_internal_event_data(self,tick,0)) && G_IS_VALUE(event)) {
     return(g_value_get_enum(event));
@@ -806,6 +832,7 @@ void bt_pattern_play_tick(const BtPattern *self, gulong tick) {
   GValue *data;
 
   g_assert(BT_IS_PATTERN(self));
+  g_assert(tick<self->priv->length);
 
   data=&self->priv->data[tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params)];
   for(k=0;k<self->priv->global_params;k++) {

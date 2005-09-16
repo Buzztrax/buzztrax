@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.73 2005-08-24 13:25:35 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.74 2005-09-16 10:33:25 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -401,6 +401,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       }
       else GST_WARNING("can't create treeview column");
     }
+    g_object_unref(machine);
   }
   else {
     // create empty list model, so that the context menu works

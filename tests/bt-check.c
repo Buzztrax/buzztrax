@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.17 2005-09-15 07:13:39 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.18 2005-09-16 10:33:25 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -586,6 +586,7 @@ gboolean check_gobject_properties(GObject *toCheck) {
 
 // gtk+ gui tests
 
+#ifdef XVFB_PATH
 static GPid server_pid;
 static GdkDisplayManager *display_manager=NULL;
 static GdkDisplay *default_display=NULL,*test_display=NULL;
@@ -604,6 +605,7 @@ static void __test_server_watch(GPid pid,gint status,gpointer data) {
   g_spawn_close_pid(pid);
   server_pid=0;
 }
+#endif
 
 void check_setup_test_server(void) {
 #ifdef XVFB_PATH

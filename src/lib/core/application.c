@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.36 2005-09-01 22:05:03 ensonic Exp $
+// $Id: application.c,v 1.37 2005-09-16 10:33:25 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -63,6 +63,8 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   BtBusWatchEntry *entry;
   gboolean handled=FALSE;
   GList* node;
+  
+  g_assert(GST_IS_BUS(bus));
   
   for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
@@ -142,6 +144,8 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusHandler handle
   BtBusWatchEntry *entry;
   GList* node;
   
+  g_assert(BT_IS_APPLICATION(self));
+  
   for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
     if((entry->handler==handler) && (entry->user_data==user_data)) {
@@ -165,6 +169,8 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusHandler handle
 void bt_application_remove_bus_watch(const BtApplication *self,GstBusHandler handler) {
   BtBusWatchEntry *entry;
   GList* node;
+  
+  g_assert(BT_IS_APPLICATION(self));
   
   for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;

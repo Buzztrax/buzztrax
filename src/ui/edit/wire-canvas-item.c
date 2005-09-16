@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.24 2005-08-05 09:36:19 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.25 2005-09-16 10:33:25 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -160,9 +160,11 @@ void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_d
   g_object_get(self->priv->src,"machine",&src_machine,NULL);
   g_object_get(src_machine,"properties",&properties,NULL);
   machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
+  g_object_unref(src_machine);
   g_object_get(self->priv->dst,"machine",&dst_machine,NULL);
   g_object_get(dst_machine,"properties",&properties,NULL);
   machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
+  g_object_unref(dst_machine);
 
   //GST_INFO("  set new coords: %+5.1f,%+5.1f %+5.1f,%+5.1f",pos_xs,pos_ys,pos_xe,pos_ye);
   
