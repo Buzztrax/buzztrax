@@ -1,4 +1,4 @@
-/* $Id: e-setup.c,v 1.25 2005-09-16 10:33:25 ensonic Exp $
+/* $Id: e-setup.c,v 1.26 2005-09-19 18:47:20 ensonic Exp $
  */
 
 /* @todo write tests for:
@@ -96,10 +96,10 @@ BT_START_TEST(test_btsetup_obj2) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","sinesrc",0);
   fail_unless(source!=NULL, NULL);
   
-  /* try to create sink machine with esd sink */
+  /* try to create sink machine (default audio sink) */
   sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
@@ -202,10 +202,10 @@ BT_START_TEST(test_btsetup_obj4) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","sinesrc",0);
   fail_unless(source!=NULL, NULL);
   
-  /* try to create sink machine with esd sink */
+  /* try to create sink machine (default audio sink) */
   sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
@@ -253,10 +253,10 @@ BT_START_TEST(test_btsetup_wire1) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","sinesrc",0);
   fail_unless(source!=NULL, NULL);
   
-  /* try to create sink machine with esd sink */
+  /* try to create sink machine (default audio sink) */
   sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   
@@ -302,10 +302,10 @@ BT_START_TEST(test_btsetup_wire2) {
   fail_unless(setup!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  source = bt_source_machine_new(song,"src","sinesrc",0);
   fail_unless(source!=NULL, NULL);
   
-  /* try to create sink machine with esd sink */
+  /* try to create sink machine (default audio sink) */
   sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   

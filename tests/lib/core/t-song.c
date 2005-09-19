@@ -1,11 +1,11 @@
-/* $Id: t-song.c,v 1.23 2005-09-19 16:14:06 ensonic Exp $
+/* $Id: t-song.c,v 1.24 2005-09-19 18:47:20 ensonic Exp $
  */
 
 #include "m-bt-core.h"
 
 //-- globals
 
-static gboolean play_signal_invoke=FALSE;
+static gboolean play_signal_invoked=FALSE;
 
 //-- fixtures
 
@@ -23,7 +23,7 @@ static void test_teardown(void) {
 
 // helper method to test the play signal
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  play_signal_invoke=TRUE;
+  play_signal_invoked=TRUE;
 }
 
 BT_START_TEST(test_btsong_properties) {
@@ -38,6 +38,9 @@ BT_START_TEST(test_btsong_properties) {
   fail_unless(song != NULL, NULL);
   check_prop_ret=check_gobject_properties(G_OBJECT(song));
   fail_unless(check_prop_ret==TRUE,NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -53,8 +56,6 @@ BT_START_TEST(test_btsong_obj1) {
 }
 BT_END_TEST
 
-
-
 // play without loading a song
 BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
@@ -66,11 +67,11 @@ BT_START_TEST(test_btsong_play1) {
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
 
-  play_signal_invoke=FALSE;
+  play_signal_invoked=FALSE;
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
   bt_song_play(song);
   sleep(1);
-  fail_unless(play_signal_invoke, NULL);
+  fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
 
   g_object_checked_unref(song);

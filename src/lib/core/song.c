@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.89 2005-09-19 16:14:06 ensonic Exp $
+// $Id: song.c,v 1.90 2005-09-19 18:47:20 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -167,8 +167,9 @@ gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
+
   // do not play again
-  g_return_val_if_fail(self->priv->is_playing,TRUE);
+  if(self->priv->is_playing) return(TRUE);
   
   GST_INFO("prepare playback");
   
@@ -206,8 +207,9 @@ gboolean bt_song_stop(const BtSong *self) {
   GstStateChangeReturn res;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
+
   // do not stop if not playing
-  g_return_val_if_fail(!self->priv->is_playing,TRUE);
+  if(!self->priv->is_playing) return(TRUE);
 
   GST_INFO("stopping playback");
   

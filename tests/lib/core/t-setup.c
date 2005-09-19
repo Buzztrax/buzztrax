@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.24 2005-09-14 15:22:56 ensonic Exp $
+/* $Id: t-setup.c,v 1.25 2005-09-19 18:47:20 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -35,6 +35,9 @@ BT_START_TEST(test_btsetup_properties) {
   
   check_prop_ret=check_gobject_properties(G_OBJECT(setup));
   fail_unless(check_prop_ret==TRUE,NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -153,6 +156,9 @@ BT_START_TEST(test_btsetup_obj4) {
   check_init_error_trapp("bt_setup_add_machine","BT_IS_SETUP(self)");
   bt_setup_add_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -178,6 +184,10 @@ BT_START_TEST(test_btsetup_obj5) {
   check_init_error_trapp("bt_setup_add_machine","BT_IS_MACHINE(machine)");
   bt_setup_add_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -203,6 +213,10 @@ BT_START_TEST(test_btsetup_obj6) {
   check_init_error_trapp("bt_setup_add_wire","BT_IS_SETUP(self)");
   bt_setup_add_wire(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -228,6 +242,10 @@ BT_START_TEST(test_btsetup_obj7) {
   check_init_error_trapp("bt_setup_add_wire","BT_IS_WIRE(wire)");
   bt_setup_add_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -250,10 +268,13 @@ BT_START_TEST(test_btsetup_obj8) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
-	// @todo trap critical errors
   check_init_error_trapp("bt_setup_get_machine_by_id","BT_IS_SETUP(self)");
   bt_setup_get_machine_by_id(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -276,10 +297,13 @@ BT_START_TEST(test_btsetup_obj9) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
 
-	// @todo trap critical errors
   check_init_error_trapp("bt_setup_get_machine_by_id",NULL);
   bt_setup_get_machine_by_id(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -305,6 +329,10 @@ BT_START_TEST(test_btsetup_obj10) {
   check_init_error_trapp("bt_setup_get_machine_by_index","BT_IS_SETUP(self)");
   bt_setup_get_machine_by_index(NULL,0);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -330,6 +358,10 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
   check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_SETUP(self)");
   bt_setup_get_wire_by_src_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -355,6 +387,10 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
   check_init_error_trapp("bt_setup_get_wire_by_src_machine","BT_IS_MACHINE(src)");
   bt_setup_get_wire_by_src_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -385,6 +421,10 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
   check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_SETUP(self)");
   bt_setup_get_wires_by_src_machine(NULL,BT_MACHINE(src_machine));
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -412,6 +452,10 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
   check_init_error_trapp("bt_setup_get_wires_by_src_machine","BT_IS_MACHINE(src)");
   bt_setup_get_wires_by_src_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -446,6 +490,11 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
   /* try to get the wires */
   wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(src_machine));
   fail_unless(wire_list==NULL,NULL);
+
+	g_object_unref(src_machine);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -471,6 +520,10 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
   check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_SETUP(self)");
   bt_setup_get_wire_by_dst_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -496,6 +549,10 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
   check_init_error_trapp("bt_setup_get_wire_by_dst_machine","BT_IS_MACHINE(dst)");
   bt_setup_get_wire_by_dst_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -523,6 +580,10 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
   check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_SETUP(self)");
   bt_setup_get_wires_by_dst_machine(NULL,BT_MACHINE(dst_machine));
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -547,6 +608,10 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
   check_init_error_trapp("bt_setup_get_wires_by_dst_machine","BT_IS_MACHINE(dst)");
   bt_setup_get_wires_by_dst_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -578,6 +643,11 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
   /* try to get the wires */
   wire_list=bt_setup_get_wires_by_dst_machine(setup,BT_MACHINE(dst_machine));
   fail_unless(wire_list==NULL,NULL);
+
+	g_object_unref(dst_machine);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -601,6 +671,9 @@ BT_START_TEST(test_btsetup_obj13) {
   check_init_error_trapp("bt_setup_remove_machine",NULL);
   bt_setup_remove_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -624,6 +697,10 @@ BT_START_TEST(test_btsetup_obj14) {
   check_init_error_trapp("bt_setup_remove_wire",NULL);
   bt_setup_remove_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -650,6 +727,10 @@ BT_START_TEST(test_btsetup_obj15) {
   check_init_error_trapp("bt_setup_remove_machine",NULL);
   bt_setup_remove_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -675,6 +756,10 @@ BT_START_TEST(test_btsetup_obj16) {
   check_init_error_trapp("bt_setup_remove_wire",NULL);
   bt_setup_remove_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -685,7 +770,7 @@ BT_START_TEST(test_btsetup_obj17) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
-  BtSourceMachine *gen=NULL;
+  BtMachine *gen=NULL;
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -699,13 +784,20 @@ BT_START_TEST(test_btsetup_obj17) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete generator1 with sinesrc */
-  gen = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0));
   fail_unless(gen!=NULL, NULL);
+	/* and remove it from setup */
+	bt_setup_remove_machine(setup,gen);
   
   check_init_error_trapp("bt_setup_remove_machine",
      "trying to remove machine that is not in setup");
-  bt_setup_remove_machine(setup,BT_MACHINE(gen));
+  bt_setup_remove_machine(setup,gen);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(gen);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -744,11 +836,20 @@ BT_START_TEST(test_btsetup_obj18) {
   /* try to create the wire */
   wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
   fail_unless(wire!=NULL, NULL);
+	/* and remove it from setup */
+	bt_setup_remove_wire(setup,wire);
   
   check_init_error_trapp("bt_setup_remove_wire",
      "trying to remove wire that is not in setup");
-  bt_setup_remove_wire(setup,BT_WIRE(wire));
+  bt_setup_remove_wire(setup,wire);
   fail_unless(check_has_error_trapped(), NULL);
+
+	g_object_unref(source);
+	g_object_unref(sink);
+	g_object_unref(wire);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -793,6 +894,12 @@ BT_START_TEST(test_btsetup_wire1) {
   wire_two = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(src));
   fail_unless(wire_two!=NULL,NULL);
   
+	g_object_unref(src);
+	g_object_unref(dst);
+	g_object_unref(wire_one);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -837,6 +944,12 @@ BT_START_TEST(test_btsetup_wire2) {
   wire_two = bt_wire_new(song, BT_MACHINE(src), BT_MACHINE(dst));
   fail_unless(wire_two!=NULL,NULL);
   
+	g_object_unref(src);
+	g_object_unref(dst);
+	g_object_unref(wire_one);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -891,6 +1004,14 @@ BT_START_TEST(test_btsetup_wire3) {
   wire_three = bt_wire_new(song, BT_MACHINE(src2), BT_MACHINE(src1));
   fail_unless(wire_three!=NULL,NULL);
   
+	g_object_unref(src1);
+	g_object_unref(src2);
+	g_object_unref(dst);
+	g_object_unref(wire_one);
+	g_object_unref(wire_two);
+	g_object_unref(setup);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 

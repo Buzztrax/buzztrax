@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.7 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.8 2005-09-19 18:47:20 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -48,8 +48,8 @@ BT_START_TEST(test_btsinkmachine_settings1) {
   g_object_unref(settings);
   g_free(saved_audiosink_name);
   g_object_unref(machine);
-  g_object_unref(song);
-  g_object_unref(app);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST;
 
@@ -88,8 +88,8 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   g_object_unref(settings);
   g_free(saved_audiosink_name);
   g_object_unref(machine);
-  g_object_unref(song);
-  g_object_unref(app);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST;
 

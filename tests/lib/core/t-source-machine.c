@@ -1,4 +1,4 @@
-/* $Id: t-source-machine.c,v 1.6 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: t-source-machine.c,v 1.7 2005-09-19 18:47:20 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -37,6 +37,9 @@ BT_START_TEST(test_btsourcemachine_obj1) {
   /* try to create a source machine with wrong pluginname (not existing)*/
   machine=bt_source_machine_new(song,"id","nonsense",1);
   fail_unless(machine==NULL, NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -59,6 +62,9 @@ BT_START_TEST(test_btsourcemachine_obj2) {
   /* try to create a source machine with wrong plugin type (sink instead of source) */
   machine=bt_source_machine_new(song,"id","esdsink",1);
   fail_unless(machine==NULL, NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -86,6 +92,9 @@ BT_START_TEST(test_btsourcemachine_obj3){
                               0),
                               NULL);
   g_error_free(error);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 

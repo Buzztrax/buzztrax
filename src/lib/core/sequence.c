@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.88 2005-09-19 16:14:06 ensonic Exp $
+// $Id: sequence.c,v 1.89 2005-09-19 18:47:20 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -409,6 +409,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
     }
   }
   g_object_unref(machine);
+	GST_INFO("done");
 }
 
 /*
@@ -648,6 +649,7 @@ static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *p
   }
   // repair damage
   bt_sequence_repair_damage(self);
+	GST_DEBUG("Done");
 }
 
 //-- constructor methods
@@ -914,8 +916,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
   // }
   
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+	
   // do not play again
-  g_return_val_if_fail(self->priv->is_playing,TRUE);
+  if(self->priv->is_playing) return(TRUE);
   
   if((!self->priv->tracks) || (!self->priv->length) || self->priv->is_playing) {
     GST_WARNING(" song is empty or already playing");
@@ -991,8 +994,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
 gboolean bt_sequence_stop(const BtSequence *self) {
   
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+
   // do not stop if not playing
-  g_return_val_if_fail(!self->priv->is_playing,TRUE);
+  if(!self->priv->is_playing) return(TRUE);
 
   g_mutex_lock(self->priv->is_playing_mutex);
   self->priv->is_playing=FALSE;
