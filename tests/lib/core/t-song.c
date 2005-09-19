@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.22 2005-09-14 00:01:28 ensonic Exp $
+/* $Id: t-song.c,v 1.23 2005-09-19 16:14:06 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -95,7 +95,6 @@ BT_START_TEST(test_btsong_setup1) {
   
   g_object_unref(setup);
   g_object_checked_unref(song);
-
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -117,6 +116,9 @@ BT_START_TEST(test_btsong_play2) {
   check_init_error_trapp("bt_song_play","BT_IS_SONG(self)");
   bt_song_play(NULL);
   fail_unless(check_has_error_trapped(),NULL);
+  
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 

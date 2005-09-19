@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.67 2005-09-02 16:32:41 ensonic Exp $
+// $Id: main-toolbar.c,v 1.68 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -303,7 +303,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
     }
     // release the references
-    g_object_try_unref(level);
+    gst_object_unref(level);
     
     // get the current input_gain and adjust volume widget
     g_object_get(self->priv->gain,"volume",&volume,NULL);
@@ -314,8 +314,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
-	g_object_try_unref(bin);
-  g_object_try_unref(master);
+	gst_object_unref(bin);
+  gst_object_unref(master);
   g_object_try_unref(song);
 }
 
@@ -522,6 +522,8 @@ static void bt_main_toolbar_dispose(GObject *object) {
 	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
 	g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
 	g_object_unref(song);
+
+  gst_object_unref(self->priv->gain);
   
   g_object_try_weak_unref(self->priv->app);
 

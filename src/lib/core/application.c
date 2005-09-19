@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.37 2005-09-16 10:33:25 ensonic Exp $
+// $Id: application.c,v 1.38 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -64,7 +64,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   gboolean handled=FALSE;
   GList* node;
   
-  g_assert(GST_IS_BUS(bus));
+  g_return_val_if_fail(GST_IS_BUS(bus),TRUE);
   
   for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
@@ -104,13 +104,9 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
 gboolean bt_application_new(BtApplication *self) {
   gboolean res=FALSE;
 
-  g_assert(BT_IS_APPLICATION(self));
-  
-#ifdef USE_GCONF
-  self->priv->settings=BT_SETTINGS(bt_gconf_settings_new());
-#else
-  self->priv->settings=BT_SETTINGS(bt_plainfile_settings_new());
-#endif
+  g_return_val_if_fail(BT_IS_APPLICATION(self),FALSE);
+
+  /*
   { // DEBUG
     gchar *audiosink_name,*system_audiosink_name;
     g_object_get(self->priv->settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
@@ -123,9 +119,9 @@ gboolean bt_application_new(BtApplication *self) {
       g_free(audiosink_name);
     }
   } // DEBUG
-  if(!self->priv->settings) goto Error;
+  */
   res=TRUE;
-Error:
+//Error:
   return(res);
 }
 
@@ -144,7 +140,8 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusHandler handle
   BtBusWatchEntry *entry;
   GList* node;
   
-  g_assert(BT_IS_APPLICATION(self));
+  g_return_if_fail(BT_IS_APPLICATION(self));
+  g_return_if_fail(handler);
   
   for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
@@ -170,7 +167,8 @@ void bt_application_remove_bus_watch(const BtApplication *self,GstBusHandler han
   BtBusWatchEntry *entry;
   GList* node;
   
-  g_assert(BT_IS_APPLICATION(self));
+  g_return_if_fail(BT_IS_APPLICATION(self));
+  g_return_if_fail(handler);
   
   for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
@@ -230,6 +228,7 @@ static void bt_application_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
+  GST_INFO("settings->ref_ct=%d",G_OBJECT(self->priv->settings)->ref_count);
 
   g_object_try_unref(self->priv->bin);
   g_object_try_unref(self->priv->settings);
@@ -274,9 +273,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->dispose_has_run = FALSE;
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
-  
-  // does not make a difference
-  //gst_pipeline_auto_clock(GST_PIPELINE(self->priv->bin));
+  GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   
   bus=gst_element_get_bus(self->priv->bin);
   gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
@@ -284,6 +281,13 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
+  
+#ifdef USE_GCONF
+  self->priv->settings=BT_SETTINGS(bt_gconf_settings_new());
+#else
+  self->priv->settings=BT_SETTINGS(bt_plainfile_settings_new());
+#endif
+  g_assert(BT_IS_SETTINGS(self->priv->settings));
 }
 
 static void bt_application_class_init(BtApplicationClass *klass) {

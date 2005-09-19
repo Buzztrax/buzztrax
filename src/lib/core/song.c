@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.88 2005-09-14 15:22:55 ensonic Exp $
+// $Id: song.c,v 1.89 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -126,12 +126,12 @@ BtSong *bt_song_new(const BtApplication *app) {
 	//gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
   //g_object_unref(bus);
   bt_application_add_bus_watch(app,bus_handler,(gpointer)self);
-  g_object_unref(bin);
+  gst_object_unref(bin);
   GST_INFO("  new song created: %p",self);
   return(self);
 Error:
   g_object_try_unref(self);
-  g_object_unref(bin);
+  gst_object_unref(bin);
   return(NULL);
 }
 
@@ -146,6 +146,8 @@ Error:
  * avoid double notifies, if the state is unchanged.
  */
 void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
+  g_return_if_fail(BT_IS_SONG(self));
+  
   if(self->priv->unsaved!=unsaved) {
     self->priv->unsaved=unsaved;
     g_object_notify(G_OBJECT(self),"unsaved");
@@ -165,9 +167,8 @@ gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
-  
   // do not play again
-  if(self->priv->is_playing) return(TRUE);
+  g_return_val_if_fail(self->priv->is_playing,TRUE);
   
   GST_INFO("prepare playback");
   
@@ -203,10 +204,10 @@ gboolean bt_song_play(const BtSong *self) {
  */
 gboolean bt_song_stop(const BtSong *self) {
   GstStateChangeReturn res;
-  g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
-  // do not play again
-  if(!self->priv->is_playing) return(TRUE);
+  g_return_val_if_fail(BT_IS_SONG(self),FALSE);
+  // do not stop if not playing
+  g_return_val_if_fail(!self->priv->is_playing,TRUE);
 
   GST_INFO("stopping playback");
   
@@ -231,7 +232,7 @@ gboolean bt_song_stop(const BtSong *self) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_pause(const BtSong *self) {
-  g_assert(BT_IS_SONG(self));
+  g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_CHANGE_FAILURE);
 }
 
@@ -244,7 +245,7 @@ gboolean bt_song_pause(const BtSong *self) {
  * Returns: %TRUE for success
  */
 gboolean bt_song_continue(const BtSong *self) {
-  g_assert(BT_IS_SONG(self));
+  g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_CHANGE_FAILURE);
 }
 
@@ -260,8 +261,9 @@ gboolean bt_song_continue(const BtSong *self) {
 gboolean bt_song_update_playback_position(const BtSong *self) {
   GstQuery *query;
   gint64 pos_cur,pos_end;
-  
-  if(!self->priv->is_playing) return(FALSE);
+
+  g_return_val_if_fail(BT_IS_SONG(self),FALSE);
+  g_return_val_if_fail(!self->priv->is_playing,FALSE);
   //GST_INFO("query playback-pos");
   
   // query playback position and update self->priv->play-pos;
@@ -286,7 +288,7 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
  */
 void bt_song_write_to_xml_file(const BtSong *self) {
   FILE *out;
-  g_assert(BT_IS_SONG(self));
+  g_return_if_fail(BT_IS_SONG(self));
   
   // @todo find a way to not overwrite files during a run
   if((out=fopen("/tmp/buzztard-song.xml","wb"))) {
@@ -313,9 +315,15 @@ static void bt_song_get_property(GObject      *object,
     } break;
     case SONG_BIN: {
       g_value_set_object(value, self->priv->bin);
+      #ifndef HAVE_GLIB_2_8
+      gst_object_ref(self->priv->bin);
+      #endif
     } break;
     case SONG_MASTER: {
       g_value_set_object(value, self->priv->master);
+      #ifndef HAVE_GLIB_2_8
+      gst_object_ref(self->priv->master);
+      #endif
     } break;
     case SONG_SONG_INFO: {
       g_value_set_object(value, self->priv->song_info);
@@ -362,6 +370,9 @@ static void bt_song_set_property(GObject      *object,
     case SONG_BIN: {
       g_object_try_unref(self->priv->bin);
       self->priv->bin=GST_BIN(g_value_dup_object(value));
+      #ifndef HAVE_GLIB_2_8
+      gst_object_ref(self->priv->bin);
+      #endif
       GST_DEBUG("set the bin for the song: %p",self->priv->bin);
     } break;
     case SONG_MASTER: {

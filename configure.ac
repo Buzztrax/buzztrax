@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.60 2005-09-15 07:13:39 ensonic Exp $
+# $Id: configure.ac,v 1.61 2005-09-19 16:14:05 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -243,6 +243,13 @@ AC_MSG_CHECKING([glib version >= 2.6])
 if pkg-config --atleast-version=2.6 glib-2.0; then
   AC_MSG_RESULT(yes)
   AC_DEFINE(HAVE_GLIB_2_6, [1], [Define to 1 if we can use API new in glib-2.6])
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([glib version >= 2.8])
+if pkg-config --atleast-version=2.8 glib-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GLIB_2_8, [1], [Define to 1 if we can use API new in glib-2.8])
 else
   AC_MSG_RESULT(no)
 fi

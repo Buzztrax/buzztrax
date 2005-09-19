@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.18 2005-09-16 10:33:25 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.19 2005-09-19 16:14:06 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -65,6 +65,16 @@ static void check_print_handler(const gchar * const message) {
     }
   }
 }
+
+/*
+static void check_critical_log_handler(const gchar * const log_domain, const GLogLevelFlags log_level, const gchar * const message, gpointer const user_data) {
+  printf(">>> CRITICAL: %s\n",message);
+  //-- check message contents
+  if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
+  else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
+  else if(__check_test && (strstr(message,__check_test)!=NULL) && !__check_method) __check_error_trapped=TRUE;
+}
+*/
 
 static void check_log_handler(const gchar * const log_domain, const GLogLevelFlags log_level, const gchar * const message, gpointer const user_data) {
     gchar *msg,*level;
@@ -137,6 +147,7 @@ void setup_log_capture(void) {
   (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
   (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
 #endif
+  //(void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_WARNING|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_critical_log_handler, NULL);
   (void)g_set_printerr_handler(check_print_handler);
 }
 

@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.61 2005-09-13 18:51:00 ensonic Exp $
+// $Id: wire.c,v 1.62 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -213,6 +213,7 @@ static gboolean bt_wire_connect(BtWire *self) {
 
   if((!self->priv->src) || (!self->priv->dst)) goto Error;
   g_object_get(G_OBJECT(song),"bin",&self->priv->bin,"setup",&setup,NULL);
+  GST_DEBUG("about to link machines, bin->ref_count=%d",G_OBJECT(self->priv->bin)->ref_count);
   src=self->priv->src;
   dst=self->priv->dst;
 
@@ -266,7 +267,7 @@ static gboolean bt_wire_connect(BtWire *self) {
     GST_ERROR("linking machines failed");goto Error;
   }
   res=TRUE;
-  GST_DEBUG("linking machines succeeded");
+  GST_DEBUG("linking machines succeeded, bin->ref_count=%d",G_OBJECT(self->priv->bin)->ref_count);
 Error:
   g_object_try_unref(setup);
   return(res);
@@ -295,7 +296,9 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(src_machine),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(dst_machine),NULL);
-  g_return_val_if_fail( (src_machine!=dst_machine) ,NULL);
+  g_return_val_if_fail(src_machine!=dst_machine,NULL);
+  
+  GST_INFO("create wire between %p and %p (%d)",src_machine,dst_machine,(src_machine!=dst_machine));
 
   if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
     goto Error;
@@ -305,7 +308,6 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   }
   // add the wire to the setup of the song
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  g_assert(setup!=NULL);
   bt_setup_add_wire(setup,self);
   g_object_unref(setup);
 
@@ -327,6 +329,8 @@ Error:
  * Returns: %TRUE for success and %FALSE otherwise
  */
 gboolean bt_wire_reconnect(BtWire *self) {
+  g_return_val_if_fail(BT_IS_WIRE(self),FALSE);
+  
   GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
   bt_wire_unlink_machines(self);
   return(bt_wire_link_machines(self));
@@ -403,7 +407,7 @@ static void bt_wire_dispose(GObject *object) {
   if(self->priv->bin) {
     bt_wire_unlink_machines(self); // removes convert and scale if in use
     // @todo add the remaining elements to remove (which?)
-    GST_DEBUG("  elements removed from bin");
+    GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     g_object_try_unref(self->priv->bin);
   }
 

@@ -1,4 +1,4 @@
-/* $Id: t-wire.c,v 1.10 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: t-wire.c,v 1.11 2005-09-19 16:14:06 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -38,7 +38,7 @@ BT_START_TEST(test_btwire_obj1){
   fail_unless(song!=NULL,NULL);
   
   /* try to create a source machine */
-  machine=bt_processor_machine_new(song,"id","volume",1);
+  machine=bt_processor_machine_new(song,"id","volume",0);
   fail_unless(machine!=NULL,NULL);
   
   check_init_error_trapp("bt_wire_new","src_machine!=dst_machine");
@@ -46,6 +46,9 @@ BT_START_TEST(test_btwire_obj1){
   wire=bt_wire_new(song,BT_MACHINE(machine),BT_MACHINE(machine));
   fail_unless(check_has_error_trapped(), NULL);
   fail_unless(wire==NULL,NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -70,15 +73,15 @@ BT_START_TEST(test_btwire_obj2){
   fail_unless(setup!=NULL, NULL);
  
   /* try to create a source machine */
-  source=bt_source_machine_new(song,"id","sinesrc",1);
+  source=bt_source_machine_new(song,"id","sinesrc",0);
   fail_unless(source!=NULL,NULL);
   
   /* try to create a volume machine */
-  sink1=bt_processor_machine_new(song,"volume1","volume",1);
+  sink1=bt_processor_machine_new(song,"volume1","volume",0);
   fail_unless(sink1!=NULL,NULL);
   
   /* try to create a volume machine */
-  sink2=bt_processor_machine_new(song,"volume2","volume",1);
+  sink2=bt_processor_machine_new(song,"volume2","volume",0);
   fail_unless(sink2!=NULL,NULL);
 
   /* try to connect processor machine to volume1 */
@@ -91,6 +94,8 @@ BT_START_TEST(test_btwire_obj2){
   mark_point();
   fail_unless(wire2!=NULL,NULL);
 
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -100,5 +105,7 @@ TCase *bt_wire_test_case(void) {
   tcase_add_test(tc,test_btwire_obj1);
   tcase_add_test(tc,test_btwire_obj2);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  // we need to raise the default timeout of 3 seconds
+  tcase_set_timeout(tc, 10);
   return(tc);
 }

@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.47 2005-09-11 19:56:43 ensonic Exp $
+// $Id: sink-machine.c,v 1.48 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -146,8 +146,8 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   BtSettings *settings;
   gchar *plugin_name;
 
-  g_assert(BT_IS_SONG(song));
-  g_assert(id);
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_return_val_if_fail(is_string(id),NULL);
 
   // get plugin_name from song->app->settings
   g_object_get(G_OBJECT(song),"app",&app,NULL);

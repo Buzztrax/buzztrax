@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.12 2005-09-15 07:13:39 ensonic Exp $
+// $Id: wavetable.c,v 1.13 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -81,8 +81,8 @@ Error:
 gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave) {
   gboolean ret=FALSE;
   
-  g_return_val_if_fail(BT_IS_WAVETABLE(self),FALSE);
-  g_return_val_if_fail(BT_IS_WAVE(wave),FALSE);
+  g_assert(BT_IS_WAVETABLE(self));
+  g_assert(BT_IS_WAVE(wave));
 
   if(!g_list_find(self->priv->waves,wave)) {
     ret=TRUE;
@@ -110,6 +110,8 @@ BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index) {
   BtWave *wave;
   GList *node;
   gulong wave_index;
+
+  g_assert(BT_IS_WAVETABLE(self));
 
   for(node=self->priv->waves;node;node=g_list_next(node)) {
     wave=BT_WAVE(node->data);

@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.65 2005-08-05 09:36:17 ensonic Exp $
+// $Id: edit-application.c,v 1.66 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -128,7 +128,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   BtSong *song;
   
-  g_assert(BT_IS_EDIT_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
 
   // create new song
   if((song=bt_song_new(BT_APPLICATION(self)))) {
@@ -190,7 +190,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
   BtSongIO *loader;
   BtSong *song;
 
-  g_assert(BT_IS_EDIT_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
 
   GST_INFO("song name = %s",file_name);
 
@@ -257,7 +257,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
   gboolean res=FALSE;
   BtSongIO *saver;
 
-  g_assert(BT_IS_EDIT_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
 
   GST_INFO("song name = %s",file_name);
 
@@ -299,7 +299,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
 gboolean bt_edit_application_run(const BtEditApplication *self) {
   gboolean res=FALSE;
 
-  g_assert(BT_IS_EDIT_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
 
   GST_INFO("application.run launched");
 
@@ -322,7 +322,7 @@ gboolean bt_edit_application_run(const BtEditApplication *self) {
 gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name) {
   gboolean res=FALSE;
 
-  g_assert(BT_IS_EDIT_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
 
   GST_INFO("application.load_and_run launched");
 

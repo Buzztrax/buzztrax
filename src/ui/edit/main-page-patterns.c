@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.74 2005-09-16 10:33:25 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.75 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -319,7 +319,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   GtkTreeViewColumn *tree_col;
 
   GST_INFO("refresh pattern table");
-  g_assert(GTK_IS_TREE_VIEW  (self->priv->pattern_table));
+  g_assert(GTK_IS_TREE_VIEW(self->priv->pattern_table));
   
   // reset columns
   pattern_table_clear(self);

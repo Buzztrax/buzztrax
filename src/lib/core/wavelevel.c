@@ -1,4 +1,4 @@
-// $Id: wavelevel.c,v 1.7 2005-08-05 09:36:16 ensonic Exp $
+// $Id: wavelevel.c,v 1.8 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
@@ -65,7 +65,8 @@ static GObjectClass *parent_class=NULL;
 BtWavelevel *bt_wavelevel_new(const BtSong *song,const BtWave *wave,guchar root_note,gulong length,glong loop_start,glong loop_end,gulong rate) {
   BtWavelevel *self;
 
-  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_assert(BT_IS_SONG(song));
+  g_assert(BT_IS_WAVE(wave));
 
   if(!(self=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,
     "root-note",root_note,"length",length,"loop_start",loop_start,

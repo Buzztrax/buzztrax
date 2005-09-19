@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.61 2005-09-13 22:12:12 ensonic Exp $
+// $Id: cmd-application.c,v 1.62 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -79,7 +79,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   BtSequence *sequence=NULL;
   BtSongIO *loader=NULL;
 
-  g_assert(BT_IS_CMD_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
   
   GST_INFO("application.play launched");
   
@@ -162,7 +162,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   BtSongIO *loader=NULL;
   FILE *output_file=NULL;
 
-  g_assert(BT_IS_CMD_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
 
   GST_INFO("application.info launched");
 
@@ -232,7 +232,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_list_free(waves);
     g_object_get(G_OBJECT(self),"bin",&bin,NULL);
     g_fprintf(output_file,"app.bin.number_of_elements: %u\n",GST_BIN_NUMCHILDREN(bin));
-    g_object_unref(bin);
+    gst_object_unref(bin);
 
     // lookup the audio-sink machine and print some info about it
     if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
@@ -279,7 +279,7 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   BtSong *song=NULL;
   BtSongIO *loader=NULL,*saver=NULL;
   
-  g_assert(BT_IS_CMD_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
 
   if(!is_string(input_file_name)) {
     goto Error;
@@ -334,7 +334,7 @@ Error:
 gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
 
-  g_assert(BT_IS_CMD_APPLICATION(self));
+  g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
 
   if(!is_string(input_file_name)) {
     goto Error;

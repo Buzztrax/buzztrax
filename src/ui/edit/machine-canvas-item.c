@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.54 2005-08-05 09:36:18 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.55 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -394,7 +394,7 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
     g_free(str);g_free(str_author);
     g_object_try_unref(main_window);
   }
-  g_object_try_unref(machine);
+  gst_object_unref(machine);
 }
 
 //-- helper methods

@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.87 2005-09-16 10:33:25 ensonic Exp $
+// $Id: sequence.c,v 1.88 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -664,7 +664,7 @@ static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *p
 BtSequence *bt_sequence_new(const BtSong *song) {
   BtSequence *self;
   
-  g_assert(BT_IS_SONG(song));
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
   
   if(!(self=BT_SEQUENCE(g_object_new(BT_TYPE_SEQUENCE,"song",song,NULL)))) {
     goto Error;
@@ -690,8 +690,8 @@ Error:
  * Returns: a reference to the #BtMachine pointer or %NULL in case of an error
  */
 BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(track<self->priv->tracks);
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
+  g_return_val_if_fail(track<self->priv->tracks,NULL);
 
   return(g_object_try_ref(self->priv->machines[track]));
 }
@@ -706,9 +706,9 @@ BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
  * This should only be done once for each track.
  */
 void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine) {
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(BT_IS_MACHINE(machine));
-  g_assert(track<self->priv->tracks);
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail(BT_IS_MACHINE(machine));
+  g_return_if_fail(track<self->priv->tracks);
 
   GST_INFO("set machine for track %d",track);
   
@@ -733,8 +733,8 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
  * Returns: a copy of the label or %NULL in case of an error
  */
 gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(time<self->priv->length);
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
+  g_return_val_if_fail(time<self->priv->length,NULL);
   
   return(g_strdup(self->priv->labels[time]));
 }
@@ -748,8 +748,8 @@ gchar *bt_sequence_get_label(const BtSequence *self,const gulong time) {
  * Sets a new label for the respective @time position.
  */
 void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar *label) {
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(time<self->priv->length);
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail(time<self->priv->length);
   
   GST_INFO("set label for time %d",time);
   
@@ -768,9 +768,9 @@ void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar
  * Returns: a reference to the #BtPattern or %NULL when empty
  */
 BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,const gulong track) {
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(time<self->priv->length);
-  g_assert(track<self->priv->tracks);
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
+  g_return_val_if_fail(time<self->priv->length,NULL);
+  g_return_val_if_fail(track<self->priv->tracks,NULL);
   
   return(g_object_try_ref(self->priv->patterns[time*self->priv->tracks+track]));
 }
@@ -787,10 +787,10 @@ BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,cons
 void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,const BtPattern *pattern) {
   gulong index;
   
-  g_assert(BT_IS_SEQUENCE(self));
-  g_assert(time<self->priv->length);
-  g_assert(track<self->priv->tracks);
-  g_assert(self->priv->machines[track]);
+  g_return_if_fail(BT_IS_SEQUENCE(self));
+  g_return_if_fail(time<self->priv->length);
+  g_return_if_fail(track<self->priv->tracks);
+  g_return_if_fail(self->priv->machines[track]);
   
   if(pattern) {
     BtMachine *machine;
@@ -855,7 +855,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
   GstClockTime wait_per_position;
   gulong beats_per_minute,ticks_per_beat,ticks_per_minute;
 
-  g_assert(BT_IS_SEQUENCE(self));
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
@@ -887,7 +887,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
 GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
   GstClockTime res;
 
-  g_assert(BT_IS_SEQUENCE(self));
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
 
   res=(GstClockTime)(self->priv->play_end-self->priv->play_start)*bt_sequence_get_bar_time(self);
   return(res);
@@ -913,10 +913,12 @@ gboolean bt_sequence_play(const BtSequence *self) {
   //GTimer *timer;
   // }
   
-  g_assert(BT_IS_SEQUENCE(self));
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  // do not play again
+  g_return_val_if_fail(self->priv->is_playing,TRUE);
   
   if((!self->priv->tracks) || (!self->priv->length) || self->priv->is_playing) {
-    GST_INFO(" song is empty or already playing");
+    GST_WARNING(" song is empty or already playing");
     return(FALSE);
   }
 
@@ -972,8 +974,8 @@ gboolean bt_sequence_play(const BtSequence *self) {
   }
   // release the references
   gst_clock_id_unref(clock_id);
-  g_object_try_unref(clock);
-  g_object_try_unref(bin);
+  gst_object_unref(clock);
+  gst_object_unref(bin);
   return(res);
 }
 
@@ -988,9 +990,9 @@ gboolean bt_sequence_play(const BtSequence *self) {
  */
 gboolean bt_sequence_stop(const BtSequence *self) {
   
-  g_assert(BT_IS_SEQUENCE(self));
-  
-  if(!self->priv->is_playing) return(TRUE);
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  // do not stop if not playing
+  g_return_val_if_fail(!self->priv->is_playing,TRUE);
 
   g_mutex_lock(self->priv->is_playing_mutex);
   self->priv->is_playing=FALSE;

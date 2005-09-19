@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.34 2005-08-05 08:59:47 ensonic Exp $
+// $Id: song-info.c,v 1.35 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -70,7 +70,7 @@ static GObjectClass *parent_class=NULL;
 BtSongInfo *bt_song_info_new(const BtSong *song) {
   BtSongInfo *self;
 
-  g_assert(BT_IS_SONG(song));
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
   
   self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
   return(self);

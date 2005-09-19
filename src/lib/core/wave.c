@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.10 2005-08-05 09:36:16 ensonic Exp $
+// $Id: wave.c,v 1.11 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -98,8 +98,8 @@ Error:
 gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel) {
   gboolean ret=FALSE;
   
-  g_return_val_if_fail(BT_IS_WAVE(self),FALSE);
-  g_return_val_if_fail(BT_IS_WAVELEVEL(wavelevel),FALSE);
+  g_assert(BT_IS_WAVE(self));
+  g_assert(BT_IS_WAVELEVEL(wavelevel));
 
   if(!g_list_find(self->priv->wavelevels,wavelevel)) {
     ret=TRUE;

@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.85 2005-09-01 22:05:03 ensonic Exp $
+// $Id: song-io-native.c,v 1.86 2005-09-19 16:14:06 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -59,7 +59,7 @@ GType bt_song_io_native_detect(const gchar *file_name) {
  * test if the given XPathObject is of the expected type, otherwise discard the object
  * Returns: the supplied xpath object or %NULL is types do not match
  */
-xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathObjectType type) {
+static xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathObjectType type) {
   if(xpath_optr && (xpath_optr->type!=type)) {
     GST_ERROR("xpath expr does not returned the expected type: ist=%ld <-> soll=%ld",(unsigned long)xpath_optr->type,(unsigned long)type);
     xmlXPathFreeObject(xpath_optr);
@@ -80,7 +80,7 @@ xmlXPathObjectPtr xpath_type_filter(xmlXPathObjectPtr xpath_optr,const xmlXPathO
  *
  * Returns: the xpathobject; do not forget to free the result after use
  */
-xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr const xpath_comp_expression, xmlNodePtr const root_node) {
+static xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprPtr const xpath_comp_expression, xmlNodePtr const root_node) {
   xmlXPathObjectPtr result=NULL;
   xmlXPathContextPtr ctxt;
 

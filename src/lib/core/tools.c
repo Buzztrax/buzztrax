@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.17 2005-08-29 22:21:03 ensonic Exp $
+/* $Id: tools.c,v 1.18 2005-09-19 16:14:06 ensonic Exp $
  */
  
 #define BT_CORE
@@ -20,7 +20,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   GstElementFactory *element;
   gsize sl;
 
-  g_assert(class_filter);
+  g_return_val_if_fail(is_string(class_filter),NULL);
   
   sl=(gsize)(strlen(class_filter));
   
