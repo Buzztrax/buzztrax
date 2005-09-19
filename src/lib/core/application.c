@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.38 2005-09-19 16:14:06 ensonic Exp $
+// $Id: application.c,v 1.39 2005-09-19 21:23:07 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -44,7 +44,7 @@ struct _BtApplicationPrivate {
 static GObjectClass *parent_class=NULL;
 
 typedef struct {
-  GstBusHandler handler;
+  GstBusFunc handler;
   gpointer user_data;
 } BtBusWatchEntry;
 
@@ -136,7 +136,7 @@ gboolean bt_application_new(BtApplication *self) {
  * The #BtApplication class manages communication with the #GstBus of the loaded
  * #BtSong. To process bus messages register a handler with this method.
  */
-void bt_application_add_bus_watch(const BtApplication *self,GstBusHandler handler,gpointer user_data) {
+void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,gpointer user_data) {
   BtBusWatchEntry *entry;
   GList* node;
   
@@ -163,7 +163,7 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusHandler handle
  *
  * Unregister a handler previously registered using bt_application_add_bus_watch().
  */
-void bt_application_remove_bus_watch(const BtApplication *self,GstBusHandler handler) {
+void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handler) {
   BtBusWatchEntry *entry;
   GList* node;
   
@@ -276,7 +276,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   
   bus=gst_element_get_bus(self->priv->bin);
-  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
+  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,GST_MESSAGE_ANY,bus_handler,(gpointer)self,NULL);
   g_object_unref(bus);
   
   // if we enable this we get lots of diagnostics
