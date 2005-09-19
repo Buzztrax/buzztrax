@@ -1,11 +1,11 @@
-/* $Id: e-song.c,v 1.9 2005-09-14 00:01:28 ensonic Exp $
+/* $Id: e-song.c,v 1.10 2005-09-19 19:01:29 ensonic Exp $
  */
 
 #include "m-bt-core.h"
 
 //-- globals
 
-static gboolean play_signal_invoke=FALSE;
+static gboolean play_signal_invoked=FALSE;
 
 //-- fixtures
 
@@ -23,7 +23,7 @@ static void test_teardown(void) {
 
 // helper method to test the play signal
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  play_signal_invoke=TRUE;
+  play_signal_invoked=TRUE;
 }
 
 // test if the default constructor works as expected
@@ -123,11 +123,11 @@ BT_START_TEST(test_btsong_play1) {
   load_ret = bt_song_io_load(loader,song);
   fail_unless(load_ret, NULL);
 
-  play_signal_invoke=FALSE;
+  play_signal_invoked=FALSE;
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
   bt_song_play(song);
   sleep(1);
-  fail_unless(play_signal_invoke, NULL);
+  fail_unless(play_signal_invoked, NULL);
   bt_song_stop(song);
 
   g_object_checked_unref(loader);
