@@ -1,4 +1,4 @@
-$Id: README,v 1.15 2005-08-13 08:54:14 ensonic Exp $
+$Id: README,v 1.16 2005-09-20 09:04:44 waffel Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -13,10 +13,9 @@ libxml2
 glib2
 gtk+2
 gstreamer(head cvs)
+gst-plugins-base (head gstreamer cvs)
+gst-plugins-good (head gstreamer cvs
 gnome-canvas
-gst-buzztard
-  available in buzztard cvs (on sf.net)
-  needed for a cvs build of buzztard
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
