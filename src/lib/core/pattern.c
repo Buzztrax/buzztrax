@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.66 2005-09-19 16:14:06 ensonic Exp $
+// $Id: pattern.c,v 1.67 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -386,8 +386,8 @@ BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name
   gulong voices;
   
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(is_string(id),NULL);
-  g_return_val_if_fail(is_string(name),NULL);
+  g_return_val_if_fail(BT_IS_STRING(id),NULL);
+  g_return_val_if_fail(BT_IS_STRING(name),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(machine),NULL);
   
   g_object_get(G_OBJECT(machine),"voices",&voices,NULL);
@@ -513,7 +513,7 @@ gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *nam
   GError *tmp_error=NULL;
   
   g_return_val_if_fail(BT_IS_PATTERN(self),0);
-  g_return_val_if_fail(is_string(name),0);
+  g_return_val_if_fail(BT_IS_STRING(name),0);
   g_return_val_if_fail(error == NULL || *error == NULL, 0);
   
   ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
@@ -543,7 +543,7 @@ gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name
   GError *tmp_error=NULL;
   
   g_return_val_if_fail(BT_IS_PATTERN(self),0);
-  g_return_val_if_fail(is_string(name),0);
+  g_return_val_if_fail(BT_IS_STRING(name),0);
   g_return_val_if_fail(error == NULL || *error == NULL, 0);
   
   ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);

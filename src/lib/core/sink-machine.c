@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.48 2005-09-19 16:14:06 ensonic Exp $
+// $Id: sink-machine.c,v 1.49 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -27,12 +27,12 @@ static gchar *bt_sink_machine_determine_plugin_name(const BtSettings *settings) 
   gchar *plugin_name=NULL;
   
   g_object_get(G_OBJECT(settings),"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
-  if(is_string(audiosink_name)) {
+  if(BT_IS_STRING(audiosink_name)) {
     GST_INFO("get audiosink from config");
     plugin_name=audiosink_name;
     audiosink_name=NULL;
   }
-  else if(is_string(system_audiosink_name)) {
+  else if(BT_IS_STRING(system_audiosink_name)) {
     GST_INFO("get audiosink from system config");
     plugin_name=system_audiosink_name;
     system_audiosink_name=NULL;
@@ -55,7 +55,7 @@ static gchar *bt_sink_machine_determine_plugin_name(const BtSettings *settings) 
     }
     plugin_name=sink_name;
   }
-  if (!is_string(plugin_name)) {
+  if (!BT_IS_STRING(plugin_name)) {
     GST_INFO("get audiosink from gst registry by rank");
     // iterate over gstreamer-audiosink list and choose element with highest rank
     GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
@@ -147,14 +147,14 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   gchar *plugin_name;
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(is_string(id),NULL);
+  g_return_val_if_fail(BT_IS_STRING(id),NULL);
 
   // get plugin_name from song->app->settings
   g_object_get(G_OBJECT(song),"app",&app,NULL);
   g_object_get(app,"settings",&settings,NULL);
 
   plugin_name=bt_sink_machine_determine_plugin_name(settings);
-  if(!is_string(plugin_name)) {
+  if(!BT_IS_STRING(plugin_name)) {
     GST_ERROR("no audiosink configured/registered");
     goto Error;
   }

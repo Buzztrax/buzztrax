@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.90 2005-09-19 18:47:20 ensonic Exp $
+// $Id: song.c,v 1.91 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -265,7 +265,7 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
   gint64 pos_cur,pos_end;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
-  g_return_val_if_fail(!self->priv->is_playing,FALSE);
+  g_return_val_if_fail(self->priv->is_playing,FALSE);
   //GST_INFO("query playback-pos");
   
   // query playback position and update self->priv->play-pos;
@@ -323,9 +323,6 @@ static void bt_song_get_property(GObject      *object,
     } break;
     case SONG_MASTER: {
       g_value_set_object(value, self->priv->master);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->master);
-      #endif
     } break;
     case SONG_SONG_INFO: {
       g_value_set_object(value, self->priv->song_info);
@@ -370,7 +367,7 @@ static void bt_song_set_property(GObject      *object,
       //GST_DEBUG("set the app for the song: %p",self->priv->app);
     } break;
     case SONG_BIN: {
-      g_object_try_unref(self->priv->bin);
+      if(self->priv->bin) gst_object_unref(self->priv->bin);
       self->priv->bin=GST_BIN(g_value_dup_object(value));
       #ifndef HAVE_GLIB_2_8
       gst_object_ref(self->priv->bin);
@@ -417,7 +414,7 @@ static void bt_song_dispose(GObject *object) {
   g_object_try_unref(self->priv->sequence);
   g_object_try_unref(self->priv->setup);
   g_object_try_unref(self->priv->wavetable);
-  g_object_try_unref(self->priv->bin);
+  gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");

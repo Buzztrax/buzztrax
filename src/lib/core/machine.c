@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.158 2005-09-19 16:14:06 ensonic Exp $
+// $Id: machine.c,v 1.159 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -343,12 +343,13 @@ static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
   GstPad *pad,*peer_pad;
     
   // add before machine (sink peer of machine)
-  pad=gst_element_get_pad(elem,"sink");
-  peer_pad=gst_pad_get_peer(pad);
-  peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
-
-  gst_object_unref(pad);
-  gst_object_unref(peer_pad);
+  if((pad=gst_element_get_pad(elem,"sink"))) {
+    if((peer_pad=gst_pad_get_peer(pad))) {
+      peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
+      gst_object_unref(peer_pad);
+    }
+    gst_object_unref(pad);
+  }
   return(peer);
 }
 
@@ -596,8 +597,8 @@ gboolean bt_machine_new(BtMachine *self) {
 
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!self->priv->machines[PART_MACHINE],FALSE);
-  g_return_val_if_fail(is_string(self->priv->id),FALSE);
-  g_return_val_if_fail(is_string(self->priv->plugin_name),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(self->priv->id),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(self->priv->plugin_name),FALSE);
   g_return_val_if_fail(BT_IS_SONG(self->priv->song),FALSE);
 
   GST_INFO("initializing machine");
@@ -1098,7 +1099,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id) {
   GList* node;
   
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(is_string(id),NULL);
+  g_return_val_if_fail(BT_IS_STRING(id),NULL);
   
   //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
   
@@ -1196,7 +1197,7 @@ glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name
   gboolean found=FALSE;
 
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
-  g_return_val_if_fail(is_string(name),-1);
+  g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
   
   for(i=0;i<self->priv->global_params;i++) {
@@ -1232,7 +1233,7 @@ glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name,
   gboolean found=FALSE;
 
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
-  g_return_val_if_fail(is_string(name),-1);
+  g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
  
   for(i=0;i<self->priv->voice_params;i++) {
@@ -1940,7 +1941,7 @@ static void bt_machine_dispose(GObject *object) {
     }
     // release the bin (that is ref'ed in bt_machine_new() )
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
-    g_object_unref(self->priv->bin);
+    gst_object_unref(self->priv->bin);
   }
 
   //GST_DEBUG("  releasing song: %p",self->priv->song);

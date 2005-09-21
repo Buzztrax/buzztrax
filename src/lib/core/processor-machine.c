@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.29 2005-09-19 16:14:06 ensonic Exp $
+// $Id: processor-machine.c,v 1.30 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -39,8 +39,8 @@ BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id
   BtProcessorMachine *self;
   
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  g_return_val_if_fail(is_string(id),NULL);
-  g_return_val_if_fail(is_string(plugin_name),NULL);
+  g_return_val_if_fail(BT_IS_STRING(id),NULL);
+  g_return_val_if_fail(BT_IS_STRING(plugin_name),NULL);
   
   if(!(self=BT_PROCESSOR_MACHINE(g_object_new(BT_TYPE_PROCESSOR_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)))) {
     goto Error;

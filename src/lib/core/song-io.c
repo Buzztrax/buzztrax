@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.46 2005-09-14 15:22:55 ensonic Exp $
+// $Id: song-io.c,v 1.47 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -157,7 +157,7 @@ BtSongIO *bt_song_io_new(const gchar *file_name) {
   BtSongIO *self=NULL;
   GType type = 0;
   
-  if(!is_string(file_name)) {
+  if(!BT_IS_STRING(file_name)) {
     GST_WARNING("filename should not be empty");
     return NULL;
   }

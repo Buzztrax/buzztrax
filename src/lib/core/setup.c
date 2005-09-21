@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.76 2005-09-19 16:14:06 ensonic Exp $
+// $Id: setup.c,v 1.77 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -268,7 +268,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup *self, const gchar *id) {
   GList* node;
 
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-  g_return_val_if_fail(is_string(id),NULL);
+  g_return_val_if_fail(BT_IS_STRING(id),NULL);
   
   /*
     find_by_property(gpointer item,gpointer data) {
@@ -494,7 +494,7 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
   guint8 i=0;
   
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
-  g_return_val_if_fail(is_string(base_name),NULL);
+  g_return_val_if_fail(BT_IS_STRING(base_name),NULL);
   
   if(!(machine=bt_setup_get_machine_by_id(self,base_name))) {
     return(g_strdup(base_name));

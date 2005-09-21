@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.15 2005-09-13 22:12:13 ensonic Exp $
+/* $Id: e-network.c,v 1.16 2005-09-21 19:46:04 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -13,7 +13,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -81,15 +81,17 @@ BT_START_TEST(test_btcore_net_example1) {
   
   /* try to start playing the song */
   if(bt_song_play(song)) {
+    mark_point();
+    sleep(1);
     /* stop the song */
     bt_song_stop(song);
   } else {
     fail("playing of network song failed");
   }
   
-	g_object_unref(gen1);
-	g_object_unref(sink);
-	g_object_unref(wire1);
+  g_object_unref(gen1);
+  g_object_unref(sink);
+  g_object_unref(wire1);
   g_object_unref(setup);
   g_object_unref(sequence);
   g_object_checked_unref(song);
@@ -151,17 +153,19 @@ BT_START_TEST(test_btcore_net_example2) {
 
   /* try to start playing the song */
   if(bt_song_play(song)) {
+    mark_point();
+    sleep(1);
     /* stop the song */
     bt_song_stop(song);
   } else {
     fail("playing of network song failed");
   }
   
-	g_object_unref(gen1);
-	g_object_unref(gen2);
-	g_object_unref(sink);
-	g_object_unref(wire1);
-	g_object_unref(wire2);
+  g_object_unref(gen1);
+  g_object_unref(gen2);
+  g_object_unref(sink);
+  g_object_unref(wire1);
+  g_object_unref(wire2);
   g_object_unref(setup);
   g_object_unref(sequence);
   g_object_checked_unref(song);
@@ -180,9 +184,9 @@ BT_START_TEST(test_btcore_net_example3) {
   BtSetup *setup=NULL;
   BtSequence *sequence=NULL;
   // machines
-  BtSourceMachine *gen1=NULL,*gen2=NULL;
-	BtProcessorMachine *proc=NULL;
-  BtSinkMachine *sink=NULL;
+  BtMachine *gen1=NULL,*gen2=NULL;
+  BtMachine *proc=NULL;
+  BtMachine *sink=NULL;
   // wires
   BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
   
@@ -198,31 +202,31 @@ BT_START_TEST(test_btcore_net_example3) {
   fail_unless(setup!=NULL, NULL);
 
   /* try to create the sink */
-  sink=bt_sink_machine_new(song,"master");
+  sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
   
   /* try to create generator1 with sinesrc */
-  gen1 = bt_source_machine_new(song,"generator1","sinesrc",0);
+  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","sinesrc",0));
   fail_unless(gen1!=NULL, NULL);
   
   /* try to create generator2 with sinesrc */
-  gen2 = bt_source_machine_new(song,"generator2","sinesrc",0);
+  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","sinesrc",0));
   fail_unless(gen2!=NULL, NULL);
 
   /* try to create a processor with volume */
-  proc = bt_processor_machine_new(song,"processor","volume",0);
+  proc=BT_MACHINE(bt_processor_machine_new(song,"processor","volume",0));
   fail_unless(proc!=NULL, NULL);
 
   /* try to create a wire from gen1 to proc */
-  wire1=bt_wire_new(song, BT_MACHINE(gen1), BT_MACHINE(proc));
+  wire1=bt_wire_new(song,gen1,proc);
   fail_unless(wire1!=NULL, NULL);
   
   /* try to create a wire from gen2 to proc */ 
-  wire2=bt_wire_new(song, BT_MACHINE(gen2), BT_MACHINE(proc));
+  wire2=bt_wire_new(song,gen2,proc);
   fail_unless(wire2!=NULL, NULL);
 
   /* try to create a wire from proc to sink */ 
-  wire3=bt_wire_new(song, BT_MACHINE(proc), BT_MACHINE(sink));
+  wire3=bt_wire_new(song,proc,sink);
   fail_unless(wire3!=NULL, NULL);
 
   /* enlarge the sequence */
@@ -232,19 +236,21 @@ BT_START_TEST(test_btcore_net_example3) {
 
   /* try to start playing the song */
   if(bt_song_play(song)) {
+    mark_point();
+    sleep(1);
     /* stop the song */
     bt_song_stop(song);
   } else {
     fail("playing of network song failed");
   }
   
-	g_object_unref(gen1);
-	g_object_unref(gen2);
-	g_object_unref(proc);
-	g_object_unref(sink);
-	g_object_unref(wire1);
-	g_object_unref(wire2);
-	g_object_unref(wire3);
+  g_object_unref(gen1);
+  g_object_unref(gen2);
+  g_object_unref(proc);
+  g_object_unref(sink);
+  g_object_unref(wire1);
+  g_object_unref(wire2);
+  g_object_unref(wire3);
   g_object_unref(setup);
   g_object_unref(sequence);
   g_object_checked_unref(song);
@@ -259,5 +265,7 @@ TCase *bt_network_example_case(void) {
   tcase_add_test(tc,test_btcore_net_example2);
   tcase_add_test(tc,test_btcore_net_example3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  // we need to raise the default timeout of 3 seconds
+  tcase_set_timeout(tc, 10);
   return(tc);
 }

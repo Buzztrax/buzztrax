@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.68 2005-09-19 16:14:06 ensonic Exp $
+// $Id: main-toolbar.c,v 1.69 2005-09-21 19:46:04 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -280,7 +280,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
   BtSinkMachine *master;
-  GstElement *level,*bin;
+  GstElement *level;
 
   g_assert(user_data);
 
@@ -290,14 +290,18 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
 
-  g_object_get(G_OBJECT(song),"master",&master,"bin",&bin,NULL);
+  g_object_get(G_OBJECT(song),"master",&master,NULL);
   if(master) {
     GstPad *pad;
     gdouble volume;
+    
+    GST_INFO("connect to input-level : song=%p,  master=%p",song,master);
 
     // get the input_level property from audio_sink
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
-		bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
+
+    g_assert(GST_IS_ELEMENT(level));
+    bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
@@ -305,18 +309,19 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // release the references
     gst_object_unref(level);
     
+    g_assert(GST_IS_ELEMENT(self->priv->gain));
     // get the current input_gain and adjust volume widget
     g_object_get(self->priv->gain,"volume",&volume,NULL);
     gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
-    // connect volumne event
+    // connect volume event
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
+
+    g_object_unref(master);
   }
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
-	gst_object_unref(bin);
-  gst_object_unref(master);
-  g_object_try_unref(song);
+  g_object_unref(song);
 }
 
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
@@ -519,11 +524,11 @@ static void bt_main_toolbar_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 	
-	g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-	g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
-	g_object_unref(song);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+  g_object_unref(song);
 
-  gst_object_unref(self->priv->gain);
+  if(self->priv->gain) gst_object_unref(self->priv->gain);
   
   g_object_try_weak_unref(self->priv->app);
 

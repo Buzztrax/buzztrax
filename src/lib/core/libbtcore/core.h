@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.65 2005-09-11 19:45:15 ensonic Exp $
+/* $Id: core.h,v 1.66 2005-09-21 19:46:03 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -183,7 +183,7 @@
  *
  * checks if the supplied string pointer is not %NULL and contains not just '\0'
  */
-#define is_string(a) (a && *a)
+#define BT_IS_STRING(a) (a && *a)
 
 /**
  * safe_string:

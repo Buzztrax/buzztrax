@@ -1,4 +1,4 @@
-// $Id: settings-page-audiodevices.c,v 1.15 2005-08-05 09:36:19 ensonic Exp $
+// $Id: settings-page-audiodevices.c,v 1.16 2005-09-21 19:46:04 ensonic Exp $
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
@@ -62,7 +62,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
-  if(is_string(audiosink_name)) use_system_audiosink=FALSE;
+  if(BT_IS_STRING(audiosink_name)) use_system_audiosink=FALSE;
 
   // add notebook page #1
   spacer=gtk_label_new("    ");

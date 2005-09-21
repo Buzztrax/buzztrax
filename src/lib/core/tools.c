@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.19 2005-09-19 21:23:07 ensonic Exp $
+/* $Id: tools.c,v 1.20 2005-09-21 19:46:03 ensonic Exp $
  */
  
 #define BT_CORE
@@ -33,7 +33,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   //gsize sl;
   GstPluginFeature *feature;
 
-  g_return_val_if_fail(is_string(class_filter),NULL);
+  g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
     
   /* deprecated API
   sl=(gsize)(strlen(class_filter));

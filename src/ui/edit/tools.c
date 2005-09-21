@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.11 2005-09-19 16:14:06 ensonic Exp $
+/* $Id: tools.c,v 1.12 2005-09-21 19:46:04 ensonic Exp $
  * gui helper
  */
 
@@ -117,9 +117,9 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   GtkWidget *dialog;
   
   g_return_if_fail(BT_IS_MAIN_WINDOW(self));
-  g_return_if_fail(is_string(title));
-  g_return_if_fail(is_string(headline));
-  g_return_if_fail(is_string(message));
+  g_return_if_fail(BT_IS_STRING(title));
+  g_return_if_fail(BT_IS_STRING(headline));
+  g_return_if_fail(BT_IS_STRING(message));
 
   dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),
@@ -164,9 +164,9 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   GtkWidget *dialog;
 
   g_return_val_if_fail(BT_IS_MAIN_WINDOW(self),FALSE);
-  g_return_val_if_fail(is_string(title),FALSE);
-  g_return_val_if_fail(is_string(headline),FALSE);
-  g_return_val_if_fail(is_string(message),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(title),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(headline),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(message),FALSE);
   
   dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),

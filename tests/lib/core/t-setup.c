@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.25 2005-09-19 18:47:20 ensonic Exp $
+/* $Id: t-setup.c,v 1.26 2005-09-21 19:46:04 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -13,7 +13,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -106,7 +106,7 @@ BT_START_TEST(test_btsetup_obj2){
   fail_unless(wire1 != NULL, NULL);
   
   /* try to add again the same wire */
-	// @todo this test fails now
+  // @todo this test fails now
   wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
   fail_unless(wire2 == NULL, NULL);
   
@@ -185,7 +185,7 @@ BT_START_TEST(test_btsetup_obj5) {
   bt_setup_add_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -214,7 +214,7 @@ BT_START_TEST(test_btsetup_obj6) {
   bt_setup_add_wire(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -243,7 +243,7 @@ BT_START_TEST(test_btsetup_obj7) {
   bt_setup_add_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -272,7 +272,7 @@ BT_START_TEST(test_btsetup_obj8) {
   bt_setup_get_machine_by_id(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -301,7 +301,7 @@ BT_START_TEST(test_btsetup_obj9) {
   bt_setup_get_machine_by_id(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -330,7 +330,7 @@ BT_START_TEST(test_btsetup_obj10) {
   bt_setup_get_machine_by_index(NULL,0);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -359,7 +359,7 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine1) {
   bt_setup_get_wire_by_src_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -388,7 +388,7 @@ BT_START_TEST(test_btsetup_get_wire_by_src_machine2) {
   bt_setup_get_wire_by_src_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -422,7 +422,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine1) {
   bt_setup_get_wires_by_src_machine(NULL,BT_MACHINE(src_machine));
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -453,7 +453,7 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine2) {
   bt_setup_get_wires_by_src_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -491,8 +491,8 @@ BT_START_TEST(test_btsetup_get_wires_by_src_machine3) {
   wire_list=bt_setup_get_wires_by_src_machine(setup,BT_MACHINE(src_machine));
   fail_unless(wire_list==NULL,NULL);
 
-	g_object_unref(src_machine);
-	g_object_unref(setup);
+  g_object_unref(src_machine);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -521,7 +521,7 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine1) {
   bt_setup_get_wire_by_dst_machine(NULL,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -550,7 +550,7 @@ BT_START_TEST(test_btsetup_get_wire_by_dst_machine2) {
   bt_setup_get_wire_by_dst_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -581,7 +581,7 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine1) {
   bt_setup_get_wires_by_dst_machine(NULL,BT_MACHINE(dst_machine));
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -609,7 +609,7 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine2) {
   bt_setup_get_wires_by_dst_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -644,8 +644,8 @@ BT_START_TEST(test_btsetup_get_wires_by_dst_machine3) {
   wire_list=bt_setup_get_wires_by_dst_machine(setup,BT_MACHINE(dst_machine));
   fail_unless(wire_list==NULL,NULL);
 
-	g_object_unref(dst_machine);
-	g_object_unref(setup);
+  g_object_unref(dst_machine);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -698,7 +698,7 @@ BT_START_TEST(test_btsetup_obj14) {
   bt_setup_remove_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -728,7 +728,7 @@ BT_START_TEST(test_btsetup_obj15) {
   bt_setup_remove_machine(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -757,7 +757,7 @@ BT_START_TEST(test_btsetup_obj16) {
   bt_setup_remove_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(setup);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -786,16 +786,16 @@ BT_START_TEST(test_btsetup_obj17) {
   /* try to craete generator1 with sinesrc */
   gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0));
   fail_unless(gen!=NULL, NULL);
-	/* and remove it from setup */
-	bt_setup_remove_machine(setup,gen);
+  /* and remove it from setup */
+  bt_setup_remove_machine(setup,gen);
   
   check_init_error_trapp("bt_setup_remove_machine",
      "trying to remove machine that is not in setup");
   bt_setup_remove_machine(setup,gen);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(gen);
-	g_object_unref(setup);
+  g_object_unref(gen);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -836,18 +836,18 @@ BT_START_TEST(test_btsetup_obj18) {
   /* try to create the wire */
   wire = bt_wire_new(song, BT_MACHINE(source), BT_MACHINE(sink));
   fail_unless(wire!=NULL, NULL);
-	/* and remove it from setup */
-	bt_setup_remove_wire(setup,wire);
+  /* and remove it from setup */
+  bt_setup_remove_wire(setup,wire);
   
   check_init_error_trapp("bt_setup_remove_wire",
      "trying to remove wire that is not in setup");
   bt_setup_remove_wire(setup,wire);
   fail_unless(check_has_error_trapped(), NULL);
 
-	g_object_unref(source);
-	g_object_unref(sink);
-	g_object_unref(wire);
-	g_object_unref(setup);
+  g_object_unref(source);
+  g_object_unref(sink);
+  g_object_unref(wire);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -894,10 +894,10 @@ BT_START_TEST(test_btsetup_wire1) {
   wire_two = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(src));
   fail_unless(wire_two!=NULL,NULL);
   
-	g_object_unref(src);
-	g_object_unref(dst);
-	g_object_unref(wire_one);
-	g_object_unref(setup);
+  g_object_unref(src);
+  g_object_unref(dst);
+  g_object_unref(wire_one);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -906,6 +906,7 @@ BT_END_TEST
 /**
 * try to add wire(dst,src) and wire(src,dst) to setup. This should fail (cycle).
 */
+#ifdef __DISABLED__
 BT_START_TEST(test_btsetup_wire2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -944,14 +945,15 @@ BT_START_TEST(test_btsetup_wire2) {
   wire_two = bt_wire_new(song, BT_MACHINE(src), BT_MACHINE(dst));
   fail_unless(wire_two!=NULL,NULL);
   
-	g_object_unref(src);
-	g_object_unref(dst);
-	g_object_unref(wire_one);
-	g_object_unref(setup);
+  g_object_unref(src);
+  g_object_unref(dst);
+  g_object_unref(wire_one);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
+#endif
 
 /**
 * try to add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This 
@@ -1004,12 +1006,12 @@ BT_START_TEST(test_btsetup_wire3) {
   wire_three = bt_wire_new(song, BT_MACHINE(src2), BT_MACHINE(src1));
   fail_unless(wire_three!=NULL,NULL);
   
-	g_object_unref(src1);
-	g_object_unref(src2);
-	g_object_unref(dst);
-	g_object_unref(wire_one);
-	g_object_unref(wire_two);
-	g_object_unref(setup);
+  g_object_unref(src1);
+  g_object_unref(src2);
+  g_object_unref(dst);
+  g_object_unref(wire_one);
+  g_object_unref(wire_two);
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }
@@ -1046,7 +1048,8 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_obj17);
   tcase_add_test(tc,test_btsetup_obj18);
   tcase_add_test(tc,test_btsetup_wire1);
-  tcase_add_test(tc,test_btsetup_wire2);
+  // thats basically the same as wire1
+  //tcase_add_test(tc,test_btsetup_wire2);
   tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds (even 15 seems not to be enough)

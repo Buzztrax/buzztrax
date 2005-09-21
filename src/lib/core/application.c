@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.39 2005-09-19 21:23:07 ensonic Exp $
+// $Id: application.c,v 1.40 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -194,6 +194,9 @@ static void bt_application_get_property(GObject      *object,
   switch (property_id) {
     case APPLICATION_BIN: {
       g_value_set_object(value, self->priv->bin);
+      #ifndef HAVE_GLIB_2_8
+      gst_object_ref(self->priv->bin);
+      #endif
     } break;
     case APPLICATION_SETTINGS: {
       g_value_set_object(value, self->priv->settings);
@@ -230,7 +233,7 @@ static void bt_application_dispose(GObject *object) {
   GST_INFO("bin->numchildren=%d",GST_BIN(self->priv->bin)->numchildren);
   GST_INFO("settings->ref_ct=%d",G_OBJECT(self->priv->settings)->ref_count);
 
-  g_object_try_unref(self->priv->bin);
+  gst_object_unref(self->priv->bin);
   g_object_try_unref(self->priv->settings);
 
   GST_DEBUG("  chaining up");

@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.62 2005-09-19 16:14:06 ensonic Exp $
+// $Id: cmd-application.c,v 1.63 2005-09-21 19:46:04 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -80,12 +80,10 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   BtSongIO *loader=NULL;
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
   
   GST_INFO("application.play launched");
   
-  if(!is_string(input_file_name)) {
-    goto Error;
-  }
   // prepare song and song-io
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
@@ -163,14 +161,12 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   FILE *output_file=NULL;
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
 
   GST_INFO("application.info launched");
 
-  if(!is_string(input_file_name)) {
-    goto Error;
-  }
   // choose appropriate output
-  if (!is_string(output_file_name)) {
+  if (!BT_IS_STRING(output_file_name)) {
     output_file=stdout; 
   } else {
     output_file = fopen(output_file_name,"wb");
@@ -257,7 +253,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 Error:
   g_object_try_unref(song);
   g_object_try_unref(loader);
-  if (is_string(output_file_name)) {
+  if (BT_IS_STRING(output_file_name)) {
     fclose(output_file);
   }
   return(res);
@@ -280,13 +276,8 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   BtSongIO *loader=NULL,*saver=NULL;
   
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
-
-  if(!is_string(input_file_name)) {
-    goto Error;
-  }
-  if(!is_string(output_file_name)) {
-    goto Error;
-  }
+  g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
 
   // prepare song and song-io
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
@@ -335,20 +326,14 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   gboolean res=FALSE;
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
-
-  if(!is_string(input_file_name)) {
-    goto Error;
-  }
-  if(!is_string(output_file_name)) {
-    goto Error;
-  }
+  g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
 
   /* @todo implement this like play, with a different sink
    * open question is how to use a different audiosink - determine by output file name ?
    */
   g_printf("sorry this is not yet implemented\n");
 
-Error:
   return(res);  
 }
 

@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.62 2005-09-19 16:14:06 ensonic Exp $
+// $Id: wire.c,v 1.63 2005-09-21 19:46:03 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -408,7 +408,7 @@ static void bt_wire_dispose(GObject *object) {
     bt_wire_unlink_machines(self); // removes convert and scale if in use
     // @todo add the remaining elements to remove (which?)
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
-    g_object_try_unref(self->priv->bin);
+    gst_object_unref(self->priv->bin);
   }
 
   g_object_try_weak_unref(self->priv->song);
