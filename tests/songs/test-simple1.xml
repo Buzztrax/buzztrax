@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-  xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
@@ -12,24 +11,19 @@
     <bpm>100</bpm>
     <tpb>8</tpb>
     <bars>16</bars>
-    <createdate>2005-04-30+10:00</createdate>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink">
-        <properties>
-          <property key="xpos" value="0.7"/>
-          <property key="ypos" value="0.5"/>
-        </properties>
+        <machineui xpos="20" ypos="70"/>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="200"/>
       </sink>
-      <source id="sine1" plugin-name="sinesrc" voices="0">
-        <properties>
-          <property key="xpos" value="0.2"/>
-          <property key="ypos" value="0.2"/>
-        </properties>
+      <source id="sine1" pluginname="sinesrc" voices="0">
+        <machineui xpos="50" ypos="30"/>
         <globaldata name="volume" value="1.0"/>
       </source>
     </machines>
@@ -42,16 +36,16 @@
   <patterns>
     <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
       <tick time="0">
-        <globaldata name="freq" value="440,0"/>
-        <globaldata name="volume" value="1,0"/>
+        <tickdata name="freq" voice="0" value="440,0"/>
+        <tickdata name="volume" voice="0" value="1,0"/>
       </tick>
       <tick time="1">
-        <globaldata name="freq" value="880,0"/>
-        <globaldata name="volume" value="1,0"/>
+        <tickdata name="freq" voice="0" value="880,0"/>
+        <tickdata name="volume" voice="0" value="1,0"/>
       </tick>
       <tick time="2">
-        <globaldata name="freq" value="1760,0"/>
-        <globaldata name="volume" value="1,0"/>
+        <tickdata name="freq" voice="0" value="1760,0"/>
+        <tickdata name="volume" voice="0" value="1,0"/>
       </tick>
     </pattern>
   </patterns>
@@ -68,6 +62,4 @@
     </tracks>
   </sequence>
   
-  <wavetable/>
-
 </buzztard>

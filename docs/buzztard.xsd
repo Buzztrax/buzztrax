@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema
-  xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://www.buzztard.org/"
   elementFormDefault="qualified">
 
   <xsd:attribute name="value" type="xsd:string"/>
@@ -11,7 +9,7 @@
   <xsd:attribute name="zoom" type="xsd:float"/>
   <xsd:attribute name="id" type="xsd:string"/>
   <xsd:attribute name="index" type="xsd:integer"/>
-  <xsd:attribute name="plugin-name" type="xsd:string"/>
+  <xsd:attribute name="pluginname" type="xsd:string"/>
   <xsd:attribute name="xpos" type="xsd:integer"/>
   <xsd:attribute name="ypos" type="xsd:integer"/>
   <xsd:attribute name="src" type="xsd:string"/>

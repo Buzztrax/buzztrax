@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-  xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
@@ -12,24 +11,20 @@
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
+    <create-dts>2005-01-01</create-dts>
+    <change-dts>20050101</change-dts>
   </meta>
   
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink">
-        <properties>
-          <property key="xpos" value="0.7"/>
-          <property key="ypos" value="0.5"/>
-        </properties>
+        <machineui xpos="7" ypos="5" />
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <source id="gen" plugin-name="bml-DTMF-1" voices="0">
-        <properties>
-          <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="-0.5"/>
-        </properties>
+      <source id="gen" pluginname="bml-DTMF-1" voices="0">
+        <machineui xpos="10" ypos="20"/>
         <globaldata name="volume" value="1.0"/>
       </source>
     </machines>
@@ -42,15 +37,15 @@
   <patterns>
     <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
       <tick time="0">
-        <globaldata name="Dial-Number" value="1"/>
-        <globaldata name="Sustain" value="200"/>
-        <globaldata name="Volume" value="200"/>
+        <tickdata name="Dial-Number" voice="0" value="1"/>
+        <tickdata name="Sustain" voice ="0" value="200"/>
+        <tickdata name="Volume" voice="0" value="200"/>
       </tick>
       <tick time="4">
-        <globaldata name="Dial-Number" value="2"/>
+        <tickdata name="Dial-Number" voice="0" value="2"/>
       </tick>
       <tick time="8">
-        <globaldata name="Dial-Number" value="3"/>
+        <tickdata name="Dial-Number" voice="0" value="3"/>
       </tick>
     </pattern>
   </patterns>
@@ -68,6 +63,5 @@
     </tracks>
   </sequence>
   
-  <wavetable/>
 
 </buzztard>
