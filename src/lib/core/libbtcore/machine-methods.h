@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.35 2005-08-04 09:47:50 waffel Exp $
+/* $Id: machine-methods.h,v 1.36 2005-09-22 18:26:29 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -67,6 +67,7 @@ extern void bt_machine_voice_controller_change_value(const BtMachine *self,gulon
 
 // debug helper
 
+extern GList *bt_machine_get_element_list(const BtMachine *self);
 extern void bt_machine_dbg_print_parts(const BtMachine *self);
 extern void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self);
 

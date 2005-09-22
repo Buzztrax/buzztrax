@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.77 2005-09-21 19:46:03 ensonic Exp $
+// $Id: setup.c,v 1.78 2005-09-22 18:26:29 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -220,6 +220,7 @@ void bt_setup_remove_machine(const BtSetup *self, const BtMachine *machine) {
   if(g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_remove(self->priv->machines,machine);
     g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
+    GST_DEBUG("removing machine: ref_count=%d",G_OBJECT(machine)->ref_count);
     g_object_unref(G_OBJECT(machine));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -242,6 +243,7 @@ void bt_setup_remove_wire(const BtSetup *self, const BtWire *wire) {
   if(g_list_find(self->priv->wires,wire)) {
     self->priv->wires=g_list_remove(self->priv->wires,wire);
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
+    GST_DEBUG("removing wire: ref_count=%d",G_OBJECT(wire)->ref_count);
     g_object_unref(G_OBJECT(wire));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }

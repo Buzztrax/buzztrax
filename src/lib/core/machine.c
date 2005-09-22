@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.159 2005-09-21 19:46:03 ensonic Exp $
+// $Id: machine.c,v 1.160 2005-09-22 18:26:29 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1073,6 +1073,7 @@ void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern) 
   if(g_list_find(self->priv->patterns,pattern)) {
     self->priv->patterns=g_list_remove(self->priv->patterns,pattern);
     g_signal_emit(G_OBJECT(self),signals[PATTERN_REMOVED_EVENT], 0, pattern);
+    GST_DEBUG("removing pattern: ref_count=%d",G_OBJECT(pattern)->ref_count);
     g_object_unref(G_OBJECT(pattern));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -1700,6 +1701,19 @@ void bt_machine_voice_controller_change_value(const BtMachine *self,gulong param
 }
 
 //-- debug helper
+
+GList *bt_machine_get_element_list(const BtMachine *self) {
+  GList *list=NULL;
+  gulong i;
+  
+  for(i=0;i<PART_COUNT;i++) {
+    if(self->priv->machines[i]) {
+      list=g_list_append(list,self->priv->machines[i]);
+    }
+  }
+  
+  return(list);
+}
 
 void bt_machine_dbg_print_parts(const BtMachine *self) {
   /* [A AC IL IG M OL OG S] */

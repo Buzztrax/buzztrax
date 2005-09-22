@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.63 2005-09-21 19:46:03 ensonic Exp $
+// $Id: wire.c,v 1.64 2005-09-22 18:26:29 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -288,7 +288,7 @@ Error:
  * Returns: the new instance or %NULL in case of an error
  */
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
-  BtWire *self;
+  BtWire *self=NULL,*wire=NULL;
   BtSetup *setup;
   
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
@@ -297,8 +297,19 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   g_return_val_if_fail(BT_IS_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(src_machine!=dst_machine,NULL);
+
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   
-  GST_INFO("create wire between %p and %p (%d)",src_machine,dst_machine,(src_machine!=dst_machine));
+  if((wire=bt_setup_get_wire_by_machines(setup,src_machine,dst_machine))) {
+    GST_WARNING("trying to add create already existing wire");
+    goto Error;
+  }
+  if((wire=bt_setup_get_wire_by_machines(setup,dst_machine,src_machine))) {
+    GST_WARNING("trying to add create already existing wire (reversed)");
+    goto Error;
+  }
+  
+  GST_INFO("create wire between %p and %p",src_machine,dst_machine);
 
   if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
     goto Error;
@@ -307,12 +318,13 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
     goto Error;
   }
   // add the wire to the setup of the song
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   bt_setup_add_wire(setup,self);
-  g_object_unref(setup);
 
+  g_object_unref(setup);
   return(self);
 Error:
+  g_object_try_unref(wire);
+  g_object_unref(setup);
   g_object_try_unref(self);
   return(NULL);
 }

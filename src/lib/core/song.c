@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.91 2005-09-21 19:46:03 ensonic Exp $
+// $Id: song.c,v 1.92 2005-09-22 18:26:29 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -286,17 +286,137 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
  *
  * To aid debugging applications one can use this method to write out the whole
  * network of gstreamer elements that form the song into an XML file.
+ * The file will be written to '/tmp' and will be named according the 'name'
+ * property of the #BtSongInfo.
  * This XML file can be loaded into gst-editor.
  */
 void bt_song_write_to_xml_file(const BtSong *self) {
   FILE *out;
+  BtSongInfo *song_info;
+  gchar *song_name, *file_name;
+  
   g_return_if_fail(BT_IS_SONG(self));
   
-  // @todo find a way to not overwrite files during a run
-  if((out=fopen("/tmp/buzztard-song.xml","wb"))) {
+  g_object_get(G_OBJECT(self),"song-info",&song_info,NULL);
+  g_object_get(song_info,"name",&song_name,NULL);
+  file_name=g_alloca(strlen(song_name)+10);
+  g_sprintf(file_name,"/tmp/%s.xml",song_name);
+  
+  // @todo find a way to not overwrite files during a run (set unique song-name)
+  if((out=fopen(file_name,"wb"))) {
     gst_xml_write_file(GST_ELEMENT(self->priv->bin),out);
     fclose(out);
   }
+  g_free(song_name);
+  g_object_unref(song_info);
+}
+
+/**
+ * bt_song_write_to_dot_file:
+ * @self: the song that should be written
+ *
+ * To aid debugging applications one can use this method to write out the whole
+ * network of gstreamer elements that form the song into an dot file.
+ * The file will be written to '/tmp' and will be named according the 'name'
+ * property of the #BtSongInfo.
+ * This file can be processed with graphviz to get an image.
+ *  dot -Tpng -oimage.png graph.dot
+ */
+void bt_song_write_to_dot_file(const BtSong *self) {
+  FILE *out;
+  BtSongInfo *song_info;
+  BtSetup *setup;
+  gchar *song_name, *file_name;
+  
+  g_return_if_fail(BT_IS_SONG(self));
+  
+  g_object_get(G_OBJECT(self),"song-info",&song_info,"setup",&setup,NULL);
+  g_object_get(song_info,"name",&song_name,NULL);
+  file_name=g_alloca(strlen(song_name)+10);
+  g_sprintf(file_name,"/tmp/%s.dot",song_name);
+
+  if((out=fopen(file_name,"wb"))) {
+    GList *list,*node,*sublist,*subnode;
+    BtMachine *machine,*src,*dst;
+    BtWire *wire;
+    GstElement *elem;
+    GstElementFactory *factory;
+    gchar *id,*label,*this_name,*last_name,*src_name,*dst_name;
+    
+    // write header
+    fprintf(out,
+      "digraph buzztard {\n"
+      "  fontname=\"Arial\";"
+      "  node [style=filled, shape=box, labelfontsize=\"8\", fontsize=\"8\", fontname=\"Arial\"];\n"
+      "\n"
+    );
+    
+    // iterate over machines list
+    g_object_get(setup,"machines",&list,NULL);
+    for(node=list;node;node=g_list_next(node)) {
+      machine=BT_MACHINE(node->data);
+      g_object_get(machine,"id",&id,NULL);
+      fprintf(out,
+        "  subgraph cluster_%s {\n"
+        "    style=filled;\n"
+        "    label=\"%s\";\n"
+		    "    fillcolor=\"%s\";\n"
+        "    color=black\n\n"
+        ,id,id,BT_IS_SOURCE_MACHINE(machine)?"#FFAAAA":(BT_IS_SINK_MACHINE(machine)?"#AAAAFF":"#AAFFAA"));
+
+      // query internal element of each machine
+      sublist=bt_machine_get_element_list(machine);
+      last_name=NULL;
+      for(subnode=sublist;subnode;subnode=g_list_next(subnode)) {
+        elem=GST_ELEMENT(subnode->data);
+        this_name=gst_element_get_name(elem);
+        factory=gst_element_get_factory(elem);
+        label=(gchar *)gst_element_factory_get_longname(factory);
+        fprintf(out,"    %s [color=black, fillcolor=white, label=\"%s\"];\n",this_name,label);
+        if(last_name) {
+          fprintf(out,"    %s -> %s\n",last_name,this_name);
+        }
+        last_name=this_name;
+      }
+      g_list_free(sublist);
+      g_free(id);
+      fprintf(out,"  }\n\n");
+    }
+    g_list_free(list);
+    
+    // iterate over wire list
+    g_object_get(setup,"wires",&list,NULL);
+    for(node=list;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      g_object_get(wire,"src",&src,"dst",&dst,NULL);
+      
+      // get last_name of src
+      sublist=bt_machine_get_element_list(src);
+      subnode=g_list_last(sublist);
+      elem=GST_ELEMENT(subnode->data);
+      src_name=gst_element_get_name(elem);
+      g_list_free(sublist);
+      // get first_name of dst
+      sublist=bt_machine_get_element_list(dst);
+      subnode=g_list_first(sublist);
+      elem=GST_ELEMENT(subnode->data);
+      dst_name=gst_element_get_name(elem);
+      g_list_free(sublist);
+
+      fprintf(out,"  %s -> %s\n",src_name,dst_name);
+      
+      g_object_unref(src);
+      g_object_unref(dst);
+    }
+    g_list_free(list);
+    
+    // write footer
+    fprintf(out,"}\n");
+    fclose(out);
+  }
+  g_free(song_name);
+  g_object_unref(song_info);
+  g_object_unref(setup);
 }
 
 //-- wrapper

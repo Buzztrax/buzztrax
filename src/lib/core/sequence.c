@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.89 2005-09-19 18:47:20 ensonic Exp $
+// $Id: sequence.c,v 1.90 2005-09-22 18:26:29 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -384,6 +384,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
 		GST_WARNING("pattern has length 0");
 		return;
 	}
+  g_assert(machine);
   g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
   // check if from time+1 to time+length another pattern starts (in this track)
   for(i=1;((i<length) && (time+i<self->priv->length));i++) {
@@ -628,7 +629,7 @@ static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *p
   BtPattern *that_pattern;
   gulong i,j;
 
-  GST_DEBUG("repair damage after a pattern %p has been removed",pattern);
+  GST_DEBUG("repair damage after a pattern %p has been removed from machine %p",pattern,machine);
 
   // for all tracks
   for(i=0;i<self->priv->tracks;i++) {
@@ -639,13 +640,14 @@ static void bt_sequence_on_pattern_removed(const BtMachine *machine,BtPattern *p
       for(j=0;j<self->priv->length;j++) {
         that_pattern=bt_sequence_get_pattern(self,j,i);
         if(that_pattern==pattern) {
+          bt_sequence_set_pattern(self,j,i,NULL);
           // mark region covered by change as damaged
-          bt_sequence_invalidate_pattern_region(self,j,i,pattern);
+          //bt_sequence_invalidate_pattern_region(self,j,i,pattern);
         }
-        g_object_unref(that_pattern);
+        g_object_try_unref(that_pattern);
       }
     }
-    g_object_unref(that_machine);
+    g_object_try_unref(that_machine);
   }
   // repair damage
   bt_sequence_repair_damage(self);
@@ -753,7 +755,7 @@ void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar
   g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(time<self->priv->length);
   
-  GST_INFO("set label for time %d",time);
+  GST_DEBUG("set label for time %d",time);
   
   g_free(self->priv->labels[time]);
   self->priv->labels[time]=g_strdup(label);
@@ -774,6 +776,7 @@ BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,cons
   g_return_val_if_fail(time<self->priv->length,NULL);
   g_return_val_if_fail(track<self->priv->tracks,NULL);
   
+  //GST_DEBUG("get pattern at time %d, track %d",time, track);
   return(g_object_try_ref(self->priv->patterns[time*self->priv->tracks+track]));
 }
 

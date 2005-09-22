@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.26 2005-09-21 19:46:04 ensonic Exp $
+/* $Id: t-setup.c,v 1.27 2005-09-22 18:26:29 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -82,8 +82,8 @@ BT_START_TEST(test_btsetup_obj2){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
-  BtSourceMachine *source=NULL;
-  BtSinkMachine *sink=NULL;
+  BtMachine *source=NULL;
+  BtMachine *sink=NULL;
   BtWire *wire1,*wire2;
   gboolean res;
   
@@ -96,18 +96,17 @@ BT_START_TEST(test_btsetup_obj2){
   g_object_get(song,"setup",&setup,NULL);
   
   /* create the source machine */
-  source=bt_source_machine_new(song,"gen","buzztard-test-mono-source",0);
+  source=BT_MACHINE(bt_source_machine_new(song,"gen","sinesrc",0));
   
   /* create the sink machine */
-  sink=bt_sink_machine_new(song,"sink");
+  sink=BT_MACHINE(bt_sink_machine_new(song,"sink"));
   
   /* try to create the wire */
-  wire1=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
+  wire1=bt_wire_new(song,source,sink);
   fail_unless(wire1 != NULL, NULL);
   
   /* try to add again the same wire */
-  // @todo this test fails now
-  wire2=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(sink));
+  wire2=bt_wire_new(song,source,sink);
   fail_unless(wire2 == NULL, NULL);
   
   /* try to add again the same wire */
@@ -861,8 +860,8 @@ BT_START_TEST(test_btsetup_wire1) {
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
-  BtProcessorMachine *src=NULL;
-  BtProcessorMachine *dst=NULL;
+  BtMachine *src=NULL;
+  BtMachine *dst=NULL;
   // wire
   BtWire *wire_one=NULL;
   BtWire *wire_two=NULL;
@@ -879,20 +878,20 @@ BT_START_TEST(test_btsetup_wire1) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete volume machine */
-  src = bt_processor_machine_new(song,"src","volume",0);
+  src = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0));
   fail_unless(src!=NULL, NULL);
   
   /* try to create volume machine */
-  dst = bt_processor_machine_new(song,"dst","volume",0);
+  dst = BT_MACHINE(bt_processor_machine_new(song,"dst","volume",0));
   fail_unless(dst!=NULL, NULL);
   
   /* try to create the wire one */
-  wire_one = bt_wire_new(song, BT_MACHINE(src), BT_MACHINE(dst));
+  wire_one = bt_wire_new(song,src, dst);
   fail_unless(wire_one!=NULL, NULL);
   
   /* this should fail */
-  wire_two = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(src));
-  fail_unless(wire_two!=NULL,NULL);
+  wire_two = bt_wire_new(song, dst, src);
+  fail_unless(wire_two==NULL,NULL);
   
   g_object_unref(src);
   g_object_unref(dst);
@@ -906,14 +905,13 @@ BT_END_TEST
 /**
 * try to add wire(dst,src) and wire(src,dst) to setup. This should fail (cycle).
 */
-#ifdef __DISABLED__
 BT_START_TEST(test_btsetup_wire2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
-  BtProcessorMachine *src=NULL;
-  BtProcessorMachine *dst=NULL;
+  BtMachine *src=NULL;
+  BtMachine *dst=NULL;
   // wire
   BtWire *wire_one=NULL;
   BtWire *wire_two=NULL;
@@ -930,20 +928,20 @@ BT_START_TEST(test_btsetup_wire2) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete volume machine */
-  src = bt_processor_machine_new(song,"src","volume",0);
+  src = BT_MACHINE(bt_processor_machine_new(song,"src","volume",0));
   fail_unless(src!=NULL, NULL);
   
   /* try to create volume machine */
-  dst = bt_processor_machine_new(song,"dst","volume",0);
+  dst = BT_MACHINE(bt_processor_machine_new(song,"dst","volume",0));
   fail_unless(dst!=NULL, NULL);
   
   /* try to create the wire one */
-  wire_one = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(src));
+  wire_one = bt_wire_new(song, dst, src);
   fail_unless(wire_one!=NULL, NULL);
   
   /* this should fail */  
-  wire_two = bt_wire_new(song, BT_MACHINE(src), BT_MACHINE(dst));
-  fail_unless(wire_two!=NULL,NULL);
+  wire_two = bt_wire_new(song, src, dst);
+  fail_unless(wire_two==NULL,NULL);
   
   g_object_unref(src);
   g_object_unref(dst);
@@ -953,20 +951,20 @@ BT_START_TEST(test_btsetup_wire2) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-#endif
 
 /**
 * try to add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This 
 * should fail (cycle).
 */
+#ifdef __DISABLED__
 BT_START_TEST(test_btsetup_wire3) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machines
-  BtProcessorMachine *src1=NULL;
-  BtProcessorMachine *src2=NULL;
-  BtProcessorMachine *dst=NULL;
+  BtMachine *elem1=NULL;
+  BtMachine *elem2=NULL;
+  BtMachine *elem3=NULL;
   // wire
   BtWire *wire_one=NULL;
   BtWire *wire_two=NULL;
@@ -984,26 +982,26 @@ BT_START_TEST(test_btsetup_wire3) {
   fail_unless(setup!=NULL,NULL);
   
   /* try to craete volume machine */
-  src1 = bt_processor_machine_new(song,"src1","volume",0);
-  fail_unless(src1!=NULL, NULL);
+  elem1 = BT_MACHINE(bt_processor_machine_new(song,"elem1","volume",0));
+  fail_unless(elem1!=NULL, NULL);
   
   /* try to craete volume machine */
-  src2 = bt_processor_machine_new(song,"src2","volume",0);
-  fail_unless(src2!=NULL, NULL);
+  elem2 = BT_MACHINE(bt_processor_machine_new(song,"elem2","volume",0));
+  fail_unless(elem2!=NULL, NULL);
 
   /* try to create volume machine */
-  dst = bt_processor_machine_new(song,"dst","volume",0);
-  fail_unless(dst!=NULL, NULL);
+  elem3 = BT_MACHINE(bt_processor_machine_new(song,"elem3","volume",0));
+  fail_unless(elem3!=NULL, NULL);
   
-  /* try to create the wire one */
-  wire_one = bt_wire_new(song, BT_MACHINE(src1), BT_MACHINE(dst));
+  /* try to create the wire one and two */
+  wire_one = bt_wire_new(song, elem1, elem2);
   fail_unless(wire_one!=NULL, NULL);
   
-  wire_two = bt_wire_new(song, BT_MACHINE(dst), BT_MACHINE(src2));
+  wire_two = bt_wire_new(song, elem2, elem3);
   fail_unless(wire_two!=NULL,NULL);
   
-  /* this should fail */
-  wire_three = bt_wire_new(song, BT_MACHINE(src2), BT_MACHINE(src1));
+  /* this should fail (should it?) */
+  wire_three = bt_wire_new(song, elem3, elem1);
   fail_unless(wire_three!=NULL,NULL);
   
   g_object_unref(src1);
@@ -1016,6 +1014,7 @@ BT_START_TEST(test_btsetup_wire3) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
+#endif
 
 TCase *bt_setup_test_case(void) {
   TCase *tc = tcase_create("BtSetupTests");
@@ -1048,9 +1047,9 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_obj17);
   tcase_add_test(tc,test_btsetup_obj18);
   tcase_add_test(tc,test_btsetup_wire1);
-  // thats basically the same as wire1
-  //tcase_add_test(tc,test_btsetup_wire2);
-  tcase_add_test(tc,test_btsetup_wire3);
+  tcase_add_test(tc,test_btsetup_wire2);
+  // @todo: make test work
+  //tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds (even 15 seems not to be enough)
   tcase_set_timeout(tc, 10);

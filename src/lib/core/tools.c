@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.20 2005-09-21 19:46:03 ensonic Exp $
+/* $Id: tools.c,v 1.21 2005-09-22 18:26:29 ensonic Exp $
  */
  
 #define BT_CORE
@@ -49,7 +49,7 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   }
   g_list_free(list);
   */
-  list=gst_registry_feature_filter(gst_registry_get_default(),bt_gst_registry_class_filter,FALSE,class_filter);
+  list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,class_filter);
   for(node=list;node;node=g_list_next(node)) {
     feature=GST_PLUGIN_FEATURE(node->data);
     res=g_list_append(res,(gchar *)gst_plugin_feature_get_name(feature));

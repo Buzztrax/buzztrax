@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.51 2005-09-01 22:05:02 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.52 2005-09-22 18:26:28 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -104,7 +104,7 @@ bt_machine_state_get_type
 BtMachinePrivate
 bt_machine_dbg_dump_global_controller_queue
 bt_machine_dbg_print_parts
-
+bt_machine_get_element_list
 </SECTION>
 
 <SECTION>
@@ -289,6 +289,7 @@ bt_song_pause
 bt_song_continue
 bt_song_update_playback_position
 bt_song_write_to_xml_file
+bt_song_write_to_dot_file
 <SUBSECTION Standard>
 BT_SONG
 BT_IS_SONG
