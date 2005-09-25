@@ -8,7 +8,7 @@
   <meta>
     <info>three buzz generators and one buzz effect</info>
       <name>buzz 7</name>
-    <genre>dark-wave</genre>
+      <genre>dark-wave</genre>
       <bpm>120</bpm>
       <tpb>4</tpb>
       <bars>16</bars>
@@ -25,7 +25,7 @@
         <globaldata name="bpm" value="145"/>
       </sink>
 
-      <processor id="delay1" plugin-name="bml-Ninja" voices="1">
+      <processor id="chorus" plugin-name="bml-Chorus" voices="0">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="0.0"/>
@@ -58,10 +58,10 @@
     </machines>
     
     <wires>
-      <wire src="delay1" dst="audio_sink" gain="1.0" pan="0"/>
-      <wire src="bd" dst="delay1" gain="1.0" pan="-50"/>
-      <wire src="snr" dst="delay1" gain="1.0" pan="-50"/>
-      <wire src="hh" dst="delay1" gain="1.0" pan="-50"/>
+      <wire src="chorus" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="bd" dst="chorus" gain="1.0" pan="-50"/>
+      <wire src="snr" dst="chorus" gain="1.0" pan="-50"/>
+      <wire src="hh" dst="chorus" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
   

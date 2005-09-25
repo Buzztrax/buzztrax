@@ -1,4 +1,4 @@
-/* $Id: e-machine.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: e-machine.c,v 1.6 2005-09-25 18:36:33 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -37,8 +37,8 @@ BT_START_TEST(test_btmachine_insert_input_level1) {
   res=bt_machine_enable_input_level(machine);
   fail_unless(res == TRUE, NULL);
   
-  g_object_try_unref(machine);
   g_object_checked_unref(song);
+  g_object_checked_unref(machine);
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -69,10 +69,10 @@ BT_START_TEST(test_btmachine_insert_input_level2) {
   res=bt_machine_enable_input_level(machine2);
   fail_unless(res == TRUE, NULL);
   
-  g_object_try_unref(wire);
-  g_object_try_unref(machine1);
-  g_object_try_unref(machine2);
   g_object_checked_unref(song);
+  g_object_checked_unref(wire);
+  g_object_checked_unref(machine1);
+  g_object_checked_unref(machine2);
   g_object_checked_unref(app);
 }
 BT_END_TEST
