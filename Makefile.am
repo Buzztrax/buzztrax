@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.45 2005-09-13 21:17:16 ensonic Exp $
+## $Id: Makefile.am,v 1.46 2005-09-26 21:46:02 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -22,9 +22,7 @@ songdata_DATA = \
 	tests/songs/simple4.xml \
 	tests/songs/simple5.xml \
 	tests/songs/test-simple1.xml \
-	tests/songs/test-simple2.xml \
-	tests/songs/test-simple3.xml \
-	tests/songs/test-simple4.xml
+	tests/songs/test-simple2.xml
 
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \

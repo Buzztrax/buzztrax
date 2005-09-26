@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.160 2005-09-22 18:26:29 ensonic Exp $
+// $Id: machine.c,v 1.161 2005-09-26 21:46:02 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -486,7 +486,7 @@ static void bt_machine_resize_pattern_voices(const BtMachine *self) {
  *
  * Adjust the private data structure after a change in the number of voices.
  */
-static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
+static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {  
   GST_INFO("changing machine %p voices from %d to %d",self->priv->machines[PART_MACHINE],voices,self->priv->voices);
 
   if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE]))) {

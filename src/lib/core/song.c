@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.92 2005-09-22 18:26:29 ensonic Exp $
+// $Id: song.c,v 1.93 2005-09-26 21:46:02 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -59,6 +59,9 @@ struct _BtSongPrivate {
   GstBin *bin;
   /* the element that has the clock */
   BtSinkMachine *master;
+  
+  /* the query is used in update_playback_position */
+  GstQuery *position_query;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -261,18 +264,17 @@ gboolean bt_song_continue(const BtSong *self) {
  * Returns: %FALSE if the song is not playing
  */
 gboolean bt_song_update_playback_position(const BtSong *self) {
-  GstQuery *query;
   gint64 pos_cur,pos_end;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   g_return_val_if_fail(self->priv->is_playing,FALSE);
+  g_assert(GST_IS_BIN(self->priv->bin));
+  g_assert(GST_IS_QUERY(self->priv->position_query));
   //GST_INFO("query playback-pos");
   
   // query playback position and update self->priv->play-pos;
-  query=gst_query_new_position(GST_FORMAT_TIME);
-  gst_element_query(GST_ELEMENT(self->priv->bin),query);
-  gst_query_parse_position(query,NULL,&pos_cur,&pos_end);
-  gst_query_unref(query);
+  gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
+  gst_query_parse_position(self->priv->position_query,NULL,&pos_cur,&pos_end);
   GST_INFO("query playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT,pos_cur,pos_end);
   // update self->priv->play-pos (in ticks)
   self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
@@ -534,6 +536,7 @@ static void bt_song_dispose(GObject *object) {
   g_object_try_unref(self->priv->sequence);
   g_object_try_unref(self->priv->setup);
   g_object_try_unref(self->priv->wavetable);
+  gst_query_unref(self->priv->position_query);
   gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 
@@ -562,11 +565,13 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
   
   GST_DEBUG("song_init self=%p",self);
-  self->priv = g_new0(BtSongPrivate,1);
-  self->priv->song_info = bt_song_info_new(self);
-  self->priv->sequence  = bt_sequence_new(self);
-  self->priv->setup     = bt_setup_new(self);
-  self->priv->wavetable = bt_wavetable_new(self);
+  self->priv=g_new0(BtSongPrivate,1);
+  self->priv->song_info=bt_song_info_new(self);
+  self->priv->sequence =bt_sequence_new(self);
+  self->priv->setup    =bt_setup_new(self);
+  self->priv->wavetable=bt_wavetable_new(self);
+  
+  self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);
   GST_DEBUG("  done");
 }
 

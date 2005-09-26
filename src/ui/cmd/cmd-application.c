@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.63 2005-09-21 19:46:04 ensonic Exp $
+// $Id: cmd-application.c,v 1.64 2005-09-26 21:46:02 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -100,23 +100,28 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 
     g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
     g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+    
+    //DEBUG
+    bt_song_write_to_dot_file(song);
+    //DEBUG
 
     // connection play and stop signals
     g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
     if(bt_song_play(song)) {
+      GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
       GST_INFO("playing started");
       while(is_playing && (pos<length)) {
         bt_song_update_playback_position(song);
         g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
 
         // get song->play-pos and print progress
-        msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
+        msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
         min=(gulong)(msec/60000);msec-=(min*60000);
         sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
         // @todo add a -q (--quiet) options as this isn't nice for tests
         printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
 
-        usleep(500);
+        g_usleep(1000);
       }
       printf("\n");
       /*
@@ -193,7 +198,11 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     GList *machines,*wires,*patterns,*waves,*node;
     GstBin *bin;
     gulong msec,sec,min;
-    
+
+    //DEBUG
+    bt_song_write_to_dot_file(song);
+    //DEBUG
+
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
 
     // print some info about the song

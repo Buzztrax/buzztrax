@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
+  xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
     <info>one sine-amp combi playing a fast pattern and one sine playing a slow one</info>
-    <name>simple 4</name>
+    <name>simple 5</name>
     <genre>dark-wave</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>
@@ -30,13 +31,6 @@
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="-0.3"/>
-        </properties>
-      </processor>
-
-      <processor id="amp2" plugin-name="volume">
-        <properties>
-          <property key="xpos" value="0.0"/>
-          <property key="ypos" value="+0.3"/>
         </properties>
       </processor>
 
