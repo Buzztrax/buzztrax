@@ -3,13 +3,14 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   elementFormDefault="qualified">
 
+  <xsd:attribute name="key" type="xsd:string"/>
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
   <xsd:attribute name="voices" type="xsd:integer"/>
   <xsd:attribute name="zoom" type="xsd:float"/>
   <xsd:attribute name="id" type="xsd:string"/>
   <xsd:attribute name="index" type="xsd:integer"/>
-  <xsd:attribute name="pluginname" type="xsd:string"/>
+  <xsd:attribute name="plugin-name" type="xsd:string"/>
   <xsd:attribute name="xpos" type="xsd:integer"/>
   <xsd:attribute name="ypos" type="xsd:integer"/>
   <xsd:attribute name="src" type="xsd:string"/>
@@ -47,17 +48,25 @@
     </xsd:complexType>
   </xsd:element>
   
-  <xsd:element name="machineui">
-    <xsd:complexType>
-      <xsd:attribute ref="xpos" use="required"/>
-      <xsd:attribute ref="ypos" use="required"/>
-    </xsd:complexType>
-  </xsd:element>
-  
   <xsd:element name="globaldata">
     <xsd:complexType>
       <xsd:attribute ref="name" use="required"/>
       <xsd:attribute ref="value" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="property">
+    <xsd:complexType>
+      <xsd:attribute ref="key" use="required"/>
+      <xsd:attribute ref="value" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="properties">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="property" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
   
@@ -72,8 +81,9 @@
   <xsd:element name="sink">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="machineui" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
     </xsd:complexType>
@@ -82,11 +92,12 @@
   <xsd:element name="processor">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="machineui" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="pluginname" use="required"/>
+      <xsd:attribute ref="plugin-name" use="required"/>
       <xsd:attribute ref="voices"/>
     </xsd:complexType>
   </xsd:element>
@@ -94,12 +105,12 @@
   <xsd:element name="source">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="machineui" minOccurs="1" maxOccurs="1"/>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="pluginname" use="required"/>
+      <xsd:attribute ref="plugin-name" use="required"/>
       <xsd:attribute ref="voices"/>
     </xsd:complexType>
   </xsd:element>
@@ -141,18 +152,11 @@
     </xsd:complexType>
   </xsd:element>
   
-  <xsd:element name="tickdata">
-    <xsd:complexType>
-      <xsd:attribute ref="voice" use="required"/>
-      <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="value" use="required"/>
-    </xsd:complexType>
-  </xsd:element>
-  
   <xsd:element name="tick">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="tickdata" minOccurs="1" maxOccurs="unbounded"/>
+        <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute ref="time" use="required"/>
     </xsd:complexType>
