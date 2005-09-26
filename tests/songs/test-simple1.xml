@@ -18,12 +18,19 @@
   <setup zoom="1.0">
     <machines>
       <sink id="audio_sink">
-        <machineui xpos="20" ypos="70"/>
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="200"/>
       </sink>
-      <source id="sine1" pluginname="sinesrc" voices="0">
-        <machineui xpos="50" ypos="30"/>
+      
+      <source id="sine1" plugin-name="sinesrc" voices="0">
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.5"/>
+        </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
     </machines>
@@ -36,16 +43,16 @@
   <patterns>
     <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
       <tick time="0">
-        <tickdata name="freq" voice="0" value="440,0"/>
-        <tickdata name="volume" voice="0" value="1,0"/>
+        <voicedata name="freq" voice="0" value="440,0"/>
+        <voicedata name="volume" voice="0" value="1,0"/>
       </tick>
       <tick time="1">
-        <tickdata name="freq" voice="0" value="880,0"/>
-        <tickdata name="volume" voice="0" value="1,0"/>
+        <voicedata name="freq" voice="0" value="880,0"/>
+        <voicedata name="volume" voice="0" value="1,0"/>
       </tick>
       <tick time="2">
-        <tickdata name="freq" voice="0" value="1760,0"/>
-        <tickdata name="volume" voice="0" value="1,0"/>
+        <voicedata name="freq" voice="0" value="1760,0"/>
+        <voicedata name="volume" voice="0" value="1,0"/>
       </tick>
     </pattern>
   </patterns>

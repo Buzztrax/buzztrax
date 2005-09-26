@@ -19,18 +19,27 @@
   <setup zoom="1.0">    
     <machines>
       <sink id="audio_sink">
-        <machineui xpos="20" ypos="10"/>
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
       </sink>
       
-      <processor id="amp1" pluginname="volume">
-        <machineui xpos="50" ypos="30"/>
+      <processor id="amp1" plugin-name="volume">
+        <properties>
+          <property key="xpos" value="10"/>
+          <property key="ypos" value="20"/>
+        </properties>
         <globaldata name="minvolume" value="1.0"/>
       </processor>
       
-      <source id="sine1" pluginname="sinesrc" voices="2">
-        <machineui xpos="20" ypos="80"/>
+      <source id="sine1" plugin-name="sinesrc" voices="2">
+        <properties>
+          <property key="xpos" value="20"/>
+          <property key="ypos" value="80"/>
+        </properties>
         <globaldata name="volume" value="80"/>
         <globaldata name="bpm" value="4"/>
         <voicedata name="height" value="80" voice="0"/>
@@ -47,16 +56,16 @@
   <patterns>
     <pattern id="sine1_beep" machine="sine1" name="beep" length="16">
       <tick time="0">
-        <tickdata voice="0" name="note" value="C-3"/>
-        <tickdata voice="0" name="volume" value="1.0"/>
-        <tickdata voice="1" name="note" value="E-3"/>
-        <tickdata voice="1" name="volume" value="1.0"/>
+        <voicedata voice="0" name="note" value="C-3"/>
+        <voicedata voice="0" name="volume" value="1.0"/>
+        <voicedata voice="1" name="note" value="E-3"/>
+        <voicedata voice="1" name="volume" value="1.0"/>
       </tick>
       <tick time="1">
-        <tickdata voice="0" name="note" value="D-3"/>
-        <tickdata voice="0" name="volume" value="1.0"/>
-        <tickdata voice="1" name="note" value="F-3"/>
-        <tickdata voice="1" name="volume" value="0.8"/>
+        <voicedata voice="0" name="note" value="D-3"/>
+        <voicedata voice="0" name="volume" value="1.0"/>
+        <voicedata voice="1" name="note" value="F-3"/>
+        <voicedata voice="1" name="volume" value="0.8"/>
       </tick>
     </pattern>
   </patterns>

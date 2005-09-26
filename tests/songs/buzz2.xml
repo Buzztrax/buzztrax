@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <buzztard
-  xmlns="http://www.buzztard.org/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
@@ -12,10 +11,13 @@
     <bpm>120</bpm>
     <tpb>4</tpb>
     <bars>16</bars>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup zoom="1.0">
     <machines>
+      
       <sink id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
@@ -74,6 +76,4 @@
     </tracks>
   </sequence>
   
-  <wavetable/>
-
 </buzztard>
