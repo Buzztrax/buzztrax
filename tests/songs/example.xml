@@ -87,9 +87,9 @@
   
   <wavetable>
     <!-- loading file from harddisk -->
-    <wave id="wave1" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
+    <wave index="1" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
     <!-- loading file from song archive -->
-    <wave id="wave2" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
+    <wave index="2" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
   </wavetable>
   
 </buzztard>

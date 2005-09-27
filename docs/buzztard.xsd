@@ -235,7 +235,7 @@
   
   <xsd:element name="wave">
     <xsd:complexType>
-      <xsd:attribute ref="id" use="required"/>
+      <xsd:attribute ref="index" use="required"/>
       <xsd:attribute ref="name" use="required"/>
       <xsd:attribute ref="url" use="required"/>
     </xsd:complexType>
