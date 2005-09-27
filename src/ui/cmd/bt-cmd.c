@@ -1,4 +1,4 @@
-// $Id: bt-cmd.c,v 1.27 2005-08-15 19:12:18 ensonic Exp $
+// $Id: bt-cmd.c,v 1.28 2005-09-27 17:59:15 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
@@ -33,11 +33,13 @@ static void usage(int argc, char **argv, const struct poptOption *options) {
 int main(int argc, char **argv) {
   gboolean res=FALSE;
   gboolean arg_version=FALSE;
+  gboolean arg_quiet=FALSE;
   gchar *command=NULL,*input_file_name=NULL,*output_file_name=NULL;
   BtCmdApplication *app;
 
   struct poptOption options[] = {
-    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
+    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "show version", NULL },
+    {"quiet",       'q',  POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_quiet, 0, "be quiet", NULL },
     {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, "command name", "{info, play, convert, encode}" },
     {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name,   0, "input file name", "SONGFILE" },
     {"output-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &output_file_name,  0, "output file name", "SONGFILE" },
@@ -58,7 +60,7 @@ int main(int argc, char **argv) {
   if(!command) usage(argc, argv, options);
   g_printf("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
 
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(arg_quiet);
   // depending on the popt options call the correct method
   if(!strncmp(command,"play",4)) {
     if(!input_file_name) usage(argc, argv, options);

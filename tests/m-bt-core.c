@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.15 2005-09-15 07:13:39 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.16 2005-09-27 17:59:15 ensonic Exp $
  * core library unit tests
  */
 
@@ -20,6 +20,7 @@ extern Suite *bt_setup_suite(void);
 extern Suite *bt_sink_machine_suite(void);
 extern Suite *bt_song_suite(void);
 extern Suite *bt_song_io_suite(void);
+extern Suite *bt_song_io_native_suite(void);
 extern Suite *bt_song_info_suite(void);
 extern Suite *bt_source_machine_suite(void);
 extern Suite *bt_wire_suite(void);
@@ -71,6 +72,7 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_sink_machine_suite());
   srunner_add_suite(sr, bt_song_suite());
   srunner_add_suite(sr, bt_song_io_suite());
+  srunner_add_suite(sr, bt_song_io_native_suite());
   srunner_add_suite(sr, bt_song_info_suite());
   srunner_add_suite(sr, bt_source_machine_suite());
   srunner_add_suite(sr, bt_wire_suite());

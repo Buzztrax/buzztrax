@@ -1,4 +1,4 @@
-/* $Id: cmd-application-methods.h,v 1.6 2005-01-16 15:54:05 ensonic Exp $
+/* $Id: cmd-application-methods.h,v 1.7 2005-09-27 17:59:15 ensonic Exp $
  * defines all public methods of the command application class
  */
 
@@ -7,7 +7,7 @@
 
 #include "cmd-application.h"
 
-extern BtCmdApplication *bt_cmd_application_new(void);
+extern BtCmdApplication *bt_cmd_application_new(gboolean quiet);
 
 extern gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name);
 extern gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name);

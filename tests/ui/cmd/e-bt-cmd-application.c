@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $ 
+/* $Id: e-bt-cmd-application.c,v 1.6 2005-09-27 17:59:16 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -21,7 +21,7 @@ static void test_teardown(void) {
 BT_START_TEST(test_create_app) {
   BtCmdApplication *app;
 
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   fail_unless(app != NULL, NULL);
   fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
   // free application
@@ -35,7 +35,7 @@ BT_START_TEST(test_play1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   ret = bt_cmd_application_play(app, "songs/test-simple1.xml");
   fail_unless(ret==TRUE, NULL);
   // free application
@@ -48,7 +48,7 @@ BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   ret = bt_cmd_application_play(app, "songs/test-simple2.xml");
   fail_unless(ret==TRUE, NULL);
   // free application
@@ -63,7 +63,7 @@ BT_START_TEST(test_info1) {
   gboolean ret=FALSE;
   gchar *tmp_file_name;
     
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   tmp_file_name=tmpnam(NULL);
   ret = bt_cmd_application_info(app, "songs/test-simple1.xml", tmp_file_name);
   fail_unless(ret==TRUE, NULL);

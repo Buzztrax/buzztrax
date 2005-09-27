@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.24 2005-08-31 22:41:40 ensonic Exp $
+// $Id: bt-edit.c,v 1.25 2005-09-27 17:59:15 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
   BtEditApplication *app;
 
   struct poptOption options[] = {
-    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "version", NULL },
+    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "show version", NULL },
     {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &command,     0, "command name", "{load}" },
     {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &input_file_name,   0, "input file name", "SONGFILE" },
     POPT_TABLEEND

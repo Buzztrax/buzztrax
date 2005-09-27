@@ -1,4 +1,4 @@
-/* $Id: t-bt-cmd-application.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $ 
+/* $Id: t-bt-cmd-application.c,v 1.6 2005-09-27 17:59:16 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -26,7 +26,7 @@ BT_START_TEST(test_play1) {
   GstBin *bin=NULL;
   BtSettings *settings=NULL;
   
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
   ret = bt_cmd_application_play(app, NULL);
   fail_unless(ret==FALSE, NULL);
@@ -43,7 +43,7 @@ BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   ret = bt_cmd_application_play(app, "");
   fail_unless(ret==FALSE, NULL);
   // free application
@@ -57,7 +57,7 @@ BT_START_TEST(test_info1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   ret = bt_cmd_application_info(app, NULL, NULL);
   fail_unless(ret==FALSE, NULL);
   // free application
@@ -71,7 +71,7 @@ BT_START_TEST(test_info2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new();
+  app=bt_cmd_application_new(FALSE);
   ret = bt_cmd_application_info(app, "", NULL);
   fail_unless(ret==FALSE, NULL);
   // free application

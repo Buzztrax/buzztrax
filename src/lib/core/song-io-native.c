@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.87 2005-09-26 21:46:02 ensonic Exp $
+// $Id: song-io-native.c,v 1.88 2005-09-27 17:59:15 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -712,9 +712,11 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
         if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
           GST_WARNING("xmlDoc is empty");
         }
+        /*
         else if(xmlSearchNsByHref(song_doc,xml_node,(const xmlChar *)BT_NS_URL)==NULL) {
           GST_WARNING("no or incorrect namespace found in xmlDoc");
         }
+        */
         else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
           GST_WARNING("wrong document type root node in xmlDoc src");
         }

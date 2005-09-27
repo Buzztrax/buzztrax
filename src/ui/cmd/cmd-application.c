@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.64 2005-09-26 21:46:02 ensonic Exp $
+// $Id: cmd-application.c,v 1.65 2005-09-27 17:59:15 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -11,13 +11,23 @@
 #include "bt-cmd.h"
 #include <libbtcore/application-private.h>
 
-
 // this needs to be here because of gtk-doc and unit-tests
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+
+//-- signal ids
+
+//-- property ids
+
+enum {
+  CMD_APP_QUIET=1
+};
 
 struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+  
+  /* do no output on stdout */
+  gboolean quiet;
 };
 
 static BtApplicationClass *parent_class=NULL;
@@ -41,15 +51,16 @@ static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpoin
 
 /**
  * bt_cmd_application_new:
+ * @quiet: do not output on stdout
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtCmdApplication *bt_cmd_application_new(void) {
+BtCmdApplication *bt_cmd_application_new(gboolean quiet) {
   BtCmdApplication *self;
   
-  if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,NULL)))) {
+  if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"quiet",quiet,NULL)))) {
     goto Error;
   }  
   if(!(bt_application_new(BT_APPLICATION(self)))) {
@@ -112,15 +123,15 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
       GST_INFO("playing started");
       while(is_playing && (pos<length)) {
         bt_song_update_playback_position(song);
-        g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+        if(!self->priv->quiet) {
+          g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
 
-        // get song->play-pos and print progress
-        msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
-        min=(gulong)(msec/60000);msec-=(min*60000);
-        sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-        // @todo add a -q (--quiet) options as this isn't nice for tests
-        printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
-
+          // get song->play-pos and print progress
+          msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+          min=(gulong)(msec/60000);msec-=(min*60000);
+          sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+          printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
+        }
         g_usleep(1000);
       }
       printf("\n");
@@ -359,6 +370,9 @@ static void bt_cmd_application_get_property(GObject      *object,
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
+    case CMD_APP_QUIET: {
+      g_value_set_boolean(value, self->priv->quiet);
+    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -374,6 +388,9 @@ static void bt_cmd_application_set_property(GObject      *object,
   BtCmdApplication *self = BT_CMD_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
+    case CMD_APP_QUIET: {
+      self->priv->quiet = g_value_get_boolean(value);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -420,6 +437,14 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
   gobject_class->get_property = bt_cmd_application_get_property;
   gobject_class->dispose      = bt_cmd_application_dispose;
   gobject_class->finalize     = bt_cmd_application_finalize;
+
+  g_object_class_install_property(gobject_class,CMD_APP_QUIET,
+                                  g_param_spec_boolean("quiet",
+                                     "quiet prop",
+                                     "tell wheter the app should do output or not",
+                                     FALSE,
+                                     G_PARAM_READWRITE));
+
 }
 
 GType bt_cmd_application_get_type(void) {
