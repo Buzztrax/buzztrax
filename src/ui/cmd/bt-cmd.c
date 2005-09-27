@@ -1,4 +1,4 @@
-// $Id: bt-cmd.c,v 1.28 2005-09-27 17:59:15 ensonic Exp $
+// $Id: bt-cmd.c,v 1.29 2005-09-27 20:37:57 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
@@ -38,11 +38,11 @@ int main(int argc, char **argv) {
   BtCmdApplication *app;
 
   struct poptOption options[] = {
-    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, "show version", NULL },
-    {"quiet",       'q',  POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_quiet, 0, "be quiet", NULL },
-    {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, "command name", "{info, play, convert, encode}" },
-    {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name,   0, "input file name", "SONGFILE" },
-    {"output-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &output_file_name,  0, "output file name", "SONGFILE" },
+    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, N_("show version"), NULL },
+    {"quiet",       'q',  POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_quiet, 0, N_("be quiet"), NULL },
+    {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &command,     0, N_("command name"), N_("{info, play, convert, encode}") },
+    {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP, &input_file_name,   0, N_("input file name"), N_("SONGFILE") },
+    {"output-file", '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &output_file_name,  0, N_("output file name"), N_("SONGFILE") },
     POPT_TABLEEND
   };
 

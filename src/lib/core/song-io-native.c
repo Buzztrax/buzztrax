@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.88 2005-09-27 17:59:15 ensonic Exp $
+// $Id: song-io-native.c,v 1.89 2005-09-27 20:37:57 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -142,7 +142,7 @@ static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, co
       // iterate over children
       xml_subnode=xml_node->children;
       while(xml_subnode) {
-        if(!xmlNodeIsText(xml_subnode)) {
+        if(!xmlNodeIsText(xml_subnode) && !strncmp(xml_node->name,"property\0",9)) {
           key=xmlGetProp(xml_subnode,XML_CHAR_PTR("key"));
           value=xmlGetProp(xml_subnode,XML_CHAR_PTR("value"));
           GST_DEBUG("    [%s] => [%s]",key,value);
@@ -274,7 +274,7 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
   GST_INFO(" got setup.wires root node");
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   while(xml_node) {
-    if(!xmlNodeIsText(xml_node)) {
+    if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"wire\0",5))) {
       src=xmlGetProp(xml_node,"src");
       dst=xmlGetProp(xml_node,"dst");
       src_machine=bt_setup_get_machine_by_id(setup,src);
@@ -441,7 +441,7 @@ static gboolean bt_song_io_native_load_patterns(const BtSongIONative *self, cons
     GST_INFO(" got pattern root node with %d items",items_len);
     for(i=0;i<items_len;i++) {
       xml_node=xmlXPathNodeSetItem(items,i);
-      if(!xmlNodeIsText(xml_node)) {
+      if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"pattern\0",8))) {
         bt_song_io_native_load_pattern(self,song,song_doc,xml_node);
       }
     }
@@ -520,7 +520,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
 
   bt_sequence_set_machine(sequence,index,machine);
   while(xml_node) {
-    if(!xmlNodeIsText(xml_node)) {
+    if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"position\0",9))) {
       time_str=xmlGetProp(xml_node,"time");
       pattern_id=xmlGetProp(xml_node,"pattern");
       GST_DEBUG("  at %s, pattern \"%s\"",time_str,safe_string(pattern_id));
@@ -657,10 +657,8 @@ static gboolean bt_song_io_native_load_wavetable(const BtSongIONative *self, con
     GST_INFO(" got wavetable root node with %d items",items_len);
     for(i=0;i<items_len;i++) {
       xml_node=xmlXPathNodeSetItem(items,i);
-      if(!xmlNodeIsText(xml_node)) {
-        if(!strncmp(xml_node->name,"wave\0",5)) {
-          bt_song_io_native_load_wavetable_wave(self,song,wavetable,xml_node);
-        }
+      if((!xmlNodeIsText(xml_node)) && (!strncmp(xml_node->name,"wave\0",5))) {
+        bt_song_io_native_load_wavetable_wave(self,song,wavetable,xml_node);
       }
     }
     xmlXPathFreeObject(items_xpoptr);

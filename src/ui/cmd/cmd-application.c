@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.65 2005-09-27 17:59:15 ensonic Exp $
+// $Id: cmd-application.c,v 1.66 2005-09-27 20:37:57 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -123,9 +123,9 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
       GST_INFO("playing started");
       while(is_playing && (pos<length)) {
         bt_song_update_playback_position(song);
-        if(!self->priv->quiet) {
-          g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+        g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
 
+        if(!self->priv->quiet) {
           // get song->play-pos and print progress
           msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
           min=(gulong)(msec/60000);msec-=(min*60000);
