@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.94 2005-09-27 20:37:57 ensonic Exp $
+// $Id: song.c,v 1.95 2005-09-28 19:34:56 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -372,7 +372,9 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     BtWire *wire;
     GstElement *elem;
     GstElementFactory *factory;
-    gchar *id,*label,*this_name,*last_name,*src_name,*dst_name;
+    gchar *id,*label;
+    gchar *this_name=NULL,*last_name,*src_name,*dst_name;
+    gulong index,count;
     
     // write header
     fprintf(out,
@@ -420,7 +422,7 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     for(node=list;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
       g_object_get(wire,"src",&src,"dst",&dst,NULL);
-      
+
       // get last_name of src
       sublist=bt_machine_get_element_list(src);
       subnode=g_list_last(sublist);
@@ -433,11 +435,42 @@ void bt_song_write_to_dot_file(const BtSong *self) {
       elem=GST_ELEMENT(subnode->data);
       dst_name=gst_element_get_name(elem);
       g_list_free(sublist);
-
-      fprintf(out,"  %s -> %s\n",src_name,dst_name);
       
-      g_object_unref(src);
-      g_object_unref(dst);
+      // query internal element of each wire
+      sublist=bt_wire_get_element_list(wire);
+      count=g_list_length(sublist);
+      GST_INFO("wire %s->%s has %d elements",src_name,dst_name,count);
+      index=0;
+      last_name=NULL;
+      for(subnode=sublist;subnode;subnode=g_list_next(subnode)) {
+        // skip first and last
+        if((index>0) && (index<(count-1))) {
+          elem=GST_ELEMENT(subnode->data);
+          this_name=gst_element_get_name(elem);
+          factory=gst_element_get_factory(elem);
+          label=(gchar *)gst_element_factory_get_longname(factory);
+          fprintf(out,"    %s [color=black, fillcolor=white, label=\"%s\"];\n",this_name,label);
+        }
+        else if(index==0) {
+          this_name=src_name;
+        }
+        else if ((index==(count-1))) {
+          this_name=dst_name;
+        }
+        if(last_name) {
+          fprintf(out,"    %s -> %s\n",last_name,this_name);
+        }
+        last_name=this_name;
+        index++;
+      }
+      g_list_free(sublist);
+      
+      /*
+      fprintf(out,"  %s -> %s\n",src_name,dst_name);
+      */
+      
+      //g_object_unref(src);
+      //g_object_unref(dst);
     }
     g_list_free(list);
     

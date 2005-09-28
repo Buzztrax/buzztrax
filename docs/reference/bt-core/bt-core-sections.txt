@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.52 2005-09-22 18:26:28 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.53 2005-09-28 19:34:56 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -455,6 +455,7 @@ BT_TYPE_WIRE
 <SUBSECTION Private>
 bt_wire_get_type
 BtWirePrivate
+bt_wire_get_element_list
 </SECTION>
 
 <SECTION>
