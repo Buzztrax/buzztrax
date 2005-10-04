@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.28 2005-09-19 19:01:28 ensonic Exp $
+## $Id: Makefile.am,v 1.29 2005-10-04 14:51:41 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -55,8 +55,11 @@ INCLUDES = \
 	$(BASE_DEPS_CFLAGS) \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)\
- @VALGRIND_CFLAGS@
+	@VALGRIND_CFLAGS@
 endif
+
+check-local:
+	echo "############ No tests will run"
 
 .PHONY: splint valgrind
 
