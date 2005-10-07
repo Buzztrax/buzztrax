@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.67 2005-09-21 19:46:03 ensonic Exp $
+// $Id: pattern.c,v 1.68 2005-10-07 20:33:19 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -637,10 +637,15 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
       bt_pattern_init_global_event(self,event,param);
     }
     if(bt_pattern_set_event(self,event,value)) {
-      // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
+      if(bt_machine_is_global_param_no_value(self->priv->machine,param,event)) {
+        g_value_unset(event);
+      }
+      else {
+        // notify others that the data has been changed
+        g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
+        return(TRUE);
+      }
     }
-    return(TRUE);
   }
   return(FALSE);
 }
@@ -668,10 +673,15 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
       bt_pattern_init_voice_event(self,event,param);
     }
     if(bt_pattern_set_event(self,event,value)) {
-      // notify others that the data has been changed
-      g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
+      if(bt_machine_is_voice_param_no_value(self->priv->machine,param,event)) {
+        g_value_unset(event);
+      }
+      else {
+        // notify others that the data has been changed
+        g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
+        return(TRUE);
+      }
     }
-    return(TRUE);
   }
   return(FALSE);
 }

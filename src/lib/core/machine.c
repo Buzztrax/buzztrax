@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.161 2005-09-26 21:46:02 ensonic Exp $
+// $Id: machine.c,v 1.162 2005-10-07 20:33:19 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1600,6 +1600,48 @@ gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong index) 
 }
 
 /**
+ * bt_machine_is_global_param_no_value:
+ * @self: the machine to check params from
+ * @index: the offset in the list of global params
+ * @value: the value to compare against the no-value
+ *
+ * Tests if the given value is the no-value of the global param
+ *
+ * Returns: %TRUE if it is the no-value
+ */
+gboolean bt_machine_is_global_param_no_value(const BtMachine *self, gulong index, GValue *value) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(index<self->priv->global_params,FALSE);
+  g_return_val_if_fail(G_IS_VALUE(value),FALSE);
+
+  if(!G_IS_VALUE(&self->priv->global_no_val[index])) return(FALSE);
+
+  if(gst_value_compare(&self->priv->global_no_val[index],value)==GST_VALUE_EQUAL) return(TRUE);
+  return(FALSE);
+}
+
+/**
+ * bt_machine_is_voice_param_no_value:
+ * @self: the machine to check params from
+ * @index: the offset in the list of voice params
+ * @value: the value to compare against the no-value
+ *
+ * Tests if the given value is the no-value of the voice param
+ *
+ * Returns: %TRUE if it is the no-value
+ */
+gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index, GValue *value) {
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(index<self->priv->voice_params,FALSE);
+  g_return_val_if_fail(G_IS_VALUE(value),FALSE);
+
+  if(!G_IS_VALUE(&self->priv->voice_no_val[index])) return(FALSE);
+  
+  if(gst_value_compare(&self->priv->voice_no_val[index],value)==GST_VALUE_EQUAL) return(TRUE);
+  return(FALSE);
+}
+
+/**
  * bt_machine_describe_global_param_value:
  * @self: the machine to get a param description from
  * @index: the offset in the list of global params
@@ -1615,6 +1657,7 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong inde
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
+  g_return_val_if_fail(G_IS_VALUE(event),FALSE);
 
   if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
     str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE]),index,event);
@@ -1638,6 +1681,7 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
+  g_return_val_if_fail(G_IS_VALUE(event),FALSE);
   
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
