@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.h,v 1.6 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-toolbar.h,v 1.7 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main toolbar
  */
 
@@ -39,7 +39,6 @@ struct _BtMainToolbarClass {
 };
 
 /* used by MAIN_TOOLBAR_TYPE */
-GType bt_main_toolbar_get_type(void);
+GType bt_main_toolbar_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MAIN_TOOLBAR_H
-

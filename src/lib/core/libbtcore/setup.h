@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.11 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: setup.h,v 1.12 2005-10-08 18:12:13 ensonic Exp $
  * class for machine and setup setup
  */
 
@@ -46,7 +46,7 @@ struct _BtSetupClass {
 };
 
 /* used by SETUP_TYPE */
-GType bt_setup_get_type(void);
+GType bt_setup_get_type(void) G_GNUC_CONST;
 
 
 #endif // BT_SETUP_H

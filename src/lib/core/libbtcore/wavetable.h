@@ -1,4 +1,4 @@
-/* $Id: wavetable.h,v 1.4 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: wavetable.h,v 1.5 2005-10-08 18:12:13 ensonic Exp $
  * class for wavetable
  */
 
@@ -39,6 +39,6 @@ struct _BtWavetableClass {
 };
 
 /* used by WAVETABLE_TYPE */
-GType bt_wavetable_get_type(void);
+GType bt_wavetable_get_type(void) G_GNUC_CONST;
 
 #endif // BT_WAVETABLE_H

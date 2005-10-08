@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.h,v 1.4 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: machine-canvas-item.h,v 1.5 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor machine views machine canvas item
  */
 
@@ -40,7 +40,6 @@ struct _BtMachineCanvasItemClass {
 };
 
 /* used by MAIN_PAGES_TYPE */
-GType bt_machine_canvas_item_get_type(void);
+GType bt_machine_canvas_item_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MACHINE_CANVAS_ITEM_H
-

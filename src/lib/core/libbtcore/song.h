@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.22 2005-08-31 14:53:24 ensonic Exp $
+/* $Id: song.h,v 1.23 2005-10-08 18:12:13 ensonic Exp $
  * class for a basic buzztard song
  */
  
@@ -44,7 +44,6 @@ struct _BtSongClass {
 };
 
 /* used by SONG_TYPE */
-GType bt_song_get_type(void);
+GType bt_song_get_type(void) G_GNUC_CONST;
 
 #endif // BT_SONG_H
-

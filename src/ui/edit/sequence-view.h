@@ -1,4 +1,4 @@
-/* $Id: sequence-view.h,v 1.2 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: sequence-view.h,v 1.3 2005-10-08 18:12:13 ensonic Exp $
  * class for the sequence view widget
  */
 
@@ -39,6 +39,6 @@ struct _BtSequenceViewClass {
 };
 
 /* used by SEQUENCE_VIEW_TYPE */
-GType bt_sequence_view_get_type(void);
+GType bt_sequence_view_get_type(void) G_GNUC_CONST;
 
 #endif // BT_SEQUENCE_VIEW_H

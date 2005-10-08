@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.h,v 1.4 2005-08-05 09:36:16 ensonic Exp $
+/* $Id: gconf-settings.h,v 1.5 2005-10-08 18:12:13 ensonic Exp $
  * gconf based implementation sub class for buzztard settings handling
  */
 
@@ -39,7 +39,6 @@ struct _BtGConfSettingsClass {
 };
 
 /* used by GCONF_SETTINGS_TYPE */
-GType bt_gconf_settings_get_type(void);
+GType bt_gconf_settings_get_type(void) G_GNUC_CONST;
 
 #endif // BT_GCONF_SETTINGS_H
-

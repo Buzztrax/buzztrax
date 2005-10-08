@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.19 2005-08-05 09:36:16 ensonic Exp $
+/* $Id: machine.h,v 1.20 2005-10-08 18:12:13 ensonic Exp $
  * base class for a machine
  */
 
@@ -65,8 +65,8 @@ typedef enum {
 } BtMachineState;
 
 /* used by MACHINE_TYPE */
-GType bt_machine_get_type(void);
+GType bt_machine_get_type(void) G_GNUC_CONST;
 /* used by MACHINE_STATE_TYPE */
-GType bt_machine_state_get_type(void);
+GType bt_machine_state_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MACHINE_H

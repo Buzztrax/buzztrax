@@ -1,4 +1,4 @@
-/* $Id: cmd-application.h,v 1.10 2005-09-26 21:46:02 ensonic Exp $
+/* $Id: cmd-application.h,v 1.11 2005-10-08 18:12:13 ensonic Exp $
  * class for a commandline based buzztard tool application
  */
 
@@ -39,6 +39,6 @@ struct _BtCmdApplicationClass {
 };
 
 /* used by CMD_APPLICATION_TYPE */
-GType bt_cmd_application_get_type(void);
+GType bt_cmd_application_get_type(void) G_GNUC_CONST;
 
 #endif // BT_CMD_APPLICATION_H

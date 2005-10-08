@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.15 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: song-io-native.h,v 1.16 2005-10-08 18:12:13 ensonic Exp $
  * class for native song input and output
  */
 
@@ -60,6 +60,6 @@ struct _BtSongIONativeClass {
 };
 
 /* used by SONG_IO_NATIVE_TYPE */
-GType bt_song_io_native_get_type(void);
+GType bt_song_io_native_get_type(void) G_GNUC_CONST;
 
 #endif // BT_SONG_IO_NATIVE_H

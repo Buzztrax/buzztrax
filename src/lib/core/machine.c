@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.162 2005-10-07 20:33:19 ensonic Exp $
+// $Id: machine.c,v 1.163 2005-10-08 18:12:13 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -182,6 +182,16 @@ static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
   GList *wires,*node;
   BtWire *wire;
   BtMachine *dst_machine;
+
+  /* @todo
+   * we need to call gst_pad_set_blocked() on all peer pads
+   * inside the handler we unlink the pads and link a silence element instead of the machine
+   * //peer_pad=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]);
+   * gst_pad_set_blocked(peer_pad,TRUE);
+   * gst_element_unlink(self->priv->machines[PART_MACHINE],gst_pad_get_parent_element(peer_pad));
+   * gst_element_link(self->priv->machines[PART_SILENCE],gst_pad_get_parent_element(peer_pad));
+   * gst_pad_set_blocked(peer_pad,FALSE);
+   */
   
   // we need to pause all elements downstream until we hit a loop-based element  (has an adder) :(
   // @todo we need to do the same upstream too until we hit one with a spreader

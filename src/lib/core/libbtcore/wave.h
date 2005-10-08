@@ -1,4 +1,4 @@
-/* $Id: wave.h,v 1.3 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: wave.h,v 1.4 2005-10-08 18:12:13 ensonic Exp $
  * class for wave
  */
 
@@ -39,7 +39,7 @@ struct _BtWaveClass {
 };
 
 /* used by WAVE_TYPE */
-GType bt_wave_get_type(void);
+GType bt_wave_get_type(void) G_GNUC_CONST;
 
 
 #endif // BT_WAVE_H

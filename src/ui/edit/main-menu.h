@@ -1,4 +1,4 @@
-/* $Id: main-menu.h,v 1.7 2005-09-03 13:40:30 ensonic Exp $
+/* $Id: main-menu.h,v 1.8 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main menu
  */
 
@@ -39,6 +39,6 @@ struct _BtMainMenuClass {
 };
 
 /* used by MAIN_MENU_TYPE */
-GType bt_main_menu_get_type(void);
+GType bt_main_menu_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MAIN_MENU_H

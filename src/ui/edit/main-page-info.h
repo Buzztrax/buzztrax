@@ -1,4 +1,4 @@
-/* $Id: main-page-info.h,v 1.7 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-page-info.h,v 1.8 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main info page
  */
 
@@ -39,7 +39,6 @@ struct _BtMainPageInfoClass {
 };
 
 /* used by MAIN_PAGE_INFO_TYPE */
-GType bt_main_page_info_get_type(void);
+GType bt_main_page_info_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MAIN_PAGE_INFO_H
-

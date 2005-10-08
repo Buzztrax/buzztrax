@@ -1,4 +1,4 @@
-/* $Id: settings.h,v 1.6 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: settings.h,v 1.7 2005-10-08 18:12:13 ensonic Exp $
  * base class for buzztard settings handling
  */
 
@@ -42,7 +42,6 @@ struct _BtSettingsClass {
 };
 
 /* used by SETTINGS_TYPE */
-GType bt_settings_get_type(void);
+GType bt_settings_get_type(void) G_GNUC_CONST;
 
 #endif // BT_SETTINGS_H
-

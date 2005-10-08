@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.17 2005-08-25 19:35:24 ensonic Exp $
+/* $Id: song-io.h,v 1.18 2005-10-08 18:12:13 ensonic Exp $
  * base class for song input and output
  */
 
@@ -72,7 +72,7 @@ struct _BtSongIOClass {
 };
 
 /* used by SONG_IO_TYPE */
-GType bt_song_io_get_type(void);
+GType bt_song_io_get_type(void) G_GNUC_CONST;
 
 /**
  * BtSongIODetect:

@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.7 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-statusbar.h,v 1.8 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main statusbar
  */
 
@@ -39,7 +39,6 @@ struct _BtMainStatusbarClass {
 };
 
 /* used by MAIN_STATUSBAR_TYPE */
-GType bt_main_statusbar_get_type(void);
+GType bt_main_statusbar_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MAIN_STATUSBAR_H
-

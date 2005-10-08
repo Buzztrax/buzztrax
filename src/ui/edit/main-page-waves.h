@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.h,v 1.3 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-page-waves.h,v 1.4 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main waves page
  */
 
@@ -39,6 +39,6 @@ struct _BtMainPageWavesClass {
 };
 
 /* used by MAIN_PAGE_WAVES_TYPE */
-GType bt_main_page_waves_get_type(void);
+GType bt_main_page_waves_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MAIN_PAGE_WAVES_H

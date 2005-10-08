@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.16 2005-08-05 09:36:16 ensonic Exp $
+/* $Id: pattern.h,v 1.17 2005-10-08 18:12:13 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -64,8 +64,8 @@ typedef enum {
 } BtPatternCmd;
 
 /* used by PATTERN_TYPE */
-GType bt_pattern_get_type(void);
+GType bt_pattern_get_type(void) G_GNUC_CONST;
 /* used by PATTERN_CMD_TYPE */
-GType bt_pattern_cmd_get_type(void);
+GType bt_pattern_cmd_get_type(void) G_GNUC_CONST;
 
 #endif /* BT_PATTERN_H */

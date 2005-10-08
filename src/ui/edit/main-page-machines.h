@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.10 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.11 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main machines page
  */
 
@@ -39,7 +39,7 @@ struct _BtMainPageMachinesClass {
 };
 
 /* used by MAIN_PAGE_MACHINES_TYPE */
-GType bt_main_page_machines_get_type(void);
+GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 
 
 // machine view area

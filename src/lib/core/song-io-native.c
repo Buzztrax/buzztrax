@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.89 2005-09-27 20:37:57 ensonic Exp $
+// $Id: song-io-native.c,v 1.90 2005-10-08 18:12:13 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -13,7 +13,11 @@
 
 /* @todo
  * - remove song_doc args that are not used
- * - try to pass song-component object to children, to avoid looking them up again and again
+ * - pass song-component object to children, to avoid looking them up again and again
+ * - better error handling
+ *   - if a machine cannot be instantiated:
+ *     - collect machine-names
+ *     - tell user afterwards about *all* missing machines
  */
 
 struct _BtSongIONativePrivate {

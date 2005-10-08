@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.h,v 1.5 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: machine-properties-dialog.h,v 1.6 2005-10-08 18:12:13 ensonic Exp $
  * class for the machine properties dialog
  */
 
@@ -39,6 +39,6 @@ struct _BtMachinePropertiesDialogClass {
 };
 
 /* used by MACHINE_PROPERTIES_DIALOG_TYPE */
-GType bt_machine_properties_dialog_get_type(void);
+GType bt_machine_properties_dialog_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MACHINE_PROPERTIES_DIALOG_H

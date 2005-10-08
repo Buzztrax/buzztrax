@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.14 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: sequence.h,v 1.15 2005-10-08 18:12:13 ensonic Exp $
  * class for the pattern sequence
  */
 
@@ -40,7 +40,7 @@ struct _BtSequenceClass {
 };
 
 /* used by SEQUENCE_TYPE */
-GType bt_sequence_get_type(void);
+GType bt_sequence_get_type(void) G_GNUC_CONST;
 
 
 #endif // BT_SEQUENCE_H

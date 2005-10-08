@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.8 2005-08-05 09:36:16 ensonic Exp $
+/* $Id: application.h,v 1.9 2005-10-08 18:12:13 ensonic Exp $
  * base class for a buzztard based application
  */
 
@@ -49,6 +49,6 @@ struct _BtApplicationClass {
 };
 
 /* used by APPLICATION_TYPE */
-GType bt_application_get_type(void);
+GType bt_application_get_type(void) G_GNUC_CONST;
 
 #endif // BT_APPLICATION_H

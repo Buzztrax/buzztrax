@@ -1,4 +1,4 @@
-/* $Id: machine-menu.h,v 1.1 2005-09-03 13:40:30 ensonic Exp $
+/* $Id: machine-menu.h,v 1.2 2005-10-08 18:12:13 ensonic Exp $
  * class for the machine selection sub-menu
  */
 
@@ -39,6 +39,6 @@ struct _BtMachineMenuClass {
 };
 
 /* used by MACHINE_MENU_TYPE */
-GType bt_machine_menu_get_type(void);
+GType bt_machine_menu_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MACHINE_MENU_H

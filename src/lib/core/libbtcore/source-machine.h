@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.13 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: source-machine.h,v 1.14 2005-10-08 18:12:13 ensonic Exp $
  * class for a source machine
  */
 
@@ -39,7 +39,7 @@ struct _BtSourceMachineClass {
 };
 
 /* used by SOURCE_MACHINE_TYPE */
-GType bt_source_machine_get_type(void);
+GType bt_source_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtSourceMachinePatternIndex:

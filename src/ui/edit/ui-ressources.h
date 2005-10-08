@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.h,v 1.2 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: ui-ressources.h,v 1.3 2005-10-08 18:12:13 ensonic Exp $
  * singleton class that hold shared ui ressources
  */
 
@@ -38,7 +38,7 @@ struct _BtUIRessourcesClass {
 };
 
 /* used by UI_RESSOURCES_TYPE */
-GType bt_ui_ressources_get_type(void);
+GType bt_ui_ressources_get_type(void) G_GNUC_CONST;
 
 /* shared singleton class instance */
 extern BtUIRessources *ui_ressources;

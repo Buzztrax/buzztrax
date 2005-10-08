@@ -1,4 +1,4 @@
-/* $Id: main-pages.h,v 1.9 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-pages.h,v 1.10 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main pages
  */
 
@@ -39,7 +39,7 @@ struct _BtMainPagesClass {
 };
 
 /* used by MAIN_PAGES_TYPE */
-GType bt_main_pages_get_type(void);
+GType bt_main_pages_get_type(void) G_GNUC_CONST;
 
 enum {
   BT_MAIN_PAGES_MACHINES_PAGE=0,

@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.11 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: wire.h,v 1.12 2005-10-08 18:12:13 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -38,7 +38,6 @@ struct _BtWireClass {
 };
 
 /* used by WIRE_TYPE */
-GType bt_wire_get_type(void);
+GType bt_wire_get_type(void) G_GNUC_CONST;
 
 #endif // BT_WIRE_H
-

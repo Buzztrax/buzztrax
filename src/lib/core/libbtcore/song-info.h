@@ -1,4 +1,4 @@
-/* $Id: song-info.h,v 1.12 2005-08-05 09:36:17 ensonic Exp $
+/* $Id: song-info.h,v 1.13 2005-10-08 18:12:13 ensonic Exp $
  * class for a song metadata
  */
 
@@ -38,7 +38,6 @@ struct _BtSongInfoClass {
 };
 
 /* used by SONG_INFO_TYPE */
-GType bt_song_info_get_type(void);
+GType bt_song_info_get_type(void) G_GNUC_CONST;
 
 #endif // BT_SONG_INFO_H
-

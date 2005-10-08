@@ -1,4 +1,4 @@
-/* $Id: main-window.h,v 1.7 2005-08-05 09:36:18 ensonic Exp $
+/* $Id: main-window.h,v 1.8 2005-10-08 18:12:13 ensonic Exp $
  * class for the editor main window
  */
 
@@ -39,7 +39,6 @@ struct _BtMainWindowClass {
 };
 
 /* used by MAIN_WINDOW_TYPE */
-GType bt_main_window_get_type(void);
+GType bt_main_window_get_type(void) G_GNUC_CONST;
 
 #endif // BT_MAIN_WINDOW_H
-
