@@ -1,4 +1,4 @@
-/* $Id: bztloader.c,v 1.3 2005-10-10 15:00:39 waffel Exp $ */
+/* $Id: bztloader.c,v 1.4 2005-10-10 17:43:01 waffel Exp $ */
 
 #include "bztloader.h"
 
@@ -23,6 +23,12 @@ int main(int argc, char **argv) {
   }
   
   input_uri = gnome_vfs_uri_new(input_uri_string);
+  
+  /* check if the input is ok */
+  if (input_uri == NULL) {
+    printf ("Error: wrong gnome vfs uri\n");
+    return 1;
+  }
   
   /* make uri absolute from relative */
   if(gnome_vfs_uri_is_local(input_uri)) {
@@ -54,20 +60,22 @@ int main(int argc, char **argv) {
 				printf("new path: \"%s\"\n",path);
         fflush(stdout);
         /* add suffix #gzip:#tar:/song.xml to input string */
-        char* new_input_uri_string = g_strconcat(path,"#gzip:#tar:/song.xml");
+        char* new_input_uri_string = g_strdup_printf("%s#gzip:#tar:/song.xml", path);
         printf("new input string: \"%s\"\n", new_input_uri_string);
         fflush(stdout);
         // create URI from string to check validity
         internal_uri = gnome_vfs_uri_new(new_input_uri_string);
 				g_free(path);		
 				g_free(cur_dir);
+        g_free(new_input_uri_string);
 			}
 			g_free(dirname);
 		}
   }
   
   if (internal_uri == NULL) {
-    printf("wrong uri\n");
+    printf("Error: wrong uri\n");
+    return 1;
   }
   /* check validity ... this crashes gnome vfs */
   /* TODO make bug report */
@@ -84,7 +92,22 @@ int main(int argc, char **argv) {
     return print_error (result, gnome_vfs_uri_to_string(internal_uri, GNOME_VFS_URI_HIDE_NONE));
   }
   
+  while (result == GNOME_VFS_OK) {
+    /* read data from the input uri */
+    result = gnome_vfs_read (read_handle, buffer, BYTES_TO_PROCESS-1, &bytes_read);
+    buffer[bytes_read] = 0;
+    /* write out the file entry */
+    write(1, buffer, bytes_read);
+    if (bytes_read == 0) {
+      break;
+    }
+  }
   
+  
+  if (result != GNOME_VFS_OK) {
+    return print_error (result, gnome_vfs_uri_to_string(internal_uri, GNOME_VFS_URI_HIDE_NONE));
+  }
+  gnome_vfs_shutdown();
   printf("wow! it seems to work\n");
   return 0;
 }
