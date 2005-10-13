@@ -1,6 +1,16 @@
-/* $Id: bztloader.c,v 1.4 2005-10-10 17:43:01 waffel Exp $ */
+/* $Id: bztloader.c,v 1.5 2005-10-13 15:52:23 ensonic Exp $ */
 
 #include "bztloader.h"
+
+static int
+print_error (GnomeVFSResult result, const char *uri_string)
+{
+  const char *error_string;
+  /* get the string corresponding to this GnomeVFSResult value */
+  error_string = gnome_vfs_result_to_string (result);
+  printf ("Error %s occured opening location %s\n", error_string, uri_string);
+  return 1;
+}
 
 int main(int argc, char **argv) {
   GnomeVFSHandle *read_handle;
@@ -110,14 +120,4 @@ int main(int argc, char **argv) {
   gnome_vfs_shutdown();
   printf("wow! it seems to work\n");
   return 0;
-}
-
-int
-print_error (GnomeVFSResult result, const char *uri_string)
-{
-  const char *error_string;
-  /* get the string corresponding to this GnomeVFSResult value */
-  error_string = gnome_vfs_result_to_string (result);
-  printf ("Error %s occured opening location %s\n", error_string, uri_string);
-  return 1;
 }

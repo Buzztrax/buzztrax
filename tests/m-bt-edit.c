@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.13 2005-09-14 00:01:25 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.14 2005-10-13 15:52:24 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -32,8 +32,8 @@ void bt_edit_setup(void) {
   bt_threads_init();
   */
 
+  bt_init(NULL,NULL);
   gtk_init(NULL,NULL);
-  bt_init(NULL,NULL,NULL);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
   setup_log_capture();
@@ -45,7 +45,6 @@ void bt_edit_setup(void) {
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
-
 
   check_setup_test_display();
 

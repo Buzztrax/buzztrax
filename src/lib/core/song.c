@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.95 2005-09-28 19:34:56 ensonic Exp $
+// $Id: song.c,v 1.96 2005-10-13 15:52:24 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -168,13 +168,18 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  */
 gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
+  //GstEvent *event;
+  gboolean loop;
+  glong loop_start,loop_end;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // do not play again
   if(self->priv->is_playing) return(TRUE);
   
-  GST_INFO("prepare playback");
+  GST_INFO("prepare playback from %ld to %ld",loop_start,loop_end);
+
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
   
   // prepare playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
@@ -185,6 +190,21 @@ gboolean bt_song_play(const BtSong *self) {
   
   // @todo seek to start time
   self->priv->play_pos=0;
+  /*
+  GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
+  // @todo we need to update the loop_start and loop_end values on the fly
+  if (loop) {
+    event = gst_event_new_segment_seek (GST_FORMAT_DEFAULT |
+        GST_SEEK_METHOD_SET | GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT_LOOP,
+        (GstClockTime)loop_start*bar_time, (GstClockTime)loop_end*bar_time);
+  }
+  else {
+    event = gst_event_new_segment_seek (GST_FORMAT_DEFAULT |
+        GST_SEEK_METHOD_SET | GST_SEEK_FLAG_FLUSH,
+        (GstClockTime)loop_start*bar_time, (GstClockTime)loop_end*bar_time);
+  }
+  gst_pipeline_send_event (GST_ELEMENT(self->priv->bin),event);
+  */
 
   // start playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
@@ -351,7 +371,9 @@ void bt_song_write_to_xml_file(const BtSong *self) {
  * The file will be written to '/tmp' and will be named according the 'name'
  * property of the #BtSongInfo.
  * This file can be processed with graphviz to get an image.
+ * <informalexample><programlisting>
  *  dot -Tpng -oimage.png graph.dot
+ * </programlisting></informalexample>
  */
 void bt_song_write_to_dot_file(const BtSong *self) {
   FILE *out;
@@ -366,6 +388,13 @@ void bt_song_write_to_dot_file(const BtSong *self) {
   file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s.dot",song_name);
 
+  /* @idea: improve dot output
+   * - make border of main element in machine black, other borders gray
+   * - get caps for each wire segment
+   *   - use colors for float/int
+   *   - use line style for mono/stereo/quadro
+   */
+  
   if((out=fopen(file_name,"wb"))) {
     GList *list,*node,*sublist,*subnode;
     BtMachine *machine,*src,*dst;

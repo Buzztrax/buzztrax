@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.26 2005-09-27 20:37:57 ensonic Exp $
+// $Id: bt-edit.c,v 1.27 2005-10-13 15:52:24 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -23,10 +23,9 @@
 
 #include "bt-edit.h"
 
-static void usage(int argc, char **argv, const struct poptOption *options) {
-  const poptContext context=poptGetContext(argv[0], argc, (const char **)argv, options, 0);
-  poptPrintUsage(context,stdout,0);
-  poptFreeContext(context);
+static void usage(int argc, char **argv, GOptionContext *ctx) {
+  //poptPrintUsage(context,stdout,0);
+  //poptFreeContext(context);
   //exit(0);
 }
 
@@ -35,11 +34,13 @@ int main(int argc, char **argv) {
   gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
   BtEditApplication *app;
-
-  struct poptOption options[] = {
-    {"version",     '\0', POPT_ARG_NONE   | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &arg_version, 0, N_("show version"), NULL },
-    {"command",     '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &command,     0, N_("command name"), N_("{load}") },
-    {"input-file",  '\0', POPT_ARG_STRING | POPT_ARGFLAG_STRIP | POPT_ARGFLAG_OPTIONAL, &input_file_name,   0, N_("input file name"), N_("SONGFILE") },
+  GOptionContext *ctx;
+  GError *err=NULL;
+  
+  GOptionEntry options[] = {
+    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,     N_("Show version"),    NULL },
+    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    N_("{load}") },
+    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("SONGFILE") },
     POPT_TABLEEND
   };
   
@@ -52,11 +53,15 @@ int main(int argc, char **argv) {
   gdk_threads_init();
   bt_threads_init();
 
-  // init gtk (before or after bt_init ?)
-  // @todo when starting bt-edit with --help it does not print help for gtk
-  gtk_init(&argc,&argv);
-  // init buzztard core with own popt options
-  bt_init(&argc,&argv,options);
+  // init libraries
+  ctx = g_option_context_new(NULL);
+  g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
+  bt_init_add_option_groups(ctx);
+  g_option_context_add_group(ctx, gtk_get_option_group(TRUE));
+  if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
+    g_print("Error initializing: %s\n", safe_string(err->message));
+    exit(1);
+  }
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
@@ -73,7 +78,7 @@ int main(int argc, char **argv) {
     // depending on the popt options call the correct method
     if(!strncmp(command,"load",4)) {
       if(!input_file_name) {
-        usage(argc, argv, options);
+        usage(argc, argv, ctx);
         // if commandline options where wrong, just start
         res=bt_edit_application_run(app);
       }
@@ -82,7 +87,7 @@ int main(int argc, char **argv) {
       }
     }
     else {
-      usage(argc, argv, options);
+      usage(argc, argv, ctx);
       // if commandline options where wrong, just start
       res=bt_edit_application_run(app);
     }
@@ -92,9 +97,9 @@ int main(int argc, char **argv) {
   }
   gdk_threads_leave();
   
-  GST_DEBUG("exiting ...");
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_option_context_free(ctx);
   g_object_unref(app);
   return(!res);
 }

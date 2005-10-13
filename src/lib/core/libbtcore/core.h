@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.66 2005-09-21 19:46:03 ensonic Exp $
+/* $Id: core.h,v 1.67 2005-10-13 15:52:24 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -234,7 +234,10 @@
 #define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
 #ifndef BT_CORE_C
-  extern void bt_init(int *argc, char ***argv, struct poptOption *options);
+  extern GOptionGroup *bt_init_get_option_group(void);
+  extern void bt_init_add_option_groups(GOptionContext *ctx);
+  extern gboolean bt_init_check(int *argc, char **argv[], GError **err);
+  extern void bt_init(int *argc, char **argv[]);
 #endif
 
 /*

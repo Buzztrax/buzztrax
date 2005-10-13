@@ -1,4 +1,4 @@
-/* $Id: t-core.c,v 1.8 2005-09-14 00:01:28 ensonic Exp $
+/* $Id: t-core.c,v 1.9 2005-10-13 15:52:24 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -8,13 +8,13 @@
 
 // test if the normal init call works with commandline arguments
 START_TEST(test_btcore_init0) {
-  bt_init(&test_argc,&test_argvptr,NULL);
+  bt_init(&test_argc,&test_argvptr);
 }
 END_TEST
 
 // test if the init call handles correct null pointers
 START_TEST(test_btcore_init1) {
-  bt_init(NULL,NULL,NULL);
+  bt_init(NULL,NULL);
 }
 END_TEST
 
