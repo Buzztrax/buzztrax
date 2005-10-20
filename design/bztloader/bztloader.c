@@ -1,4 +1,4 @@
-/* $Id: bztloader.c,v 1.5 2005-10-13 15:52:23 ensonic Exp $ */
+/* $Id: bztloader.c,v 1.6 2005-10-20 15:12:53 waffel Exp $ */
 
 #include "bztloader.h"
 
@@ -15,6 +15,7 @@ print_error (GnomeVFSResult result, const char *uri_string)
 int main(int argc, char **argv) {
   GnomeVFSHandle *read_handle;
   const char *input_uri_string = argv[1];
+  char *absolute_uri_string;
   GnomeVFSFileSize bytes_read;
   guint buffer[BYTES_TO_PROCESS];
   GnomeVFSResult result;
@@ -32,56 +33,28 @@ int main(int argc, char **argv) {
     return 1;
   }
   
-  input_uri = gnome_vfs_uri_new(input_uri_string);
+  absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (input_uri_string, GNOME_VFS_MAKE_URI_DIR_CURRENT);
+  printf("absolute uri: %s\n",absolute_uri_string);
+  input_uri = gnome_vfs_uri_new(absolute_uri_string);
   
   /* check if the input is ok */
   if (input_uri == NULL) {
     printf ("Error: wrong gnome vfs uri\n");
     return 1;
+  }  
+  
+  if (!gnome_vfs_uri_exists(input_uri)) {
+    printf("file doe's not exists ... stopping\n");
+    return -1;
   }
   
-  /* make uri absolute from relative */
-  if(gnome_vfs_uri_is_local(input_uri)) {
-    /* if the uri exists we can open it.. no need for more tests */
-		if(gnome_vfs_uri_exists(input_uri))
-		{
-       printf("uri seems to be ok\n");
-      /* add suffix #gzip:#tar:/song.xml to input string */
-      input_uri_string = g_strconcat(input_uri_string,"#gzip:#tar:/song.xml");
-      printf("new input string: \"%s\"\n", input_uri_string);
-      // create URI from string to check validity
-      internal_uri = gnome_vfs_uri_new(input_uri_string);
-     } else {
-       printf("uri is not absolute\n");
-       /* we still need to find out if its a valid path */
-			char *dirname =  gnome_vfs_uri_extract_dirname(input_uri);
-      if ( (dirname[0]=='.') || (strlen(dirname) == 1 && (dirname[0]=='/')) )
-			//if(!strncmp(dirname, ".", 1) || (strlen(dirname) == 1 && !strncmp(dirname, "/", 1)))
-			{
-				/* there should be default function to get the full path from a relative one  */
-				char *cur_dir_tmp = g_get_current_dir();
-				char *path = NULL;
-				/* grrrrrrrr stupid gnome_vfs needs a ending / in the base path */
-				char *cur_dir = g_strdup_printf("%s/", cur_dir_tmp);
-        printf("cur_dir %s\n",cur_dir);
-        fflush(stdout);
-				g_free(cur_dir_tmp);
-				path =  gnome_vfs_uri_make_full_from_relative(cur_dir,input_uri_string);
-				printf("new path: \"%s\"\n",path);
-        fflush(stdout);
-        /* add suffix #gzip:#tar:/song.xml to input string */
-        char* new_input_uri_string = g_strdup_printf("%s#gzip:#tar:/song.xml", path);
-        printf("new input string: \"%s\"\n", new_input_uri_string);
-        fflush(stdout);
-        // create URI from string to check validity
-        internal_uri = gnome_vfs_uri_new(new_input_uri_string);
-				g_free(path);		
-				g_free(cur_dir);
-        g_free(new_input_uri_string);
-			}
-			g_free(dirname);
-		}
-  }
+  printf("uri seems to be ok\n");
+  /* add suffix #gzip:#tar:/song.xml to input string */
+  input_uri_string = g_strconcat(absolute_uri_string,"#gzip:#tar:/song.xml");
+  printf("new input string: \"%s\"\n", input_uri_string);
+  // create URI from string to check validity
+  internal_uri = gnome_vfs_uri_new(input_uri_string);
+  g_free(input_uri);
   
   if (internal_uri == NULL) {
     printf("Error: wrong uri\n");
@@ -112,7 +85,6 @@ int main(int argc, char **argv) {
       break;
     }
   }
-  
   
   if (result != GNOME_VFS_OK) {
     return print_error (result, gnome_vfs_uri_to_string(internal_uri, GNOME_VFS_URI_HIDE_NONE));
