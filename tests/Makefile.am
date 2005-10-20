@@ -1,9 +1,9 @@
-## $Id: Makefile.am,v 1.30 2005-10-07 20:33:19 ensonic Exp $
+## $Id: Makefile.am,v 1.31 2005-10-20 10:07:43 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
-  TESTS_BIN = bt_core bt_cmd bt_edit
-  ##TESTS_BIN =
+  ##TESTS_BIN = bt_core bt_cmd bt_edit
+  TESTS_BIN = bt_core
 else
   TESTS_BIN =
 endif

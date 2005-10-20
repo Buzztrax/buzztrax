@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.9 2005-10-13 15:52:24 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.10 2005-10-20 10:07:43 ensonic Exp $
  * command line app unit tests
  */
 
@@ -20,7 +20,7 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_cmd_setup(void) {
-  bt_init(NULL,NULL);
+  bt_init(&test_argc,&test_argvptr);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   GST_DEBUG_CATEGORY_INIT(bt_cmd_debug, "bt-cmd", 0, "music production environment / command ui");
   // set this to e.g. DEBUG to see more from gst in the log

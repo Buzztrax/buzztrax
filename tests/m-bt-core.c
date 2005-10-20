@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.17 2005-10-13 15:52:24 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.18 2005-10-20 10:07:43 ensonic Exp $
  * core library unit tests
  */
 
@@ -33,7 +33,7 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_core_setup(void) {
-  bt_init(NULL,NULL);
+  bt_init(&test_argc,&test_argvptr);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_DEBUG);

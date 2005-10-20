@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.14 2005-10-13 15:52:24 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.15 2005-10-20 10:07:43 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -32,8 +32,8 @@ void bt_edit_setup(void) {
   bt_threads_init();
   */
 
-  bt_init(NULL,NULL);
-  gtk_init(NULL,NULL);
+  bt_init(&test_argc,&test_argvptr);
+  gtk_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
   setup_log_capture();
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
   }
   gdk_threads_init();
   */
-  gtk_init(NULL,NULL);
+  gtk_init(&test_argc,&test_argvptr);
   check_setup_test_server();
   
   sr=srunner_create(bt_edit_application_suite());

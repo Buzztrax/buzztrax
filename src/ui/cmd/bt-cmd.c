@@ -1,4 +1,4 @@
-// $Id: bt-cmd.c,v 1.30 2005-10-13 15:52:24 ensonic Exp $
+// $Id: bt-cmd.c,v 1.31 2005-10-20 10:07:43 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     exit(0);
   }
   if(!command) usage(argc, argv, ctx);
-  g_printf("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
+  GST_DEBUG("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
 
   app=bt_cmd_application_new(arg_quiet);
   // depending on the popt options call the correct method

@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.20 2005-10-13 15:52:24 ensonic Exp $
+/* $Id: core.c,v 1.21 2005-10-20 10:07:39 ensonic Exp $
  */
 /**
  * SECTION:btcore
@@ -80,10 +80,6 @@ static gboolean bt_init_post (void) {
   
 //-- core initialisation
 
-#ifndef GST_HAVE_GLIB_2_8
-#define G_OPTION_FLAG_NO_ARG 0
-#endif
-
 /**
  * bt_init_get_option_group:
  *
@@ -121,8 +117,8 @@ GOptionGroup *bt_init_get_option_group(void) {
  * Adds all option groups to the main context the core library will pull in.
  */
 void bt_init_add_option_groups(GOptionContext *ctx) {
-  g_option_context_add_group(ctx, bt_init_get_option_group());
   g_option_context_add_group(ctx, gst_init_get_option_group());
+  g_option_context_add_group(ctx, bt_init_get_option_group());
 }
 
 /**
@@ -141,18 +137,16 @@ void bt_init_add_option_groups(GOptionContext *ctx) {
  * Returns: %TRUE if GStreamer could be initialized.
  */
 gboolean bt_init_check(int *argc, char **argv[], GError **err) {
-  GOptionGroup *group;
   GOptionContext *ctx;
   gboolean res;
 
   if(bt_initialized) {
-    GST_DEBUG("already initialized Buzztard core");
+    //g_print("already initialized Buzztard core");
     return(TRUE);
   }
 
   ctx = g_option_context_new(NULL);
-  group = bt_init_get_option_group();
-  g_option_context_add_group(ctx, group);
+  bt_init_add_option_groups(ctx);
   res = g_option_context_parse(ctx, argc, argv, err);
   g_option_context_free(ctx);
 
@@ -177,7 +171,7 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
  * </note></para>
  *
  * WARNING: This function does not work in the same way as corresponding
- * functions in other glib-style libraries, such as gtk_init().  In
+ * functions in other glib-style libraries, such as gtk_init(). In
  * particular, unknown command line options cause this function to
  * abort program execution.
  */

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.67 2005-10-13 15:52:24 ensonic Exp $
+/* $Id: core.h,v 1.68 2005-10-20 10:07:43 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -233,18 +233,23 @@
  */
 #define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
 
-#ifndef BT_CORE_C
-  extern GOptionGroup *bt_init_get_option_group(void);
-  extern void bt_init_add_option_groups(GOptionContext *ctx);
-  extern gboolean bt_init_check(int *argc, char **argv[], GError **err);
-  extern void bt_init(int *argc, char **argv[]);
-#endif
-
 /*
 @idea g_alloca_printf
 	
 #define g_alloca_printf(str,format,...) \
 sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 */
+
+// workaround for glib<2.8
+#ifndef GST_HAVE_GLIB_2_8
+#define G_OPTION_FLAG_NO_ARG 0
+#endif
+
+#ifndef BT_CORE_C
+  extern GOptionGroup *bt_init_get_option_group(void);
+  extern void bt_init_add_option_groups(GOptionContext *ctx);
+  extern gboolean bt_init_check(int *argc, char **argv[], GError **err);
+  extern void bt_init(int *argc, char **argv[]);
+#endif
 
 #endif // BT_CORE_H
