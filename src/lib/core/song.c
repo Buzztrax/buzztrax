@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.97 2005-10-23 17:43:29 ensonic Exp $
+// $Id: song.c,v 1.98 2005-10-23 17:56:24 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -295,11 +295,12 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
   // query playback position and update self->priv->play-pos;
   gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
   gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
-  GST_INFO("query    'bin' for playback-pos : cur=%"G_GINT64_FORMAT,pos_cur);
-  // update self->priv->play-pos (in ticks)
-  self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
-  g_object_notify(G_OBJECT(self),"play-pos");
-
+  GST_INFO("query playback-pos: cur=%"G_GINT64_FORMAT,pos_cur);
+  if(pos_cur!=-1) {
+    // update self->priv->play-pos (in ticks)
+    self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
+    g_object_notify(G_OBJECT(self),"play-pos");
+  }
   return(TRUE);
 }
 
