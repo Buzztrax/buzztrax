@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.96 2005-10-13 15:52:24 ensonic Exp $
+// $Id: song.c,v 1.97 2005-10-23 17:43:29 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -284,7 +284,7 @@ gboolean bt_song_continue(const BtSong *self) {
  * Returns: %FALSE if the song is not playing
  */
 gboolean bt_song_update_playback_position(const BtSong *self) {
-  gint64 pos_cur,pos_end;
+  gint64 pos_cur;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   g_return_val_if_fail(self->priv->is_playing,FALSE);
@@ -294,40 +294,12 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
   
   // query playback position and update self->priv->play-pos;
   gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
-  gst_query_parse_position(self->priv->position_query,NULL,&pos_cur,&pos_end);
-  GST_INFO("query    'bin' for playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT,pos_cur,pos_end);
+  gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
+  GST_INFO("query    'bin' for playback-pos : cur=%"G_GINT64_FORMAT,pos_cur);
   // update self->priv->play-pos (in ticks)
   self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
   g_object_notify(G_OBJECT(self),"play-pos");
-  
-  // DEBUG
-  {
-    BtMachine *machine;
-    GstElement *elem;
-    GList *list,*node;
-    gchar *id;
-    
-    g_object_get(self->priv->master,"machine",&elem,NULL);
-    gst_element_query(GST_ELEMENT(elem),self->priv->position_query);
-    gst_query_parse_position(self->priv->position_query,NULL,&pos_cur,&pos_end);
-    GST_INFO("query 'master' for playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT,pos_cur,pos_end);
-    gst_object_unref(elem);
-    
-    list=bt_setup_get_machines_by_type(self->priv->setup,BT_TYPE_SOURCE_MACHINE);
-    for(node=list;node;node=g_list_next(node)) {
-      machine=BT_MACHINE(node->data);
-      g_object_get(machine,"machine",&elem,"id",&id,NULL);
 
-      gst_element_query(GST_ELEMENT(elem),self->priv->position_query);
-      gst_query_parse_position(self->priv->position_query,NULL,&pos_cur,&pos_end);
-      GST_INFO("query '%6s' for playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT,id,pos_cur,pos_end);
-      g_free(id);
-      gst_object_unref(elem);
-      g_object_unref(machine);
-    }
-    g_list_free(list);
-  }
-  // DEBUG
   return(TRUE);
 }
 
