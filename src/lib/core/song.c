@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.98 2005-10-23 17:56:24 ensonic Exp $
+// $Id: song.c,v 1.99 2005-10-25 21:28:57 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -168,18 +168,17 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  */
 gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
-  //GstEvent *event;
+  GstEvent *event;
   gboolean loop;
-  glong loop_start,loop_end;
+  glong loop_start,loop_end,length;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // do not play again
   if(self->priv->is_playing) return(TRUE);
   
-  GST_INFO("prepare playback from %ld to %ld",loop_start,loop_end);
-
-  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
+  GST_INFO("prepare playback from %ld to %ld / 0 to %ld",loop_start,loop_end,length);
   
   // prepare playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
@@ -188,23 +187,25 @@ gboolean bt_song_play(const BtSong *self) {
   }
   GST_DEBUG("state change returned %d",res);
   
-  // @todo seek to start time
+  // seek to start time
   self->priv->play_pos=0;
-  /*
-  GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
+  GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   // @todo we need to update the loop_start and loop_end values on the fly
   if (loop) {
-    event = gst_event_new_segment_seek (GST_FORMAT_DEFAULT |
-        GST_SEEK_METHOD_SET | GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT_LOOP,
-        (GstClockTime)loop_start*bar_time, (GstClockTime)loop_end*bar_time);
+    event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
+        GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
   }
   else {
-    event = gst_event_new_segment_seek (GST_FORMAT_DEFAULT |
-        GST_SEEK_METHOD_SET | GST_SEEK_FLAG_FLUSH,
-        (GstClockTime)loop_start*bar_time, (GstClockTime)loop_end*bar_time);
+    event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, 0,
+        GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
-  gst_pipeline_send_event (GST_ELEMENT(self->priv->bin),event);
-  */
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),event))) {
+    GST_WARNING("element failed to handle seek event");
+  }
 
   // start playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
@@ -295,7 +296,7 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
   // query playback position and update self->priv->play-pos;
   gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
   gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
-  GST_INFO("query playback-pos: cur=%"G_GINT64_FORMAT,pos_cur);
+  GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT,pos_cur);
   if(pos_cur!=-1) {
     // update self->priv->play-pos (in ticks)
     self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
