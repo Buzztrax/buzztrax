@@ -1,4 +1,4 @@
-/* $Id: bztloader.c,v 1.6 2005-10-20 15:12:53 waffel Exp $ */
+/* $Id: bztloader.c,v 1.7 2005-10-26 12:33:22 waffel Exp $ */
 
 #include "bztloader.h"
 
@@ -20,6 +20,7 @@ int main(int argc, char **argv) {
   guint buffer[BYTES_TO_PROCESS];
   GnomeVFSResult result;
   GnomeVFSURI *input_uri, *internal_uri;
+  GnomeVFSFileInfo *file_info;
   
   /* remember to initialize GNOME VFS */
   if (!gnome_vfs_init ()) {
@@ -32,9 +33,12 @@ int main(int argc, char **argv) {
     printf ("Error: \"%s\" was a wrong gnome vfs uri\n",input_uri_string);
     return 1;
   }
-  
+
+  /* creating a absolute uri string from the given input string. Works also if 
+     the given string was a absolute uri. */
   absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (input_uri_string, GNOME_VFS_MAKE_URI_DIR_CURRENT);
   printf("absolute uri: %s\n",absolute_uri_string);
+  /* creating the gnome-vfs uri from the absolute path string */
   input_uri = gnome_vfs_uri_new(absolute_uri_string);
   
   /* check if the input is ok */
@@ -43,25 +47,37 @@ int main(int argc, char **argv) {
     return 1;
   }  
   
+  /* check if the given uri exists */
   if (!gnome_vfs_uri_exists(input_uri)) {
     printf("file doe's not exists ... stopping\n");
     return -1;
-  }
+  }  
   
   printf("uri seems to be ok\n");
+  
+  /* now we check the mime type */
+  result = gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE);
+  /* if the operation was not successful, print the error and abort */
+  //if (result != GNOME_VFS_OK) {
+  //  return print_error (result, gnome_vfs_uri_to_string(input_uri, GNOME_VFS_URI_HIDE_NONE));
+  //}
+  
+  //printf("mime type: %s\n", file_info->mime_type);
+  /* now we can free the input uri ... was just used to check if the given file
+     exists */
+  g_free(input_uri);
+  
   /* add suffix #gzip:#tar:/song.xml to input string */
-  input_uri_string = g_strconcat(absolute_uri_string,"#gzip:#tar:/song.xml");
+  input_uri_string = g_strconcat(absolute_uri_string,"#gzip:#tar:/song.xml",NULL);
   printf("new input string: \"%s\"\n", input_uri_string);
   // create URI from string to check validity
   internal_uri = gnome_vfs_uri_new(input_uri_string);
-  g_free(input_uri);
   
   if (internal_uri == NULL) {
     printf("Error: wrong uri\n");
     return 1;
   }
-  /* check validity ... this crashes gnome vfs */
-  /* TODO make bug report */
+  /* check if the new internal uri have a song.xml file */
   if (!gnome_vfs_uri_exists(internal_uri)) {
     printf("input uri doe's not exists\n");
     return 1;
