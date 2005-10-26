@@ -1,4 +1,4 @@
-/* $Id: bztloader.c,v 1.7 2005-10-26 12:33:22 waffel Exp $ */
+/* $Id: bztloader.c,v 1.8 2005-10-26 14:41:43 waffel Exp $ */
 
 #include "bztloader.h"
 
@@ -21,6 +21,7 @@ int main(int argc, char **argv) {
   GnomeVFSResult result;
   GnomeVFSURI *input_uri, *internal_uri;
   GnomeVFSFileInfo *file_info;
+  gboolean is_xml_mime=FALSE;
   
   /* remember to initialize GNOME VFS */
   if (!gnome_vfs_init ()) {
@@ -55,20 +56,33 @@ int main(int argc, char **argv) {
   
   printf("uri seems to be ok\n");
   
+  file_info = gnome_vfs_file_info_new ();
   /* now we check the mime type */
   result = gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE);
   /* if the operation was not successful, print the error and abort */
-  //if (result != GNOME_VFS_OK) {
-  //  return print_error (result, gnome_vfs_uri_to_string(input_uri, GNOME_VFS_URI_HIDE_NONE));
-  //}
+  if (result != GNOME_VFS_OK) {
+   return print_error (result, gnome_vfs_uri_to_string(input_uri, GNOME_VFS_URI_HIDE_NONE));
+  }
   
-  //printf("mime type: %s\n", file_info->mime_type);
+  printf("mime type: %s\n", gnome_vfs_file_info_get_mime_type(file_info));
+  
+  if (g_ascii_strcasecmp("text/xml",gnome_vfs_file_info_get_mime_type(file_info)) == 0) {
+    is_xml_mime=TRUE;
+  }
+  gnome_vfs_file_info_unref (file_info);
   /* now we can free the input uri ... was just used to check if the given file
      exists */
   g_free(input_uri);
   
-  /* add suffix #gzip:#tar:/song.xml to input string */
-  input_uri_string = g_strconcat(absolute_uri_string,"#gzip:#tar:/song.xml",NULL);
+  // the the mime type of the file is not an text/xml mimetype we think it is an
+  // bzt file and expanding the uri
+  if (!is_xml_mime) {
+    /* add suffix #gzip:#tar:/song.xml to input string */
+    input_uri_string = g_strconcat(absolute_uri_string,"#gzip:#tar:/song.xml",NULL);
+  } else {
+    input_uri_string = absolute_uri_string;
+  }
+  
   printf("new input string: \"%s\"\n", input_uri_string);
   // create URI from string to check validity
   internal_uri = gnome_vfs_uri_new(input_uri_string);
