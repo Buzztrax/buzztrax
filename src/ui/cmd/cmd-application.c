@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.66 2005-09-27 20:37:57 ensonic Exp $
+// $Id: cmd-application.c,v 1.67 2005-10-28 16:54:18 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -344,17 +344,40 @@ Error:
  */
 gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
+  BtSong *song=NULL;
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
   g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
   g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
 
-  /* @todo implement this like play, with a different sink
-   * open question is how to use a different audiosink - determine by output file name ?
-   */
-  g_printf("sorry this is not yet implemented\n");
+  GST_INFO("application.play launched");
+  
+  // prepare song and song-io
+  if(!(song=bt_song_new(BT_APPLICATION(self)))) {
+    goto Error;
+  }
+  if(!(loader=bt_song_io_new(input_file_name))) {
+    goto Error;
+  }
+  
+  GST_INFO("objects initialized");
+  
+  if(bt_song_io_load(loader,song)) {
+    /* @todo implement this like play, with a different sink
+     *
+     * bt_sink_machine_new_recorder(song,"recorder",format);
+     *
+     * so we need to disconnect everything from master and connect it to recorder
+     * what about having a stream-selector in master and two bins:
+     * player and recorder
+     */
+    g_printf("sorry this is not yet implemented\n");
 
-  return(res);  
+  }
+Error:
+  g_object_try_unref(song);
+  g_object_try_unref(loader);
+  return(res);
 }
 
 //-- wrapper

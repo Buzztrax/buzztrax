@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.1 2005-10-08 18:12:13 ensonic Exp $
+/** $Id: states1.c,v 1.2 2005-10-28 16:54:17 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` states1.c -o states1
@@ -11,20 +11,19 @@
 //#define SINK_NAME "esdsink"
 #define ELEM_NAME "audioconvert"
 #define SRC_NAME "sinesrc"
-#define SILENCE_NAME "fakesrc"
+#define SILENCE_NAME "audiotestsrc"
 
 #define WAIT_LENGTH 4
 
 static void query_and_print(GstElement *element, GstQuery *query) {
-  gint64 pos_cur,pos_end;
+  gint64 pos;
 
   if(gst_element_query(element,query)) {
-    gst_query_parse_position(query,NULL,&pos_cur,&pos_end);
-    printf("%s playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT"\n",
-      GST_OBJECT_NAME(element),pos_cur,pos_end);
+    gst_query_parse_position(query,NULL,&pos);
+    printf("%s playback-pos : cur=%"G_GINT64_FORMAT"\n",GST_OBJECT_NAME(element),pos);
   }
   else {
-    printf("%s playback-pos : cur=??? end=???\n",GST_OBJECT_NAME(element));
+    printf("%s playback-pos : cur=???\n",GST_OBJECT_NAME(element));
   }
 }
 
@@ -39,8 +38,9 @@ int main(int argc, char **argv) {
   GstClockID clock_id;
   GstClockReturn wait_ret;
   GstQuery *query;
-  GstPad *src1_sink,*src1_peer;
-  GstPad *src2_sink,*src2_peer;
+  GstPad *src1_sink;
+  GstPad *src2_sink;
+  GstPad *silence_sink;
   gboolean ret;
   
   /* init gstreamer */
@@ -76,6 +76,7 @@ int main(int argc, char **argv) {
   if(!(silence = gst_element_factory_make (SILENCE_NAME, "silence"))) {
     fprintf(stderr,"Can't create element \""SILENCE_NAME"\"\n");exit (-1);
   }
+  g_object_set(silence,"wave",4,NULL);
   
   /* make a mixer */
   if(!(mix = gst_element_factory_make ("adder", "mix"))) {
@@ -83,7 +84,7 @@ int main(int argc, char **argv) {
   }
     
   /* add objects to the main bin */
-  gst_bin_add_many (GST_BIN (bin), src1,src2, vol1,vol2, mix, sink, NULL);
+  gst_bin_add_many (GST_BIN (bin), src1,src2, vol1,vol2, silence, mix, sink, NULL);
   
   /* link elements */
   if(!gst_element_link_many (src1, vol1, mix, sink, NULL)) {
@@ -108,14 +109,11 @@ int main(int argc, char **argv) {
   if(!(src1_sink=gst_element_get_pad(src1,"src"))) {
     fprintf(stderr,"Can't get src pad of src1\n");exit (-1);
   }
-  if(!(src1_peer=gst_pad_get_peer(src1_sink))) {
-    fprintf(stderr,"Can't get peer pad of src1.src\n");exit (-1);
-  }
   if(!(src2_sink=gst_element_get_pad(src2,"src"))) {
     fprintf(stderr,"Can't get src pad of src1\n");exit (-1);
   }
-  if(!(src2_peer=gst_pad_get_peer(src2_sink))) {
-    fprintf(stderr,"Can't get peer pad of src2.src\n");exit (-1);
+  if(!(silence_sink=gst_element_get_pad(silence,"src"))) {
+    fprintf(stderr,"Can't get src pad of silence\n");exit (-1);
   }
 
   clock_id = gst_clock_new_periodic_id (clock,
@@ -136,12 +134,15 @@ int main(int argc, char **argv) {
   }
 
   printf("trying to pause source2\n");
-  ret=gst_pad_set_blocked(src2_peer,TRUE);
+  ret=gst_pad_set_blocked(src2_sink,TRUE);
   printf("  =%d\n",ret);
   gst_element_unlink(src2,vol2);
   gst_element_link(silence,vol2);
-  ret=gst_pad_set_blocked(src2_peer,FALSE);
+  ret=gst_pad_set_blocked(src2_sink,FALSE);
   printf("  =%d\n",ret);
+  if(gst_element_set_state (silence, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't start playing\n");exit(-1);
+  }
   
   printf("paused source2\n");
   query_and_print(src1,query);
@@ -151,18 +152,24 @@ int main(int argc, char **argv) {
   }
   
   printf("trying to continue source2 and pause source1\n");
-  ret=gst_pad_set_blocked(src2_peer,TRUE);
+  ret=gst_pad_set_blocked(silence_sink,TRUE);
   printf("  =%d\n",ret);
   gst_element_unlink(silence,vol2);
   gst_element_link(src2,vol2);
-  ret=gst_pad_set_blocked(src2_peer,FALSE);
+  ret=gst_pad_set_blocked(silence_sink,FALSE);
   printf("  =%d\n",ret);
-  ret=gst_pad_set_blocked(src1_peer,TRUE);
+  if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't start playing\n");exit(-1);
+  }
+  ret=gst_pad_set_blocked(src1_sink,TRUE);
   printf("  =%d\n",ret);
   gst_element_unlink(src1,vol1);
   gst_element_link(silence,vol1);
-  ret=gst_pad_set_blocked(src1_peer,FALSE);
+  ret=gst_pad_set_blocked(src1_sink,FALSE);
   printf("  =%d\n",ret);
+  if(gst_element_set_state (silence, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't start playing\n");exit(-1);
+  }
 
   printf("continued source2, paused source1\n");
   query_and_print(src1,query);

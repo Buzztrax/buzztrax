@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.99 2005-10-25 21:28:57 ensonic Exp $
+// $Id: song.c,v 1.100 2005-10-28 16:54:18 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -73,6 +73,8 @@ static GObjectClass *parent_class=NULL;
 static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
   gboolean res=FALSE;
   BtSong *self = BT_SONG(user_data);
+  gboolean loop;
+  glong loop_start,loop_end;
   
   //GST_INFO("received bus message");
   switch(GST_MESSAGE_TYPE(message)) {
@@ -87,6 +89,22 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
       break;
     case GST_MESSAGE_SEGMENT_DONE:
       GST_INFO("received SEGMENT_DONE bus message");
+      g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
+      if(loop) {
+        /* @todo send another segmented seek */
+        GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+        GstEvent *event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
+          GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
+
+        if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),event))) {
+          GST_WARNING("element failed to handle continuing seek event");
+        }
+      }
+      else {
+        bt_song_stop(self);
+      }
       res=TRUE;
       break;
   }
@@ -171,6 +189,7 @@ gboolean bt_song_play(const BtSong *self) {
   GstEvent *event;
   gboolean loop;
   glong loop_start,loop_end,length;
+  GstClockTime bar_time;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
@@ -189,7 +208,7 @@ gboolean bt_song_play(const BtSong *self) {
   
   // seek to start time
   self->priv->play_pos=0;
-  GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+  bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   // @todo we need to update the loop_start and loop_end values on the fly
   if (loop) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,

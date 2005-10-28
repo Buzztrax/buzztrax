@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.49 2005-09-21 19:46:03 ensonic Exp $
+// $Id: sink-machine.c,v 1.50 2005-10-28 16:54:18 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -166,7 +166,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   }
   //g_object_get(G_OBJECT (self), "machine", &elem, NULL);
   //g_object_set(G_OBJECT (elem), "sync", FALSE, NULL);
-  //g_object_unref(elem);
+  //gst_object_unref(GST_OBJECT(elem));
 
   // @todo where do we put that, should the sink watch itself, or should the song do it?
   // add notifies to audio-sink and system-audio-sink
@@ -190,7 +190,10 @@ Error:
  * @format: specify the file format to record in
  *
  *
+ */
 BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id, const gchar *format) {
+  GstElement *recorder;
+ 
   // get gst mimetype from the extension
   // and then look at all encoders which supply that mimetype
   // check elements in "codec/encoder/audio", "codec/muxer/audio"
@@ -198,16 +201,33 @@ BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id,
   // gst_element_factory_can_src_caps()
 	// problem here is that we need extra option for each encoder (e.g. quality)
 
-  // if the decoder needs multiple elements use a bin and ghostpads
+  /* until now element creation gets just one plugin-name,
+     this here needs multiple :(
+  
+     idea: use a bin as the element and have the real elements as private
+           instances, after creation get the bin, insert the private elements
+           and setup ghostpads
+  */
 
-  // example chains:
+  if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bin",NULL)))) {
+    goto Error;
+  }
+  if(!bt_machine_new(BT_MACHINE(self))) {
+    goto Error;
+  }
+  g_object_get(G_OBJECT (self), "machine", &recoder, NULL);
+  // @todo add recoder elements
+  gst_object_unref(GST_OBJECT(recorder));
+
+  /* example chains:
      oggmux ! vorbis ! filesink location="song.ogg"
      lame ! filesink location="song.mp3"
-     # wavenc (./gst-plugins-good/gst/wavenc/gstwavenc)
+     wavenc ! filesink location="song.wav"
 		 # aiff
 		 # flac (./gst-plugins-good/ext/flac/gstflacenc)
+   */
+  return(NULL);
 }
-*/
 
 //-- methods
 
