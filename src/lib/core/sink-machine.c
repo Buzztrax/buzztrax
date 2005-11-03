@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.50 2005-10-28 16:54:18 ensonic Exp $
+// $Id: sink-machine.c,v 1.51 2005-11-03 21:09:19 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -192,6 +192,7 @@ Error:
  *
  */
 BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id, const gchar *format) {
+  BtSinkMachine *self=NULL;
   GstElement *recorder;
  
   // get gst mimetype from the extension
@@ -215,7 +216,7 @@ BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id,
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
-  g_object_get(G_OBJECT (self), "machine", &recoder, NULL);
+  g_object_get(G_OBJECT (self), "machine", &recorder, NULL);
   // @todo add recoder elements
   gst_object_unref(GST_OBJECT(recorder));
 
@@ -226,6 +227,9 @@ BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id,
 		 # aiff
 		 # flac (./gst-plugins-good/ext/flac/gstflacenc)
    */
+  return(self);
+Error:
+  g_object_try_unref(self);
   return(NULL);
 }
 

@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.67 2005-10-28 16:54:18 ensonic Exp $
+// $Id: cmd-application.c,v 1.68 2005-11-03 21:09:19 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -345,6 +345,7 @@ Error:
 gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *input_file_name, const gchar *output_file_name) {
   gboolean res=FALSE;
   BtSong *song=NULL;
+  BtSongIO *loader=NULL;
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
   g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
