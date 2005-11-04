@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.62 2005-09-19 18:47:20 ensonic Exp $
+# $Id: configure.ac,v 1.63 2005-11-04 22:10:40 waffel Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -307,6 +307,9 @@ BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS='-lbtcore -lm'
 
+# check for mimetype utilities
+AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
+
 # Substitutes
 
 AC_SUBST(BT_INCLUDEDIR)
@@ -333,6 +336,9 @@ AC_CONFIG_FILES(Makefile \
   po/Makefile.in \
   src/Makefile \
     src/lib/Makefile \
+    src/lib/buzztard.applications \
+    src/lib/buzztard.xml \
+    src/lib/buzztard.keys \
       src/lib/core/Makefile \
       src/lib/core/libbtcore.pc \
         src/lib/core/libbtcore/Makefile \

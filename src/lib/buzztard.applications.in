@@ -1,0 +1,8 @@
+bt-edit
+  command=bt-edit
+  name=BUZZTARD
+  can_open_multiple_files=false
+  excpects_uris=true
+  uses_gnomevfs=true
+  requires_terminal=false
+  mime_types=audio/x-bzt

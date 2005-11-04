@@ -1,4 +1,4 @@
-$Id: README,v 1.16 2005-09-20 09:04:44 waffel Exp $
+$Id: README,v 1.17 2005-11-04 22:10:40 waffel Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -47,7 +47,12 @@ devhelp:
   export DEVHELP_SEARCH_PATH="$DEVHELP_SEARCH_PATH:$HOME/buzztard/share/gtk-doc/html"
 pkg-config:
   export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig"
-    
+mime-database:
+  export XDG_DATA_HOME="$XDG_DATA_HOME:"    
+
+run:
+update-mime-database $HOME/buzztard/share/mime/
+
 = running unit tests =
 in one console enter
   eval {rm\ ,\;touch\ ,\;tail\ -f\ }/tmp/bt_XXX.log

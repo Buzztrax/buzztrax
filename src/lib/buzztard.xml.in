@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="audio/x-bzt">
+    <glob pattern="*.bzt"/>
+    <magic priority="80">
+      <match type="string" value="; BztProject" offset="0:64"/>
+      <match type="string" value="(bzt-version)" offset="0:64"/>
+    </magic>
+    <_comment>BZT Song File</_comment>
+  </mime-type>
+</mime-info>
