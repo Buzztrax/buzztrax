@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.21 2005-10-20 10:07:39 ensonic Exp $
+/* $Id: core.c,v 1.22 2005-11-06 18:17:44 waffel Exp $
  */
 /**
  * SECTION:btcore
@@ -74,6 +74,12 @@ static gboolean bt_init_post (void) {
   xmlSubstituteEntitiesDefault(1);
   xmlLoadExtDtdDefaultValue=TRUE;            // always load DTD default values (even when not validating)
   xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files (we load xsl files as well  
+  
+  //-- initialize gnome-vfs
+  if (!gnome_vfs_init ()) {
+    GST_WARNING("gnome vfs failed to initialize");
+    return FALSE;
+  }
   
   return TRUE;
 }

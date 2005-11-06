@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.68 2005-10-20 10:07:43 ensonic Exp $
+/* $Id: core.h,v 1.69 2005-11-06 18:17:44 waffel Exp $
  */
 
 #ifndef BT_CORE_H
@@ -38,6 +38,8 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
+//-- gnome-vfs
+#include <libgnomevfs/gnome-vfs.h>
 //-- popt
 #include <popt.h>
 //-- i18n

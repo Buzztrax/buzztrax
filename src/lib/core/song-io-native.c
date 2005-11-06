@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.90 2005-10-08 18:12:13 ensonic Exp $
+// $Id: song-io-native.c,v 1.91 2005-11-06 18:17:44 waffel Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -41,6 +41,38 @@ static BtSongIOClass *parent_class=NULL;
 GType bt_song_io_native_detect(const gchar *file_name) {
   GType type=0;
   gchar *lc_file_name;
+  char *absolute_uri_string;
+  GnomeVFSURI *input_uri;
+  GnomeVFSFileInfo *file_info;
+  GnomeVFSResult result;
+  
+  /* creating a absolute uri string from the given input string. Works also if 
+     the given string was a absolute uri. */
+  absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (file_name, GNOME_VFS_MAKE_URI_DIR_CURRENT);
+  GST_INFO("creating absolute file uri string: %s\n",absolute_uri_string);
+  /* creating the gnome-vfs uri from the absolute path string */
+  input_uri = gnome_vfs_uri_new(absolute_uri_string);
+  /* check if the input uri is ok */
+  if (input_uri == NULL) {
+    GST_WARNING("input uri for gnome vfs cannot create\n");
+    return(type);
+  }
+  /* check if the given uri exists */
+  if (!gnome_vfs_uri_exists(input_uri)) {
+    GST_WARNING("given input uri doe's not exists ... abort loading\n");
+    return(type);
+  }
+  /* create new file info pointer. Don't remove this! */
+  file_info = gnome_vfs_file_info_new ();
+  /* now we check the mime type */
+  result = gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE);
+  /* if the operation was not successful, print the error and abort */
+  if (result != GNOME_VFS_OK) {
+   GST_WARNING("Cannot determine mime type. Error: %s\n", gnome_vfs_result_to_string (result));
+   return(type);
+  }
+  
+  
   
   GST_INFO("file_name=\"%s\"",file_name);
   if(!file_name) return(type);
