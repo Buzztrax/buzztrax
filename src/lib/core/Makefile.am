@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.31 2005-08-27 12:48:24 ensonic Exp $
+## $Id: Makefile.am,v 1.32 2005-11-06 19:57:35 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -28,6 +28,7 @@ libbtcore_la_SOURCES = \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
 	settings.c libbtcore/settings.h libbtcore/settings-methods.h libbtcore/settings-private.h \
 	setup.c libbtcore/setup.h libbtcore/setup-methods.h \
+	sink-bin.c libbtcore/sink-bin.h libbtcore/sink-bin-methods.h \
 	sink-machine.c libbtcore/sink-machine.h libbtcore/sink-machine-methods.h \
 	song.c libbtcore/song.h libbtcore/song-methods.h \
 	song-info.c libbtcore/song-info.h libbtcore/song-info-methods.h \

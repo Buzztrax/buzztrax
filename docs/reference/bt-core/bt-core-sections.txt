@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.55 2005-10-13 15:52:24 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.56 2005-11-06 19:57:35 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -257,6 +257,30 @@ BT_TYPE_SETUP
 <SUBSECTION Private>
 bt_setup_get_type
 BtSetupPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsinkbin</FILE>
+<TITLE>BtSinkBin</TITLE>
+BtSinkBin
+BtSinkBinMode
+BtSinkBinRecordFormat
+bt_sink_bin_new
+<SUBSECTION Standard>
+BtSinkBinClass
+BT_SINK_BIN
+BT_IS_SINK_BIN
+BT_SINK_BIN_CLASS
+BT_IS_SINK_BIN_CLASS
+BT_SINK_BIN_GET_CLASS
+BT_TYPE_SINK_BIN
+BT_TYPE_SINK_BIN_MODE
+BT_TYPE_SINK_BIN_RECORD_FORMAT
+<SUBSECTION Private>
+bt_sink_bin_get_type
+bt_sink_bin_mode_get_type
+bt_sink_bin_record_format_get_type
+BtSinkBinPrivate
 </SECTION>
 
 <SECTION>

@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.91 2005-11-06 18:17:44 waffel Exp $
+// $Id: song-io-native.c,v 1.92 2005-11-06 19:57:35 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -178,7 +178,7 @@ static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, co
       // iterate over children
       xml_subnode=xml_node->children;
       while(xml_subnode) {
-        if(!xmlNodeIsText(xml_subnode) && !strncmp(xml_node->name,"property\0",9)) {
+        if(!xmlNodeIsText(xml_subnode) && !strncmp(xml_subnode->name,"property\0",9)) {
           key=xmlGetProp(xml_subnode,XML_CHAR_PTR("key"));
           value=xmlGetProp(xml_subnode,XML_CHAR_PTR("value"));
           GST_DEBUG("    [%s] => [%s]",key,value);

@@ -13,6 +13,7 @@
 <!ENTITY BtSequence SYSTEM "xml/btsequence.xml">
 <!ENTITY BtSettings SYSTEM "xml/btsettings.xml">
 <!ENTITY BtSetup SYSTEM "xml/btsetup.xml">
+<!ENTITY BtSinkBin SYSTEM "xml/btsinkbin.xml">
 <!ENTITY BtSinkMachine SYSTEM "xml/btsinkmachine.xml">
 <!ENTITY BtSong SYSTEM "xml/btsong.xml">
 <!ENTITY BtSongInfo SYSTEM "xml/btsonginfo.xml">
@@ -106,6 +107,7 @@
     &BtSequence;
     &BtSettings;
     &BtSetup;
+    &BtSinkBin;
     &BtSinkMachine;
     &BtSong;
     &BtSongInfo;

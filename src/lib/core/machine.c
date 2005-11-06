@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.163 2005-10-08 18:12:13 ensonic Exp $
+// $Id: machine.c,v 1.164 2005-11-06 19:57:35 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -144,8 +144,10 @@ struct _BtMachinePrivate {
 
   GList *patterns;  // each entry points to BtPattern
   
-  /* the gstreamer elements that is used */
+  /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
+  /* additional elements we need for state handling */
+  GstElement *silence;
   
   /* public fields are
   GstElement *dst_elem,*src_elem;
@@ -177,82 +179,83 @@ GType bt_machine_state_get_type(void) {
 
 //-- helper methods
 
-static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
-  gboolean res=TRUE;
-  GList *wires,*node;
-  BtWire *wire;
-  BtMachine *dst_machine;
-
-  /* @todo
-   * we need to call gst_pad_set_blocked() on all peer pads
-   * inside the handler we unlink the pads and link a silence element instead of the machine
-   * //peer_pad=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]);
-   * gst_pad_set_blocked(peer_pad,TRUE);
-   * gst_element_unlink(self->priv->machines[PART_MACHINE],gst_pad_get_parent_element(peer_pad));
-   * gst_element_link(self->priv->machines[PART_SILENCE],gst_pad_get_parent_element(peer_pad));
-   * gst_pad_set_blocked(peer_pad,FALSE);
-   */
-  
-  // we need to pause all elements downstream until we hit a loop-based element  (has an adder) :(
-  // @todo we need to do the same upstream too until we hit one with a spreader
-  if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
-    for(node=wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
-      GST_INFO("  setting element '%s' to paused",self->priv->id);
-      if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
-        GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
-        res=FALSE;
-      }
-      if(!bt_machine_has_active_adder(dst_machine)) {
-        bt_machine_set_mute(dst_machine,setup);
-      }
-      g_object_unref(dst_machine);
-      g_object_unref(wire);
+/*
+ * bt_machine_get_sink_peer:
+ * @elem: the element to locate the sink peer for
+ *
+ * Locates the #GstElement that is connected to the sink pad of the given
+ * #GstElement.
+ *
+ * Returns: the sink peer #GstElement or NULL
+ */
+static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
+  GstElement *peer=NULL;
+  GstPad *pad,*peer_pad;
+    
+  // add before machine (sink peer of machine)
+  if((pad=gst_element_get_pad(elem,"sink"))) {
+    if((peer_pad=gst_pad_get_peer(pad))) {
+      peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
+      gst_object_unref(peer_pad);
     }
-    g_list_free(wires);
+    gst_object_unref(pad);
+  }
+  return(peer);
+}
+
+
+static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
+  gboolean res=FALSE;
+  GstElement *machine,*peer_elem;
+  GstPad *pad,*peer_pad;
+  
+  GST_INFO("toggle mute state");
+
+  machine=self->priv->machines[PART_MACHINE];
+  if((pad=gst_element_get_pad(machine,"src"))) {
+    if((peer_pad=gst_pad_get_peer(pad))) {
+      if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {
+        gst_pad_set_blocked(pad,TRUE);
+        gst_element_unlink(machine,peer_elem);
+        gst_element_link(self->priv->silence,peer_elem);
+        gst_pad_set_blocked(pad,FALSE);
+      
+        gst_element_set_locked_state(self->priv->silence,FALSE);
+        gst_element_set_state(self->priv->silence,GST_STATE_PLAYING);
+      
+        gst_element_set_state(machine,GST_STATE_READY);
+        gst_element_set_locked_state(machine,TRUE);
+        
+        self->priv->machines[PART_MACHINE]=self->priv->silence;
+        self->priv->silence=machine;
+        
+        res=TRUE;
+        gst_object_unref(peer_elem);
+      }
+      else {
+        GST_WARNING("can't get sink-peer machine");
+      }
+      gst_object_unref(peer_pad);
+    }
+    else {
+      GST_WARNING("can't get peer-pad");
+    }
+    gst_object_unref(pad);
   }
   else {
-    if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
-      GST_WARNING("    setting element '%s' to paused state failed",self->priv->id);
-      res=FALSE;
-    }
+    GST_WARNING("can't get src pad of machine");
   }
   return(res);
 }
 
+static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
+  if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
+  return(bt_machine_toggle_mute(self,setup));
+}
+
 static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
-  gboolean res=TRUE;
-  GList *wires,*node;
-  BtWire *wire;
-  BtMachine *dst_machine;
-  
-  // we need to unpause all elements downstream until we hit a loop-based element (has an adder) :(
-  // @todo we need to do the same upstream too until we hit one with a spreader
-  if((wires=bt_setup_get_wires_by_src_machine(setup,self))) {
-    for(node=wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      g_object_get(G_OBJECT(wire),"dst",&dst_machine,NULL);
-      GST_INFO("  setting element '%s' to playing",self->priv->id);
-      if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
-        GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
-        res=FALSE;
-      }
-      if(!bt_machine_has_active_adder(dst_machine)) {
-        bt_machine_unset_mute(dst_machine,setup);
-      }
-      g_object_unref(dst_machine);
-      g_object_unref(wire);
-    }
-    g_list_free(wires);
-  }
-  else {
-    if(gst_element_set_state(self->priv->machines[PART_MACHINE],GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
-      GST_WARNING("    setting element '%s' to playing state failed",self->priv->id);
-      res=FALSE;
-    }
-  }
-  return(res);
+  if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
+  return(bt_machine_toggle_mute(self,setup));
 }
 
 /*
@@ -270,6 +273,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
   // reject a few nonsense changes
   if((new_state==BT_MACHINE_STATE_BYPASS) && (!BT_IS_PROCESSOR_MACHINE(self))) return(FALSE);
   if((new_state==BT_MACHINE_STATE_SOLO) && (BT_IS_SINK_MACHINE(self))) return(FALSE);
+  if(self->priv->state==new_state) return(TRUE);
 
   g_object_get(self->priv->song,"setup",&setup,NULL);
   
@@ -278,7 +282,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
   // return to normal state
   switch(self->priv->state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_unset_mute(self,setup)) res=FALSE;
+      if(!bt_machine_toggle_mute(self,setup)) res=FALSE;
     } break;
     case BT_MACHINE_STATE_SOLO:  { // source
       GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
@@ -297,14 +301,13 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
       // @todo disconnect its source and sink + set this machine to playing
     } break;
     case BT_MACHINE_STATE_NORMAL:
-      g_return_val_if_reached(FALSE);
+      //g_return_val_if_reached(FALSE);
       break;
   }
   // set to new state
   switch(new_state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_set_mute(self,setup)) res=FALSE;
-      // alternatively just disconnect
+      if(!bt_machine_toggle_mute(self,setup)) res=FALSE;
     } break;
     case BT_MACHINE_STATE_SOLO:  { // source
       GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
@@ -330,37 +333,13 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
       // @todo set this machine to paused + connect its source and sink
     } break;
     case BT_MACHINE_STATE_NORMAL:
-      g_return_val_if_reached(FALSE);
+      //g_return_val_if_reached(FALSE);
       break;
   }
   self->priv->state=new_state;
 
   g_object_try_unref(setup);
   return(res);
-}
-
-/*
- * bt_machine_get_sink_peer:
- * @elem: the element to locate the sink peer for
- *
- * Locates the #GstElement that is connected to the sink pad of the given
- * #GstElement.
- *
- * Returns: the sink peer #GstElement or NULL
- */
-static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
-  GstElement *peer=NULL;
-  GstPad *pad,*peer_pad;
-    
-  // add before machine (sink peer of machine)
-  if((pad=gst_element_get_pad(elem,"sink"))) {
-    if((peer_pad=gst_pad_get_peer(pad))) {
-      peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
-      gst_object_unref(peer_pad);
-    }
-    gst_object_unref(pad);
-  }
-  return(peer);
 }
 
 /*
@@ -825,6 +804,15 @@ gboolean bt_machine_new(BtMachine *self) {
   else if(BT_IS_PROCESSOR_MACHINE(self)) {
     bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
   }
+  // prepare state handling elements
+  {
+    gchar *name=g_strdup_printf("silence_%p",self);
+
+    self->priv->silence=gst_element_factory_make("audiotestsrc",name);
+    gst_element_set_locked_state(self->priv->silence,TRUE);
+    gst_bin_add(self->priv->bin,self->priv->silence);
+  }
+  
   // add the machine to the setup of the song
   // @todo the method should get the setup as an parameter (faster when bulk adding) (store it in the class?)
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
@@ -2007,6 +1995,7 @@ static void bt_machine_dispose(GObject *object) {
         GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
       }
     }
+    gst_bin_remove(self->priv->bin,self->priv->silence);
     // release the bin (that is ref'ed in bt_machine_new() )
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);

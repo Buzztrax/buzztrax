@@ -7,6 +7,6 @@
       <match type="string" value="; BztProject" offset="0:64"/>
       <match type="string" value="(bzt-version)" offset="0:64"/>
     </magic>
-    <comment>BZT Song File</comment>
+    <comment>BZT song</comment>
   </mime-type>
 </mime-info>

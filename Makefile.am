@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.46 2005-09-26 21:46:02 ensonic Exp $
+## $Id: Makefile.am,v 1.47 2005-11-06 19:57:29 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -64,6 +64,7 @@ EXTRA_DIST = \
 @INTLTOOL_SCHEMAS_RULE@
 
 DISTCLEANFILES = \
+	intltool-extract \
 	intltool-merge \
 	intltool-update
 

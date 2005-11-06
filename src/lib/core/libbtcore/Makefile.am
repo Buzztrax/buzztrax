@@ -15,6 +15,7 @@ libbtcore_HEADERS = \
 	sequence.h sequence-methods.h \
 	settings.h settings-methods.h \
 	setup.h setup-methods.h \
+  sink-bin.h sink-bin-methods.h \
 	sink-machine.h sink-machine-methods.h \
 	song.h song-methods.h \
 	song-info.h song-info-methods.h \

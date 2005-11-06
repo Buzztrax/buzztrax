@@ -1,4 +1,4 @@
-$Id: README,v 1.17 2005-11-04 22:10:40 waffel Exp $
+$Id: README,v 1.18 2005-11-06 19:57:29 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -48,7 +48,7 @@ devhelp:
 pkg-config:
   export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig"
 mime-database:
-  export XDG_DATA_HOME="$XDG_DATA_HOME:"    
+  export XDG_DATA_HOME="$XDG_DATA_HOME:$HOME/buzztard/share"
 
 run:
 update-mime-database $HOME/buzztard/share/mime/

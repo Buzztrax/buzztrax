@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.69 2005-11-06 18:17:44 waffel Exp $
+/* $Id: core.h,v 1.70 2005-11-06 19:57:36 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -84,6 +84,7 @@
 #include "processor-machine-methods.h"
 #include "sink-machine-methods.h"
 #include "source-machine-methods.h"
+#include "sink-bin-methods.h"
 #include "wire-methods.h"
 #include "setup-methods.h"
 #include "pattern-methods.h"

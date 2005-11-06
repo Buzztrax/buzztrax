@@ -1,9 +1,9 @@
-// $Id: sink-machine.c,v 1.51 2005-11-03 21:09:19 ensonic Exp $
+// $Id: sink-machine.c,v 1.52 2005-11-06 19:57:35 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
  *
- * Sinks are machines that do playback or recording of the final wave.
+ * Sinks are machines that do playback or recording of the song.
  */ 
  
 #define BT_CORE
@@ -180,56 +180,6 @@ Error:
   g_object_try_unref(self);
   g_object_try_unref(settings);
   g_object_try_unref(app);
-  return(NULL);
-}
-
-/*
- * bt_sink_machine_new_recorder:
- * @song: the song the new instance belongs to
- * @id: the id, we can use to lookup the machine
- * @format: specify the file format to record in
- *
- *
- */
-BtSinkMachine *bt_sink_machine_new_recorder(const BtSong *song, const gchar *id, const gchar *format) {
-  BtSinkMachine *self=NULL;
-  GstElement *recorder;
- 
-  // get gst mimetype from the extension
-  // and then look at all encoders which supply that mimetype
-  // check elements in "codec/encoder/audio", "codec/muxer/audio"
-  // build caps using this mimetype
-  // gst_element_factory_can_src_caps()
-	// problem here is that we need extra option for each encoder (e.g. quality)
-
-  /* until now element creation gets just one plugin-name,
-     this here needs multiple :(
-  
-     idea: use a bin as the element and have the real elements as private
-           instances, after creation get the bin, insert the private elements
-           and setup ghostpads
-  */
-
-  if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bin",NULL)))) {
-    goto Error;
-  }
-  if(!bt_machine_new(BT_MACHINE(self))) {
-    goto Error;
-  }
-  g_object_get(G_OBJECT (self), "machine", &recorder, NULL);
-  // @todo add recoder elements
-  gst_object_unref(GST_OBJECT(recorder));
-
-  /* example chains:
-     oggmux ! vorbis ! filesink location="song.ogg"
-     lame ! filesink location="song.mp3"
-     wavenc ! filesink location="song.wav"
-		 # aiff
-		 # flac (./gst-plugins-good/ext/flac/gstflacenc)
-   */
-  return(self);
-Error:
-  g_object_try_unref(self);
   return(NULL);
 }
 
