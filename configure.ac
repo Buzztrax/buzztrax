@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.63 2005-11-04 22:10:40 waffel Exp $
+# $Id: configure.ac,v 1.64 2005-11-06 18:17:20 waffel Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -192,6 +192,7 @@ AC_SUBST(with_desktop_dir)
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
+  gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
   gstreamer-0.9 >= 0.9 gstreamer-controller-0.9 >= 0.9 \
 )
