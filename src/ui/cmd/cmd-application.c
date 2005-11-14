@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.68 2005-11-03 21:09:19 ensonic Exp $
+// $Id: cmd-application.c,v 1.69 2005-11-14 14:46:35 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -364,16 +364,33 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
-    /* @todo implement this like play, with a different sink
+    /* @todo implement this like play, needs changes in the sink
+     *
+     * - idea 1
      *
      * bt_sink_machine_new_recorder(song,"recorder",format);
      *
      * so we need to disconnect everything from master and connect it to recorder
-     * what about having a stream-selector in master and two bins:
-     * player and recorder
+     *
+     * - idea 2
+     *
+     * get the sink machine
+     * g_object_set(sink_machine->priv->machines[PART_MACHINE],
+     *   "mode",BT_SINK_BIN_MODE_RECORD,
+     *   "format",BT_SINK_BIN_RECORD_FORMAT_MP3,NULL);
+     *
+     * - this would remove the current elemnts form the sinks bin and
+     *   add new appropriate elements.
+     * - the sink remains linked and unchanged
+     * - if we even subclass the bin that is used in the sink-machine,
+     *   then we automatically get a gui to set the mode and choose the format
+     * - use gst_element_add_pad(bin,gst_ghost_pad_new("sink",player->sink);
+     * - if we want to record and play, we need another 'mode'
+     *   and use a tee to have both endpoints active
+     * - we further need a facillity that maps file-extensions to recordtypes
      */
+ 
     g_printf("sorry this is not yet implemented\n");
-
   }
 Error:
   g_object_try_unref(song);

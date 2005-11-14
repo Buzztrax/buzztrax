@@ -1,4 +1,4 @@
-/** $Id: states3.c,v 1.1 2005-11-03 21:09:19 ensonic Exp $
+/** $Id: states3.c,v 1.2 2005-11-14 14:46:35 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` states3.c -o states3
@@ -119,10 +119,8 @@ int main(int argc, char **argv) {
   ret=gst_pad_set_blocked(src1_sink,FALSE);
   printf("  =%d\n",ret);
   /* this should call gst_base_src_start() */
-  //GST_STATE_LOCK(src2);
   //ret=gst_pad_set_active(src2_sink,FALSE);
   //ret=gst_pad_set_active(src2_sink,TRUE);
-  //GST_STATE_UNLOCK(src2);
   //printf("  activate=%d\n",ret);
   if(gst_element_set_locked_state (src2, FALSE)) {
     fprintf(stderr,"Can't unlock state of src2\n");//exit(-1);

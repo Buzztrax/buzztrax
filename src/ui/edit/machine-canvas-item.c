@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.55 2005-09-19 16:14:06 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.56 2005-11-14 14:46:35 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -12,6 +12,7 @@
  *   - use bold shaded M,S,B for mute, solo, bypass and
  *     make the click rectangle shaded borderless (just add a divider for the title bar)
  */
+/* @todo subclass for source, sink, processor machine */
 
 #define BT_EDIT
 #define BT_MACHINE_CANVAS_ITEM_C
