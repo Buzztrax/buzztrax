@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.164 2005-11-06 19:57:35 ensonic Exp $
+// $Id: machine.c,v 1.165 2005-11-16 18:06:14 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2139,7 +2139,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
 
   g_object_class_install_property(gobject_class,MACHINE_PLUGIN_NAME,
                                   g_param_spec_string("plugin-name",
-                                     "plugin_name contruct prop",
+                                     "plugin-name construct prop",
                                      "the name of the gst plugin for the machine",
                                      "unamed machine", /* default value */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
@@ -2155,7 +2155,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
 
   g_object_class_install_property(gobject_class,MACHINE_GLOBAL_PARAMS,
                                   g_param_spec_ulong("global-params",
-                                     "global_params prop",
+                                     "global-params prop",
                                      "number of params for the machine",
                                      0,
                                      G_MAXULONG,
@@ -2164,7 +2164,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
 
   g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
                                   g_param_spec_ulong("voice-params",
-                                     "voice_params prop",
+                                     "voice-params prop",
                                      "number of params for each machine voice",
                                      0,
                                      G_MAXULONG,

@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.2 2005-11-14 14:46:35 ensonic Exp $
+// $Id: sink-bin.c,v 1.3 2005-11-16 18:06:14 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -25,7 +25,8 @@
 
 enum {
   SINK_BIN_MODE=1,
-  SINK_BIN_RECORD_FORMAT
+  SINK_BIN_RECORD_FORMAT,
+  SINK_BIN_RECORD_FILE_NAME
 };
 
 struct _BtSinkBinPrivate {
@@ -35,6 +36,8 @@ struct _BtSinkBinPrivate {
   /* mode of operation */
   BtSinkBinMode mode;
   BtSinkBinRecordFormat record_format;
+  
+  gchar *record_file_name;
   
   GstPad *sink;
 };
@@ -192,7 +195,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
       // flacenc ! filesink location="song.flac"
       break;
   }
-  // @todo: create filesink, we need the filename here
+  // @todo: create filesink, set self->priv->record_file_name as location
   list=g_list_append(list,gst_element_factory_make("filesink","filesink"));
   return(list);
 }
@@ -292,6 +295,9 @@ static void bt_sink_bin_get_property(GObject      *object,
     case SINK_BIN_RECORD_FORMAT: {
       g_value_set_enum(value, self->priv->record_format);
     } break;
+    case SINK_BIN_RECORD_FILE_NAME: {
+      g_value_set_string(value, self->priv->record_file_name);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -315,6 +321,10 @@ static void bt_sink_bin_set_property(GObject      *object,
       self->priv->record_format=g_value_get_enum(value);
       bt_sink_bin_change(self);
     } break;
+    case SINK_BIN_RECORD_FILE_NAME: {
+      g_free(self->priv->record_file_name);
+      self->priv->record_file_name = g_value_dup_string(value);
+    }
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -375,12 +385,18 @@ static void bt_sink_bin_class_init(BtSinkBinClass *klass) {
 
   g_object_class_install_property(gobject_class,SINK_BIN_RECORD_FORMAT,
                                   g_param_spec_enum("record-format",
-                                     "ecord-format prop",
+                                     "record-format prop",
                                      "format to use when in record mode",
                                      BT_TYPE_SINK_BIN_RECORD_FORMAT,  /* enum type */
                                      BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, /* default value */
                                      G_PARAM_READWRITE));
 
+  g_object_class_install_property(gobject_class,SINK_BIN_RECORD_FILE_NAME,
+                                  g_param_spec_string("record-file-name",
+                                     "record-file-name contruct prop",
+                                     "the file-name to use for recording",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_sink_bin_get_type(void) {

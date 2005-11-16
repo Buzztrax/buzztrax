@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.69 2005-11-14 14:46:35 ensonic Exp $
+// $Id: cmd-application.c,v 1.70 2005-11-16 18:06:14 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -374,10 +374,12 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
      *
      * - idea 2
      *
-     * get the sink machine
+     * get the sink machine (bt-sink-bin)
      * g_object_set(sink_machine->priv->machines[PART_MACHINE],
      *   "mode",BT_SINK_BIN_MODE_RECORD,
-     *   "format",BT_SINK_BIN_RECORD_FORMAT_MP3,NULL);
+     *   "format",BT_SINK_BIN_RECORD_FORMAT_MP3,
+     *   "record-file-name",output_file_name,
+     *   NULL);
      *
      * - this would remove the current elemnts form the sinks bin and
      *   add new appropriate elements.
