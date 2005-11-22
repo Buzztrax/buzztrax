@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.70 2005-11-16 18:06:14 ensonic Exp $
+// $Id: cmd-application.c,v 1.71 2005-11-22 16:16:23 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -364,24 +364,14 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
+    BtSetup *setup;
+    BtMachine *machine;
+    BtSinkBin *sink_bin;
+    
+    g_object_get(song,"setup",&setup,NULL);
+    
     /* @todo implement this like play, needs changes in the sink
-     *
-     * - idea 1
-     *
-     * bt_sink_machine_new_recorder(song,"recorder",format);
-     *
-     * so we need to disconnect everything from master and connect it to recorder
-     *
-     * - idea 2
-     *
-     * get the sink machine (bt-sink-bin)
-     * g_object_set(sink_machine->priv->machines[PART_MACHINE],
-     *   "mode",BT_SINK_BIN_MODE_RECORD,
-     *   "format",BT_SINK_BIN_RECORD_FORMAT_MP3,
-     *   "record-file-name",output_file_name,
-     *   NULL);
-     *
-     * - this would remove the current elemnts form the sinks bin and
+     * - this would remove the current elements from the sinks' bin and
      *   add new appropriate elements.
      * - the sink remains linked and unchanged
      * - if we even subclass the bin that is used in the sink-machine,
@@ -391,8 +381,20 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
      *   and use a tee to have both endpoints active
      * - we further need a facillity that maps file-extensions to recordtypes
      */
- 
-    g_printf("sorry this is not yet implemented\n");
+    // lookup the audio-sink machine and change mode
+    if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+      g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
+
+      g_object_set(sink_bin,
+        "mode",BT_SINK_BIN_MODE_RECORD,
+        "format",BT_SINK_BIN_RECORD_FORMAT_MP3,
+        "record-file-name",output_file_name,
+        NULL);
+
+      gst_object_unref(sink_bin);
+      g_object_unref(machine);
+    }
+    g_object_unref(setup);
   }
 Error:
   g_object_try_unref(song);

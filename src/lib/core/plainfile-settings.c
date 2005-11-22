@@ -1,4 +1,4 @@
-// $Id: plainfile-settings.c,v 1.13 2005-08-05 09:36:16 ensonic Exp $
+// $Id: plainfile-settings.c,v 1.14 2005-11-22 16:16:23 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
@@ -45,7 +45,6 @@ BtPlainfileSettings *bt_plainfile_settings_new(void) {
   BtPlainfileSettings *self;
   self=BT_PLAINFILE_SETTINGS(g_object_new(BT_TYPE_PLAINFILE_SETTINGS,NULL));
   
-  //bt_settings_new(BT_SETTINGS(self));
   return(self);  
 }
 

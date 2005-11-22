@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.3 2005-11-16 18:06:14 ensonic Exp $
+// $Id: sink-bin.c,v 1.4 2005-11-22 16:16:23 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -79,11 +79,11 @@ GType bt_sink_bin_record_format_get_type(void) {
 
 static void bt_sink_bin_clear(self) {
   GstBin *bin=GST_BIN(self);
-  GST_LOCK(self);
+  GST_OBJECT_LOCK(self);
   while(bin->children) {
     gst_bin_remove (bin, GST_ELEMENT_CAST (bin->children->data));
   }  
-  GST_UNLOCK(self);
+  GST_OBJECT_UNLOCK(self);
 }
 
 static gboolean bt_sink_bin_add_many(const BtSinkBin *self,GList *list) {
@@ -106,11 +106,14 @@ static void bt_sink_bin_link_many(const BtSinkBin *self,GstElement *last_elem,GL
   }
 }
 
-static gchar *bt_sink_bin_determine_plugin_name(const BtSettings *settings) {
+static gchar *bt_sink_bin_determine_plugin_name(void) {
+  BtSettings *settings;
   gchar *audiosink_name,*system_audiosink_name;
   gchar *plugin_name=NULL;
   
+  settings=bt_settings_new();
   g_object_get(G_OBJECT(settings),"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
+
   if(BT_IS_STRING(audiosink_name)) {
     GST_INFO("get audiosink from config");
     plugin_name=audiosink_name;
@@ -161,16 +164,16 @@ static gchar *bt_sink_bin_determine_plugin_name(const BtSettings *settings) {
 
   g_free(system_audiosink_name);
   g_free(audiosink_name);
+  g_object_unref(settings);
+
   return(plugin_name);
 }
 
 static GList *bt_sink_bin_get_player_elements(const BtSinkBin *self) {
   GList *list=NULL;
-  BtSettings *settings=NULL;
   gchar *plugin_name;
 
-  // @todo: get settings
-  plugin_name=bt_sink_bin_determine_plugin_name(settings);
+  plugin_name=bt_sink_bin_determine_plugin_name();
   list=g_list_append(list,gst_element_factory_make("player",plugin_name));
   g_free(plugin_name);
   
@@ -179,6 +182,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin *self) {
 
 static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   GList *list=NULL;
+  GstElement *filesink;
 
   // @todo: generate recorder elements
   switch(self->priv->record_format) {
@@ -195,8 +199,10 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
       // flacenc ! filesink location="song.flac"
       break;
   }
-  // @todo: create filesink, set self->priv->record_file_name as location
-  list=g_list_append(list,gst_element_factory_make("filesink","filesink"));
+  // create filesink, set location property
+  filesink=gst_element_factory_make("filesink","filesink");
+  g_object_set(filesink,"location",self->priv->record_file_name,NULL);
+  list=g_list_append(list,filesink);
   return(list);
 }
 
@@ -251,27 +257,6 @@ static gboolean bt_sink_bin_change(const BtSinkBin *self) {
   gst_object_unref(sink_pad);
   
   return(TRUE);
-}
-
-//-- constructor methods
-
-/**
- * bt_sink_bin_new:
- *
- * Create a new instance.
- *
- * Returns: the new instance or %NULL in case of an error
- */
-BtSinkBin *bt_sink_bin_new(void) {
-  BtSinkBin *self=NULL;
-
-  if(!(self=BT_SINK_BIN(g_object_new(BT_TYPE_SINK_BIN,NULL)))) {
-    goto Error;
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
 }
 
 //-- methods

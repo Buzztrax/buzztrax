@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.17 2005-08-05 09:36:16 ensonic Exp $
+// $Id: settings.c,v 1.18 2005-11-22 16:16:23 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -24,6 +24,35 @@ struct _BtSettingsPrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+static BtSettings *self=NULL;
+
+//-- constructor methods
+
+/**
+ * bt_settings_new:
+ *
+ * Create a new instance. The type of the settings depends on the subsystem
+ * found during configuration run.
+ *
+ * Settings are implemented as a singleton. Thus the first invocation will
+ * create the object and further calls will just give back a reference.
+ *
+ * Returns: the instance or %NULL in case of an error
+ */
+BtSettings *bt_settings_new(void) {
+
+  if(!self) {
+#ifdef USE_GCONF
+    self=BT_SETTINGS(bt_gconf_settings_new());
+#else
+    self=BT_SETTINGS(bt_plainfile_settings_new());
+#endif
+  }
+  else {
+    self=g_object_ref(self);
+  }
+  return(self);
+}
 
 //-- methods
 

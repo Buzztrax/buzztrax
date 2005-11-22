@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.21 2005-10-20 10:07:39 ensonic Exp $
+// $Id: gconf-settings.c,v 1.22 2005-11-22 16:16:23 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -56,7 +56,6 @@ BtGConfSettings *bt_gconf_settings_new(void) {
          bt_gconf_settings_notify_toolbar_style,
          (gpointer)self, NULL, NULL);
   
-  //bt_settings_new(BT_SETTINGS(self));
   return(self);
 Error:
   g_object_try_unref(self);

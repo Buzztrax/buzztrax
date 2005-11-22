@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.41 2005-10-04 14:51:41 ensonic Exp $
+// $Id: application.c,v 1.42 2005-11-22 16:16:23 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -285,11 +285,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
   
-#ifdef USE_GCONF
-  self->priv->settings=BT_SETTINGS(bt_gconf_settings_new());
-#else
-  self->priv->settings=BT_SETTINGS(bt_plainfile_settings_new());
-#endif
+  self->priv->settings=bt_settings_new();
   g_assert(BT_IS_SETTINGS(self->priv->settings));
 }
 
