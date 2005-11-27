@@ -1,4 +1,4 @@
-/* $Id: t-wire.c,v 1.11 2005-09-19 16:14:06 ensonic Exp $
+/* $Id: t-wire.c,v 1.12 2005-11-27 22:44:47 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -73,7 +73,7 @@ BT_START_TEST(test_btwire_obj2){
   fail_unless(setup!=NULL, NULL);
  
   /* try to create a source machine */
-  source=bt_source_machine_new(song,"id","sinesrc",0);
+  source=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(source!=NULL,NULL);
   
   /* try to create a volume machine */

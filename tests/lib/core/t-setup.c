@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.27 2005-09-22 18:26:29 ensonic Exp $
+/* $Id: t-setup.c,v 1.28 2005-11-27 22:44:47 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -96,7 +96,7 @@ BT_START_TEST(test_btsetup_obj2){
   g_object_get(song,"setup",&setup,NULL);
   
   /* create the source machine */
-  source=BT_MACHINE(bt_source_machine_new(song,"gen","sinesrc",0));
+  source=BT_MACHINE(bt_source_machine_new(song,"gen","audiotestsrc",0));
   
   /* create the sink machine */
   sink=BT_MACHINE(bt_sink_machine_new(song,"sink"));
@@ -782,7 +782,7 @@ BT_START_TEST(test_btsetup_obj17) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
   
-  /* try to craete generator1 with sinesrc */
+  /* try to create generator1 */
   gen = BT_MACHINE(bt_source_machine_new(song,"src","buzztard-test-mono-source",0));
   fail_unless(gen!=NULL, NULL);
   /* and remove it from setup */
@@ -824,11 +824,11 @@ BT_START_TEST(test_btsetup_obj18) {
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
   
-  /* try to craete generator1 with sinesrc */
-  source = bt_source_machine_new(song,"src","sinesrc",0);
+  /* try to create generator1 */
+  source = bt_source_machine_new(song,"src","audiotestsrc",0);
   fail_unless(source!=NULL, NULL);
   
-  /* try to create sink machine with esd sink */
+  /* try to create sink machine */
   sink = bt_sink_machine_new(song,"sink");
   fail_unless(sink!=NULL, NULL);
   

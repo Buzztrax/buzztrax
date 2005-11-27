@@ -1,4 +1,4 @@
-/** $Id: net1.c,v 1.4 2005-08-05 09:36:12 ensonic Exp $ */
+/** $Id: net1.c,v 1.5 2005-11-27 22:44:43 ensonic Exp $ */
  
 #include <stdio.h>
 
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
   if (argc < 3) {
     g_print("usage: %s <sink> <source> <seconds>\n",argv[0]);
     g_print("examples:\n");
-    g_print("\t%s esdsink sinesrc 10\n",argv[0]);
+    g_print("\t%s esdsink audiotestsrc 10\n",argv[0]);
     g_print("\t%s esdsink ladspa-organ 10\n",argv[0]);
     exit(-1);
   }

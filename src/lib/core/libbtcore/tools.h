@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.8 2005-08-29 22:21:03 ensonic Exp $
+/* $Id: tools.h,v 1.9 2005-11-27 22:44:47 ensonic Exp $
  */
 
 #ifndef BT_TOOLS_H
@@ -6,6 +6,8 @@
 
 #ifndef BT_TOOLS_C
 extern GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter);
+
+extern void gst_element_dbg_pads(GstElement *elem);
 
 #ifndef HAVE_GLIB_2_8
 extern gpointer g_try_malloc0(gulong n_bytes);

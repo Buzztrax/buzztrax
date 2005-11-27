@@ -1,4 +1,4 @@
-/** $Id: net2.c,v 1.4 2005-08-05 09:36:12 ensonic Exp $
+/** $Id: net2.c,v 1.5 2005-11-27 22:44:43 ensonic Exp $
  * this is beta code !
  *  - it does not free any memory ;-)
  *  - it contains hardcoded stuff
@@ -22,8 +22,8 @@ void setup_network(gchar *master) {
   /* create machines */
   sink=bt_machine_new(thread,master,"master");
   synch=sink->machine;
-  gen1=bt_machine_new(thread,"sinesrc","generator1");
-  gen2=bt_machine_new(thread,"sinesrc","generator2");
+  gen1=bt_machine_new(thread,"audiotestsrc","generator1");
+  gen2=bt_machine_new(thread,"audiotestsrc","generator2");
   
   GST_INFO("machines created\n");
   

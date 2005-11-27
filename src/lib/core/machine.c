@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.165 2005-11-16 18:06:14 ensonic Exp $
+// $Id: machine.c,v 1.166 2005-11-27 22:44:46 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -478,7 +478,9 @@ static void bt_machine_resize_pattern_voices(const BtMachine *self) {
 static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {  
   GST_INFO("changing machine %p voices from %d to %d",self->priv->machines[PART_MACHINE],voices,self->priv->voices);
 
-  if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE]))) {
+  
+  // @todo GST_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
+  if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
     GST_WARNING("machine %p is NULL or not polyphonic!",self->priv->machines[PART_MACHINE]);
     return;
   }
@@ -597,33 +599,34 @@ gboolean bt_machine_new(BtMachine *self) {
     
     self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
     g_free(name);
-    // initialize child-proxy iface properties
-    if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
-      g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
-      GST_INFO("  child proxy iface initialized");
-    }
-    // initialize tempo iface properties
-    if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
-      BtSongInfo *song_info;
-      gulong bpm,tpb;
-      
-      g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
-      // @todo handle stpb later (subtick per beat)
-      g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
-      gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
-      
-      g_signal_connect(G_OBJECT(song_info),"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
-      g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
-      g_object_unref(song_info);
-      GST_INFO("  tempo iface initialized");
-    }
   }
   if(!self->priv->machines[PART_MACHINE]) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
     return(FALSE);
   }
+  // initialize child-proxy iface properties
+  if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+    g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
+    GST_INFO("  child proxy iface initialized");
+  }
+  // initialize tempo iface properties
+  if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
+    BtSongInfo *song_info;
+    gulong bpm,tpb;
+    
+    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    // @todo handle stpb later (subtick per beat)
+    g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
+    gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
+    
+    g_signal_connect(G_OBJECT(song_info),"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
+    g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
+    g_object_unref(song_info);
+    GST_INFO("  tempo iface initialized");
+  }
   GST_INFO("machine element instantiated and interfaces initialized");
   // we need to make sure the machine is from the right class
+  /* @todo this breaks for sink-bin :(
   {
     GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
     const gchar *element_class=gst_element_factory_get_klass(element_factory);
@@ -647,6 +650,7 @@ gboolean bt_machine_new(BtMachine *self) {
       }
     }
   }
+  */
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
   GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
@@ -727,10 +731,6 @@ gboolean bt_machine_new(BtMachine *self) {
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
-
-    GST_INFO("  instance is polyphonic!, initial voices=%d",self->priv->voices);
-    
-    g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
     
     // register voice params
     // get child for voice 0
@@ -905,6 +905,11 @@ gboolean bt_machine_enable_input_gain(BtMachine *self) {
   if(!(peer=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]))) {
     GST_DEBUG("machine '%s' is not yet connected",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
     if(!gst_element_link(self->priv->machines[PART_INPUT_GAIN],self->priv->machines[PART_MACHINE])) {
+      // DEBUG
+      // bt_machine_dbg_print_parts(self);
+      // gst_element_dbg_pads(self->priv->machines[PART_INPUT_GAIN]);
+      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
+      // DEBUG
       GST_ERROR("failed to link the input gain element for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     self->dst_elem=self->priv->machines[PART_INPUT_GAIN];

@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.17 2005-09-22 18:26:29 ensonic Exp $
+/* $Id: e-network.c,v 1.18 2005-11-27 22:44:47 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -49,8 +49,8 @@ BT_START_TEST(test_btcore_net_example1) {
   sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
   
-  /* try to create generator1 with sinesrc */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","sinesrc",0));
+  /* try to create generator1 */
+  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
   fail_unless(gen1!=NULL, NULL);
   
   /* check if we can retrieve the machine via the id */
@@ -131,12 +131,12 @@ BT_START_TEST(test_btcore_net_example2) {
   sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
   
-  /* try to create generator1 with sinesrc */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","sinesrc",0));
+  /* try to create generator1 */
+  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
   fail_unless(gen1!=NULL, NULL);
   
-  /* try to create generator2 with sinesrc */
-  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","sinesrc",0));
+  /* try to create generator2 */
+  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0));
   fail_unless(gen2!=NULL, NULL);
   
   /* try to create a wire from gen1 to sink */
@@ -209,12 +209,12 @@ BT_START_TEST(test_btcore_net_example3) {
   sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
   
-  /* try to create generator1 with sinesrc */
-  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","sinesrc",0));
+  /* try to create generator1 */
+  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
   fail_unless(gen1!=NULL, NULL);
   
-  /* try to create generator2 with sinesrc */
-  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","sinesrc",0));
+  /* try to create generator2 */
+  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0));
   fail_unless(gen2!=NULL, NULL);
 
   /* try to create a processor with volume */

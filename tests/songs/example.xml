@@ -36,7 +36,7 @@
         <globaldata name="minvolume" value="1.0"/>
       </processor>
       
-      <source id="sine1" plugin-name="sinesrc" voices="2">
+      <source id="sine1" plugin-name="audiotestsrc" voices="2">
         <properties>
           <property key="xpos" value="20"/>
           <property key="ypos" value="80"/>

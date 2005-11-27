@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.92 2005-11-06 19:57:35 ensonic Exp $
+// $Id: song-io-native.c,v 1.93 2005-11-27 22:44:46 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in native zipped xml format
@@ -315,7 +315,7 @@ static gboolean bt_song_io_native_load_setup_wires(const BtSongIONative *self, c
       dst=xmlGetProp(xml_node,"dst");
       src_machine=bt_setup_get_machine_by_id(setup,src);
       dst_machine=bt_setup_get_machine_by_id(setup,dst);
-      GST_INFO("  new wire(\"%s\",\"%s\") --------------------",src,dst);
+      GST_INFO("  new wire(%p=\"%s\",%p=\"%s\") --------------------",src_machine,src,dst_machine,dst);
       // create new wire
       bt_wire_new(song,src_machine,dst_machine);
       xmlFree(src);xmlFree(dst);

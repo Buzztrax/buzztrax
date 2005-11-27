@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.54 2005-11-22 16:16:23 ensonic Exp $
+// $Id: sink-machine.c,v 1.55 2005-11-27 22:44:46 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -158,10 +158,9 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
     GST_ERROR("no audiosink configured/registered");
     goto Error;
   }
-  /* @todo: try using sink-bin
+  // @todo: try using sink-bin
   if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL)))) {
-   */
-  if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL)))) {
+  //if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,NULL)))) {
     goto Error;
   }
   if(!bt_machine_new(BT_MACHINE(self))) {

@@ -1,4 +1,4 @@
-/** $Id: gst3.c,v 1.8 2005-08-05 09:36:12 ensonic Exp $
+/** $Id: gst3.c,v 1.9 2005-11-27 22:44:43 ensonic Exp $
  * example that tries using a bin for the machine
  */
  
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
   
   if (argc < 4) {
     g_print("usage: %s <src> <sink> <value>\nvalue should be between 0 ... 100\n",argv[0]);
-    g_print("example: %s sinesrc esdsink 100\n",argv[0]);
+    g_print("example: %s audiotestsrc esdsink 100\n",argv[0]);
     exit(-1);
   }
 

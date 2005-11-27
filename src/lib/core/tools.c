@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.21 2005-09-22 18:26:29 ensonic Exp $
+/* $Id: tools.c,v 1.22 2005-11-27 22:44:46 ensonic Exp $
  */
  
 #define BT_CORE
@@ -29,26 +29,10 @@ static gboolean bt_gst_registry_class_filter(GstPluginFeature *feature, gpointer
 GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   GList *list,*node;
   GList *res=NULL;
-  //GstElementFactory *element;
-  //gsize sl;
   GstPluginFeature *feature;
 
   g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
     
-  /* deprecated API
-  sl=(gsize)(strlen(class_filter));
-
-  list=gst_registry_pool_feature_list(GST_TYPE_ELEMENT_FACTORY);
-  for(node=list;node;node=g_list_next(node)) {
-    element=GST_ELEMENT_FACTORY(node->data);
-    //GST_DEBUG("  %s: %s", GST_OBJECT_NAME(element),gst_element_factory_get_klass(element));
-    if(!g_ascii_strncasecmp(gst_element_factory_get_klass(element),class_filter,sl)) {
-      // @todo: consider  gst_plugin_feature_get_rank() for sorting
-      res=g_list_append(res,(gchar *)gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(element)));
-    }
-  }
-  g_list_free(list);
-  */
   list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,class_filter);
   for(node=list;node;node=g_list_next(node)) {
     feature=GST_PLUGIN_FEATURE(node->data);
@@ -57,6 +41,58 @@ GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
   g_list_free(list);
   return(res);
 }
+
+/**
+ * gst_element_dbg_caps:
+ * @elem: a #GstElement
+ *
+ * Write out a list of pads for the given element
+ *
+ */
+void gst_element_dbg_pads(GstElement *elem) {
+  GstIterator *it;
+  GstPad *pad;
+  GstCaps *caps;
+  GstStructure *structure;
+  GstPadDirection dir;
+  gchar *dirs[]={"unkonow","src","sink",NULL};
+  gchar *str;
+  gboolean done;
+  guint i,size;
+
+  GST_DEBUG("machine: %s",GST_ELEMENT_NAME(elem));
+  it=gst_element_iterate_pads(elem);
+  done = FALSE;
+  while (!done) {
+    switch (gst_iterator_next (it, (gpointer)&pad)) {
+      case GST_ITERATOR_OK:
+        dir=gst_pad_get_direction(pad);
+        caps=gst_pad_get_caps(pad);
+        size=gst_caps_get_size(caps);
+        GST_DEBUG("  pad: %s:%s, dir: %s, nr-caps: %d",GST_DEBUG_PAD_NAME(pad),dirs[dir],size);
+        // iterate over structures and print
+        for(i=0;i<size;i++) {
+          structure=gst_caps_get_structure(caps,i);
+          str=gst_structure_to_string(structure);
+          GST_DEBUG("    caps[%2d]: %s : %s",i,GST_STR_NULL(gst_structure_get_name(structure)),str);
+          g_free(str);
+          //gst_object_unref(structure);
+        }
+        //gst_object_unref(caps);
+        gst_object_unref(pad);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync (it);
+        break;
+      case GST_ITERATOR_ERROR:
+      case GST_ITERATOR_DONE:
+        done = TRUE;
+        break;
+    }
+  }
+  gst_iterator_free(it);
+}
+
 
 #ifndef HAVE_GLIB_2_8
 gpointer g_try_malloc0(gulong n_bytes) {

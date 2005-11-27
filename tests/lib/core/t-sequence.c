@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.16 2005-09-15 07:13:39 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.17 2005-11-27 22:44:47 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -86,7 +86,7 @@ BT_START_TEST(test_btsequence_track2) {
   song=bt_song_new(app);
   
   /* try to create a source machine */
-  machine=bt_source_machine_new(song,"id","sinesrc",0);
+  machine=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(machine!=NULL, NULL);
   
   check_init_error_trapp("bt_sequence_set_machine","BT_IS_SEQUENCE(self)");
