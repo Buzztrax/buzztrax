@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.166 2005-11-27 22:44:46 ensonic Exp $
+// $Id: machine.c,v 1.167 2005-11-28 22:25:37 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -508,12 +508,14 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
               if(!(self->priv->voice_controllers[j]=gst_controller_new(G_OBJECT(voice_child), property->name, NULL))) {
                 GST_WARNING("failed to add property \"%s\" to the %d voice controller",property->name,j);
               }
-              // set interpolation mode depending on param type
-              if(bt_machine_is_voice_param_trigger(self,k)) {
-                gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_TRIGGER);
-              }
-              else { // one of GST_INTERPOLATE_NONE/LINEAR/...
-                gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_NONE);
+              else {
+                // set interpolation mode depending on param type
+                if(bt_machine_is_voice_param_trigger(self,k)) {
+                  gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_TRIGGER);
+                }
+                else { // one of GST_INTERPOLATE_NONE/LINEAR/...
+                  gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_NONE);
+                }
               }
               k++;
             }
@@ -714,12 +716,14 @@ gboolean bt_machine_new(BtMachine *self) {
         if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
           GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
         }
-        // set interpolation mode depending on param type
-        if(bt_machine_is_global_param_trigger(self,j)) {
-          gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_TRIGGER);
-        }
-        else { // one of GST_INTERPOLATE_NONE/LINEAR/...
-          gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_NONE);
+        else {
+          // set interpolation mode depending on param type
+          if(bt_machine_is_global_param_trigger(self,j)) {
+            gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_TRIGGER);
+          }
+          else { // one of GST_INTERPOLATE_NONE/LINEAR/...
+            gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_NONE);
+          }
         }
         GST_DEBUG("    added global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
         j++;

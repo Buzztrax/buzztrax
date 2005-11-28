@@ -1,4 +1,4 @@
-// $Id: bt-cmd.c,v 1.31 2005-10-20 10:07:43 ensonic Exp $
+// $Id: bt-cmd.c,v 1.32 2005-11-28 22:25:38 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
@@ -85,7 +85,6 @@ int main(int argc, char **argv) {
   }
   else if(!strncmp(command,"encode",6)) {
     if(!input_file_name || !output_file_name) usage(argc, argv, ctx);
-    g_printf("sorry this is not yet implemented\n");
     res=bt_cmd_application_encode(app,input_file_name,output_file_name);
   }
   else usage(argc, argv, ctx);

@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.71 2005-11-22 16:16:23 ensonic Exp $
+// $Id: cmd-application.c,v 1.72 2005-11-28 22:25:38 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -47,6 +47,117 @@ static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpoin
     (is_playing?"started":"stopped"),song,user_data);
 }
 
+/*
+ * bt_cmd_application_play_song:
+ *
+ * start playback, used by play and record
+ */
+static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const BtSong *song) {
+  gboolean res=FALSE;
+  BtSequence *sequence=NULL;
+  gulong msec,sec,min;
+  gulong length,pos=0;
+
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+  
+  //DEBUG
+  bt_song_write_to_dot_file(song);
+  //DEBUG
+
+  // connection play and stop signals
+  g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
+  if(bt_song_play(song)) {
+    GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
+    GST_INFO("playing started");
+    while(is_playing && (pos<length)) {
+      bt_song_update_playback_position(song);
+      g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+
+      if(!self->priv->quiet) {
+        // get song->play-pos and print progress
+        msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+        min=(gulong)(msec/60000);msec-=(min*60000);
+        sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+        printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
+      }
+      g_usleep(1000);
+    }
+    printf("\n");
+    /*
+    GMainLoop *main_loop; // make global
+    main_loop=g_main_loop_new(NULL,FALSE);
+    g_timeout_add(1000,bt_song_play_pos_changed,song); // ggf. main-loop beenden
+    g_main_loop_run(main_loop);
+    */
+    res=TRUE;
+  }
+  else {
+    GST_ERROR("could not play song");
+    goto Error;
+  }
+Error:
+  g_object_unref(sequence);
+  return(res);
+}
+
+/*
+ * bt_cmd_application_prepare_encoding:
+ *
+ * switch master to record mode
+ */
+static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self,const BtSong *song, const gchar *output_file_name) {
+  gboolean ret=FALSE;
+  BtSetup *setup;
+  BtMachine *machine;
+  BtSinkBin *sink_bin;
+  BtSinkBinRecordFormat format;
+  gchar *lc_file_name;
+  
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  
+  lc_file_name=g_ascii_strdown(output_file_name,-1);
+  if(g_str_has_suffix(lc_file_name,".ogg")) {
+    format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
+  }
+  else if(g_str_has_suffix(lc_file_name,".mp3")) {
+    format=BT_SINK_BIN_RECORD_FORMAT_MP3;
+  }
+  else if(g_str_has_suffix(lc_file_name,".wav")) {
+    format=BT_SINK_BIN_RECORD_FORMAT_WAV;
+  }
+  else if(g_str_has_suffix(lc_file_name,".flac")) {
+    format=BT_SINK_BIN_RECORD_FORMAT_FLAC;
+  }
+  else if(g_str_has_suffix(lc_file_name,".raw")) {
+    format=BT_SINK_BIN_RECORD_FORMAT_RAW;
+  }
+  else {
+    GST_WARNING("unknown file-format extension, using ogg");
+    format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
+    // @todo append .ogg to the file-name
+  }
+  g_free(lc_file_name);
+  
+  // lookup the audio-sink machine and change mode
+  if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+    g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
+
+    // @todo eventually have a method for the sink bin to only update once after the changes
+    g_object_set(sink_bin,
+      "mode",BT_SINK_BIN_MODE_RECORD,
+      "record-format",format,
+      "record-file-name",output_file_name,
+      NULL);
+    ret=TRUE;      
+      
+    gst_object_unref(sink_bin);
+    g_object_unref(machine);
+  }
+  g_object_unref(setup);
+  return(ret);
+}
+
 //-- constructor methods
 
 /**
@@ -87,7 +198,6 @@ Error:
 gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *input_file_name) {
   gboolean res=FALSE;
   BtSong *song=NULL;
-  BtSequence *sequence=NULL;
   BtSongIO *loader=NULL;
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
@@ -106,41 +216,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
-    gulong msec,sec,min;
-    gulong length,pos=0;
-
-    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-    g_object_get(G_OBJECT(sequence),"length",&length,NULL);
-    
-    //DEBUG
-    bt_song_write_to_dot_file(song);
-    //DEBUG
-
-    // connection play and stop signals
-    g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
-    if(bt_song_play(song)) {
-      GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
-      GST_INFO("playing started");
-      while(is_playing && (pos<length)) {
-        bt_song_update_playback_position(song);
-        g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
-
-        if(!self->priv->quiet) {
-          // get song->play-pos and print progress
-          msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
-          min=(gulong)(msec/60000);msec-=(min*60000);
-          sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-          printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
-        }
-        g_usleep(1000);
-      }
-      printf("\n");
-      /*
-      GMainLoop *main_loop; // make global
-      main_loop=g_main_loop_new(NULL,FALSE);
-      g_timeout_add(1000,bt_song_play_pos_changed,song); // ggf. main-loop beenden
-      g_main_loop_run(main_loop);
-      */
+    if(bt_cmd_application_play_song(self,song)) {
       res=TRUE;
     }
     else {
@@ -153,7 +229,6 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
     goto Error;
   }
 Error:
-  g_object_try_unref(sequence);
   g_object_try_unref(song);
   g_object_try_unref(loader);
   return(res);
@@ -197,7 +272,6 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   
   GST_INFO("objects initialized");
   
-  //if(bt_song_load(song,filename)) {
   if(bt_song_io_load(loader,song)) {
     BtSongInfo *song_info;
     BtSequence *sequence;
@@ -364,37 +438,23 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
-    BtSetup *setup;
-    BtMachine *machine;
-    BtSinkBin *sink_bin;
-    
-    g_object_get(song,"setup",&setup,NULL);
-    
-    /* @todo implement this like play, needs changes in the sink
-     * - this would remove the current elements from the sinks' bin and
-     *   add new appropriate elements.
-     * - the sink remains linked and unchanged
-     * - if we even subclass the bin that is used in the sink-machine,
-     *   then we automatically get a gui to set the mode and choose the format
-     * - use gst_element_add_pad(bin,gst_ghost_pad_new("sink",player->sink);
-     * - if we want to record and play, we need another 'mode'
-     *   and use a tee to have both endpoints active
-     * - we further need a facillity that maps file-extensions to recordtypes
-     */
-    // lookup the audio-sink machine and change mode
-    if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-      g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
-
-      g_object_set(sink_bin,
-        "mode",BT_SINK_BIN_MODE_RECORD,
-        "format",BT_SINK_BIN_RECORD_FORMAT_MP3,
-        "record-file-name",output_file_name,
-        NULL);
-
-      gst_object_unref(sink_bin);
-      g_object_unref(machine);
+    if(bt_cmd_application_prepare_encoding(self,song,output_file_name)) {
+      if(bt_cmd_application_play_song(self,song)) {
+        res=TRUE;
+      }
+      else {
+        GST_ERROR("could not play song \"%s\"",input_file_name);
+        goto Error;
+      }
     }
-    g_object_unref(setup);
+    else {
+      GST_ERROR("could switch to record mode");
+      goto Error;
+    }
+  }
+  else {
+    GST_ERROR("could not load song \"%s\"",input_file_name);
+    goto Error;
   }
 Error:
   g_object_try_unref(song);

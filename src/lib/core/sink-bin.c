@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.5 2005-11-27 22:44:46 ensonic Exp $
+// $Id: sink-bin.c,v 1.6 2005-11-28 22:25:37 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -68,6 +68,7 @@ GType bt_sink_bin_record_format_get_type(void) {
       { BT_SINK_BIN_RECORD_FORMAT_MP3,        "BT_SINK_BIN_RECORD_FORMAT_MP3",        "mp3" },
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        "BT_SINK_BIN_RECORD_FORMAT_WAV",        "wav" },
       { BT_SINK_BIN_RECORD_FORMAT_FLAC,       "BT_SINK_BIN_RECORD_FORMAT_FLAC",       "flac" },
+      { BT_SINK_BIN_RECORD_FORMAT_RAW,        "BT_SINK_BIN_RECORD_FORMAT_RAW",        "raw" },
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSinkBinMRecordFormatType", values);
@@ -77,18 +78,23 @@ GType bt_sink_bin_record_format_get_type(void) {
 
 //-- helper methods
 
-static void bt_sink_bin_clear(self) {
+static void bt_sink_bin_clear(const BtSinkBin *self) {
   GstBin *bin=GST_BIN(self);
   GstElement *elem;
   
   GST_INFO("clearing sink-bin : %d",g_list_length(bin->children));
-
-  GST_OBJECT_LOCK(self);
-  while(bin->children) {
-    elem=GST_ELEMENT_CAST (bin->children->data);
-    gst_bin_remove (bin, elem);
-  }  
-  GST_OBJECT_UNLOCK(self);
+  if(bin->children) {
+    //gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),NULL);
+    GST_DEBUG("released ghost-pad");
+    
+    while(bin->children) {
+      elem=GST_ELEMENT_CAST (bin->children->data);
+      GST_DEBUG("  removing elem=%p (ref_ct=%d),'%s'",
+        elem,(G_OBJECT(elem)->ref_count),GST_OBJECT_NAME(elem));
+      gst_bin_remove (bin, elem);
+    }
+  }
+  GST_DEBUG("done");
 }
 
 static gboolean bt_sink_bin_add_many(const BtSinkBin *self,GList *list) {
@@ -194,8 +200,8 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
       // oggmux ! vorbis ! filesink location="song.ogg"
+      list=g_list_append(list,gst_element_factory_make("vorbisenc","vorbisenc"));
       list=g_list_append(list,gst_element_factory_make("oggmux","oggmux"));
-      list=g_list_append(list,gst_element_factory_make("vorbis","vorbis"));
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP3:
       // lame ! filesink location="song.mp3"
@@ -209,6 +215,8 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
       // flacenc ! filesink location="song.flac"
       list=g_list_append(list,gst_element_factory_make("flacenc","flacenc"));
       break;
+    case BT_SINK_BIN_RECORD_FORMAT_RAW:
+      break;
   }
   // create filesink, set location property
   filesink=gst_element_factory_make("filesink","filesink");
@@ -217,7 +225,16 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   return(list);
 }
 
-static gboolean bt_sink_bin_change(const BtSinkBin *self) {
+/*
+ * bt_sink_bin_update:
+ * @self: the #BtSinkBin
+ *
+ * Needs to be called after a series of property changes to update the internals
+ * of the bin.
+ *
+ * Returns: %TRUE for success
+ */
+static gboolean bt_sink_bin_update(const BtSinkBin *self) {
   GList *list;
   GstElement *first_elem=NULL;
   GstPad *sink_pad;
@@ -267,17 +284,19 @@ static gboolean bt_sink_bin_change(const BtSinkBin *self) {
       g_assert_not_reached();
   }
   // set new ghostpad-target
-  sink_pad=gst_element_get_pad(first_elem,"Sink");
+  sink_pad=gst_element_get_pad(first_elem,"sink");
   if(!sink_pad) {
-    GST_INFO("failed to get 'Sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
-    sink_pad=gst_element_get_pad(first_elem,"sink");
+    GST_INFO("failed to get 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
+    sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
     if(!sink_pad) {
-      GST_INFO("failed to get 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
+      GST_INFO("failed to get 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
     }
   }
-  // TODO we get NULL here :(
-  GST_INFO("updating ghost pad : elem=%p,'%s', pad=%p",first_elem,GST_OBJECT_NAME(first_elem),sink_pad);
+  GST_INFO("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
+    first_elem,(G_OBJECT(first_elem)->ref_count),GST_OBJECT_NAME(first_elem),
+    sink_pad,(G_OBJECT(sink_pad)->ref_count));
   gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
+  GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
   gst_object_unref(sink_pad);
   
   GST_INFO("done");
@@ -322,19 +341,37 @@ static void bt_sink_bin_set_property(GObject      *object,
 {
   BtSinkBin *self = BT_SINK_BIN(object);
   return_if_disposed();
+  
+  // @todo avoid non-sense updates
   switch (property_id) {
     case SINK_BIN_MODE: {
       self->priv->mode=g_value_get_enum(value);
-      bt_sink_bin_change(self);
+      if(self->priv->mode==BT_SINK_BIN_MODE_PLAY) {
+        if(self->priv->record_file_name) {
+          g_free(self->priv->record_file_name);
+          self->priv->record_file_name=NULL;
+        }
+        bt_sink_bin_update(self);
+      }
+      else {
+        if(self->priv->record_file_name) {
+          bt_sink_bin_update(self);
+        }
+      }
     } break;
     case SINK_BIN_RECORD_FORMAT: {
       self->priv->record_format=g_value_get_enum(value);
-      bt_sink_bin_change(self);
+      if(((self->priv->mode==BT_SINK_BIN_MODE_RECORD) || (self->priv->mode==BT_SINK_BIN_MODE_PLAY_AND_RECORD)) && self->priv->record_file_name) {
+        bt_sink_bin_update(self);
+      }
     } break;
     case SINK_BIN_RECORD_FILE_NAME: {
       g_free(self->priv->record_file_name);
       self->priv->record_file_name = g_value_dup_string(value);
-    }
+      if((self->priv->mode==BT_SINK_BIN_MODE_RECORD) || (self->priv->mode==BT_SINK_BIN_MODE_PLAY_AND_RECORD)) {
+        bt_sink_bin_update(self);
+      }
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -351,6 +388,8 @@ static void bt_sink_bin_dispose(GObject *object) {
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
   //gst_object_unref(self->priv->sink);
+  
+  g_free(self->priv->record_file_name);
 
   GST_INFO("chaining up");
 
@@ -379,7 +418,7 @@ static void bt_sink_bin_init(GTypeInstance *instance, gpointer g_class) {
   
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
-  bt_sink_bin_change(self);
+  bt_sink_bin_update(self);
 }
 
 static void bt_sink_bin_class_init(BtSinkBinClass *klass) {
