@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.38 2005-09-13 21:17:16 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.39 2005-12-03 16:24:21 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -301,7 +301,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
           gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
           gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-    
+
           param_type=bt_machine_get_global_param_type(self->priv->machine,i);
           range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
           range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);
@@ -374,7 +374,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           label=gtk_label_new((gchar *)bt_machine_get_voice_param_name(self->priv->machine,i));
           gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
           gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-          
+
           param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
           range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
           range_max=bt_machine_get_voice_param_max_value(self->priv->machine,i);

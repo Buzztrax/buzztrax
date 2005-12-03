@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.64 2005-11-06 18:17:20 waffel Exp $
+# $Id: configure.ac,v 1.65 2005-12-03 16:24:21 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -186,15 +186,12 @@ AC_MSG_RESULT($with_desktop_dir)
 AC_SUBST(with_desktop_dir)
 
 
-# gstreamer-libs not required, while there are only provided from gstreamer-plugins
-#  gstreamer-libs-0.8 >= 0.8 gstreamer-interfaces-0.8 >= 0.8 gstreamer-control-0.8 >= 0.8 \
-
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.9 >= 0.9 gstreamer-controller-0.9 >= 0.9 \
+  gstreamer-0.10 >= 0.9.7 gstreamer-controller-0.10 >= 0.9.7 \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
@@ -204,7 +201,7 @@ PKG_CHECK_MODULES(GUI_DEPS, \
 
 glib_prefix="`pkg-config --variable=prefix glib-2.0`"
 gtk_prefix="`pkg-config --variable=prefix gtk+-2.0`"
-gst_prefix="`pkg-config --variable=prefix gstreamer-0.8`"
+gst_prefix="`pkg-config --variable=prefix gstreamer-0.10`"
 gcanvas_prefix="`pkg-config --variable=prefix libgnomecanvas-2.0`"
 AC_SUBST(glib_prefix)
 AC_SUBST(gtk_prefix)

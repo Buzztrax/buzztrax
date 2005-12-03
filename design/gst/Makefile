@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2005-09-19 16:14:06 ensonic Exp $
+# $Id: Makefile,v 1.10 2005-12-03 16:24:21 ensonic Exp $
 
 .PHONY: clean
 
@@ -16,4 +16,4 @@ clean:
 # generic rules
 
 %: %.c
-	gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` $< -o $@
+	gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` $< -o $@

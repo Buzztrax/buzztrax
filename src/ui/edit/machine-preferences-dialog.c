@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.16 2005-07-26 06:44:38 waffel Exp $
+// $Id: machine-preferences-dialog.c,v 1.17 2005-12-03 16:24:21 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -62,6 +62,18 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
   g_free(str_value);
 }
 
+static void on_combobox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+  GtkWidget *widget=GTK_WIDGET(user_data);
+  gint value;
+
+  g_assert(user_data);
+  
+  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  gdk_threads_enter();
+  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
+  gdk_threads_leave();
+}
+
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
@@ -96,6 +108,18 @@ static void on_spinbutton_property_changed(GtkSpinButton *spinbutton,gpointer us
   g_object_set(machine,name,value,NULL);
 }
 
+static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data) {
+  GstElement *machine=GST_ELEMENT(user_data);
+  gint value;
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(combobox));
+  
+  g_assert(user_data);
+
+  GST_INFO("preferences value change received for: '%s'",name);
+  value=gtk_combo_box_get_active(combobox);
+  g_object_set(machine,name,value,NULL);
+}
+
 //-- helper methods
 
 static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferencesDialog *self) {
@@ -108,7 +132,6 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   GstElement *machine;
   GParamSpec **properties,*property;
   guint i,number_of_properties;
-  GType param_type;
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
@@ -129,6 +152,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   // get machine properties
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
     gchar *signal_name;
+    GType param_type;
     
     GST_INFO("machine has %d properties",number_of_properties);
     // machine preferences inside a scrolled window
@@ -145,8 +169,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
       label=gtk_label_new(property->name);
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
-      // @todo choose proper widgets
       param_type=G_PARAM_SPEC_TYPE(property);
+      // @todo choose proper widgets
       if(param_type==G_TYPE_PARAM_STRING) {
         //GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
         gchar *value;
@@ -207,6 +231,25 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
         g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
         g_signal_connect(G_OBJECT(widget2), "changed", (GCallback)on_double_entry_property_changed, (gpointer)machine);
         g_free(signal_name);
+      }
+      else if(param_type==G_TYPE_PARAM_ENUM) {
+        GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+        GEnumClass *enum_class=enum_property->enum_class;
+        GEnumValue *enum_value;
+        gint value;
+        
+        widget1=gtk_combo_box_new_text();        
+        for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
+          enum_value=g_enum_get_value(enum_class, value);
+          gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+        }
+        g_object_get(machine,property->name,&value,NULL);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
+        signal_name=g_strdup_printf("notify::%s",property->name);
+        g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_combobox_property_notify, (gpointer)widget1);
+        g_signal_connect(G_OBJECT(widget1), "changed", (GCallback)on_combobox_property_changed, (gpointer)machine);
+        g_free(signal_name);
+        widget2=NULL;
       }
       else {
         gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));

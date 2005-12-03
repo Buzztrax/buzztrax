@@ -1,7 +1,7 @@
-/** $Id: states.c,v 1.4 2005-09-21 19:46:02 ensonic Exp $
+/** $Id: states.c,v 1.5 2005-12-03 16:24:21 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
- * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` states.c -o states
+ * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states.c -o states
  */
  
 #include <stdio.h>
