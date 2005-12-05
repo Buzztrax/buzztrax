@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.10 2005-09-14 15:22:56 ensonic Exp $
+/* $Id: bt-check.h,v 1.11 2005-12-05 07:17:39 ensonic Exp $
  * testing helpers
  */
 
@@ -19,7 +19,7 @@
 #include <libbtcore/core.h>
 #include "bt-test-plugin.h"
 
-extern guint test_argc;
+extern gint test_argc;
 extern gchar **test_argvptr;
 
 #ifndef GST_CAT_DEFAULT

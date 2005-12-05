@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.100 2005-10-28 16:54:18 ensonic Exp $
+// $Id: song.c,v 1.101 2005-12-05 07:17:39 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -76,7 +76,6 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   gboolean loop;
   glong loop_start,loop_end;
   
-  //GST_INFO("received bus message");
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_EOS:
       GST_INFO("received EOS bus message");
@@ -106,6 +105,9 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
         bt_song_stop(self);
       }
       res=TRUE;
+      break;
+    default:
+      //GST_INFO("unhandled bus message: %p",message);
       break;
   }
   return(res);

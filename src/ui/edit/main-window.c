@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.64 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-window.c,v 1.65 2005-12-05 07:17:39 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -109,7 +109,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gint y, GtkSelectionData *selection_data, guint info, guint t, gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   glong i=0;
-  gchar *ptr=selection_data->data;
+  gchar *ptr=(gchar *)selection_data->data;
 
   g_assert(user_data);
 
@@ -119,7 +119,7 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
     *ptr++;i++;
   }
   if(i) {
-    gchar *file_name=g_strndup(selection_data->data,i);
+    gchar *file_name=g_strndup((gchar *)selection_data->data,i);
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
       gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);

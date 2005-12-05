@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.69 2005-09-21 19:46:04 ensonic Exp $
+// $Id: main-toolbar.c,v 1.70 2005-12-05 07:17:39 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -209,7 +209,6 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
 static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer user_data) {
   g_assert(user_data);
   
-  //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_APPLICATION: {
 			BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
@@ -227,6 +226,9 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
         GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
         gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
       }
+      break;
+    default:
+      //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
       break;
     }
   }
