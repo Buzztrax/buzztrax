@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.6 2005-11-28 22:25:37 ensonic Exp $
+// $Id: sink-bin.c,v 1.7 2005-12-05 19:29:22 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -200,6 +200,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
       // oggmux ! vorbis ! filesink location="song.ogg"
+      list=g_list_append(list,gst_element_factory_make("audioconvert","makefloat"));
       list=g_list_append(list,gst_element_factory_make("vorbisenc","vorbisenc"));
       list=g_list_append(list,gst_element_factory_make("oggmux","oggmux"));
       break;

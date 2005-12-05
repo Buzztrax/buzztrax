@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.167 2005-11-28 22:25:37 ensonic Exp $
+// $Id: machine.c,v 1.168 2005-12-05 19:29:22 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -178,6 +178,14 @@ GType bt_machine_state_get_type(void) {
 }
 
 //-- helper methods
+
+GType bt_g_type_get_base_type(GType type) {
+  GType base;
+
+  while((base=g_type_parent(type))) type=base;
+  return(type);
+}
+
 
 /*
  * bt_machine_get_sink_peer:
@@ -1451,15 +1459,17 @@ static GValue *bt_machine_get_param_min_value(const BtMachine *self, GParamSpec 
     bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val);
   }
   else {
+    GType base_type=bt_g_type_get_base_type(property->value_type);
+    
     g_value_init(value,property->value_type);
-    switch(property->value_type) {
+    switch(base_type) {
       case G_TYPE_BOOLEAN:
         g_value_set_boolean(value,0);
       break;
       case G_TYPE_INT: {
         GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
         g_value_set_int(value,int_property->minimum);
-      }  break;
+      } break;
       case G_TYPE_UINT: {
         GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         g_value_set_uint(value,uint_property->minimum);
@@ -1467,9 +1477,14 @@ static GValue *bt_machine_get_param_min_value(const BtMachine *self, GParamSpec 
       case G_TYPE_DOUBLE: {
         GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
         g_value_set_double(value,double_property->minimum);
-      }  break;
+      } break;
+      case G_TYPE_ENUM: {
+        GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+        GEnumClass *enum_class=enum_property->enum_class;
+        g_value_set_enum(value,enum_class->minimum);
+      } break;
       default:
-        GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+        GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
     }
   }
   return(value);
@@ -1514,25 +1529,32 @@ static GValue *bt_machine_get_param_max_value(const BtMachine *self, GParamSpec 
     bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_max_val);
   }
   else {
+    GType base_type=bt_g_type_get_base_type(property->value_type);
+
     g_value_init(value,property->value_type);
-    switch(property->value_type) {
+    switch(base_type) {
       case G_TYPE_BOOLEAN:
         g_value_set_boolean(value,1);
       break;
       case G_TYPE_INT: {
         GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
         g_value_set_int(value,int_property->maximum);
-      }  break;
+      } break;
       case G_TYPE_UINT: {
         GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         g_value_set_uint(value,uint_property->maximum);
-      }  break;
+      } break;
       case G_TYPE_DOUBLE: {
         GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
         g_value_set_double(value,double_property->maximum);
-      }  break;
+      } break;
+      case G_TYPE_ENUM: {
+        GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+        GEnumClass *enum_class=enum_property->enum_class;
+        g_value_set_enum(value,enum_class->maximum);
+      } break;
       default:
-        GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+        GST_ERROR("unsupported GType=%d:'%s' ('%s')",property->value_type,g_type_name(property->value_type),g_type_name(base_type));
     }
   }
   return(value);

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.22 2005-11-27 22:44:46 ensonic Exp $
+/* $Id: tools.c,v 1.23 2005-12-05 19:29:22 ensonic Exp $
  */
  
 #define BT_CORE
@@ -92,7 +92,6 @@ void gst_element_dbg_pads(GstElement *elem) {
   }
   gst_iterator_free(it);
 }
-
 
 #ifndef HAVE_GLIB_2_8
 gpointer g_try_malloc0(gulong n_bytes) {

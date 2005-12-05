@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.39 2005-12-03 16:24:21 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.40 2005-12-05 19:29:22 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -38,6 +38,7 @@ static GtkDialogClass *parent_class=NULL;
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer user_data);
+static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data);
 
 static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
  
@@ -93,6 +94,33 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
+}
+
+static void on_combobox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
+  GtkWidget *widget=GTK_WIDGET(user_data);
+  gint value;
+
+  g_assert(user_data);
+  //GST_INFO("property value notify received : %s ",property->name);
+  
+  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
+  g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
+}
+
+static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(combobox));
+  gint value;
+  
+  g_assert(user_data);
+  //GST_INFO("property value change received");
+
+  value=gtk_combo_box_get_active(combobox);
+  g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
+  g_object_set(param_parent,name,value,NULL);
+  g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
 }
 
 static void on_checkbox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -221,6 +249,31 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   return(widget);
 }
 
+static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
+  GtkWidget *widget;
+  gchar *signal_name;
+  GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+  GEnumClass *enum_class=enum_property->enum_class;
+  GEnumValue *enum_value;
+  gint value;
+
+  widget=gtk_combo_box_new_text();        
+  for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
+    enum_value=g_enum_get_value(enum_class, value);
+    gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+  }
+  g_object_get(machine,property->name,&value,NULL);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
+  gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+  
+  signal_name=g_alloca(9+strlen(property->name));
+  g_sprintf(signal_name,"notify::%s",property->name);
+  g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_combobox_property_notify, (gpointer)widget);
+  g_signal_connect(G_OBJECT(widget), "changed", (GCallback)on_combobox_property_changed, (gpointer)machine);
+
+  return(widget);
+}
+
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
   GtkWidget *box,*vbox,*expander,*label,*widget,*table,*scrolled_window;
@@ -230,7 +283,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gulong i,k,global_params,voices,voice_params,params;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType param_type;
+  GType param_type,base_type;
   GstElement *machine;
   
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
@@ -303,6 +356,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
           param_type=bt_machine_get_global_param_type(self->priv->machine,i);
+          while((base_type=g_type_parent(param_type))) param_type=base_type;
+          GST_INFO("... base typoe is : %s",g_type_name(param_type));
+
           range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
           range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);
           // DEBUG
@@ -326,6 +382,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           }
           else if(param_type==G_TYPE_DOUBLE) {
             widget=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+          }
+          else if(param_type==G_TYPE_ENUM) {
+            widget=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
           }
           else {
             gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
@@ -376,6 +435,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
           param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
+          while((base_type=g_type_parent(param_type))) param_type=base_type;
+          GST_INFO("... base typoe is : %s",g_type_name(param_type));
+            
           range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
           range_max=bt_machine_get_voice_param_max_value(self->priv->machine,i);
           // DEBUG
@@ -399,6 +461,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           }
           else if(param_type==G_TYPE_DOUBLE) {
             widget=make_double_range_widget(self,machine_voice,property,range_min,range_max);
+          }
+          else if(param_type==G_TYPE_ENUM) {
+            widget=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
           }
           else {
             gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
