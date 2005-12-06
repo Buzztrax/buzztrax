@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.7 2005-12-05 19:29:22 ensonic Exp $
+// $Id: sink-bin.c,v 1.8 2005-12-06 10:40:48 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -193,30 +193,49 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin *self) {
 
 static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   GList *list=NULL;
-  GstElement *filesink;
+  GstElement *element,*filesink;
 
   // @todo: check extension ?
   // generate recorder elements
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
       // oggmux ! vorbis ! filesink location="song.ogg"
-      list=g_list_append(list,gst_element_factory_make("audioconvert","makefloat"));
-      list=g_list_append(list,gst_element_factory_make("vorbisenc","vorbisenc"));
-      list=g_list_append(list,gst_element_factory_make("oggmux","oggmux"));
+      if(!(element=gst_element_factory_make("audioconvert","makefloat"))) {
+        GST_INFO("Can't instantiate 'audioconvert' element");goto Error;
+      }
+      list=g_list_append(list,element);
+      if(!(element=gst_element_factory_make("vorbisenc","vorbisenc"))) {
+        GST_INFO("Can't instantiate 'vorbisenc' element");goto Error;
+      }
+      list=g_list_append(list,element);
+      if(!(element=gst_element_factory_make("oggmux","oggmux"))) {
+        GST_INFO("Can't instantiate 'oggmux' element");goto Error;
+      }
+      list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP3:
       // lame ! filesink location="song.mp3"
-      list=g_list_append(list,gst_element_factory_make("lame","lame"));
+      if(!(element=gst_element_factory_make("lame","lame"))) {
+        GST_INFO("Can't instantiate 'lame' element");goto Error;
+      }
+      list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_WAV:
       // wavenc ! filesink location="song.wav"
-      list=g_list_append(list,gst_element_factory_make("wavenc","wavenc"));
+      if(!(element=gst_element_factory_make("wavenc","wavenc"))) {
+        GST_INFO("Can't instantiate 'wavenc' element");goto Error;
+      }
+      list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_FLAC:
       // flacenc ! filesink location="song.flac"
-      list=g_list_append(list,gst_element_factory_make("flacenc","flacenc"));
+      if(!(element=gst_element_factory_make("flacenc","flacenc"))) {
+        GST_INFO("Can't instantiate 'flacenc' element");goto Error;
+      }
+      list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_RAW:
+      // no element needed
       break;
   }
   // create filesink, set location property
@@ -224,6 +243,12 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   g_object_set(filesink,"location",self->priv->record_file_name,NULL);
   list=g_list_append(list,filesink);
   return(list);
+Error:
+  for(;list;list=list->next) {
+    gst_object_unref(GST_OBJECT(list->data));
+  }
+  g_list_free(g_list_first(list));
+  return(NULL);
 }
 
 /*
