@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.168 2005-12-05 19:29:22 ensonic Exp $
+// $Id: machine.c,v 1.169 2005-12-09 10:34:04 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -636,18 +636,20 @@ gboolean bt_machine_new(BtMachine *self) {
   }
   GST_INFO("machine element instantiated and interfaces initialized");
   // we need to make sure the machine is from the right class
-  /* @todo this breaks for sink-bin :(
   {
     GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
     const gchar *element_class=gst_element_factory_get_klass(element_factory);
     GST_INFO("checking machine class \"%s\"",element_class);
+    /* @todo this breaks for sink-bin, it's not useful for this anyway
     if(BT_IS_SINK_MACHINE(self)) {
       if(g_ascii_strncasecmp(element_class,"Sink/",5) && g_ascii_strncasecmp(element_class,"Sink\0",5)) {
         GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Sink/...\"",self->priv->plugin_name,element_class);
         return(FALSE);
       }
     }
-    else if(BT_IS_SOURCE_MACHINE(self)) {
+    else
+    */
+    if(BT_IS_SOURCE_MACHINE(self)) {
       if(g_ascii_strncasecmp(element_class,"Source/",7) && g_ascii_strncasecmp(element_class,"Source\0",7)) {
         GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Source/...\"",self->priv->plugin_name,element_class);
         return(FALSE);
@@ -660,7 +662,6 @@ gboolean bt_machine_new(BtMachine *self) {
       }
     }
   }
-  */
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
   GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);

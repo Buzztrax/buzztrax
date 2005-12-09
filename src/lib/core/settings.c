@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.18 2005-11-22 16:16:23 ensonic Exp $
+// $Id: settings.c,v 1.19 2005-12-09 10:34:05 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -24,7 +24,7 @@ struct _BtSettingsPrivate {
 };
 
 static GObjectClass *parent_class=NULL;
-static BtSettings *self=NULL;
+static gpointer singleton=NULL;
 
 //-- constructor methods
 
@@ -41,17 +41,21 @@ static BtSettings *self=NULL;
  */
 BtSettings *bt_settings_new(void) {
 
-  if(!self) {
+  if(!singleton) {
+    GST_INFO("create a new settings object for thread %p",g_thread_self());
 #ifdef USE_GCONF
-    self=BT_SETTINGS(bt_gconf_settings_new());
+    singleton=(gpointer *)bt_gconf_settings_new();
 #else
-    self=BT_SETTINGS(bt_plainfile_settings_new());
+    singleton=(gpointer *)bt_plainfile_settings_new();
 #endif
+    g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
   else {
-    self=g_object_ref(self);
+    GST_INFO("return cached settings object (refct=%d) for thread %p",G_OBJECT(singleton)->ref_count,g_thread_self());
+    singleton=g_object_ref(G_OBJECT(singleton));
   }
-  return(self);
+  GST_INFO("settings created %p",singleton);
+  return(BT_SETTINGS(singleton));
 }
 
 //-- methods
@@ -94,7 +98,7 @@ static void bt_settings_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

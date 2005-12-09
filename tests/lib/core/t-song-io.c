@@ -1,4 +1,4 @@
-/* $Id: t-song-io.c,v 1.13 2005-09-27 17:59:15 ensonic Exp $
+/* $Id: t-song-io.c,v 1.14 2005-12-09 10:34:05 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -55,26 +55,12 @@ BT_START_TEST(test_btsong_io_obj4) {
 }
 BT_END_TEST
 
-// try to create a SongIO object with a nativ file name
+// try to create a SongIO object with a native file name
 // this test is a positiv test
 BT_START_TEST(test_btsong_io_obj5) {
   BtSongIO *song_io;
   
-  song_io=bt_song_io_new("test.xml");
-  // check if the type of songIO is native
-  fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
-  fail_unless(song_io!=NULL, NULL);
-
-  g_object_checked_unref(song_io);
-}
-BT_END_TEST
-
-// try to create a SongIO object with a file name that contains mixed case letters
-// this test is a positiv test
-BT_START_TEST(test_btsong_io_obj6) {
-  BtSongIO *song_io;
-  
-  song_io=bt_song_io_new("test.XmL");
+  song_io=bt_song_io_new("songs/example.xml");
   // check if the type of songIO is native
   fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
   fail_unless(song_io!=NULL, NULL);
@@ -92,7 +78,6 @@ TCase *bt_song_io_test_case(void) {
   tcase_add_test(tc,test_btsong_io_obj3);
   tcase_add_test(tc,test_btsong_io_obj4);
   tcase_add_test(tc,test_btsong_io_obj5);
-  tcase_add_test(tc,test_btsong_io_obj6);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

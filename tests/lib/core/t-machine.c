@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.9 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: t-machine.c,v 1.10 2005-12-09 10:34:05 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -33,8 +33,8 @@ BT_END_TEST
 */
 
 /*
-* sinesrc | volume | audio_sink
-* 1) mute sinesrc
+* testaudiosrc | volume | audio_sink
+* 1) mute testaudiosrc
 * 2) mute volume
 * 3) unmute volume
 * 4) test if volume still is muted
@@ -63,7 +63,7 @@ BT_START_TEST(test_btmachine_state1) {
   g_object_get(song,"setup",&setup,NULL);
   
   /* create a new source machine */
-  source=bt_source_machine_new(song,"source","sinesrc",0);
+  source=bt_source_machine_new(song,"source","testaudiosrc",0);
   bt_setup_add_machine(setup,BT_MACHINE(source));
   
   /* create a new processor machine */
@@ -102,9 +102,9 @@ BT_END_TEST
 #endif
 
 /*
-* sinesrc1, sinesrc2 | audio_sink
-* 1) solo sinesrc1
-* 2) solo sinesrc2
+* testaudiosrc1, testaudiosrc2 | audio_sink
+* 1) solo testaudiosrc1
+* 2) solo testaudiosrc2
 * 3) test that sinesrc1 is not solo
 */
 BT_START_TEST(test_btmachine_state2) {
@@ -130,11 +130,11 @@ BT_START_TEST(test_btmachine_state2) {
   g_object_get(song,"setup",&setup,NULL);
   
   /* create a new sine source machine */
-  sine1=bt_source_machine_new(song,"sine1","sinesrc",0);
+  sine1=bt_source_machine_new(song,"sine1","testaudiosrc",0);
   bt_setup_add_machine(setup,BT_MACHINE(sine1));
   
   /* create a new sine source machine */
-  sine2=bt_source_machine_new(song,"sine2","sinesrc",0);
+  sine2=bt_source_machine_new(song,"sine2","testaudiosrc",0);
   bt_setup_add_machine(setup,BT_MACHINE(sine2));
   
   /* create a new sink machine */

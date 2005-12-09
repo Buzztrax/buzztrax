@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.66 2005-12-06 10:40:48 ensonic Exp $
+# $Id: configure.ac,v 1.67 2005-12-09 10:34:03 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -188,7 +188,7 @@ AC_SUBST(with_desktop_dir)
 
 # Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
-  glib-2.0 >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
+  glib-2.0 >= 2.6.0 gobject-2.0  >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
   gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
