@@ -20,7 +20,7 @@
     <machines>
       <sink id="audio_sink">
       </sink>
-      <source id="sine1" plugin-name="sinesrc" voices="0">
+      <source id="sine1" plugin-name="audiotestsrc" voices="0">
       </source>
     </machines>
     

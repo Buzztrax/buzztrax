@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.8 2005-09-19 18:47:20 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.9 2005-12-11 17:28:01 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -26,22 +26,18 @@ BT_START_TEST(test_btsinkmachine_settings1) {
   BtSettings *settings=NULL;
   gchar *saved_audiosink_name;
   
-  /* create a dummy app */
+  /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
-  /* create a new song */
   song=bt_song_new(app);
-  
-  settings=BT_SETTINGS(bt_gconf_settings_new());
+  settings=bt_settings_new();
+  mark_point();
   
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-  
   g_object_set(settings,"audiosink","osssink sync=false",NULL);
   
   machine=bt_sink_machine_new(song,"master");
   fail_unless(machine!=NULL, NULL);
-  
   
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
   
@@ -66,22 +62,23 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   BtSettings *settings=NULL;
   gchar *saved_audiosink_name;
   
-  /* create a dummy app */
+  /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
   /* create a new song */
   song=bt_song_new(app);
-  
-  settings=BT_SETTINGS(bt_gconf_settings_new());
+  settings=bt_settings_new();
+  mark_point();
   
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-  
+  // @todo it crashes after instantiating the element,
+  //       no matter wheter its alsasink or osssink 
   g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
+  //g_object_set(settings,"audiosink","audioconvert ! alsasink sync=false",NULL);
+  mark_point();
   
   machine=bt_sink_machine_new(song,"master");
   fail_unless(machine!=NULL, NULL);
-  
   
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
   

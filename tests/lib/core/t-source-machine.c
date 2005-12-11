@@ -1,4 +1,4 @@
-/* $Id: t-source-machine.c,v 1.7 2005-09-19 18:47:20 ensonic Exp $
+/* $Id: t-source-machine.c,v 1.8 2005-12-11 17:28:01 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -83,9 +83,9 @@ BT_START_TEST(test_btsourcemachine_obj3){
   song=bt_song_new(app);
   
   /* try to create a normal sink machine */
-  machine=bt_source_machine_new(song,"id","sinesrc",0);
+  machine=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(machine!=NULL,NULL);
-  /* try to get global param index from sinesrc */
+  /* try to get global param index from audiotestsrc */
   testIdx=bt_machine_get_global_param_index(BT_MACHINE(machine),"nonsense",&error);
   fail_unless(g_error_matches(error,
                               g_quark_from_static_string("BtMachine"),

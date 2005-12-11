@@ -27,7 +27,7 @@
         <globaldata name="bpm" value="200"/>
       </sink>
       
-      <source id="sine1" plugin-name="sinesrc" voices="0">
+      <source id="sine1" plugin-name="audiotestsrc" voices="0">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>

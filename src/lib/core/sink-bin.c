@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.8 2005-12-06 10:40:48 ensonic Exp $
+// $Id: sink-bin.c,v 1.9 2005-12-11 17:27:58 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -136,7 +136,7 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     system_audiosink_name=NULL;
   }
   if(plugin_name) {
-    gchar *sink_name,*eon;
+    gchar *sink_name,*eon,*temp;
     // this can be a whole pipeline like "audioconvert ! osssink sync=false"
     // seek for the last '!'
     if(!(sink_name=g_strrstr(plugin_name,"!"))) {
@@ -151,7 +151,10 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     if((eon=strstr(sink_name," "))) {
       *eon='\0';
     }
-    plugin_name=sink_name;
+    // no g_free() to partial memory later
+    temp=plugin_name;
+    plugin_name=g_strdup(sink_name);
+    g_free(temp);
   }
   if (!BT_IS_STRING(plugin_name)) {
     GST_INFO("get audiosink from gst registry by rank");
@@ -309,6 +312,13 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
     default:
       g_assert_not_reached();
   }
+  
+  // @todo where do we put that, should the sink watch itself, or should the song do it?
+  // add notifies to audio-sink and system-audio-sink
+  //g_signal_connect(G_OBJECT(settings), "notify::audio-sink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
+  //g_signal_connect(G_OBJECT(settings), "notify::system-audio-sink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);
+
+  
   // set new ghostpad-target
   sink_pad=gst_element_get_pad(first_elem,"sink");
   if(!sink_pad) {
@@ -328,6 +338,53 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
   GST_INFO("done");
   return(TRUE);
 }
+
+//-- event handler
+
+#ifdef __NOT_IN_USE__
+static void on_audio_sink_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+  //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
+  gchar *plugin_name;
+
+  g_assert(user_data);
+  GST_INFO("audio-sink has changed");
+  plugin_name=bt_sink_machine_determine_plugin_name(settings);
+  GST_INFO("  -> '%s'",plugin_name);
+  
+  /* @todo exchange the machine
+  //// version 1
+    g_object_set(self,"plugin-name",plugin_name,NULL);
+    plugin-name is construct only :(
+    if sink has input-gain or input-level, we do not need to relink all wires.
+  
+  //// version 2
+    g_object_get(self,"id",&id,NULL)
+    wires=bt_setup_get_wires_by_machine_type(setup,self,"dst");
+    sink=bt_sink_machine_new(song,id);
+    for(node=wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      g_object-set(wire,"dst",sink,NULL);
+      bt_wire_reconnect(wire);
+    }
+  */
+  g_free(plugin_name);
+}
+
+static void on_system_audio_sink_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+  //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
+  gchar *plugin_name;
+
+  g_assert(user_data);
+  GST_INFO("audio-sink has changed");
+  plugin_name=bt_sink_machine_determine_plugin_name(settings);
+  GST_INFO("  -> '%s'",plugin_name);
+  
+  // @todo exchange the machine (only if the system-audiosink is in use)
+  // g_object_set(self,"plugin-name",plugin_name,NULL);
+  // plugin-name is construct only :(
+  g_free(plugin_name);
+}
+#endif
 
 //-- methods
 

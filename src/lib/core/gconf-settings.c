@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.22 2005-11-22 16:16:23 ensonic Exp $
+// $Id: gconf-settings.c,v 1.23 2005-12-11 17:27:58 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -49,7 +49,7 @@ BtGConfSettings *bt_gconf_settings_new(void) {
   if(!(self=BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL)))) {
     goto Error;
   }
-  GST_DEBUG("about to register gconf nootify handler");
+  GST_DEBUG("about to register gconf notify handler");
   // register notify handlers for some properties
   gconf_client_notify_add(self->priv->client,
          BT_GCONF_PATH_GNOME"/toolbar_style",
