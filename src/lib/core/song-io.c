@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.47 2005-09-21 19:46:03 ensonic Exp $
+// $Id: song-io.c,v 1.48 2005-12-16 18:46:53 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -76,7 +76,8 @@ static void bt_song_io_register_plugins(void) {
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
       GST_INFO("    found file \"%s\"",dire->d_name);
       //   2.) try to open each as g_module
-       if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
+      //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
+      if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LOCAL))!=NULL) {
         GST_INFO("    that is a shared object");
         //   3.) gets the address of GType bt_song_io_detect(const gchar *);
         if(g_module_symbol(plugin,"bt_song_io_detect",&bt_song_io_plugin_detect)) {
