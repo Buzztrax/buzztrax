@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.90 2005-08-31 22:41:40 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.91 2005-12-16 21:54:43 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -84,9 +84,9 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
-static gchar *sink_pattern_keys     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static gchar *source_pattern_keys   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static gchar *processor_pattern_keys="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static gchar *pattern_keys;
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data);

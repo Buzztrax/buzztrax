@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.16 2005-12-05 07:17:39 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.17 2005-12-16 21:54:44 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -16,8 +16,8 @@ extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
 
 gint test_argc=2;
-gchar *test_arg0="check_buzzard";
-gchar *test_arg1="--sync";
+gchar test_arg0[]="check_buzzard";
+gchar test_arg1[]="--sync";
 gchar *test_argv[1];
 gchar **test_argvptr;
 

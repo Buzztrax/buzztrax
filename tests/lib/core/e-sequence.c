@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.10 2005-09-14 15:22:56 ensonic Exp $
+/* $Id: e-sequence.c,v 1.11 2005-12-16 21:54:44 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -49,7 +49,7 @@ BT_START_TEST(test_btsequence_enlarge_length_vals) {
   BtApplication *app;
   BtSong *song;
   BtSequence *sequence;
-  gchar *label1="test",*label2;
+  gchar label1[]="test",*label2;
   gulong i,length;
 
   /* create a dummy app */

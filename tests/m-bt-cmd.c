@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.11 2005-12-05 07:17:39 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.12 2005-12-16 21:54:44 ensonic Exp $
  * command line app unit tests
  */
 
@@ -14,7 +14,7 @@ GST_DEBUG_CATEGORY_EXTERN(bt_cmd_debug);
 extern Suite *bt_cmd_application_suite(void);
 
 gint test_argc=1;
-gchar *test_arg0="check_buzzard";
+gchar test_arg0[]="check_buzzard";
 gchar *test_argv[1];
 gchar **test_argvptr;
 

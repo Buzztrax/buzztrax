@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.19 2005-12-05 07:17:39 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.20 2005-12-16 21:54:44 ensonic Exp $
  * core library unit tests
  */
 
@@ -27,7 +27,7 @@ extern Suite *bt_wire_suite(void);
 extern Suite *bt_settings_suite(void);
 
 gint test_argc=1;
-gchar *test_arg0="check_buzzard";
+gchar test_arg0[]="check_buzzard";
 gchar *test_argv[1];
 gchar **test_argvptr;
 

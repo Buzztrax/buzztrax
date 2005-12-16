@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.37 2005-08-31 22:41:40 ensonic Exp $
+// $Id: main-statusbar.c,v 1.38 2005-12-16 21:54:43 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -59,7 +59,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
 
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   if(!is_playing) {
-    gchar *str="00:00.000";
+    gchar str[]="00:00.000";
 
     // update statusbar fields
     gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id); 
@@ -125,7 +125,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 //-- helper methods
 
 static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
-  gchar *str="00:00.000";
+  gchar str[]="00:00.000";
   
   gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
   //gtk_box_set_spacing(GTK_BOX(self),1);
