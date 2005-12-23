@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.26 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-page-waves.c,v 1.27 2005-12-23 17:13:01 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -284,7 +284,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   gtk_box_pack_start(GTK_BOX(box),self->priv->browser_toolbar,FALSE,FALSE,0);
 
   //       file-chooser
-  // this causes warning on gtk 2.4
+  // this causes warning on gtk 2.x
+  // Gtk-CRITICAL **: gtk_file_system_path_is_local: assertion `path != NULL' failed
   self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
   gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
 

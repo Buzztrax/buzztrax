@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.70 2005-12-05 07:17:39 ensonic Exp $
+// $Id: main-toolbar.c,v 1.71 2005-12-23 17:13:01 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -43,8 +43,8 @@ struct _BtMainToolbarPrivate {
   GtkWidget *play_button;
   GtkWidget *stop_button;
   
-	/* update handler id */
-	guint playback_update_id;
+  /* update handler id */
+  guint playback_update_id;
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
@@ -93,7 +93,8 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   if(!is_playing) {
     gint i;
   
-    GST_INFO("song stop event occured");
+    GST_INFO("song stop event occured: %p",g_thread_self());
+    g_source_remove(self->priv->playback_update_id);
     // disable stop button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
     // switch off play button
@@ -104,7 +105,6 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     for(i=0;i<MAX_VUMETER;i++) {
       gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
     }
-    g_source_remove(self->priv->playback_update_id);
 
     GST_INFO("song stop event handled");
   }
@@ -207,11 +207,12 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
 }
 
 static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer user_data) {
+  gboolean res=FALSE;
   g_assert(user_data);
   
   switch(GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_APPLICATION: {
-			BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+    case GST_MESSAGE_ELEMENT: {
+      BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
       const GstStructure *structure=gst_message_get_structure(message);
       const GValue *l_rms,*l_peak;
       gdouble rms, peak;
@@ -226,15 +227,37 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
         GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
         gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
       }
+      res=TRUE;
       break;
     default:
       //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
       break;
     }
   }
-	// pop off *all* messages
-  return(TRUE);
+  return(res);
 }
+/*
+static void on_song_level_change (GstBus * bus, GstMessage * message, gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  const GstStructure *structure = gst_message_get_structure(message);
+  const GValue *l_rms,*l_peak;
+  gdouble rms, peak;
+  guint i;
+
+  g_assert(user_data);
+  GST_INFO("received bus message: application");
+
+  l_rms=(GValue *)gst_structure_get_value(structure, "rms");
+  l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+  //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+  for(i=0;i<gst_value_list_get_size(l_rms);i++) {
+    rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
+    peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
+    gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
+  }
+}
+*/
 
 static void on_song_volume_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
@@ -295,6 +318,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"master",&master,NULL);
   if(master) {
     GstPad *pad;
+    //GstBus *bus;
     gdouble volume;
     
     GST_INFO("connect to input-level : song=%p,  master=%p",song,master);
@@ -304,6 +328,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     g_assert(GST_IS_ELEMENT(level));
     bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
+    //bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
+    //g_signal_connect (bus, "message::application", (GCallback) on_song_level_change, (gpointer)self);
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
@@ -318,6 +344,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // connect volume event
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 
+    //gst_object_unref(bus);
     g_object_unref(master);
   }
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);

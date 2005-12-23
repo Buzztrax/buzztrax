@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.102 2005-12-23 14:03:03 ensonic Exp $
+// $Id: song.c,v 1.103 2005-12-23 17:12:59 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -144,10 +144,6 @@ BtSong *bt_song_new(const BtApplication *app) {
   if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
     goto Error;
   }
-  //bus=gst_element_get_bus(GST_ELEMENT(bin));
-  //gst_bus_add_watch(bus,bus_handler,(gpointer)self);
-	//gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
-  //g_object_unref(bus);
   bt_application_add_bus_watch(app,bus_handler,(gpointer)self);
   gst_object_unref(bin);
   GST_INFO("  new song created: %p",self);
@@ -220,7 +216,7 @@ gboolean bt_song_play(const BtSong *self) {
   }
   else {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }

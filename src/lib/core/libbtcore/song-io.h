@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.19 2005-12-23 14:03:03 ensonic Exp $
+/* $Id: song-io.h,v 1.20 2005-12-23 17:13:01 ensonic Exp $
  * base class for song input and output
  */
 
@@ -67,8 +67,6 @@ struct _BtSongIOClass {
   /* class methods */
   bt_song_io_virtual_load load;
   bt_song_io_virtual_save save;
-
-  //void (*status_changed)(const BtSongIO *songio, gpointer user_data);
 };
 
 /* used by SONG_IO_TYPE */
