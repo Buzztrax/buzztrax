@@ -1,10 +1,13 @@
-// $Id: song-io-native.c,v 1.94 2005-12-05 07:17:39 ensonic Exp $
+// $Id: song-io-native.c,v 1.95 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btsongionative
- * @short_description: class for song input and output in native zipped xml format
+ * @short_description: class for song input and output in builtin native format
  *
+ * Buzztard stores its songs in a own file-format. This internal io-module 
+ * implements loading and saving of this format.
+ * The format is an archive, that contains an XML file and optionally binary
+ * data, such as audio samples.
  */ 
-
  
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_C

@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.14 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: source-machine.h,v 1.15 2005-12-23 14:03:03 ensonic Exp $
  * class for a source machine
  */
 
@@ -35,7 +35,7 @@ struct _BtSourceMachine {
 };
 /* structure of the source_machine class */
 struct _BtSourceMachineClass {
-  BtMachineClass parent_class;
+  BtMachineClass parent;
 };
 
 /* used by SOURCE_MACHINE_TYPE */
@@ -43,10 +43,10 @@ GType bt_source_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtSourceMachinePatternIndex:
- * @BT_SOURCE_MACHINE_PATTERN_INDEX_BREAK: 
- * @BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE:
- * @BT_SOURCE_MACHINE_PATTERN_INDEX_SOLO:
- * @BT_SOURCE_MACHINE_PATTERN_INDEX_OFFSET:
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_BREAK: stop the pattern
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_MUTE: mute the machine
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_SOLO: play only this machine
+ * @BT_SOURCE_MACHINE_PATTERN_INDEX_OFFSET: offset for real pattern ids
  *
  * Use this with bt_machine_get_pattern_by_index() to get the command patterns.
  */

@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.170 2005-12-23 09:02:06 ensonic Exp $
+// $Id: machine.c,v 1.171 2005-12-23 14:03:02 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1674,7 +1674,7 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index,
 /**
  * bt_machine_describe_global_param_value:
  * @self: the machine to get a param description from
- * @name: the name of the property to describe
+ * @index: the offset in the list of global params
  * @event: the value to describe
  *
  * Described a param value in human readable form. The type of the given @value
@@ -1682,12 +1682,11 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index,
  *
  * Returns: the description as newly allocated string
  */
-gchar *bt_machine_describe_global_param_value(const BtMachine *self, const gchar *name, GValue *event) {
+gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event) {
   gchar *str=NULL;
-  glong index=bt_machine_get_global_param_index(self,name,NULL);
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(BT_IS_STRING(name),NULL);
+  g_return_val_if_fail(index<self->priv->global_params,FALSE);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
 
 
@@ -1700,7 +1699,7 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, const gchar
 /**
  * bt_machine_describe_voice_param_value:
  * @self: the machine to get a param description from
- * @name: the name of the property to describe
+ * @index: the offset in the list of voice params
  * @event: the value to describe
  *
  * Described a param value in human readable form. The type of the given @value
@@ -1708,12 +1707,11 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, const gchar
  *
  * Returns: the description as newly allocated string
  */
-gchar *bt_machine_describe_voice_param_value(const BtMachine *self, const gchar *name, GValue *event) {
+gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event) {
   gchar *str=NULL;
-  glong index=bt_machine_get_voice_param_index(self,name,NULL);
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(BT_IS_STRING(name),NULL);
+  g_return_val_if_fail(index<self->priv->voice_params,FALSE);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
   
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {

@@ -1,8 +1,9 @@
-// $Id: wave.c,v 1.11 2005-09-19 16:14:06 ensonic Exp $
+// $Id: wave.c,v 1.12 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
  *
+ * Represents one instrument. Contains one or more #BtWavelevels.
  */ 
 
 #define BT_CORE

@@ -1,11 +1,10 @@
-/* $Id: core.c,v 1.22 2005-11-06 18:17:44 waffel Exp $
+/* $Id: core.c,v 1.23 2005-12-23 14:03:02 ensonic Exp $
  */
 /**
- * SECTION:btcore
+ * SECTION:libbtcore
  * @short_description: core library of the buzztard application framework
  *
  * The library offers base objects such as #BtApplication and #BtSong.
- *
  */
  
 /* @todo add check_version stuff like in gstreamer */

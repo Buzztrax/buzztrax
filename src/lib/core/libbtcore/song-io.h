@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.18 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: song-io.h,v 1.19 2005-12-23 14:03:03 ensonic Exp $
  * base class for song input and output
  */
 
@@ -62,13 +62,13 @@ typedef gboolean (*bt_song_io_virtual_save)(const gpointer self, const BtSong *s
  * base class for song input and output plugins
  */
 struct _BtSongIOClass {
-  GObjectClass parent_class;
+  GObjectClass parent;
 
   /* class methods */
   bt_song_io_virtual_load load;
   bt_song_io_virtual_save save;
 
-  void (*status_changed)(const BtSongIO *songio, gpointer user_data);
+  //void (*status_changed)(const BtSongIO *songio, gpointer user_data);
 };
 
 /* used by SONG_IO_TYPE */

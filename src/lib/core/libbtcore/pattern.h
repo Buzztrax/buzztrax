@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.17 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: pattern.h,v 1.18 2005-12-23 14:03:03 ensonic Exp $
  * class for the pattern pattern
  *
  */
@@ -36,7 +36,7 @@ struct _BtPattern {
 };
 /* structure of the pattern class */
 struct _BtPatternClass {
-  GObjectClass parent_class;
+  GObjectClass parent;
 
   void (*global_param_changed_event)(const BtPattern *pattern, gulong tick, gulong param, gpointer user_data);
   void (*voice_param_changed_event)(const BtPattern *pattern, gulong tick, gulong voice, gulong param, gpointer user_data);

@@ -1,7 +1,10 @@
-// $Id: wavelevel.c,v 1.8 2005-09-19 16:14:06 ensonic Exp $
+// $Id: wavelevel.c,v 1.9 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
+ *
+ * #BtWavelevel contain the digital audio data of a #BtWave to be used for a 
+ * certain key-range.
  */ 
  
 #define BT_CORE

@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.57 2005-11-22 16:16:22 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.58 2005-12-23 14:03:02 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -485,8 +485,8 @@ bt_wire_get_element_list
 </SECTION>
 
 <SECTION>
-<FILE>libcore</FILE>
-<TITLE>libcore</TITLE>
+<FILE>libbtcore</FILE>
+<TITLE>libbtcore</TITLE>
 BT_NS_PREFIX
 BT_NS_URL
 BT_IS_STRING
@@ -512,4 +512,21 @@ bt_major_version
 bt_minor_version
 bt_micro_version
 <SUBSECTION Private>
+# glib extras
+g_try_malloc0
+g_try_new
+g_try_new0
+G_OPTION_FLAG_NO_ARG
+# gstreamer extras
+gst_element_dbg_pads
+# gettext extras
+_
+N_
+bindtextdomain
+dgettext
+gettext
+textdomain
+# marshallers
+bt_marshal_VOID__ULONG_ULONG
+bt_marshal_VOID__ULONG_ULONG_ULONG
 </SECTION>

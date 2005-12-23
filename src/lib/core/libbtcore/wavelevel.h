@@ -1,4 +1,4 @@
-/* $Id: wavelevel.h,v 1.4 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: wavelevel.h,v 1.5 2005-12-23 14:03:03 ensonic Exp $
  * class for wavelevel
  */
 
@@ -35,7 +35,7 @@ struct _BtWavelevel {
 };
 /* structure of the setup class */
 struct _BtWavelevelClass {
-  GObjectClass parent_class;
+  GObjectClass parent;
 };
 
 /* used by WAVELEVEL_TYPE */

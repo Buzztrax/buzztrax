@@ -1,4 +1,4 @@
-/* $Id: sink-machine.h,v 1.15 2005-11-06 19:57:36 ensonic Exp $
+/* $Id: sink-machine.h,v 1.16 2005-12-23 14:03:03 ensonic Exp $
  * class for a sink machine
  */
 
@@ -35,7 +35,7 @@ struct _BtSinkMachine {
 };
 /* structure of the sink_machine class */
 struct _BtSinkMachineClass {
-  BtMachineClass parent_class;
+  BtMachineClass parent;
 };
 
 /* used by SINK_MACHINE_TYPE */
@@ -43,9 +43,9 @@ GType bt_sink_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtSinkMachinePatternIndex:
- * @BT_SINK_MACHINE_PATTERN_INDEX_BREAK: 
- * @BT_SINK_MACHINE_PATTERN_INDEX_MUTE:
- * @BT_SINK_MACHINE_PATTERN_INDEX_OFFSET:
+ * @BT_SINK_MACHINE_PATTERN_INDEX_BREAK: stop the pattern
+ * @BT_SINK_MACHINE_PATTERN_INDEX_MUTE: mute the machine
+ * @BT_SINK_MACHINE_PATTERN_INDEX_OFFSET: offset for real pattern ids
  *
  * Use this with bt_machine_get_pattern_by_index() to get the command patterns.
  */

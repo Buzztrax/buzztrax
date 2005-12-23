@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.101 2005-12-05 07:17:39 ensonic Exp $
+// $Id: song.c,v 1.102 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -90,7 +90,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
       GST_INFO("received SEGMENT_DONE bus message");
       g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
       if(loop) {
-        /* @todo send another segmented seek */
+        /* send another segmented seek */
         GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
         GstEvent *event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
           GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,

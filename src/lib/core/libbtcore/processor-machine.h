@@ -1,4 +1,4 @@
-/* $Id: processor-machine.h,v 1.14 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: processor-machine.h,v 1.15 2005-12-23 14:03:03 ensonic Exp $
  * class for a processor machine
  */
 
@@ -35,7 +35,7 @@ struct _BtProcessorMachine {
 };
 /* structure of the processor_machine class */
 struct _BtProcessorMachineClass {
-  BtMachineClass parent_class;
+  BtMachineClass parent;
 };
 
 /* used by PROCESSOR_MACHINE_TYPE */
@@ -43,10 +43,10 @@ GType bt_processor_machine_get_type(void) G_GNUC_CONST;
 
 /**
  * BtProcessorMachinePatternIndex:
- * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_BREAK: 
- * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_MUTE:
- * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_BYPASS:
- * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_OFFSET:
+ * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_BREAK: stop the pattern
+ * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_MUTE: mute the machine
+ * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_BYPASS: bypass the machine
+ * @BT_PROCESSOR_MACHINE_PATTERN_INDEX_OFFSET: offset for real pattern ids
  *
  * Use this with bt_machine_get_pattern_by_index() to get the command patterns.
  */

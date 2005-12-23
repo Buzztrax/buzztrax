@@ -1,4 +1,4 @@
-/* $Id: song-info.h,v 1.13 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: song-info.h,v 1.14 2005-12-23 14:03:03 ensonic Exp $
  * class for a song metadata
  */
 
@@ -34,7 +34,7 @@ struct _BtSongInfo {
 };
 /* structure of the SongInfo class */
 struct _BtSongInfoClass {
-  GObjectClass parent_class;
+  GObjectClass parent;
 };
 
 /* used by SONG_INFO_TYPE */

@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.20 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: machine.h,v 1.21 2005-12-23 14:03:03 ensonic Exp $
  * base class for a machine
  */
 
@@ -39,7 +39,7 @@ struct _BtMachine {
 };
 /* structure of the machine class */
 struct _BtMachineClass {
-  GObjectClass parent_class;
+  GObjectClass parent;
 
   void (*pattern_added_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
   void (*pattern_removed_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);

@@ -1,8 +1,9 @@
-// $Id: song-info.c,v 1.35 2005-09-19 16:14:06 ensonic Exp $
+// $Id: song-info.c,v 1.36 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
  *
+ * Exposes the meta-data of a song as #GObject properties.
  */ 
  
 #define BT_CORE

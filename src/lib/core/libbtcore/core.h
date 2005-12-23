@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.70 2005-11-06 19:57:36 ensonic Exp $
+/* $Id: core.h,v 1.71 2005-12-23 14:03:03 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -122,6 +122,7 @@
   
 /**
  * XML_CHAR_PTR:
+ * @str: the string to cast
  *
  * Cast to xmlChar*
  */
@@ -181,7 +182,7 @@
 #define G_STRUCT_SIZE(s) (guint16)sizeof(s)
 
 /**
- * is_string:
+ * BT_IS_STRING:
  * @a: string pointer
  *
  * checks if the supplied string pointer is not %NULL and contains not just '\0'

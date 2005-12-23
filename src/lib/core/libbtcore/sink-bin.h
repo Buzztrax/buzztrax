@@ -1,4 +1,4 @@
-/* $Id: sink-bin.h,v 1.2 2005-11-28 22:25:38 ensonic Exp $
+/* $Id: sink-bin.h,v 1.3 2005-12-23 14:03:03 ensonic Exp $
  * class for a sink bin
  */
 
@@ -35,13 +35,13 @@ struct _BtSinkBin {
 };
 /* structure of the sink_bin class */
 struct _BtSinkBinClass {
-  GstBinClass parent_class;
+  GstBinClass parent;
 };
 
 #define BT_TYPE_SINK_BIN_MODE       (bt_sink_bin_mode_get_type())
 
 /**
- * BtSinkMachineMode:
+ * BtSinkBinMode:
  * @BT_SINK_BIN_MODE_PLAY: play the song
  * @BT_SINK_BIN_MODE_RECORD: record to file
  * @BT_SINK_BIN_MODE_PLAY_AND_RECORD: play and record together
@@ -58,7 +58,7 @@ typedef enum {
 #define BT_TYPE_SINK_BIN_RECORD_FORMAT (bt_sink_bin_record_format_get_type())
 
 /**
- * BtSinkMachineRecordFormat:
+ * BtSinkBinRecordFormat:
  * @BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS: ogg vorbis
  * @BT_SINK_BIN_RECORD_FORMAT_MP3: mp3
  * @BT_SINK_BIN_RECORD_FORMAT_WAV: wav

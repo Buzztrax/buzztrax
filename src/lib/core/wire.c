@@ -1,7 +1,11 @@
-// $Id: wire.c,v 1.65 2005-09-28 19:34:56 ensonic Exp $
+// $Id: wire.c,v 1.66 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
+ *
+ * Abstracts connection between two #BtMachines. After creation, the elements
+ * are connected. In contrast to directly wiring #GstElements this insert needed
+ * conversion elements automatically.
  */ 
  
 /*

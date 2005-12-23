@@ -1,9 +1,10 @@
-// $Id: processor-machine.c,v 1.30 2005-09-21 19:46:03 ensonic Exp $
+// $Id: processor-machine.c,v 1.31 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
  * outputs
  *
+ * Processors are machines that alter incomming audio.
  */ 
 
 #define BT_CORE

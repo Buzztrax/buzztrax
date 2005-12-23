@@ -1,18 +1,22 @@
-// $Id: plainfile-settings.c,v 1.14 2005-11-22 16:16:23 ensonic Exp $
+// $Id: plainfile-settings.c,v 1.15 2005-12-23 14:03:02 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
  * settings handling
+ *
+ * Platform independent implementation for persistence of application settings.
  */ 
 
 /*
-idea is to use a XML file liek below
-<settings>
-  <setting name="" value=""/>
-  ...
-</settings>
-at init the whole document is loaded and
-get/set methods use xpath expr to get the nodes.
+  idea1: is to use a XML file like below
+  <settings>
+    <setting name="" value=""/>
+    ...
+  </settings>
+  at init the whole document is loaded and
+  get/set methods use xpath expr to get the nodes.
+ 
+  idea2: is to use ini-files via glib
 */
 
 #define BT_CORE

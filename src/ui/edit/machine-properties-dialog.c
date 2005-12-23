@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.41 2005-12-23 09:02:06 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.42 2005-12-23 14:03:03 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -153,21 +153,23 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
 static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_global_param_index(machine,name,NULL);
   GValue int_value={0,};
   
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
-  return(bt_machine_describe_global_param_value(machine,name,&int_value));
+  return(bt_machine_describe_global_param_value(machine,index,&int_value));
 }
 
 static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_voice_param_index(machine,name,NULL);
   GValue int_value={0,};
   
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
-  return(bt_machine_describe_voice_param_value(machine,name,&int_value));
+  return(bt_machine_describe_voice_param_value(machine,index,&int_value));
 }
 
 //-- helper methods

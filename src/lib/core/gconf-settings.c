@@ -1,8 +1,11 @@
-// $Id: gconf-settings.c,v 1.23 2005-12-11 17:27:58 ensonic Exp $
+// $Id: gconf-settings.c,v 1.24 2005-12-23 14:03:02 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
  * settings handling
+ *
+ * GConf is the standart mechanism used in GNOME to handle persistance of
+ * application settings and status. 
  */
 
 #define BT_CORE
