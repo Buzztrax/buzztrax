@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.169 2005-12-09 10:34:04 ensonic Exp $
+// $Id: machine.c,v 1.170 2005-12-23 09:02:06 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -493,7 +493,7 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
     return;
   }
 
-  g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
+  g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
 
   // @todo make it use g_renew0()
   // this is not as easy as it sounds (realloc does not know how big the old mem was)
@@ -616,7 +616,7 @@ gboolean bt_machine_new(BtMachine *self) {
   }
   // initialize child-proxy iface properties
   if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
-    g_object_set(self->priv->machines[PART_MACHINE],"voices",self->priv->voices,NULL);
+    g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
     GST_INFO("  child proxy iface initialized");
   }
   // initialize tempo iface properties
@@ -1674,7 +1674,7 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index,
 /**
  * bt_machine_describe_global_param_value:
  * @self: the machine to get a param description from
- * @index: the offset in the list of global params
+ * @name: the name of the property to describe
  * @event: the value to describe
  *
  * Described a param value in human readable form. The type of the given @value
@@ -1682,12 +1682,14 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index,
  *
  * Returns: the description as newly allocated string
  */
-gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event) {
+gchar *bt_machine_describe_global_param_value(const BtMachine *self, const gchar *name, GValue *event) {
   gchar *str=NULL;
+  glong index=bt_machine_get_global_param_index(self,name,NULL);
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<self->priv->global_params,NULL);
+  g_return_val_if_fail(BT_IS_STRING(name),NULL);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
+
 
   if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
     str=gst_property_meta_describe_property(GST_PROPERTY_META(self->priv->machines[PART_MACHINE]),index,event);
@@ -1698,7 +1700,7 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong inde
 /**
  * bt_machine_describe_voice_param_value:
  * @self: the machine to get a param description from
- * @index: the offset in the list of voice params
+ * @name: the name of the property to describe
  * @event: the value to describe
  *
  * Described a param value in human readable form. The type of the given @value
@@ -1706,11 +1708,12 @@ gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong inde
  *
  * Returns: the description as newly allocated string
  */
-gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event) {
+gchar *bt_machine_describe_voice_param_value(const BtMachine *self, const gchar *name, GValue *event) {
   gchar *str=NULL;
+  glong index=bt_machine_get_voice_param_index(self,name,NULL);
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<self->priv->voice_params,NULL);
+  g_return_val_if_fail(BT_IS_STRING(name),NULL);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
   
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {

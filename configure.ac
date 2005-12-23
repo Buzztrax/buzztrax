@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.67 2005-12-09 10:34:03 ensonic Exp $
+# $Id: configure.ac,v 1.68 2005-12-23 09:02:05 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -199,15 +199,6 @@ PKG_CHECK_MODULES(GUI_DEPS, \
   libgnomecanvas-2.0
 )
 
-glib_prefix="`pkg-config --variable=prefix glib-2.0`"
-gtk_prefix="`pkg-config --variable=prefix gtk+-2.0`"
-gst_prefix="`pkg-config --variable=prefix gstreamer-0.10`"
-gcanvas_prefix="`pkg-config --variable=prefix libgnomecanvas-2.0`"
-AC_SUBST(glib_prefix)
-AC_SUBST(gtk_prefix)
-AC_SUBST(gst_prefix)
-AC_SUBST(gcanvas_prefix)
-
 PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
     AM_CONDITIONAL(USE_GCONF, true)
     AC_DEFINE(USE_GCONF, [1], [Define to 1 if we can use GConf])
@@ -236,6 +227,15 @@ PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.0.1, [
 #    AM_CONDITIONAL(USE_GTKGRID,false)
 # ]
 #)
+
+glib_prefix="`pkg-config --variable=prefix glib-2.0`"
+gtk_prefix="`pkg-config --variable=prefix gtk+-2.0`"
+gst_prefix="`pkg-config --variable=prefix gstreamer-0.10`"
+gcanvas_prefix="`pkg-config --variable=prefix libgnomecanvas-2.0`"
+AC_SUBST(glib_prefix)
+AC_SUBST(gtk_prefix)
+AC_SUBST(gst_prefix)
+AC_SUBST(gcanvas_prefix)
 
 AC_MSG_CHECKING([glib version >= 2.6])
 if pkg-config --atleast-version=2.6 glib-2.0; then

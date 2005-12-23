@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.9 2005-12-11 17:27:58 ensonic Exp $
+// $Id: sink-bin.c,v 1.10 2005-12-23 09:02:06 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -100,6 +100,8 @@ static void bt_sink_bin_clear(const BtSinkBin *self) {
 static gboolean bt_sink_bin_add_many(const BtSinkBin *self,GList *list) {
   GList *node;
   
+  GST_DEBUG("add elements: list=%p",list);
+  
   for(node=list;node;node=node->next) {
     gst_bin_add(GST_BIN(self),GST_ELEMENT(node->data));
   }
@@ -109,6 +111,9 @@ static gboolean bt_sink_bin_add_many(const BtSinkBin *self,GList *list) {
 static void bt_sink_bin_link_many(const BtSinkBin *self,GstElement *last_elem,GList *list) {
   GList *node;
   GstElement *cur_elem;
+  
+  GST_DEBUG("link elements: list=%p",list);
+  if(!list) return;
  
   for(node=list;node;node=node->next) {
     cur_elem=GST_ELEMENT(node->data);
@@ -186,11 +191,16 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
 static GList *bt_sink_bin_get_player_elements(const BtSinkBin *self) {
   GList *list=NULL;
   gchar *plugin_name;
+  GstElement *element;
 
   plugin_name=bt_sink_bin_determine_plugin_name();
-  list=g_list_append(list,gst_element_factory_make(plugin_name,"player"));
-  g_free(plugin_name);
+  if(!(element=gst_element_factory_make(plugin_name,"player"))) {
+    GST_INFO("Can't instantiate '%d' element",plugin_name);goto Error;
+  }
+  list=g_list_append(list,element);
   
+Error:
+  g_free(plugin_name);
   return(list);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.37 2005-10-07 20:33:19 ensonic Exp $
+/* $Id: machine-methods.h,v 1.38 2005-12-23 09:02:06 ensonic Exp $
  * defines all public methods of the machine base class
  */
 
@@ -60,8 +60,8 @@ extern gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong 
 extern gboolean bt_machine_is_global_param_no_value(const BtMachine *self, gulong index, GValue *value);
 extern gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index, GValue *value);
 
-extern gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event);
-extern gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event);
+extern gchar *bt_machine_describe_global_param_value(const BtMachine *self, const gchar *name, GValue *event);
+extern gchar *bt_machine_describe_voice_param_value(const BtMachine *self, const gchar *name, GValue *event);
 
 // controller handling
 
