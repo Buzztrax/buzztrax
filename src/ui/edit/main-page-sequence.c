@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.91 2005-12-16 21:54:43 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.92 2005-12-27 11:49:52 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -707,7 +707,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   //GST_INFO("sequence tick received : %d",pos);
   
   // do nothing for invisible rows
-  if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) return;
+  if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars) || !GTK_WIDGET_REALIZED(self->priv->sequence_table)) return;
   // scroll  to make play pos visible
   if((path=gtk_tree_path_new_from_indices(pos,-1))) {
     // that would try to keep the cursor in the middle (means it will scroll more)

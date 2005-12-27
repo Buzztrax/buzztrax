@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.12 2005-08-05 09:36:18 ensonic Exp $
+// $Id: sequence-view.c,v 1.13 2005-12-27 11:49:52 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: 
@@ -114,7 +114,7 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
   
 }
 
-static void bt_sequence_view_unrealize (GtkWidget *widget) {
+static void bt_sequence_view_unrealize(GtkWidget *widget) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
   // first let the parent realize itslf
@@ -217,21 +217,29 @@ static void bt_sequence_view_set_property(GObject      *object,
     } break;
     case SEQUENCE_VIEW_PLAY_POSITION: {
       self->priv->play_pos = g_value_get_double(value);
-      gtk_widget_queue_draw(GTK_WIDGET(self));
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+	gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
     } break;
     case SEQUENCE_VIEW_LOOP_START: {
       self->priv->loop_start = g_value_get_double(value);
       GST_DEBUG("set the loop-start for sequence_view: %f",self->priv->loop_start);
-      gtk_widget_queue_draw(GTK_WIDGET(self));
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+	gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
     } break;
     case SEQUENCE_VIEW_LOOP_END: {
       self->priv->loop_end = g_value_get_double(value);
       GST_DEBUG("set the loop-end for sequence_view: %f",self->priv->loop_end);
-      gtk_widget_queue_draw(GTK_WIDGET(self));
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+	gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {
       self->priv->visible_rows = g_value_get_ulong(value);
-      gtk_widget_queue_draw(GTK_WIDGET(self));
+      if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
+	gtk_widget_queue_draw(GTK_WIDGET(self));
+      }
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -323,7 +331,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      1.0,
                                      G_PARAM_WRITABLE));
 
-g_object_class_install_property(gobject_class,SEQUENCE_VIEW_VISIBLE_ROWS,
+  g_object_class_install_property(gobject_class,SEQUENCE_VIEW_VISIBLE_ROWS,
                                   g_param_spec_ulong("visible-rows",
                                      "visible rows prop.",
                                      "The number of currntly visible sequence rows",
