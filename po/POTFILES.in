@@ -1,4 +1,6 @@
+src/lib/buzztard.keys.in
 src/lib/buzztard.xml.in
+src/lib/core/core.c
 src/lib/core/pattern.c
 src/lib/core/song-io-native.c
 src/ui/cmd/bt-cmd.c

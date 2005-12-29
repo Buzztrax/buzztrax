@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.17 2005-12-03 16:24:21 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.18 2005-12-29 21:10:39 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -40,9 +40,9 @@ static void on_range_property_notify(const GstElement *machine,GParamSpec *prope
   //GST_INFO("preferences value notify received for: '%s'",property->name);
   
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  gdk_threads_enter();
+  //gdk_threads_enter();
   gtk_range_set_value(GTK_RANGE(widget),value);
-  gdk_threads_leave();
+  //gdk_threads_leave();
 }
 
 static void on_double_entry_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -56,9 +56,9 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
   
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
   str_value=g_strdup_printf("%f",value);
-  gdk_threads_enter();
+  //gdk_threads_enter();
   gtk_entry_set_text(GTK_ENTRY(widget),str_value);
-  gdk_threads_leave();
+  //gdk_threads_leave();
   g_free(str_value);
 }
 
@@ -69,9 +69,9 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
   g_assert(user_data);
   
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  gdk_threads_enter();
+  //gdk_threads_enter();
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
-  gdk_threads_leave();
+  //gdk_threads_leave();
 }
 
 static void on_range_property_changed(GtkRange *range,gpointer user_data) {

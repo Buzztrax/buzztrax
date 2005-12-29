@@ -1,5 +1,2 @@
 design/gui/buzztard.glade
-design/gui/sequence.glade
-design/gui/src/interface.c
-design/gui/src/support.c
 src/ui/edit/bt-edit.desktop.in.in

@@ -25,6 +25,9 @@
   <xsd:attribute name="pattern" type="xsd:string"/>
   <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="url" type="xsd:string"/>
+  <xsd:attribute name="loop" type="xsd:string"/>
+  <xsd:attribute name="loop-start" type="xsd:integer"/>
+  <xsd:attribute name="loop-end" type="xsd:integer"/>
   
   <xsd:element name="info" type="xsd:string"/>
   <xsd:element name="name" type="xsd:string"/>
@@ -230,6 +233,9 @@
         <xsd:element ref="labels" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="tracks" minOccurs="1" maxOccurs="1"/>
       </xsd:sequence>
+      <xsd:attribute ref="loop" use="optional"/>
+      <xsd:attribute ref="loop-start" use="optional"/>
+      <xsd:attribute ref="loop-end" use="optional"/>
     </xsd:complexType>
   </xsd:element>
   

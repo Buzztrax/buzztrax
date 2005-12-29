@@ -83,7 +83,7 @@
     </pattern>
   </patterns>
   
-  <sequence>
+  <sequence loop="on" loop-start="4" loop-end="32">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>

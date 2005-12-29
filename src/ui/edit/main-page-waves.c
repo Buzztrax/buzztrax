@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.27 2005-12-23 17:13:01 ensonic Exp $
+// $Id: main-page-waves.c,v 1.28 2005-12-29 21:10:39 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -287,6 +287,17 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   // this causes warning on gtk 2.x
   // Gtk-CRITICAL **: gtk_file_system_path_is_local: assertion `path != NULL' failed
   self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
+  /* this does not help :(
+  {
+    gchar *current_dir,*current_dir_uri;
+
+    current_dir = g_get_current_dir ();
+    current_dir_uri = g_filename_to_uri (current_dir, NULL, NULL);
+    g_free(current_dir);
+    gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(self->priv->file_chooser),current_dir_uri);
+    g_free(current_dir_uri);
+  }
+  */
   gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
 
   //   vbox (sample view)

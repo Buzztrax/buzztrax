@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.95 2005-12-23 14:03:03 ensonic Exp $
+// $Id: song-io-native.c,v 1.96 2005-12-29 21:10:39 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -155,6 +155,13 @@ static xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprP
 }
 
 //-- string formatting helper
+
+static const gchar *strfmt_long(glong val) {
+  static gchar str[20];
+
+  g_sprintf(str,"%ld",val);
+  return(str);
+}
 
 static const gchar *strfmt_ulong(gulong val) {
   static gchar str[20];
@@ -643,7 +650,22 @@ static gboolean bt_song_io_native_load_sequence(const BtSongIONative *self, cons
 
     GST_INFO(" got sequence root node with %d items",items_len);
     if(items_len==1) {
+      xmlChar *loop_str,*loop_start_str,*loop_end_str;
+      gboolean loop;
+      glong loop_start,loop_end;
+      
       xml_node=xmlXPathNodeSetItem(items,0);
+      
+      // get loop settings
+      loop_str=xmlGetProp(xml_node,XML_CHAR_PTR("loop"));
+      loop_start_str=xmlGetProp(xml_node,XML_CHAR_PTR("loop-start"));
+      loop_end_str=xmlGetProp(xml_node,XML_CHAR_PTR("loop-end"));
+      loop_start=loop_start_str?atol((char *)loop_start_str):-1;
+      loop_end=loop_end_str?atol((char *)loop_end_str):-1;
+      loop=loop_str?!strncasecmp((char *)loop_str,"on\0",3):FALSE;
+      g_object_set(sequence,"loop",loop,"loop-start",loop_start,"loop-end",loop_end,NULL);
+      xmlFree(loop_str);xmlFree(loop_start_str);xmlFree(loop_end_str);
+      
       bt_song_io_native_get_sequence_length(self,song,song_doc,xml_node);
             
       bt_song_io_native_load_sequence_labels(self,song,song_doc,xml_node);
@@ -1083,8 +1105,20 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
 
 static gboolean bt_song_io_native_save_sequence(const BtSongIONative *self, const BtSong *song, const xmlDocPtr song_doc,xmlNodePtr root_node) {
   xmlNodePtr xml_node,xml_child_node;
+  BtSequence *sequence;
+  gboolean loop;
+  glong loop_start,loop_end;
+  
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  g_object_get(sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
+  g_object_try_unref(sequence);
 
   xml_node=xmlNewChild(root_node,NULL,XML_CHAR_PTR("sequence"),NULL);
+  if(loop) {
+    xmlNewProp(xml_node,XML_CHAR_PTR("loop"),XML_CHAR_PTR("on"));
+    xmlNewProp(xml_node,XML_CHAR_PTR("loop-start"),XML_CHAR_PTR(strfmt_long(loop_start)));
+    xmlNewProp(xml_node,XML_CHAR_PTR("loop-end"),XML_CHAR_PTR(strfmt_long(loop_end)));
+  }
   
   xml_child_node=xmlNewChild(xml_node,NULL,XML_CHAR_PTR("labels"),NULL);
   bt_song_io_native_save_sequence_labels(self,song,song_doc,xml_child_node);

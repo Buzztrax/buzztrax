@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.27 2005-10-13 15:52:24 ensonic Exp $
+// $Id: bt-edit.c,v 1.28 2005-12-29 21:10:39 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -47,11 +47,13 @@ int main(int argc, char **argv) {
   // in case we ever want to use a custom theme for buzztard:
   // gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S"buzztard"G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
   
+  /*
   if(!g_thread_supported()) {  // are g_threads() already initialized
     g_thread_init(NULL);
   }
   gdk_threads_init();
   bt_threads_init();
+  */
 
   // init libraries
   ctx = g_option_context_new(NULL);
@@ -72,7 +74,7 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-  gdk_threads_enter();
+  //gdk_threads_enter();
   app=bt_edit_application_new();
   if(command) {
     // depending on the popt options call the correct method
@@ -95,7 +97,7 @@ int main(int argc, char **argv) {
   else {
     res=bt_edit_application_run(app);
   }
-  gdk_threads_leave();
+  //gdk_threads_leave();
   
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);

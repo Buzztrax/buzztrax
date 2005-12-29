@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.71 2005-12-23 17:13:01 ensonic Exp $
+// $Id: main-toolbar.c,v 1.72 2005-12-29 21:10:40 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -42,6 +42,7 @@ struct _BtMainToolbarPrivate {
   GtkWidget *save_button;
   GtkWidget *play_button;
   GtkWidget *stop_button;
+  GtkWidget *loop_button;
   
   /* update handler id */
   guint playback_update_id;
@@ -304,8 +305,10 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   BtSong *song;
+  BtSequence *sequence;
   BtSinkMachine *master;
   GstElement *level;
+  gboolean loop;
 
   g_assert(user_data);
 
@@ -315,7 +318,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
 
-  g_object_get(G_OBJECT(song),"master",&master,NULL);
+  g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,NULL);
+  g_object_get(sequence,"loop",&loop,NULL);
+  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->loop_button),loop);
+  
   if(master) {
     GstPad *pad;
     //GstBus *bus;
@@ -346,10 +352,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     //gst_object_unref(bus);
     g_object_unref(master);
-  }
+  }  
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  g_object_unref(sequence);
   g_object_unref(song);
 }
 
@@ -427,6 +434,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Toggle looping of playback"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
+  self->priv->loop_button=tool_item;
 
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
   
