@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.171 2005-12-23 14:03:02 ensonic Exp $
+// $Id: machine.c,v 1.172 2005-12-30 15:50:56 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -862,8 +862,8 @@ gboolean bt_machine_enable_input_level(BtMachine *self) {
     GST_ERROR("failed to create input level analyser for '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
   }
   g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
-    "interval",0.1,"message",TRUE,
-    "peak-ttl",0.2,"peak-falloff", 20.0,
+    "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
+    "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 20.0,
     NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_INPUT_LEVEL]);
   // is the machine unconnected towards the input side (its sink)?

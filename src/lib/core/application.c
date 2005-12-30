@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.44 2005-12-23 17:12:59 ensonic Exp $
+// $Id: application.c,v 1.45 2005-12-30 15:50:56 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -282,8 +282,9 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   
   bus=gst_element_get_bus(self->priv->bin);
+  g_assert(GST_IS_BUS(bus));
   gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
-  g_object_unref(bus);
+  gst_object_unref(bus);
   
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);

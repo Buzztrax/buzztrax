@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.103 2005-12-23 17:12:59 ensonic Exp $
+// $Id: song.c,v 1.104 2005-12-30 15:50:57 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -589,11 +589,30 @@ static void bt_song_set_property(GObject      *object,
       GST_DEBUG("set the unsaved flag for the song: %d",self->priv->unsaved);
     } break;
     case SONG_PLAY_POS: {
-      self->priv->play_pos = g_value_get_ulong(value);
-      // @todo limit playpos
-      //bt_sequence_limit_play_pos(self);
-      // @todo seek on playpos changes (if playing)
+      self->priv->play_pos=bt_sequence_limit_play_pos(self->priv->sequence,g_value_get_ulong(value));
       GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
+      // seek on playpos changes (if playing)
+      if(self->priv->is_playing) {
+        GstEvent *event;
+        gboolean loop;
+        glong loop_start,loop_end,length;
+        GstClockTime bar_time;
+        
+        g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
+        bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+        if (loop) {
+          event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+              GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+              GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
+              GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
+        }
+        else {
+          event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+              GST_SEEK_FLAG_FLUSH,
+              GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
+              GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
+        }
+      }
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

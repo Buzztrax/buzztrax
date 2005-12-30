@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.72 2005-11-28 22:25:38 ensonic Exp $
+// $Id: cmd-application.c,v 1.73 2005-12-30 15:50:57 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -58,12 +58,12 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   gulong msec,sec,min;
   gulong length,pos=0;
 
+  // DEBUG
+  bt_song_write_to_dot_file(song);
+  // DEBUG
+
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   g_object_get(G_OBJECT(sequence),"length",&length,NULL);
-  
-  //DEBUG
-  bt_song_write_to_dot_file(song);
-  //DEBUG
 
   // connection play and stop signals
   g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);

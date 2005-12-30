@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.90 2005-09-22 18:26:29 ensonic Exp $
+// $Id: sequence.c,v 1.91 2005-12-30 15:50:57 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -22,8 +22,7 @@ enum {
   SEQUENCE_TRACKS,
   SEQUENCE_LOOP,
   SEQUENCE_LOOP_START,
-  SEQUENCE_LOOP_END,
-  SEQUENCE_PLAY_POS
+  SEQUENCE_LOOP_END
 };
 
 struct _BtSequencePrivate {
@@ -57,11 +56,11 @@ struct _BtSequencePrivate {
   /* OBSOLETE <length> timeline entries that form the sequence */
   //BtTimeLine **timelines;
 
-  /* flag to externally abort playing */
-  GMutex *is_playing_mutex;
-  gboolean volatile is_playing;
-  
-  gulong play_pos,play_start,play_end;
+  /* OBSOLETE playing variables */
+  //GMutex *is_playing_mutex;
+  //gboolean volatile is_playing;
+  //gulong play_pos;
+  gulong play_start,play_end;
   
   /* manages damage regions for updating gst-controller queues after changes */
   GHashTable *damage;
@@ -240,20 +239,19 @@ static void bt_sequence_resize_data_tracks(const BtSequence *self, gulong tracks
 }
 
 /*
- * bt_sequence_limit_play_pos:
+ * bt_sequence_limit_play_pos_internal:
  * @self: the sequence to trim the play position of
  *
  * Enforce the playback position to be within loop start and end or the song
  * bounds if there is no loop.
  */
-static void bt_sequence_limit_play_pos(const BtSequence *self) {
-  if(self->priv->play_pos>self->priv->play_end) {
-    self->priv->play_pos=self->priv->play_end;
-    g_object_notify(G_OBJECT(self),"play-pos");
-  }
-  if(self->priv->play_pos<self->priv->play_start) {
-    self->priv->play_pos=self->priv->play_start;
-    g_object_notify(G_OBJECT(self),"play-pos");
+void bt_sequence_limit_play_pos_internal(const BtSequence *self) {
+  gulong old_play_pos,new_play_pos;
+  
+  g_object_get(self->priv->song,"play-pos",&old_play_pos,NULL);
+  new_play_pos=bt_sequence_limit_play_pos(self,old_play_pos);
+  if(new_play_pos!=old_play_pos) {
+    g_object_set(self->priv->song,"play-pos",new_play_pos,NULL);
   }
 }
 
@@ -899,112 +897,23 @@ GstClockTime bt_sequence_get_loop_time(const BtSequence *self) {
 }
 
 /**
- * bt_sequence_play:
- * @self: the #BtSequence that should be played
+ * bt_sequence_limit_play_pos:
+ * @self: the sequence to trim the play position of
+ * @play_pos: the time position to lock inbetween loop-boundaries
  *
- * starts playback for the sequence
+ * Enforce the playback position to be within loop start and end or the song
+ * bounds if there is no loop.
  *
- * Returns: %TRUE for success
- *
+ * Returns: the new @play_pos
  */
-gboolean bt_sequence_play(const BtSequence *self) {
-  gboolean res=TRUE;
-  GstElement *bin;
-  GstClockTime wait_per_position;
-  GstClock *clock;
-  GstClockID clock_id;
-  GstClockReturn wait_ret;
-  // DEBUG {
-  //GTimer *timer;
-  // }
-  
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
-	
-  // do not play again
-  if(self->priv->is_playing) return(TRUE);
-  
-  if((!self->priv->tracks) || (!self->priv->length) || self->priv->is_playing) {
-    GST_WARNING(" song is empty or already playing");
-    return(FALSE);
+gulong bt_sequence_limit_play_pos(const BtSequence *self,gulong play_pos) {
+  if(play_pos>self->priv->play_end) {
+    play_pos=self->priv->play_end;
   }
-
-  wait_per_position=bt_sequence_get_bar_time(self);
-  g_object_get(G_OBJECT(self->priv->song),"bin",&bin,NULL);
-  clock=gst_pipeline_get_clock(GST_PIPELINE(bin));
-  clock_id=gst_clock_new_periodic_id(clock,0,wait_per_position);
-  
-  GST_INFO("song.duration = %d * %d usec = %ld sec",self->priv->length,wait_per_position,(gulong)(((GstClockTime)self->priv->length*(GstClockTime)wait_per_position)/GST_SECOND));
-  GST_INFO("  play_start,pos,end: %d,%d,%d",self->priv->play_start,self->priv->play_pos,self->priv->play_end);
-  GST_INFO("  loop_start,end: %d,%d",self->priv->loop_start,self->priv->loop_end);
-  GST_INFO("  length: %d",self->priv->length);
-
-  // prepare playback
-  if(gst_element_set_state(bin,GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to paused state");
-    return(FALSE);
+  if(play_pos<self->priv->play_start) {
+    play_pos=self->priv->play_start;
   }
-  
-  // send seek to starting time
-
-  if(gst_element_set_state(bin,GST_STATE_PLAYING)!=GST_STATE_CHANGE_FAILURE) {
-    g_mutex_lock(self->priv->is_playing_mutex);
-    self->priv->is_playing=TRUE;
-    g_mutex_unlock(self->priv->is_playing_mutex);
-    //timer=g_timer_new();
-    //g_timer_start(timer);
-
-    do {
-      for(;((self->priv->play_pos<self->priv->play_end) && (self->priv->is_playing));self->priv->play_pos++) {
-        //GST_INFO("Playing sequence : position = %d, time elapsed = %lf sec",i,g_timer_elapsed(timer,NULL));
-        g_object_notify(G_OBJECT(self),"play-pos");
-        // seems to block our app, even though it runs in a thread
-        if((wait_ret=gst_clock_id_wait(clock_id,NULL))!=GST_CLOCK_OK) {
-          GST_WARNING("gst_clock_id_wait() returned %d",wait_ret);
-        }
-        // try to figure if above is broken
-        //usleep(wait_per_position);
-      }
-      self->priv->play_pos=self->priv->play_start;
-      g_object_notify(G_OBJECT(self),"play-pos");
-    } while((self->priv->loop) && (self->priv->is_playing));
-    self->priv->is_playing=FALSE;
-    //g_timer_destroy(timer);
-
-    if(gst_element_set_state(bin,GST_STATE_NULL)==GST_STATE_CHANGE_FAILURE) {
-      GST_ERROR("can't stop playing");res=FALSE;
-    }
-    GST_INFO("  playing done");
-  }
-  else {
-    GST_ERROR("can't start playing");res=FALSE;
-  }
-  // release the references
-  gst_clock_id_unref(clock_id);
-  gst_object_unref(clock);
-  gst_object_unref(bin);
-  return(res);
-}
-
-/**
- * bt_sequence_stop:
- * @self: the #BtSequence that should be stopped
- *
- * stops playback for the sequence
- *
- * Returns: %TRUE for success
- *
- */
-gboolean bt_sequence_stop(const BtSequence *self) {
-  
-  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
-
-  // do not stop if not playing
-  if(!self->priv->is_playing) return(TRUE);
-
-  g_mutex_lock(self->priv->is_playing_mutex);
-  self->priv->is_playing=FALSE;
-  g_mutex_unlock(self->priv->is_playing_mutex);
-  return(TRUE);
+  return(play_pos);
 }
 
 //-- wrapper
@@ -1040,9 +949,6 @@ static void bt_sequence_get_property(GObject      *object,
     case SEQUENCE_LOOP_END: {
       g_value_set_long(value, self->priv->loop_end);
     } break;
-    case SEQUENCE_PLAY_POS: {
-      g_value_set_ulong(value, self->priv->play_pos);
-    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -1067,8 +973,8 @@ static void bt_sequence_set_property(GObject      *object,
       //GST_DEBUG("set the song for sequence: %p",self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
-      // check if song is playing
-      if(self->priv->is_playing) bt_sequence_stop(self);
+      // @todo: remove or better stop the song
+      // if(self->priv->is_playing) bt_sequence_stop(self);
       // prepare new data
       length=self->priv->length;
       self->priv->length = g_value_get_ulong(value);
@@ -1084,12 +990,12 @@ static void bt_sequence_set_property(GObject      *object,
         else {
           self->priv->play_end=self->priv->length;
         }
-        bt_sequence_limit_play_pos(self);
+        bt_sequence_limit_play_pos_internal(self);
       }
     } break;
     case SEQUENCE_TRACKS: {
-      // check if song is playing
-      if(self->priv->is_playing) bt_sequence_stop(self);
+      // @todo: remove or better stop the song
+      //if(self->priv->is_playing) bt_sequence_stop(self);
       // prepare new data      
       tracks=self->priv->tracks;
       self->priv->tracks = g_value_get_ulong(value);
@@ -1108,20 +1014,15 @@ static void bt_sequence_set_property(GObject      *object,
       self->priv->loop_start = g_value_get_long(value);
       GST_DEBUG("set the loop-start for sequence: %ld",self->priv->loop_start);
       self->priv->play_start=(self->priv->loop_start!=-1)?self->priv->loop_start:0;
-      bt_sequence_limit_play_pos(self);
+      bt_sequence_limit_play_pos_internal(self);
       bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP_END: {
       self->priv->loop_end = g_value_get_long(value);
       GST_DEBUG("set the loop-end for sequence: %ld",self->priv->loop_end);
       self->priv->play_end=(self->priv->loop_end!=-1)?self->priv->loop_end:self->priv->length;
-      bt_sequence_limit_play_pos(self);
+      bt_sequence_limit_play_pos_internal(self);
       bt_song_set_unsaved(self->priv->song,TRUE);
-    } break;
-    case SEQUENCE_PLAY_POS: {
-      self->priv->play_pos = g_value_get_ulong(value);
-      bt_sequence_limit_play_pos(self);
-      GST_DEBUG("set the play-pos for sequence: %lu",self->priv->play_pos);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -1163,7 +1064,6 @@ static void bt_sequence_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_mutex_free(self->priv->is_playing_mutex);
   g_free(self->priv->machines);
   g_free(self->priv->labels);
   g_free(self->priv->patterns);
@@ -1181,7 +1081,6 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->dispose_has_run = FALSE;
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
-  self->priv->is_playing_mutex=g_mutex_new();
   self->priv->damage=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
 }
 
@@ -1245,14 +1144,6 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
                                      -1,
                                      G_PARAM_READWRITE));
 
-  g_object_class_install_property(gobject_class,SEQUENCE_PLAY_POS,
-                                  g_param_spec_ulong("play-pos",
-                                     "play-pos prop",
-                                     "position of the play cursor of the sequence in timeline bars",
-                                     0,
-                                     G_MAXLONG,  // loop-pos are LONG as well
-                                     0,
-                                     G_PARAM_READWRITE));
 }
 
 GType bt_sequence_get_type(void) {
