@@ -1,10 +1,10 @@
-// $Id: main-toolbar.c,v 1.72 2005-12-29 21:10:40 ensonic Exp $
+// $Id: main-toolbar.c,v 1.73 2006-01-01 19:27:27 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
  */ 
 
-/* @todo: should we have separate the toolbars?
+/* @todo: should we separate the toolbars?
  * - common - load, save, ...
  * - volume - gain, levels
  * - load - cpu load
@@ -215,20 +215,24 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
     case GST_MESSAGE_ELEMENT: {
       BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
       const GstStructure *structure=gst_message_get_structure(message);
-      const GValue *l_rms,*l_peak;
-      gdouble rms, peak;
-      guint i;
-
-      l_rms=(GValue *)gst_structure_get_value(structure, "rms");
-      l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-      //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-      for(i=0;i<gst_value_list_get_size(l_rms);i++) {
-        rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
-        peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-        GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
-        gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
+      const gchar *name = gst_structure_get_name(structure);
+      
+      if(!strcmp(name,"level")) {
+        const GValue *l_rms,*l_peak;
+        gdouble rms, peak;
+        guint i;
+  
+        l_rms=(GValue *)gst_structure_get_value(structure, "rms");
+        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+        //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+        for(i=0;i<gst_value_list_get_size(l_rms);i++) {
+          rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
+          peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
+          GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
+          gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
+        }
+        res=TRUE;
       }
-      res=TRUE;
       break;
     default:
       //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
@@ -352,7 +356,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     //gst_object_unref(bus);
     g_object_unref(master);
-  }  
+  }
+  else {
+    GST_WARNING("failed to get the master element of the song");
+  }
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);

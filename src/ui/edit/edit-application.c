@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.66 2005-09-19 16:14:06 ensonic Exp $
+// $Id: edit-application.c,v 1.67 2006-01-01 19:27:27 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -218,6 +218,9 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
           if(bt_machine_enable_input_level(machine) &&
             bt_machine_enable_input_gain(machine)
           ) {
+            // DEBUG
+            bt_song_write_to_dot_file(song);
+            // DEBUG
             // set new song
             g_object_set(G_OBJECT(self),"song",song,NULL);
             res=TRUE;

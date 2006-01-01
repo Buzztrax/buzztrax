@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.92 2005-12-27 11:49:52 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.93 2006-01-01 19:27:27 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -915,14 +915,34 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
       if(gtk_tree_view_get_path_at_pos(self->priv->sequence_table,event->x,event->y,&path,&column,NULL,NULL)) {
         gulong track,row;
         if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&track,&row)) {
-          GST_DEBUG("  left click to column %d, row %d",track,row);
+          GST_INFO("  left click to column %d, row %d",track,row);
           if(track==0) {
-            BtSequence *song;
-
+            BtSong *song;
+            BtSequence *sequence;
+            gulong modifier=(gulong)event->state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
+            gulong sequence_length;
+            gdouble loop_pos;
+            
             g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            // @idea use a keyboard qualifier to set loop_start and end?
-            // adjust play pointer
-            g_object_set(song,"play-pos",row,NULL);
+            g_object_get(song,"sequence",&sequence,NULL);
+            g_object_get(sequence,"length",&sequence_length,NULL);
+            // use a keyboard qualifier to set loop_start and end
+            switch(modifier) {
+              case 0:
+                g_object_set(song,"play-pos",row,NULL);
+                break;
+              case GDK_CONTROL_MASK:
+                g_object_set(sequence,"loop-start",row,NULL);
+                loop_pos=(gdouble)row/(gdouble)sequence_length;
+                g_object_set(self->priv->sequence_table,"loop-start",loop_pos,NULL);
+                break;
+              case GDK_MOD4_MASK:
+                g_object_set(sequence,"loop-end",row,NULL);
+                loop_pos=(gdouble)row/(gdouble)sequence_length;
+                g_object_set(self->priv->sequence_table,"loop-end",loop_pos,NULL);
+                break;
+            }
+            g_object_unref(sequence);
             g_object_unref(song);
           }
           else {

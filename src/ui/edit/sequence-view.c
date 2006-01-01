@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.13 2005-12-27 11:49:52 ensonic Exp $
+// $Id: sequence-view.c,v 1.14 2006-01-01 19:27:27 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: 
@@ -218,27 +218,27 @@ static void bt_sequence_view_set_property(GObject      *object,
     case SEQUENCE_VIEW_PLAY_POSITION: {
       self->priv->play_pos = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	gtk_widget_queue_draw(GTK_WIDGET(self));
+	      gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     case SEQUENCE_VIEW_LOOP_START: {
       self->priv->loop_start = g_value_get_double(value);
       GST_DEBUG("set the loop-start for sequence_view: %f",self->priv->loop_start);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	gtk_widget_queue_draw(GTK_WIDGET(self));
+	      gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     case SEQUENCE_VIEW_LOOP_END: {
       self->priv->loop_end = g_value_get_double(value);
       GST_DEBUG("set the loop-end for sequence_view: %f",self->priv->loop_end);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	gtk_widget_queue_draw(GTK_WIDGET(self));
+	      gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {
       self->priv->visible_rows = g_value_get_ulong(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	gtk_widget_queue_draw(GTK_WIDGET(self));
+	      gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     default: {
