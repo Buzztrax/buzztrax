@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.11 2005-12-11 17:28:01 ensonic Exp $
+/* $Id: t-machine.c,v 1.12 2006-01-03 16:15:23 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -32,6 +32,8 @@ BT_START_TEST(test_btmachine_abstract) {
 BT_END_TEST
 */
 
+#ifdef __DISABLED_NEEDS_SONG_IN_PLAYING_STATE
+
 /*
 * audiotestsrc | volume | audio_sink
 * 1) mute audiotestsrc
@@ -39,7 +41,6 @@ BT_END_TEST
 * 3) unmute volume
 * 4) test if volume still is muted
 */
-#ifdef __NOT_USED
 BT_START_TEST(test_btmachine_state1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -84,8 +85,17 @@ BT_START_TEST(test_btmachine_state1) {
   
   /* start setting the states */
   g_object_set(source,"state",BT_MACHINE_STATE_MUTE,NULL);
+  g_object_get(source,"state",&state_ref,NULL);
+  fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
+
   g_object_set(volume,"state",BT_MACHINE_STATE_MUTE,NULL);
+  g_object_get(volume,"state",&state_ref,NULL);
+  fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
+
   g_object_set(source,"state",BT_MACHINE_STATE_NORMAL,NULL);
+  g_object_get(source,"state",&state_ref,NULL);
+  fail_unless(state_ref==BT_MACHINE_STATE_NORMAL,NULL);
+
   g_object_get(volume,"state",&state_ref,NULL);
   fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
 	
@@ -99,7 +109,6 @@ BT_START_TEST(test_btmachine_state1) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-#endif
 
 /*
 * audiotestsrc1, audiotestsrc2 | audio_sink
@@ -167,15 +176,19 @@ BT_START_TEST(test_btmachine_state2) {
 }
 BT_END_TEST
 
-// TODO state changes don't work, if the pipeline is not playing
+#endif
+
+// @todo: state changes don't work, if the pipeline is not playing
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
   
   // @todo try catching the critical log
   //tcase_add_test(tc, test_btmachine_abstract);
-  // @todo try again later
-  //tcase_add_test(tc, test_btmachine_state1);
+  /* @todo state change tests need the song to be in playing state,
+     otherwise the calls block
+  tcase_add_test(tc, test_btmachine_state1);
   tcase_add_test(tc, test_btmachine_state2);
+  */
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds
   tcase_set_timeout(tc, 10);

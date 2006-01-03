@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.172 2005-12-30 15:50:56 ensonic Exp $
+// $Id: machine.c,v 1.173 2006-01-03 16:15:21 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2000,20 +2000,22 @@ static void bt_machine_set_property(GObject      *object,
 
 static void bt_machine_dispose(GObject *object) {
   BtMachine *self = BT_MACHINE(object);
-  BtSongInfo *song_info;
   guint i;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p, song=%p",self,self->priv->song);
   
   // disconnect notify handlers
-  g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
-  if(song_info) {
-    g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);
-    g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_tpb_changed,NULL);
-    g_object_unref(song_info);
+  if(self->priv->song) {
+    BtSongInfo *song_info;
+    g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
+    if(song_info) {
+      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);
+      g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_tpb_changed,NULL);
+      g_object_unref(song_info);
+    }
   }
   
   // remove the GstElements from the bin

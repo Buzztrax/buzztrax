@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.12 2005-09-14 15:22:56 ensonic Exp $ */
+/* $Id: bt-test-plugin.c,v 1.13 2006-01-03 16:15:23 ensonic Exp $ */
 /**
  * SECTION::bttestplugin:
  * @short_description: test gstreamer element for unit tests
@@ -218,7 +218,7 @@ static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   g_object_class_override_property(gobject_class, ARG_BPM, "beats-per-minute");
   g_object_class_override_property(gobject_class, ARG_TPB, "ticks-per-beat");
   g_object_class_override_property(gobject_class, ARG_STPT, "subticks-per-tick");
-  g_object_class_override_property(gobject_class, ARG_VOICES, "voices");
+  g_object_class_override_property(gobject_class, ARG_VOICES, "children");
 
   g_object_class_install_property(gobject_class,ARG_ULONG,
                                   g_param_spec_ulong("v-ulong",
