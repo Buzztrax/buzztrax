@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.68 2005-10-07 20:33:19 ensonic Exp $
+// $Id: pattern.c,v 1.69 2006-01-13 18:06:12 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -280,12 +280,15 @@ static void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gu
  * Returns: %TRUE for success
  */
 static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar *value) {
+  GType base_type;
+  
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
   g_return_val_if_fail(value,FALSE);
 
+  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(event));
   // depending on the type, set the GValue
-  switch(G_VALUE_TYPE(event)) {
+  switch(base_type) {
     case G_TYPE_DOUBLE: {
       //gdouble val=atof(value); // this is dependend on the locale
       gdouble val=g_ascii_strtod(value,NULL);
@@ -296,6 +299,15 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
       gint val=atoi(value);
       g_value_set_boolean(event,val);
       GST_DEBUG("store boolean event %s",value);
+    } break;
+    case G_TYPE_STRING: {
+      g_value_set_string(event,value);
+      GST_DEBUG("store string event %s",value);
+    } break;
+    case G_TYPE_ENUM: {
+      gint val=atoi(value);
+      g_value_set_enum(event,val);
+      GST_DEBUG("store enum event %s",value);
     } break;
     case G_TYPE_INT: {
       gint val=atoi(value);
@@ -334,18 +346,26 @@ static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const
  * Returns: a newly allocated string with the data or %NULL on error
  */
 static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
+  GType base_type;
   gchar *res=NULL;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   g_return_val_if_fail(G_IS_VALUE(event),NULL);
   
+  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(event));
   // depending on the type, set the result
-  switch(G_VALUE_TYPE(event)) {
+  switch(base_type) {
     case G_TYPE_DOUBLE:
       res=g_strdup_printf("%lf",g_value_get_double(event));
       break;
     case G_TYPE_BOOLEAN:
       res=g_strdup_printf("%d",g_value_get_boolean(event));
+      break;
+    case G_TYPE_STRING:
+      res=g_value_dup_string(event);
+      break;
+    case G_TYPE_ENUM:
+      res=g_strdup_printf("%d",g_value_get_enum(event));
       break;
     case G_TYPE_INT:
       res=g_strdup_printf("%d",g_value_get_int(event));

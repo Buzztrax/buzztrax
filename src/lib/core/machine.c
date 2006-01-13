@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.173 2006-01-03 16:15:21 ensonic Exp $
+// $Id: machine.c,v 1.174 2006-01-13 18:06:12 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -178,14 +178,6 @@ GType bt_machine_state_get_type(void) {
 }
 
 //-- helper methods
-
-GType bt_g_type_get_base_type(GType type) {
-  GType base;
-
-  while((base=g_type_parent(type))) type=base;
-  return(type);
-}
-
 
 /*
  * bt_machine_get_sink_peer:
@@ -544,22 +536,31 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
  *
  * Fetches the meta data from the given paramspec object and sets the value.
  * The values needs to be initialized to the correct type.
+ *
+ * Returns: %TRUE if it could get the value
  */
-static void bt_machine_get_property_meta_value(GValue *value,GParamSpec *property,GQuark key) {
+static gboolean bt_machine_get_property_meta_value(GValue *value,GParamSpec *property,GQuark key) {
+  gboolean res=TRUE;
+  gpointer qdata=g_param_spec_get_qdata(property,key);
+
+  if(!qdata) return(FALSE);
+
   g_value_init(value,property->value_type);
   switch(property->value_type) {
     case G_TYPE_BOOLEAN:
-      g_value_set_boolean(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
+      g_value_set_boolean(value,GPOINTER_TO_INT(qdata));
       break;
     case G_TYPE_INT:
-      g_value_set_int(value,GPOINTER_TO_INT(g_param_spec_get_qdata(property,key)));
+      g_value_set_int(value,GPOINTER_TO_INT(qdata));
       break;
     case G_TYPE_UINT:
-      g_value_set_uint(value,GPOINTER_TO_UINT(g_param_spec_get_qdata(property,key)));
+      g_value_set_uint(value,GPOINTER_TO_UINT(qdata));
       break;
     default:
-      GST_ERROR("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+      GST_WARNING("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+      res=FALSE;
   }
+  return(res);
 }
 
 //-- signal handler
@@ -673,6 +674,7 @@ gboolean bt_machine_new(BtMachine *self) {
     GParamSpec **child_properties=NULL;
     guint number_of_child_properties;
     gboolean skip;
+    gpointer qdata;
 
     // check if the elemnt implements the GstChildProxy interface
     if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
@@ -714,12 +716,15 @@ gboolean bt_machine_new(BtMachine *self) {
         // add global param
         self->priv->global_names[j]=property->name;
         self->priv->global_types[j]=property->value_type;
+        self->priv->global_flags[j]=0x02;//MPF_STATE
         if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-          self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+          if((qdata=g_param_spec_get_qdata(property,gst_property_meta_quark_flags))) {
+            self->priv->global_flags[j]=GPOINTER_TO_INT(qdata);
+          }
+          else {
+            GST_WARNING("param '%s' has no qdata:flags",property->name);
+          }
           bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
-        }
-        else {
-          self->priv->global_flags[j]=0x02;//MPF_STATE
         }
         // bind param to machines global controller
         if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
@@ -751,6 +756,7 @@ gboolean bt_machine_new(BtMachine *self) {
       if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
         GParamSpec *property;
         guint i,j;
+        gpointer qdata;
         
         // count number of controlable params
         for(i=0;i<number_of_properties;i++) {
@@ -768,8 +774,11 @@ gboolean bt_machine_new(BtMachine *self) {
             // add voice param
             self->priv->voice_names[j]=property->name;
             self->priv->voice_types[j]=property->value_type;
+            self->priv->voice_flags[j]=0x02;//MPF_STATE
             if(GST_IS_PROPERTY_META(voice_child)) {
-              self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+              if((qdata=g_param_spec_get_qdata(property,gst_property_meta_quark_flags))) {
+                self->priv->voice_flags[j]=GPOINTER_TO_INT(qdata);
+              }
               bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val);
             }
             else {
@@ -1456,10 +1465,9 @@ const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index
 static GValue *bt_machine_get_param_min_value(const BtMachine *self, GParamSpec *property) {
   GValue *value=g_new0(GValue,1);
 
-  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-    bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val);
-  }
-  else {
+  if(!GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE]) ||
+    !bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val)
+  ) {
     GType base_type=bt_g_type_get_base_type(property->value_type);
     
     g_value_init(value,property->value_type);
@@ -1526,10 +1534,9 @@ GValue *bt_machine_get_voice_param_min_value(const BtMachine *self, gulong index
 static GValue *bt_machine_get_param_max_value(const BtMachine *self, GParamSpec *property) {
   GValue *value=g_new0(GValue,1);
 
-  if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-    bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_max_val);
-  }
-  else {
+  if(!GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE]) ||
+    !bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_max_val)
+  ) {
     GType base_type=bt_g_type_get_base_type(property->value_type);
 
     g_value_init(value,property->value_type);
@@ -1844,7 +1851,10 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
           fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" ",GST_TIME_ARGS(tv->timestamp),tv->timestamp);
+          // @todo: check for base type
           switch(G_VALUE_TYPE(&tv->value)) {
+            case G_TYPE_ENUM: fprintf(file,"%d\n",g_value_get_enum(&tv->value));break;
+            case G_TYPE_STRING: fprintf(file,"%s\n",g_value_get_string(&tv->value));break;
             case G_TYPE_INT: fprintf(file,"%d\n",g_value_get_int(&tv->value));break;
             case G_TYPE_UINT: fprintf(file,"%u\n",g_value_get_uint(&tv->value));break;
             case G_TYPE_LONG: fprintf(file,"%ld\n",g_value_get_long(&tv->value));break;

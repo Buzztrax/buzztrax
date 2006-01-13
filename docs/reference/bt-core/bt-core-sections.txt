@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.59 2005-12-30 15:50:56 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.60 2006-01-13 18:05:33 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -500,6 +500,7 @@ g_object_try_unref
 g_object_try_weak_ref
 g_object_try_weak_unref
 bt_gst_registry_get_element_names_by_class
+bt_g_type_get_base_type
 bt_init_get_option_group
 bt_init_add_option_groups
 bt_init_check

@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.18 2005-11-27 22:44:47 ensonic Exp $
+/* $Id: e-network.c,v 1.19 2006-01-13 18:06:33 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -151,6 +151,7 @@ BT_START_TEST(test_btcore_net_example2) {
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
   bt_sequence_set_machine(sequence,0,gen1);
   bt_sequence_set_machine(sequence,1,gen2);
+  mark_point();
 
   /* try to start playing the song */
   if(bt_song_play(song)) {
@@ -240,6 +241,7 @@ BT_START_TEST(test_btcore_net_example3) {
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
   bt_sequence_set_machine(sequence,0,gen1);
   bt_sequence_set_machine(sequence,1,gen2);
+  mark_point();
 
   /* try to start playing the song */
   if(bt_song_play(song)) {
@@ -274,6 +276,6 @@ TCase *bt_network_example_case(void) {
   tcase_add_test(tc,test_btcore_net_example3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 10);
+  tcase_set_timeout(tc, 20);
   return(tc);
 }

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.23 2005-12-05 19:29:22 ensonic Exp $
+/* $Id: tools.c,v 1.24 2006-01-13 18:06:12 ensonic Exp $
  */
  
 #define BT_CORE
@@ -103,3 +103,19 @@ gpointer g_try_malloc0(gulong n_bytes) {
   return(mem);
 }
 #endif
+
+/**
+ * bt_g_type_get_base_type:
+ * @type: a GType
+ *
+ * Call g_type_parent() as long as it returns a parent.
+ *
+ * Returns: the super parent type, aka base type. 
+ */
+GType bt_g_type_get_base_type(GType type) {
+  GType base;
+
+  while((base=g_type_parent(type))) type=base;
+  return(type);
+}
+
