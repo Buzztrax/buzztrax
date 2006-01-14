@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.10 2005-12-23 09:02:06 ensonic Exp $
+// $Id: sink-bin.c,v 1.11 2006-01-14 22:00:25 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -55,7 +55,7 @@ GType bt_sink_bin_mode_get_type(void) {
       { BT_SINK_BIN_MODE_PLAY_AND_RECORD, "BT_SINK_BIN_MODE_PLAY_AND_RECORD", "play and record together" },
       { 0, NULL, NULL},
     };
-    type = g_enum_register_static("BtSinkBinModeType", values);
+    type = g_enum_register_static("BtSinkBinMode", values);
   }
   return type;
 }
@@ -71,7 +71,7 @@ GType bt_sink_bin_record_format_get_type(void) {
       { BT_SINK_BIN_RECORD_FORMAT_RAW,        "BT_SINK_BIN_RECORD_FORMAT_RAW",        "raw" },
       { 0, NULL, NULL},
     };
-    type = g_enum_register_static("BtSinkBinMRecordFormatType", values);
+    type = g_enum_register_static("BtSinkBinMRecordFormat", values);
   }
   return type;
 }

@@ -38,7 +38,7 @@
       <source id="beep2" plugin-name="simsyn" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="-0.5"/>
+          <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
@@ -58,10 +58,10 @@
         <globaldata name="decay" value="0.9995"/>
         <globaldata name="wave" value="3"/>
       </tick>
-      <tick time="4">
+      <tick time="8">
         <globaldata name="note" value="e-3"/>
       </tick>
-      <tick time="8">
+      <tick time="12">
         <globaldata name="note" value="g-3"/>
       </tick>
     </pattern>

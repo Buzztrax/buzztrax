@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.69 2006-01-13 18:06:12 ensonic Exp $
+// $Id: pattern.c,v 1.70 2006-01-14 22:00:25 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -89,7 +89,7 @@ GType bt_pattern_cmd_get_type(void) {
       { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","be uneffective (pass through)" },
       { 0, NULL, NULL},
     };
-    type = g_enum_register_static("BtPatternCmdType", values);
+    type = g_enum_register_static("BtPatternCmd", values);
   }
   return type;
 }
