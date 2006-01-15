@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.175 2006-01-14 22:00:25 ensonic Exp $
+// $Id: machine.c,v 1.176 2006-01-15 17:35:09 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1833,6 +1833,7 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
   gchar *name;
   GList *list,*node;
   GstTimedValue *tv;
+  GType base_type;
   
   for(i=0;i<self->priv->global_params;i++) {
     name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
@@ -1842,8 +1843,8 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
           fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" ",GST_TIME_ARGS(tv->timestamp),tv->timestamp);
-          // @todo: check for base type
-          switch(G_VALUE_TYPE(&tv->value)) {
+	  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(&tv->value));
+          switch(base_type) {
             case G_TYPE_ENUM: fprintf(file,"%d\n",g_value_get_enum(&tv->value));break;
             case G_TYPE_STRING: fprintf(file,"%s\n",g_value_get_string(&tv->value));break;
             case G_TYPE_INT: fprintf(file,"%d\n",g_value_get_int(&tv->value));break;
