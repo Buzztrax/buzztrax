@@ -1,4 +1,4 @@
-$Id: TODO,v 1.24 2005-04-11 10:10:30 ensonic Exp $
+$Id: TODO,v 1.25 2006-01-16 21:39:22 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -14,8 +14,8 @@ when releasing do:
     audio-effects
   * bt-edit
     * have a ui_ressource singleton
-		  GdkColors
-			GdkPixbuf, GtkImage
+      GdkColors
+      GdkPixbuf, GtkImage
 
 * how do we implement multiple voices per machine?
   * simulate
@@ -26,15 +26,6 @@ when releasing do:
         and that are mixed together in the end
   * natively
     * instrument interface
-
-* how do we handle global/voice-params
-  * gstreamer does not support differentiation between them
-  * therefore global_data is 0 for now
-  * changes in gstreamer
-    * dparam_manager needs to maintain several lists
-      (one global and one for each voice)
-    * gst-elemnts need caps to tell wheter they support multiple voices
-    * if they do they need function to add/remove voices
 
 * gobject private members
   * we need guidelines for use of ->priv, 
@@ -47,7 +38,5 @@ when releasing do:
 * new tests
   * load songs and lookup the parts
     (e.g. bt_machine_get_pattern_by_id)
-	* try gtk_main_do_event() in GUI tests
-
-* code enhancement
-  * use G_CONST_RETURN
+  * try gtk_main_do_event() in GUI tests
+  * add test for trigger params

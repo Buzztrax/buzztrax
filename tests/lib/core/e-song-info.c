@@ -1,4 +1,4 @@
-/* $Id: e-song-info.c,v 1.5 2005-09-14 10:16:34 ensonic Exp $
+/* $Id: e-song-info.c,v 1.6 2006-01-16 21:39:26 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -36,7 +36,7 @@ BT_START_TEST(test_btsonginfo_createdate) {
   song=bt_song_new(app);
   mark_point();
   // loading a song xml file
-  loader=bt_song_io_new("songs/test-simple1.xml");
+  loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
   mark_point();
   bt_song_io_load(loader,song);
   mark_point();

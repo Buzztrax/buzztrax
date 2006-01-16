@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.13 2006-01-03 16:15:23 ensonic Exp $ */
+/* $Id: bt-test-plugin.c,v 1.14 2006-01-16 21:39:25 ensonic Exp $ */
 /**
  * SECTION::bttestplugin:
  * @short_description: test gstreamer element for unit tests
@@ -6,6 +6,12 @@
  * Two test elements for unit-tests. The Polyphonic elemnt use the monophonic
  * one for their voices. Thus prefix the parameter names with 'g-' for 'global'
  * (in the monophonic class) and 'v-' for 'voice' in the poly class.
+ */
+/* @todo:
+ * - implement the tempo, property-meta ifaces in the test machines
+ * - add a trigger param to the machines
+ * - the trigger param counts how often it gets triggered
+ * - the count is exposed as a read-only param
  */
 
 #include "bt-check.h"

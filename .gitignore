@@ -5,6 +5,7 @@ ltmain.sh
 libtool
 install-sh
 depcomp
+gtk-doc.make
 configure
 config.sub
 config.status
@@ -27,3 +28,4 @@ mkinstalldirs
 coverage
 *.log
 *.cache
+*.tar.gz

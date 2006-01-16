@@ -1,4 +1,4 @@
-/* $Id: t-song-io-native.c,v 1.1 2005-09-27 17:59:15 ensonic Exp $
+/* $Id: t-song-io-native.c,v 1.2 2006-01-16 21:39:26 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -33,7 +33,7 @@ BT_START_TEST(test_btsong_io_native_obj1) {
   /* create a new song */
   song=bt_song_new(app);
   
-  song_io=bt_song_io_new("songs/broken1.xml");
+  song_io=bt_song_io_new(check_get_test_song_path("broken1.xml"));
   fail_unless(song_io != NULL, NULL);
   
   res=bt_song_io_load(song_io,song);

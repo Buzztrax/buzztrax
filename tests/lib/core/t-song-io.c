@@ -1,4 +1,4 @@
-/* $Id: t-song-io.c,v 1.14 2005-12-09 10:34:05 ensonic Exp $
+/* $Id: t-song-io.c,v 1.15 2006-01-16 21:39:26 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -60,7 +60,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj5) {
   BtSongIO *song_io;
   
-  song_io=bt_song_io_new("songs/example.xml");
+  song_io=bt_song_io_new(check_get_test_song_path("example.xml"));
   // check if the type of songIO is native
   fail_unless(BT_IS_SONG_IO_NATIVE(song_io), NULL);
   fail_unless(song_io!=NULL, NULL);

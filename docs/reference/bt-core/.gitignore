@@ -10,5 +10,6 @@ Makefile.in
 *.hierarchy
 *.args
 html
+tmpl
 xml
 *.bbg

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.49 2006-01-15 17:35:09 ensonic Exp $
+## $Id: Makefile.am,v 1.50 2006-01-16 21:39:22 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -7,6 +7,7 @@ DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 
 songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
+	tests/songs/broken1.xml \
 	tests/songs/buzz1.xml \
 	tests/songs/buzz2.xml \
 	tests/songs/buzz3.xml \
@@ -61,7 +62,9 @@ EXTRA_DIST = \
 	intltool-update.in \
 	COPYING-DOCS \
 	omf.make \
-	xmldocs.make
+	xmldocs.make \
+	TODO \
+	m4/README
 
 @INTLTOOL_SCHEMAS_RULE@
 

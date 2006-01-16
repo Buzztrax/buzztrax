@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.19 2005-09-19 16:14:06 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.20 2006-01-16 21:39:25 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -181,6 +181,15 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
   }
   fclose(input_file);
   return ret;
+}
+
+// test file access
+
+gchar *check_get_test_song_path(const gchar *name) {
+  static gchar path[2048];
+  
+  snprintf(path,2048,TESTSONGDIR"/%s",name);
+  return(path);
 }
 
 // test plugins

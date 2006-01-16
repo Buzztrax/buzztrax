@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.31 2005-10-20 10:07:43 ensonic Exp $
+## $Id: Makefile.am,v 1.32 2006-01-16 21:39:25 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -15,7 +15,8 @@ TESTS = \
   xmlvalid.sh
 
 # prevent endless loops
-TESTS_ENVIRONMENT = ulimit -St20;
+TESTS_ENVIRONMENT = \
+	ulimit -St20;
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
@@ -51,12 +52,15 @@ INCLUDES = \
 	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DDATADIR=\"$(datadir)/buzztard\" \
+	-DTESTSONGDIR=\"$(top_srcdir)/tests/songs\" \
 	-DG_LOG_DOMAIN=\"buzztard-check\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)\
 	@VALGRIND_CFLAGS@
 endif
+
+EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh
 
 check-local:
 	echo "############ No tests will run"

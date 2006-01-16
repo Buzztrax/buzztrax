@@ -1,4 +1,4 @@
-/* $Id: s-settings.c,v 1.2 2005-08-05 09:36:19 ensonic Exp $
+/* $Id: s-settings.c,v 1.3 2006-01-16 21:39:26 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -10,6 +10,7 @@ Suite *bt_settings_suite(void) {
 
   // setup/teardown provides different environments for each run
   suite_add_tcase(s,bt_gconf_settings_test_case());
-  suite_add_tcase(s,bt_gconf_settings_test_case());
+  // @todo: run it again when we have an implementation for the plainfile_settings
+  //suite_add_tcase(s,bt_gconf_settings_test_case());
   return(s);
 }

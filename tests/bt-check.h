@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.11 2005-12-05 07:17:39 ensonic Exp $
+/* $Id: bt-check.h,v 1.12 2006-01-16 21:39:25 ensonic Exp $
  * testing helpers
  */
 
@@ -59,6 +59,8 @@ extern gboolean check_has_error_trapped(void);
 
 extern void setup_log(int argc, char **argv);
 extern void setup_log_capture(void);
+
+extern gchar *check_get_test_song_path(const gchar *name);
 
 extern gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 
