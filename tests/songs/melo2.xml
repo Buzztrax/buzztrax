@@ -58,7 +58,7 @@
     </pattern>
   </patterns>
   
-  <sequence loop="on" loop-start="4" loop-end="32">
+  <sequence loop="off">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>
