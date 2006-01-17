@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.20 2006-01-16 21:39:26 ensonic Exp $
+/* $Id: e-network.c,v 1.21 2006-01-17 13:47:16 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -100,11 +100,13 @@ BT_START_TEST(test_btcore_net_example1) {
 }
 BT_END_TEST
 
-#ifdef __DISABLED_TEST__
+#ifdef __CHECK_DISABLED__
 /**
-* try to check if we can connect two sine machines to one sink. We also try
-* to start play after connecting the machines.
-*/
+ * try to check if we can connect two sine machines to one sink. We also try
+ * to start play after connecting the machines.
+ *
+ * hangs after bt_song_play()
+ */
 BT_START_TEST(test_btcore_net_example2) {
   BtApplication *app=NULL;
   // the song
@@ -175,14 +177,15 @@ BT_START_TEST(test_btcore_net_example2) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-
 #endif
-#ifdef __DISABLED_TEST__
 
+#ifdef __CHECK_DISABLED__
 /**
-* try to check if we can connect two sine machines to one effect and this to the
-* sink. We also try to start play after connecting the machines.
-*/
+ * try to check if we can connect two sine machines to one effect and this to the
+ * sink. We also try to start play after connecting the machines.
+ *
+ * hangs after bt_song_play()
+ */
 BT_START_TEST(test_btcore_net_example3) {
   BtApplication *app=NULL;
   // the song
@@ -271,7 +274,6 @@ BT_START_TEST(test_btcore_net_example3) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-
 #endif
 
 TCase *bt_network_example_case(void) {

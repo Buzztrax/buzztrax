@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.32 2006-01-16 21:39:25 ensonic Exp $
+## $Id: Makefile.am,v 1.33 2006-01-17 13:47:15 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -62,10 +62,15 @@ endif
 
 EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh
 
-check-local:
-	echo "############ No tests will run"
+## todo: check if code has been compiled using --enable-debug
+##
+##check-local:
+##	echo "========================================"
+##	echo "No check based tests will run"
+##	echo "build with --enable-debug=yes"
+##	echo "========================================"
 
-.PHONY: splint valgrind
+.PHONY: splint valgrind todo
 
 if USE_VALGRIND
 VALPREFIX = $(TESTS_ENVIRONMENT) GLIBCPP_FORCE_NEW=
@@ -87,3 +92,8 @@ endif
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(buzztard_SOURCES) $(bt_cmd_SOURCES) $(bt_edit_SOURCES)
 	for dir in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
+
+##find . -name "*.c" -exec grep -A7 -Hn "#ifdef __CHECK_DISABLED__" {}; echo "--" \;
+todo::
+	grep -r -A7 -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" .
+

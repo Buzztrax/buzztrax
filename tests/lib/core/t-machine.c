@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.12 2006-01-03 16:15:23 ensonic Exp $
+/* $Id: t-machine.c,v 1.13 2006-01-17 13:47:16 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -32,15 +32,13 @@ BT_START_TEST(test_btmachine_abstract) {
 BT_END_TEST
 */
 
-#ifdef __DISABLED_NEEDS_SONG_IN_PLAYING_STATE
-
-/*
-* audiotestsrc | volume | audio_sink
-* 1) mute audiotestsrc
-* 2) mute volume
-* 3) unmute volume
-* 4) test if volume still is muted
-*/
+#ifdef __CHECK_DISABLED__
+/**
+ * audiotestsrc | volume | audio_sink
+ * mute audiotestsrc, mute volume, unmute volume, test if volume still is muted
+ *
+ * needs song in playing state
+ */
 BT_START_TEST(test_btmachine_state1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -109,13 +107,15 @@ BT_START_TEST(test_btmachine_state1) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
+#endif
 
-/*
-* audiotestsrc1, audiotestsrc2 | audio_sink
-* 1) solo audiotestsrc1
-* 2) solo audiotestsrc2
-* 3) test that audiotestsrc1 is not solo
-*/
+#ifdef __CHECK_DISABLED__
+/**
+ * audiotestsrc1, audiotestsrc2 | audio_sink
+ * solo audiotestsrc1, solo audiotestsrc2, test that audiotestsrc1 is not solo
+ *
+ * needs song in playing state
+ */
 BT_START_TEST(test_btmachine_state2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -175,10 +175,8 @@ BT_START_TEST(test_btmachine_state2) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-
 #endif
 
-// @todo: state changes don't work, if the pipeline is not playing
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
   

@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.6 2005-09-27 17:59:16 ensonic Exp $ 
+/* $Id: e-bt-cmd-application.c,v 1.7 2006-01-17 13:47:16 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -36,7 +36,7 @@ BT_START_TEST(test_play1) {
   gboolean ret=FALSE;
   
   app=bt_cmd_application_new(FALSE);
-  ret = bt_cmd_application_play(app, "songs/test-simple1.xml");
+  ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple1.xml"));
   fail_unless(ret==TRUE, NULL);
   // free application
   g_object_checked_unref(app);
@@ -49,7 +49,7 @@ BT_START_TEST(test_play2) {
   gboolean ret=FALSE;
   
   app=bt_cmd_application_new(FALSE);
-  ret = bt_cmd_application_play(app, "songs/test-simple2.xml");
+  ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple2.xml"));
   fail_unless(ret==TRUE, NULL);
   // free application
   g_object_checked_unref(app);
@@ -65,7 +65,7 @@ BT_START_TEST(test_info1) {
     
   app=bt_cmd_application_new(FALSE);
   tmp_file_name=tmpnam(NULL);
-  ret = bt_cmd_application_info(app, "songs/test-simple1.xml", tmp_file_name);
+  ret = bt_cmd_application_info(app, check_get_test_song_path("test-simple1.xml"), tmp_file_name);
   fail_unless(ret==TRUE, NULL);
   fail_unless(file_contains_str(tmp_file_name, "song.song_info.name: \"test simple 1\""), NULL);
   // free application
