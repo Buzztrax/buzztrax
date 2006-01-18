@@ -1,4 +1,4 @@
-$Id: README,v 1.19 2006-01-13 18:05:32 ensonic Exp $
+$Id: README,v 1.20 2006-01-18 10:35:32 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -54,6 +54,12 @@ mime-database:
 
 run:
 update-mime-database $HOME/buzztard/share/mime/
+
+= running the apps =
+
+./bt-cmd --command=play --input-file=../share/buzztard/songs/melo1.xml
+./bt-cmd --command=encode --input-file=../share/buzztard/songs/melo1.xml --output-file=./melo1.ogg
+./bt-edit --command=load --input-file=../share/buzztard/songs/melo1.xml
 
 = running unit tests =
 in one console enter
