@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.13 2006-01-17 13:47:16 ensonic Exp $
+/* $Id: t-machine.c,v 1.14 2006-01-18 13:11:55 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -32,13 +32,13 @@ BT_START_TEST(test_btmachine_abstract) {
 BT_END_TEST
 */
 
-#ifdef __CHECK_DISABLED__
 /**
  * audiotestsrc | volume | audio_sink
  * mute audiotestsrc, mute volume, unmute volume, test if volume still is muted
  *
  * needs song in playing state
  */
+#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btmachine_state1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -109,13 +109,13 @@ BT_START_TEST(test_btmachine_state1) {
 BT_END_TEST
 #endif
 
-#ifdef __CHECK_DISABLED__
 /**
  * audiotestsrc1, audiotestsrc2 | audio_sink
  * solo audiotestsrc1, solo audiotestsrc2, test that audiotestsrc1 is not solo
  *
  * needs song in playing state
  */
+#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btmachine_state2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;

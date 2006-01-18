@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.33 2006-01-17 13:47:15 ensonic Exp $
+## $Id: Makefile.am,v 1.34 2006-01-18 13:11:49 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -94,6 +94,6 @@ splint::
 	for dir in $(SUBDIRS); do $(MAKE) -C $$dir splint ; done
 
 ##find . -name "*.c" -exec grep -A7 -Hn "#ifdef __CHECK_DISABLED__" {}; echo "--" \;
+##grep -r -A7 -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" .
 todo::
-	grep -r -A7 -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" .
-
+	grep -r -A1 -B6 -Hn --include="*.c" --color=auto "#ifdef __CHECK_DISABLED__" .

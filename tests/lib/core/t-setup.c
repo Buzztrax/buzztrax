@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.29 2006-01-17 13:47:16 ensonic Exp $
+/* $Id: t-setup.c,v 1.30 2006-01-18 13:11:55 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -952,13 +952,13 @@ BT_START_TEST(test_btsetup_wire2) {
 }
 BT_END_TEST
 
-#ifdef __CHECK_DISABLED__
 /**
  * try to add wire(src1,dst), wire(dst,src2) and wire(src2,scr1) to setup. This 
  * should fail (cycle).
  *
  * <reason ?>
  */
+#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btsetup_wire3) {
   BtApplication *app=NULL;
   BtSong *song=NULL;

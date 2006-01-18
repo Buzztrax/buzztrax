@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.21 2006-01-17 13:47:16 ensonic Exp $
+/* $Id: e-network.c,v 1.22 2006-01-18 13:11:55 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -100,13 +100,13 @@ BT_START_TEST(test_btcore_net_example1) {
 }
 BT_END_TEST
 
-#ifdef __CHECK_DISABLED__
 /**
  * try to check if we can connect two sine machines to one sink. We also try
  * to start play after connecting the machines.
  *
  * hangs after bt_song_play()
  */
+#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btcore_net_example2) {
   BtApplication *app=NULL;
   // the song
@@ -179,13 +179,13 @@ BT_START_TEST(test_btcore_net_example2) {
 BT_END_TEST
 #endif
 
-#ifdef __CHECK_DISABLED__
 /**
  * try to check if we can connect two sine machines to one effect and this to the
  * sink. We also try to start play after connecting the machines.
  *
  * hangs after bt_song_play()
  */
+#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btcore_net_example3) {
   BtApplication *app=NULL;
   // the song
