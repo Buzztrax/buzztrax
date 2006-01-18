@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.50 2006-01-16 21:39:22 ensonic Exp $
+## $Id: Makefile.am,v 1.51 2006-01-18 14:51:18 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -89,6 +89,11 @@ install-data-local:
 
 uninstall-local:
 	rm -r $(datadir)/$(PACKAGE)
+
+
+## Workaround for scrollkeeper bug
+distuninstallcheck_listfiles = find . -type f -print | grep -v '^\./var/scrollkeeper'
+
 
 .PHONY: coverage splint todo valgrind dict
 
