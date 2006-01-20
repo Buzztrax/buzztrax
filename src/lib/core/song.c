@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.104 2005-12-30 15:50:57 ensonic Exp $
+// $Id: song.c,v 1.105 2006-01-20 14:32:17 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -184,10 +184,11 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  */
 gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
-  GstEvent *event;
+  GstEvent *seek_event/*,*tag_event*/;
   gboolean loop;
   glong loop_start,loop_end,length;
   GstClockTime bar_time;
+  //GstTagList *taglist;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
@@ -209,20 +210,41 @@ gboolean bt_song_play(const BtSong *self) {
   bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   // @todo we need to update the loop_start and loop_end values on the fly
   if (loop) {
-    event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+    seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
   }
   else {
-    event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+    seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),event))) {
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),seek_event))) {
     GST_WARNING("element failed to handle seek event");
   }
+  
+  // send tags
+  /* @todo: get from song_info
+   * free taglist ? - no
+   * free event ? - no
+   */
+  /*
+  >
+  > GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
+  >
+  taglist=gst_tag_list_new();
+  gst_tag_list_add(taglist, GST_TAG_MERGE_APPEND,
+        GST_TAG_DESCRIPTION, "a cool buzztard test song",
+        GST_TAG_ARTIST, "buzztard user",
+        GST_TAG_TITLE, "buzztard test",
+        NULL);
+  tag_event=gst_event_new_tag(taglist);
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
+    GST_WARNING("element failed to handle tag event");
+  }
+  */
 
   // start playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
