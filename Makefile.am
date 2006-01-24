@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.51 2006-01-18 14:51:18 ensonic Exp $
+## $Id: Makefile.am,v 1.52 2006-01-24 17:33:02 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -87,12 +87,14 @@ install-data-local:
 		done ; \
 	fi
 
-uninstall-local:
-	rm -r $(datadir)/$(PACKAGE)
+## thiis seems to fail during make distcheck
+##uninstall-local:
+##	rm -r $(datadir)/$(PACKAGE)
 
 
 ## Workaround for scrollkeeper bug
-distuninstallcheck_listfiles = find . -type f -print | grep -v '^\./var/scrollkeeper'
+## otherwise we get warnings for left-over files when doing 'make distuninstallcheck'
+distuninstallcheck_listfiles = find . -type f -print | grep -v '^\./var/scrollkeeper' | grep -v '^\./share/mime'
 
 
 .PHONY: coverage splint todo valgrind dict
