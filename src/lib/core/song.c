@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.106 2006-01-24 17:33:04 ensonic Exp $
+// $Id: song.c,v 1.107 2006-01-24 22:28:10 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -62,11 +62,40 @@ struct _BtSongPrivate {
   
   /* the query is used in update_playback_position */
   GstQuery *position_query;
+  /* event used during playback */
+  GstEvent *seek_event;
 };
 
 static GObjectClass *parent_class=NULL;
 
 //static guint signals[LAST_SIGNAL]={0,};
+
+//-- helper
+
+static void bt_song_update_seek_event(BtSong *self) {
+  gboolean loop;
+  glong loop_start,loop_end,length;
+  GstClockTime bar_time;
+
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
+  bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+  if(self->priv->seek_event) gst_event_unref(self->priv->seek_event);
+  if (loop) {
+    self->priv->seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
+        GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
+  }
+  else {
+    self->priv->seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, 0,
+        GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
+  }
+  /* @todo: if playing -> send event
+   * the update needs to take the current play-position into account
+   */
+}
 
 //-- handler
 
@@ -114,6 +143,22 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   return(res);
 }
 
+static void bt_song_on_loop_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+  bt_song_update_seek_event(BT_SONG(user_data));
+}
+
+static void bt_song_on_loop_start_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+  bt_song_update_seek_event(BT_SONG(user_data));
+}
+
+static void bt_song_on_loop_end_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+  bt_song_update_seek_event(BT_SONG(user_data));
+}
+
+static void bt_song_on_length_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+  bt_song_update_seek_event(BT_SONG(user_data));
+}
+
 //-- constructor methods
 
 /**
@@ -147,6 +192,10 @@ BtSong *bt_song_new(const BtApplication *app) {
   }
   bt_application_add_bus_watch(app,bus_handler,(gpointer)self);
   gst_object_unref(bin);
+  g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
+  g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
   GST_INFO("  new song created: %p",self);
   return(self);
 Error:
@@ -185,10 +234,6 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  */
 gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
-  GstEvent *seek_event,*tag_event;
-  gboolean loop;
-  glong loop_start,loop_end,length;
-  GstClockTime bar_time;
   GstTagList *taglist;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
@@ -196,9 +241,7 @@ gboolean bt_song_play(const BtSong *self) {
   // do not play again
   if(self->priv->is_playing) return(TRUE);
   
-  g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
-  GST_INFO("prepare playback from %ld to %ld / 0 to %ld",loop_start,loop_end,length);
-  
+  GST_INFO("prepare playback");
   // prepare playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
@@ -208,44 +251,26 @@ gboolean bt_song_play(const BtSong *self) {
   
   // seek to start time
   self->priv->play_pos=0;
-  bar_time=bt_sequence_get_bar_time(self->priv->sequence);
-  // @todo we need to update the loop_start and loop_end values on the fly
-  if (loop) {
-    seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-        GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
-        GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
-  }
-  else {
-    seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH,
-        GST_SEEK_TYPE_SET, 0,
-        GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
-  }
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),seek_event))) {
+  GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->seek_event));
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->seek_event)))) {
     GST_WARNING("element failed to handle seek event");
   }
   
   // send tags
-  /* @todo: get from song_info
-   * free taglist ? - no
-   * free event ? - no
-   * @todo: keep a reference to this seek event and reuse
-   */
+  g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
+  gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
+  /* @todo: keep a reference to this tag event and reuse */
   /*
   > GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
   > GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
   */
-  taglist=gst_tag_list_new();
-  gst_tag_list_add(taglist, GST_TAG_MERGE_APPEND,
-        GST_TAG_DESCRIPTION, "a cool buzztard test song",
-        GST_TAG_ARTIST, "buzztard user",
-        GST_TAG_TITLE, "buzztard test",
-        NULL);
+  /*
   tag_event=gst_event_new_tag(taglist);
+  GST_DEBUG("tag event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(tag_event),GST_EVENT_IS_DOWNSTREAM(tag_event));
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
     GST_WARNING("element failed to handle tag event");
   }
+  */
 
   // start playback
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
@@ -654,6 +679,11 @@ static void bt_song_dispose(GObject *object) {
   //DEBUG
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_changed,NULL);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_start_changed,NULL);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
 
   g_object_try_weak_unref(self->priv->master);
   g_object_try_unref(self->priv->song_info);
@@ -661,6 +691,7 @@ static void bt_song_dispose(GObject *object) {
   g_object_try_unref(self->priv->setup);
   g_object_try_unref(self->priv->wavetable);
   gst_query_unref(self->priv->position_query);
+  if(self->priv->seek_event) gst_event_unref(self->priv->seek_event);
   gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 

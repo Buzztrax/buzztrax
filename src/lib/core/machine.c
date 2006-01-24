@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.176 2006-01-15 17:35:09 ensonic Exp $
+// $Id: machine.c,v 1.177 2006-01-24 22:28:10 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -476,12 +476,12 @@ static void bt_machine_resize_pattern_voices(const BtMachine *self) {
  * Adjust the private data structure after a change in the number of voices.
  */
 static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {  
-  GST_INFO("changing machine %p voices from %d to %d",self->priv->machines[PART_MACHINE],voices,self->priv->voices);
+  GST_INFO("changing machine %s:%p voices from %d to %d",self->priv->id,self->priv->machines[PART_MACHINE],voices,self->priv->voices);
 
   
   // @todo GST_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
   if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
-    GST_WARNING("machine %p is NULL or not polyphonic!",self->priv->machines[PART_MACHINE]);
+    GST_WARNING("machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
     return;
   }
 
@@ -801,11 +801,11 @@ gboolean bt_machine_new(BtMachine *self) {
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
   if(!(self->priv->global_params+self->priv->voice_params)) {
-    GST_WARNING("  machine has no params");
+    GST_WARNING("  machine %s has no params",self->priv->id);
   }
 
   if(BT_IS_SINK_MACHINE(self)) {
-    GST_DEBUG("  this will be the master for the song");
+    GST_DEBUG("  %s this will be the master for the song",self->priv->id);
     g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
   }
   // prepare internal patterns for the machine

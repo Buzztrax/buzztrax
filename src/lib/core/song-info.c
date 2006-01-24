@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.36 2005-12-23 14:03:03 ensonic Exp $
+// $Id: song-info.c,v 1.37 2006-01-24 22:28:10 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -13,6 +13,7 @@
 
 enum {
   SONG_INFO_SONG=1,
+  SONG_INFO_TAGLIST,
   SONG_INFO_FILE_NAME,
   SONG_INFO_INFO,
   SONG_INFO_NAME,
@@ -31,6 +32,9 @@ struct _BtSongInfoPrivate {
   
   /* the song the song-info belongs to */
   BtSong *song;
+  
+  /* the song-info as tag-data */
+  GstTagList *taglist;
 
   /* the file name of the song */
   gchar *file_name;
@@ -95,6 +99,9 @@ static void bt_song_info_get_property(GObject      *object,
     case SONG_INFO_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
+    case SONG_INFO_TAGLIST: {
+      g_value_set_pointer(value, gst_tag_list_copy(self->priv->taglist));
+    } break;
     case SONG_INFO_FILE_NAME: {
       g_value_set_string(value, self->priv->file_name);
     } break;
@@ -154,21 +161,25 @@ static void bt_song_info_set_property(GObject      *object,
     case SONG_INFO_INFO: {
       g_free(self->priv->info);
       self->priv->info = g_value_dup_string(value);
+      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DESCRIPTION, self->priv->info,NULL);
       GST_DEBUG("set the info for song_info: %s",self->priv->info);
     } break;
     case SONG_INFO_NAME: {
       g_free(self->priv->name);
       self->priv->name = g_value_dup_string(value);
+      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_TITLE, self->priv->name,NULL);
       GST_DEBUG("set the name for song_info: %s",self->priv->name);
     } break;
     case SONG_INFO_GENRE: {
       g_free(self->priv->genre);
       self->priv->genre = g_value_dup_string(value);
+      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_GENRE, self->priv->genre,NULL);
       GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
     } break;
     case SONG_INFO_AUTHOR: {
       g_free(self->priv->author);
       self->priv->author = g_value_dup_string(value);
+      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_ARTIST, self->priv->author,NULL);
       GST_DEBUG("set the author for song_info: %s",self->priv->author);
     } break;
     case SONG_INFO_BPM: {
@@ -222,6 +233,7 @@ static void bt_song_info_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  gst_tag_list_free(self->priv->taglist);
   g_object_try_weak_unref(self->priv->song);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -255,6 +267,8 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   //GST_DEBUG("song_info_init self=%p",self);
   self->priv = g_new0(BtSongInfoPrivate,1);
   self->priv->dispose_has_run = FALSE;
+  self->priv->taglist=gst_tag_list_new();
+
   self->priv->name=g_strdup("unamed song");
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute=125;  // 1..1000
@@ -265,7 +279,11 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->change_dts=g_new0(gchar,DTS_LEN+1);
   strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
   strcpy(self->priv->change_dts,self->priv->create_dts);
-  
+
+  gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
+        GST_TAG_TITLE, self->priv->name,
+	GST_TAG_DATE, self->priv->change_dts,
+        NULL);  
 }
 
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
@@ -284,6 +302,12 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
                                      "song object, the song-info belongs to",
                                      BT_TYPE_SONG, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,SONG_INFO_TAGLIST,
+                                  g_param_spec_pointer("taglist",
+                                     "songs taglist",
+                                     "songs meta data as a taglist",
+                                     G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,SONG_INFO_FILE_NAME,
                                   g_param_spec_string("file-name",
