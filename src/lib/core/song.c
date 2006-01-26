@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.107 2006-01-24 22:28:10 ensonic Exp $
+// $Id: song.c,v 1.108 2006-01-26 07:07:54 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -257,8 +257,10 @@ gboolean bt_song_play(const BtSong *self) {
   }
   
   // send tags
+  /* has no effect
   g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
   gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
+  */
   /* @todo: keep a reference to this tag event and reuse */
   /*
   > GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
@@ -280,6 +282,17 @@ gboolean bt_song_play(const BtSong *self) {
   GST_DEBUG("state change returned %d",res);
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
+
+  // send tags
+  /* also does not work :(
+  g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
+  {
+    GstEvent *tag_event=gst_event_new_tag(taglist);
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
+      GST_WARNING("element failed to handle tag event");
+    }
+  }
+  */
 
   return(TRUE);
 }
