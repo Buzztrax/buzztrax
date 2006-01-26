@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.3 2005-12-03 16:24:21 ensonic Exp $
+/** $Id: states1.c,v 1.4 2006-01-26 17:04:50 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1.c -o states1
@@ -183,8 +183,8 @@ int main(int argc, char **argv) {
   
   /* we don't need a reference to these objects anymore */
   gst_query_unref(query);
-  g_object_unref (G_OBJECT (clock));
-  g_object_unref (G_OBJECT (bin));
+  gst_object_unref (G_OBJECT (clock));
+  gst_object_unref (G_OBJECT (bin));
 
   exit (0);
 }

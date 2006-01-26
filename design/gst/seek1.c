@@ -1,4 +1,4 @@
-/* $Id: seek1.c,v 1.1 2005-12-23 14:03:02 ensonic Exp $
+/* $Id: seek1.c,v 1.2 2006-01-26 17:04:50 ensonic Exp $
  *
  * Build a pipeline with testaudiosource->alsasink
  * and sweep frequency and volume
@@ -222,8 +222,8 @@ main (gint argc, gchar ** argv)
   res = 0;
 Error:
   // cleanup
-  g_object_unref (G_OBJECT (ctrl));
-  g_object_unref (G_OBJECT (clock));
-  g_object_unref (G_OBJECT (bin));
+  gst_object_unref (G_OBJECT (ctrl));
+  gst_object_unref (G_OBJECT (clock));
+  gst_object_unref (G_OBJECT (bin));
   return (res);
 }

@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.11 2006-01-14 22:00:25 ensonic Exp $
+// $Id: sink-bin.c,v 1.12 2006-01-26 17:04:52 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -212,7 +212,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
   // generate recorder elements
   switch(self->priv->record_format) {
     case BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS:
-      // oggmux ! vorbis ! filesink location="song.ogg"
+      // vorbisenc ! oggmux ! filesink location="song.ogg"
       if(!(element=gst_element_factory_make("audioconvert","makefloat"))) {
         GST_INFO("Can't instantiate 'audioconvert' element");goto Error;
       }
