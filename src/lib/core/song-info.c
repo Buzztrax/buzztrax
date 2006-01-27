@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.39 2006-01-27 07:07:52 ensonic Exp $
+// $Id: song-info.c,v 1.40 2006-01-27 14:45:35 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -35,6 +35,7 @@ struct _BtSongInfoPrivate {
   
   /* the song-info as tag-data */
   GstTagList *taglist;
+	GDate *tag_date;
 
   /* the file name of the song */
   gchar *file_name;
@@ -212,12 +213,19 @@ static void bt_song_info_set_property(GObject      *object,
 
       if(dts) {
         if(strlen(dts)==DTS_LEN) {
+					struct tm tm;
           strcpy(self->priv->change_dts,dts);
+					// parse date and update tag
+					strptime(dts, "%FT%TZ", &tm);
+					g_date_set_time(self->priv->tag_date,mktime(&tm));
+  				gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
         }
       }
       else {
         time_t now=time(NULL);
         strftime(self->priv->change_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
+				g_date_set_time(self->priv->tag_date,now);
+				gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
       }
     } break;
     default: {
@@ -233,7 +241,6 @@ static void bt_song_info_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  gst_tag_list_free(self->priv->taglist);
   g_object_try_weak_unref(self->priv->song);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -245,6 +252,9 @@ static void bt_song_info_finalize(GObject *object) {
   BtSongInfo *self = BT_SONG_INFO(object);
 
   GST_DEBUG("!!!! self=%p",self);
+
+	g_date_free(self->priv->tag_date);
+  gst_tag_list_free(self->priv->taglist);
 
   g_free(self->priv->file_name);
   g_free(self->priv->info);
@@ -282,9 +292,11 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   GST_DEBUG("date initialized as %s",self->priv->change_dts);
   
   // init taglist
+	self->priv->tag_date=g_date_new();
+	g_date_set_time(self->priv->tag_date,now);
   gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
     GST_TAG_TITLE, self->priv->name,
-    GST_TAG_DATE, self->priv->change_dts,
+    GST_TAG_DATE, self->priv->tag_date,
     NULL);
 }
 

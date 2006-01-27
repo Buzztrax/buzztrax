@@ -1,9 +1,11 @@
-// $Id: sink-machine.c,v 1.56 2005-12-11 17:27:59 ensonic Exp $
+// $Id: sink-machine.c,v 1.57 2006-01-27 14:45:35 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
  *
- * Sinks are machines that do playback or recording of the song.
+ * Sinks are machines that do playback or recording of the song. The
+ * sink-machine utilizes the #BtSinkBin to transparently switch elements between
+ * record (encoding) and playback.
  */ 
  
 #define BT_CORE

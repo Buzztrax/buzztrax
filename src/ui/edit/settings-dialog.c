@@ -1,4 +1,4 @@
-// $Id: settings-dialog.c,v 1.18 2005-08-05 09:36:18 ensonic Exp $
+// $Id: settings-dialog.c,v 1.19 2006-01-27 14:45:38 ensonic Exp $
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
@@ -150,6 +150,11 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),3),
     gtk_label_new(_("Shortcuts")));
+	
+	/* @todo: more settings
+	 * - initial song bpm (from, to)
+	 *
+	 */
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   return(TRUE);
