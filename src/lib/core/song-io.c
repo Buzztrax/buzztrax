@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.50 2006-01-15 17:35:09 ensonic Exp $
+// $Id: song-io.c,v 1.51 2006-01-27 23:24:43 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -45,7 +45,7 @@ static GList *plugins=NULL;
 
 //-- helper methods
 
-/**
+/*
  * bt_song_io_register_plugins:
  *
  * Registers all song-io plugins for later use by bt_song_io_detect().
@@ -92,7 +92,7 @@ static void bt_song_io_register_plugins(void) {
   }
 }
 
-/**
+/*
  * bt_song_io_detect:
  * @filename: the full filename of the song
  * 
@@ -124,6 +124,11 @@ static GType bt_song_io_detect(const gchar *file_name) {
   return(type);
 }
 
+/*
+ * bt_song_io_update_filename:
+ *
+ * Grab the file-name from the path and store it in song-info.
+ */
 static void bt_song_io_update_filename(const BtSongIO *self, const BtSong *song) {
   BtSongInfo *song_info;
   gchar *file_path,*file_name;
@@ -199,12 +204,14 @@ static gboolean bt_song_io_real_save(const gpointer _self, const BtSong *song) {
 gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
   gboolean result;
   
+  bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
     //DEBUG
-    /*
+    /**/
     bt_song_write_to_dot_file(song);
+    /*
     bt_song_write_to_xml_file(song);
     */
     {
@@ -226,6 +233,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
     /**/
     //DEBUG
   }
+  bt_song_idle_start(self);
   return(result);
 }
 
@@ -247,10 +255,12 @@ gboolean bt_song_io_save(const gpointer self, const BtSong *song) {
 	g_object_set(G_OBJECT(song_info),"change-dts",NULL,NULL);
 	g_object_try_unref(song_info);
 
+  bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
     g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
   }
+  bt_song_idle_start(self);
   return(result);
 }
 

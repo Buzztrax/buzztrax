@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.45 2005-12-30 15:50:56 ensonic Exp $
+// $Id: application.c,v 1.46 2006-01-27 23:24:43 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -66,7 +66,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   
   g_return_val_if_fail(GST_IS_BUS(bus),TRUE);
   
-  GST_INFO("received bus messgage: '%s'",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
+  //GST_INFO("received bus messgage: '%s'",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
   
   for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
@@ -85,7 +85,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
         g_free (debug);
         break;
       default:
-        GST_INFO("  unhandled bus message");
+        GST_INFO("  unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
         break;
       }
     }

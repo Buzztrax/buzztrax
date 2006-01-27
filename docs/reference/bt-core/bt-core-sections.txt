@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.60 2006-01-13 18:05:33 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.61 2006-01-27 23:24:41 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -308,6 +308,8 @@ BtSong
 BtSongClass
 bt_song_new
 bt_song_set_unsaved
+bt_song_idle_start
+bt_song_idle_stop
 bt_song_play
 bt_song_stop
 bt_song_pause

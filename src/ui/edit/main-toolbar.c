@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.73 2006-01-01 19:27:27 ensonic Exp $
+// $Id: main-toolbar.c,v 1.74 2006-01-27 23:24:43 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -228,7 +228,7 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
         for(i=0;i<gst_value_list_get_size(l_rms);i++) {
           rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
           peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-          GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
+          //GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
           gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
         }
         res=TRUE;

@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.110 2006-01-27 14:45:35 ensonic Exp $
+// $Id: song.c,v 1.111 2006-01-27 23:24:43 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -50,8 +50,8 @@ struct _BtSongPrivate {
   
   /* the playback position of the song */
   gulong play_pos;
-  /* flag to signal playing state */
-  gboolean is_playing;
+  /* flag to signal playing and idle states */
+  gboolean is_playing,is_idle;
 
   /* the application that currently uses the song */
   BtApplication *app;
@@ -219,6 +219,7 @@ BtSong *bt_song_new(const BtApplication *app) {
   g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
   GST_INFO("  new song created: %p",self);
+  bt_song_idle_start(self);
   return(self);
 Error:
   g_object_try_unref(self);
@@ -245,11 +246,25 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
   }
 }
 
-/* @todo: required for live mode
+/* @todo: required for live mode */
 
+/**
+ * bt_song_idle_start:
+ * @self: a #BtSong
+ *
+ * Works like bt_song_play(), but sends a segmented-seek that loops from
+ * G_MAXUINT64-GST_SECONF to G_MAXUINT64-1.
+ * This is needed to do state changes (mute, solo, bypass) and to play notes
+ * live.
+ *
+ * The application should not be concered about this internal detail. Stopping
+ * and restarting the idle loop should only be done, when massive changes are
+ * about (e.g. loading a song).
+ */
 gboolean bt_song_idle_start(const BtSong *self) {
-  //like bt_song_play(), but send a segmented-seek that loops from GUINT64_MAX-1sec to GUIT64_MAX-1
-
+#ifdef __ENABLE_IDLE_LOOP_
+  GstStateChangeReturn res;
+ 
   // do not idle again
   if(self->priv->is_idle) return(TRUE);
 
@@ -273,12 +288,22 @@ gboolean bt_song_idle_start(const BtSong *self) {
   }
   GST_DEBUG("state change returned %d",res);
   self->priv->is_idle=TRUE;
-  g_object_notify(G_OBJECT(self),"is-idle");
+  //g_object_notify(G_OBJECT(self),"is-idle");
+#endif  
+  return(TRUE);
 }
 
+/**
+ * bt_song_idle_stop:
+ * @self: a #BtSong
+ *
+ * Stops the idle loop.
+ */
 gboolean bt_song_idle_stop(const BtSong *self) {
+#ifdef __ENABLE_IDLE_LOOP_
+  GstStateChangeReturn res;
+  
   GST_INFO("stopping idle loop");
-
   // do not stop if not idle
   if(!self->priv->is_idle) return(TRUE);
 
@@ -288,10 +313,10 @@ gboolean bt_song_idle_stop(const BtSong *self) {
   }
   GST_DEBUG("state change returned %d",res);
   self->priv->is_idle=FALSE;
-  g_object_notify(G_OBJECT(self),"is-idle");
+  //g_object_notify(G_OBJECT(self),"is-idle");
+#endif
+  return(TRUE);
 }
-
-*/
 
 /**
  * bt_song_play:
@@ -313,6 +338,7 @@ gboolean bt_song_play(const BtSong *self) {
 
   // do not play again
   if(self->priv->is_playing) return(TRUE);
+  bt_song_idle_stop(self);
   
   GST_INFO("prepare playback");
   // prepare playback
@@ -404,6 +430,8 @@ gboolean bt_song_stop(const BtSong *self) {
   
   self->priv->is_playing=FALSE;
   g_object_notify(G_OBJECT(self),"is-playing");
+  
+  bt_song_idle_start(self);
 
   return(TRUE);
 }
@@ -412,7 +440,7 @@ gboolean bt_song_stop(const BtSong *self) {
  * bt_song_pause:
  * @self: the song that should be paused
  *
- * Pauses the playback of the specified song instance
+ * Pauses the playback of the specified song instance.
  *
  * Returns: %TRUE for success
  */
@@ -425,7 +453,7 @@ gboolean bt_song_pause(const BtSong *self) {
  * bt_song_continue:
  * @self: the song that should be paused
  *
- * Continues the playback of the specified song instance
+ * Continues the playback of the specified song instance.
  *
  * Returns: %TRUE for success
  */
@@ -753,6 +781,9 @@ static void bt_song_dispose(GObject *object) {
   //DEBUG
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  if(self->priv->is_playing) bt_song_stop(self);
+  else if(self->priv->is_idle) bt_song_idle_stop(self);
   
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_start_changed,NULL);

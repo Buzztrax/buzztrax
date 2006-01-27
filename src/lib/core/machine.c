@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.177 2006-01-24 22:28:10 ensonic Exp $
+// $Id: machine.c,v 1.178 2006-01-27 23:24:43 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -208,24 +208,52 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
   gboolean res=FALSE;
   GstElement *machine,*peer_elem;
   GstPad *pad,*peer_pad;
+  GstState state=GST_STATE_VOID_PENDING;
+  GstStateChangeReturn ret;
   
   GST_INFO("toggle mute state");
 
   machine=self->priv->machines[PART_MACHINE];
+  // get current element state (is the song playing?)
+  if((ret=gst_element_get_state(machine,&state,NULL,1))!=GST_STATE_CHANGE_SUCCESS) {
+    GST_WARNING("failed to get state for %s",self->priv->id);
+  }
+  GST_INFO("state for %s is %s",self->priv->id,gst_element_state_get_name(state));
+
   if((pad=gst_element_get_pad(machine,"src"))) {
+    //GST_DEBUG("found pad=%p, pad->refct=%d",pad,G_OBJECT(pad)->ref_count);
+    //pad=gst_element_get_pad(machine,"src");
+    //GST_DEBUG("found pad=%p, pad->refct=%d",pad,G_OBJECT(pad)->ref_count);
+    
     if((peer_pad=gst_pad_get_peer(pad))) {
+      //GST_DEBUG("found peer-pad=%p, peer-pad->refct=%d",peer_pad,G_OBJECT(peer_pad)->ref_count);
+      //peer_pad=gst_pad_get_peer(pad);
+      //GST_DEBUG("found peer-pad=%p, peer-pad->refct=%d",peer_pad,G_OBJECT(peer_pad)->ref_count);
+      
       if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {
-        gst_pad_set_blocked(pad,TRUE);
-        gst_element_unlink(machine,peer_elem);
-        gst_element_link(self->priv->silence,peer_elem);
-        gst_pad_set_blocked(pad,FALSE);
-      
-        gst_element_set_locked_state(self->priv->silence,FALSE);
-        gst_element_set_state(self->priv->silence,GST_STATE_PLAYING);
-      
-        gst_element_set_state(machine,GST_STATE_READY);
-        gst_element_set_locked_state(machine,TRUE);
+        //GST_DEBUG("found peer-element=%p, peer-element->refct=%d",peer_elem,G_OBJECT(peer_elem)->ref_count);
+        //peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
+        //GST_DEBUG("found peer-element=%p, peer-element->refct=%d",peer_elem,G_OBJECT(peer_elem)->ref_count);
         
+        // only block when song is playing (otherwise this never returns)
+        if(state==GST_STATE_PLAYING) {
+          gst_pad_set_blocked(pad,TRUE);
+        }
+        
+        gst_element_unlink(machine,peer_elem);
+        if(!(gst_element_link(self->priv->silence,peer_elem))) {
+          GST_WARNING("can't link silence element to machine %s",self->priv->id);
+        }
+        
+        if(state==GST_STATE_PLAYING) {
+          gst_pad_set_blocked(pad,FALSE);
+
+          gst_element_set_locked_state(self->priv->silence,FALSE);
+          gst_element_set_state(self->priv->silence,GST_STATE_PLAYING);
+          gst_element_set_state(machine,GST_STATE_READY);
+          gst_element_set_locked_state(machine,TRUE);
+        }
+        // swap elements
         self->priv->machines[PART_MACHINE]=self->priv->silence;
         self->priv->silence=machine;
         
@@ -233,18 +261,19 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
         gst_object_unref(peer_elem);
       }
       else {
-        GST_WARNING("can't get sink-peer machine");
+        GST_WARNING("can't get sink-peer machine for %s",self->priv->id);
       }
       gst_object_unref(peer_pad);
     }
     else {
-      GST_WARNING("can't get peer-pad");
+      GST_WARNING("can't get peer-pad of %s",self->priv->id);
     }
     gst_object_unref(pad);
   }
   else {
-    GST_WARNING("can't get src pad of machine");
+    GST_WARNING("can't get src pad of machine of %s",self->priv->id);
   }
+  GST_INFO("toggle mute state = %d",res);
   return(res);
 }
 

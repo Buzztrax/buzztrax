@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.12 2006-01-26 17:04:52 ensonic Exp $
+// $Id: sink-bin.c,v 1.13 2006-01-27 23:24:43 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -289,18 +289,28 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
   // add new children
   switch(self->priv->mode) {
     case BT_SINK_BIN_MODE_PLAY:
-      list=bt_sink_bin_get_player_elements(self);
-      bt_sink_bin_add_many(self,list);
-      first_elem=GST_ELEMENT(list->data);
-      bt_sink_bin_link_many(self,first_elem,list->next);
-      g_list_free(list);
+      if((list=bt_sink_bin_get_player_elements(self))) {
+        bt_sink_bin_add_many(self,list);
+        first_elem=GST_ELEMENT(list->data);
+        bt_sink_bin_link_many(self,first_elem,list->next);
+        g_list_free(list);
+      }
+      else {
+        GST_WARNING("Can't get playback elemnt list");
+        return(FALSE);
+      }
       break;
     case BT_SINK_BIN_MODE_RECORD:
-      list=bt_sink_bin_get_recorder_elements(self);
-      bt_sink_bin_add_many(self,list);
-      first_elem=GST_ELEMENT(list->data);
-      bt_sink_bin_link_many(self,first_elem,list->next);
-      g_list_free(list);
+      if((list=bt_sink_bin_get_recorder_elements(self))) {
+        bt_sink_bin_add_many(self,list);
+        first_elem=GST_ELEMENT(list->data);
+        bt_sink_bin_link_many(self,first_elem,list->next);
+        g_list_free(list);
+      }
+      else {
+        GST_WARNING("Can't get record elemnt list");
+        return(FALSE);
+      }
       break;
     case BT_SINK_BIN_MODE_PLAY_AND_RECORD:
       // add a tee element
@@ -309,15 +319,25 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
       g_free(name);
       gst_bin_add(GST_BIN(self),first_elem);
       // add player elems
-      list=bt_sink_bin_get_player_elements(self);
-      bt_sink_bin_add_many(self,list);
-      bt_sink_bin_link_many(self,first_elem,list);
-      g_list_free(list);
+      if((list=bt_sink_bin_get_player_elements(self))) {
+        bt_sink_bin_add_many(self,list);
+        bt_sink_bin_link_many(self,first_elem,list);
+        g_list_free(list);
+      }
+      else {
+        GST_WARNING("Can't get playback elemnt list");
+        return(FALSE);
+      }
       // add recorder elems
-      list=bt_sink_bin_get_recorder_elements(self);
-      bt_sink_bin_add_many(self,list);
-      bt_sink_bin_link_many(self,first_elem,list);
-      g_list_free(list);
+      if((list=bt_sink_bin_get_recorder_elements(self))) {
+        bt_sink_bin_add_many(self,list);
+        bt_sink_bin_link_many(self,first_elem,list);
+        g_list_free(list);
+      }
+      else {
+        GST_WARNING("Can't get record elemnt list");
+        return(FALSE);
+      }
       break;
     default:
       g_assert_not_reached();
