@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.108 2006-01-26 07:07:54 ensonic Exp $
+// $Id: song.c,v 1.109 2006-01-27 07:07:52 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -235,6 +235,9 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
 gboolean bt_song_play(const BtSong *self) {
   GstStateChangeReturn res;
   GstTagList *taglist;
+  GstIterator *it;
+  gboolean done;
+  gpointer item;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
@@ -257,18 +260,37 @@ gboolean bt_song_play(const BtSong *self) {
   }
   
   // send tags
-  /* has no effect
   g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
+  it=gst_bin_iterate_all_by_interface(self->priv->bin,GST_TYPE_TAG_SETTER);
+  done=FALSE;
+  while(!done) {
+    switch(gst_iterator_next(it, &item)) {
+      case GST_ITERATOR_OK:
+        GST_INFO("sending tags to '%s' element",gst_element_get_name(GST_ELEMENT(item)));
+        gst_tag_setter_merge_tags(GST_TAG_SETTER(item),taglist,GST_TAG_MERGE_REPLACE);
+        gst_object_unref(item);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync(it);
+        break;
+      case GST_ITERATOR_ERROR:
+        GST_WARNING("wrong parameter for iterator");
+        done=TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done=TRUE;
+        break;
+    }
+  }
+  gst_iterator_free (it);
+
+  /* @todo: has no effect if not send to a source
   gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
   */
-  /* @todo: keep a reference to this tag event and reuse */
-  /*
-  > GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
-  > GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
-  */
-  /*
+  /* @todo: also fails
+   * GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
+   * GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
   tag_event=gst_event_new_tag(taglist);
-  GST_DEBUG("tag event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(tag_event),GST_EVENT_IS_DOWNSTREAM(tag_event));
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
     GST_WARNING("element failed to handle tag event");
   }
@@ -282,17 +304,6 @@ gboolean bt_song_play(const BtSong *self) {
   GST_DEBUG("state change returned %d",res);
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
-
-  // send tags
-  /* also does not work :(
-  g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
-  {
-    GstEvent *tag_event=gst_event_new_tag(taglist);
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
-      GST_WARNING("element failed to handle tag event");
-    }
-  }
-  */
 
   return(TRUE);
 }

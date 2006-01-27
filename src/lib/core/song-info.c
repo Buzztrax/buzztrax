@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.38 2006-01-26 17:04:52 ensonic Exp $
+// $Id: song-info.c,v 1.39 2006-01-27 07:07:52 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -279,7 +279,9 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   self->priv->change_dts=g_new0(gchar,DTS_LEN+1);
   strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
   strcpy(self->priv->change_dts,self->priv->create_dts);
-
+  GST_DEBUG("date initialized as %s",self->priv->change_dts);
+  
+  // init taglist
   gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
     GST_TAG_TITLE, self->priv->name,
     GST_TAG_DATE, self->priv->change_dts,

@@ -1,4 +1,4 @@
-/** $Id: tags1.c,v 1.1 2006-01-26 17:04:50 ensonic Exp $
+/** $Id: tags1.c,v 1.2 2006-01-27 07:07:51 ensonic Exp $
  * test tag writing in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` tags1.c -o tags1
@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <gst/gst.h>
 
-#define WAIT_LENGTH 4
+#define WAIT_LENGTH 2
 
 int main(int argc, char **argv) {
   GstElement *bin;
@@ -84,6 +84,12 @@ int main(int argc, char **argv) {
     puts("sending tags to src");
     gst_element_found_tags(src, taglist);
   }
+  /*
+  iter=gst_bin_iterate_all_by_interface (bin, GST_TYPE_TAG_SETTER);
+  ...
+  
+  gst_tag_setter_merge_tags(setter,taglist,GST_TAG_MERGE_REPLACE)
+  */
 
   /* start playing */
   if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
@@ -101,5 +107,12 @@ int main(int argc, char **argv) {
   gst_object_unref (G_OBJECT (clock));
   gst_object_unref (G_OBJECT (bin));
 
-  exit (0);
+  if(argc>1) {
+    puts("FAILS");
+    exit (1);
+  }
+  else {
+    puts("PASSES");
+    exit (0);
+  }
 }
