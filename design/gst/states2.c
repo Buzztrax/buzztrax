@@ -1,7 +1,7 @@
-/** $Id: states2.c,v 1.2 2006-01-26 17:04:50 ensonic Exp $
+/** $Id: states2.c,v 1.3 2006-01-28 17:00:20 ensonic Exp $
  * test state changing in gst
  *
- * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` states2.c -o states2
+ * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states2.c -o states2
  */
  
 #include <stdio.h>
@@ -22,12 +22,12 @@ int main(int argc, char **argv) {
   bin = gst_pipeline_new("song");
  
   /* make elements */
-  if(!(src1 = gst_element_factory_make ("sinesrc", "src1"))) {
-    fprintf(stderr,"Can't create element \"sinesrc\"\n");exit (-1);
+  if(!(src1 = gst_element_factory_make ("audiotestsrc", "src1"))) {
+    fprintf(stderr,"Can't create element \"audiotestsrc\"\n");exit (-1);
   }
   g_object_set(src1,"freq",440.0,NULL);
-  if(!(src2 = gst_element_factory_make ("sinesrc", "src2"))) {
-    fprintf(stderr,"Can't create element \"sinesrc\"\n");exit (-1);
+  if(!(src2 = gst_element_factory_make ("audiotestsrc", "src2"))) {
+    fprintf(stderr,"Can't create element \"audiotestsrc\"\n");exit (-1);
   }
   g_object_set(src2,"freq",2000.0,NULL);
   if(!(mix = gst_element_factory_make ("adder", "mix"))) {

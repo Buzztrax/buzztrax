@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.13 2006-01-27 23:24:43 ensonic Exp $
+// $Id: sink-bin.c,v 1.14 2006-01-28 17:00:21 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -227,9 +227,13 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
       list=g_list_append(list,element);
       break;
     case BT_SINK_BIN_RECORD_FORMAT_MP3:
-      // lame ! filesink location="song.mp3"
+      // lame ! id3mux ! filesink location="song.mp3"
       if(!(element=gst_element_factory_make("lame","lame"))) {
         GST_INFO("Can't instantiate 'lame' element");goto Error;
+      }
+      list=g_list_append(list,element);
+      if(!(element=gst_element_factory_make("id3mux","id3mux"))) {
+        GST_INFO("Can't instantiate 'id3mux' element");goto Error;
       }
       list=g_list_append(list,element);
       break;

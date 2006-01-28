@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.4 2006-01-26 17:04:50 ensonic Exp $
+/** $Id: states1.c,v 1.5 2006-01-28 17:00:20 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1.c -o states1
@@ -10,7 +10,7 @@
 #define SINK_NAME "alsasink"
 //#define SINK_NAME "esdsink"
 #define ELEM_NAME "audioconvert"
-#define SRC_NAME "sinesrc"
+#define SRC_NAME "audiotestsrc"
 #define SILENCE_NAME "audiotestsrc"
 
 #define WAIT_LENGTH 4

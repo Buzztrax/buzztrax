@@ -1,4 +1,4 @@
-/** $Id: states.c,v 1.5 2005-12-03 16:24:21 ensonic Exp $
+/** $Id: states.c,v 1.6 2006-01-28 17:00:20 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states.c -o states
@@ -13,12 +13,12 @@
 #define SRC_NAME "sinesrc"
 
 static void query_and_print(GstElement *element, GstQuery *query) {
-  gint64 pos_cur,pos_end;
+  gint64 pos;
 
   if(gst_element_query(element,query)) {
-    gst_query_parse_position(query,NULL,&pos_cur,&pos_end);
-    printf("%s playback-pos : cur=%"G_GINT64_FORMAT" end=%"G_GINT64_FORMAT"\n",
-      GST_OBJECT_NAME(element),pos_cur,pos_end);
+    gst_query_parse_position(query,NULL,&pos);
+    printf("%s playback-pos : cur=%"G_GINT64_FORMAT"\n",
+      GST_OBJECT_NAME(element),pos);
   }
   else {
     printf("%s playback-pos : cur=??? end=???\n",GST_OBJECT_NAME(element));
@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
   if(gst_element_set_state (src2, mute_state) == GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't pause src2\n");exit(-1);
   }
-  if((res=gst_element_get_state (src2, &state_now2, &state_pending2, NULL))!=GST_STATE_CHANGE_SUCCESS) {
+  if((res=gst_element_get_state (src2, &state_now2, &state_pending2, 1))!=GST_STATE_CHANGE_SUCCESS) {
     fprintf(stderr,"Failed to pause src2\n");exit(-1);
   }
 
@@ -133,13 +133,13 @@ int main(int argc, char **argv) {
   if(gst_element_set_state (src2, GST_STATE_PLAYING) == GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't continue src2\n");exit(-1);
   }
-  if((res=gst_element_get_state (src2, &state_now2, &state_pending2, NULL))!=GST_STATE_CHANGE_SUCCESS) {
+  if((res=gst_element_get_state (src2, &state_now2, &state_pending2, 1))!=GST_STATE_CHANGE_SUCCESS) {
     fprintf(stderr,"Failed to pause src2\n");exit(-1);
   }
   if(gst_element_set_state (src1, mute_state) == GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't pause src1\n");exit(-1);
   }
-  if((res=gst_element_get_state (src1, &state_now1, &state_pending1, NULL))!=GST_STATE_CHANGE_SUCCESS) {
+  if((res=gst_element_get_state (src1, &state_now1, &state_pending1, 1))!=GST_STATE_CHANGE_SUCCESS) {
     fprintf(stderr,"Failed to pause src2\n");exit(-1);
   }
 
