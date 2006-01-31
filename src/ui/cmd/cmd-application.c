@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.73 2005-12-30 15:50:57 ensonic Exp $
+// $Id: cmd-application.c,v 1.74 2006-01-31 19:53:43 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -81,8 +81,10 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
         sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
         printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
       }
+      while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
       g_usleep(1000);
     }
+    GST_INFO("finished playing: is_playing=%d, pos=%ld < length=%d",is_playing,pos,length);
     printf("\n");
     /*
     GMainLoop *main_loop; // make global
@@ -127,13 +129,13 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     format=BT_SINK_BIN_RECORD_FORMAT_WAV;
   }
   else if(g_str_has_suffix(lc_file_name,".flac")) {
-    format=BT_SINK_BIN_RECORD_FORMAT_FLAC;
+    format=BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC;
   }
   else if(g_str_has_suffix(lc_file_name,".raw")) {
     format=BT_SINK_BIN_RECORD_FORMAT_RAW;
   }
   else {
-    GST_WARNING("unknown file-format extension, using ogg");
+    GST_WARNING("unknown file-format extension, using ogg vorbis");
     format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
     // @todo append .ogg to the file-name
   }

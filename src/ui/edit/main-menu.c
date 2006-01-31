@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.44 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-menu.c,v 1.45 2006-01-31 19:53:43 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -397,6 +397,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(subitem),!toolbar_hide);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
+  
+  /* @todo: 'Statusbar' show/hide toggle */
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Tabs"));
   gtk_widget_set_name(subitem,_("Tabs"));
@@ -454,6 +456,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
   gtk_widget_set_name(subitem,_("Content"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  
+  /* @todo: 'tip of the day' */
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("About"));
   gtk_widget_set_name(subitem,_("About"));

@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.178 2006-01-27 23:24:43 ensonic Exp $
+// $Id: machine.c,v 1.179 2006-01-31 19:53:43 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -221,20 +221,8 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
   GST_INFO("state for %s is %s",self->priv->id,gst_element_state_get_name(state));
 
   if((pad=gst_element_get_pad(machine,"src"))) {
-    //GST_DEBUG("found pad=%p, pad->refct=%d",pad,G_OBJECT(pad)->ref_count);
-    //pad=gst_element_get_pad(machine,"src");
-    //GST_DEBUG("found pad=%p, pad->refct=%d",pad,G_OBJECT(pad)->ref_count);
-    
-    if((peer_pad=gst_pad_get_peer(pad))) {
-      //GST_DEBUG("found peer-pad=%p, peer-pad->refct=%d",peer_pad,G_OBJECT(peer_pad)->ref_count);
-      //peer_pad=gst_pad_get_peer(pad);
-      //GST_DEBUG("found peer-pad=%p, peer-pad->refct=%d",peer_pad,G_OBJECT(peer_pad)->ref_count);
-      
-      if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {
-        //GST_DEBUG("found peer-element=%p, peer-element->refct=%d",peer_elem,G_OBJECT(peer_elem)->ref_count);
-        //peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
-        //GST_DEBUG("found peer-element=%p, peer-element->refct=%d",peer_elem,G_OBJECT(peer_elem)->ref_count);
-        
+    if((peer_pad=gst_pad_get_peer(pad))) {      
+      if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {      
         // only block when song is playing (otherwise this never returns)
         if(state==GST_STATE_PLAYING) {
           gst_pad_set_blocked(pad,TRUE);

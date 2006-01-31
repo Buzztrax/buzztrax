@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.74 2006-01-27 23:24:43 ensonic Exp $
+// $Id: main-toolbar.c,v 1.75 2006-01-31 19:53:43 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -233,11 +233,30 @@ static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer 
         }
         res=TRUE;
       }
-      break;
+    } break;
+    case GST_MESSAGE_APPLICATION: {
+      BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+      const GstStructure *structure=gst_message_get_structure(message);
+      const gchar *name = gst_structure_get_name(structure);
+      
+      if(!strcmp(name,"level-caps-changed")) {
+        gint i,channels;
+        
+        gst_structure_get_int(structure,"channels",&channels);
+        GST_INFO("received application bus message: channel=%d",channels);
+        
+        for(i=0;i<channels;i++) {
+          gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
+        }
+        for(i=channels;i<MAX_VUMETER;i++) {
+          gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
+        }        
+        res=TRUE;
+      }      
+    } break;
     default:
-      //GST_INFO("received bus message: type=%d",GST_MESSAGE_TYPE(message));
+      //GST_INFO("received bus message: type=%s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
       break;
-    }
   }
   return(res);
 }
@@ -277,19 +296,30 @@ static void on_song_volume_change(GtkRange *range,gpointer user_data) {
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   GstCaps *caps;
-  gint i,channels;
   
   g_assert(user_data);
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
+    gint channels;
+    GstStructure *structure;
+    GstMessage *message;
+    GstElement *bin;
+    GstBus *bus;
+    
     channels=gst_caps_get_channels(caps);
     GST_INFO("!!!  input level src has %d output channels",channels);
+    
+    // post a message to the bus
+    structure = gst_structure_new ("level-caps-changed",
+        "channels", G_TYPE_INT, channels, NULL);
+    message = gst_message_new_application (NULL, structure);
+    
+    g_object_get(G_OBJECT(self->priv->app),"bin",&bin,NULL);
+    bus=gst_element_get_bus(bin);
+    
+    gst_bus_post (bus, message);
 
-    for(i=0;i<channels;i++) {
-      gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
-    }
-    for(i=channels;i<MAX_VUMETER;i++) {
-      gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
-    }
+    gst_object_unref(bus);
+    gst_object_unref(bin);
   }
 }
 
@@ -328,7 +358,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   
   if(master) {
     GstPad *pad;
-    //GstBus *bus;
     gdouble volume;
     
     GST_INFO("connect to input-level : song=%p,  master=%p",song,master);
@@ -338,8 +367,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     g_assert(GST_IS_ELEMENT(level));
     bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
-    //bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
-    //g_signal_connect (bus, "message::application", (GCallback) on_song_level_change, (gpointer)self);
+
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {
       g_signal_connect(pad,"notify::caps",G_CALLBACK(on_channels_negotiated),(gpointer)self);
@@ -354,7 +382,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // connect volume event
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
 
-    //gst_object_unref(bus);
     g_object_unref(master);
   }
   else {

@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.5 2006-01-28 17:00:20 ensonic Exp $
+/** $Id: states1.c,v 1.6 2006-01-31 19:53:43 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1.c -o states1
@@ -27,6 +27,25 @@ static void query_and_print(GstElement *element, GstQuery *query) {
   }
 }
 
+static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
+  const GstStructure *s;
+
+  s = gst_message_get_structure (message);
+  g_print ("message from \"%s\" (%s): ",
+      GST_STR_NULL (GST_ELEMENT_NAME (GST_MESSAGE_SRC (message))),
+      gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
+  if (s) {
+    gchar *sstr;
+
+    sstr = gst_structure_to_string (s);
+    printf ("%s\n", sstr);
+    g_free (sstr);
+  }
+  else {
+    printf ("no message details\n");
+  }
+}
+
 int main(int argc, char **argv) {
   GstElement *bin;
   /* elements used in pipeline */
@@ -41,6 +60,7 @@ int main(int argc, char **argv) {
   GstPad *src1_sink;
   GstPad *src2_sink;
   GstPad *silence_sink;
+  GstBus *bus;
   gboolean ret;
   
   /* init gstreamer */
@@ -99,6 +119,11 @@ int main(int argc, char **argv) {
     fprintf(stderr,"Can't make a position query\n");exit (-1);
   }
 
+  /* see if we get errors */
+  bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect (bus, "message::error", (GCallback) message_received, bin);
+  g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
   
   /* prepare playing */
   if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
@@ -183,6 +208,7 @@ int main(int argc, char **argv) {
   
   /* we don't need a reference to these objects anymore */
   gst_query_unref(query);
+  gst_object_unref (G_OBJECT (bus));
   gst_object_unref (G_OBJECT (clock));
   gst_object_unref (G_OBJECT (bin));
 

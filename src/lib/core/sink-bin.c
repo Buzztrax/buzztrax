@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.14 2006-01-28 17:00:21 ensonic Exp $
+// $Id: sink-bin.c,v 1.15 2006-01-31 19:53:43 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -67,7 +67,7 @@ GType bt_sink_bin_record_format_get_type(void) {
       { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, "BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS", "ogg vorbis" },
       { BT_SINK_BIN_RECORD_FORMAT_MP3,        "BT_SINK_BIN_RECORD_FORMAT_MP3",        "mp3" },
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        "BT_SINK_BIN_RECORD_FORMAT_WAV",        "wav" },
-      { BT_SINK_BIN_RECORD_FORMAT_FLAC,       "BT_SINK_BIN_RECORD_FORMAT_FLAC",       "flac" },
+      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   "BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC",   "ogg flac" },
       { BT_SINK_BIN_RECORD_FORMAT_RAW,        "BT_SINK_BIN_RECORD_FORMAT_RAW",        "raw" },
       { 0, NULL, NULL},
     };
@@ -244,10 +244,14 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
       }
       list=g_list_append(list,element);
       break;
-    case BT_SINK_BIN_RECORD_FORMAT_FLAC:
-      // flacenc ! filesink location="song.flac"
+    case BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC:
+      // flacenc ! oggmux ! filesink location="song.flac"
       if(!(element=gst_element_factory_make("flacenc","flacenc"))) {
         GST_INFO("Can't instantiate 'flacenc' element");goto Error;
+      }
+      list=g_list_append(list,element);
+      if(!(element=gst_element_factory_make("oggmux","oggmux"))) {
+        GST_INFO("Can't instantiate 'oggmux' element");goto Error;
       }
       list=g_list_append(list,element);
       break;

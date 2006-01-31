@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.46 2006-01-27 23:24:43 ensonic Exp $
+// $Id: application.c,v 1.47 2006-01-31 19:53:43 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -85,7 +85,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
         g_free (debug);
         break;
       default:
-        GST_INFO("  unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
+        //GST_DEBUG("  unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
         break;
       }
     }

@@ -1,4 +1,4 @@
-/** $Id: states2.c,v 1.3 2006-01-28 17:00:20 ensonic Exp $
+/** $Id: states2.c,v 1.4 2006-01-31 19:53:43 ensonic Exp $
  * test state changing in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states2.c -o states2
@@ -9,10 +9,30 @@
 
 #include <gst/gst.h>
 
+static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
+  const GstStructure *s;
+
+  s = gst_message_get_structure (message);
+  g_print ("message from \"%s\" (%s): ",
+      GST_STR_NULL (GST_ELEMENT_NAME (GST_MESSAGE_SRC (message))),
+      gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
+  if (s) {
+    gchar *sstr;
+
+    sstr = gst_structure_to_string (s);
+    printf ("%s\n", sstr);
+    g_free (sstr);
+  }
+  else {
+    printf ("no message details\n");
+  }
+}
+
 int main(int argc, char **argv) {
   GstElement *bin;
   /* elements used in pipeline */
   GstElement *src1,*src2,*mix,*conv,*proc,*sink;
+  GstBus *bus;
   
   /* init gstreamer */
   gst_init(&argc, &argv);
@@ -63,6 +83,13 @@ int main(int argc, char **argv) {
     fprintf(stderr,"Can't link chain 5\n");exit (-1);
   }
 
+  /* see if we get errors */
+  bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect (bus, "message::error", (GCallback) message_received, bin);
+  g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
+  
+
   /* prepare playing */
   if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't prepare playing\n");exit(-1);
@@ -80,6 +107,7 @@ int main(int argc, char **argv) {
  
   
   /* we don't need a reference to these objects anymore */
+  gst_object_unref(G_OBJECT(bus));
   gst_object_unref(G_OBJECT(bin));
 
   exit (0);

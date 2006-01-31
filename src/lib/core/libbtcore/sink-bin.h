@@ -1,4 +1,4 @@
-/* $Id: sink-bin.h,v 1.3 2005-12-23 14:03:03 ensonic Exp $
+/* $Id: sink-bin.h,v 1.4 2006-01-31 19:53:43 ensonic Exp $
  * class for a sink bin
  */
 
@@ -62,7 +62,7 @@ typedef enum {
  * @BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS: ogg vorbis
  * @BT_SINK_BIN_RECORD_FORMAT_MP3: mp3
  * @BT_SINK_BIN_RECORD_FORMAT_WAV: wav
- * @BT_SINK_BIN_RECORD_FORMAT_FLAC: flac
+ * @BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC: ogg flac
  * @BT_SINK_BIN_RECORD_FORMAT_RAW: raw
  *
  * #BtSinkMachine can record audio in several formats.
@@ -71,7 +71,7 @@ typedef enum {
   BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS=0,
   BT_SINK_BIN_RECORD_FORMAT_MP3,
   BT_SINK_BIN_RECORD_FORMAT_WAV,
-  BT_SINK_BIN_RECORD_FORMAT_FLAC,
+  BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,
   BT_SINK_BIN_RECORD_FORMAT_RAW
 } BtSinkBinRecordFormat;
 
