@@ -1,4 +1,4 @@
-/** $Id: states3.c,v 1.5 2006-01-31 19:53:43 ensonic Exp $
+/** $Id: states3.c,v 1.6 2006-01-31 21:58:24 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states3.c -o states3
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
   
  
   /* prepare playing */
-  if(gst_element_set_locked_state (src2, TRUE)) {
+  if(!gst_element_set_locked_state (src2, TRUE)) {
     fprintf(stderr,"Can't lock state of src2\n");//exit(-1);
   }
   if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
   //ret=gst_pad_set_active(src2_sink,FALSE);
   //ret=gst_pad_set_active(src2_sink,TRUE);
   //printf("  activate=%d\n",ret);
-  if(gst_element_set_locked_state (src2, FALSE)) {
+  if(!gst_element_set_locked_state (src2, FALSE)) {
     fprintf(stderr,"Can't unlock state of src2\n");//exit(-1);
   }
   if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {

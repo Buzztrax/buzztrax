@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.179 2006-01-31 19:53:43 ensonic Exp $
+// $Id: machine.c,v 1.180 2006-01-31 21:58:27 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -209,23 +209,26 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
   GstElement *machine,*peer_elem;
   GstPad *pad,*peer_pad;
   GstState state=GST_STATE_VOID_PENDING;
-  GstStateChangeReturn ret;
+  GstStateChangeReturn state_ret;
   
   GST_INFO("toggle mute state");
 
   machine=self->priv->machines[PART_MACHINE];
   // get current element state (is the song playing?)
-  if((ret=gst_element_get_state(machine,&state,NULL,1))!=GST_STATE_CHANGE_SUCCESS) {
+  if((state_ret=gst_element_get_state(machine,&state,NULL,1))!=GST_STATE_CHANGE_SUCCESS) {
     GST_WARNING("failed to get state for %s",self->priv->id);
   }
   GST_INFO("state for %s is %s",self->priv->id,gst_element_state_get_name(state));
 
   if((pad=gst_element_get_pad(machine,"src"))) {
     if((peer_pad=gst_pad_get_peer(pad))) {      
-      if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {      
+      if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {
+        GST_INFO("unlinking %s - %s",gst_element_get_name(machine),gst_element_get_name(peer_elem));
         // only block when song is playing (otherwise this never returns)
         if(state==GST_STATE_PLAYING) {
-          gst_pad_set_blocked(pad,TRUE);
+          if(!gst_pad_set_blocked(pad,TRUE)) {
+            GST_WARNING("can't block src-pad of machine %s",self->priv->id);
+          }
         }
         
         gst_element_unlink(machine,peer_elem);
@@ -234,12 +237,21 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
         }
         
         if(state==GST_STATE_PLAYING) {
-          gst_pad_set_blocked(pad,FALSE);
-
-          gst_element_set_locked_state(self->priv->silence,FALSE);
-          gst_element_set_state(self->priv->silence,GST_STATE_PLAYING);
-          gst_element_set_state(machine,GST_STATE_READY);
-          gst_element_set_locked_state(machine,TRUE);
+          if(!gst_pad_set_blocked(pad,FALSE)) {
+            GST_WARNING("can't unblock src-pad of machine %s",self->priv->id);
+          }
+          if(!gst_element_set_locked_state(self->priv->silence,FALSE)) {
+            GST_WARNING("can't set locked state of new machine to FALSE in %s",self->priv->id);
+          }
+          if((state_ret=gst_element_set_state(self->priv->silence,GST_STATE_PLAYING))!=GST_STATE_CHANGE_SUCCESS) {
+            GST_WARNING("failed to set state of new machine to PLAYING in %s, ret=%d",self->priv->id,state_ret);
+          }
+          if((state_ret=gst_element_set_state(machine,GST_STATE_READY))!=GST_STATE_CHANGE_SUCCESS) {
+            GST_WARNING("failed to set state of old machine to READY in %s, ret=%d",self->priv->id,state_ret);
+          }
+          if(!gst_element_set_locked_state(machine,TRUE)) {
+            GST_WARNING("can't set locked state of old machine to TRUE in %s",self->priv->id);
+          }
         }
         // swap elements
         self->priv->machines[PART_MACHINE]=self->priv->silence;
