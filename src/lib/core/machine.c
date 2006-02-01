@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.180 2006-01-31 21:58:27 ensonic Exp $
+// $Id: machine.c,v 1.181 2006-02-01 23:16:42 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -851,8 +851,11 @@ gboolean bt_machine_new(BtMachine *self) {
     gchar *name=g_strdup_printf("silence_%p",self);
 
     self->priv->silence=gst_element_factory_make("audiotestsrc",name);
-    gst_element_set_locked_state(self->priv->silence,TRUE);
     gst_bin_add(self->priv->bin,self->priv->silence);
+    if(gst_element_set_state(self->priv->silence, GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
+      fprintf(stderr,"Can't set state to READY for silence\n");exit(-1);
+    }
+    gst_element_set_locked_state(self->priv->silence,TRUE);
   }
   
   // add the machine to the setup of the song

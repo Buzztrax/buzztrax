@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.47 2006-01-31 19:53:43 ensonic Exp $
+// $Id: application.c,v 1.48 2006-02-01 23:16:42 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -73,21 +73,27 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
     handled=entry->handler(bus,message,entry->user_data);
   }
   if(!handled) {
+    gchar *msg_type=NULL;
     switch(GST_MESSAGE_TYPE(message)) {
       case GST_MESSAGE_WARNING:
-      case GST_MESSAGE_ERROR:{
-        GError *gerror;
-        gchar *debug;
-  
-        gst_message_parse_error (message, &gerror, &debug);
-        gst_object_default_error (GST_MESSAGE_SRC (message), gerror, debug);
-        g_error_free (gerror);
-        g_free (debug);
+        msg_type=_("Warning");
+        break;
+      case GST_MESSAGE_ERROR:
+        msg_type=_("Error");
         break;
       default:
         //GST_DEBUG("  unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
         break;
-      }
+    }
+    if(msg_type) {
+      GError *err;
+      gchar *debug;
+
+      gst_message_parse_error (message, &err, &debug);
+      //gst_object_default_error (GST_MESSAGE_SRC (message), err, debug);
+      g_print("%s: %s\n%s\n",msg_type,safe_string(err->message),debug);
+      g_error_free (err);
+      g_free (debug);
     }
   }
   // pop off *all* messages

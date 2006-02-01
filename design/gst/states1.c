@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.6 2006-01-31 19:53:43 ensonic Exp $
+/** $Id: states1.c,v 1.7 2006-02-01 23:16:40 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states1.c -o states1
@@ -13,9 +13,10 @@
 #define SRC_NAME "audiotestsrc"
 #define SILENCE_NAME "audiotestsrc"
 
-#define WAIT_LENGTH 4
+#define WAIT_LENGTH 3
 
 static void query_and_print(GstElement *element, GstQuery *query) {
+  /*
   gint64 pos;
 
   if(gst_element_query(element,query)) {
@@ -25,6 +26,7 @@ static void query_and_print(GstElement *element, GstQuery *query) {
   else {
     printf("%s playback-pos : cur=???\n",GST_OBJECT_NAME(element));
   }
+  */
 }
 
 static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
@@ -51,15 +53,14 @@ int main(int argc, char **argv) {
   /* elements used in pipeline */
   GstElement *sink;
   GstElement *src1,*src2;
-  GstElement *vol1,*vol2;
   GstElement *mix,*silence;
   GstClock *clock;
   GstClockID clock_id;
   GstClockReturn wait_ret;
   GstQuery *query;
-  GstPad *src1_sink;
-  GstPad *src2_sink;
-  GstPad *silence_sink;
+  GstPad *src1_src;
+  GstPad *src2_src;
+  GstPad *silence_src;
   GstBus *bus;
   gboolean ret;
   
@@ -76,14 +77,6 @@ int main(int argc, char **argv) {
     fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
   }
   
-  /* make filters */
-  if(!(vol1 = gst_element_factory_make (ELEM_NAME, "filter1"))) {
-    fprintf(stderr,"Can't create element \""ELEM_NAME"\"\n");exit (-1);
-  }
-  if(!(vol2 = gst_element_factory_make (ELEM_NAME, "filter2"))) {
-    fprintf(stderr,"Can't create element \""ELEM_NAME"\"\n");exit (-1);
-  }
-
   /* make sources */
   if(!(src1 = gst_element_factory_make (SRC_NAME, "src1"))) {
     fprintf(stderr,"Can't create element \""SRC_NAME"\"\n");exit (-1);
@@ -104,13 +97,13 @@ int main(int argc, char **argv) {
   }
     
   /* add objects to the main bin */
-  gst_bin_add_many (GST_BIN (bin), src1,src2, vol1,vol2, silence, mix, sink, NULL);
+  gst_bin_add_many (GST_BIN (bin), src1,src2, silence, mix, sink, NULL);
   
   /* link elements */
-  if(!gst_element_link_many (src1, vol1, mix, sink, NULL)) {
+  if(!gst_element_link_many (src1, mix, sink, NULL)) {
     fprintf(stderr,"Can't link first part\n");exit (-1);
   }
-  if(!gst_element_link_many (src2, vol2, mix, NULL)) {
+  if(!gst_element_link_many (src2, mix, NULL)) {
     fprintf(stderr,"Can't link second part\n");exit (-1);
   }
    
@@ -126,18 +119,22 @@ int main(int argc, char **argv) {
   g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
   
   /* prepare playing */
+  if(!gst_element_set_locked_state (silence, TRUE)) {
+    fprintf(stderr,"Can't lock state of silence\n");//exit(-1);
+  }
+  /* prepare playing */
   if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't prepare playing\n");exit(-1);
   }
 
   /* get pads */
-  if(!(src1_sink=gst_element_get_pad(src1,"src"))) {
+  if(!(src1_src=gst_element_get_pad(src1,"src"))) {
     fprintf(stderr,"Can't get src pad of src1\n");exit (-1);
   }
-  if(!(src2_sink=gst_element_get_pad(src2,"src"))) {
+  if(!(src2_src=gst_element_get_pad(src2,"src"))) {
     fprintf(stderr,"Can't get src pad of src1\n");exit (-1);
   }
-  if(!(silence_sink=gst_element_get_pad(silence,"src"))) {
+  if(!(silence_src=gst_element_get_pad(silence,"src"))) {
     fprintf(stderr,"Can't get src pad of silence\n");exit (-1);
   }
 
@@ -151,59 +148,81 @@ int main(int argc, char **argv) {
 
   /* do the state tests */
   
-  puts("play everything");
+  puts("play everything ========================================================\n");
   query_and_print(src1,query);
   query_and_print(src2,query);
+  query_and_print(silence,query);
   if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
       GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
 
-  printf("trying to pause source2\n");
-  ret=gst_pad_set_blocked(src2_sink,TRUE);
+  puts("trying to pause source2 ================================================\n");
+  ret=gst_pad_set_blocked(src2_src,TRUE);
   printf("  =%d\n",ret);
-  gst_element_unlink(src2,vol2);
-  gst_element_link(silence,vol2);
-  ret=gst_pad_set_blocked(src2_sink,FALSE);
+  gst_element_unlink(src2,mix);
+  gst_element_link(silence,mix);
+  ret=gst_pad_set_blocked(src2_src,FALSE);
   printf("  =%d\n",ret);
-  if(gst_element_set_state (silence, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
-    fprintf(stderr,"Can't start playing\n");exit(-1);
+  if(!gst_element_set_locked_state (silence, FALSE)) {
+    fprintf(stderr,"Can't unlock state of silence\n");
   }
-  
-  printf("paused source2\n");
+  if(gst_element_set_state (silence, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't set state to PLAYING for silence\n");exit(-1);
+  }
+  if(gst_element_set_state (src2, GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't set state to READY for src2\n");exit(-1);
+  }
+  if(!gst_element_set_locked_state (src2, TRUE)) {
+    fprintf(stderr,"Can't lock state of src2\n");
+  }
+
+  puts("paused source2 =========================================================\n");
   query_and_print(src1,query);
   query_and_print(src2,query);
+  query_and_print(silence,query);
   if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
       GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
   
-  printf("trying to continue source2 and pause source1\n");
-  ret=gst_pad_set_blocked(silence_sink,TRUE);
+  puts("trying to continue source2 and pause source1 ===========================\n");
+  ret=gst_pad_set_blocked(silence_src,TRUE);
   printf("  =%d\n",ret);
-  gst_element_unlink(silence,vol2);
-  gst_element_link(src2,vol2);
-  ret=gst_pad_set_blocked(silence_sink,FALSE);
+  gst_element_unlink(silence,mix);
+  gst_element_link(src2,mix);
+  ret=gst_pad_set_blocked(silence_src,FALSE);
   printf("  =%d\n",ret);
+  if(!gst_element_set_locked_state (src2, FALSE)) {
+    fprintf(stderr,"Can't unlock state of src2\n");
+  }
   if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
-    fprintf(stderr,"Can't start playing\n");exit(-1);
+    fprintf(stderr,"Can't set state to PLAYING src2\n");exit(-1);
   }
-  ret=gst_pad_set_blocked(src1_sink,TRUE);
+  ret=gst_pad_set_blocked(src1_src,TRUE);
   printf("  =%d\n",ret);
-  gst_element_unlink(src1,vol1);
-  gst_element_link(silence,vol1);
-  ret=gst_pad_set_blocked(src1_sink,FALSE);
+  gst_element_unlink(src1,mix);
+  gst_element_link(silence,mix);
+  ret=gst_pad_set_blocked(src1_src,FALSE);
   printf("  =%d\n",ret);
-  if(gst_element_set_state (silence, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
-    fprintf(stderr,"Can't start playing\n");exit(-1);
+  if(gst_element_set_state (src1, GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't set state to READY for src1\n");exit(-1);
+  }
+  if(!gst_element_set_locked_state (src1, TRUE)) {
+    fprintf(stderr,"Can't lock state of src1\n");
   }
 
-  printf("continued source2, paused source1\n");
+  puts("continued source2, paused source1 ======================================\n");
   query_and_print(src1,query);
   query_and_print(src2,query);
+  query_and_print(silence,query);
   if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
       GST_WARNING ("clock_id_wait returned: %d", wait_ret);
   }
   
   /* stop the pipeline */
+  puts("playing done ===========================================================\n");
+  if(!gst_element_set_locked_state (src1, FALSE)) {
+    fprintf(stderr,"Can't unlock state of src1\n");
+  }
   gst_element_set_state (bin, GST_STATE_NULL);
   
   /* we don't need a reference to these objects anymore */

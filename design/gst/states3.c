@@ -1,4 +1,4 @@
-/** $Id: states3.c,v 1.6 2006-01-31 21:58:24 ensonic Exp $
+/** $Id: states3.c,v 1.7 2006-02-01 23:16:40 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states3.c -o states3
@@ -10,12 +10,12 @@
 
 #define SINK_NAME "alsasink"
 //#define SINK_NAME "esdsink"
-#define ELEM_NAME "audioconvert"
 #define SRC_NAME "audiotestsrc"
 
 #define WAIT_LENGTH 3
 
 static void query_and_print(GstElement *element, GstQuery *query) {
+  /*
   gint64 pos;
 
   if(gst_element_query(element,query)) {
@@ -25,6 +25,7 @@ static void query_and_print(GstElement *element, GstQuery *query) {
   else {
     printf("%s playback-pos : cur=???\n",GST_OBJECT_NAME(element));
   }
+  */
 }
 
 static void message_received (GstBus * bus, GstMessage * message, GstPipeline * pipeline) {
@@ -55,8 +56,8 @@ int main(int argc, char **argv) {
   GstClockID clock_id;
   GstClockReturn wait_ret;
   GstQuery *query;
-  GstPad *src1_sink;
-  GstPad *src2_sink;
+  GstPad *src1_src;
+  GstPad *src2_src;
   GstBus *bus;
   gboolean ret;
   
@@ -113,10 +114,10 @@ int main(int argc, char **argv) {
   }
 
   /* get pads */
-  if(!(src1_sink=gst_element_get_pad(src1,"src"))) {
+  if(!(src1_src=gst_element_get_pad(src1,"src"))) {
     fprintf(stderr,"Can't get src pad of src1\n");exit (-1);
   }
-  if(!(src2_sink=gst_element_get_pad(src2,"src"))) {
+  if(!(src2_src=gst_element_get_pad(src2,"src"))) {
     fprintf(stderr,"Can't get src pad of src1\n");exit (-1);
   }
 
@@ -138,21 +139,27 @@ int main(int argc, char **argv) {
   }
 
   puts("trying to swap src1 and src2 ===========================================\n");
-  ret=gst_pad_set_blocked(src1_sink,TRUE);
+  ret=gst_pad_set_blocked(src1_src,TRUE);
   printf("  =%d\n",ret);
   gst_element_unlink(src1,sink);
   gst_element_link(src2,sink);
-  ret=gst_pad_set_blocked(src1_sink,FALSE);
+  ret=gst_pad_set_blocked(src1_src,FALSE);
   printf("  =%d\n",ret);
   /* this should call gst_base_src_start() */
-  //ret=gst_pad_set_active(src2_sink,FALSE);
-  //ret=gst_pad_set_active(src2_sink,TRUE);
+  //ret=gst_pad_set_active(src2_src,FALSE);
+  //ret=gst_pad_set_active(src2_src,TRUE);
   //printf("  activate=%d\n",ret);
   if(!gst_element_set_locked_state (src2, FALSE)) {
     fprintf(stderr,"Can't unlock state of src2\n");//exit(-1);
   }
   if(gst_element_set_state (src2, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
     fprintf(stderr,"Can't playing src2\n");exit(-1);
+  }
+  if(gst_element_set_state (src1, GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
+    fprintf(stderr,"Can't set state to READY for src1\n");exit(-1);
+  }
+  if(!gst_element_set_locked_state (src1, TRUE)) {
+    fprintf(stderr,"Can't lock state of src1\n");
   }
   
   puts("swapping done ==========================================================\n");
@@ -164,6 +171,9 @@ int main(int argc, char **argv) {
   
   /* stop the pipeline */
   puts("playing done ===========================================================\n");
+  if(!gst_element_set_locked_state (src1, FALSE)) {
+    fprintf(stderr,"Can't unlock state of src1\n");
+  }
   gst_element_set_state (bin, GST_STATE_NULL);
   
   /* we don't need a reference to these objects anymore */
