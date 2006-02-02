@@ -1,5 +1,6 @@
-/** $Id: states3.c,v 1.7 2006-02-01 23:16:40 ensonic Exp $
+/** $Id: states3.c,v 1.8 2006-02-02 20:03:44 ensonic Exp $
  * test mute, solo, bypass stuff in gst
+ * - swaps two sources
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states3.c -o states3
  * ./states3 --gst-debug="basesrc:4"
@@ -59,7 +60,6 @@ int main(int argc, char **argv) {
   GstPad *src1_src;
   GstPad *src2_src;
   GstBus *bus;
-  gboolean ret;
   
   /* init gstreamer */
   gst_init(&argc, &argv);
@@ -135,16 +135,18 @@ int main(int argc, char **argv) {
   query_and_print(src1,query);
   query_and_print(src2,query);
   if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
-      GST_WARNING ("clock_id_wait returned: %d", wait_ret);
+    fprintf(stderr,"clock_id_wait returned: %d\n", wait_ret);
   }
 
   puts("trying to swap src1 and src2 ===========================================\n");
-  ret=gst_pad_set_blocked(src1_src,TRUE);
-  printf("  =%d\n",ret);
+  if(!gst_pad_set_blocked(src1_src,TRUE)) {
+    fprintf(stderr,"can't block src-pad of src1");
+  }
   gst_element_unlink(src1,sink);
   gst_element_link(src2,sink);
-  ret=gst_pad_set_blocked(src1_src,FALSE);
-  printf("  =%d\n",ret);
+  if(!gst_pad_set_blocked(src1_src,FALSE)) {
+    fprintf(stderr,"can't unblock src-pad of src1");
+  }
   /* this should call gst_base_src_start() */
   //ret=gst_pad_set_active(src2_src,FALSE);
   //ret=gst_pad_set_active(src2_src,TRUE);
@@ -166,7 +168,7 @@ int main(int argc, char **argv) {
   query_and_print(src1,query);
   query_and_print(src2,query);
   if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
-      GST_WARNING ("clock_id_wait returned: %d", wait_ret);
+    fprintf(stderr,"clock_id_wait returned: %d\n", wait_ret);
   }
   
   /* stop the pipeline */

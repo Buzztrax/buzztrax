@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.181 2006-02-01 23:16:42 ensonic Exp $
+// $Id: machine.c,v 1.182 2006-02-02 20:03:46 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -237,6 +237,8 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
         }
         
         if(state==GST_STATE_PLAYING) {
+          GstPad *new_pad;
+
           if(!gst_pad_set_blocked(pad,FALSE)) {
             GST_WARNING("can't unblock src-pad of machine %s",self->priv->id);
           }
@@ -246,6 +248,15 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
           if((state_ret=gst_element_set_state(self->priv->silence,GST_STATE_PLAYING))!=GST_STATE_CHANGE_SUCCESS) {
             GST_WARNING("failed to set state of new machine to PLAYING in %s, ret=%d",self->priv->id,state_ret);
           }
+
+          // we need to do this to keep the restart the task for the element
+          new_pad=gst_element_get_pad(self->priv->silence,"src");
+          gst_pad_set_active(new_pad,FALSE);
+          if(!gst_pad_set_active(new_pad,TRUE)) {
+            GST_WARNING("can't activate src-pad of machine %s",self->priv->id);
+          }
+          gst_object_unref(new_pad);
+
           if((state_ret=gst_element_set_state(machine,GST_STATE_READY))!=GST_STATE_CHANGE_SUCCESS) {
             GST_WARNING("failed to set state of old machine to READY in %s, ret=%d",self->priv->id,state_ret);
           }

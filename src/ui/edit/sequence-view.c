@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.14 2006-01-01 19:27:27 ensonic Exp $
+// $Id: sequence-view.c,v 1.15 2006-02-02 20:03:46 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: 
@@ -135,7 +135,46 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
 
   //GST_INFO("!!!! self=%p",self);
   
-  // first let the parent handle its expose
+  /* what about drawing the cellbackground here for rectangular selection and 
+   * cell focus (cursor)
+   *
+  if(self->priv->window==event->window) {
+    GtkTreePath *path;
+    GtkTreeViewColumn *col;
+    GdkRectangle rect_tl,rect_br,sel;
+    
+    // lets assume a selection from 0,0 to 1,1 (4 cells)
+    path=gtk_tree_path_new_from_indices(0,-1);
+    if(path) {
+      col=gtk_tree_view_get_column(GTK_TREE_VIEW(widget),1);
+      gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,col,&rect_tl);
+      gtk_tree_path_free(path);
+      sel.x=rect_tl.x;
+      sel.y=rect_tl.y;
+    }
+    else {
+      sel.x=0;sel.y=0;
+      GST_WARNING("got no path for 0x0");
+    }
+    path=gtk_tree_path_new_from_indices(1,-1);
+    if(path) {
+      col=gtk_tree_view_get_column(GTK_TREE_VIEW(widget),2);
+      gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,col,&rect_br);      
+      gtk_tree_path_free(path);
+      sel.width=(rect_br.x+rect_br.width)-sel.x;
+      sel.height=(rect_br.y+rect_br.height)-sel.y;
+    }
+    else {
+      sel.width=100;sel.height=20;
+      GST_WARNING("got no path for 1x1");
+    }
+    gdk_draw_rectangle(self->priv->window,self->priv->play_pos_gc,TRUE,
+      sel.x,sel.y,sel.width,sel.height);
+    GST_INFO(" selection rect: %d x %d, %d x %d",sel.x,sel.y,sel.width,sel.height);
+  }
+  */
+  
+  // let the parent handle its expose
   if(GTK_WIDGET_CLASS(parent_class)->expose_event) {
     (GTK_WIDGET_CLASS(parent_class)->expose_event)(widget,event);
   }
@@ -143,7 +182,7 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
   /* We need to check to make sure that the expose event is actually occuring on
    * the window where the table data is being drawn.  If we don't do this check,
    * row zero spanners can be drawn on top of the column headers.
-    */
+   */
   if(self->priv->window==event->window) {
     gint w,y;
     gdouble h;
