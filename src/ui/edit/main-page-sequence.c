@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.93 2006-01-01 19:27:27 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.94 2006-02-03 21:19:56 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -54,10 +54,17 @@ struct _BtMainPageSequencePrivate {
   GdkColor source_bg1,source_bg2;
   GdkColor processor_bg1,processor_bg2;
   GdkColor sink_bg1,sink_bg2;
+  GdkColor cursor_bg;
+  GdkColor selection_bg;
   
   /* some internal states */
   glong tick_pos;
   glong cursor_column;
+  glong cursor_row;
+  glong selection_start_column;
+  glong selection_start_row;
+  glong selection_end_column;
+  glong selection_end_row;
   BtMachine *machine;
   
   /* signal handler id's */
@@ -66,10 +73,13 @@ struct _BtMainPageSequencePrivate {
 
 static GtkVBoxClass *parent_class=NULL;
 
+/* internal data model fields */
 enum {
   SEQUENCE_TABLE_SOURCE_BG=0,
   SEQUENCE_TABLE_PROCESSOR_BG,
   SEQUENCE_TABLE_SINK_BG,
+  SEQUENCE_TABLE_CURSOR_BG,
+  SEQUENCE_TABLE_SELECTION_BG,
   SEQUENCE_TABLE_TICK_FG_SET,
   SEQUENCE_TABLE_POS,
   SEQUENCE_TABLE_LABEL,
@@ -208,6 +218,43 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
       } while(gtk_tree_model_iter_next(store,&iter));
       g_object_set(self->priv->sequence_table,"visible-rows",rows,NULL);
     }
+  }
+  else {
+    GST_WARNING("can't get tree model");
+  }
+}
+
+/*
+ * sequence_model_show_cursor_and_selection:
+ * change "background-gdk" attribute of renderers to show selection or cursor
+ */
+static void sequence_model_show_cursor_and_selection(BtMainPageSequence *self) {
+  GtkTreeModel *store;
+  GtkTreeModelFilter *filtered_store;
+  /*
+  GtkTreeIter iter;
+  GtkTreeViewColumn *tree_col;
+  GtkCellRenderer *renderer;
+  */
+
+  GST_INFO("show cursor and selection in sequence tree view");
+  
+  if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))
+    && (store=gtk_tree_model_filter_get_model(filtered_store)))
+  {
+    // restore old cursor
+    
+    // show cursor
+    //gtk_tree_model_iter_nth_child(store,&iter,NULL,self->priv->cursor_row);
+    //tree_col=gtk_tree_view_get_column(self->priv->sequence_table,self->priv->cursor_column);
+    
+    /* how to get the renderer ? or shouldn't we use a celldata-function ?
+    gtk_tree_view_column_set_attributes(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_CURSOR_BG,NULL);
+    */
+
+    // restore old selection
+    // show selection
+    
   }
   else {
     GST_WARNING("can't get tree model");
@@ -360,6 +407,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store_types[SEQUENCE_TABLE_SOURCE_BG   ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_PROCESSOR_BG]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_SINK_BG     ]=GDK_TYPE_COLOR;
+  store_types[SEQUENCE_TABLE_CURSOR_BG   ]=GDK_TYPE_COLOR;
+  store_types[SEQUENCE_TABLE_SELECTION_BG]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_TICK_FG_SET ]=G_TYPE_BOOLEAN;
   // for static display columns
   store_types[SEQUENCE_TABLE_POS         ]=G_TYPE_LONG;
@@ -656,6 +705,7 @@ static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
+    sequence_model_show_cursor_and_selection(self);
     g_object_unref(machine);
   }
   
@@ -681,6 +731,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
+    sequence_model_show_cursor_and_selection(self);
   }
   
   g_object_unref(sequence);
@@ -1137,6 +1188,15 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   self->priv->sink_bg2.green=(guint16)(0.8*65535);
   self->priv->sink_bg2.blue= (guint16)(1.0*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);
+  // TODO: can we get these from the theme ?
+  self->priv->cursor_bg.red=  (guint16)(0.0*65535);
+  self->priv->cursor_bg.green=(guint16)(0.0*65535);
+  self->priv->cursor_bg.blue= (guint16)(1.0*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->cursor_bg,FALSE,TRUE);
+  self->priv->selection_bg.red=  (guint16)(1.0*65535);
+  self->priv->selection_bg.green=(guint16)(1.0*65535);
+  self->priv->selection_bg.blue= (guint16)(1.0*65535);
+  gdk_colormap_alloc_color(colormap,&self->priv->selection_bg,FALSE,TRUE);
 
   // generate the context menu  
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
@@ -1405,7 +1465,13 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv = g_new0(BtMainPageSequencePrivate,1);
   self->priv->dispose_has_run = FALSE;
   self->priv->bars=1;
-  self->priv->cursor_column=-1;
+  self->priv->cursor_column=1;
+  self->priv->cursor_row=1;
+  /* for testing only */
+  self->priv->selection_start_column=1;
+  self->priv->selection_start_row=1;
+  self->priv->selection_end_column=3;
+  self->priv->selection_end_row=3;
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
