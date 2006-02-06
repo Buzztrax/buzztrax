@@ -1,8 +1,12 @@
-// $Id: main-menu.c,v 1.45 2006-01-31 19:53:43 ensonic Exp $
+// $Id: main-menu.c,v 1.46 2006-02-06 22:08:18 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
- */ 
+ */
+
+/* @todo:
+ *  - enable/disable edit menu entries
+ */
 
 #define BT_EDIT
 #define BT_MAIN_MENU_C
@@ -28,23 +32,6 @@ struct _BtMainMenuPrivate {
 static GtkMenuBarClass *parent_class=NULL;
 
 //-- event handler
-
-static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  gboolean cont;
-  BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window;
-
-  g_assert(user_data);
-
-  GST_INFO("menu quit event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-  g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&cont);
-  g_object_unref(main_window);
-  GST_DEBUG("  result = %d",cont);
-  if(!cont) {
-    gtk_widget_destroy(GTK_WIDGET(main_window));
-  }
-}
 
 static void on_menu_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
@@ -92,6 +79,87 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song_as(main_window);
   g_object_try_unref(main_window);
+}
+
+static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  gboolean cont;
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+
+  g_assert(user_data);
+
+  GST_INFO("menu quit event occurred");
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_signal_emit_by_name(G_OBJECT(main_window),"delete_event",(gpointer)main_window,&cont);
+  g_object_unref(main_window);
+  GST_DEBUG("  result = %d",cont);
+  if(!cont) {
+    gtk_widget_destroy(GTK_WIDGET(main_window));
+  }
+}
+
+
+static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("menu cut event occurred");
+  /* @todo: implement me */
+}
+
+static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  
+  switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
+    case BT_MAIN_PAGES_MACHINES_PAGE: {
+      GST_INFO("menu copy event occurred for machine page");
+    } break;
+    case BT_MAIN_PAGES_PATTERNS_PAGE: {
+      GST_INFO("menu copy event occurred for pattern page");
+    } break;
+    case BT_MAIN_PAGES_SEQUENCE_PAGE: {
+      BtMainPageSequence *sequence_page;
+      GST_INFO("menu copy event occurred for sequence page");
+      g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+      bt_main_page_sequence_copy_selection(sequence_page);
+      g_object_unref(sequence_page);
+    } break;
+    case BT_MAIN_PAGES_WAVES_PAGE: {
+      GST_INFO("menu copy event occurred for waves page");
+    } break;
+    case BT_MAIN_PAGES_INFO_PAGE: {
+      GST_INFO("menu copy event occurred for info page");
+    } break;
+  }
+
+  g_object_try_unref(pages);
+  g_object_try_unref(main_window);
+}
+
+static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("menu paste event occurred");
+  /* @todo: implement me */
+}
+
+static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("menu delete event occurred");
+  /* @todo: implement me */
 }
 
 static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -359,18 +427,22 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_CUT,accel_group);
   gtk_widget_set_name(subitem,_("cut"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_cut_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_COPY,accel_group);
   gtk_widget_set_name(subitem,_("copy"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_copy_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PASTE,accel_group);
   gtk_widget_set_name(subitem,_("paste"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_paste_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,accel_group);
   gtk_widget_set_name(subitem,_("delete"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_delete_activate),(gpointer)self);
 
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));

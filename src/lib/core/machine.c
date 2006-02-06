@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.182 2006-02-02 20:03:46 ensonic Exp $
+// $Id: machine.c,v 1.183 2006-02-06 22:08:16 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2066,6 +2066,8 @@ static void bt_machine_dispose(GObject *object) {
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
   if(self->priv->bin) {
+    GstStateChangeReturn state_ret;
+    
     for(i=0;i<PART_COUNT;i++) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));
@@ -2074,6 +2076,13 @@ static void bt_machine_dispose(GObject *object) {
         gst_bin_remove(self->priv->bin,self->priv->machines[i]);
         GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
       }
+    }
+    // release silence element
+    if(!gst_element_set_locked_state(self->priv->silence,FALSE)) {
+      GST_WARNING("can't set locked state of silence to FALSE in %s",self->priv->id);
+    }
+    if((state_ret=gst_element_set_state(self->priv->silence,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
+      GST_WARNING("failed to set state of silence to NULL in %s, ret=%d",self->priv->id,state_ret);
     }
     gst_bin_remove(self->priv->bin,self->priv->silence);
     // release the bin (that is ref'ed in bt_machine_new() )
