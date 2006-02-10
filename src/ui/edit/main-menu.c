@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.46 2006-02-06 22:08:18 ensonic Exp $
+// $Id: main-menu.c,v 1.47 2006-02-10 16:58:33 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -154,12 +154,39 @@ static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
 }
 
 static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtMainWindow *main_window;
+  BtMainPages *pages;
 
   g_assert(user_data);
 
-  GST_INFO("menu delete event occurred");
-  /* @todo: implement me */
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+  
+  switch(gtk_notebook_get_current_page(GTK_NOTEBOOK(pages))) {
+    case BT_MAIN_PAGES_MACHINES_PAGE: {
+      GST_INFO("menu delete event occurred for machine page");
+    } break;
+    case BT_MAIN_PAGES_PATTERNS_PAGE: {
+      GST_INFO("menu delete event occurred for pattern page");
+    } break;
+    case BT_MAIN_PAGES_SEQUENCE_PAGE: {
+      BtMainPageSequence *sequence_page;
+      GST_INFO("menu delete event occurred for sequence page");
+      g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+      bt_main_page_sequence_delete_selection(sequence_page);
+      g_object_unref(sequence_page);
+    } break;
+    case BT_MAIN_PAGES_WAVES_PAGE: {
+      GST_INFO("menu delete event occurred for waves page");
+    } break;
+    case BT_MAIN_PAGES_INFO_PAGE: {
+      GST_INFO("menu delete event occurred for info page");
+    } break;
+  }
+
+  g_object_try_unref(pages);
+  g_object_try_unref(main_window);
 }
 
 static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) {
