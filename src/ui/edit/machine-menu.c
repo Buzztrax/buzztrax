@@ -1,4 +1,4 @@
-// $Id: machine-menu.c,v 1.1 2005-09-03 13:40:30 ensonic Exp $
+// $Id: machine-menu.c,v 1.2 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmachinemenu
  * @short_description: class for the machine selection sub-menu
@@ -221,10 +221,9 @@ static void bt_machine_menu_dispose(GObject *object) {
 }
 
 static void bt_machine_menu_finalize(GObject *object) {
-  BtMachineMenu *self = BT_MACHINE_MENU(object);
+  //BtMachineMenu *self = BT_MACHINE_MENU(object);
   
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -233,14 +232,15 @@ static void bt_machine_menu_finalize(GObject *object) {
 
 static void bt_machine_menu_init(GTypeInstance *instance, gpointer g_class) {
   BtMachineMenu *self = BT_MACHINE_MENU(instance);
-  self->priv = g_new0(BtMachineMenuPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_MENU, BtMachineMenuPrivate);
 }
 
 static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_MENU);
+  g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
   
   gobject_class->set_property = bt_machine_menu_set_property;
   gobject_class->get_property = bt_machine_menu_get_property;

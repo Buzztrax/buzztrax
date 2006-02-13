@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.91 2005-12-30 15:50:57 ensonic Exp $
+// $Id: sequence.c,v 1.92 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -1068,7 +1068,6 @@ static void bt_sequence_finalize(GObject *object) {
   g_free(self->priv->labels);
   g_free(self->priv->patterns);
   g_hash_table_destroy(self->priv->damage);
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -1077,8 +1076,8 @@ static void bt_sequence_finalize(GObject *object) {
 
 static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtSequence *self = BT_SEQUENCE(instance);
-  self->priv = g_new0(BtSequencePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE, BtSequencePrivate);
   self->priv->loop_start=-1;
   self->priv->loop_end=-1;
   self->priv->damage=g_hash_table_new_full(NULL,NULL,NULL,(GDestroyNotify)g_hash_table_destroy);
@@ -1088,6 +1087,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtSequencePrivate));
   
   gobject_class->set_property = bt_sequence_set_property;
   gobject_class->get_property = bt_sequence_get_property;

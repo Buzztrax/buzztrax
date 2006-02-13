@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.40 2006-01-27 14:45:35 ensonic Exp $
+// $Id: song-info.c,v 1.41 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -253,7 +253,7 @@ static void bt_song_info_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-	g_date_free(self->priv->tag_date);
+  g_date_free(self->priv->tag_date);
   gst_tag_list_free(self->priv->taglist);
 
   g_free(self->priv->file_name);
@@ -263,7 +263,6 @@ static void bt_song_info_finalize(GObject *object) {
   g_free(self->priv->author);
   g_free(self->priv->create_dts);
   g_free(self->priv->change_dts);
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -274,9 +273,7 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   BtSongInfo *self = BT_SONG_INFO(instance);
   time_t now=time(NULL);
   
-  //GST_DEBUG("song_info_init self=%p",self);
-  self->priv = g_new0(BtSongInfoPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
 
   self->priv->name=g_strdup("unamed song");
@@ -292,8 +289,8 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   GST_DEBUG("date initialized as %s",self->priv->change_dts);
   
   // init taglist
-	self->priv->tag_date=g_date_new();
-	g_date_set_time(self->priv->tag_date,now);
+  self->priv->tag_date=g_date_new();
+  g_date_set_time(self->priv->tag_date,now);
   gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
     GST_TAG_TITLE, self->priv->name,
     GST_TAG_DATE, self->priv->tag_date,
@@ -304,6 +301,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtSongInfoPrivate));
 
   gobject_class->set_property = bt_song_info_set_property;
   gobject_class->get_property = bt_song_info_get_property;

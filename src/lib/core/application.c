@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.48 2006-02-01 23:16:42 ensonic Exp $
+// $Id: application.c,v 1.49 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -268,8 +268,6 @@ static void bt_application_finalize(GObject *object) {
     self->priv->bus_handlers=NULL;
   }
 
-  g_free(self->priv);
-
   GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -281,8 +279,7 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   BtApplication *self = BT_APPLICATION(instance);
   GstBus *bus;
   
-  self->priv = g_new0(BtApplicationPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
@@ -303,6 +300,7 @@ static void bt_application_class_init(BtApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtApplicationPrivate));
 
   gobject_class->set_property = bt_application_set_property;
   gobject_class->get_property = bt_application_get_property;

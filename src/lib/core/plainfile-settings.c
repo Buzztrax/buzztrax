@@ -1,4 +1,4 @@
-// $Id: plainfile-settings.c,v 1.15 2005-12-23 14:03:02 ensonic Exp $
+// $Id: plainfile-settings.c,v 1.16 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
@@ -119,7 +119,7 @@ static void bt_plainfile_settings_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   //g_hash_table_destroy(self->priv->settings);
-  g_free(self->priv);
+
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -127,8 +127,8 @@ static void bt_plainfile_settings_finalize(GObject *object) {
 
 static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class) {
   BtPlainfileSettings *self = BT_PLAINFILE_SETTINGS(instance);
-  self->priv = g_new0(BtPlainfileSettingsPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAINFILE_SETTINGS, BtPlainfileSettingsPrivate);
   //self->priv->settings=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
@@ -136,6 +136,7 @@ static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_SETTINGS);
+  g_type_class_add_private(klass,sizeof(BtPlainfileSettingsPrivate));
 
   gobject_class->set_property = bt_plainfile_settings_set_property;
   gobject_class->get_property = bt_plainfile_settings_get_property;

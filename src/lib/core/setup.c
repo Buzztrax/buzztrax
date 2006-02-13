@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.78 2005-09-22 18:26:29 ensonic Exp $
+// $Id: setup.c,v 1.79 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -614,7 +614,6 @@ static void bt_setup_finalize(GObject *object) {
     g_list_free(self->priv->machines);
     self->priv->wires=NULL;
   }
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -623,14 +622,15 @@ static void bt_setup_finalize(GObject *object) {
 
 static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {
   BtSetup *self = BT_SETUP(instance);
-  self->priv = g_new0(BtSetupPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETUP, BtSetupPrivate);
 }
 
 static void bt_setup_class_init(BtSetupClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtSetupPrivate));
 
   gobject_class->set_property = bt_setup_set_property;
   gobject_class->get_property = bt_setup_get_property;

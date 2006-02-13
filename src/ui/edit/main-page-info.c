@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.33 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-page-info.c,v 1.34 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -390,10 +390,8 @@ static void bt_main_page_info_dispose(GObject *object) {
 }
 
 static void bt_main_page_info_finalize(GObject *object) {
-  BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
+  //BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   
-  g_free(self->priv);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -401,14 +399,15 @@ static void bt_main_page_info_finalize(GObject *object) {
 
 static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(instance);
-  self->priv = g_new0(BtMainPageInfoPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoPrivate);
 }
 
 static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
   
   gobject_class->set_property = bt_main_page_info_set_property;
   gobject_class->get_property = bt_main_page_info_get_property;

@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.13 2005-09-19 16:14:06 ensonic Exp $
+// $Id: wavetable.c,v 1.14 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -206,7 +206,6 @@ static void bt_wavetable_finalize(GObject *object) {
     g_list_free(self->priv->waves);
     self->priv->waves=NULL;
   }
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -215,14 +214,15 @@ static void bt_wavetable_finalize(GObject *object) {
 
 static void bt_wavetable_init(GTypeInstance *instance, gpointer g_class) {
   BtWavetable *self = BT_WAVETABLE(instance);
-  self->priv = g_new0(BtWavetablePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVETABLE, BtWavetablePrivate);
 }
 
 static void bt_wavetable_class_init(BtWavetableClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtWavetablePrivate));
 
   gobject_class->set_property = bt_wavetable_set_property;
   gobject_class->get_property = bt_wavetable_get_property;

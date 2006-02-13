@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.56 2005-11-14 14:46:35 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.57 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -639,13 +639,10 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 }
 
 static void bt_machine_canvas_item_finalize(GObject *object) {
-  BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
+  //BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(object);
 
-  GST_DEBUG("!!!! self=%p",self);
-  
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
-  GST_DEBUG("  chaining up");  
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -925,13 +922,12 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
 
 static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_class) {
   BtMachineCanvasItem *self = BT_MACHINE_CANVAS_ITEM(instance);
-  
-  self->priv = g_new0(BtMachineCanvasItemPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItemPrivate);
 
   // generate the context menu  
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
-  // the menu is generated in bt_machine_canvas_item_init_context_menu()
+  // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
 }
 
 static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
@@ -939,6 +935,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
 
   parent_class=g_type_class_ref(GNOME_TYPE_CANVAS_GROUP);
+  g_type_class_add_private(klass,sizeof(BtMachineCanvasItemPrivate));
 
   gobject_class->set_property = bt_machine_canvas_item_set_property;
   gobject_class->get_property = bt_machine_canvas_item_get_property;

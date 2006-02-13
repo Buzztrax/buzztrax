@@ -1,4 +1,4 @@
-// $Id: ui-ressources.c,v 1.4 2005-08-05 09:36:19 ensonic Exp $
+// $Id: ui-ressources.c,v 1.5 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btuiressources
  * @short_description: common shared ui ressources like icons and colors
@@ -237,10 +237,9 @@ static void bt_ui_ressources_dispose(GObject *object) {
 }
 
 static void bt_ui_ressources_finalize(GObject *object) {
-  BtUIRessources *self = BT_UI_RESSOURCES(object);
+  //BtUIRessources *self = BT_UI_RESSOURCES(object);
   
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -249,14 +248,15 @@ static void bt_ui_ressources_finalize(GObject *object) {
 
 static void bt_ui_ressources_init(GTypeInstance *instance, gpointer g_class) {
   BtUIRessources *self = BT_UI_RESSOURCES(instance);
-  self->priv = g_new0(BtUIRessourcesPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_UI_RESSOURCES, BtUIRessourcesPrivate);
 }
 
 static void bt_ui_ressources_class_init(BtUIRessourcesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtUIRessourcesPrivate));
 
   gobject_class->set_property = bt_ui_ressources_set_property;
   gobject_class->get_property = bt_ui_ressources_get_property;

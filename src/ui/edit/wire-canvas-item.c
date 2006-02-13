@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.25 2005-09-16 10:33:25 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.26 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -384,13 +384,10 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 }
 
 static void bt_wire_canvas_item_finalize(GObject *object) {
-  BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
+  //BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
 
-  GST_DEBUG("!!!! self=%p",self);
+  //GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->priv);
-
-  GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -473,8 +470,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(instance);
   GtkWidget *menu_item;
 
-  self->priv = g_new0(BtWireCanvasItemPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE_CANVAS_ITEM, BtWireCanvasItemPrivate);
 
   // generate the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
@@ -500,6 +496,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
 
   parent_class=g_type_class_ref(GNOME_TYPE_CANVAS_GROUP);
+  g_type_class_add_private(klass,sizeof(BtWireCanvasItemPrivate));
 
   gobject_class->set_property = bt_wire_canvas_item_set_property;
   gobject_class->get_property = bt_wire_canvas_item_get_property;

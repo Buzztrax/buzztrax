@@ -1,4 +1,4 @@
-// $Id: wavelevel.c,v 1.9 2005-12-23 14:03:03 ensonic Exp $
+// $Id: wavelevel.c,v 1.10 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
@@ -188,7 +188,6 @@ static void bt_wavelevel_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv->sample);
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -197,14 +196,15 @@ static void bt_wavelevel_finalize(GObject *object) {
 
 static void bt_wavelevel_init(GTypeInstance *instance, gpointer g_class) {
   BtWavelevel *self = BT_WAVELEVEL(instance);
-  self->priv = g_new0(BtWavelevelPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVELEVEL, BtWavelevelPrivate);
 }
 
 static void bt_wavelevel_class_init(BtWavelevelClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtWavelevelPrivate));
 
   gobject_class->set_property = bt_wavelevel_set_property;
   gobject_class->get_property = bt_wavelevel_get_property;

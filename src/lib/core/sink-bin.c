@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.15 2006-01-31 19:53:43 ensonic Exp $
+// $Id: sink-bin.c,v 1.16 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -525,8 +525,6 @@ static void bt_sink_bin_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-  g_free(self->priv);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -534,8 +532,8 @@ static void bt_sink_bin_finalize(GObject *object) {
 
 static void bt_sink_bin_init(GTypeInstance *instance, gpointer g_class) {
   BtSinkBin *self = BT_SINK_BIN(instance);
-  self->priv = g_new0(BtSinkBinPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
   
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
@@ -546,6 +544,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GST_TYPE_BIN);
+  g_type_class_add_private(klass,sizeof(BtSinkBinPrivate));
   
   gobject_class->set_property = bt_sink_bin_set_property;
   gobject_class->get_property = bt_sink_bin_get_property;

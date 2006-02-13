@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.12 2005-12-23 14:03:03 ensonic Exp $
+// $Id: wave.c,v 1.13 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -223,7 +223,6 @@ static void bt_wave_finalize(GObject *object) {
   }
   g_free(self->priv->name);
   g_free(self->priv->file_name);
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -232,14 +231,15 @@ static void bt_wave_finalize(GObject *object) {
 
 static void bt_wave_init(GTypeInstance *instance, gpointer g_class) {
   BtWave *self = BT_WAVE(instance);
-  self->priv = g_new0(BtWavePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVE, BtWavePrivate);
 }
 
 static void bt_wave_class_init(BtWaveClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtWavePrivate));
 
   gobject_class->set_property = bt_wave_set_property;
   gobject_class->get_property = bt_wave_get_property;

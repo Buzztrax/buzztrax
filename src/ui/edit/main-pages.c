@@ -1,4 +1,4 @@
-// $Id: main-pages.c,v 1.25 2005-08-05 09:36:18 ensonic Exp $
+// $Id: main-pages.c,v 1.26 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
@@ -210,10 +210,9 @@ static void bt_main_pages_dispose(GObject *object) {
 }
 
 static void bt_main_pages_finalize(GObject *object) {
-  BtMainPages *self = BT_MAIN_PAGES(object);
+  //BtMainPages *self = BT_MAIN_PAGES(object);
   
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -222,14 +221,15 @@ static void bt_main_pages_finalize(GObject *object) {
 
 static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPages *self = BT_MAIN_PAGES(instance);
-  self->priv = g_new0(BtMainPagesPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGES, BtMainPagesPrivate);
 }
 
 static void bt_main_pages_class_init(BtMainPagesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_NOTEBOOK);
+  g_type_class_add_private(klass,sizeof(BtMainPagesPrivate));
 
   gobject_class->set_property = bt_main_pages_set_property;
   gobject_class->get_property = bt_main_pages_get_property;

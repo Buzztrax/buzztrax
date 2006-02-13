@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.51 2006-01-27 23:24:43 ensonic Exp $
+// $Id: song-io.c,v 1.52 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -325,8 +325,6 @@ static void bt_song_io_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->priv);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -334,14 +332,15 @@ static void bt_song_io_finalize(GObject *object) {
 
 static void bt_song_io_init(GTypeInstance *instance, gpointer g_class) {
   BtSongIO *self = BT_SONG_IO(instance);
-  self->priv = g_new0(BtSongIOPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO, BtSongIOPrivate);
 }
 
 static void bt_song_io_class_init(BtSongIOClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtSongIOPrivate));
   
   gobject_class->set_property = bt_song_io_set_property;
   gobject_class->get_property = bt_song_io_get_property;

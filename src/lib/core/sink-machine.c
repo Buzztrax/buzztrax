@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.57 2006-01-27 14:45:35 ensonic Exp $
+// $Id: sink-machine.c,v 1.58 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -113,8 +113,6 @@ static void bt_sink_machine_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->priv);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -122,15 +120,15 @@ static void bt_sink_machine_finalize(GObject *object) {
 
 static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtSinkMachine *self = BT_SINK_MACHINE(instance);
-  self->priv = g_new0(BtSinkMachinePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_MACHINE, BtSinkMachinePrivate);
 }
 
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  //BtMachineClass *base_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_ref(BT_TYPE_MACHINE);
+  g_type_class_add_private(klass,sizeof(BtSinkMachinePrivate));
   
   gobject_class->set_property = bt_sink_machine_set_property;
   gobject_class->get_property = bt_sink_machine_get_property;

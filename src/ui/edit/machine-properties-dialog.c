@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.42 2005-12-23 14:03:03 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.43 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -604,10 +604,9 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
 }
 
 static void bt_machine_properties_dialog_finalize(GObject *object) {
-  BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
+  //BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
 
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -616,15 +615,15 @@ static void bt_machine_properties_dialog_finalize(GObject *object) {
 
 static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(instance);
-  self->priv = g_new0(BtMachinePropertiesDialogPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
 }
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
+  g_type_class_add_private(klass,sizeof(BtMachinePropertiesDialogPrivate));
   
   gobject_class->set_property = bt_machine_properties_dialog_set_property;
   gobject_class->get_property = bt_machine_properties_dialog_get_property;

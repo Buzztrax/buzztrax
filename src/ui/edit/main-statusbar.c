@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.38 2005-12-16 21:54:43 ensonic Exp $
+// $Id: main-statusbar.c,v 1.39 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -257,10 +257,9 @@ static void bt_main_statusbar_dispose(GObject *object) {
 }
 
 static void bt_main_statusbar_finalize(GObject *object) {
-  BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
+  //BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
   
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -269,14 +268,15 @@ static void bt_main_statusbar_finalize(GObject *object) {
 
 static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(instance);
-  self->priv = g_new0(BtMainStatusbarPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarPrivate);
 }
 
 static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_HBOX);
+  g_type_class_add_private(klass,sizeof(BtMainStatusbarPrivate));
 
   gobject_class->set_property = bt_main_statusbar_set_property;
   gobject_class->get_property = bt_main_statusbar_get_property;

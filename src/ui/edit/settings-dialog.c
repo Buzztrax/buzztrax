@@ -1,4 +1,4 @@
-// $Id: settings-dialog.c,v 1.19 2006-01-27 14:45:38 ensonic Exp $
+// $Id: settings-dialog.c,v 1.20 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
@@ -246,10 +246,9 @@ static void bt_settings_dialog_dispose(GObject *object) {
 }
 
 static void bt_settings_dialog_finalize(GObject *object) {
-  BtSettingsDialog *self = BT_SETTINGS_DIALOG(object);
+  //BtSettingsDialog *self = BT_SETTINGS_DIALOG(object);
 
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -258,15 +257,15 @@ static void bt_settings_dialog_finalize(GObject *object) {
 
 static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(instance);
-  self->priv = g_new0(BtSettingsDialogPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogPrivate);
 }
 
 static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
+  g_type_class_add_private(klass,sizeof(BtSettingsDialogPrivate));
   
   gobject_class->set_property = bt_settings_dialog_set_property;
   gobject_class->get_property = bt_settings_dialog_get_property;

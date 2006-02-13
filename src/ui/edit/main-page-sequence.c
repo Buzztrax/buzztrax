@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.96 2006-02-10 16:58:33 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.97 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1819,10 +1819,9 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 }
 
 static void bt_main_page_sequence_finalize(GObject *object) {
-  BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
+  //BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
   
-  GST_DEBUG("!!!! self=%p",self);  
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);  
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -1831,11 +1830,12 @@ static void bt_main_page_sequence_finalize(GObject *object) {
 
 static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(instance);
-  self->priv = g_new0(BtMainPageSequencePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequencePrivate);
+
   self->priv->bars=1;
-  self->priv->cursor_column=0;
-  self->priv->cursor_row=0;
+  //self->priv->cursor_column=0;
+  //self->priv->cursor_row=0;
   self->priv->selection_start_column=-1;
   self->priv->selection_start_row=-1;
   self->priv->selection_end_column=-1;
@@ -1848,6 +1848,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   column_index_quark=g_quark_from_static_string("BtMainPageSequence::index");
 
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));
 
   gobject_class->set_property = bt_main_page_sequence_set_property;
   gobject_class->get_property = bt_main_page_sequence_get_property;

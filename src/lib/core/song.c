@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.111 2006-01-27 23:24:43 ensonic Exp $
+// $Id: song.c,v 1.112 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -813,8 +813,6 @@ static void bt_song_finalize(GObject *object) {
   
   GST_DEBUG("!!!! self=%p",self);
   
-  g_free(self->priv);
-
   GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -825,8 +823,8 @@ static void bt_song_finalize(GObject *object) {
 static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   BtSong *self = BT_SONG(instance);
   
-  GST_DEBUG("song_init self=%p",self);
-  self->priv=g_new0(BtSongPrivate,1);
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG, BtSongPrivate);
+
   self->priv->song_info=bt_song_info_new(self);
   self->priv->sequence =bt_sequence_new(self);
   self->priv->setup    =bt_setup_new(self);
@@ -834,10 +832,10 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   
   self->priv->position_query=gst_query_new_position(GST_FORMAT_TIME);
 	
-	self->priv->idle_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-GST_SECOND),
-          GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));
+  self->priv->idle_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+    GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-GST_SECOND),
+    GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));
   GST_DEBUG("  done");
 }
 
@@ -845,6 +843,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
  
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtSongPrivate));
  
   gobject_class->set_property = bt_song_set_property;
   gobject_class->get_property = bt_song_get_property;

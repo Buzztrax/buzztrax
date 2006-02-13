@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.183 2006-02-06 22:08:16 ensonic Exp $
+// $Id: machine.c,v 1.184 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2135,7 +2135,6 @@ static void bt_machine_finalize(GObject *object) {
     g_list_free(self->priv->patterns);
     self->priv->patterns=NULL;
   }
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -2144,8 +2143,8 @@ static void bt_machine_finalize(GObject *object) {
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtMachine *self = BT_MACHINE(instance);
-  self->priv = g_new0(BtMachinePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE, BtMachinePrivate);
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
@@ -2157,6 +2156,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   error_domain=g_quark_from_static_string("BtMachine");
+  g_type_class_add_private(klass,sizeof(BtMachinePrivate));
   
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
   

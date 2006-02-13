@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.18 2005-12-29 21:10:39 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.19 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -384,10 +384,9 @@ static void bt_machine_preferences_dialog_dispose(GObject *object) {
 }
 
 static void bt_machine_preferences_dialog_finalize(GObject *object) {
-  BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(object);
+  //BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(object);
 
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -396,15 +395,15 @@ static void bt_machine_preferences_dialog_finalize(GObject *object) {
 
 static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMachinePreferencesDialog *self = BT_MACHINE_PREFERENCES_DIALOG(instance);
-  self->priv = g_new0(BtMachinePreferencesDialogPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PREFERENCES_DIALOG, BtMachinePreferencesDialogPrivate);
 }
 
 static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
+  g_type_class_add_private(klass,sizeof(BtMachinePreferencesDialogPrivate));
   
   gobject_class->set_property = bt_machine_preferences_dialog_set_property;
   gobject_class->get_property = bt_machine_preferences_dialog_get_property;

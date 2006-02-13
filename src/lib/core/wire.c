@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.66 2005-12-23 14:03:03 ensonic Exp $
+// $Id: wire.c,v 1.67 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -491,8 +491,6 @@ static void bt_wire_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->priv);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -500,14 +498,15 @@ static void bt_wire_finalize(GObject *object) {
 
 static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
   BtWire *self = BT_WIRE(instance);
-  self->priv = g_new0(BtWirePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
 }
 
 static void bt_wire_class_init(BtWireClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  g_type_class_add_private(klass,sizeof(BtWirePrivate));
   
   gobject_class->set_property = bt_wire_set_property;
   gobject_class->get_property = bt_wire_get_property;

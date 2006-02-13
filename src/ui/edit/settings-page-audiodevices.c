@@ -1,4 +1,4 @@
-// $Id: settings-page-audiodevices.c,v 1.16 2005-09-21 19:46:04 ensonic Exp $
+// $Id: settings-page-audiodevices.c,v 1.17 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
@@ -196,7 +196,6 @@ static void bt_settings_page_audiodevices_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   g_list_free(self->priv->audiosink_names);
-  g_free(self->priv);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -205,15 +204,15 @@ static void bt_settings_page_audiodevices_finalize(GObject *object) {
 
 static void bt_settings_page_audiodevices_init(GTypeInstance *instance, gpointer g_class) {
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(instance);
-  self->priv = g_new0(BtSettingsPageAudiodevicesPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, BtSettingsPageAudiodevicesPrivate);
 }
 
 static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  //GtkObjectClass *gtkobject_class = GTK_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_TABLE);
+  g_type_class_add_private(klass,sizeof(BtSettingsPageAudiodevicesPrivate));
   
   gobject_class->set_property = bt_settings_page_audiodevices_set_property;
   gobject_class->get_property = bt_settings_page_audiodevices_get_property;

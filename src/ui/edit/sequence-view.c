@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.15 2006-02-02 20:03:46 ensonic Exp $
+// $Id: sequence-view.c,v 1.16 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: 
@@ -303,10 +303,9 @@ static void bt_sequence_view_dispose(GObject *object) {
 }
 
 static void bt_sequence_view_finalize(GObject *object) {
-  BtSequenceView *self = BT_SEQUENCE_VIEW(object);
+  //BtSequenceView *self = BT_SEQUENCE_VIEW(object);
   
-  GST_DEBUG("!!!! self=%p",self);
-  g_free(self->priv);
+  //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -316,8 +315,7 @@ static void bt_sequence_view_finalize(GObject *object) {
 static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(instance);
   
-  self->priv = g_new0(BtSequenceViewPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE_VIEW, BtSequenceViewPrivate);
 }
 
 static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
@@ -325,6 +323,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_TREE_VIEW);
+  g_type_class_add_private(klass,sizeof(BtSequenceViewPrivate));
 
   gobject_class->set_property = bt_sequence_view_set_property;
   gobject_class->get_property = bt_sequence_view_get_property;

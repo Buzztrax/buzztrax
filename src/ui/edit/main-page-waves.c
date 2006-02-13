@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.28 2005-12-29 21:10:39 ensonic Exp $
+// $Id: main-page-waves.c,v 1.29 2006-02-13 22:33:16 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -436,10 +436,8 @@ static void bt_main_page_waves_dispose(GObject *object) {
 }
 
 static void bt_main_page_waves_finalize(GObject *object) {
-  BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
+  //BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
   
-  g_free(self->priv);
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -447,14 +445,15 @@ static void bt_main_page_waves_finalize(GObject *object) {
 
 static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(instance);
-  self->priv = g_new0(BtMainPageWavesPrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_WAVES, BtMainPageWavesPrivate);
 }
 
 static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  g_type_class_add_private(klass,sizeof(BtMainPageWavesPrivate));
     
   gobject_class->set_property = bt_main_page_waves_set_property;
   gobject_class->get_property = bt_main_page_waves_get_property;

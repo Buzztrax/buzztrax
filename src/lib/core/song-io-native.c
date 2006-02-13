@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.96 2005-12-29 21:10:39 ensonic Exp $
+// $Id: song-io-native.c,v 1.97 2006-02-13 22:33:15 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -1252,7 +1252,6 @@ static void bt_song_io_native_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  g_free(self->priv);
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -1260,8 +1259,8 @@ static void bt_song_io_native_finalize(GObject *object) {
 
 static void bt_song_io_native_init(GTypeInstance *instance, gpointer g_class) {
   BtSongIONative *self = BT_SONG_IO_NATIVE(instance);
-  self->priv = g_new0(BtSongIONativePrivate,1);
-  self->priv->dispose_has_run = FALSE;
+  
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO_NATIVE, BtSongIONativePrivate);
 }
 
 static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
@@ -1269,6 +1268,7 @@ static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
   BtSongIOClass *base_class = BT_SONG_IO_CLASS(klass);
 
   error_domain=g_quark_from_static_string("BtSongIONative");
+  g_type_class_add_private(klass,sizeof(BtSongIONativePrivate));
 
   parent_class=g_type_class_ref(BT_TYPE_SONG_IO);
   
