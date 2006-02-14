@@ -42,10 +42,21 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
+
+      <processor id="echo1" plugin-name="audiodelay" voices="0">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="delaytime" value="25.0"/>
+        <globaldata name="feedback" value="75.0"/>
+        <globaldata name="drywet" value="50.0"/>
+      </processor>
     </machines>
     
     <wires>
-      <wire src="beep1" dst="audio_sink" gain="1.0"/>
+      <wire src="beep1" dst="echo1" gain="1.0"/>
+      <wire src="echo1" dst="audio_sink" gain="1.0"/>
       <wire src="beep2" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
@@ -91,7 +102,8 @@
         <position time="32" pattern="beep2::C-1"/>
         <position time="48" pattern="beep2::C-1"/>
       </track>
-      <track index="2" machine="audio_sink"/>
+      <track index="2" machine="echo1"/>
+      <track index="3" machine="audio_sink"/>
     </tracks>
   </sequence>
 

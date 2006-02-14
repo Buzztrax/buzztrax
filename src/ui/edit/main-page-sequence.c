@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.97 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.98 2006-02-14 09:03:54 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1426,14 +1426,14 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   self->priv->sink_bg2.green=(guint16)(0.8*65535);
   self->priv->sink_bg2.blue= (guint16)(1.0*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);
-  // @todo: can we get these from the theme ?
-  self->priv->cursor_bg.red=  (guint16)(0.0*65535);
-  self->priv->cursor_bg.green=(guint16)(0.0*65535);
-  self->priv->cursor_bg.blue= (guint16)(1.0*65535);
+  // @todo: can we get these colors from the theme ?
+  self->priv->cursor_bg.red=  (guint16)(0.9*65535);
+  self->priv->cursor_bg.green=(guint16)(0.9*65535);
+  self->priv->cursor_bg.blue= (guint16)(0.2*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->cursor_bg,FALSE,TRUE);
-  self->priv->selection_bg.red=  (guint16)(0.7*65535);
-  self->priv->selection_bg.green=(guint16)(0.7*65535);
-  self->priv->selection_bg.blue= (guint16)(1.0*65535);
+  self->priv->selection_bg.red=  (guint16)(1.0*65535);
+  self->priv->selection_bg.green=(guint16)(1.0*65535);
+  self->priv->selection_bg.blue= (guint16)(0.6*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->selection_bg,FALSE,TRUE);
 
   // generate the context menu  
