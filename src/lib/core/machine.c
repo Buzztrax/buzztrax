@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.184 2006-02-13 22:33:15 ensonic Exp $
+// $Id: machine.c,v 1.185 2006-02-14 21:29:47 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -238,6 +238,7 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
         
         if(state==GST_STATE_PLAYING) {
           GstPad *new_pad;
+          // @todo: get timestamp from 'machine' and set as timestamp-offset in 'self->priv->silence'          
 
           if(!gst_pad_set_blocked(pad,FALSE)) {
             GST_WARNING("can't unblock src-pad of machine %s",self->priv->id);
