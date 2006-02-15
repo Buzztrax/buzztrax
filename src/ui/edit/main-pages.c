@@ -1,7 +1,12 @@
-// $Id: main-pages.c,v 1.26 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-pages.c,v 1.27 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
+ *
+ * The user interface of the buzztard editor is divided into several pages.
+ * This class implements the notebook widgets to manage the sub-pages:
+ * #tMainPageMachines, #BtMainPagePatterns, #BtMainPageSequence,
+ * #BtMainPageWaves and #BtMainPageInfo.
  */ 
 
 #define BT_EDIT

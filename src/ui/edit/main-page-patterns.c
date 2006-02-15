@@ -1,8 +1,17 @@
-// $Id: main-page-patterns.c,v 1.76 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.77 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
- */ 
+ * @see_also: #BtSequenceView
+ */
+ 
+/* @todo:
+ *   - use BtSequenceView
+ *   - test wheter we can use pango-markup for tree-view labels to make font
+ *     smaller
+ *   - implement split view like in sequence
+ *   - need diverders for global and voice data
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_PATTERNS_C
@@ -30,6 +39,7 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *base_octave_menu;
 
   /* the pattern table */
+  //GtkTreeView *pattern_pos_table;
   GtkTreeView *pattern_table;
 
   /* pattern context_menu */
@@ -39,6 +49,7 @@ struct _BtMainPagePatternsPrivate {
   
   /* the pattern that is currently shown */
   BtPattern *pattern;
+
   /* signal handler ids */
   gint pattern_length_changed,pattern_voices_changed;
   gint pattern_menu_changed;

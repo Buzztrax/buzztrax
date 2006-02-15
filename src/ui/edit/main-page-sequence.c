@@ -1,7 +1,8 @@
-// $Id: main-page-sequence.c,v 1.99 2006-02-14 21:29:48 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.100 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
+ * @see_also: #BtSequenceView
  */ 
 
 /* @todo:
@@ -144,6 +145,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
     -1);
 
   //GST_INFO("col/row: %3d/%3d <-> %3d/%3d",column,row,self->priv->cursor_column,self->priv->cursor_row);
+  //GST_INFO("bg_col %x <-> source_bg1,2 %x, %x",bg_col->pixel,self->priv->source_bg1.pixel,self->priv->source_bg2.pixel);
   
   if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
     bg_col=&self->priv->cursor_bg;
@@ -151,7 +153,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col==&self->priv->source_bg1)?&self->priv->selection_bg1:&self->priv->selection_bg2;
+    bg_col=(bg_col->pixel==self->priv->source_bg1.pixel)?&self->priv->selection_bg1:&self->priv->selection_bg2;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
@@ -179,7 +181,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col==&self->priv->processor_bg1)?&self->priv->selection_bg1:&self->priv->selection_bg2;
+    bg_col=(bg_col->pixel==self->priv->processor_bg1.pixel)?&self->priv->selection_bg1:&self->priv->selection_bg2;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
@@ -208,7 +210,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col==&self->priv->sink_bg1)?&self->priv->selection_bg1:&self->priv->selection_bg2;
+    bg_col=(bg_col->pixel==self->priv->sink_bg1.pixel)?&self->priv->selection_bg1:&self->priv->selection_bg2;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
@@ -1249,7 +1251,6 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
             self->priv->selection_row=self->priv->cursor_row;
           }
           else {
-            // TODO: use start pos
             if(self->priv->cursor_column<self->priv->selection_column) {
               self->priv->selection_start_column=self->priv->cursor_column;
               self->priv->selection_end_column=self->priv->selection_column;
@@ -1276,43 +1277,6 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
   }  
   return(res);
 }
-
-static gboolean on_sequence_table_button_release_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  gboolean res=FALSE;
-
-  g_assert(user_data);
-  
-  GST_INFO("sequence_table button_release : button 0x%x, type 0x%d",event->button,event->type);
-  if(event->button==1) {
-    if(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(widget))==(event->window)) {
-      GtkTreePath *path;
-      GtkTreeViewColumn *column;
-      // determine sequence position from mouse coordinates
-      if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),event->x,event->y,&path,&column,NULL,NULL)) {
-        // handle selection
-        glong cursor_column=self->priv->cursor_column;
-        glong cursor_row=self->priv->cursor_row;
-        gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-        gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
-        // cursor updates are not yet processed
-        on_sequence_table_cursor_changed_idle(self);
-        GST_INFO("selection: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
-        if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
-          self->priv->selection_start_column=MIN(cursor_column,self->priv->cursor_column);
-          self->priv->selection_start_row=MIN(cursor_row,self->priv->cursor_row);
-          self->priv->selection_end_column=MAX(cursor_column,self->priv->cursor_column);
-          self->priv->selection_end_row=MAX(cursor_row,self->priv->cursor_row);
-          gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
-        }
-        res=TRUE;
-      }
-      if(path) gtk_tree_path_free(path);
-    }
-  }
-  return(res);
-}
-
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1499,11 +1463,11 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gdk_colormap_alloc_color(colormap,&self->priv->cursor_bg,FALSE,TRUE);
   self->priv->selection_bg1.red=  (guint16)(1.0*65535);
   self->priv->selection_bg1.green=(guint16)(1.0*65535);
-  self->priv->selection_bg1.blue= (guint16)(0.7*65535);
+  self->priv->selection_bg1.blue= (guint16)(0.6*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->selection_bg1,FALSE,TRUE);
   self->priv->selection_bg2.red=  (guint16)(0.95*65535);
   self->priv->selection_bg2.green=(guint16)(0.95*65535);
-  self->priv->selection_bg2.blue= (guint16)(0.5*65535);
+  self->priv->selection_bg2.blue= (guint16)(0.55*65535);
   gdk_colormap_alloc_color(colormap,&self->priv->selection_bg2,FALSE,TRUE);
 
   // generate the context menu  
@@ -1563,12 +1527,10 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
   gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
-  //g_signal_connect(G_OBJECT(self->priv->sequence_table), "move-cursor", G_CALLBACK(on_sequence_table_move_cursor), (gpointer)self);
   g_signal_connect_after(G_OBJECT(self->priv->sequence_table), "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-release-event", G_CALLBACK(on_sequence_table_button_release_event), (gpointer)self);
 
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));

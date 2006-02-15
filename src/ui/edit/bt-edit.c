@@ -1,7 +1,8 @@
-// $Id: bt-edit.c,v 1.28 2005-12-29 21:10:39 ensonic Exp $
+// $Id: bt-edit.c,v 1.29 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
+ * @see_also: #BtEditApplication
  *
  * Implements the body of the buzztard GUI editor.
  * 

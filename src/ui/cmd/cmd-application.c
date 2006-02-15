@@ -1,9 +1,10 @@
-// $Id: cmd-application.c,v 1.75 2006-02-13 22:33:16 ensonic Exp $
+// $Id: cmd-application.c,v 1.76 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
  *
  * This class implements the body of the buzztard commandline tool.
+ * It provides application level function like play, convert and encode songs.
  */ 
 #define BT_CMD
 #define BT_CMD_APPLICATION_C

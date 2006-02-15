@@ -1,7 +1,10 @@
-// $Id: main-window.c,v 1.66 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-window.c,v 1.67 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
+ *
+ * The main window class is a container for the #BtMainMenu, the #BtMainToolbar,
+ * the #BtMainStatusbar and the #BtMainPages tabbed notebook.
  */ 
 
 #define BT_EDIT

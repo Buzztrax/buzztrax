@@ -1,7 +1,8 @@
-// $Id: bt-cmd.c,v 1.32 2005-11-28 22:25:38 ensonic Exp $
+// $Id: bt-cmd.c,v 1.33 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
+ * @see_also: #BtCmdApplication
  *
  * Implements the body of the buzztard commandline tool.
  *

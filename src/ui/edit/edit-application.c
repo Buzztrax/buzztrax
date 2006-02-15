@@ -1,8 +1,11 @@
-// $Id: edit-application.c,v 1.68 2006-02-13 22:33:16 ensonic Exp $
+// $Id: edit-application.c,v 1.69 2006-02-15 11:27:39 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
+ * @see_also: #BtMainWindow
  *
+ * Opens the #BtMainWindow and provide application level function like load,
+ * save, run and exit.
  */ 
  
 #define BT_EDIT
