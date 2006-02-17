@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.78 2006-02-17 08:06:50 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.79 2006-02-17 08:19:57 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1142,6 +1142,11 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
 
   // @todo add play notes checkbox or toggle tool button
     
+  // get colors
+  self->priv->cursor_bg=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
+  self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
+  self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
+
   // add hbox for pattern view
   box=gtk_hbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(self),box);
@@ -1184,11 +1189,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
-
-  // get colors
-  self->priv->cursor_bg=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
-  self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
-  self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
 
   GST_DEBUG("  before context menu",self);
 

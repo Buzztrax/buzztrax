@@ -1,4 +1,4 @@
-// $Id: ui-ressources.c,v 1.6 2006-02-17 08:06:50 ensonic Exp $
+// $Id: ui-ressources.c,v 1.7 2006-02-17 08:19:57 ensonic Exp $
 /**
  * SECTION:btuiressources
  * @short_description: common shared ui ressources like icons and colors
@@ -61,6 +61,10 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   MAKE_COLOR(BT_UI_RES_COLOR_SELECTION1,                1.00,1.00,0.60);
   MAKE_COLOR(BT_UI_RES_COLOR_SELECTION2,                0.95,0.95,0.55);
   
+  // tree view lines
+  MAKE_COLOR(BT_UI_RES_COLOR_PLAYLINE,                  0.00,0.00,1.00);
+  MAKE_COLOR(BT_UI_RES_COLOR_LOOPLINE,                  1.00,0.75,0.00);
+  
   // source machine
   MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       1.00,0.70,0.70);
   MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    1.00,0.90,0.90);
@@ -81,20 +85,6 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      0.80,0.80,1.00);
   MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        0.40,0.40,0.60);
   MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        0.20,0.20,0.50);
-
-  /* @todo: sequence-view.c
-  color.red = 0;
-  color.green = 0;
-  color.blue = 65535;
-  self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
-  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-
-  color.red = 65535;
-  color.green = (gint)(0.75*65535.0);
-  color.blue = 0;
-  self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);  
-   */
    
   // now allocate colors
   colormap=gdk_colormap_get_system();

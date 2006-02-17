@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.h,v 1.4 2006-02-17 08:06:50 ensonic Exp $
+/* $Id: ui-ressources.h,v 1.5 2006-02-17 08:19:57 ensonic Exp $
  * singleton class that hold shared ui ressources
  */
 
@@ -41,10 +41,8 @@ typedef enum {
   BT_UI_RES_COLOR_CURSOR=0,
   BT_UI_RES_COLOR_SELECTION1,
   BT_UI_RES_COLOR_SELECTION2,
-  /*
   BT_UI_RES_COLOR_PLAYLINE,
   BT_UI_RES_COLOR_LOOPLINE,
-  */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       /* machine view normal */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    /* list view odd */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    /* list view even */

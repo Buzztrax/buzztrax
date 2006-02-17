@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.18 2006-02-17 08:06:50 ensonic Exp $
+// $Id: sequence-view.c,v 1.19 2006-02-17 08:19:57 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -82,7 +82,6 @@ Error:
 
 static void bt_sequence_view_realize(GtkWidget *widget) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
-  GdkColor color;
   GtkTreePath *path;
   GdkRectangle br;
 
@@ -92,21 +91,17 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
   }
   self->priv->window=gtk_tree_view_get_bin_window(GTK_TREE_VIEW(self));
 
-  color.red = 0;
-  color.green = 0;
-  color.blue = 65535;
+  // allocation graphical contexts for drawing the overlay lines
   self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
+  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
   gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 
-  color.red = 65535;
-  color.green = (gint)(0.75*65535.0);
-  color.blue = 0;
   self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);
-  gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,&color);
+  gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_LOOPLINE));
   gdk_gc_set_line_attributes(self->priv->loop_pos_gc,2,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
   gdk_gc_set_dashes(self->priv->loop_pos_gc,0,loop_pos_dash_list,1);
   
+  // determine row height
   path=gtk_tree_path_new_from_indices(0,-1);
   gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
   self->priv->row_height=br.height;
