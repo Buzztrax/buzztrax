@@ -1,10 +1,10 @@
-// $Id: main-toolbar.c,v 1.77 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-toolbar.c,v 1.78 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
  */ 
 
-/* @todo: should we separate the toolbars?
+/* @todo should we separate the toolbars?
  * - common - load, save, ...
  * - volume - gain, levels
  * - load - cpu load

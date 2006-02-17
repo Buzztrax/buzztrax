@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.97 2006-02-13 22:33:15 ensonic Exp $
+// $Id: song-io-native.c,v 1.98 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -298,8 +298,10 @@ static gboolean bt_song_io_native_load_setup_machines(const BtSongIONative *self
         // create new processor machine
         machine=BT_MACHINE(bt_processor_machine_new(song,name,(gchar *)plugin_name,voices));
       }
-      if(machine) { // add machine to setup
+      if(machine) {
+        // load properties
         bt_song_io_native_load_properties(self,song,xml_node->children,G_OBJECT(machine));
+        // @todo load global data
         g_object_unref(machine);
       }
       xmlFree(id);xmlFree(plugin_name);xmlFree(voices_str);
@@ -908,7 +910,9 @@ static gboolean bt_song_io_native_save_setup_machines(const BtSongIONative *self
     }
     g_free(id);
     if(plugin_name) g_free(plugin_name);
+    // save properties
     bt_song_io_native_save_properties(self,song,xml_node,G_OBJECT(machine));
+    // @todo save global data
   }
   g_list_free(machines);
   g_object_try_unref(setup);

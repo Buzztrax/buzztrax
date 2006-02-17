@@ -1,11 +1,11 @@
-// $Id: main-page-patterns.c,v 1.79 2006-02-17 08:19:57 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.80 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
  * @see_also: #BtSequenceView
  */
  
-/* @todo:
+/* @todo main-page-patterns tasks
  *   - use BtSequenceView alike class
  *   - test wheter we can use pango-markup for tree-view labels to make font
  *     smaller

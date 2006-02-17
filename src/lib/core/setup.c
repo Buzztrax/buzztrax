@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.79 2006-02-13 22:33:15 ensonic Exp $
+// $Id: setup.c,v 1.80 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -134,9 +134,6 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMac
  * @self: the setup to add the machine to
  * @machine: the new machine instance
  *
- * @todo: adding g_error stuff, to give the programmer more information, whats
- * going wrong.
- *
  * Let the setup know that the suplied machine is now part of the song.
  *
  * Returns: return true, if the machine can be added. Returns false if the
@@ -144,6 +141,8 @@ static GList *bt_setup_get_wires_by_machine_type(const BtSetup *self,const BtMac
  */
 gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
   gboolean ret=FALSE;
+
+  // @todo add g_error stuff, to give the programmer more information, whats going wrong.
   
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
@@ -164,9 +163,6 @@ gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
  * bt_setup_add_wire:
  * @self: the setup to add the wire to
  * @wire: the new wire instance
- * 
- * @todo: adding g_error stuff, to give the programmer more information, whats
- * going wrong.
  *
  * Let the setup know that the suplied wire is now part of the song.
  *
@@ -177,6 +173,8 @@ gboolean bt_setup_add_machine(const BtSetup *self, const BtMachine *machine) {
  */
 gboolean bt_setup_add_wire(const BtSetup *self, const BtWire *wire) {
   gboolean ret=FALSE;
+
+  // @todo add g_error stuff, to give the programmer more information, whats going wrong.
   
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);

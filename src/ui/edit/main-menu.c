@@ -1,10 +1,10 @@
-// $Id: main-menu.c,v 1.48 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-menu.c,v 1.49 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
  */
 
-/* @todo:
+/* @todo main-menu tasks
  *  - enable/disable edit menu entries
  */
 
@@ -105,7 +105,7 @@ static void on_menu_cut_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_assert(user_data);
 
   GST_INFO("menu cut event occurred");
-  /* @todo: implement me */
+  /* @todo implement me */
 }
 
 static void on_menu_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -150,7 +150,7 @@ static void on_menu_paste_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_assert(user_data);
 
   GST_INFO("menu paste event occurred");
-  /* @todo: implement me */
+  /* @todo implement me */
 }
 
 static void on_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -497,7 +497,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_toolbar_toggled),(gpointer)self);
   
-  /* @todo: 'Statusbar' show/hide toggle */
+  /* @todo 'Statusbar' show/hide toggle */
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Tabs"));
   gtk_widget_set_name(subitem,_("Tabs"));
@@ -556,7 +556,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_name(subitem,_("Content"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   
-  /* @todo: 'tip of the day' */
+  /* @todo 'tip of the day' */
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("About"));
   gtk_widget_set_name(subitem,_("About"));

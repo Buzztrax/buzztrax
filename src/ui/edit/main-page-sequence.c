@@ -1,11 +1,11 @@
-// $Id: main-page-sequence.c,v 1.101 2006-02-17 08:06:50 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.102 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
  * @see_also: #BtSequenceView
  */ 
 
-/* @todo:
+/* @todo main-page-sequence tasks
  *  - disallowing to move to position column (bug in GtkTreeView)
  *    - work around by haveing more synchronized views
  *  - selection + cut/copy/paste/delete
@@ -1174,7 +1174,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
             g_object_get(song,"sequence",&sequence,NULL);
             g_object_get(sequence,"length",&sequence_length,NULL);
             // use a keyboard qualifier to set loop_start and end
-            /* @todo: should the sequence-view listen to notify::xxx ? */
+            /* @todo should the sequence-view listen to notify::xxx ? */
             switch(modifier) {
               case 0:
                 g_object_set(song,"play-pos",row,NULL);
@@ -1665,7 +1665,7 @@ static int ntargets = G_N_ELEMENTS (targets);
 */
 
 void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
-  /* @todo: implement me
+  /* @todo implement me
    * - where do we store this?
    * - how do we store this?
    * - later we might have multiple songs open, and like to copy from one-to-another
@@ -1680,11 +1680,11 @@ void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
 }
 
 void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
-  /* @todo: implement me */
+  /* @todo implement me */
 }
 
 void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
-  /* @todo: implement me */
+  /* @todo implement me */
 }
 
 void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {

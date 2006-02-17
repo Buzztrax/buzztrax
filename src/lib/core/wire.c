@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.67 2006-02-13 22:33:15 ensonic Exp $
+// $Id: wire.c,v 1.68 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -31,7 +31,7 @@ enum {
 };
 
 /*
- * @todo: items to add
+ * @todo items to add
  *
  * // the element to control the gain of a connection
  * GstElement *gain;

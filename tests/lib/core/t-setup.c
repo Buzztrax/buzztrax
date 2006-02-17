@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.30 2006-01-18 13:11:55 ensonic Exp $
+/* $Id: t-setup.c,v 1.31 2006-02-17 08:37:19 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -1050,7 +1050,7 @@ TCase *bt_setup_test_case(void) {
   tcase_add_test(tc,test_btsetup_obj18);
   tcase_add_test(tc,test_btsetup_wire1);
   tcase_add_test(tc,test_btsetup_wire2);
-  // @todo: make test work
+  // @todo make test work
   //tcase_add_test(tc,test_btsetup_wire3);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds (even 15 seems not to be enough)

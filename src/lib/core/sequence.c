@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.93 2006-02-17 08:06:50 ensonic Exp $
+// $Id: sequence.c,v 1.94 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -973,7 +973,7 @@ static void bt_sequence_set_property(GObject      *object,
       //GST_DEBUG("set the song for sequence: %p",self->priv->song);
     } break;
     case SEQUENCE_LENGTH: {
-      // @todo: remove or better stop the song
+      // @todo remove or better stop the song
       // if(self->priv->is_playing) bt_sequence_stop(self);
       // prepare new data
       length=self->priv->length;
@@ -994,7 +994,7 @@ static void bt_sequence_set_property(GObject      *object,
       }
     } break;
     case SEQUENCE_TRACKS: {
-      // @todo: remove or better stop the song
+      // @todo remove or better stop the song
       //if(self->priv->is_playing) bt_sequence_stop(self);
       // prepare new data      
       tracks=self->priv->tracks;

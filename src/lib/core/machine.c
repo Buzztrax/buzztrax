@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.187 2006-02-17 08:06:50 ensonic Exp $
+// $Id: machine.c,v 1.188 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -238,7 +238,7 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
         
         if(state==GST_STATE_PLAYING) {
           GstPad *new_pad;
-          /* @todo: synchronize
+          /* @todo synchronize
            * - get timestamp from 'machine' and
            *   set as timestamp-offset in 'self->priv->silence'          
            * - send a prepared GstPositionQuery to 'machine' and

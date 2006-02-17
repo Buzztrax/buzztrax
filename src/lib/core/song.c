@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.112 2006-02-13 22:33:15 ensonic Exp $
+// $Id: song.c,v 1.113 2006-02-17 08:37:19 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -120,7 +120,7 @@ static void bt_song_update_play_seek_event(BtSong *self) {
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
-  /* @todo: if playing -> send event
+  /* @todo if playing -> send event
    * the update needs to take the current play-position into account
    */
 	bt_song_seek_to_play_pos(self);
@@ -246,7 +246,7 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
   }
 }
 
-/* @todo: required for live mode */
+/* @todo required for live mode */
 
 /**
  * bt_song_idle_start:
@@ -380,10 +380,10 @@ gboolean bt_song_play(const BtSong *self) {
   }
   gst_iterator_free (it);
 
-  /* @todo: has no effect if not send to a source
+  /* @todo has no effect if not send to a source
   gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
   */
-  /* @todo: also fails
+  /* @todo also fails
    * GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
    * GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
   tag_event=gst_event_new_tag(taglist);
