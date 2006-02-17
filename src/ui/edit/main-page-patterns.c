@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.77 2006-02-15 11:27:39 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.78 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -6,11 +6,18 @@
  */
  
 /* @todo:
- *   - use BtSequenceView
+ *   - use BtSequenceView alike class
  *   - test wheter we can use pango-markup for tree-view labels to make font
  *     smaller
- *   - implement split view like in sequence
- *   - need diverders for global and voice data
+ *   - need diverders for global and voice data (2 pixel wide column?)
+ *   - shortcuts
+ *     - Ctrl-I : Interpolate
+ *       - from min/max of parameter or content of start/end cell (also multi-column)
+ *       - what if only start or end is given?
+ *     - Ctrl-R : Randomize
+ *       - from min/max of parameter or content of start/end cell (also multi-column)
+ *     - Ctrl-S : Smooth
+ *       - low pass median filter over changes
  */
 
 #define BT_EDIT
@@ -39,14 +46,30 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *base_octave_menu;
 
   /* the pattern table */
-  //GtkTreeView *pattern_pos_table;
+  GtkTreeView *pattern_pos_table;
   GtkTreeView *pattern_table;
 
   /* pattern context_menu */
   GtkMenu *context_menu;
   GtkWidget *context_menu_track_add,*context_menu_track_remove;
   GtkWidget *context_menu_pattern_properties,*context_menu_pattern_remove,*context_menu_pattern_copy;
-  
+
+  /* colors */
+  GdkColor *cursor_bg;
+  GdkColor *selection_bg1,*selection_bg2;
+
+  /* cursor */
+  glong cursor_column;
+  glong cursor_row;
+  /* selection range */
+  glong selection_start_column;
+  glong selection_start_row;
+  glong selection_end_column;
+  glong selection_end_row;
+  /* selection first cell */
+  glong selection_column;
+  glong selection_row;
+
   /* the pattern that is currently shown */
   BtPattern *pattern;
 
@@ -76,6 +99,40 @@ enum {
 #define PATTERN_CELL_WIDTH 80
 #define PATTERN_CELL_HEIGHT 28
 
+static GQuark column_index_quark=0;
+
+//-- tree cell data functions
+
+static void selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  gulong row,column;
+  GdkColor *bg_col=NULL;
+  gchar *str=NULL;
+
+  column=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
+
+  gtk_tree_model_get(model,iter,
+    PATTERN_TABLE_POS,&row,
+    PATTERN_TABLE_PRE_CT+column,&str,
+    -1);
+
+  //GST_INFO("col/row: %3d/%3d <-> %3d/%3d",column,row,self->priv->cursor_column,self->priv->cursor_row);
+  
+  if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
+    bg_col=self->priv->cursor_bg;
+  }
+  else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
+    (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
+  ) {
+    bg_col=(row&1)?self->priv->selection_bg2:self->priv->selection_bg1;
+  }
+  g_object_set(G_OBJECT(renderer),
+    "background-gdk",bg_col,
+    "text",str,
+     NULL);
+}
+
+
 //-- tree model helper
 
 static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
@@ -97,6 +154,31 @@ static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *i
     if(this_pattern==that_pattern) break;
   } while(gtk_tree_model_iter_next(store,iter));
 }
+
+static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gulong *col,gulong *row) {
+  gboolean res=FALSE;
+  GtkTreeModel *store;
+  GtkTreeIter iter;
+  
+  if((store=gtk_tree_view_get_model(tree_view))) {
+    if(gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,path)) {
+      if(col) {
+        GList *columns=gtk_tree_view_get_columns(tree_view);
+        *col=g_list_index(columns,(gpointer)column);
+        g_list_free(columns);
+      }
+      if(row) {
+        gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,row,-1);
+      }
+      res=TRUE;
+    }
+  }
+  else {
+    GST_WARNING("  can't get tree-model");
+  }
+  return(res);
+}
+
 
 //-- event handlers
 
@@ -138,9 +220,34 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   g_free(str);
 }
 
+static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  GtkTreePath *path;
+  GtkTreeViewColumn *column;
+  glong cursor_column,cursor_row;
+
+  g_return_val_if_fail(user_data,FALSE);
+
+  //GST_INFO("pattern cursor has changed : self=%p",user_data);
+  
+  gtk_tree_view_get_cursor(self->priv->pattern_table,&path,&column);
+  if(pattern_view_get_cursor_pos(self->priv->pattern_table,path,column,&cursor_column,&cursor_row)) {
+    self->priv->cursor_row=cursor_row;
+    self->priv->cursor_column=cursor_column;
+    gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+  }
+  return(FALSE);
+}
+
+static void on_pattern_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
+  /* delay the action */
+  g_idle_add(on_pattern_table_cursor_changed_idle,user_data);
+}
+
 static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gboolean res=FALSE;
+  gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
   
   g_assert(user_data);
   
@@ -163,6 +270,114 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
     res=TRUE;
   }
+  else if(modifier==GDK_SHIFT_MASK && 
+    (event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right)
+  ) {
+    GtkTreePath *path=NULL;
+    GtkTreeViewColumn *column;
+    GList *columns=NULL;
+    gboolean select=FALSE;
+    
+    GST_INFO("handling selection");
+    
+    // handle selection
+    switch(event->keyval) {
+      case GDK_Up:
+        GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+        if((self->priv->selection_start_column!=self->priv->cursor_column) &&
+          (self->priv->selection_start_row!=(self->priv->cursor_row-1))
+        ) {
+          GST_INFO("up   : new selection");
+          self->priv->selection_start_column=self->priv->cursor_column;
+          self->priv->selection_end_column=self->priv->cursor_column;
+          self->priv->selection_start_row=self->priv->cursor_row;
+          self->priv->selection_end_row=self->priv->cursor_row+1;
+        }
+        else {
+          GST_INFO("up   : expand selection");
+          self->priv->selection_start_row-=1;
+        }
+        GST_INFO("up   : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+        select=TRUE;
+        break;
+      case GDK_Down:
+        GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+        if((self->priv->selection_end_column!=self->priv->cursor_column) &&
+          (self->priv->selection_end_row!=(self->priv->cursor_row+1))
+        ) {
+          GST_INFO("down : new selection");
+          self->priv->selection_start_column=self->priv->cursor_column;
+          self->priv->selection_end_column=self->priv->cursor_column;
+          self->priv->selection_start_row=self->priv->cursor_row-1;
+          self->priv->selection_end_row=self->priv->cursor_row;
+        }
+        else {
+          GST_INFO("down : expand selection");
+          self->priv->selection_end_row+=1;
+        }
+        GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+        select=TRUE;
+        break;
+      case GDK_Left:
+        // move cursor
+        self->priv->cursor_column--;
+        path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1);
+        columns=gtk_tree_view_get_columns(self->priv->pattern_table);
+        column=g_list_nth_data(columns,self->priv->cursor_column);
+        // set cell focus
+        gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
+        gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+        GST_INFO("left : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+        if((self->priv->selection_start_column!=(self->priv->cursor_column+1)) &&
+          (self->priv->selection_start_row!=self->priv->cursor_row)
+        ) {
+          GST_INFO("left : new selection");
+          self->priv->selection_start_column=self->priv->cursor_column;
+          self->priv->selection_end_column=self->priv->cursor_column+1;
+          self->priv->selection_start_row=self->priv->cursor_row;
+          self->priv->selection_end_row=self->priv->cursor_row;
+        }
+        else {
+          GST_INFO("left : expand selection");
+          self->priv->selection_start_column--;
+        }
+        GST_INFO("left : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+        select=TRUE;
+        break;
+      case GDK_Right:
+        // move cursor
+        self->priv->cursor_column++;
+        path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1);
+        columns=gtk_tree_view_get_columns(self->priv->pattern_table);
+        column=g_list_nth_data(columns,self->priv->cursor_column);
+        // set cell focus
+        gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
+        gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+        GST_INFO("right: %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+        if((self->priv->selection_end_column!=(self->priv->cursor_column-1)) &&
+          (self->priv->selection_end_row!=self->priv->cursor_row)
+        ) {
+          GST_INFO("right: new selection");
+          self->priv->selection_start_column=self->priv->cursor_column-1;
+          self->priv->selection_end_column=self->priv->cursor_column;
+          self->priv->selection_start_row=self->priv->cursor_row;
+          self->priv->selection_end_row=self->priv->cursor_row;
+        }
+        else {
+          GST_INFO("right: expand selection");
+          self->priv->selection_end_column++;
+        }
+        GST_INFO("right: %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+        select=TRUE;
+        break;
+    }
+    if(path) gtk_tree_path_free(path);
+    if(columns) g_list_free(columns);
+    if(select) {
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+      res=TRUE;
+    }
+  }
   return(res);
 }
 
@@ -179,9 +394,12 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
       GtkTreeViewColumn *column;
       // determine sequence position from mouse coordinates
       if(gtk_tree_view_get_path_at_pos(self->priv->pattern_table,event->x,event->y,&path,&column,NULL,NULL)) {
+        // set cell focus
         gtk_tree_view_set_cursor_on_cell(self->priv->pattern_table,path,column,NULL,FALSE);
         gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-        res=TRUE;
+        // reset selection
+        self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
+       res=TRUE;
       }
       if(path) gtk_tree_path_free(path);
     }
@@ -192,6 +410,67 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
   }
   return(res);
 }
+
+static gboolean on_pattern_table_motion_notify_event(GtkWidget *widget,GdkEventMotion *event,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  gboolean res=FALSE;
+
+  g_assert(user_data);
+  
+  // only activate in button_press ?
+  if(event->state&GDK_BUTTON1_MASK) {
+    if(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(widget))==(event->window)) {
+      GtkTreePath *path;
+      GtkTreeViewColumn *column;
+      // determine sequence position from mouse coordinates
+      if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),event->x,event->y,&path,&column,NULL,NULL)) {
+        // handle selection
+        glong cursor_column=self->priv->cursor_column;
+        glong cursor_row=self->priv->cursor_row;
+        gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
+        gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+        // cursor updates are not yet processed
+        on_pattern_table_cursor_changed_idle(self);
+        GST_INFO("selection: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
+        if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
+          // if no selection
+          if(self->priv->selection_start_column==-1) {
+            self->priv->selection_start_column=MIN(cursor_column,self->priv->cursor_column);
+            self->priv->selection_start_row=MIN(cursor_row,self->priv->cursor_row);
+            self->priv->selection_end_column=MAX(cursor_column,self->priv->cursor_column);
+            self->priv->selection_end_row=MAX(cursor_row,self->priv->cursor_row);
+            gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+            self->priv->selection_column=self->priv->cursor_column;
+            self->priv->selection_row=self->priv->cursor_row;
+          }
+          else {
+            if(self->priv->cursor_column<self->priv->selection_column) {
+              self->priv->selection_start_column=self->priv->cursor_column;
+              self->priv->selection_end_column=self->priv->selection_column;
+            }
+            else {
+              self->priv->selection_start_column=self->priv->selection_column;
+              self->priv->selection_end_column=self->priv->cursor_column;
+            }
+            if(self->priv->cursor_row<self->priv->selection_row) {
+              self->priv->selection_start_row=self->priv->cursor_row;
+              self->priv->selection_end_row=self->priv->selection_row;
+            }
+            else {
+              self->priv->selection_start_row=self->priv->selection_row;
+              self->priv->selection_end_row=self->priv->cursor_row;
+            }
+            gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          }
+        }
+        res=TRUE;
+      }
+      if(path) gtk_tree_path_free(path);
+    }
+  }  
+  return(res);
+}
+
 
 //-- event handler helper
 
@@ -288,6 +567,40 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
 }
 
 /*
+ * pattern_pos_table_init:
+ * @self: the pattern page
+ *
+ * inserts the Pos column.
+ */
+static void pattern_pos_table_init(const BtMainPagePatterns *self) {
+  GtkCellRenderer *renderer;
+  GtkTreeViewColumn *tree_col;
+  gint col_index=0;
+  
+  // add static column
+  renderer=gtk_cell_renderer_text_new();
+  g_object_set(G_OBJECT(renderer),
+    "mode",GTK_CELL_RENDERER_MODE_INERT,
+    "xalign",1.0,
+    "yalign",0.5,
+    NULL);
+  gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
+  if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
+    "text",PATTERN_TABLE_POS,
+    NULL))
+  ) {
+    g_object_set(tree_col,
+      "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
+      "fixed-width",40,
+      NULL);
+    col_index=gtk_tree_view_append_column(self->priv->pattern_pos_table,tree_col);
+  }
+  else GST_WARNING("can't create treeview column");
+
+  GST_DEBUG("    number of columns : %d",col_index);
+}
+
+/*
  * pattern_table_clear:
  * @self: the pattern page
  *
@@ -371,28 +684,10 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     }
     GST_DEBUG("    activating store: %p",store);
     gtk_tree_view_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
+    gtk_tree_view_set_model(self->priv->pattern_pos_table,GTK_TREE_MODEL(store));
 
     // build view
     GST_DEBUG("  build view");
-    // add initial columns
-    renderer=gtk_cell_renderer_text_new();
-    g_object_set(G_OBJECT(renderer),
-      "mode",GTK_CELL_RENDERER_MODE_INERT,
-      "xalign",1.0,
-      // workaround to make focus visible
-      "height",PATTERN_CELL_HEIGHT-4,
-      NULL);
-    if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
-      "text",PATTERN_TABLE_POS,
-      NULL))
-    ) {
-      g_object_set(tree_col,
-        "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-        "fixed-width",40,
-          NULL);
-      gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-    }
-    else GST_WARNING("can't create treeview column");
     for(j=0;j<number_of_global_params;j++) {
       //pspec=bt_machine_get_global_param_spec(machine,j);
       renderer=gtk_cell_renderer_text_new();
@@ -408,7 +703,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
           "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
           "fixed-width",PATTERN_CELL_WIDTH,
           NULL);
+        g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(j));
         gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
+        gtk_tree_view_column_set_cell_data_func(tree_col, renderer, selection_cell_data_function, (gpointer)self, NULL);
       }
       else GST_WARNING("can't create treeview column");
     }
@@ -423,6 +720,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 
     GST_DEBUG("    activating dummy store: %p",store);
     gtk_tree_view_set_model(self->priv->pattern_table,GTK_TREE_MODEL(store));
+    gtk_tree_view_set_model(self->priv->pattern_pos_table,GTK_TREE_MODEL(store));
   }
   // add a final column that eats remaining space
   renderer=gtk_cell_renderer_text_new();
@@ -747,11 +1045,13 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 //-- helper methods
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
-  GtkWidget *toolbar,*scrolled_window;
+  GtkWidget *toolbar;
   GtkWidget *box,*tool_item;
+  GtkWidget *scrolled_window,*scrolled_sync_window;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
   GtkTreeSelection *tree_sel;
+  GtkAdjustment *vadjust;
   gint i;
   
   GST_DEBUG("!!!! self=%p",self);
@@ -841,25 +1141,54 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),gtk_separator_tool_item_new(),-1);
 
   // @todo add play notes checkbox or toggle tool button
+    
+  // add hbox for pattern view
+  box=gtk_hbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(self),box);
   
-  
-  // @idea what about adding one control for global params and one for each voice, then these controls can be folded
-  // add list-view for pattern
+  // add pattern-pos list-view
+  scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_ETCHED_IN);
+  self->priv->pattern_pos_table=GTK_TREE_VIEW(gtk_tree_view_new());
+  //self->priv->pattern_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
+  g_object_set(self->priv->pattern_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
+  gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_pos_table),40,-1);
+  tree_sel=gtk_tree_view_get_selection(self->priv->pattern_pos_table);
+  gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
+  pattern_pos_table_init(self);
+  gtk_container_add(GTK_CONTAINER(scrolled_sync_window),GTK_WIDGET(self->priv->pattern_pos_table));
+  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_sync_window), FALSE, FALSE, 0);
+  //g_signal_connect(G_OBJECT(self->priv->pattern_pos_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
+
+  /* @idea what about adding one control for global params and one for each voice,
+   * - then these controls can be folded
+   * - problem is scrolling them all with one scrollbar
+   */
+  // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->pattern_table=GTK_TREE_VIEW(gtk_tree_view_new());
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
-  // GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column
-  // we can set a gtk_tree_selection_set_select_function() to select ranges
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
-  gtk_container_add(GTK_CONTAINER(self),scrolled_window);
-  //g_signal_connect(G_OBJECT(self->priv->pattern_table), "move-cursor", G_CALLBACK(on_pattern_table_move_cursor), (gpointer)self);
-  //g_signal_connect(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
+  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
+  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
+  g_signal_connect_after(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "motion-notify-event", G_CALLBACK(on_pattern_table_motion_notify_event), (gpointer)self);
+
+  // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
+  vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
+  gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
+
+  // get colors
+  self->priv->cursor_bg=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
+  self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
+  self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
 
   GST_DEBUG("  before context menu",self);
 
@@ -1112,11 +1441,20 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_PATTERNS, BtMainPagePatternsPrivate);
+
+  //self->priv->cursor_column=0;
+  //self->priv->cursor_row=0;
+  self->priv->selection_start_column=-1;
+  self->priv->selection_start_row=-1;
+  self->priv->selection_end_column=-1;
+  self->priv->selection_end_row=-1;
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
+  column_index_quark=g_quark_from_static_string("BtMainPagePattern::index");
+  
   parent_class=g_type_class_ref(GTK_TYPE_VBOX);
   g_type_class_add_private(klass,sizeof(BtMainPagePatternsPrivate));
     

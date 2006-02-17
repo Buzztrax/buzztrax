@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.92 2006-02-13 22:33:15 ensonic Exp $
+// $Id: sequence.c,v 1.93 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -374,7 +374,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
   gulong length;
   gulong global_params,voice_params,voices;
 
-  GST_INFO("invalidate pattern %p region for tick=%5d, track=%3d",pattern,time,track);
+  GST_DEBUG("invalidate pattern %p region for tick=%5d, track=%3d",pattern,time,track);
 
   // determine region of change
   g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
@@ -408,7 +408,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence *self,const g
     }
   }
   g_object_unref(machine);
-	GST_INFO("done");
+	GST_DEBUG("done");
 }
 
 /*
@@ -427,7 +427,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   GValue *value=NULL,*cur_value;
   BtPattern *pattern=NULL;
 
-  GST_INFO("repair global damage entry for tick=%5d",tick);
+  GST_DEBUG("repair global damage entry for tick=%5d",tick);
 
   // find all patterns with tick-offsets that are intersected by the tick of the damage
   for(i=0;i<self->priv->tracks;i++) {
@@ -470,7 +470,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   GValue *value=NULL,*cur_value;
   BtPattern *pattern=NULL;
 
-  GST_INFO("repair voice damage entry for tick=%5d",tick);
+  GST_DEBUG("repair voice damage entry for tick=%5d",tick);
 
   // find all patterns with tick-offsets that are intersected by the tick of the damage
   for(i=0;i<self->priv->tracks;i++) {
@@ -508,7 +508,7 @@ static void bt_sequence_repair_damage(const BtSequence *self) {
   GHashTable *hash,*param_hash;
   gpointer hash_params[4];
 
-  GST_INFO("repair damage");
+  GST_DEBUG("repair damage");
   
   // repair damage
   for(i=0;i<self->priv->tracks;i++) {

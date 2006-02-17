@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.57 2006-02-13 22:33:16 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.58 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -658,7 +658,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble mx1,mx2,my1,my2,mw,mh;
-  guint bg_color=0xFFFFFFFF,bg_color2=0x99999999;
+  guint32 bg_color,bg_color2;
   gchar *id;
   GnomeCanvasPoints *points;
   
@@ -667,16 +667,9 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   
   //GST_DEBUG("realize for machine occured, machine=%p",self->priv->machine);
 
-  // @todo that should be handled by subclassing
-  if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-    bg_color=0xFFAFAFFF;bg_color2=0x99696999;
-  }
-  if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-    bg_color=0xAFFFAFFF;bg_color2=0x69996999;
-  }
-  if(BT_IS_SINK_MACHINE(self->priv->machine)) {
-    bg_color=0xAFAFFFFF;bg_color2=0x69699999;
-  }
+  bg_color=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BASE);
+  bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
+
   g_object_get(self->priv->machine,"id",&id,NULL);
 
   // add machine components

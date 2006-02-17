@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.100 2006-02-15 11:27:39 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.101 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -54,11 +54,11 @@ struct _BtMainPageSequencePrivate {
   GtkMenuItem *context_menu_add;
 
   /* colors */
-  GdkColor source_bg1,source_bg2;
-  GdkColor processor_bg1,processor_bg2;
-  GdkColor sink_bg1,sink_bg2;
-  GdkColor cursor_bg;
-  GdkColor selection_bg1,selection_bg2;
+  GdkColor *cursor_bg;
+  GdkColor *selection_bg1,*selection_bg2;
+  GdkColor *source_bg1,*source_bg2;
+  GdkColor *processor_bg1,*processor_bg2;
+  GdkColor *sink_bg1,*sink_bg2;
   
   /* some internal states */
   glong tick_pos;
@@ -148,12 +148,12 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
   //GST_INFO("bg_col %x <-> source_bg1,2 %x, %x",bg_col->pixel,self->priv->source_bg1.pixel,self->priv->source_bg2.pixel);
   
   if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
-    bg_col=&self->priv->cursor_bg;
+    bg_col=self->priv->cursor_bg;
   }
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col->pixel==self->priv->source_bg1.pixel)?&self->priv->selection_bg1:&self->priv->selection_bg2;
+    bg_col=(bg_col->pixel==self->priv->source_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
@@ -176,12 +176,12 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
     -1);
   
   if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
-    bg_col=&self->priv->cursor_bg;
+    bg_col=self->priv->cursor_bg;
   }
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col->pixel==self->priv->processor_bg1.pixel)?&self->priv->selection_bg1:&self->priv->selection_bg2;
+    bg_col=(bg_col->pixel==self->priv->processor_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
@@ -205,12 +205,12 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
  
   
   if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
-    bg_col=&self->priv->cursor_bg;
+    bg_col=self->priv->cursor_bg;
   }
   else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
     (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
   ) {
-    bg_col=(bg_col->pixel==self->priv->sink_bg1.pixel)?&self->priv->selection_bg1:&self->priv->selection_bg2;
+    bg_col=(bg_col->pixel==self->priv->sink_bg1->pixel)?self->priv->selection_bg1:self->priv->selection_bg2;
   }
   g_object_set(G_OBJECT(renderer),
     "background-gdk",bg_col,
@@ -307,16 +307,16 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
         if(step_visible_filter(store,&iter,self)) {
           if(odd_row) {
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,
-              SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg2,
-              SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg2,
-              SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg2,
+              SEQUENCE_TABLE_SOURCE_BG   ,self->priv->source_bg2,
+              SEQUENCE_TABLE_PROCESSOR_BG,self->priv->processor_bg2,
+              SEQUENCE_TABLE_SINK_BG     ,self->priv->sink_bg2,
               -1);
           }
           else {
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,
-              SEQUENCE_TABLE_SOURCE_BG   ,&self->priv->source_bg1,
-              SEQUENCE_TABLE_PROCESSOR_BG,&self->priv->processor_bg1,
-              SEQUENCE_TABLE_SINK_BG     ,&self->priv->sink_bg1,
+              SEQUENCE_TABLE_SOURCE_BG   ,self->priv->source_bg1,
+              SEQUENCE_TABLE_PROCESSOR_BG,self->priv->processor_bg1,
+              SEQUENCE_TABLE_SINK_BG     ,self->priv->sink_bg1,
               -1);
           }
           odd_row=!odd_row;
@@ -351,7 +351,7 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
  * sequence_pos_table_init:
  * @self: the sequence page
  *
- * inserts the Pos columns.
+ * inserts the Pos column.
  */
 static void sequence_pos_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
@@ -608,15 +608,12 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       // color code columns
       if(BT_IS_SOURCE_MACHINE(machine)) {
         gtk_tree_view_column_set_cell_data_func(tree_col, renderer, source_machine_cell_data_function, (gpointer)self, NULL);
-        //gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SOURCE_BG);
       }
       else if(BT_IS_PROCESSOR_MACHINE(machine)) {
         gtk_tree_view_column_set_cell_data_func(tree_col, renderer, processor_machine_cell_data_function, (gpointer)self, NULL);
-        //gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_PROCESSOR_BG);
       }
       else if(BT_IS_SINK_MACHINE(machine)) {
         gtk_tree_view_column_set_cell_data_func(tree_col, renderer, sink_machine_cell_data_function, (gpointer)self, NULL);
-        //gtk_tree_view_column_add_attribute(tree_col,renderer,"background-gdk",SEQUENCE_TABLE_SINK_BG);
       }
     }
     else GST_WARNING("can't create treeview column");
@@ -892,9 +889,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
-    GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
+    //GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
     self->priv->cursor_row=cursor_row;
-    GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
+    //GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
     if(cursor_column!=self->priv->cursor_column) {
       self->priv->cursor_column=cursor_column;
       pattern_list_refresh(self);
@@ -917,7 +914,6 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   gchar *str=NULL;
   gboolean free_str=FALSE;
   gboolean change=FALSE;
-  gboolean select=FALSE;
   gulong time,track;
 
   g_assert(user_data);
@@ -964,6 +960,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       GtkTreePath *path=NULL;
       GtkTreeViewColumn *column;
       GList *columns=NULL;
+      gboolean select=FALSE;
       
       GST_INFO("handling selection");
       
@@ -1399,7 +1396,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *scrolled_window,*scrolled_sync_window;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
-  GdkColormap *colormap;
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
   GtkAdjustment *vadjust;
@@ -1430,45 +1426,16 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_container_add(GTK_CONTAINER(tool_item),box);
   gtk_toolbar_insert(GTK_TOOLBAR(toolbar),GTK_TOOL_ITEM(tool_item),-1);
 
-  // allocate our colors
-  colormap=gdk_colormap_get_system();
-  self->priv->source_bg1.red=  (guint16)(1.0*65535);
-  self->priv->source_bg1.green=(guint16)(0.9*65535);
-  self->priv->source_bg1.blue= (guint16)(0.9*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->source_bg1,FALSE,TRUE);
-  self->priv->source_bg2.red=  (guint16)(1.0*65535);
-  self->priv->source_bg2.green=(guint16)(0.8*65535);
-  self->priv->source_bg2.blue= (guint16)(0.8*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->source_bg2,FALSE,TRUE);
-  self->priv->processor_bg1.red=  (guint16)(0.9*65535);
-  self->priv->processor_bg1.green=(guint16)(1.0*65535);
-  self->priv->processor_bg1.blue= (guint16)(0.9*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->processor_bg1,FALSE,TRUE);
-  self->priv->processor_bg2.red=  (guint16)(0.8*65535);
-  self->priv->processor_bg2.green=(guint16)(1.0*65535);
-  self->priv->processor_bg2.blue= (guint16)(0.8*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->processor_bg2,FALSE,TRUE);
-  self->priv->sink_bg1.red=  (guint16)(0.9*65535);
-  self->priv->sink_bg1.green=(guint16)(0.9*65535);
-  self->priv->sink_bg1.blue= (guint16)(1.0*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->sink_bg1,FALSE,TRUE);
-  self->priv->sink_bg2.red=  (guint16)(0.8*65535);
-  self->priv->sink_bg2.green=(guint16)(0.8*65535);
-  self->priv->sink_bg2.blue= (guint16)(1.0*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);
-  // @todo: can we get these colors from the theme ?
-  self->priv->cursor_bg.red=  (guint16)(0.85*65535);
-  self->priv->cursor_bg.green=(guint16)(0.85*65535);
-  self->priv->cursor_bg.blue= (guint16)(0.2*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->cursor_bg,FALSE,TRUE);
-  self->priv->selection_bg1.red=  (guint16)(1.0*65535);
-  self->priv->selection_bg1.green=(guint16)(1.0*65535);
-  self->priv->selection_bg1.blue= (guint16)(0.6*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->selection_bg1,FALSE,TRUE);
-  self->priv->selection_bg2.red=  (guint16)(0.95*65535);
-  self->priv->selection_bg2.green=(guint16)(0.95*65535);
-  self->priv->selection_bg2.blue= (guint16)(0.55*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->selection_bg2,FALSE,TRUE);
+  // get colors
+  self->priv->cursor_bg=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_CURSOR);
+  self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
+  self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
+  self->priv->source_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1);
+  self->priv->source_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2);
+  self->priv->processor_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1);
+  self->priv->processor_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2);
+  self->priv->sink_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
+  self->priv->sink_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
 
   // generate the context menu  
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
@@ -1496,7 +1463,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   
   // add hbox for sequence view
   box=gtk_hbox_new(FALSE,0);
-  gtk_paned_pack1(GTK_PANED(split_box),GTK_WIDGET(box),TRUE,TRUE);
+  gtk_paned_pack1(GTK_PANED(split_box),box,TRUE,TRUE);
   
   // add sequence-pos list-view
   scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
@@ -1504,7 +1471,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_ETCHED_IN);
   //self->priv->sequence_pos_table=GTK_TREE_VIEW(gtk_tree_view_new());
   self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
-  g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,NULL);
+  g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,-1);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
@@ -1521,8 +1488,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
   g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
-  // GTK_SELECTION_BROWSE unfortunately selects whole rows, we rather need something that just outlines current row and column
-  // we can set a gtk_tree_selection_set_select_function() to select ranges
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));

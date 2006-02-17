@@ -1,8 +1,14 @@
-// $Id: ui-ressources.c,v 1.5 2006-02-13 22:33:16 ensonic Exp $
+// $Id: ui-ressources.c,v 1.6 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btuiressources
  * @short_description: common shared ui ressources like icons and colors
- */ 
+ *
+ * This class serves as a central storage for colors and icons.
+ * It is implemented as a singleton.
+ */
+ 
+/* @todo: manage GdkColor entries and guint colors (via gdk_color.pixel)
+ */
 
 #define BT_EDIT
 #define BT_UI_RESSOURCES_C
@@ -13,74 +19,94 @@ struct _BtUIRessourcesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
+  /* icons */
   GdkPixbuf *source_machine_pixbuf;
   GdkPixbuf *processor_machine_pixbuf;
   GdkPixbuf *sink_machine_pixbuf;
-  
+
+  /* colors */
+  GdkColor colors[BT_UI_RES_COLOR_COUNT];
 };
 
 static GObjectClass *parent_class=NULL;
 
-BtUIRessources *ui_ressources=NULL;
+static gpointer singleton=NULL;
 
 //-- event handler
 
 //-- helper methods
 
-static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
-  /*
-    we need for each machine type:
-      BASE_{RGB|GDK}_COLOR    : machine view normal
-      TRANS_{RGB|GDK}_COLOR    : machine move
-      BRIGHT1_{RGB|GDK}_COLOR  : sequence odd empty
-      BRIGHT2_{RGB|GDK}_COLOR  : sequence even empty
-      DARK1_{RGB|GDK}_COLOR    : sequence odd filled
-      DARK2_{RGB|GDK}_COLOR    : sequence even filled
-  */
-  /* canvas-machine-item.c:
-  guint bg_color=0xFFFFFFFF,bg_color2=0x99999999;
-  
-  if(BT_IS_SOURCE_MACHINE(self->priv->machine)) {
-    bg_color=0xFFAFAFFF;bg_color2=0x99696999;
-  }
-  if(BT_IS_PROCESSOR_MACHINE(self->priv->machine)) {
-    bg_color=0xAFFFAFFF;bg_color2=0x69996999;
-  }
-  if(BT_IS_SINK_MACHINE(self->priv->machine)) {
-    bg_color=0xAFAFFFFF;bg_color2=0x69699999;
-  }
-  */
-  /* main-page-sequence.c:
-  GdkColor source_bg1,source_bg2;
-  GdkColor processor_bg1,processor_bg2;
-  GdkColor sink_bg1,sink_bg2;
+#define MAKE_COLOR(ix,r,g,b) \
+  self->priv->colors[ix].red=  (guint16)(r*65535); \
+  self->priv->colors[ix].green=(guint16)(g*65535); \
+  self->priv->colors[ix].blue= (guint16)(b*65535)
 
+static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
+  GdkColormap *colormap;
+  gboolean color_res[BT_UI_RES_COLOR_COUNT];
+  gulong res;
+  
+  /* @todo: can we get some colors from the theme ?
+   *
+   * gtk_widget_style_get(widget,
+   *   "cursor-color",&self->priv->colors[ix],
+   *   "secondary-cursor-color",&self->priv->colors[ix],
+   *   NULL);
+   */
+  
+  // cursor
+  MAKE_COLOR(BT_UI_RES_COLOR_CURSOR,                    0.85,0.85,0.20);
+  
+  // selection background
+  MAKE_COLOR(BT_UI_RES_COLOR_SELECTION1,                1.00,1.00,0.60);
+  MAKE_COLOR(BT_UI_RES_COLOR_SELECTION2,                0.95,0.95,0.55);
+  
+  // source machine
+  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       1.00,0.70,0.70);
+  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    1.00,0.90,0.90);
+  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    1.00,0.80,0.80);
+  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK1,      0.60,0.40,0.40);
+  MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_DARK2,      0.50,0.20,0.20);
+  
+  // processor machine
+  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE,    0.70,1.00,0.70);
+  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT1, 0.90,1.00,0.90);
+  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_BRIGHT2, 0.80,1.00,0.80);
+  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK1,   0.40,0.60,0.40);
+  MAKE_COLOR(BT_UI_RES_COLOR_PROCESSOR_MACHINE_DARK2,   0.20,0.50,0.20);
+
+  // sink machine
+  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BASE,         0.70,0.70,1.00);
+  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,      0.90,0.90,1.00);
+  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      0.80,0.80,1.00);
+  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        0.40,0.40,0.60);
+  MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        0.20,0.20,0.50);
+
+  /* @todo: sequence-view.c
+  color.red = 0;
+  color.green = 0;
+  color.blue = 65535;
+  self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
+  gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,&color);
+  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
+
+  color.red = 65535;
+  color.green = (gint)(0.75*65535.0);
+  color.blue = 0;
+  self->priv->loop_pos_gc=gdk_gc_new(self->priv->window);  
+   */
+   
+  // now allocate colors
   colormap=gdk_colormap_get_system();
-  self->priv->source_bg1.red=  (guint16)(1.0*65535);
-  self->priv->source_bg1.green=(guint16)(0.9*65535);
-  self->priv->source_bg1.blue= (guint16)(0.9*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->source_bg1,FALSE,TRUE);
-  self->priv->source_bg2.red=  (guint16)(1.0*65535);
-  self->priv->source_bg2.green=(guint16)(0.8*65535);
-  self->priv->source_bg2.blue= (guint16)(0.8*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->source_bg2,FALSE,TRUE);
-  self->priv->processor_bg1.red=  (guint16)(0.9*65535);
-  self->priv->processor_bg1.green=(guint16)(1.0*65535);
-  self->priv->processor_bg1.blue= (guint16)(0.9*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->processor_bg1,FALSE,TRUE);
-  self->priv->processor_bg2.red=  (guint16)(0.8*65535);
-  self->priv->processor_bg2.green=(guint16)(1.0*65535);
-  self->priv->processor_bg2.blue= (guint16)(0.8*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->processor_bg2,FALSE,TRUE);
-  self->priv->sink_bg1.red=  (guint16)(0.9*65535);
-  self->priv->sink_bg1.green=(guint16)(0.9*65535);
-  self->priv->sink_bg1.blue= (guint16)(1.0*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->sink_bg1,FALSE,TRUE);
-  self->priv->sink_bg2.red=  (guint16)(0.8*65535);
-  self->priv->sink_bg2.green=(guint16)(0.8*65535);
-  self->priv->sink_bg2.blue= (guint16)(1.0*65535);
-  gdk_colormap_alloc_color(colormap,&self->priv->sink_bg2,FALSE,TRUE);  
-  */
+  if((res=gdk_colormap_alloc_colors(colormap,self->priv->colors,BT_UI_RES_COLOR_COUNT,FALSE,TRUE,color_res))) {
+    gulong i;
+    GST_WARNING("failed to allocate %d colors %d",res);
+    for(i=0;i<BT_UI_RES_COLOR_COUNT;i++) {
+      if(!color_res[i]) {
+        GST_WARNING("failed to allocate color %2d : %04x,%04x,%04x",i,self->priv->colors[i].red,self->priv->colors[i].green,self->priv->colors[i].blue);
+      }
+    }
+  }
 
   return(TRUE);
 }
@@ -103,21 +129,26 @@ static gboolean bt_ui_ressources_init_icons(BtUIRessources *self) {
  * Returns: the new instance or %NULL in case of an error
  */
 BtUIRessources *bt_ui_ressources_new(void) {
-  BtUIRessources *self;
-
-  if(!(self=BT_UI_RESSOURCES(g_object_new(BT_TYPE_UI_RESSOURCES,NULL)))) {
-    goto Error;
+  if(!singleton) {
+    // create singleton
+    if(!(singleton=(gpointer)(g_object_new(BT_TYPE_UI_RESSOURCES,NULL)))) {
+      goto Error;
+    }
+    // initialise ressources
+    if(!bt_ui_ressources_init_colors(BT_UI_RESSOURCES(singleton))) {
+      goto Error;
+    }
+    if(!bt_ui_ressources_init_icons(BT_UI_RESSOURCES(singleton))) {
+      goto Error;
+    }
+    g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
-  // initialise ressources
-  if(!bt_ui_ressources_init_colors(self)) {
-    goto Error;
-  }
-  if(!bt_ui_ressources_init_icons(self)) {
-    goto Error;
-  }
-  return(self);
+  else {
+    singleton=g_object_ref(G_OBJECT(singleton));
+  } 
+  return(BT_UI_RESSOURCES(singleton));
 Error:
-  g_object_try_unref(self);
+  g_object_try_unref(G_OBJECT(singleton));
   return(NULL);
 }
 
@@ -132,6 +163,8 @@ Error:
  * Returns: a #GdkPixbuf image
  */
 GdkPixbuf *bt_ui_ressources_get_pixbuf_by_machine(const BtMachine *machine) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+
   if(BT_IS_SOURCE_MACHINE(machine)) {
     return(g_object_ref(ui_ressources->priv->source_machine_pixbuf));
   }
@@ -153,6 +186,8 @@ GdkPixbuf *bt_ui_ressources_get_pixbuf_by_machine(const BtMachine *machine) {
  * Returns: a #GtkImage widget
  */
 GtkWidget *bt_ui_ressources_get_image_by_machine(const BtMachine *machine) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+
   if(BT_IS_SOURCE_MACHINE(machine)) {
     return(gtk_image_new_from_pixbuf(ui_ressources->priv->source_machine_pixbuf));
   }
@@ -174,6 +209,8 @@ GtkWidget *bt_ui_ressources_get_image_by_machine(const BtMachine *machine) {
  * Returns: a #GtkImage widget
  */
 GtkWidget *bt_ui_ressources_get_image_by_machine_type(GType machine_type) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+
   if(machine_type==BT_TYPE_SOURCE_MACHINE) {
     return(gtk_image_new_from_pixbuf(ui_ressources->priv->source_machine_pixbuf));
   }
@@ -184,6 +221,51 @@ GtkWidget *bt_ui_ressources_get_image_by_machine_type(GType machine_type) {
     return(gtk_image_new_from_pixbuf(ui_ressources->priv->sink_machine_pixbuf));
   }
   return(NULL);
+}
+
+/**
+ * bt_ui_ressources_get_gdk_color:
+ * @color_type: the color id
+ *
+ * Gets a prealocated color by id.
+ *
+ * Returns: the requested #GdkColor.
+ */
+GdkColor *bt_ui_ressources_get_gdk_color(BtUIRessourcesColors color_type) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+  return(&ui_ressources->priv->colors[color_type]);
+}
+
+/**
+ * bt_ui_ressources_get_color_by_machine:
+ * @machine: the machine to get the color for
+ * @color_type: a color shade
+ *
+ * Gets a colors shade depending on machine type in rgba format.
+ *
+ * Returns: a color depending on machine class and color_type
+ */
+guint32 bt_ui_ressources_get_color_by_machine(const BtMachine *machine,BtUIRessourcesMachineColors color_type) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+  gulong ix=0;
+  guint32 color=0;
+  
+  if(BT_IS_SOURCE_MACHINE(machine)) {
+    ix=BT_UI_RES_COLOR_SOURCE_MACHINE_BASE+color_type;
+  }
+  else if(BT_IS_PROCESSOR_MACHINE(machine)) {
+    ix=BT_UI_RES_COLOR_PROCESSOR_MACHINE_BASE+color_type;
+  }
+  else if(BT_IS_SINK_MACHINE(machine)) {
+    ix=BT_UI_RES_COLOR_SINK_MACHINE_BASE+color_type;
+  }
+  color=(((guint32)(ui_ressources->priv->colors[ix].red&0xFF00))<<16)|
+    (((guint32)(ui_ressources->priv->colors[ix].green&0xFF00))<<8)|
+    ((guint32)(ui_ressources->priv->colors[ix].blue&0xFF00))|
+    0x000000FF;
+  //GST_INFO("color[%2d/%1d] : 0x%08lx : %04x,%04x,%04x",ix,color_type,color,
+  //  ui_ressources->priv->colors[ix].red,ui_ressources->priv->colors[ix].green,ui_ressources->priv->colors[ix].blue);
+  return(color);
 }
 
 //-- wrapper

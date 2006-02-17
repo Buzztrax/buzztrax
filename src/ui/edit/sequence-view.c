@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.17 2006-02-15 11:27:39 ensonic Exp $
+// $Id: sequence-view.c,v 1.18 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -68,10 +68,6 @@ BtSequenceView *bt_sequence_view_new(const BtEditApplication *app) {
   if(!(self=BT_SEQUENCE_VIEW(g_object_new(BT_TYPE_SEQUENCE_VIEW,"app",app,NULL)))) {
     goto Error;
   }
-  // generate UI
-  //if(!bt_sequence_view_init_ui(self)) {
-    //goto Error;
-  //}
   return(self);
 Error:
   g_object_try_unref(self);

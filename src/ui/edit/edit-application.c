@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.69 2006-02-15 11:27:39 ensonic Exp $
+// $Id: edit-application.c,v 1.70 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -32,6 +32,8 @@ struct _BtEditApplicationPrivate {
   
   /* the currently loaded song */
   BtSong *song;
+  /* shared ui ressources */
+  BtUIRessources *ui_ressources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
 };
@@ -90,18 +92,14 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 BtEditApplication *bt_edit_application_new(void) {
   BtEditApplication *self;
 
-  // create or ref the shared ui ressources
-  if(!ui_ressources) {
-    ui_ressources=bt_ui_ressources_new();
-  }
-  else {
-    g_object_ref(ui_ressources);
-  }
-
   if(!(self=BT_EDIT_APPLICATION(g_object_new(BT_TYPE_EDIT_APPLICATION,NULL)))) {
     goto Error;
   }
   if(!bt_application_new(BT_APPLICATION(self))) {
+    goto Error;
+  }
+  // create or ref the shared ui ressources
+  if(!(self->priv->ui_ressources=bt_ui_ressources_new())) {
     goto Error;
   }
   GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
@@ -417,7 +415,7 @@ static void bt_edit_application_dispose(GObject *object) {
   //}
   //g_object_try_unref(self->priv->main_window);
   
-  g_object_try_unref(ui_ressources);
+  g_object_try_unref(self->priv->ui_ressources);
 
   GST_DEBUG("  chaining up");
   if(G_OBJECT_CLASS(parent_class)->dispose) {

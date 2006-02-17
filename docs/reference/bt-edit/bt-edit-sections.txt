@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.23 2005-09-03 13:40:29 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.24 2006-02-17 08:06:49 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -387,6 +387,8 @@ bt_ui_ressources_new
 bt_ui_ressources_get_pixbuf_by_machine
 bt_ui_ressources_get_image_by_machine
 bt_ui_ressources_get_image_by_machine_type
+bt_ui_ressources_get_gdk_color
+bt_ui_ressources_get_color_by_machine
 <SUBSECTION Standard>
 BtUIRessourcesClass
 BT_UI_RESSOURCES

@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.20 2006-02-13 22:33:15 ensonic Exp $
+// $Id: settings.c,v 1.21 2006-02-17 08:06:50 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -44,9 +44,9 @@ BtSettings *bt_settings_new(void) {
   if(!singleton) {
     GST_INFO("create a new settings object for thread %p",g_thread_self());
 #ifdef USE_GCONF
-    singleton=(gpointer *)bt_gconf_settings_new();
+    singleton=(gpointer)bt_gconf_settings_new();
 #else
-    singleton=(gpointer *)bt_plainfile_settings_new();
+    singleton=(gpointer)bt_plainfile_settings_new();
 #endif
     g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
