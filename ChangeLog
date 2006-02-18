@@ -1,3 +1,14 @@
+2006-02-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_cursor_changed_idle),
+	(on_pattern_table_button_press_event),
+	(on_pattern_table_motion_notify_event):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_motion_notify_event):
+        fix mouse selection, key selection still needs work
+
 2006-02-17 09:37  Stefan Kost <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c, src/lib/core/sequence.c,

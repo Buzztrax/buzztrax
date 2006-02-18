@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.102 2006-02-17 08:37:19 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.103 2006-02-18 13:19:29 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -8,7 +8,8 @@
 /* @todo main-page-sequence tasks
  *  - disallowing to move to position column (bug in GtkTreeView)
  *    - work around by haveing more synchronized views
- *  - selection + cut/copy/paste/delete
+ *  - cut/copy/paste
+ *  - focus sequence_view after entering the page ?
  *  - sequence header
  *    - add table to separate scrollable window
  *      (no own adjustments, share x-adjustment with sequence-view, show full height)
@@ -880,7 +881,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   GtkTreePath *path;
   GtkTreeViewColumn *column;
-  glong cursor_column,cursor_row;
+  gulong cursor_column,cursor_row;
 
   g_return_val_if_fail(user_data,FALSE);
 
@@ -896,6 +897,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       self->priv->cursor_column=cursor_column;
       pattern_list_refresh(self);
     }
+    GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
   }
   return(FALSE);
@@ -1231,21 +1233,21 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
         // handle selection
         glong cursor_column=self->priv->cursor_column;
         glong cursor_row=self->priv->cursor_row;
+        if(self->priv->selection_start_column==-1) {
+          self->priv->selection_column=self->priv->cursor_column;
+          self->priv->selection_row=self->priv->cursor_row;
+        }
         gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
         gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
         // cursor updates are not yet processed
         on_sequence_table_cursor_changed_idle(self);
-        GST_INFO("selection: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
+        GST_INFO("cursor new/old: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
         if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
-          // if no selection
           if(self->priv->selection_start_column==-1) {
-            self->priv->selection_start_column=MIN(cursor_column,self->priv->cursor_column);
-            self->priv->selection_start_row=MIN(cursor_row,self->priv->cursor_row);
-            self->priv->selection_end_column=MAX(cursor_column,self->priv->cursor_column);
-            self->priv->selection_end_row=MAX(cursor_row,self->priv->cursor_row);
-            gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
-            self->priv->selection_column=self->priv->cursor_column;
-            self->priv->selection_row=self->priv->cursor_row;
+            self->priv->selection_start_column=MIN(cursor_column,self->priv->selection_column);
+            self->priv->selection_start_row=MIN(cursor_row,self->priv->selection_row);
+            self->priv->selection_end_column=MAX(cursor_column,self->priv->selection_column);
+            self->priv->selection_end_row=MAX(cursor_row,self->priv->selection_row);
           }
           else {
             if(self->priv->cursor_column<self->priv->selection_column) {
@@ -1264,8 +1266,8 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
               self->priv->selection_start_row=self->priv->selection_row;
               self->priv->selection_end_row=self->priv->cursor_row;
             }
-            gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
           }
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
         }
         res=TRUE;
       }

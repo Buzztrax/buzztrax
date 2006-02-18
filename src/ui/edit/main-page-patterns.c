@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.80 2006-02-17 08:37:19 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.81 2006-02-18 13:19:29 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -7,6 +7,7 @@
  
 /* @todo main-page-patterns tasks
  *   - use BtSequenceView alike class
+ *   - focus pattern_view after switching patterns, entering the page ?
  *   - test wheter we can use pango-markup for tree-view labels to make font
  *     smaller
  *   - need diverders for global and voice data (2 pixel wide column?)
@@ -224,7 +225,7 @@ static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreePath *path;
   GtkTreeViewColumn *column;
-  glong cursor_column,cursor_row;
+  gulong cursor_column,cursor_row;
 
   g_return_val_if_fail(user_data,FALSE);
 
@@ -234,6 +235,7 @@ static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
   if(pattern_view_get_cursor_pos(self->priv->pattern_table,path,column,&cursor_column,&cursor_row)) {
     self->priv->cursor_row=cursor_row;
     self->priv->cursor_column=cursor_column;
+    GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
   }
   return(FALSE);
@@ -387,7 +389,7 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
 
   g_assert(user_data);
   
-  GST_INFO("pattern_table button : button 0x%x, type 0x%d",event->button,event->type);
+  GST_INFO("pattern_table button_press : button 0x%x, type 0x%d",event->button,event->type);
   if(event->button==1) {
     if(gtk_tree_view_get_bin_window(self->priv->pattern_table)==(event->window)) {
       GtkTreePath *path;
@@ -399,7 +401,7 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
         gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
         // reset selection
         self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
-       res=TRUE;
+        res=TRUE;
       }
       if(path) gtk_tree_path_free(path);
     }
@@ -427,21 +429,22 @@ static gboolean on_pattern_table_motion_notify_event(GtkWidget *widget,GdkEventM
         // handle selection
         glong cursor_column=self->priv->cursor_column;
         glong cursor_row=self->priv->cursor_row;
+        if(self->priv->selection_start_column==-1) {
+          self->priv->selection_column=cursor_column;
+          self->priv->selection_row=cursor_row;
+        }
         gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
         gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
         // cursor updates are not yet processed
         on_pattern_table_cursor_changed_idle(self);
-        GST_INFO("selection: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
+        GST_INFO("cursor new/old: %3d,%3d -> %3d,%3d",cursor_column,cursor_row,self->priv->cursor_column,self->priv->cursor_row);
         if((cursor_column!=self->priv->cursor_column) || (cursor_row!=self->priv->cursor_row)) {
-          // if no selection
+          GST_INFO("  selection before : %3d,%3d -> %3d,%3d [%3d,%3d]",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->selection_column,self->priv->selection_row);
           if(self->priv->selection_start_column==-1) {
-            self->priv->selection_start_column=MIN(cursor_column,self->priv->cursor_column);
-            self->priv->selection_start_row=MIN(cursor_row,self->priv->cursor_row);
-            self->priv->selection_end_column=MAX(cursor_column,self->priv->cursor_column);
-            self->priv->selection_end_row=MAX(cursor_row,self->priv->cursor_row);
-            gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-            self->priv->selection_column=self->priv->cursor_column;
-            self->priv->selection_row=self->priv->cursor_row;
+            self->priv->selection_start_column=MIN(cursor_column,self->priv->selection_column);
+            self->priv->selection_start_row=MIN(cursor_row,self->priv->selection_row);
+            self->priv->selection_end_column=MAX(cursor_column,self->priv->selection_column);
+            self->priv->selection_end_row=MAX(cursor_row,self->priv->selection_row);
           }
           else {
             if(self->priv->cursor_column<self->priv->selection_column) {
@@ -460,8 +463,9 @@ static gboolean on_pattern_table_motion_notify_event(GtkWidget *widget,GdkEventM
               self->priv->selection_start_row=self->priv->selection_row;
               self->priv->selection_end_row=self->priv->cursor_row;
             }
-            gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
           }
+          GST_INFO("  selection after  : %3d,%3d -> %3d,%3d [%3d,%3d]",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->selection_column,self->priv->selection_row);
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
         }
         res=TRUE;
       }
