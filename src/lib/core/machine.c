@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.188 2006-02-17 08:37:19 ensonic Exp $
+// $Id: machine.c,v 1.189 2006-02-22 14:33:48 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -111,7 +111,7 @@ struct _BtMachinePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
   
-  /* properties accociated with this machine */
+  /* (ui) properties accociated with this machine */
   GHashTable *properties;
   
   /* the song the machine belongs to */
@@ -243,6 +243,22 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
            *   set as timestamp-offset in 'self->priv->silence'          
            * - send a prepared GstPositionQuery to 'machine' and
            *   send a seek to 'self->priv->silence'
+          
+          GstQuery *position_query;
+          position_query=gst_query_new_position(GST_FORMAT_DEFAULT);
+          
+          gst_element_query(machine,position_query);
+          gst_query_parse_position(position_query,NULL,&pos_cur);
+
+          GstEvent *seek_event;
+          seek_event = gst_event_new_seek(1.0, GST_FORMAT_DEFAULT,
+            GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+            GST_SEEK_TYPE_SET, (GstClockTime)(pos_cur),
+            GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));          
+          
+          gst_element_send_event(GST_ELEMENT(self->priv->silence),seek_event));
+          
+          gst_query_unref(self->priv->position_query);
            */
 
           if(!gst_pad_set_blocked(pad,FALSE)) {

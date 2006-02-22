@@ -7,13 +7,13 @@
 
   <meta>
     <info>three buzz generators</info>
-      <name>buzz 6</name>
+    <name>buzz 6</name>
     <genre>dark-wave</genre>
-      <bpm>120</bpm>
-      <tpb>4</tpb>
-      <bars>16</bars>
-      <create-dts>2005-09-20T22:10:56Z</create-dts>
-      <change-dts>2005-09-20T22:10:56Z</change-dts>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
   <setup zoom="1.0">
@@ -70,6 +70,12 @@
       <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
       <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
     </pattern>
+    <pattern id="hh_beats" machine="hh" name="beats" length="16">
+      <tick time= "2"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time= "6"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time="10"><voicedata name="Trig" voice="0" value="1"/></tick>
+      <tick time="14"><voicedata name="Trig" voice="0" value="1"/></tick>
+    </pattern>
   </patterns>
   
   <sequence>
@@ -87,6 +93,12 @@
         <position time="16" pattern="snr_beats"/>
         <position time="32" pattern="snr_beats"/>
         <position time="48" pattern="snr_beats"/>
+      </track>
+      <track index="2" machine="hh">
+        <position time="0" pattern="hh_beats"/>
+        <position time="16" pattern="hh_beats"/>
+        <position time="32" pattern="hh_beats"/>
+        <position time="48" pattern="hh_beats"/>
       </track>
     </tracks>
   </sequence>

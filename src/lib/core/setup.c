@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.80 2006-02-17 08:37:19 ensonic Exp $
+// $Id: setup.c,v 1.81 2006-02-22 14:33:48 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -43,6 +43,11 @@ struct _BtSetupPrivate {
   
   GList *machines;  // each entry points to BtMachine
   GList *wires;      // each entry points to BtWire
+  
+  /* (ui) properties accociated with this machine
+     zoom. scroll-position
+   */
+  //GHashTable *properties;
 };
 
 static GObjectClass *parent_class=NULL;

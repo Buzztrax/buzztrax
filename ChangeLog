@@ -1,3 +1,19 @@
+2006-02-22  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+
+	* src/lib/core/machine.c: (bt_machine_toggle_mute):
+	  notes about machine sync
+	* src/lib/core/setup.c:
+	  notes for ui-properties
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event), (pattern_table_refresh):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_key_release_event):
+	  reset selection on key-cursor-moves
+	* tests/songs/buzz6.xml:
+	  add hh-pattern
+
 2006-02-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:
