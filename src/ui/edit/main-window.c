@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.67 2006-02-15 11:27:39 ensonic Exp $
+// $Id: main-window.c,v 1.68 2006-02-22 23:09:59 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -85,7 +85,8 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
-  title=g_strdup_printf("%s %s - "PACKAGE_NAME,name,(unsaved?_("(unsaved)"):""));g_free(name);
+  // we don't use PACKAGE_NAME = 'bt-edit' for the window title
+  title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):""));g_free(name);
   gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
   //-- release the references
   g_object_try_unref(song_info);
@@ -123,11 +124,15 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
   }
   if(i) {
     gchar *file_name=g_strndup((gchar *)selection_data->data,i);
+    gboolean res=TRUE;
+    
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
       gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
+      res=FALSE;
     }
+    gtk_drag_finish(dc,res,FALSE,t);
     g_free(file_name);
   }
 }
@@ -171,7 +176,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   gtk_drag_dest_set(GTK_WIDGET(self),
     (GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP),
     drop_types, n_drop_types, GDK_ACTION_COPY);
-  g_signal_connect(G_OBJECT(self), "drag_data_received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
+  g_signal_connect(G_OBJECT(self), "drag-data-received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
 
   GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   
