@@ -1,7 +1,10 @@
-// $Id: machine-canvas-item.c,v 1.58 2006-02-17 08:06:50 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.59 2006-02-24 17:13:08 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
+ *
+ * The canvas object emits #BtMachineCanvasItem-position-changed signal after
+ * it has been moved.
  */ 
 
 /* @todo more graphics:

@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.113 2006-02-17 08:37:19 ensonic Exp $
+// $Id: song.c,v 1.114 2006-02-24 17:13:08 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -672,6 +672,34 @@ void bt_song_write_to_dot_file(const BtSong *self) {
   g_object_unref(song_info);
   g_object_unref(setup);
 }
+
+//-- io interface
+
+/*
+
+static void bt_io_save(BtIO *io,xxmlDocPtr doc, xmlNodePtr parent_node, BtIOSelection *selection) {
+  BtSong *self = BT_SONG(io);
+  xmlNodePtr node;
+
+  if(node=xmlNewNode(NULL,XML_CHAR_PTR("buzztard"))) {
+    xmlNewProp(node,XML_CHAR_PTR("xmlns"),(const xmlChar *)BT_NS_URL);
+    xmlNewProp(node,XML_CHAR_PTR("xmlns:xsd"),XML_CHAR_PTR("http://www.w3.org/2001/XMLSchema-instance"));
+    xmlNewProp(node,XML_CHAR_PTR("xsd:noNamespaceSchemaLocation"),XML_CHAR_PTR("buzztard.xsd"));
+    xmlDocSetRootElement(doc,node);
+
+    bt_io_safe(self->priv->song_info,doc,node,NULL);
+    bt_io_safe(self->priv->setup,doc,node,NULL);
+    bt_io_safe(self->priv->sequence,doc,node,NULL);
+    bt_io_safe(self->priv->wavetable,doc,node,NULL);
+  }
+}
+
+static void bt_io_load(BtIO *io, xmlDocPtr doc, xmlNodePtr parent_node, BtIOLocation *location) {
+  BtSong *self = BT_SONG(io);
+
+}
+
+*/
 
 //-- wrapper
 
