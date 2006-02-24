@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.32 2005-11-06 19:57:35 ensonic Exp $
+## $Id: Makefile.am,v 1.33 2006-02-24 19:51:49 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -23,6 +23,9 @@ libbtcore_la_SOURCES = \
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h libbtcore/machine-private.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
+  persistence.c libbtcore/persistence.h libbtcore/persistence-methods.h \
+  persistence-location.c libbtcore/persistence-location.h \
+  persistence-selection.c libbtcore/persistence-selection.h \
 	plainfile-settings.c libbtcore/plainfile-settings.h libbtcore/plainfile-settings-methods.h \
 	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \

@@ -1,4 +1,4 @@
-/* $Id: wave.h,v 1.5 2005-12-23 14:03:03 ensonic Exp $
+/* $Id: wave.h,v 1.6 2006-02-24 19:51:49 ensonic Exp $
  * class for wave
  */
 
@@ -33,12 +33,11 @@ struct _BtWave {
   /*< private >*/
   BtWavePrivate *priv;
 };
-/* structure of the setup class */
+
 struct _BtWaveClass {
   GObjectClass parent;
 };
 
-/* used by WAVE_TYPE */
 GType bt_wave_get_type(void) G_GNUC_CONST;
 
 

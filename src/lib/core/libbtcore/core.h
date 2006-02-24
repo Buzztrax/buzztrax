@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.72 2006-01-27 14:45:38 ensonic Exp $
+/* $Id: core.h,v 1.73 2006-02-24 19:51:49 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -81,6 +81,8 @@
 
 //-- libbtcore
 // method prototype includes do include the data defs themself
+#include "persistence-methods.h"
+
 #include "song-methods.h"
 #include "song-info-methods.h"
 #include "machine-methods.h"

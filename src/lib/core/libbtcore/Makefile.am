@@ -5,11 +5,14 @@ libbtcore_HEADERS = \
 	core.h \
 	tools.h \
 	version.h \
-	\
+  \
 	application.h application-methods.h \
 	gconf-settings.h gconf-settings-methods.h \
 	machine.h machine-methods.h \
 	pattern.h pattern-methods.h \
+  persistence.h persistence-methods.h \
+  persistence-location.h \
+  persistence-selection.h \
 	plainfile-settings.h plainfile-settings-methods.h \
 	processor-machine.h processor-machine-methods.h \
 	sequence.h sequence-methods.h \

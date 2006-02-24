@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.20 2005-12-23 17:13:01 ensonic Exp $
+/* $Id: song-io.h,v 1.21 2006-02-24 19:51:49 ensonic Exp $
  * base class for song input and output
  */
 
@@ -11,9 +11,9 @@
 #define BT_TYPE_SONG_IO             (bt_song_io_get_type ())
 #define BT_SONG_IO(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SONG_IO, BtSongIO))
 #define BT_SONG_IO_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SONG_IO, BtSongIOClass))
-#define BT_IS_SONG_IO(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SONG_IO))
-#define BT_IS_SONG_IO_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SONG_IO))
-#define BT_SONG_IO_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SONG_IO, BtSongIOClass))
+#define BT_IS_SONG_IO(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SONG_IO))
+#define BT_IS_SONG_IO_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SONG_IO))
+#define BT_SONG_IO_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SONG_IO, BtSongIOClass))
 
 /* type macros */
 

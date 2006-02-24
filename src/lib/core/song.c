@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.114 2006-02-24 17:13:08 ensonic Exp $
+// $Id: song.c,v 1.115 2006-02-24 19:51:49 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -677,8 +677,8 @@ void bt_song_write_to_dot_file(const BtSong *self) {
 
 /*
 
-static void bt_io_save(BtIO *io,xxmlDocPtr doc, xmlNodePtr parent_node, BtIOSelection *selection) {
-  BtSong *self = BT_SONG(io);
+static void bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtIOSelection *selection) {
+  BtSong *self = BT_SONG(persistence);
   xmlNodePtr node;
 
   if(node=xmlNewNode(NULL,XML_CHAR_PTR("buzztard"))) {
@@ -694,9 +694,25 @@ static void bt_io_save(BtIO *io,xxmlDocPtr doc, xmlNodePtr parent_node, BtIOSele
   }
 }
 
-static void bt_io_load(BtIO *io, xmlDocPtr doc, xmlNodePtr parent_node, BtIOLocation *location) {
-  BtSong *self = BT_SONG(io);
+static void bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtIOLocation *location) {
+  BtSong *self = BT_SONG(persistence);
+  xmlNodePtr node;
 
+  if((node=xmlDocGetRootElement(doc))==NULL) {
+    GST_WARNING("xmlDoc is empty");
+  }
+  //else if(xmlSearchNsByHref(doc,node,(const xmlChar *)BT_NS_URL)==NULL) {
+  //  GST_WARNING("no or incorrect namespace found in xmlDoc");
+  //}
+  else if(xmlStrcmp(node->name,(const xmlChar *)"buzztard")) {
+    GST_WARNING("wrong document type root node in xmlDoc");
+  }
+  else {
+    bt_io_load(self->priv->song_info,doc,node,NULL);
+    bt_io_load(self->priv->setup,doc,node,NULL);
+    bt_io_load(self->priv->sequence,doc,node,NULL);
+    bt_io_load(self->priv->wavetable,doc,node,NULL);
+  }
 }
 
 */

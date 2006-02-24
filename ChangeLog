@@ -1,5 +1,26 @@
 2006-02-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/persistence-location.h:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/persistence-selection.h:
+	* src/lib/core/libbtcore/persistence.h:
+	* src/lib/core/libbtcore/song-io.h:
+	* src/lib/core/libbtcore/wave.h:
+	* src/lib/core/persistence-location.c:
+	(bt_persistence_location_get_type):
+	* src/lib/core/persistence-selection.c:
+	(bt_persistence_selection_get_type):
+	* src/lib/core/persistence.c: (bt_persistence_save),
+	(bt_persistence_load), (bt_persistence_base_init),
+	(bt_persistence_get_type):
+	* src/lib/core/song.c:
+          added persistence iface and abstract base classes (todo: docs)
+
+2006-02-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c:
           sketch io api
 	* src/ui/edit/machine-canvas-item.c:
