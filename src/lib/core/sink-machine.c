@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.58 2006-02-13 22:33:15 ensonic Exp $
+// $Id: sink-machine.c,v 1.59 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -138,7 +138,7 @@ static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
 
 GType bt_sink_machine_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSinkMachineClass),
       NULL, // base_init

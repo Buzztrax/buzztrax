@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.82 2006-02-22 14:33:48 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.83 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1522,7 +1522,7 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
 
 GType bt_main_page_patterns_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPagePatternsClass),
       NULL, // base_init

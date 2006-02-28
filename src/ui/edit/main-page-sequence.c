@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.104 2006-02-22 14:33:48 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.105 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1871,7 +1871,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
 
 GType bt_main_page_sequence_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPageSequenceClass),
       NULL, // base_init

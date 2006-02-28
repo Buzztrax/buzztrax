@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.40 2006-02-17 08:37:19 ensonic Exp $
+// $Id: main-statusbar.c,v 1.41 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -300,7 +300,7 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
 
 GType bt_main_statusbar_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainStatusbarClass),
       NULL, // base_init

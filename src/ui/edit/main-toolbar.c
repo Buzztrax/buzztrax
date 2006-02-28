@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.78 2006-02-17 08:37:19 ensonic Exp $
+// $Id: main-toolbar.c,v 1.79 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -645,7 +645,7 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
 
 GType bt_main_toolbar_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainToolbarClass),
       NULL, // base_init

@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.41 2006-02-13 22:33:15 ensonic Exp $
+// $Id: song-info.c,v 1.42 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -83,6 +83,97 @@ BtSongInfo *bt_song_info_new(const BtSong *song) {
 }
 
 //-- methods
+
+
+//-- io interface
+
+static gboolean bt_song_info_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtSongInfo *self = BT_SONG_INFO(persistence);
+  gboolean res=FALSE;
+  xmlNodePtr node;
+  gchar num[20];
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
+    if(self->priv->info) {
+      xmlNewChild(node,NULL,XML_CHAR_PTR("info"),XML_CHAR_PTR(self->priv->info));
+    }
+    if(self->priv->name) {
+      xmlNewChild(node,NULL,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
+    }
+    if(self->priv->genre) {
+      xmlNewChild(node,NULL,XML_CHAR_PTR("genre"),XML_CHAR_PTR(self->priv->genre));
+    }
+    if(self->priv->author) {
+      xmlNewChild(node,NULL,XML_CHAR_PTR("author"),XML_CHAR_PTR(self->priv->author));
+    }
+    if(self->priv->create_dts) {
+      xmlNewChild(node,NULL,XML_CHAR_PTR("create-dts"),XML_CHAR_PTR(self->priv->create_dts));
+    }
+    if(self->priv->change_dts) {
+      xmlNewChild(node,NULL,XML_CHAR_PTR("change-dts"),XML_CHAR_PTR(self->priv->change_dts));
+    }
+    sprintf(num,"%lu",self->priv->beats_per_minute);
+    xmlNewChild(node,NULL,XML_CHAR_PTR("bpm"),XML_CHAR_PTR(num));
+    sprintf(num,"%lu",self->priv->ticks_per_beat);
+    xmlNewChild(node,NULL,XML_CHAR_PTR("tpb"),XML_CHAR_PTR(num));
+    sprintf(num,"%lu",self->priv->bars);
+    xmlNewChild(node,NULL,XML_CHAR_PTR("bars"),XML_CHAR_PTR(num));
+    res=TRUE;
+  }
+  return(res);
+}
+
+static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
+  BtSongInfo *self = BT_SONG_INFO(persistence);
+  gboolean res=FALSE;
+  xmlNodePtr node,child_node;
+  
+  for(node=parent_node->children;node;node=node->next) {
+    if(!strncmp((gchar *)node->name,"meta\0",5)) break;
+  }
+
+  if(node) {
+    xmlChar *elem;
+    const gchar *property_name;
+    
+    for(node=node->children;node;node=node->next) {
+      if(!xmlNodeIsText(node)) {
+        child_node=node->children;
+        if(child_node && xmlNodeIsText(child_node) && !xmlIsBlankNode(child_node)) {
+          if((elem=xmlNodeGetContent(child_node))) {
+            property_name=(gchar *)node->name;
+            GST_DEBUG("  \"%s\"=\"%s\"",property_name,elem);
+            // depending on the name of the property, treat it's type
+            if(!strncmp(property_name,"info",4) ||
+              !strncmp(property_name,"name",4) ||
+              !strncmp(property_name,"genre",5) ||
+              !strncmp(property_name,"author",6) ||
+              !strncmp(property_name,"create-dts",10) ||
+              !strncmp(property_name,"change-dts",10)
+            ) {
+              g_object_set(G_OBJECT(self),property_name,elem,NULL);
+            }
+            else if(!strncmp(property_name,"bpm",3) ||
+              !strncmp(property_name,"tpb",3) ||
+              !strncmp(property_name,"bars",4)) {
+              g_object_set(G_OBJECT(self),property_name,atol((char *)elem),NULL);
+            }
+            xmlFree(elem);
+          }
+        }
+      }
+    }
+    res=TRUE;
+  }
+  return(res);
+}
+
+static void bt_song_info_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_song_info_persistence_load;
+  iface->save = bt_song_info_persistence_save;
+}
 
 //-- wrapper
 
@@ -400,7 +491,7 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
 
 GType bt_song_info_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSongInfoClass),
       NULL, // base_init
@@ -413,7 +504,13 @@ GType bt_song_info_get_type(void) {
       (GInstanceInitFunc)bt_song_info_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_song_info_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtSongInfo",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

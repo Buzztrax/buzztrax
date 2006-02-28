@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.50 2006-02-14 09:03:54 ensonic Exp $
+// $Id: application.c,v 1.51 2006-02-28 19:03:29 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -324,7 +324,7 @@ static void bt_application_class_init(BtApplicationClass *klass) {
 
 GType bt_application_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       (guint16)(sizeof(BtApplicationClass)),
       NULL, // base_init

@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.81 2006-02-22 14:33:48 ensonic Exp $
+// $Id: setup.c,v 1.82 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -743,7 +743,7 @@ static void bt_setup_class_init(BtSetupClass *klass) {
 
 GType bt_setup_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSetupClass),
       NULL, // base_init

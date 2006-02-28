@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.98 2006-02-17 08:37:19 ensonic Exp $
+// $Id: song-io-native.c,v 1.99 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -11,6 +11,11 @@
  
 #define BT_CORE
 #define BT_SONG_IO_NATIVE_C
+
+// the new bt_persistence code takes over
+// use defines below toreenable old code
+#define USE_OLD_SAVER
+#define USE_OLD_LOADER
 
 #include <libbtcore/core.h>
 
@@ -43,50 +48,56 @@ static BtSongIOClass *parent_class=NULL;
  */
 GType bt_song_io_native_detect(const gchar *file_name) {
   GType type=0;
-  gchar *lc_file_name;
-  char *absolute_uri_string;
-  GnomeVFSURI *input_uri;
-  GnomeVFSFileInfo *file_info;
+  char *absolute_uri_string=NULL;
+  GnomeVFSURI *input_uri=NULL;
+  GnomeVFSFileInfo *file_info=NULL;
   GnomeVFSResult result;
-  
-  /* creating a absolute uri string from the given input string. Works also if 
-     the given string was a absolute uri. */
-  absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (file_name, GNOME_VFS_MAKE_URI_DIR_CURRENT);
-  GST_INFO("creating absolute file uri string: %s\n",absolute_uri_string);
-  /* creating the gnome-vfs uri from the absolute path string */
-  input_uri = gnome_vfs_uri_new(absolute_uri_string);
-  /* check if the input uri is ok */
-  if (input_uri == NULL) {
-    GST_WARNING("input uri for gnome vfs cannot create\n");
-    return(type);
-  }
-  /* check if the given uri exists */
-  if (!gnome_vfs_uri_exists(input_uri)) {
-    GST_WARNING("given input uri doe's not exists ... abort loading\n");
-    return(type);
-  }
-  /* create new file info pointer. Don't remove this! */
-  file_info = gnome_vfs_file_info_new ();
-  /* now we check the mime type */
-  result = gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE);
-  /* if the operation was not successful, print the error and abort */
-  if (result != GNOME_VFS_OK) {
-   GST_WARNING("Cannot determine mime type. Error: %s\n", gnome_vfs_result_to_string (result));
-   return(type);
-  }
-  
-  
-  
+
+  // test filename first  
   GST_INFO("file_name=\"%s\"",file_name);
   if(!file_name) return(type);
-  
-  lc_file_name=g_ascii_strdown(file_name,-1);
-  if(g_str_has_suffix(lc_file_name,".xml")) {
+
+  // creating a absolute uri string from the given input string.
+  // works also if the given string was a absolute uri.
+  absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (file_name, GNOME_VFS_MAKE_URI_DIR_CURRENT);
+  GST_INFO("creating absolute file uri string: %s\n",absolute_uri_string);
+  // creating the gnome-vfs uri from the absolute path string
+  input_uri = gnome_vfs_uri_new(absolute_uri_string);
+  // check if the input uri is ok
+  if (input_uri == NULL) {
+    GST_WARNING("cannot create input uri for gnome vfs\n");
+    goto Error;
+  }
+  // check if the given uri exists
+  if (!gnome_vfs_uri_exists(input_uri)) {
+    gchar *lc_file_name;
+    
+    GST_WARNING("given input uri doe's not exists ... abort loading\n");
+
+    lc_file_name=g_ascii_strdown(file_name,-1);
+    if(g_str_has_suffix(lc_file_name,".xml")) {
+      type=BT_TYPE_SONG_IO_NATIVE;
+    }
+    g_free(lc_file_name);
+  }
+  else {
+    // create new file info pointer.
+    file_info = gnome_vfs_file_info_new ();
+    // now we check the mime type
+    if((result=gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE))!=GNOME_VFS_OK) {
+      GST_WARNING("Cannot determine mime type. Error: %s\n", gnome_vfs_result_to_string (result));
+      goto Error;
+    }
+    // @todo: check mime-type ?
     type=BT_TYPE_SONG_IO_NATIVE;
   }
-  g_free(lc_file_name);
+Error:
+  if(absolute_uri_string) g_free(absolute_uri_string);
+  if(file_info) gnome_vfs_file_info_unref(file_info);
   return(type);
 }
+
+#ifdef USE_OLD_LOADER
 
 //-- xml helper methods
 
@@ -154,7 +165,13 @@ static xmlXPathObjectPtr cxpath_get_object(const xmlDocPtr doc,xmlXPathCompExprP
   return(result);
 }
 
+#endif
+
 //-- string formatting helper
+
+// @todo: move to bt_persistence_*
+
+#ifdef USE_OLD_SAVER
 
 static const gchar *strfmt_long(glong val) {
   static gchar str[20];
@@ -170,7 +187,11 @@ static const gchar *strfmt_ulong(gulong val) {
   return(str);
 }
 
+#endif
+
 //-- loader helper methods
+
+#ifdef USE_OLD_LOADER
 
 static gboolean bt_song_io_native_load_properties(const BtSongIONative *self, const BtSong *song, xmlNodePtr xml_node, GObject *object) {
   xmlNodePtr xml_subnode;
@@ -235,7 +256,7 @@ static gboolean bt_song_io_native_load_song_info(const BtSongIONative *self, con
             if((elem=xmlNodeGetContent(xml_child_node))) {
               property_name=(gchar *)xml_node->name;
               GST_DEBUG("  %2d : \"%s\"=\"%s\"",i,property_name,elem);
-              // depending on th name of the property, treat it's type
+              // depending on the name of the property, treat it's type
               if(!strncmp(property_name,"info",4) ||
                 !strncmp(property_name,"name",4) ||
                 !strncmp(property_name,"genre",5) ||
@@ -731,6 +752,8 @@ static gboolean bt_song_io_native_load_wavetable(const BtSongIONative *self, con
   return(TRUE);
 }
 
+#endif
+
 //-- loader method
 
 gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
@@ -762,6 +785,7 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   if((ctxt=xmlNewParserCtxt())) {
     //song_doc=xmlCtxtReadMemory(ctxt,xml_doc_buffer,xml_doc_size,file_name,NULL,0L)
     if((song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L))) {
+#ifdef USE_OLD_LOADER
       if(!ctxt->valid) {
         GST_WARNING("the supplied document is not a XML/Buzztard document");
       }
@@ -773,11 +797,6 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
         if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
           GST_WARNING("xmlDoc is empty");
         }
-        /*
-        else if(xmlSearchNsByHref(song_doc,xml_node,(const xmlChar *)BT_NS_URL)==NULL) {
-          GST_WARNING("no or incorrect namespace found in xmlDoc");
-        }
-        */
         else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
           GST_WARNING("wrong document type root node in xmlDoc src");
         }
@@ -792,9 +811,12 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
             result=TRUE;
           }
         }
-      }    
+      }
+#else
+      result=bt_persistence_load(BT_PERSISTENCE(song),song_doc,NULL,NULL);
+#endif
     }
-    else GST_ERROR("failed to read xml file \"%s\"",file_name);
+    else GST_ERROR("failed to read song file \"%s\"",file_name);
   }
   else GST_ERROR("failed to create file-parser context");
   if(ctxt) xmlFreeParserCtxt(ctxt);
@@ -805,6 +827,8 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
 }
 
 //-- saver helper methods
+
+#ifdef USE_OLD_SAVER
 
 static void bt_song_io_native_save_property_entries(gpointer key, gpointer value, gpointer user_data) {
   xmlNodePtr xml_node;
@@ -1162,13 +1186,14 @@ static gboolean bt_song_io_native_save_wavetable(const BtSongIONative *self, con
   return(TRUE);
 }
 
+#endif
+
 //-- saver method
 
 gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
   const BtSongIONative *self=BT_SONG_IO_NATIVE(_self);
   gboolean result=FALSE;
   xmlDocPtr song_doc=NULL;
-  xmlNodePtr root_node=NULL;
   gchar *file_name,*status,*msg;
   
   g_object_get(G_OBJECT(self),"file-name",&file_name,NULL);
@@ -1180,6 +1205,9 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
   g_object_set(G_OBJECT(self),"status",status,NULL);
 
   if((song_doc=xmlNewDoc(XML_CHAR_PTR("1.0")))) {
+#ifdef USE_OLD_SAVER
+    xmlNodePtr root_node=NULL;
+
     // create the root-node
     root_node=xmlNewNode(NULL,XML_CHAR_PTR("buzztard"));
     xmlNewProp(root_node,XML_CHAR_PTR("xmlns"),(const xmlChar *)BT_NS_URL);
@@ -1196,7 +1224,16 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
       if(xmlSaveFile(file_name,song_doc)!=-1) {
         result=TRUE;
       }
+      else GST_ERROR("failed to write song file \"%s\"",file_name);
     }
+#else
+    if(bt_persistence_save(BT_PERSISTENCE(song),song_doc,NULL,NULL)) {
+      if(xmlSaveFile(file_name,song_doc)!=-1) {
+        result=TRUE;
+      }
+      else GST_ERROR("failed to write song file \"%s\"",file_name);
+    }
+#endif
   }
   
   g_free(file_name);
@@ -1318,7 +1355,7 @@ static void bt_song_io_native_class_finalize(BtSongIOClass *klass) {
 
 GType bt_song_io_native_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSongIONativeClass),
       NULL, // base_init

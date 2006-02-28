@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.25 2006-02-13 22:33:15 ensonic Exp $
+// $Id: gconf-settings.c,v 1.26 2006-02-28 19:03:29 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -250,7 +250,7 @@ static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {
 
 GType bt_gconf_settings_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       (guint16)(sizeof(BtGConfSettingsClass)),
       NULL, // base_init

@@ -1,4 +1,4 @@
-// $Id: plainfile-settings.c,v 1.16 2006-02-13 22:33:15 ensonic Exp $
+// $Id: plainfile-settings.c,v 1.17 2006-02-28 19:03:29 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
@@ -146,7 +146,7 @@ static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {
 
 GType bt_plainfile_settings_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtPlainfileSettingsClass),
       NULL, // base_init

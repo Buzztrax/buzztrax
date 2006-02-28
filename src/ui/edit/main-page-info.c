@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.34 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-page-info.c,v 1.35 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -424,7 +424,7 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
 
 GType bt_main_page_info_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPageInfoClass),
       NULL, // base_init

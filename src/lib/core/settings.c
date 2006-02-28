@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.21 2006-02-17 08:06:50 ensonic Exp $
+// $Id: settings.c,v 1.22 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -180,7 +180,7 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
 
 GType bt_settings_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSettingsClass),
       NULL, // base_init

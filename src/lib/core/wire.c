@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.68 2006-02-17 08:37:19 ensonic Exp $
+// $Id: wire.c,v 1.69 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -535,7 +535,7 @@ static void bt_wire_class_init(BtWireClass *klass) {
 
 GType bt_wire_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtWireClass),
       NULL, // base_init

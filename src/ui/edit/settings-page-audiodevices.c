@@ -1,4 +1,4 @@
-// $Id: settings-page-audiodevices.c,v 1.17 2006-02-13 22:33:16 ensonic Exp $
+// $Id: settings-page-audiodevices.c,v 1.18 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
@@ -230,7 +230,7 @@ static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesC
 
 GType bt_settings_page_audiodevices_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSettingsPageAudiodevicesClass),
       NULL, // base_init

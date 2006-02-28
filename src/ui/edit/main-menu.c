@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.49 2006-02-17 08:37:19 ensonic Exp $
+// $Id: main-menu.c,v 1.50 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -691,7 +691,7 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
 
 GType bt_main_menu_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainMenuClass),
       NULL, // base_init

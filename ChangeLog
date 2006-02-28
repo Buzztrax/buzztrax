@@ -1,3 +1,55 @@
+2006-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gobject/song.c: (bt_song_get_type):
+	* src/lib/core/application.c: (bt_application_get_type):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_type):
+	* src/lib/core/machine.c: (bt_machine_state_get_type),
+	(bt_machine_get_type):
+	* src/lib/core/pattern.c: (bt_pattern_cmd_get_type),
+	(bt_pattern_get_type):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_get_type):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_get_type):
+	* src/lib/core/sequence.c: (bt_sequence_get_type):
+	* src/lib/core/settings.c: (bt_settings_get_type):
+	* src/lib/core/setup.c: (bt_setup_get_type):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_save),
+	(bt_song_info_persistence_load),
+	(bt_song_info_persistence_interface_init), (bt_song_info_get_type):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect),
+	(bt_song_io_native_load_song_info), (bt_song_io_native_real_load),
+	(bt_song_io_native_real_save), (bt_song_io_native_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_get_type):
+	* src/lib/core/song.c: (bt_song_persistence_save),
+	(bt_song_persistence_load), (bt_song_persistence_interface_init),
+	(bt_song_get_type):
+	* src/lib/core/source-machine.c: (bt_source_machine_get_type):
+	* src/lib/core/wire.c: (bt_wire_get_type):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_get_type):
+	* src/ui/edit/edit-application.c: (bt_edit_application_get_type):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_get_type):
+	* src/ui/edit/main-menu.c: (bt_main_menu_get_type):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_get_type):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_get_type):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_type):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_get_type):
+	* src/ui/edit/main-pages.c: (bt_main_pages_get_type):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_get_type):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_get_type):
+	* src/ui/edit/main-window.c: (bt_main_window_get_type):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_get_type):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_get_type):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_get_type):
+	  more serialisation implementation
+	  add G_UNLIKELY to _get_type() functions
+
 2006-02-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/Makefile.am:

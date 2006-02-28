@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.70 2006-02-17 08:06:50 ensonic Exp $
+// $Id: edit-application.c,v 1.71 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -471,7 +471,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
 
 GType bt_edit_application_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtEditApplicationClass),
       NULL, // base_init

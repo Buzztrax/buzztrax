@@ -123,7 +123,7 @@ static void bt_song_class_init(BtSongClass *klass) {
 
 GType bt_song_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       sizeof (BtSongClass),
       NULL, // base_init

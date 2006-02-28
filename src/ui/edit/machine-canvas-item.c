@@ -1,9 +1,9 @@
-// $Id: machine-canvas-item.c,v 1.59 2006-02-24 17:13:08 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.60 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
  *
- * The canvas object emits #BtMachineCanvasItem-position-changed signal after
+ * The canvas object emits #BtMachineCanvasItem::position-changed signal after
  * it has been moved.
  */ 
 
@@ -1002,7 +1002,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 
 GType bt_machine_canvas_item_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMachineCanvasItemClass),
       NULL, // base_init

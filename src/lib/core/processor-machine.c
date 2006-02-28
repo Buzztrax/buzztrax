@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.32 2006-02-13 22:33:15 ensonic Exp $
+// $Id: processor-machine.c,v 1.33 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -133,7 +133,7 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass *klass) {
 
 GType bt_processor_machine_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtProcessorMachineClass),
       NULL, // base_init

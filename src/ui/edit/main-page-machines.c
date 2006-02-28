@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.69 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-page-machines.c,v 1.70 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -916,7 +916,7 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
 
 GType bt_main_page_machines_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPageMachinesClass),
       NULL, // base_init

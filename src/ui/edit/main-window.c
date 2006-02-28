@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.68 2006-02-22 23:09:59 ensonic Exp $
+// $Id: main-window.c,v 1.69 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -588,7 +588,7 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
 
 GType bt_main_window_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainWindowClass),
       NULL, // base_init

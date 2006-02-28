@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.76 2006-02-15 11:27:39 ensonic Exp $
+// $Id: cmd-application.c,v 1.77 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -556,7 +556,7 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
 
 GType bt_cmd_application_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtCmdApplicationClass),
       NULL, // base_init

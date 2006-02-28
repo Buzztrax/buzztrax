@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.94 2006-02-17 08:37:19 ensonic Exp $
+// $Id: sequence.c,v 1.95 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -1148,7 +1148,7 @@ static void bt_sequence_class_init(BtSequenceClass *klass) {
 
 GType bt_sequence_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSequenceClass),
       NULL, // base_init

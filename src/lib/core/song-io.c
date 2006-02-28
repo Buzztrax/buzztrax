@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.52 2006-02-13 22:33:15 ensonic Exp $
+// $Id: song-io.c,v 1.53 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -367,7 +367,7 @@ static void bt_song_io_class_init(BtSongIOClass *klass) {
 
 GType bt_song_io_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSongIOClass),
       NULL, // base_init

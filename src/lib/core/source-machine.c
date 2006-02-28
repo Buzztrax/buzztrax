@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.30 2006-02-13 22:33:15 ensonic Exp $
+// $Id: source-machine.c,v 1.31 2006-02-28 19:03:30 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -133,7 +133,7 @@ static void bt_source_machine_class_init(BtSourceMachineClass *klass) {
 
 GType bt_source_machine_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSourceMachineClass),
       NULL, // base_init
