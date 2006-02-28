@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.116 2006-02-28 19:03:30 ensonic Exp $
+// $Id: song.c,v 1.117 2006-02-28 22:26:46 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -687,7 +687,7 @@ static gboolean bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr d
     xmlDocSetRootElement(doc,node);
 
     bt_persistence_save(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
-    //bt_persistence_save(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
     //bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
     //bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
     res=TRUE;
@@ -707,11 +707,23 @@ static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr d
     GST_WARNING("wrong document type root node in xmlDoc");
   }
   else {
-    bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
-    //bt_persistence_load(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
-    //bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
-    //bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
     res=TRUE;
+    for(node=node->children;(node && res);node=node->next) {
+      if(!xmlNodeIsText(node)) {
+        if(!strncmp((gchar *)node->name,"meta\0",5)) {
+          res&=bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
+        }
+        else if(!strncmp((gchar *)node->name,"setup\0",6)) {
+          res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
+        }
+        else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
+          //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
+        }
+        else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
+          //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
+        }
+      }
+    }
   }
   return(res);
 }

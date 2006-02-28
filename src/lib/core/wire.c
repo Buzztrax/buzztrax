@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.69 2006-02-28 19:03:30 ensonic Exp $
+// $Id: wire.c,v 1.70 2006-02-28 22:26:46 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -401,6 +401,41 @@ GList *bt_wire_get_element_list(const BtWire *self) {
   return(list);
 }
 
+//-- io interface
+
+static gboolean bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  //BtWire *self = BT_WIRE(persistence);
+  gboolean res=FALSE;
+  xmlNodePtr node;
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
+    // @todo: save wire data
+    res=TRUE;
+  }
+  return(res);
+}
+
+static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
+  //BtWire *self = BT_WIRE(persistence);
+  gboolean res=FALSE;
+  //xmlNodePtr node;
+
+  /*  
+  if(bt_wire_connect(self)) {
+    res=TRUE;
+  }
+  */
+ 
+  return(res);
+}
+
+static void bt_wire_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_wire_persistence_load;
+  iface->save = bt_wire_persistence_save;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -548,7 +583,13 @@ GType bt_wire_get_type(void) {
       (GInstanceInitFunc)bt_wire_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_wire_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtWire",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

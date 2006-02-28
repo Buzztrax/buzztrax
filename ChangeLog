@@ -1,5 +1,27 @@
 2006-02-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/persistence.c: (bt_persistence_strfmt_long),
+	(bt_persistence_strfmt_ulong), (bt_persistence_save_list),
+	(bt_persistence_base_init), (bt_persistence_get_type):
+	* src/lib/core/setup.c: (bt_setup_persistence_save),
+	(bt_setup_persistence_load), (bt_setup_persistence_interface_init),
+	(bt_setup_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_save),
+	(bt_song_info_persistence_load):
+	* src/lib/core/song.c: (bt_song_persistence_save),
+	(bt_song_persistence_load):
+	* src/lib/core/wire.c: (bt_wire_persistence_save),
+	(bt_wire_persistence_load), (bt_wire_persistence_interface_init),
+	(bt_wire_get_type):
+          persistence for setup and wire,
+          docs for persistence,
+          list and string helper for persistence
+
+2006-02-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gobject/song.c: (bt_song_get_type):
 	* src/lib/core/application.c: (bt_application_get_type):
 	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_type):

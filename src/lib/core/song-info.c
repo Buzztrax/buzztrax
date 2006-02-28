@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.42 2006-02-28 19:03:30 ensonic Exp $
+// $Id: song-info.c,v 1.43 2006-02-28 22:26:46 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -91,7 +91,6 @@ static gboolean bt_song_info_persistence_save(BtPersistence *persistence, xmlDoc
   BtSongInfo *self = BT_SONG_INFO(persistence);
   gboolean res=FALSE;
   xmlNodePtr node;
-  gchar num[20];
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
     if(self->priv->info) {
@@ -112,12 +111,9 @@ static gboolean bt_song_info_persistence_save(BtPersistence *persistence, xmlDoc
     if(self->priv->change_dts) {
       xmlNewChild(node,NULL,XML_CHAR_PTR("change-dts"),XML_CHAR_PTR(self->priv->change_dts));
     }
-    sprintf(num,"%lu",self->priv->beats_per_minute);
-    xmlNewChild(node,NULL,XML_CHAR_PTR("bpm"),XML_CHAR_PTR(num));
-    sprintf(num,"%lu",self->priv->ticks_per_beat);
-    xmlNewChild(node,NULL,XML_CHAR_PTR("tpb"),XML_CHAR_PTR(num));
-    sprintf(num,"%lu",self->priv->bars);
-    xmlNewChild(node,NULL,XML_CHAR_PTR("bars"),XML_CHAR_PTR(num));
+    xmlNewChild(node,NULL,XML_CHAR_PTR("bpm"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->beats_per_minute)));
+    xmlNewChild(node,NULL,XML_CHAR_PTR("tpb"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->ticks_per_beat)));
+    xmlNewChild(node,NULL,XML_CHAR_PTR("bars"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->bars)));
     res=TRUE;
   }
   return(res);
@@ -127,44 +123,37 @@ static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlDoc
   BtSongInfo *self = BT_SONG_INFO(persistence);
   gboolean res=FALSE;
   xmlNodePtr node,child_node;
+  xmlChar *elem;
+  const gchar *property_name;
   
   for(node=parent_node->children;node;node=node->next) {
-    if(!strncmp((gchar *)node->name,"meta\0",5)) break;
-  }
-
-  if(node) {
-    xmlChar *elem;
-    const gchar *property_name;
-    
-    for(node=node->children;node;node=node->next) {
-      if(!xmlNodeIsText(node)) {
-        child_node=node->children;
-        if(child_node && xmlNodeIsText(child_node) && !xmlIsBlankNode(child_node)) {
-          if((elem=xmlNodeGetContent(child_node))) {
-            property_name=(gchar *)node->name;
-            GST_DEBUG("  \"%s\"=\"%s\"",property_name,elem);
-            // depending on the name of the property, treat it's type
-            if(!strncmp(property_name,"info",4) ||
-              !strncmp(property_name,"name",4) ||
-              !strncmp(property_name,"genre",5) ||
-              !strncmp(property_name,"author",6) ||
-              !strncmp(property_name,"create-dts",10) ||
-              !strncmp(property_name,"change-dts",10)
-            ) {
-              g_object_set(G_OBJECT(self),property_name,elem,NULL);
-            }
-            else if(!strncmp(property_name,"bpm",3) ||
-              !strncmp(property_name,"tpb",3) ||
-              !strncmp(property_name,"bars",4)) {
-              g_object_set(G_OBJECT(self),property_name,atol((char *)elem),NULL);
-            }
-            xmlFree(elem);
+    if(!xmlNodeIsText(node)) {
+      child_node=node->children;
+      if(child_node && xmlNodeIsText(child_node) && !xmlIsBlankNode(child_node)) {
+        if((elem=xmlNodeGetContent(child_node))) {
+          property_name=(gchar *)node->name;
+          GST_DEBUG("  \"%s\"=\"%s\"",property_name,elem);
+          // depending on the name of the property, treat it's type
+          if(!strncmp(property_name,"info",4) ||
+            !strncmp(property_name,"name",4) ||
+            !strncmp(property_name,"genre",5) ||
+            !strncmp(property_name,"author",6) ||
+            !strncmp(property_name,"create-dts",10) ||
+            !strncmp(property_name,"change-dts",10)
+          ) {
+            g_object_set(G_OBJECT(self),property_name,elem,NULL);
           }
+          else if(!strncmp(property_name,"bpm",3) ||
+            !strncmp(property_name,"tpb",3) ||
+            !strncmp(property_name,"bars",4)) {
+            g_object_set(G_OBJECT(self),property_name,atol((char *)elem),NULL);
+          }
+          xmlFree(elem);
         }
       }
     }
-    res=TRUE;
   }
+  res=TRUE;
   return(res);
 }
 

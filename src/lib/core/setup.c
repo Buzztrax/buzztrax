@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.82 2006-02-28 19:03:30 ensonic Exp $
+// $Id: setup.c,v 1.83 2006-02-28 22:26:46 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -519,6 +519,56 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
   return(id);
 }
 
+//-- io interface
+
+static gboolean bt_setup_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtSetup *self = BT_SETUP(persistence);
+  gboolean res=FALSE;
+  xmlNodePtr node;
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("setup"),NULL))) {
+    // @todo: save machines and wires
+    //bt_persistence_save_list(self->priv->machines,doc,node);
+    bt_persistence_save_list(self->priv->wires,doc,node);
+    res=TRUE;
+  }
+  return(res);
+}
+
+static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
+  //BtSetup *self = BT_SETUP(persistence);
+  gboolean res=FALSE;
+  xmlNodePtr node;
+  
+  // @todo: load machines and wires
+  for(node=parent_node->children;node;node=node->next) {
+    if(!xmlNodeIsText(node)) {
+      if(!strncmp((gchar *)node->name,"machines\0",8)) {
+        //bt_song_io_native_load_setup_machines(self,song,node->children);
+      }
+      else if(!strncmp((gchar *)node->name,"wires\0",6)) {
+        //bt_song_io_native_load_setup_wires(self,song,node->children);
+        /*
+        foreach(child_node) {
+          wire=g_object_new(BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL)));
+          bt_persistence_load(BT_PERSISTENCE(wire),doc,child_node,NULL);
+          bt_setup_add_wire(self,wire);
+        }
+        */
+      }
+    }
+  }
+  res=TRUE;
+  return(res);
+}
+
+static void bt_setup_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_setup_persistence_load;
+  iface->save = bt_setup_persistence_save;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -756,7 +806,13 @@ GType bt_setup_get_type(void) {
       (GInstanceInitFunc)bt_setup_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_setup_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtSetup",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

@@ -8,6 +8,7 @@
 <!ENTITY BtGConfSettings SYSTEM "xml/btgconfsettings.xml">
 <!ENTITY BtMachine SYSTEM "xml/btmachine.xml">
 <!ENTITY BtPattern SYSTEM "xml/btpattern.xml">
+<!ENTITY BtPersistence SYSTEM "xml/btpersistence.xml">
 <!ENTITY BtPlainfileSettings SYSTEM "xml/btplainfilesettings.xml">
 <!ENTITY BtProcessorMachine SYSTEM "xml/btprocessormachine.xml">
 <!ENTITY BtSequence SYSTEM "xml/btsequence.xml">
@@ -102,6 +103,7 @@
     &BtGConfSettings;
     &BtMachine;
     &BtPattern;
+    &BtPersistence;
     &BtPlainfileSettings;
     &BtProcessorMachine;
     &BtSequence;
