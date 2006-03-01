@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.83 2006-02-28 22:26:46 ensonic Exp $
+// $Id: setup.c,v 1.84 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -527,21 +527,19 @@ static gboolean bt_setup_persistence_save(BtPersistence *persistence, xmlDocPtr 
   xmlNodePtr node;
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("setup"),NULL))) {
-    // @todo: save machines and wires
-    //bt_persistence_save_list(self->priv->machines,doc,node);
+    bt_persistence_save_list(self->priv->machines,doc,node);
     bt_persistence_save_list(self->priv->wires,doc,node);
     res=TRUE;
   }
   return(res);
 }
 
-static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
+static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   //BtSetup *self = BT_SETUP(persistence);
   gboolean res=FALSE;
-  xmlNodePtr node;
   
   // @todo: load machines and wires
-  for(node=parent_node->children;node;node=node->next) {
+  for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       if(!strncmp((gchar *)node->name,"machines\0",8)) {
         //bt_song_io_native_load_setup_machines(self,song,node->children);

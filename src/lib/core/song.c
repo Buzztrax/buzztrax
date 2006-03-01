@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.117 2006-02-28 22:26:46 ensonic Exp $
+// $Id: song.c,v 1.118 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -695,10 +695,9 @@ static gboolean bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr d
   return(res);
 }
 
-static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
+static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSong *self = BT_SONG(persistence);
   gboolean res=FALSE;
-  xmlNodePtr node;
 
   if((node=xmlDocGetRootElement(doc))==NULL) {
     GST_WARNING("xmlDoc is empty");

@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.33 2006-02-28 19:03:30 ensonic Exp $
+// $Id: processor-machine.c,v 1.34 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -56,6 +56,41 @@ Error:
 }
 
 //-- methods
+
+//-- io interface
+
+static gboolean bt_processor_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  //BtProcessorMachine *self = BT_PROCESSOR_MACHINE(persistence);
+  gboolean res=FALSE;
+  xmlNodePtr node;
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("processor"),NULL))) {
+    // save parent class stuff
+    bt_persistence_save(BT_PERSISTENCE(parent_class),doc,node,NULL);
+    /* @todo: save own stuff */
+    
+    res=TRUE;
+  }
+  
+  return(res);
+}
+
+static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtProcessorMachine *self = BT_PROCESSOR_MACHINE(persistence);
+  gboolean res=FALSE;
+
+  /* @todo: implement me */
+  
+  return(res);
+}
+
+static void bt_processor_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_processor_machine_persistence_load;
+  iface->save = bt_processor_machine_persistence_save;
+}
+
 
 //-- wrapper
 
@@ -146,7 +181,13 @@ GType bt_processor_machine_get_type(void) {
       (GInstanceInitFunc)bt_processor_machine_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_processor_machine_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(BT_TYPE_MACHINE,"BtProcessorMachine",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

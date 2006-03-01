@@ -1,3 +1,33 @@
+2006-03-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/machine.c: (bt_machine_persistence_save),
+	(bt_machine_persistence_load),
+	(bt_machine_persistence_interface_init), (bt_machine_get_type):
+	* src/lib/core/persistence.c: (bt_persistence_load):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_persistence_save),
+	(bt_processor_machine_persistence_load),
+	(bt_processor_machine_persistence_interface_init),
+	(bt_processor_machine_get_type):
+	* src/lib/core/setup.c: (bt_setup_persistence_save),
+	(bt_setup_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_persistence_save),
+	(bt_sink_machine_persistence_load),
+	(bt_sink_machine_persistence_interface_init),
+	(bt_sink_machine_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_load):
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song.c: (bt_song_persistence_load):
+	* src/lib/core/source-machine.c:
+	(bt_source_machine_persistence_save),
+	(bt_source_machine_persistence_load),
+	(bt_source_machine_persistence_interface_init),
+	(bt_source_machine_get_type):
+	* src/lib/core/wire.c: (bt_wire_connect), (bt_wire_new),
+	(bt_wire_persistence_save), (bt_wire_persistence_load):
+         more serialisation stuff
+
 2006-02-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-docs.sgml:

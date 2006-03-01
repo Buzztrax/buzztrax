@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.70 2006-02-28 22:26:46 ensonic Exp $
+// $Id: wire.c,v 1.71 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -249,7 +249,25 @@ static gboolean bt_wire_connect(BtWire *self) {
 
   g_assert(BT_IS_WIRE(self));
 
-  if((!self->priv->src) || (!self->priv->dst)) goto Error;
+  // move this to connect?
+  if((!self->priv->src) || (!self->priv->dst)) {
+    GST_WARNING("trying to add create wire with NULL endpoint, src=%p and dst=%p",self->priv->src,self->priv->dst);
+    goto Error;
+  }
+  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->src,self->priv->dst))!=self) {
+    GST_WARNING("trying to add create already existing wire");
+    g_object_unref(other_wire);
+    goto Error;
+  }
+  g_object_try_unref(other_wire);
+  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->dst,self->priv->src))!=self) {
+    GST_WARNING("trying to add create already existing wire (reversed)");
+    g_object_unref(other_wire);
+    goto Error;
+  }
+  g_object_try_unref(other_wire);
+
+
   g_object_get(G_OBJECT(song),"bin",&self->priv->bin,"setup",&setup,NULL);
   GST_DEBUG("about to link machines, bin->ref_count=%d",G_OBJECT(self->priv->bin)->ref_count);
   src=self->priv->src;
@@ -337,16 +355,7 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   g_return_val_if_fail(src_machine!=dst_machine,NULL);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  
-  if((wire=bt_setup_get_wire_by_machines(setup,src_machine,dst_machine))) {
-    GST_WARNING("trying to add create already existing wire");
-    goto Error;
-  }
-  if((wire=bt_setup_get_wire_by_machines(setup,dst_machine,src_machine))) {
-    GST_WARNING("trying to add create already existing wire (reversed)");
-    goto Error;
-  }
-  
+    
   GST_INFO("create wire between %p and %p",src_machine,dst_machine);
 
   if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
@@ -404,27 +413,44 @@ GList *bt_wire_get_element_list(const BtWire *self) {
 //-- io interface
 
 static gboolean bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  //BtWire *self = BT_WIRE(persistence);
+  BtWire *self = BT_WIRE(persistence);
   gboolean res=FALSE;
   xmlNodePtr node;
+  gchar *id;
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
-    // @todo: save wire data
+    g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
+    g_free(id);
+
+    g_object_get(G_OBJECT(self->priv->dst),"id",&id,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
+    g_free(id);
+
     res=TRUE;
   }
   return(res);
 }
 
-static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
-  //BtWire *self = BT_WIRE(persistence);
+static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  BtWire *self = BT_WIRE(persistence);
+  BtSetup *setup;
   gboolean res=FALSE;
-  //xmlNodePtr node;
+  xmlChar *id;
+  
+  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
 
-  /*  
+  id=xmlGetProp(node,XML_CHAR_PTR("src"));
+  self->priv->src=bt_setup_get_machine_by_id(setup,(gchar *)id);
+  xmlFree(id);
+  
+  id=xmlGetProp(node,XML_CHAR_PTR("dst"));
+  self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
+  xmlFree(id);
+
   if(bt_wire_connect(self)) {
     res=TRUE;
   }
-  */
  
   return(res);
 }

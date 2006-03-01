@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.59 2006-02-28 19:03:30 ensonic Exp $
+// $Id: sink-machine.c,v 1.60 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -62,6 +62,33 @@ Error:
 }
 
 //-- methods
+
+//-- io interface
+
+static gboolean bt_sink_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
+  gboolean res=FALSE;
+
+  /* @todo: implement me */
+  
+  return(res);
+}
+
+static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
+  gboolean res=FALSE;
+
+  /* @todo: implement me */
+  
+  return(res);
+}
+
+static void bt_sink_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_sink_machine_persistence_load;
+  iface->save = bt_sink_machine_persistence_save;
+}
 
 //-- wrapper
 
@@ -151,7 +178,13 @@ GType bt_sink_machine_get_type(void) {
       (GInstanceInitFunc)bt_sink_machine_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_sink_machine_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(BT_TYPE_MACHINE,"BtSinkMachine",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

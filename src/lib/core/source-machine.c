@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.31 2006-02-28 19:03:30 ensonic Exp $
+// $Id: source-machine.c,v 1.32 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -56,6 +56,33 @@ Error:
 }
 
 //-- methods
+
+//-- io interface
+
+static gboolean bt_source_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  //BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
+  gboolean res=FALSE;
+
+  /* @todo: implement me */
+  
+  return(res);
+}
+
+static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
+  gboolean res=FALSE;
+
+  /* @todo: implement me */
+  
+  return(res);
+}
+
+static void bt_source_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_source_machine_persistence_load;
+  iface->save = bt_source_machine_persistence_save;
+}
 
 //-- wrapper
 
@@ -146,7 +173,13 @@ GType bt_source_machine_get_type(void) {
       (GInstanceInitFunc)bt_source_machine_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_source_machine_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(BT_TYPE_MACHINE,"BtSourceMachine",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

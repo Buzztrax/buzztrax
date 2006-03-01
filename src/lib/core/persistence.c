@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.2 2006-02-28 22:26:46 ensonic Exp $
+// $Id: persistence.c,v 1.3 2006-03-01 16:47:08 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -69,16 +69,38 @@ gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr pa
 
 //-- wrapper
 
+/**
+ * bt_persistence_save:
+ * @self: a serialiable object
+ * @doc; the xml-document
+ * @parent_node: the parent xml node
+ * @selection: an optional selection
+ *
+ * Serializes the given object as a children of @parent_node.
+ *
+ * Return: %TRUE if the element has been serialized.
+ */
 gboolean bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
   
   return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, doc, parent_node, selection));
 }
 
-gboolean bt_persistence_load(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location) {
+/**
+ * bt_persistence_load:
+ * @self: a deserialiable object
+ * @doc; the xml-document
+ * @node: the xml node
+ * @selection: an optional selection
+ *
+ * Deserializes the given object from the @node.
+ *
+ * Return: %TRUE if the element has been deserialized.
+ */
+gboolean bt_persistence_load(BtPersistence *self, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
   
-  return (BT_PERSISTENCE_GET_INTERFACE (self)->load (self, doc, parent_node, location));
+  return (BT_PERSISTENCE_GET_INTERFACE (self)->load (self, doc, node, location));
 }
 
 //-- interface internals
