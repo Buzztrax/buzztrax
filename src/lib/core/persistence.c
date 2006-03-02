@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.3 2006-03-01 16:47:08 ensonic Exp $
+// $Id: persistence.c,v 1.4 2006-03-02 17:36:35 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -79,6 +79,11 @@ gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr pa
  * Serializes the given object as a children of @parent_node.
  *
  * Return: %TRUE if the element has been serialized.
+ */
+/* @todo: we need to handle oo-hierarchy
+ * #1: pass node and parent_node to _save().
+ *   if node is null, the _save() method creates the elemnt and calls super::_save()
+ * #2: create node in parent::_save() and only pass node
  */
 gboolean bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);

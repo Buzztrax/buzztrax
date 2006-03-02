@@ -1,3 +1,17 @@
+2006-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c:
+	  ideas about oo-hierarchy handling
+	* src/lib/core/song-io-native.c:
+	  disable experimental code
+	* src/lib/core/wire.c: (bt_wire_connect):
+	  fix wire double-connection checks
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_cursor_changed):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed):
+	  raise priority of mouse-selection idle-handler
+
 2006-03-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/persistence-methods.h:

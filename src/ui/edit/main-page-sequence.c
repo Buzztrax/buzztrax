@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.105 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.106 2006-03-02 17:36:35 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -905,7 +905,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
 
 static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
   /* delay the action */
-  g_idle_add(on_sequence_table_cursor_changed_idle,user_data);
+  g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_sequence_table_cursor_changed_idle,user_data,NULL);
 }
 
 static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {

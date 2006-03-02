@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.83 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.84 2006-03-02 17:36:35 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -243,7 +243,7 @@ static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
 
 static void on_pattern_table_cursor_changed(GtkTreeView *treeview, gpointer user_data) {
   /* delay the action */
-  g_idle_add(on_pattern_table_cursor_changed_idle,user_data);
+  g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_pattern_table_cursor_changed_idle,user_data,NULL);
 }
 
 static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {

@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.71 2006-03-01 16:47:08 ensonic Exp $
+// $Id: wire.c,v 1.72 2006-03-02 17:36:35 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -254,21 +254,23 @@ static gboolean bt_wire_connect(BtWire *self) {
     GST_WARNING("trying to add create wire with NULL endpoint, src=%p and dst=%p",self->priv->src,self->priv->dst);
     goto Error;
   }
-  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->src,self->priv->dst))!=self) {
-    GST_WARNING("trying to add create already existing wire");
-    g_object_unref(other_wire);
-    goto Error;
-  }
-  g_object_try_unref(other_wire);
-  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->dst,self->priv->src))!=self) {
-    GST_WARNING("trying to add create already existing wire (reversed)");
-    g_object_unref(other_wire);
-    goto Error;
-  }
-  g_object_try_unref(other_wire);
-
 
   g_object_get(G_OBJECT(song),"bin",&self->priv->bin,"setup",&setup,NULL);
+
+  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->src,self->priv->dst)) && (other_wire!=self)) {
+    GST_WARNING("trying to add create already existing wire: %p!=%p",other_wire,self);
+    g_object_unref(other_wire);
+    goto Error;
+  }
+  g_object_try_unref(other_wire);
+  if((other_wire=bt_setup_get_wire_by_machines(setup,self->priv->dst,self->priv->src)) && (other_wire!=self)) {
+    GST_WARNING("trying to add create already existing wire (reversed): %p!=%p",other_wire,self);
+    g_object_unref(other_wire);
+    goto Error;
+  }
+  g_object_try_unref(other_wire);
+
+
   GST_DEBUG("about to link machines, bin->ref_count=%d",G_OBJECT(self->priv->bin)->ref_count);
   src=self->priv->src;
   dst=self->priv->dst;
