@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.106 2006-03-02 17:36:35 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.107 2006-03-08 14:58:29 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -926,7 +926,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
   // determine timeline and timelinetrack from cursor pos
   if(bt_main_page_sequence_get_current_pos(self,&time,&track)) {
-    gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
+    gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
+    //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
     // look up pattern for key
     if(event->keyval==' ') {
       bt_sequence_set_pattern(sequence,time,track,NULL);

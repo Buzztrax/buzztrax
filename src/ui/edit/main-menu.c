@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.50 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-menu.c,v 1.51 2006-03-08 14:58:29 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -336,6 +336,23 @@ static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_
   g_object_try_unref(main_window);
 }
 
+static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  //BtMainMenu *self=BT_MAIN_MENU(user_data);
+#ifdef USE_GNOME
+  GError *error=NULL;
+#endif
+  
+  g_assert(user_data);
+
+  GST_INFO("menu help event occurred");
+#ifdef USE_GNOME
+  if(!gnome_help_display(PACKAGE, NULL, &error)) {
+    GST_WARNING("Failed to display help: %s\n",error->message);
+    g_error_free(error);
+  }
+#endif
+}
+
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
@@ -555,6 +572,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,accel_group);
   gtk_widget_set_name(subitem,_("Content"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_help_activate),(gpointer)self);
   
   /* @todo 'tip of the day' */
 

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.73 2006-02-24 19:51:49 ensonic Exp $
+/* $Id: core.h,v 1.74 2006-03-08 14:58:27 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -7,7 +7,6 @@
 #undef GST_DISABLE_GST_DEBUG
 
 #include "config.h"
-
 
 //-- ansi c
 #include <dirent.h>
@@ -46,14 +45,12 @@
 //-- popt
 #include <popt.h>
 //-- i18n
+#ifndef _
 #ifdef ENABLE_NLS
   #include <langinfo.h>
   #include <libintl.h>
 
-  #define _(String) dgettext(PACKAGE,String)
-  #ifdef GITK_LIB_C
-    #define __(String) dgettext(client_package_name,String)
-  #endif
+  #define _(String) gettext(String)
   #ifdef gettext_noop
     #define N_(String) gettext_noop(String)
   #else
@@ -73,6 +70,7 @@
   #define dgettext(Domain,String) (String)
   #define textdomain(Domain)
   #define bindtextdomain(Package, Directory)
+#endif
 #endif
 //-- gconf
 #ifdef USE_GCONF

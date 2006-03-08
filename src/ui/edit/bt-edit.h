@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.30 2005-09-03 13:40:30 ensonic Exp $
+/* $Id: bt-edit.h,v 1.31 2006-03-08 14:58:28 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -7,12 +7,17 @@
 #include <math.h>
 #include <stdio.h>
 
+//-- libbtcore
 #include <libbtcore/core.h>
 //-- gtk+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 //-- libgnomecanvas
 #include <libgnomecanvas/libgnomecanvas.h>
+//-- libgnome
+#ifdef USE_GNOME
+#include <libgnome/gnome-help.h>
+#endif
 
 #include "edit-application-methods.h"
 #include "machine-canvas-item-methods.h"

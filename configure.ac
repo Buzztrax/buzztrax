@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.68 2005-12-23 09:02:05 ensonic Exp $
+# $Id: configure.ac,v 1.69 2006-03-08 14:58:18 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -218,6 +218,13 @@ PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.0.1, [
   ]
 )
 
+PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
+    AC_DEFINE(USE_GNOME, [1], [Define to 1 if we can use gnome libraries])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOME_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOME_DEPS_LIBS"
+  ]
+)
+
 #PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
 #  AM_CONDITIONAL(USE_GTKGRID, true)
 #    AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
@@ -296,7 +303,7 @@ AC_C_CONST
 
 # Checks for library functions.
 # glib-2 functions
-# AC_CHECK_LIB( libglib-2.0, g_log_set_default_handler)
+# AC_CHECK_LIB( glib-2.0, g_log_set_default_handler)
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'

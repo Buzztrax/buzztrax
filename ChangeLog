@@ -1,3 +1,20 @@
+2006-03-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/libbtcore/core.h:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_event):
+	* src/ui/edit/main-menu.c: (on_menu_help_activate),
+	(bt_main_menu_init_ui):
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_key_release_event):
+	  check if we have libgnome and if so use it to invoke online help
+	  fix key-modifier checks
+	  remove obsolete code from a copy&paste
+
 2006-03-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/persistence.c:

@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.84 2006-03-02 17:36:35 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.85 2006-03-08 14:58:29 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -249,7 +249,8 @@ static void on_pattern_table_cursor_changed(GtkTreeView *treeview, gpointer user
 static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gboolean res=FALSE;
-  gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
+  gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
+  //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
   
   g_assert(user_data);
   
