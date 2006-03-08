@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.60 2006-03-01 16:47:08 ensonic Exp $
+// $Id: sink-machine.c,v 1.61 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -65,13 +65,19 @@ Error:
 
 //-- io interface
 
-static gboolean bt_sink_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
-  gboolean res=FALSE;
+  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  xmlNodePtr node=NULL;
 
-  /* @todo: implement me */
-  
-  return(res);
+  GST_DEBUG("PERSISTENCE::sink-machine");
+
+  // save parent class stuff
+  if((node=parent_iface->save(persistence,doc,parent_node,NULL))) {
+    /* @todo: save own stuff */
+    xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("sink"));
+  }
+  return(node);
 }
 
 static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {

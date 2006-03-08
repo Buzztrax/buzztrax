@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.32 2006-03-01 16:47:08 ensonic Exp $
+// $Id: source-machine.c,v 1.33 2006-03-08 15:30:40 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -59,13 +59,23 @@ Error:
 
 //-- io interface
 
-static gboolean bt_source_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  //BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
-  gboolean res=FALSE;
+static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
+  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  xmlNodePtr node=NULL;
+  gchar *plugin_name;
 
-  /* @todo: implement me */
-  
-  return(res);
+  GST_DEBUG("PERSISTENCE::source-machine");
+
+  // save parent class stuff
+  if((node=parent_iface->save(persistence,doc,parent_node,NULL))) {
+    xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
+    /* @todo: save more own stuff */
+    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("plugin-name"),XML_CHAR_PTR(plugin_name));
+    g_free(plugin_name);
+  }
+  return(node);
 }
 
 static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {

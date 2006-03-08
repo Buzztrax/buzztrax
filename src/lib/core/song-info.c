@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.44 2006-03-01 16:47:08 ensonic Exp $
+// $Id: song-info.c,v 1.45 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -87,10 +87,9 @@ BtSongInfo *bt_song_info_new(const BtSong *song) {
 
 //-- io interface
 
-static gboolean bt_song_info_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSongInfo *self = BT_SONG_INFO(persistence);
-  gboolean res=FALSE;
-  xmlNodePtr node;
+  xmlNodePtr node=NULL;
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
     if(self->priv->info) {
@@ -114,9 +113,8 @@ static gboolean bt_song_info_persistence_save(BtPersistence *persistence, xmlDoc
     xmlNewChild(node,NULL,XML_CHAR_PTR("bpm"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->beats_per_minute)));
     xmlNewChild(node,NULL,XML_CHAR_PTR("tpb"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->ticks_per_beat)));
     xmlNewChild(node,NULL,XML_CHAR_PTR("bars"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->bars)));
-    res=TRUE;
   }
-  return(res);
+  return(node);
 }
 
 static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {

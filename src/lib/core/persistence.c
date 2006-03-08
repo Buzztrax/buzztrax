@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.4 2006-03-02 17:36:35 ensonic Exp $
+// $Id: persistence.c,v 1.5 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -51,18 +51,18 @@ const gchar *bt_persistence_strfmt_ulong(gulong val) {
  * bt_persistence_save_list:
  * @list: a list
  * @doc; the xml-document
- * @parent_node: the parent xml node
+ * @node: the list xml node
  *
  * Iterates over a list of objects, which must implement the #BtPersistece
  * interface and calls bt_persistence_save() on each item.
  *
  * Return: %TRUE if all elements have been serialized.
  */
-gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr parent_node) {
+gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr node) {
   gboolean res=TRUE;
 
   for(;(list && res);list=g_list_next(list)) {
-    res&=bt_persistence_save(BT_PERSISTENCE(list->data),doc,parent_node,NULL);
+    res&=(bt_persistence_save(BT_PERSISTENCE(list->data),doc,node,NULL)!=NULL);
   }
   return(res);
 }
@@ -76,16 +76,15 @@ gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr pa
  * @parent_node: the parent xml node
  * @selection: an optional selection
  *
- * Serializes the given object as a children of @parent_node.
+ * Serializes the given object into @node.
  *
- * Return: %TRUE if the element has been serialized.
+ * Return: the new node if the element has been serialized, ellse %NULL.
  */
-/* @todo: we need to handle oo-hierarchy
- * #1: pass node and parent_node to _save().
- *   if node is null, the _save() method creates the elemnt and calls super::_save()
- * #2: create node in parent::_save() and only pass node
+/* @todo: give parent_node to _save()
+ * return new xmlNodePtr (or NULL for error)
+ * subclassed objects call super first and use the returned node to save their own data
  */
-gboolean bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+xmlNodePtr bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
   
   return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, doc, parent_node, selection));

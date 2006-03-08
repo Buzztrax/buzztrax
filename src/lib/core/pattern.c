@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.72 2006-02-28 19:03:29 ensonic Exp $
+// $Id: pattern.c,v 1.73 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -429,10 +429,11 @@ Error:
  * bt_pattern_new_with_event:
  * @song: the song the new instance belongs to
  * @machine: the machine the pattern belongs to
- * @cmd: the 
+ * @cmd: a #BtPatternCmd
  *
  * Create a new default pattern instance containg the given @cmd event.
  * It will be automatically added to the machines pattern list.
+ * If @cmd is %BT_PATTERN_CMD_NORMAL use bt_pattern_new() instead.
  *
  * Returns: the new instance or %NULL in case of an error
  */
@@ -888,6 +889,51 @@ void bt_pattern_play_tick(const BtPattern *self, gulong tick) {
   }
 }
 
+//-- io interface
+
+static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtPattern *self = BT_PATTERN(persistence);
+  gchar *id;
+  xmlNodePtr node=NULL;
+  
+  // @todo: hack, command-patterns start with "   "
+  if(self->priv->name[0]==' ') return((xmlNodePtr)1);
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {
+    //id=g_alloca(strlen(machine_id)+strlen(name)+2);
+    //g_sprintf(id,"%s_%s",machine_id,name);
+    //g_object_set(G_OBJECT(pattern),"id",id,NULL);
+    
+    xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
+    xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
+    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
+
+    g_object_get(G_OBJECT(self->priv->machine),"id",&id,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("machine"),XML_CHAR_PTR(id));
+    g_free(id);
+    
+    /* @todo: implement me more (data) */
+    
+  }
+  return(node);
+}
+
+static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtPattern *self = BT_PATTERN(persistence);
+  gboolean res=FALSE;
+  
+  /* @todo: implement me */
+ 
+  return(res);
+}
+
+static void bt_pattern_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_pattern_persistence_load;
+  iface->save = bt_pattern_persistence_save;
+}
+
 //-- wrapper
 
 //-- class internals
@@ -1155,7 +1201,13 @@ GType bt_pattern_get_type(void) {
       (GInstanceInitFunc)bt_pattern_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_pattern_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtPattern",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

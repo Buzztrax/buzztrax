@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.72 2006-03-02 17:36:35 ensonic Exp $
+// $Id: wire.c,v 1.73 2006-03-08 15:30:40 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -414,24 +414,21 @@ GList *bt_wire_get_element_list(const BtWire *self) {
 
 //-- io interface
 
-static gboolean bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtWire *self = BT_WIRE(persistence);
-  gboolean res=FALSE;
-  xmlNodePtr node;
   gchar *id;
+  xmlNodePtr node=NULL;
 
-  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
     g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
     g_free(id);
-
+  
     g_object_get(G_OBJECT(self->priv->dst),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
-
-    res=TRUE;
   }
-  return(res);
+  return(node);
 }
 
 static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {

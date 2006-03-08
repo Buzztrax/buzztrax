@@ -1,5 +1,32 @@
 2006-03-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/persistence.h:
+	* src/lib/core/machine.c:
+	(bt_machine_dbg_dump_global_controller_queue),
+	(bt_machine_persistence_save):
+	* src/lib/core/pattern.c: (bt_pattern_persistence_save),
+	(bt_pattern_persistence_load),
+	(bt_pattern_persistence_interface_init), (bt_pattern_get_type):
+	* src/lib/core/persistence.c: (bt_persistence_save_list),
+	(bt_persistence_save):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_persistence_save):
+	* src/lib/core/setup.c: (bt_setup_persistence_save):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_persistence_save):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_save):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_real_load):
+	* src/lib/core/song.c: (bt_song_persistence_save),
+	(bt_song_persistence_load):
+	* src/lib/core/source-machine.c:
+	(bt_source_machine_persistence_save):
+	* src/lib/core/wire.c: (bt_wire_persistence_save):
+	  rework serialisation (_save() returns xml_node)
+	  start to serialize patterns
+
+2006-03-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/libbtcore/core.h:
 	* src/ui/edit/bt-edit.h:

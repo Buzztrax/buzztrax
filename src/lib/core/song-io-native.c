@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.101 2006-03-02 17:36:35 ensonic Exp $
+// $Id: song-io-native.c,v 1.102 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -14,8 +14,8 @@
 
 // the new bt_persistence code takes over
 // use defines below toreenable old code
-#define USE_OLD_SAVER
-#define USE_OLD_LOADER
+//#define USE_OLD_SAVER
+//#define USE_OLD_LOADER
 
 #include <libbtcore/core.h>
 
@@ -785,7 +785,6 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
   if((ctxt=xmlNewParserCtxt())) {
     //song_doc=xmlCtxtReadMemory(ctxt,xml_doc_buffer,xml_doc_size,file_name,NULL,0L)
     if((song_doc=xmlCtxtReadFile(ctxt,file_name,NULL,0L))) {
-#ifdef USE_OLD_LOADER
       if(!ctxt->valid) {
         GST_WARNING("the supplied document is not a XML/Buzztard document");
       }
@@ -793,14 +792,16 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
         GST_WARNING("the supplied document is not a wellformed XML document");
       }
       else {
-        xmlNodePtr xml_node;
-        if((xml_node=xmlDocGetRootElement(song_doc))==NULL) {
+        xmlNodePtr root_node;
+
+        if((root_node=xmlDocGetRootElement(song_doc))==NULL) {
           GST_WARNING("xmlDoc is empty");
         }
-        else if(xmlStrcmp(xml_node->name,(const xmlChar *)"buzztard")) {
+        else if(xmlStrcmp(root_node->name,(const xmlChar *)"buzztard")) {
           GST_WARNING("wrong document type root node in xmlDoc src");
         }
         else {
+#ifdef USE_OLD_LOADER
           GST_INFO("file looks good!");
           if(bt_song_io_native_load_song_info(self,song,song_doc) &&
             bt_song_io_native_load_setup(    self,song,song_doc) &&
@@ -810,11 +811,11 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
           ) {
             result=TRUE;
           }
+#else
+          result=bt_persistence_load(BT_PERSISTENCE(song),song_doc,root_node,NULL);
+#endif
         }
       }
-#else
-      result=bt_persistence_load(BT_PERSISTENCE(song),song_doc,NULL,NULL);
-#endif
     }
     else GST_ERROR("failed to read song file \"%s\"",file_name);
   }

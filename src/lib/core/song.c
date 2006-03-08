@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.118 2006-03-01 16:47:08 ensonic Exp $
+// $Id: song.c,v 1.119 2006-03-08 15:30:38 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -675,10 +675,11 @@ void bt_song_write_to_dot_file(const BtSong *self) {
 
 //-- io interface
 
-static gboolean bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSong *self = BT_SONG(persistence);
-  gboolean res=FALSE;
-  xmlNodePtr node;
+  xmlNodePtr node=NULL;
+  
+  GST_DEBUG("PERSISTENCE::song");
 
   if((node=xmlNewNode(NULL,XML_CHAR_PTR("buzztard")))) {
     xmlNewProp(node,XML_CHAR_PTR("xmlns"),(const xmlChar *)BT_NS_URL);
@@ -690,37 +691,28 @@ static gboolean bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr d
     bt_persistence_save(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
     //bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
     //bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
-    res=TRUE;
   }
-  return(res);
+  return(node);
 }
 
 static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSong *self = BT_SONG(persistence);
-  gboolean res=FALSE;
+  gboolean res=TRUE;
 
-  if((node=xmlDocGetRootElement(doc))==NULL) {
-    GST_WARNING("xmlDoc is empty");
-  }
-  else if(xmlStrcmp(node->name,(const xmlChar *)"buzztard")) {
-    GST_WARNING("wrong document type root node in xmlDoc");
-  }
-  else {
-    res=TRUE;
-    for(node=node->children;(node && res);node=node->next) {
-      if(!xmlNodeIsText(node)) {
-        if(!strncmp((gchar *)node->name,"meta\0",5)) {
-          res&=bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
-        }
-        else if(!strncmp((gchar *)node->name,"setup\0",6)) {
-          res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
-        }
-        else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
-          //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
-        }
-        else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
-          //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
-        }
+  res=TRUE;
+  for(node=node->children;(node && res);node=node->next) {
+    if(!xmlNodeIsText(node)) {
+      if(!strncmp((gchar *)node->name,"meta\0",5)) {
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
+      }
+      else if(!strncmp((gchar *)node->name,"setup\0",6)) {
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
+      }
+      else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
+        //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
+      }
+      else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
+        //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
       }
     }
   }

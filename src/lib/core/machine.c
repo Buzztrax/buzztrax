@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.191 2006-03-01 16:47:08 ensonic Exp $
+// $Id: machine.c,v 1.192 2006-03-08 15:30:31 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1909,7 +1909,7 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
           fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" ",GST_TIME_ARGS(tv->timestamp),tv->timestamp);
-	  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(&tv->value));
+          base_type=bt_g_type_get_base_type(G_VALUE_TYPE(&tv->value));
           switch(base_type) {
             case G_TYPE_ENUM: fprintf(file,"%d\n",g_value_get_enum(&tv->value));break;
             case G_TYPE_STRING: fprintf(file,"%s\n",g_value_get_string(&tv->value));break;
@@ -1932,13 +1932,22 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
 
 //-- io interface
 
-static gboolean bt_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  //BtMachine *self = BT_MACHINE(persistence);
-  gboolean res=FALSE;
+static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtMachine *self = BT_MACHINE(persistence);
+  xmlNodePtr node=NULL;
+  xmlNodePtr child_node;
 
-  /* @todo: implement me */
-  
-  return(res);
+  GST_DEBUG("PERSISTENCE::machine");
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("machine"),NULL))) {
+    xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
+      bt_persistence_save_list(self->priv->patterns,doc,child_node);
+    }
+    else goto Error;
+    /* @todo: implement me more (global data) */
+  }
+Error:
+  return(node);
 }
 
 static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {

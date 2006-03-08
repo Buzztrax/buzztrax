@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.84 2006-03-01 16:47:08 ensonic Exp $
+// $Id: setup.c,v 1.85 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -521,17 +521,25 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
 
 //-- io interface
 
-static gboolean bt_setup_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSetup *self = BT_SETUP(persistence);
-  gboolean res=FALSE;
-  xmlNodePtr node;
+  xmlNodePtr node=NULL;
+  xmlNodePtr child_node;
+  
+  GST_DEBUG("PERSISTENCE::setup");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("setup"),NULL))) {
-    bt_persistence_save_list(self->priv->machines,doc,node);
-    bt_persistence_save_list(self->priv->wires,doc,node);
-    res=TRUE;
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("machines"),NULL))) {
+      bt_persistence_save_list(self->priv->machines,doc,child_node);
+    }
+    else goto Error;
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wires"),NULL))) {
+      bt_persistence_save_list(self->priv->wires,doc,child_node);
+    }
+    else goto Error;
   }
-  return(res);
+Error:
+  return(node);
 }
 
 static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {

@@ -1,4 +1,4 @@
-/* $Id: persistence.h,v 1.1 2006-02-24 19:51:49 ensonic Exp $
+/* $Id: persistence.h,v 1.2 2006-03-08 15:30:27 ensonic Exp $
  * interface for object io
  */
  
@@ -22,8 +22,8 @@ typedef struct _BtPersistenceInterface BtPersistenceInterface;
 struct _BtPersistenceInterface {
   GTypeInterface parent;
 
-  gboolean (*save)(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection);
-  gboolean (*load)(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceLocation *location);
+  xmlNodePtr (*save)(BtPersistence *self, xmlDocPtr doc, xmlNodePtr node, BtPersistenceSelection *selection);
+  gboolean (*load)(BtPersistence *self, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location);
 };
 
 GType bt_persistence_get_type(void) G_GNUC_CONST;

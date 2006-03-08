@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.34 2006-03-01 16:47:08 ensonic Exp $
+// $Id: processor-machine.c,v 1.35 2006-03-08 15:30:35 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -59,20 +59,23 @@ Error:
 
 //-- io interface
 
-static gboolean bt_processor_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  //BtProcessorMachine *self = BT_PROCESSOR_MACHINE(persistence);
-  gboolean res=FALSE;
-  xmlNodePtr node;
+static xmlNodePtr bt_processor_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtProcessorMachine *self = BT_PROCESSOR_MACHINE(persistence);
+  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  xmlNodePtr node=NULL;
+  gchar *plugin_name;
 
-  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("processor"),NULL))) {
-    // save parent class stuff
-    bt_persistence_save(BT_PERSISTENCE(parent_class),doc,node,NULL);
-    /* @todo: save own stuff */
-    
-    res=TRUE;
+  GST_DEBUG("PERSISTENCE::processor-machine");
+
+  // save parent class stuff
+  if((node=parent_iface->save(persistence,doc,parent_node,NULL))) {
+    xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("processor"));
+    /* @todo: save more own stuff */
+    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
+    xmlNewProp(node,XML_CHAR_PTR("plugin-name"),XML_CHAR_PTR(plugin_name));
+    g_free(plugin_name);
   }
-  
-  return(res);
+  return(node);
 }
 
 static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
