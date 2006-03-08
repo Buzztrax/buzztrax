@@ -1,5 +1,46 @@
 2006-03-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/machine.c:
+	(bt_machine_dbg_dump_global_controller_queue),
+	(bt_machine_persistence_save):
+	* src/lib/core/pattern.c: (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event), (bt_pattern_get_global_event),
+	(bt_pattern_get_voice_event):
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_save),
+	(bt_sequence_persistence_load),
+	(bt_sequence_persistence_interface_init), (bt_sequence_get_type):
+	* src/lib/core/song.c: (bt_song_persistence_save),
+	(bt_song_persistence_load):
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_save),
+	(bt_wavetable_persistence_load),
+	(bt_wavetable_persistence_interface_init), (bt_wavetable_get_type):
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_event):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/main-menu.c: (on_menu_help_activate):
+	* src/ui/edit/main-window.c: (on_song_unsaved_changed),
+	(bt_main_window_open_song), (bt_main_window_save_song_as):
+	* tests/Makefile.am:
+	* tests/lib/core/Makefile.am:
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+          showing help works when installed system-wide,
+          more serialisation (machine, sequence, wavetable),
+          machine-preferences don't show controlable properties
+
+2006-03-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/machine-methods.h:
 	* src/lib/core/libbtcore/persistence-methods.h:
 	* src/lib/core/libbtcore/persistence.h:

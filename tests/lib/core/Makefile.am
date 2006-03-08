@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.29 2005-09-27 17:59:15 ensonic Exp $
+## $Id: Makefile.am,v 1.30 2006-03-08 21:37:55 ensonic Exp $
 
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
@@ -23,7 +23,7 @@ INCLUDES = \
 	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
-	-DDATADIR=\"$(datadir)/buzztard\" \
+	-DDATADIR=\"$(datadir)\" \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)

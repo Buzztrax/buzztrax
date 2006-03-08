@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.5 2006-03-08 15:30:35 ensonic Exp $
+// $Id: persistence.c,v 1.6 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -66,6 +66,114 @@ gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr no
   }
   return(res);
 }
+
+//-- gvalue helper
+
+/**
+ * bt_persistence_set_value:
+ * @gvalue: a #GValue
+ * @svalue: the string representation of the value to store
+ *
+ * Stores the supplied value into the given @gvalue.
+ *
+ * Return: %TRUE for success
+ */
+gboolean bt_persistence_set_value(GValue *gvalue, const gchar *svalue) {
+  GType base_type;
+  
+  g_return_val_if_fail(G_IS_VALUE(gvalue),FALSE);
+  g_return_val_if_fail(svalue,FALSE);
+
+  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
+  // depending on the type, set the GValue
+  switch(base_type) {
+    case G_TYPE_DOUBLE: {
+      //gdouble val=atof(svalue); // this is dependend on the locale
+      gdouble val=g_ascii_strtod(svalue,NULL);
+      g_value_set_double(gvalue,val);
+    } break;
+    case G_TYPE_BOOLEAN: {
+      gint val=atoi(svalue);
+      g_value_set_boolean(gvalue,val);
+    } break;
+    case G_TYPE_STRING: {
+      g_value_set_string(gvalue,svalue);
+    } break;
+    case G_TYPE_ENUM: {
+      gint val=atoi(svalue);
+      g_value_set_enum(gvalue,val);
+    } break;
+    case G_TYPE_INT: {
+      gint val=atoi(svalue);
+      g_value_set_int(gvalue,val);
+    } break;
+    case G_TYPE_UINT: {
+      guint val=atoi(svalue);
+      g_value_set_uint(gvalue,val);
+    } break;
+    case G_TYPE_LONG: {
+      glong val=atol(svalue);
+      g_value_set_long(gvalue,val);
+    } break;
+    case G_TYPE_ULONG: {
+      gulong val=atol(svalue);
+      g_value_set_ulong(gvalue,val);
+    } break;
+    default:
+      GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue),svalue);
+      return(FALSE);
+  }
+  return(TRUE);
+}
+
+/*
+ * bt_persistence_get_value:
+ * @gvalue: the event cell
+ *
+ * Returns the string representation of the given @gvalue. Free it when done.
+ *
+ * Returns: a newly allocated string with the data or %NULL on error
+ */
+gchar *bt_persistence_get_value(GValue *gvalue) {
+  GType base_type;
+  gchar *res=NULL;
+
+  g_return_val_if_fail(G_IS_VALUE(gvalue),NULL);
+  
+  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
+  // depending on the type, set the result
+  switch(base_type) {
+    case G_TYPE_DOUBLE:
+      res=g_strdup_printf("%lf",g_value_get_double(gvalue));
+      break;
+    case G_TYPE_BOOLEAN:
+      res=g_strdup_printf("%d",g_value_get_boolean(gvalue));
+      break;
+    case G_TYPE_STRING:
+      res=g_value_dup_string(gvalue);
+      break;
+    case G_TYPE_ENUM:
+      res=g_strdup_printf("%d",g_value_get_enum(gvalue));
+      break;
+    case G_TYPE_INT:
+      res=g_strdup_printf("%d",g_value_get_int(gvalue));
+      break;
+    case G_TYPE_UINT:
+      res=g_strdup_printf("%u",g_value_get_uint(gvalue));
+      break;
+    case G_TYPE_LONG:
+      res=g_strdup_printf("%ld",g_value_get_long(gvalue));
+      break;
+    case G_TYPE_ULONG:
+      res=g_strdup_printf("%lu",g_value_get_ulong(gvalue));
+      break;
+    default:
+      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(gvalue),G_VALUE_TYPE_NAME(gvalue));
+      return(NULL);
+  }
+  return(res);
+}
+
 
 //-- wrapper
 

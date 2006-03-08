@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.69 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-window.c,v 1.70 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -85,7 +85,7 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
-  // we don't use PACKAGE_NAME = 'bt-edit' for the window title
+  // we don't use PACKAGE_NAME = 'buzztard' for the window title
   title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):""));g_free(name);
   gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
   //-- release the references
@@ -319,7 +319,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   gchar *file_name=NULL;
     
   // set a default file_name
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -398,7 +398,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
   // set a default file_name
-  file_path=g_strconcat(DATADIR""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S,file_name,NULL);
+  file_path=g_strconcat(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S,file_name,NULL);
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),file_path);
   GST_INFO("generated default path is %s",file_path);
   g_free(file_name);file_name=NULL;

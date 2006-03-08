@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.192 2006-03-08 15:30:31 ensonic Exp $
+// $Id: machine.c,v 1.193 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1896,10 +1896,9 @@ void bt_machine_dbg_print_parts(const BtMachine *self) {
 void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
   gulong i;
   FILE *file;
-  gchar *name;
+  gchar *name,*str;
   GList *list,*node;
   GstTimedValue *tv;
-  GType base_type;
   
   for(i=0;i<self->priv->global_params;i++) {
     name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
@@ -1908,19 +1907,9 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
       if((list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]))) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
-          fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" ",GST_TIME_ARGS(tv->timestamp),tv->timestamp);
-          base_type=bt_g_type_get_base_type(G_VALUE_TYPE(&tv->value));
-          switch(base_type) {
-            case G_TYPE_ENUM: fprintf(file,"%d\n",g_value_get_enum(&tv->value));break;
-            case G_TYPE_STRING: fprintf(file,"%s\n",g_value_get_string(&tv->value));break;
-            case G_TYPE_INT: fprintf(file,"%d\n",g_value_get_int(&tv->value));break;
-            case G_TYPE_UINT: fprintf(file,"%u\n",g_value_get_uint(&tv->value));break;
-            case G_TYPE_LONG: fprintf(file,"%ld\n",g_value_get_long(&tv->value));break;
-            case G_TYPE_ULONG: fprintf(file,"%lu\n",g_value_get_ulong(&tv->value));break;
-            case G_TYPE_FLOAT: fprintf(file,"%f\n",g_value_get_float(&tv->value));break;
-            case G_TYPE_DOUBLE: fprintf(file,"%lf\n",g_value_get_double(&tv->value));break;
-            default: fprintf(file,"0\n");break;
-          }
+          str=g_strdup_value_contents(&tv->value);
+          fprintf(file,"%"GST_TIME_FORMAT" %"G_GUINT64_FORMAT" %s\n",GST_TIME_ARGS(tv->timestamp),tv->timestamp,str);
+          g_free(str);
         }
         g_list_free(list);
       }
@@ -1936,15 +1925,37 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDoc
   BtMachine *self = BT_MACHINE(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
+  gulong i;
+  gchar *str;
+  GValue value={0,};
 
   GST_DEBUG("PERSISTENCE::machine");
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("machine"),NULL))) {
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
+
+    // @todo: this only store controllable parameters, shouldn't we store all?
+    for(i=0;i<self->priv->global_params;i++) {
+      if(bt_machine_is_global_param_trigger(self,i)) continue;
+      // @todo: also store voice-params
+      //if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) params--;
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("globaldata"),NULL))) {
+        //GST_DEBUG("  %s",self->priv->global_names[i]);
+        g_value_init(&value,self->priv->global_types[i]);
+        g_object_get_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[i],&value);
+        str=bt_persistence_get_value(&value);
+        xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->global_names[i]));
+        xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
+        g_free(str);
+        g_value_unset(&value);
+      }
+    }
+    /* @todo: implement me more (voice data) */
+    
+
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
       bt_persistence_save_list(self->priv->patterns,doc,child_node);
     }
     else goto Error;
-    /* @todo: implement me more (global data) */
   }
 Error:
   return(node);

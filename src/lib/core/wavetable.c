@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.14 2006-02-13 22:33:15 ensonic Exp $
+// $Id: wavetable.c,v 1.15 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -119,6 +119,37 @@ BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index) {
     if(wave_index==index) return(g_object_ref(wave));
   }
   return(NULL);
+}
+
+//-- io interface
+
+static xmlNodePtr bt_wavetable_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  //2BtWavetable *self = BT_WAVETABLE(persistence);
+  xmlNodePtr node=NULL;
+  //xmlNodePtr child_node;
+  
+  GST_DEBUG("PERSISTENCE::wavetable");
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wavetable"),NULL))) {
+    // @todo: implement me more
+  }
+  return(node);
+}
+
+static gboolean bt_wavetable_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtWavetable *self = BT_WAVETABLE(persistence);
+  gboolean res=FALSE;
+  
+  // @todo: implement me
+  res=TRUE;
+  return(res);
+}
+
+static void bt_wavetable_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_wavetable_persistence_load;
+  iface->save = bt_wavetable_persistence_save;
 }
 
 //-- wrapper
@@ -258,7 +289,13 @@ GType bt_wavetable_get_type(void) {
       (GInstanceInitFunc)bt_wavetable_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_wavetable_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtWavetable",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.73 2006-03-08 15:30:35 ensonic Exp $
+// $Id: pattern.c,v 1.74 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -266,124 +266,6 @@ static void bt_pattern_init_voice_event(const BtPattern *self, GValue *event, gu
   //GST_DEBUG("at %d",param);
   g_value_init(event,bt_machine_get_voice_param_type(self->priv->machine,param));
   g_assert(G_IS_VALUE(event));
-}
-
-
-/*
- * bt_pattern_set_event:
- * @self: the pattern the cell belongs to
- * @event: the event cell
- * @value: the string representation of the value to store
- *
- * Stores the supplied value into the given pattern cell.
- *
- * Returns: %TRUE for success
- */
-static gboolean bt_pattern_set_event(const BtPattern *self, GValue *event, const gchar *value) {
-  GType base_type;
-  
-  g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
-  g_return_val_if_fail(G_IS_VALUE(event),FALSE);
-  g_return_val_if_fail(value,FALSE);
-
-  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(event));
-  // depending on the type, set the GValue
-  switch(base_type) {
-    case G_TYPE_DOUBLE: {
-      //gdouble val=atof(value); // this is dependend on the locale
-      gdouble val=g_ascii_strtod(value,NULL);
-      g_value_set_double(event,val);
-      GST_DEBUG("store double event %s",value);
-    } break;
-    case G_TYPE_BOOLEAN: {
-      gint val=atoi(value);
-      g_value_set_boolean(event,val);
-      GST_DEBUG("store boolean event %s",value);
-    } break;
-    case G_TYPE_STRING: {
-      g_value_set_string(event,value);
-      GST_DEBUG("store string event %s",value);
-    } break;
-    case G_TYPE_ENUM: {
-      gint val=atoi(value);
-      g_value_set_enum(event,val);
-      GST_DEBUG("store enum event %s",value);
-    } break;
-    case G_TYPE_INT: {
-      gint val=atoi(value);
-      g_value_set_int(event,val);
-      GST_DEBUG("store int event %s",value);
-    } break;
-    case G_TYPE_UINT: {
-      guint val=atoi(value);
-      g_value_set_uint(event,val);
-      GST_DEBUG("store uint event %s",value);
-    } break;
-    case G_TYPE_LONG: {
-      glong val=atol(value);
-      g_value_set_long(event,val);
-      GST_DEBUG("store long event %s",value);
-    } break;
-    case G_TYPE_ULONG: {
-      gulong val=atol(value);
-      g_value_set_ulong(event,val);
-      GST_DEBUG("store ulong event %s",value);
-    } break;
-    default:
-      GST_ERROR("unsupported GType=%d:'%s' for value=\"%s\"",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event),value);
-      return(FALSE);
-  }
-  return(TRUE);
-}
-
-/*
- * bt_pattern_get_event:
- * @self: the pattern the cell belongs to
- * @event: the event cell
- *
- * Returns the string representation of the given cell. Free it when done.
- *
- * Returns: a newly allocated string with the data or %NULL on error
- */
-static gchar *bt_pattern_get_event(const BtPattern *self, GValue *event) {
-  GType base_type;
-  gchar *res=NULL;
-
-  g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
-  g_return_val_if_fail(G_IS_VALUE(event),NULL);
-  
-  base_type=bt_g_type_get_base_type(G_VALUE_TYPE(event));
-  // depending on the type, set the result
-  switch(base_type) {
-    case G_TYPE_DOUBLE:
-      res=g_strdup_printf("%lf",g_value_get_double(event));
-      break;
-    case G_TYPE_BOOLEAN:
-      res=g_strdup_printf("%d",g_value_get_boolean(event));
-      break;
-    case G_TYPE_STRING:
-      res=g_value_dup_string(event);
-      break;
-    case G_TYPE_ENUM:
-      res=g_strdup_printf("%d",g_value_get_enum(event));
-      break;
-    case G_TYPE_INT:
-      res=g_strdup_printf("%d",g_value_get_int(event));
-      break;
-    case G_TYPE_UINT:
-      res=g_strdup_printf("%u",g_value_get_uint(event));
-      break;
-    case G_TYPE_LONG:
-      res=g_strdup_printf("%ld",g_value_get_long(event));
-      break;
-    case G_TYPE_ULONG:
-      res=g_strdup_printf("%lu",g_value_get_ulong(event));
-      break;
-    default:
-      GST_ERROR("unsupported GType=%d:'%s'",G_VALUE_TYPE(event),G_VALUE_TYPE_NAME(event));
-      return(NULL);
-  }
-  return(res);
 }
 
 //-- constructor methods
@@ -657,7 +539,7 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
     if(!G_IS_VALUE(event)) {
       bt_pattern_init_global_event(self,event,param);
     }
-    if(bt_pattern_set_event(self,event,value)) {
+    if(bt_persistence_set_value(event,value)) {
       if(bt_machine_is_global_param_no_value(self->priv->machine,param,event)) {
         g_value_unset(event);
       }
@@ -693,7 +575,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
     if(!G_IS_VALUE(event)) {
       bt_pattern_init_voice_event(self,event,param);
     }
-    if(bt_pattern_set_event(self,event,value)) {
+    if(bt_persistence_set_value(event,value)) {
       if(bt_machine_is_voice_param_no_value(self->priv->machine,param,event)) {
         g_value_unset(event);
       }
@@ -724,7 +606,7 @@ gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong pa
   g_return_val_if_fail(tick<self->priv->length,NULL);
 
   if((event=bt_pattern_get_global_event_data(self,tick,param)) && G_IS_VALUE(event)) {
-    return(bt_pattern_get_event(self,event));
+    return(bt_persistence_get_value(event));
   }
   return(NULL);
 }
@@ -747,7 +629,7 @@ gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voi
   g_return_val_if_fail(tick<self->priv->length,NULL);
 
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param)) && G_IS_VALUE(event)) {
-    return(bt_pattern_get_event(self,event));
+    return(bt_persistence_get_value(event));
   }
   return(NULL);
 }

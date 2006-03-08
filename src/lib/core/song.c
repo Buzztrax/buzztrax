@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.119 2006-03-08 15:30:38 ensonic Exp $
+// $Id: song.c,v 1.120 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -689,8 +689,8 @@ static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr
 
     bt_persistence_save(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
     bt_persistence_save(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
-    //bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
-    //bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
   }
   return(node);
 }
@@ -709,10 +709,10 @@ static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr d
         res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
       }
       else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
-        //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
       }
       else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
-        //res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
       }
     }
   }

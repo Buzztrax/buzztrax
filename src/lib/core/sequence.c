@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.95 2006-02-28 19:03:30 ensonic Exp $
+// $Id: sequence.c,v 1.96 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -916,6 +916,37 @@ gulong bt_sequence_limit_play_pos(const BtSequence *self,gulong play_pos) {
   return(play_pos);
 }
 
+//-- io interface
+
+static xmlNodePtr bt_sequence_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  //BtSequence *self = BT_SEQUENCE(persistence);
+  xmlNodePtr node=NULL;
+  //xmlNodePtr child_node;
+  
+  GST_DEBUG("PERSISTENCE::sequence");
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("sequence"),NULL))) {
+    // @todo: implement me more
+  }
+  return(node);
+}
+
+static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtSequence *self = BT_SEQUENCE(persistence);
+  gboolean res=FALSE;
+  
+  // @todo: implement me
+  res=TRUE;
+  return(res);
+}
+
+static void bt_sequence_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_sequence_persistence_load;
+  iface->save = bt_sequence_persistence_save;
+}
+
 //-- wrapper
 
 //-- default signal handler
@@ -1161,7 +1192,13 @@ GType bt_sequence_get_type(void) {
       (GInstanceInitFunc)bt_sequence_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_sequence_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtSequence",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

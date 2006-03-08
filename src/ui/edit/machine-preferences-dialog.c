@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.19 2006-02-13 22:33:16 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.20 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -131,7 +131,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   GdkPixbuf *window_icon=NULL;
   GstElement *machine;
   GParamSpec **properties,*property;
-  guint i,number_of_properties;
+  guint i,k,props,number_of_properties;
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
@@ -155,122 +155,138 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
     GType param_type;
     
     GST_INFO("machine has %d properties",number_of_properties);
-    // machine preferences inside a scrolled window
-    scrolled_window=gtk_scrolled_window_new(NULL,NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
-    // add machine preferences into the table
-    table=gtk_table_new(/*rows=*/number_of_properties+1,/*columns=*/3,/*homogenous=*/FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(table),6);
+    
+    props=number_of_properties;
     for(i=0;i<number_of_properties;i++) {
       property=properties[i];
-      GST_INFO("property %p has name '%s'",property,property->name);
-      // get name
-      label=gtk_label_new(property->name);
-      gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-      gtk_table_attach(GTK_TABLE(table),label, 0, 1, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
-      param_type=G_PARAM_SPEC_TYPE(property);
-      // @todo choose proper widgets
-      if(param_type==G_TYPE_PARAM_STRING) {
-        //GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
-        gchar *value;
+      if(property->flags&GST_PARAM_CONTROLLABLE) props--;
         
-        g_object_get(machine,property->name,&value,NULL);
-        widget1=gtk_entry_new();
-        gtk_entry_set_text(GTK_ENTRY(widget1),safe_string(value));g_free(value);
-        widget2=NULL;
-      }
-      else if(param_type==G_TYPE_PARAM_BOOLEAN) {
-        gboolean value;
-        
-        g_object_get(machine,property->name,&value,NULL);
-        widget1=gtk_check_button_new();
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget1),value);
-        widget2=NULL;
-      }
-      else if(param_type==G_TYPE_PARAM_INT) {
-        GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-        gint value;
-        gdouble step;
-        //gchar *str_value;
-        
-        g_object_get(machine,property->name,&value,NULL);
-        //str_value=g_strdup_printf("%d",value);
-        step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
-        GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
-        spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
-        widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-        gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-        gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-        widget2=NULL;
-        //g_free(str_value);
-        // @todo connect handlers
-        g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-      }
-      else if(param_type==G_TYPE_PARAM_DOUBLE) {
-        GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-        gdouble step,value;
-        gchar *str_value;
-
-        g_object_get(machine,property->name,&value,NULL);
-        // get max(max,-min), count digits -> to determine needed length of field
-        str_value=g_strdup_printf("%7.2f",value);
-        step=(double_property->maximum-double_property->minimum)/1024.0;
-        widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
-        gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-        gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
-        gtk_range_set_value(GTK_RANGE(widget1),value);
-        widget2=gtk_entry_new();
-        gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
-        gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
-        g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
-        g_free(str_value);
-        signal_name=g_strdup_printf("notify::%s",property->name);
-        g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget1);
-        g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_entry_property_notify, (gpointer)widget2);
-        g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
-        g_signal_connect(G_OBJECT(widget2), "changed", (GCallback)on_double_entry_property_changed, (gpointer)machine);
-        g_free(signal_name);
-      }
-      else if(param_type==G_TYPE_PARAM_ENUM) {
-        GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-        GEnumClass *enum_class=enum_property->enum_class;
-        GEnumValue *enum_value;
-        gint value;
-        
-        widget1=gtk_combo_box_new_text();        
-        for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
-          enum_value=g_enum_get_value(enum_class, value);
-          gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
-        }
-        g_object_get(machine,property->name,&value,NULL);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
-        signal_name=g_strdup_printf("notify::%s",property->name);
-        g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_combobox_property_notify, (gpointer)widget1);
-        g_signal_connect(G_OBJECT(widget1), "changed", (GCallback)on_combobox_property_changed, (gpointer)machine);
-        g_free(signal_name);
-        widget2=NULL;
-      }
-      else {
-        gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-        widget1=gtk_label_new(str);g_free(str);
-        widget2=NULL;
-      }
-      gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
-      if(!widget2) {
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-      }
-      else {
-        gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
-        gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, i, i+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-        gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, i, i+1, GTK_FILL,GTK_SHRINK, 2,1);
-      }
     }
-    // eat remaning space
-    gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, i, i+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+    if(props) {
+      // machine preferences inside a scrolled window
+      scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+      gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
+      // add machine preferences into the table
+      table=gtk_table_new(/*rows=*/props+1,/*columns=*/3,/*homogenous=*/FALSE);
+      gtk_container_set_border_width(GTK_CONTAINER(table),6);
+      for(i=0,k=0;i<number_of_properties;i++) {
+        property=properties[i];
+        if(property->flags&GST_PARAM_CONTROLLABLE) continue;
+        GST_INFO("property %p has name '%s'",property,property->name);
+        // get name
+        label=gtk_label_new(property->name);
+        gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+        gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+        param_type=G_PARAM_SPEC_TYPE(property);
+  
+        if(param_type==G_TYPE_PARAM_STRING) {
+          //GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
+          gchar *value;
+          
+          g_object_get(machine,property->name,&value,NULL);
+          widget1=gtk_entry_new();
+          gtk_entry_set_text(GTK_ENTRY(widget1),safe_string(value));g_free(value);
+          widget2=NULL;
+        }
+        else if(param_type==G_TYPE_PARAM_BOOLEAN) {
+          gboolean value;
+          
+          g_object_get(machine,property->name,&value,NULL);
+          widget1=gtk_check_button_new();
+          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget1),value);
+          widget2=NULL;
+        }
+        else if(param_type==G_TYPE_PARAM_INT) {
+          GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+          gint value;
+          gdouble step;
+          //gchar *str_value;
+          
+          g_object_get(machine,property->name,&value,NULL);
+          //str_value=g_strdup_printf("%d",value);
+          step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
+          GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
+          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
+          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+          widget2=NULL;
+          //g_free(str_value);
+          // @todo connect handlers
+          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+        }
+        else if(param_type==G_TYPE_PARAM_DOUBLE) {
+          GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+          gdouble step,value;
+          gchar *str_value;
+  
+          g_object_get(machine,property->name,&value,NULL);
+          // get max(max,-min), count digits -> to determine needed length of field
+          str_value=g_strdup_printf("%7.2f",value);
+          step=(double_property->maximum-double_property->minimum)/1024.0;
+          widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+          gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
+          gtk_range_set_value(GTK_RANGE(widget1),value);
+          widget2=gtk_entry_new();
+          gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
+          gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
+          g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
+          g_free(str_value);
+          signal_name=g_strdup_printf("notify::%s",property->name);
+          g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget1);
+          g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_entry_property_notify, (gpointer)widget2);
+          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
+          g_signal_connect(G_OBJECT(widget2), "changed", (GCallback)on_double_entry_property_changed, (gpointer)machine);
+          g_free(signal_name);
+        }
+        else if(param_type==G_TYPE_PARAM_ENUM) {
+          GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+          GEnumClass *enum_class=enum_property->enum_class;
+          GEnumValue *enum_value;
+          gint value;
+          
+          widget1=gtk_combo_box_new_text();        
+          for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
+            enum_value=g_enum_get_value(enum_class, value);
+            gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+          }
+          g_object_get(machine,property->name,&value,NULL);
+          gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
+          signal_name=g_strdup_printf("notify::%s",property->name);
+          g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_combobox_property_notify, (gpointer)widget1);
+          g_signal_connect(G_OBJECT(widget1), "changed", (GCallback)on_combobox_property_changed, (gpointer)machine);
+          g_free(signal_name);
+          widget2=NULL;
+        }
+        else {
+          // @todo choose proper widgets
+          gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+          widget1=gtk_label_new(str);g_free(str);
+          widget2=NULL;
+        }
+        gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+        if(!widget2) {
+          gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        }
+        else {
+          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+          gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+        }
+        k++;
+      }
+      // eat remaning space
+      gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
+      gtk_container_add(GTK_CONTAINER(self),scrolled_window);
+    }
+    else {
+      label=gtk_label_new(_("no settings"));
+      gtk_container_add(GTK_CONTAINER(self),label);
+    }
     g_free(properties);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),table);
-    gtk_container_add(GTK_CONTAINER(self),scrolled_window);
   }
   else {
     gtk_container_add(GTK_CONTAINER(self),gtk_label_new(_("machine has no preferences")));

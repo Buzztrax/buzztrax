@@ -1,4 +1,4 @@
-/* $Id: persistence-methods.h,v 1.4 2006-03-08 15:30:27 ensonic Exp $
+/* $Id: persistence-methods.h,v 1.5 2006-03-08 21:37:54 ensonic Exp $
  * defines all public methods of the io interface
  */
 
@@ -19,6 +19,10 @@ extern const gchar *bt_persistence_strfmt_ulong(gulong val);
 
 // list helper
 extern gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr node);
+
+// gvalue helper
+extern gboolean bt_persistence_set_value(GValue *gvalue, const gchar *svalue);
+extern gchar *bt_persistence_get_value(GValue *gvalue);
 
 // wrapper
 extern xmlNodePtr bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection);

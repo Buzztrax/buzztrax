@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.31 2006-03-08 14:58:28 ensonic Exp $
+/* $Id: bt-edit.h,v 1.32 2006-03-08 21:37:54 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -16,6 +16,7 @@
 #include <libgnomecanvas/libgnomecanvas.h>
 //-- libgnome
 #ifdef USE_GNOME
+#include <libgnome/gnome-init.h>
 #include <libgnome/gnome-help.h>
 #endif
 

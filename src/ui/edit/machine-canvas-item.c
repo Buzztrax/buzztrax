@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.61 2006-03-08 14:58:29 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.62 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -882,7 +882,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
         self->priv->switching=FALSE;
         // still over mode switch
         if(bt_machine_canvas_item_is_over_state_switch(self,event)) {
-          gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
+          gulong modifier=(gulong)event->button.state&gtk_accelerator_get_default_mod_mask();
           //gulong modifier=(gulong)event->button.state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
           GST_DEBUG("  mode quad state switch, key_modifier is: 0x%x + mask: 0x%x -> 0x%x",event->button.state,(GDK_CONTROL_MASK|GDK_MOD4_MASK),modifier);
           switch(modifier) {

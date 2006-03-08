@@ -37,9 +37,11 @@ libbtedit_la_SOURCES   = \
 	
 INCLUDES = \
 	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
+  -DPREFIX=\"$(prefix)\" \
+  -DSYSCONFDIR=\"$(sysconfdir)\" \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
-	-DDATADIR=\"$(datadir)/buzztard\" \
+	-DDATADIR=\"$(datadir)\" \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(GUI_DEPS_CFLAGS) \

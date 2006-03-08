@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.33 2006-02-24 19:51:49 ensonic Exp $
+## $Id: Makefile.am,v 1.34 2006-03-08 21:37:54 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -49,7 +49,7 @@ INCLUDES = \
 	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
-	-DDATADIR=\"$(datadir)/buzztard\" \
+	-DDATADIR=\"$(datadir)\" \
 	-DG_LOG_DOMAIN=\"buzztard\" \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)

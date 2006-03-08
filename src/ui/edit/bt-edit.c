@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.29 2006-02-15 11:27:39 ensonic Exp $
+// $Id: bt-edit.c,v 1.30 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -35,6 +35,9 @@ int main(int argc, char **argv) {
   gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
   BtEditApplication *app;
+#ifdef USE_GNOME
+  GnomeProgram *gnome_app;
+#endif
   GOptionContext *ctx;
   GError *err=NULL;
   
@@ -46,7 +49,7 @@ int main(int argc, char **argv) {
   };
   
   // in case we ever want to use a custom theme for buzztard:
-  // gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S"buzztard"G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
+  // gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
   
   /*
   if(!g_thread_supported()) {  // are g_threads() already initialized
@@ -65,15 +68,19 @@ int main(int argc, char **argv) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     exit(1);
   }
-
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
-  
-  add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
-
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
     exit(0);
   }
+
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
+  
+  add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+
+#ifdef USE_GNOME
+  gnome_app=gnome_program_init("bt-edit", VERSION, LIBGNOME_MODULE, argc, argv, 
+    GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
+#endif
 
   //gdk_threads_enter();
   app=bt_edit_application_new();

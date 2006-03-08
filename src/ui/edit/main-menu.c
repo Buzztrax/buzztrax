@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.51 2006-03-08 14:58:29 ensonic Exp $
+// $Id: main-menu.c,v 1.52 2006-03-08 21:37:54 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -346,7 +346,7 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   GST_INFO("menu help event occurred");
 #ifdef USE_GNOME
-  if(!gnome_help_display(PACKAGE, NULL, &error)) {
+  if(!gnome_help_display("bt-edit.xml", NULL, &error)) {
     GST_WARNING("Failed to display help: %s\n",error->message);
     g_error_free(error);
   }
