@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.33 2006-03-08 15:30:40 ensonic Exp $
+// $Id: source-machine.c,v 1.34 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -68,7 +68,7 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
   GST_DEBUG("PERSISTENCE::source-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,doc,parent_node,NULL))) {
+  if((node=parent_iface->save(persistence,doc,parent_node,selection))) {
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
     /* @todo: save more own stuff */
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
@@ -79,12 +79,16 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
 }
 
 static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
-  gboolean res=FALSE;
+  BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
+  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  xmlChar *plugin_name;
 
-  /* @todo: implement me */
+  plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
+  g_object_set(G_OBJECT(self),"plugin-name",plugin_name,NULL);
+  xmlFree(plugin_name);
   
-  return(res);
+  // load parent class stuff
+  return(parent_iface->load(persistence,doc,node,location));
 }
 
 static void bt_source_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

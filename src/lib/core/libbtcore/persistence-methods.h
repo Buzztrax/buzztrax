@@ -1,4 +1,4 @@
-/* $Id: persistence-methods.h,v 1.6 2006-03-09 17:30:47 ensonic Exp $
+/* $Id: persistence-methods.h,v 1.7 2006-03-09 21:50:23 ensonic Exp $
  * defines all public methods of the io interface
  */
 
@@ -14,6 +14,7 @@
  
 
 // string formatting helper
+extern const gchar *bt_persistence_strfmt_uchar(guchar val);
 extern const gchar *bt_persistence_strfmt_long(glong val);
 extern const gchar *bt_persistence_strfmt_ulong(gulong val);
 

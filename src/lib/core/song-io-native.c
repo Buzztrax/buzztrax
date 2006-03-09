@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.102 2006-03-08 15:30:35 ensonic Exp $
+// $Id: song-io-native.c,v 1.103 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -1124,6 +1124,7 @@ static gboolean bt_song_io_native_save_sequence_tracks(const BtSongIONative *sel
         xml_child_node=xmlNewChild(xml_node,NULL,XML_CHAR_PTR("position"),NULL);
         xmlNewProp(xml_child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(strfmt_ulong(i)));
         xmlNewProp(xml_child_node,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(pattern_id));g_free(pattern_id);
+        g_object_unref(pattern);
       }
     }
   }

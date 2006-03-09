@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.73 2006-03-08 15:30:40 ensonic Exp $
+// $Id: wire.c,v 1.74 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -346,8 +346,7 @@ Error:
  * Returns: the new instance or %NULL in case of an error
  */
 BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
-  BtWire *self=NULL,*wire=NULL;
-  BtSetup *setup;
+  BtWire *self=NULL;
   
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(src_machine),NULL);
@@ -355,9 +354,7 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   g_return_val_if_fail(BT_IS_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(src_machine!=dst_machine,NULL);
-
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-    
+ 
   GST_INFO("create wire between %p and %p",src_machine,dst_machine);
 
   if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
@@ -366,14 +363,17 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
   if(!bt_wire_connect(self)) {
     goto Error;
   }
-  // add the wire to the setup of the song
-  bt_setup_add_wire(setup,self);
-
-  g_object_unref(setup);
+  {
+    BtSetup *setup;
+    
+    // add the wire to the setup of the song
+    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    g_assert(setup!=NULL);
+    bt_setup_add_wire(setup,self);
+    g_object_unref(setup);
+  }
   return(self);
 Error:
-  g_object_try_unref(wire);
-  g_object_unref(setup);
   g_object_try_unref(self);
   return(NULL);
 }
@@ -419,7 +419,7 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr
   gchar *id;
   xmlNodePtr node=NULL;
 
-  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
     g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
     g_free(id);
@@ -434,7 +434,6 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr
 static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   BtWire *self = BT_WIRE(persistence);
   BtSetup *setup;
-  gboolean res=FALSE;
   xmlChar *id;
   
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
@@ -447,11 +446,7 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr d
   self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
   xmlFree(id);
 
-  if(bt_wire_connect(self)) {
-    res=TRUE;
-  }
- 
-  return(res);
+  return(bt_wire_connect(self));
 }
 
 static void bt_wire_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

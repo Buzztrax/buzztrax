@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.86 2006-03-09 17:30:47 ensonic Exp $
+// $Id: setup.c,v 1.87 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -551,22 +551,55 @@ Error:
 static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   //BtSetup *self = BT_SETUP(persistence);
   gboolean res=FALSE;
+  xmlNodePtr child_node;
   
-  // @todo: load machines and wires
+  // @todo: fully load machines and wires
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       if(!strncmp((gchar *)node->name,"machines\0",8)) {
+        //BtMachine *machine;
+        xmlChar *type_str;
+        GType type=0;
+        
         //bt_song_io_native_load_setup_machines(self,song,node->children);
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if(!xmlNodeIsText(child_node)) {
+            if(!strncmp((gchar *)child_node->name,"machine\0",7)) {
+              type_str=xmlGetProp(child_node,XML_CHAR_PTR("type"));
+              if(!strncmp((gchar *)type,"processor\0",10)) {
+                type=BT_TYPE_PROCESSOR_MACHINE;
+              }
+              else if(!strncmp((gchar *)type,"sink\0",5)) {
+                type=BT_TYPE_SINK_MACHINE;
+              }
+              else if(!strncmp((gchar *)type,"source\0",7)) {
+                type=BT_TYPE_SOURCE_MACHINE;
+              }
+              if(type) {
+                /*
+                machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));
+                bt_persistence_load(BT_PERSISTENCE(machine),doc,child_node,NULL);
+                bt_setup_add_machine(self,machine);
+                */
+              }
+              xmlFree(type_str);
+            }
+          }
+        }
       }
       else if(!strncmp((gchar *)node->name,"wires\0",6)) {
         //bt_song_io_native_load_setup_wires(self,song,node->children);
-        /*
-        foreach(child_node) {
-          wire=g_object_new(BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL)));
-          bt_persistence_load(BT_PERSISTENCE(wire),doc,child_node,NULL);
-          bt_setup_add_wire(self,wire);
+        //BtWire *wire;
+        
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if(!xmlNodeIsText(child_node)) {
+            /*
+            wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
+            bt_persistence_load(BT_PERSISTENCE(wire),doc,child_node,NULL);
+            bt_setup_add_wire(self,wire);
+            */
+          }
         }
-        */
       }
     }
   }

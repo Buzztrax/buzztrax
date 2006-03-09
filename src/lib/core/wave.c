@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.13 2006-02-13 22:33:15 ensonic Exp $
+// $Id: wave.c,v 1.14 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -111,6 +111,40 @@ gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel)
     GST_WARNING("trying to add wavelevel again"); 
   }
   return ret;
+}
+
+//-- io interface
+
+static xmlNodePtr bt_wave_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtWave *self = BT_WAVE(persistence);
+  xmlNodePtr node=NULL;
+  
+  GST_DEBUG("PERSISTENCE::wave");
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wave"),NULL))) {
+    xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
+    xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
+    xmlNewProp(node,XML_CHAR_PTR("url"),XML_CHAR_PTR(self->priv->file_name));
+    
+    // @todo save wavelevels
+  }
+  return(node);
+}
+
+static gboolean bt_wave_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtWave *self = BT_WAVE(persistence);
+  gboolean res=FALSE;
+  
+  // @todo: implement me
+  res=TRUE;
+  return(res);
+}
+
+static void bt_wave_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_wave_persistence_load;
+  iface->save = bt_wave_persistence_save;
 }
 
 //-- wrapper
@@ -298,7 +332,13 @@ GType bt_wave_get_type(void) {
       (GInstanceInitFunc)bt_wave_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_wave_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtWave",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

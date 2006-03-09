@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.7 2006-03-09 17:30:47 ensonic Exp $
+// $Id: persistence.c,v 1.8 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -14,6 +14,21 @@
 #include <libbtcore/core.h>
 
 //-- string formatting helper
+
+/**
+ * bt_persistence_strfmt_ulong:
+ * @val: a value
+ *
+ * Convinience methods, that formats a value to be serialized as a string.
+ *
+ * Return: a reference to static memory containg the formatted value.
+ */
+const gchar *bt_persistence_strfmt_uchar(guchar val) {
+  static gchar str[20];
+
+  g_sprintf(str,"%u",val);
+  return(str);
+}
 
 /**
  * bt_persistence_strfmt_long:

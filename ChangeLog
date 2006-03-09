@@ -1,5 +1,42 @@
 2006-03-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/machine.c: (bt_machine_on_bpm_changed),
+	(bt_machine_on_tpb_changed), (bt_machine_init_core_machine),
+	(bt_machine_init_interfaces), (bt_machine_init_global_params),
+	(bt_machine_init_voice_params), (bt_machine_setup),
+	(bt_machine_new), (bt_machine_persistence_load):
+	* src/lib/core/persistence.c: (bt_persistence_strfmt_uchar):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_persistence_save),
+	(bt_processor_machine_persistence_load):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_save),
+	(bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_new),
+	(bt_sink_machine_persistence_save),
+	(bt_sink_machine_persistence_load):
+	* src/lib/core/song-io-native.c:
+	(bt_song_io_native_save_sequence_tracks):
+	* src/lib/core/source-machine.c:
+	(bt_source_machine_persistence_save),
+	(bt_source_machine_persistence_load):
+	* src/lib/core/wave.c: (bt_wave_persistence_save),
+	(bt_wave_persistence_load), (bt_wave_persistence_interface_init),
+	(bt_wave_get_type):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_persistence_save),
+	(bt_wavelevel_persistence_load),
+	(bt_wavelevel_persistence_interface_init), (bt_wavelevel_get_type):
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_save):
+	* src/lib/core/wire.c: (bt_wire_new), (bt_wire_persistence_save),
+	(bt_wire_persistence_load):
+          serialize wavetable data,
+          cleanup of machine construction,
+          deserialisation of machines and wires
+
+2006-03-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/bztloader/bztloader.c: (main):
 	  fix a typo
 	* docs/reference/bt-core/bt-core-sections.txt:

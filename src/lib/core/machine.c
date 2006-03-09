@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.194 2006-03-09 17:30:47 ensonic Exp $
+// $Id: machine.c,v 1.195 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -177,6 +177,24 @@ GType bt_machine_state_get_type(void) {
   return type;
 }
 
+//-- signal handler
+
+void bt_machine_on_bpm_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer user_data) {
+  BtMachine *self=BT_MACHINE(user_data);
+  gulong bpm;
+  
+  g_object_get(song_info,"bpm",&bpm,NULL);
+  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,-1);
+}
+
+void bt_machine_on_tpb_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer user_data) {
+  BtMachine *self=BT_MACHINE(user_data);
+  gulong tpb;
+  
+  g_object_get(song_info,"tpb",&tpb,NULL);
+  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,-1);
+}
+
 //-- helper methods
 
 /*
@@ -203,7 +221,15 @@ static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
   return(peer);
 }
 
-
+/*
+ * bt_machine_toggle_mute:
+ * @self: the element to toggle the mute state
+ * @setup: the setup of the song
+ *
+ * Toggles the mute state of a machine, by swapping it with a silence generator.
+ *
+ * Returns: %TRUE for success
+ */
 static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
   gboolean res=FALSE;
   GstElement *machine,*peer_elem;
@@ -628,58 +654,27 @@ static gboolean bt_machine_get_property_meta_value(GValue *value,GParamSpec *pro
   return(res);
 }
 
-//-- signal handler
+//-- init helpers
 
-void bt_machine_on_bpm_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer user_data) {
-  BtMachine *self=BT_MACHINE(user_data);
-  gulong bpm;
-  
-  g_object_get(song_info,"bpm",&bpm,NULL);
-  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,-1);
-}
-
-void bt_machine_on_tpb_changed(BtSongInfo *song_info, GParamSpec *arg, gpointer user_data) {
-  BtMachine *self=BT_MACHINE(user_data);
-  gulong tpb;
-  
-  g_object_get(song_info,"tpb",&tpb,NULL);
-  gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,-1);
-}
-
-//-- constructor methods
-
-/**
- * bt_machine_new:
- * @self: instance to finish construction of
- *
- * This is the common part of machine construction. It needs to be called from
- * within the sub-classes constructor methods.
- *
- * Returns: %TRUE for succes, %FALSE otherwise
- */
-gboolean bt_machine_new(BtMachine *self) {
-  BtSetup *setup;
-  GParamSpec **properties;
-  guint number_of_properties;
-
-  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
-  g_return_val_if_fail(!self->priv->machines[PART_MACHINE],FALSE);
-  g_return_val_if_fail(BT_IS_STRING(self->priv->id),FALSE);
-  g_return_val_if_fail(BT_IS_STRING(self->priv->plugin_name),FALSE);
-  g_return_val_if_fail(BT_IS_SONG(self->priv->song),FALSE);
-
-  GST_INFO("initializing machine");
-  // name the machine and try to instantiate it
-  {
-    gchar *name=bt_machine_make_name(self);
+static gboolean bt_machine_init_core_machine(BtMachine *self) {
+  gboolean res=FALSE;
+  gchar *name=bt_machine_make_name(self);
     
-    self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name);
-    g_free(name);
-  }
-  if(!self->priv->machines[PART_MACHINE]) {
+  if(!(self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name))) {
     GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
-    return(FALSE);
+    goto Error;
   }
+  // there is no adder or spreader in use by default
+  self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
+  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
+
+  res=TRUE;
+Error:
+  g_free(name);
+  return(res);
+}
+
+static void bt_machine_init_interfaces(BtMachine *self) {
   // initialize child-proxy iface properties
   if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
@@ -700,39 +695,13 @@ gboolean bt_machine_new(BtMachine *self) {
     g_object_unref(song_info);
     GST_INFO("  tempo iface initialized");
   }
-  GST_INFO("machine element instantiated and interfaces initialized");
-  // we need to make sure the machine is from the right class
-  {
-    GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
-    const gchar *element_class=gst_element_factory_get_klass(element_factory);
-    GST_INFO("checking machine class \"%s\"",element_class);
-    /* @todo this breaks for sink-bin, it's not useful for this anyway
-    if(BT_IS_SINK_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Sink/",5) && g_ascii_strncasecmp(element_class,"Sink\0",5)) {
-        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Sink/...\"",self->priv->plugin_name,element_class);
-        return(FALSE);
-      }
-    }
-    else
-    */
-    if(BT_IS_SOURCE_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Source/",7) && g_ascii_strncasecmp(element_class,"Source\0",7)) {
-        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Source/...\"",self->priv->plugin_name,element_class);
-        return(FALSE);
-      }
-    }
-    else if(BT_IS_PROCESSOR_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Filter/",7) && g_ascii_strncasecmp(element_class,"Filter\0",7)) {
-        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Filter/...\"",self->priv->plugin_name,element_class);
-        return(FALSE);
-      }
-    }
-  }
-  // there is no adder or spreader in use by default
-  self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
-  GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
-  
-  // register global params
+  GST_INFO("machine element instantiated and interfaces initialized");  
+}
+
+static void bt_machine_init_global_params(BtMachine *self) {
+  GParamSpec **properties;
+  guint number_of_properties;
+
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),&number_of_properties))) {
     GParamSpec *property;
     guint i,j;
@@ -804,7 +773,13 @@ gboolean bt_machine_new(BtMachine *self) {
     }
     g_free(properties);
     g_free(child_properties);
-  }
+  }  
+}
+
+static void bt_machine_init_voice_params(BtMachine *self) {
+  GParamSpec **properties;
+  guint number_of_properties;
+
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
@@ -855,9 +830,54 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_INFO("  instance is monophonic!");
     self->priv->voices=0;
   }
+}
 
+static gboolean bt_machine_setup(BtMachine *self) {
+  // name the machine and try to instantiate it
+  if(!bt_machine_init_core_machine(self)) return(FALSE);
+
+  // initialize iface properties
+  bt_machine_init_interfaces(self);
+  // we need to make sure the machine is from the right class
+  // @todo: better test pad counts 
+  /*
+  {
+    GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
+    const gchar *element_class=gst_element_factory_get_klass(element_factory);
+    GST_INFO("checking machine class \"%s\"",element_class);
+    // @todo this breaks for sink-bin, it's not useful for this anyway
+    //if(BT_IS_SINK_MACHINE(self)) {
+    //  if(g_ascii_strncasecmp(element_class,"Sink/",5) && g_ascii_strncasecmp(element_class,"Sink\0",5)) {
+    //    GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Sink/...\"",self->priv->plugin_name,element_class);
+    //    return(FALSE);
+    //  }
+    //}
+    //else
+    if(BT_IS_SOURCE_MACHINE(self)) {
+      if(g_ascii_strncasecmp(element_class,"Source/",7) && g_ascii_strncasecmp(element_class,"Source\0",7)) {
+        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Source/...\"",self->priv->plugin_name,element_class);
+        return(FALSE);
+      }
+    }
+    else if(BT_IS_PROCESSOR_MACHINE(self)) {
+      if(g_ascii_strncasecmp(element_class,"Filter/",7) && g_ascii_strncasecmp(element_class,"Filter\0",7)) {
+        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Filter/...\"",self->priv->plugin_name,element_class);
+        return(FALSE);
+      }
+    }
+  }
+  */
+  
+  // register global params
+  bt_machine_init_global_params(self);
+  // register voice params
+  bt_machine_init_voice_params(self);
+
+  // add to the songs bin
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
   gst_bin_add(self->priv->bin,self->priv->machines[PART_MACHINE]);
+  
+  // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_count=%d  bin->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count,G_OBJECT(self->priv->bin)->ref_count);
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
@@ -866,10 +886,6 @@ gboolean bt_machine_new(BtMachine *self) {
     GST_WARNING("  machine %s has no params",self->priv->id);
   }
 
-  if(BT_IS_SINK_MACHINE(self)) {
-    GST_DEBUG("  %s this will be the master for the song",self->priv->id);
-    g_object_set(G_OBJECT(self->priv->song),"master",G_OBJECT(self),NULL);
-  }
   // prepare internal patterns for the machine
   bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
   bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
@@ -891,15 +907,42 @@ gboolean bt_machine_new(BtMachine *self) {
     }
     gst_element_set_locked_state(self->priv->silence,TRUE);
   }
-  
-  // add the machine to the setup of the song
-  // @todo the method should get the setup as an parameter (faster when bulk adding) (store it in the class?)
-  g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
-  g_assert(setup!=NULL);
-  bt_setup_add_machine(setup,self);
-  g_object_unref(setup);
-
   return(TRUE);
+}
+
+//-- constructor methods
+
+/**
+ * bt_machine_new:
+ * @self: instance to finish construction of
+ *
+ * This is the common part of machine construction. It needs to be called from
+ * within the sub-classes constructor methods.
+ *
+ * Returns: %TRUE for succes, %FALSE otherwise
+ */
+gboolean bt_machine_new(BtMachine *self) {
+  gboolean res=FALSE;
+  
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(!self->priv->machines[PART_MACHINE],FALSE);
+  g_return_val_if_fail(BT_IS_STRING(self->priv->id),FALSE);
+  g_return_val_if_fail(BT_IS_STRING(self->priv->plugin_name),FALSE);
+  g_return_val_if_fail(BT_IS_SONG(self->priv->song),FALSE);
+
+  GST_INFO("initializing machine");
+
+  if(bt_machine_setup(self)) {
+    BtSetup *setup;
+
+    // add the machine to the setup of the song
+    g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+    g_assert(setup!=NULL);
+    bt_setup_add_machine(setup,self);
+    g_object_unref(setup);
+    res=TRUE;
+  }
+  return(res);
 }
 
 //-- methods
@@ -1982,12 +2025,16 @@ Error:
 }
 
 static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtMachine *self = BT_MACHINE(persistence);
-  gboolean res=FALSE;
+  BtMachine *self = BT_MACHINE(persistence);
+  xmlChar *id;
 
-  /* @todo: implement me */
+  id=xmlGetProp(node,XML_CHAR_PTR("id"));
+  g_object_set(G_OBJECT(self),"id",id,NULL);
+  xmlFree(id);
   
-  return(res);
+  /* @todo: implement me more */
+
+  return(bt_machine_setup(self));
 }
 
 static void bt_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

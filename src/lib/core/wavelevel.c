@@ -1,4 +1,4 @@
-// $Id: wavelevel.c,v 1.10 2006-02-13 22:33:15 ensonic Exp $
+// $Id: wavelevel.c,v 1.11 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
@@ -88,6 +88,41 @@ Error:
 //-- private methods
 
 //-- public methods
+
+
+//-- io interface
+
+static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+  BtWavelevel *self = BT_WAVELEVEL(persistence);
+  xmlNodePtr node=NULL;
+  
+  GST_DEBUG("PERSISTENCE::wavelevel");
+
+  if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wavelevel"),NULL))) {
+    xmlNewProp(node,XML_CHAR_PTR("root-note"),XML_CHAR_PTR(bt_persistence_strfmt_uchar(self->priv->root_note)));
+    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
+    xmlNewProp(node,XML_CHAR_PTR("rate"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->rate)));
+    xmlNewProp(node,XML_CHAR_PTR("loop-start"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_start)));
+    xmlNewProp(node,XML_CHAR_PTR("loop-end"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_end)));
+  }
+  return(node);
+}
+
+static gboolean bt_wavelevel_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+  //BtWavelevel *self = BT_WAVELEVEL(persistence);
+  gboolean res=FALSE;
+  
+  // @todo: implement me
+  res=TRUE;
+  return(res);
+}
+
+static void bt_wavelevel_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
+  BtPersistenceInterface *iface = g_iface;
+  
+  iface->load = bt_wavelevel_persistence_load;
+  iface->save = bt_wavelevel_persistence_save;
+}
 
 //-- wrapper
 
@@ -280,7 +315,13 @@ GType bt_wavelevel_get_type(void) {
       (GInstanceInitFunc)bt_wavelevel_init, // instance_init
       NULL // value_table
     };
+    static const GInterfaceInfo persistence_interface_info = {
+      (GInterfaceInitFunc) bt_wavelevel_persistence_interface_init,  // interface_init
+      NULL, // interface_finalize
+      NULL  // interface_data
+    };
     type = g_type_register_static(G_TYPE_OBJECT,"BtWavelevel",&info,0);
+    g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
   return type;
 }

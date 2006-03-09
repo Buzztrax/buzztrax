@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.15 2006-03-08 21:37:54 ensonic Exp $
+// $Id: wavetable.c,v 1.16 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -124,14 +124,13 @@ BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index) {
 //-- io interface
 
 static xmlNodePtr bt_wavetable_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  //2BtWavetable *self = BT_WAVETABLE(persistence);
+  BtWavetable *self = BT_WAVETABLE(persistence);
   xmlNodePtr node=NULL;
-  //xmlNodePtr child_node;
   
   GST_DEBUG("PERSISTENCE::wavetable");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wavetable"),NULL))) {
-    // @todo: implement me more
+    bt_persistence_save_list(self->priv->waves,doc,node);
   }
   return(node);
 }

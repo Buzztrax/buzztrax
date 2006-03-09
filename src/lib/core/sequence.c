@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.96 2006-03-08 21:37:54 ensonic Exp $
+// $Id: sequence.c,v 1.97 2006-03-09 21:50:23 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -919,23 +919,81 @@ gulong bt_sequence_limit_play_pos(const BtSequence *self,gulong play_pos) {
 //-- io interface
 
 static xmlNodePtr bt_sequence_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  //BtSequence *self = BT_SEQUENCE(persistence);
+  BtSequence *self = BT_SEQUENCE(persistence);
   xmlNodePtr node=NULL;
-  //xmlNodePtr child_node;
+  xmlNodePtr child_node,child_node2,child_node3;
+  gulong i,j;
   
   GST_DEBUG("PERSISTENCE::sequence");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("sequence"),NULL))) {
-    // @todo: implement me more
+    if(self->priv->loop) {
+      xmlNewProp(node,XML_CHAR_PTR("loop"),XML_CHAR_PTR("on"));
+      xmlNewProp(node,XML_CHAR_PTR("loop-start"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_start)));
+      xmlNewProp(node,XML_CHAR_PTR("loop-end"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_end)));
+    }
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("labels"),NULL))) {
+      gchar *label;
+
+      // iterate over timelines
+      for(i=0;i<self->priv->length;i++) {
+        if((label=self->priv->labels[i])) {
+          child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("label"),NULL);
+          xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(label));
+          xmlNewProp(child_node2,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
+        }
+      }
+    }
+    else goto Error;
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tracks"),NULL))) {
+      BtMachine *machine;
+      BtPattern *pattern;
+      gchar *machine_id,*pattern_id;
+      
+      // iterate over tracks
+      for(j=0;j<self->priv->tracks;j++) {
+        child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("track"),NULL);
+        machine=self->priv->machines[j];
+        g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
+        xmlNewProp(child_node2,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(j)));
+        xmlNewProp(child_node2,XML_CHAR_PTR("machine"),XML_CHAR_PTR(machine_id));g_free(machine_id);
+        // iterate over timelines
+        for(i=0;i<self->priv->length;i++) {
+          // get pattern
+          if((pattern=self->priv->patterns[i*self->priv->tracks+j])) {
+            g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
+            child_node3=xmlNewChild(child_node2,NULL,XML_CHAR_PTR("position"),NULL);
+            xmlNewProp(child_node3,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
+            xmlNewProp(child_node3,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(pattern_id));g_free(pattern_id);
+          }
+        }
+      }
+    }
+    else goto Error;
   }
+Error:
   return(node);
 }
 
 static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtSequence *self = BT_SEQUENCE(persistence);
+  BtSequence *self = BT_SEQUENCE(persistence);
   gboolean res=FALSE;
+  xmlChar *loop_str,*loop_start_str,*loop_end_str;
+  gboolean loop;
+  glong loop_start,loop_end;
   
-  // @todo: implement me
+  loop_str=xmlGetProp(node,XML_CHAR_PTR("loop"));
+  loop_start_str=xmlGetProp(node,XML_CHAR_PTR("loop-start"));
+  loop_end_str=xmlGetProp(node,XML_CHAR_PTR("loop-end"));
+  
+  loop_start=loop_start_str?atol((char *)loop_start_str):-1;
+  loop_end=loop_end_str?atol((char *)loop_end_str):-1;
+  loop=loop_str?!strncasecmp((char *)loop_str,"on\0",3):FALSE;
+  g_object_set(self,"loop",loop,"loop-start",loop_start,"loop-end",loop_end,NULL);
+  xmlFree(loop_str);xmlFree(loop_start_str);xmlFree(loop_end_str);
+
+  // @todo: implement me more
+  
   res=TRUE;
   return(res);
 }
