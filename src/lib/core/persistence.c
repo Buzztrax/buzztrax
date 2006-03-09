@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.6 2006-03-08 21:37:54 ensonic Exp $
+// $Id: persistence.c,v 1.7 2006-03-09 17:30:47 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -49,7 +49,7 @@ const gchar *bt_persistence_strfmt_ulong(gulong val) {
 
 /**
  * bt_persistence_save_list:
- * @list: a list
+ * @list: a #GList
  * @doc; the xml-document
  * @node: the list xml node
  *
@@ -58,12 +58,38 @@ const gchar *bt_persistence_strfmt_ulong(gulong val) {
  *
  * Return: %TRUE if all elements have been serialized.
  */
-gboolean bt_persistence_save_list(const GList *list,xmlDocPtr doc, xmlNodePtr node) {
+gboolean bt_persistence_save_list(const GList *list, xmlDocPtr doc, xmlNodePtr node) {
   gboolean res=TRUE;
 
   for(;(list && res);list=g_list_next(list)) {
     res&=(bt_persistence_save(BT_PERSISTENCE(list->data),doc,node,NULL)!=NULL);
   }
+  return(res);
+}
+
+static void bt_persistence_save_hashtable_entries(gpointer key, gpointer value, gpointer user_data) {
+  xmlNodePtr node;
+  
+  node=xmlNewChild(user_data,NULL,XML_CHAR_PTR("property"),NULL);
+  xmlNewProp(node,XML_CHAR_PTR("key"),XML_CHAR_PTR(key));
+  xmlNewProp(node,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));
+}
+
+/**
+ * bt_persistence_save_hashtable:
+ * @hashtable: a #GHashTable with strings
+ * @doc; the xml-document
+ * @node: the list xml node
+ *
+ * Iterates over a hashtable with strings and serializes them.
+ *
+ * Return: %TRUE if all elements have been serialized.
+ */
+gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlDocPtr doc, xmlNodePtr node) {
+  gboolean res=TRUE;
+
+  g_hash_table_foreach((GHashTable *)hashtable,bt_persistence_save_hashtable_entries,(gpointer)node);
+  
   return(res);
 }
 

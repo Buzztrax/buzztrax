@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.74 2006-03-08 21:37:54 ensonic Exp $
+// $Id: pattern.c,v 1.75 2006-03-09 17:30:47 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -777,11 +777,16 @@ static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlDoc
   BtPattern *self = BT_PATTERN(persistence);
   gchar *id;
   xmlNodePtr node=NULL;
+  xmlNodePtr child_node,child_node2;
   
   // @todo: hack, command-patterns start with "   "
   if(self->priv->name[0]==' ') return((xmlNodePtr)1);
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("pattern"),NULL))) {
+    gulong i,j,k;
+    const gchar *voice_str;
+    gchar *value;
+
     //id=g_alloca(strlen(machine_id)+strlen(name)+2);
     //g_sprintf(id,"%s_%s",machine_id,name);
     //g_object_set(G_OBJECT(pattern),"id",id,NULL);
@@ -794,8 +799,32 @@ static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlDoc
     xmlNewProp(node,XML_CHAR_PTR("machine"),XML_CHAR_PTR(id));
     g_free(id);
     
-    /* @todo: implement me more (data) */
-    
+    for(i=0;i<self->priv->length;i++) {
+      // check if there are any GValues stored ?
+      if(bt_pattern_tick_has_data(self,i)) {
+        child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
+        xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
+        // save tick data
+        for(j=0;j<self->priv->global_params;j++) {
+          if((value=bt_pattern_get_global_event(self,i,j))) {
+            child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("globaldata"),NULL);
+            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_global_param_name(self->priv->machine,j)));
+            xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
+          }
+        }
+        for(j=0;j<self->priv->voices;j++) {
+          voice_str=bt_persistence_strfmt_ulong(j);
+          for(k=0;k<self->priv->voice_params;k++) {
+            if((value=bt_pattern_get_voice_event(self,i,j,k))) {
+              child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("voicedata"),NULL);
+              xmlNewProp(child_node2,XML_CHAR_PTR("voice"),XML_CHAR_PTR(voice_str));
+              xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_voice_param_name(self->priv->machine,j)));
+              xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
+            }
+          }
+        }
+      }
+    }    
   }
   return(node);
 }

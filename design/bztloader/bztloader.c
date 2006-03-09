@@ -1,4 +1,4 @@
-/* $Id: bztloader.c,v 1.8 2005-10-26 14:41:43 waffel Exp $ */
+/* $Id: bztloader.c,v 1.9 2006-03-09 17:30:46 ensonic Exp $ */
 
 #include "bztloader.h"
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
      exists */
   g_free(input_uri);
   
-  // the the mime type of the file is not an text/xml mimetype we think it is an
+  // if the mime type of the file is not an text/xml mimetype we assume it is an
   // bzt file and expanding the uri
   if (!is_xml_mime) {
     /* add suffix #gzip:#tar:/song.xml to input string */

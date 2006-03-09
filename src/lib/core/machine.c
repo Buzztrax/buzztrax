@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.193 2006-03-08 21:37:54 ensonic Exp $
+// $Id: machine.c,v 1.194 2006-03-09 17:30:47 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1923,9 +1923,10 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
 
 static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtMachine *self = BT_MACHINE(persistence);
+  GstObject *machine,*machine_voice;
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
-  gulong i;
+  gulong i,j;
   gchar *str;
   GValue value={0,};
 
@@ -1934,14 +1935,16 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDoc
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
 
     // @todo: this only store controllable parameters, shouldn't we store all?
+    // @todo: skip parameters which are default values
+    machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
     for(i=0;i<self->priv->global_params;i++) {
+      // skip trigger parameters and parametzers that are also used as voice params
       if(bt_machine_is_global_param_trigger(self,i)) continue;
-      // @todo: also store voice-params
-      //if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) params--;
+      if(self->priv->voice_params && bt_machine_get_voice_param_index(self,self->priv->global_names[i],NULL)>-1) continue;
+        
       if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("globaldata"),NULL))) {
-        //GST_DEBUG("  %s",self->priv->global_names[i]);
         g_value_init(&value,self->priv->global_types[i]);
-        g_object_get_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[i],&value);
+        g_object_get_property(G_OBJECT(machine),self->priv->global_names[i],&value);
         str=bt_persistence_get_value(&value);
         xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->global_names[i]));
         xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
@@ -1949,9 +1952,26 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDoc
         g_value_unset(&value);
       }
     }
-    /* @todo: implement me more (voice data) */
-    
-
+    for(j=0;j<self->priv->voices;j++) {
+      machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
+      
+      for(i=0;i<self->priv->voice_params;i++) {
+        if(bt_machine_is_voice_param_trigger(self,i)) continue;
+          if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
+            g_value_init(&value,self->priv->voice_types[i]);
+            g_object_get_property(G_OBJECT(machine_voice),self->priv->voice_names[i],&value);
+            str=bt_persistence_get_value(&value);
+            xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->voice_names[i]));
+            xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
+            g_free(str);
+            g_value_unset(&value);
+          }
+      }
+    }
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
+      if(!bt_persistence_save_hashtable(self->priv->properties, doc, child_node)) goto Error;
+    }
+    else goto Error;
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
       bt_persistence_save_list(self->priv->patterns,doc,child_node);
     }

@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.85 2006-03-08 15:30:35 ensonic Exp $
+// $Id: setup.c,v 1.86 2006-03-09 17:30:47 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -529,6 +529,12 @@ static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlDocPt
   GST_DEBUG("PERSISTENCE::setup");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("setup"),NULL))) {
+    /*
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
+      if(!bt_persistence_save_hashtable(self->priv->properties, doc, child_node)) goto Error;
+    }
+    else goto Error;
+    */
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("machines"),NULL))) {
       bt_persistence_save_list(self->priv->machines,doc,child_node);
     }

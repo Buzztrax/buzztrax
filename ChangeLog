@@ -1,3 +1,17 @@
+2006-03-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/bztloader/bztloader.c: (main):
+	  fix a typo
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/machine.c: (bt_machine_persistence_save):
+	* src/lib/core/pattern.c: (bt_pattern_persistence_save):
+	* src/lib/core/persistence.c: (bt_persistence_save_list),
+	(bt_persistence_save_hashtable_entries),
+	(bt_persistence_save_hashtable):
+	* src/lib/core/setup.c: (bt_setup_persistence_save):
+	  serialize property hashtables, patterns
+
 2006-03-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
