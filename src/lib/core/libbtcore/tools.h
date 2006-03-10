@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.10 2006-01-13 18:06:12 ensonic Exp $
+/* $Id: tools.h,v 1.11 2006-03-10 16:19:42 ensonic Exp $
  */
 
 #ifndef BT_TOOLS_H
@@ -24,4 +24,12 @@ extern gpointer g_try_malloc0(gulong n_bytes);
 extern GType bt_g_type_get_base_type(GType type);
 
 #endif
+
+extern void bt_log_mark(const char *format, ...);
+#ifdef APP_DEBUG
+#define BT_LOG_MARK_FUNCTION(str) bt_log_mark("%s : %s",__FUNCTION__,str);
+#else
+#define BT_LOG_MARK_FUNCTION(str)
+#endif
+
 #endif // BT_TOOLS_H

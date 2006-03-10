@@ -1,3 +1,14 @@
+2006-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/core.c: (bt_init_post), (bt_init_get_option_group),
+	(bt_init_check):
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/tools.c: (bt_log_mark):
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/main-pages.c: (bt_main_pages_init_ui):
+	  startup time logging (for plot-timeline.py)
+
 2006-03-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

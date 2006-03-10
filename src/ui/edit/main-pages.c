@@ -1,4 +1,4 @@
-// $Id: main-pages.c,v 1.28 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-pages.c,v 1.29 2006-03-10 16:19:42 ensonic Exp $
 /**
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
@@ -73,14 +73,12 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   GtkTooltips *tips;
-
-  GST_DEBUG("!!!! self=%p",self);
   
   tips=gtk_tooltips_new();
   
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
-  //GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
+  GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self->priv->app);

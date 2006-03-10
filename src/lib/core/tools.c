@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.24 2006-01-13 18:06:12 ensonic Exp $
+/* $Id: tools.c,v 1.25 2006-03-10 16:19:42 ensonic Exp $
  */
  
 #define BT_CORE
@@ -119,3 +119,32 @@ GType bt_g_type_get_base_type(GType type) {
   return(type);
 }
 
+/**
+ * bt_log_mark:
+ * @format: msg format
+ * @...: msg args
+ *
+ * Produces log marks for <code>plot-timeline.py</code>. Add invokations to the
+ * source. Then call:
+ * <programmlisting>
+ *   strace -ttt -f -o /tmp/logfile.strace my-program
+ *   plot-timeline.py -o prettygraph.png /tmp/logfile.strace
+ * </programmlisting>
+ */
+/* @todo: move that to gst_info.c and call from debug-log handler
+ * allow to disable via env-var ?
+ */
+void bt_log_mark(const char *format, ...) {
+  va_list args;
+  char *formatted, *str;
+
+  va_start (args, format);
+  formatted = g_strdup_vprintf (format, args);
+  va_end (args);
+
+  str = g_strdup_printf ("MARK: %s: %s", g_get_prgname(), formatted);
+  g_free (formatted);
+
+  access (str, F_OK);
+  g_free (str);
+}
