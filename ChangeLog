@@ -1,5 +1,21 @@
 2006-03-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c: (bt_machine_persistence_save),
+	(bt_machine_persistence_load):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_persistence_save),
+	(bt_processor_machine_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_persistence_load):
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/source-machine.c:
+	(bt_source_machine_persistence_save),
+	(bt_source_machine_persistence_load):
+          serializing voice prop of machines,
+          first try of deserializing machines
+
+2006-03-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/core.c: (bt_init_post), (bt_init_get_option_group),
 	(bt_init_check):

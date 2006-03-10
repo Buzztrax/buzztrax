@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.34 2006-03-09 21:50:23 ensonic Exp $
+// $Id: source-machine.c,v 1.35 2006-03-10 17:18:27 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -64,15 +64,17 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
   gchar *plugin_name;
+  gulong voices;
 
   GST_DEBUG("PERSISTENCE::source-machine");
 
   // save parent class stuff
   if((node=parent_iface->save(persistence,doc,parent_node,selection))) {
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
-    /* @todo: save more own stuff */
-    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
+
+    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,"voices",&voices,NULL);
     xmlNewProp(node,XML_CHAR_PTR("plugin-name"),XML_CHAR_PTR(plugin_name));
+    xmlNewProp(node,XML_CHAR_PTR("voices"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(voices)));
     g_free(plugin_name);
   }
   return(node);
@@ -81,11 +83,14 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
 static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
-  xmlChar *plugin_name;
+  xmlChar *plugin_name,*voices_str;
+  gulong voices;
 
   plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
-  g_object_set(G_OBJECT(self),"plugin-name",plugin_name,NULL);
-  xmlFree(plugin_name);
+  voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
+  voices=voices_str?atol((char *)voices_str):0;
+  g_object_set(G_OBJECT(self),"plugin-name",plugin_name,"voices",voices,NULL);
+  xmlFree(plugin_name);xmlFree(voices_str);
   
   // load parent class stuff
   return(parent_iface->load(persistence,doc,node,location));

@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.62 2006-03-09 21:50:23 ensonic Exp $
+// $Id: sink-machine.c,v 1.63 2006-03-10 17:18:27 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -85,8 +85,10 @@ static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, x
 }
 
 static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
+  BtSinkMachine *self = BT_SINK_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  
+  g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
   
   // load parent class stuff
   return(parent_iface->load(persistence,doc,node,location));

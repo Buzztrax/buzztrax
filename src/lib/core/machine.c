@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.195 2006-03-09 21:50:23 ensonic Exp $
+// $Id: machine.c,v 1.196 2006-03-10 17:18:27 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1977,7 +1977,7 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDoc
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("machine"),NULL))) {
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
 
-    // @todo: this only store controllable parameters, shouldn't we store all?
+    // @todo: also store non-controllable parameters (preferences) <prefsdata name="" value="">
     // @todo: skip parameters which are default values
     machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
     for(i=0;i<self->priv->global_params;i++) {
@@ -2033,6 +2033,11 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlDocPt
   xmlFree(id);
   
   /* @todo: implement me more */
+  // load prefsdata
+  // load globaldata
+  // load voicedata
+  // load properties
+  // load patterns
 
   return(bt_machine_setup(self));
 }
