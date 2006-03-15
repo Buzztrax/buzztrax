@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.98 2006-03-15 11:19:21 ensonic Exp $
+// $Id: sequence.c,v 1.99 2006-03-15 16:27:06 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -927,6 +927,8 @@ static xmlNodePtr bt_sequence_persistence_save(BtPersistence *persistence, xmlNo
   GST_DEBUG("PERSISTENCE::sequence");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("sequence"),NULL))) {
+    xmlNewProp(node,XML_CHAR_PTR("length"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->length)));
+    xmlNewProp(node,XML_CHAR_PTR("tracks"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->tracks)));
     if(self->priv->loop) {
       xmlNewProp(node,XML_CHAR_PTR("loop"),XML_CHAR_PTR("on"));
       xmlNewProp(node,XML_CHAR_PTR("loop-start"),XML_CHAR_PTR(bt_persistence_strfmt_long(self->priv->loop_start)));
@@ -978,21 +980,88 @@ Error:
 static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSequence *self = BT_SEQUENCE(persistence);
   gboolean res=FALSE;
-  xmlChar *loop_str,*loop_start_str,*loop_end_str;
+  xmlChar *length_str,*tracks_str,*loop_str,*loop_start_str,*loop_end_str;
   gboolean loop;
   glong loop_start,loop_end;
+  gulong length,tracks;
+  xmlNodePtr child_node,child_node2;
   
+  length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
+  tracks_str=xmlGetProp(node,XML_CHAR_PTR("tracks"));
   loop_str=xmlGetProp(node,XML_CHAR_PTR("loop"));
   loop_start_str=xmlGetProp(node,XML_CHAR_PTR("loop-start"));
   loop_end_str=xmlGetProp(node,XML_CHAR_PTR("loop-end"));
   
+  length=length_str?atol((char *)length_str):0;
+  tracks=tracks_str?atol((char *)tracks_str):0;
   loop_start=loop_start_str?atol((char *)loop_start_str):-1;
   loop_end=loop_end_str?atol((char *)loop_end_str):-1;
   loop=loop_str?!strncasecmp((char *)loop_str,"on\0",3):FALSE;
-  g_object_set(self,"loop",loop,"loop-start",loop_start,"loop-end",loop_end,NULL);
+  g_object_set(self,"length",length,"tracks",tracks,
+    "loop",loop,"loop-start",loop_start,"loop-end",loop_end,
+    NULL);
+  xmlFree(length_str);xmlFree(tracks_str);
   xmlFree(loop_str);xmlFree(loop_start_str);xmlFree(loop_end_str);
 
-  // @todo: implement me more
+  for(node=node->children;node;node=node->next) {
+    if(!xmlNodeIsText(node)) {
+      if(!strncmp((gchar *)node->name,"labels\0",7)) {
+        xmlChar *time_str,*name;
+
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"label\0",6))) {
+            time_str=xmlGetProp(child_node,XML_CHAR_PTR("time"));
+            name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
+            bt_sequence_set_label(self,atol((char *)time_str),(gchar *)name);
+            xmlFree(time_str);xmlFree(name);
+          }
+        }
+      }
+      else if(!strncmp((gchar *)node->name,"tracks\0",7)) {
+        BtSetup *setup;
+        BtMachine *machine;
+        BtPattern *pattern;
+        xmlChar *index_str,*machine_id,*time_str,*pattern_id;
+        gulong index;
+        
+        g_object_get(self->priv->song,"setup",&setup,NULL);
+
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"track\0",6))) {
+            machine_id=xmlGetProp(child_node,XML_CHAR_PTR("machine"));
+            index_str=xmlGetProp(child_node,XML_CHAR_PTR("index"));
+            index=index_str?atol((char *)index_str):0;
+            if((machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id))) {
+              self->priv->machines[index]=machine;
+              GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_id);
+              for(child_node2=child_node->children;child_node2;child_node2=child_node2->next) {
+                if((!xmlNodeIsText(child_node2)) && (!strncmp((char *)child_node2->name,"position\0",9))) {
+                  time_str=xmlGetProp(child_node2,XML_CHAR_PTR("time"));
+                  pattern_id=xmlGetProp(child_node2,XML_CHAR_PTR("pattern"));
+                  GST_DEBUG("  at %s, machinepattern \"%s\"",time_str,safe_string(pattern_id));
+                  if(pattern_id) {
+                    // get pattern by name from machine
+                    if((pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id))) {
+                      bt_sequence_set_pattern(self,atol((char *)time_str),index,pattern);
+                      g_object_unref(pattern);
+                    }
+                    else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
+                    xmlFree(pattern_id);
+                  }
+                  xmlFree(time_str);
+                }
+              }
+            }
+            else {
+              GST_ERROR("invalid machine %s referenced at track %d",(gchar *)machine_id,index);
+            }
+            xmlFree(index_str);xmlFree(machine_id);
+          }
+        }
+        g_object_try_unref(setup);
+      }
+    }
+  }
   
   res=TRUE;
   return(res);

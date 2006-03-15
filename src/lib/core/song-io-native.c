@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.106 2006-03-15 14:10:59 ensonic Exp $
+// $Id: song-io-native.c,v 1.107 2006-03-15 16:27:10 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -14,8 +14,8 @@
 
 // the new bt_persistence code takes over
 // use defines below toreenable old code
-//#define USE_OLD_SAVER
-//#define USE_OLD_LOADER
+#define USE_OLD_SAVER
+#define USE_OLD_LOADER
 
 #include <libbtcore/core.h>
 
@@ -592,7 +592,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
     if((!xmlNodeIsText(xml_node)) && (!strncmp((char *)xml_node->name,"position\0",9))) {
       time_str=xmlGetProp(xml_node,XML_CHAR_PTR("time"));
       pattern_id=xmlGetProp(xml_node,XML_CHAR_PTR("pattern"));
-      GST_DEBUG("  at %s, pattern \"%s\"",time_str,safe_string(pattern_id));
+      GST_DEBUG("  at %s, machinepattern \"%s\"",time_str,safe_string(pattern_id));
       if(pattern_id) {
         // get pattern by name from machine
         if((pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id))) {
