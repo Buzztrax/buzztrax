@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.197 2006-03-15 11:19:20 ensonic Exp $
+// $Id: machine.c,v 1.198 2006-03-15 14:10:59 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -610,6 +610,7 @@ static void bt_machine_resize_voices(const BtMachine *self,gulong voices) {
           }
 					g_free(properties);
         }
+        g_object_unref(voice_child);
       }
     }
   }
@@ -717,6 +718,7 @@ static void bt_machine_init_global_params(BtMachine *self) {
       // get child for voice 0
       if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
         child_properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_child_properties);
+        g_object_unref(voice_child);
       }
     }
     
@@ -821,6 +823,7 @@ static void bt_machine_init_voice_params(BtMachine *self) {
 
       // bind params to machines voice controller
       bt_machine_resize_voices(self,0);
+      g_object_unref(voice_child);
     }
     else {
       GST_WARNING("  can't get first voice child!");
@@ -1488,12 +1491,17 @@ void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GVal
  * Sets a the specified voice param to the give data value.
  */
 void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulong index, GValue *event) {
+  GstObject *voice_child;
+  
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(G_IS_VALUE(event));
   g_return_if_fail(voice<self->priv->voices);
   g_return_if_fail(index<self->priv->voice_params);
-
-  g_object_set_property(G_OBJECT(gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice)),self->priv->voice_names[index],event);
+  
+  if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice))) {
+    g_object_set_property(G_OBJECT(voice_child),self->priv->voice_names[index],event);
+    g_object_unref(voice_child);
+  }
 }
 
 /**
@@ -1829,6 +1837,7 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index
       if(GST_IS_PROPERTY_META(voice_child)) {
         str=gst_property_meta_describe_property(GST_PROPERTY_META(voice_child),index,event);
       }
+      g_object_unref(voice_child);
     }
   }
   return(str);
@@ -2000,16 +2009,18 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlNod
       
       for(i=0;i<self->priv->voice_params;i++) {
         if(bt_machine_is_voice_param_trigger(self,i)) continue;
-          if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
-            g_value_init(&value,self->priv->voice_types[i]);
-            g_object_get_property(G_OBJECT(machine_voice),self->priv->voice_names[i],&value);
-            str=bt_persistence_get_value(&value);
-            xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->voice_names[i]));
-            xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
-            g_free(str);
-            g_value_unset(&value);
-          }
+        if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
+          g_value_init(&value,self->priv->voice_types[i]);
+          g_object_get_property(G_OBJECT(machine_voice),self->priv->voice_names[i],&value);
+          str=bt_persistence_get_value(&value);
+          xmlNewProp(child_node,XML_CHAR_PTR("voice"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(j)));
+          xmlNewProp(child_node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->voice_names[i]));
+          xmlNewProp(child_node,XML_CHAR_PTR("value"),XML_CHAR_PTR(str));
+          g_free(str);
+          g_value_unset(&value);
+        }
       }
+      g_object_unref(machine_voice);
     }
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
       if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
@@ -2026,21 +2037,74 @@ Error:
 
 static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtMachine *self = BT_MACHINE(persistence);
-  xmlChar *id;
+  gboolean res=FALSE;
+  xmlChar *id,*name,*voice_str,*value_str;
   xmlNodePtr child_node;
+  GValue value={0,};
+  glong param,voice;
+  GstObject *machine,*machine_voice;
+  GError *error=NULL;
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   g_object_set(G_OBJECT(self),"id",id,NULL);
   xmlFree(id);
+  
+  if(!bt_machine_setup(self)) {
+    GST_WARNING("Can't init machine");
+    goto Error;
+  }
+  
+  machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
 
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       // @todo: load prefsdata
       if(!strncmp((gchar *)node->name,"globaldata\0",11)) {
-        // @todo: load globaldata
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if(!xmlNodeIsText(child_node)) {
+            name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
+            value_str=xmlGetProp(child_node,XML_CHAR_PTR("value"));
+            param=bt_machine_get_global_param_index(self,name,&error);
+            if(!error) {
+              g_value_init(&value,self->priv->global_types[param]);
+              bt_persistence_set_value(&value,value_str);
+              g_object_set_property(G_OBJECT(machine),name,&value);
+            }
+            else {
+              GST_WARNING("error while loading global machine data for param %d: %s",param,error->message);
+              g_error_free(error);
+              goto Error;
+            }
+            xmlFree(name);xmlFree(value_str);
+          }
+        }
       }
       else if(!strncmp((gchar *)node->name,"voicedata\0",10)) {
-        // @todo: load voicedata
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if(!xmlNodeIsText(child_node)) {
+            voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice"));
+            voice=atol((char *)voice_str);
+            name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
+            value_str=xmlGetProp(child_node,XML_CHAR_PTR("value"));
+            param=bt_machine_get_voice_param_index(self,name,&error);
+            if(!error) {
+              machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
+        
+              g_value_init(&value,self->priv->voice_types[param]);
+              bt_persistence_set_value(&value,value_str);
+              g_object_set_property(G_OBJECT(machine_voice),name,&value);
+
+              g_object_unref(machine_voice);
+            }
+            else {
+              GST_WARNING("error while loading voice machine data for param %d, voice %d: %s",param,voice,error->message);
+              g_error_free(error);
+              goto Error;
+            }            
+              
+            xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
+          }
+        }
       }
       else if(!strncmp((gchar *)node->name,"properties\0",11)) {
         bt_persistence_load_hashtable(self->priv->properties,node);
@@ -2059,7 +2123,9 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
     }
   }
 
-  return(bt_machine_setup(self));
+  res=TRUE;
+Error:
+  return(res);
 }
 
 static void bt_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

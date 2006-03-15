@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.76 2006-03-15 11:19:20 ensonic Exp $
+// $Id: pattern.c,v 1.77 2006-03-15 14:10:59 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -799,6 +799,7 @@ static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlNod
     xmlNewProp(node,XML_CHAR_PTR("machine"),XML_CHAR_PTR(id));
     g_free(id);
     
+    // save pattern data
     for(i=0;i<self->priv->length;i++) {
       // check if there are any GValues stored ?
       if(bt_pattern_tick_has_data(self,i)) {
@@ -832,8 +833,11 @@ static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlNod
 static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtPattern *self = BT_PATTERN(persistence);
   gboolean res=FALSE;
-  xmlChar *id,*name,*length_str;
+  xmlChar *id,*name,*length_str,*tick_str,*value,*voice_str;
+  glong tick,voice,param;
   gulong length;
+  xmlNodePtr child_node;
+  GError *error=NULL;
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   name=xmlGetProp(node,XML_CHAR_PTR("name"));
@@ -843,10 +847,52 @@ static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlNodeP
   xmlFree(id);xmlFree(name);
   
   if(!bt_pattern_init_data(self)) {
+    GST_WARNING("Can't init pattern data");
     goto Error;
   }
 
-  /* @todo: implement me more */
+  // load pattern data
+  for(node=node->children;node;node=node->next) {
+    if((!xmlNodeIsText(node)) && (!strncmp((gchar *)node->name,"tick\0",5))) {
+      tick_str=xmlGetProp(node,XML_CHAR_PTR("time"));
+      tick=atoi((char *)tick_str);
+      // iterate over children
+      for(child_node=node->children;child_node;child_node=child_node->next) {
+        if(!xmlNodeIsText(child_node)) {
+          name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
+          value=xmlGetProp(child_node,XML_CHAR_PTR("value"));
+          //GST_DEBUG("     \"%s\" -> \"%s\"",safe_string(name),safe_string(value));
+          if(!strncmp((char *)child_node->name,"globaldata\0",11)) {
+            param=bt_pattern_get_global_param_index(self,(gchar *)name,&error);
+            if(!error) {
+              bt_pattern_set_global_event(self,tick,param,(gchar *)value);
+            }
+            else {
+              GST_WARNING("error while loading global pattern data at tick %d, param %d: %s",tick,param,error->message);
+              g_error_free(error);
+              goto Error;
+            }
+          }
+          else if(!strncmp((char *)child_node->name,"voicedata\0",10)) {
+            voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice"));
+            voice=atol((char *)voice_str);
+            param=bt_pattern_get_voice_param_index(self,(gchar *)name,&error);
+            if(!error) {
+              bt_pattern_set_voice_event(self,tick,voice,param,(gchar *)value);
+            }
+            else {
+              GST_WARNING("error while loading voice pattern data at tick %d, param %d, voice %d: %s",tick,param,voice,error->message);
+              g_error_free(error);
+              goto Error;
+            }
+            xmlFree(voice_str);
+          }
+          xmlFree(name);xmlFree(value);
+        }
+      }
+      xmlFree(tick_str);
+    }
+  }
 
   res=TRUE;
 Error:  

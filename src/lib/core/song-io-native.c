@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.105 2006-03-15 11:19:21 ensonic Exp $
+// $Id: song-io-native.c,v 1.106 2006-03-15 14:10:59 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -14,8 +14,8 @@
 
 // the new bt_persistence code takes over
 // use defines below toreenable old code
-#define USE_OLD_SAVER
-#define USE_OLD_LOADER
+//#define USE_OLD_SAVER
+//#define USE_OLD_LOADER
 
 #include <libbtcore/core.h>
 
@@ -803,11 +803,11 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
         else {
 #ifdef USE_OLD_LOADER
           GST_INFO("file looks good!");
-          if(bt_song_io_native_load_song_info(self,song) &&
-            bt_song_io_native_load_setup(    self,song) &&
-            bt_song_io_native_load_patterns( self,song) &&
-            bt_song_io_native_load_sequence( self,song) &&
-            bt_song_io_native_load_wavetable(self,song)
+          if(bt_song_io_native_load_song_info(self,song,song_doc) &&
+            bt_song_io_native_load_setup(    self,song,song_doc) &&
+            bt_song_io_native_load_patterns( self,song,song_doc) &&
+            bt_song_io_native_load_sequence( self,song,song_doc) &&
+            bt_song_io_native_load_wavetable(self,song,song_doc)
           ) {
             result=TRUE;
           }
