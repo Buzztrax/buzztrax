@@ -1,3 +1,43 @@
+2006-03-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/persistence.h:
+	* src/lib/core/machine.c: (bt_machine_persistence_save),
+	(bt_machine_persistence_load), (bt_machine_class_init):
+	* src/lib/core/pattern.c: (bt_pattern_persistence_save),
+	(bt_pattern_persistence_load):
+	* src/lib/core/persistence.c: (bt_persistence_save_list),
+	(bt_persistence_save_hashtable), (bt_persistence_load_hashtable),
+	(bt_persistence_save), (bt_persistence_load):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_persistence_save),
+	(bt_processor_machine_persistence_load):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_save),
+	(bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_persistence_save),
+	(bt_setup_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_persistence_save),
+	(bt_sink_machine_persistence_load):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_save),
+	(bt_song_info_persistence_load):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_real_load),
+	(bt_song_io_native_real_save):
+	* src/lib/core/song.c: (bt_song_persistence_save),
+	(bt_song_persistence_load):
+	* src/lib/core/source-machine.c:
+	(bt_source_machine_persistence_save),
+	(bt_source_machine_persistence_load):
+	* src/lib/core/wave.c: (bt_wave_persistence_save),
+	(bt_wave_persistence_load):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_persistence_save),
+	(bt_wavelevel_persistence_load):
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_save),
+	(bt_wavetable_persistence_load):
+	* src/lib/core/wire.c: (bt_wire_persistence_save),
+	(bt_wire_persistence_load):
+	 simplified persistence iface, more machine-loading implementation
+
 2006-03-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_persistence_save),

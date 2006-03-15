@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.120 2006-03-08 21:37:54 ensonic Exp $
+// $Id: song.c,v 1.121 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -675,7 +675,7 @@ void bt_song_write_to_dot_file(const BtSong *self) {
 
 //-- io interface
 
-static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSong *self = BT_SONG(persistence);
   xmlNodePtr node=NULL;
   
@@ -685,17 +685,16 @@ static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlDocPtr
     xmlNewProp(node,XML_CHAR_PTR("xmlns"),(const xmlChar *)BT_NS_URL);
     xmlNewProp(node,XML_CHAR_PTR("xmlns:xsd"),XML_CHAR_PTR("http://www.w3.org/2001/XMLSchema-instance"));
     xmlNewProp(node,XML_CHAR_PTR("xsd:noNamespaceSchemaLocation"),XML_CHAR_PTR("buzztard.xsd"));
-    xmlDocSetRootElement(doc,node);
 
-    bt_persistence_save(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
-    bt_persistence_save(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
-    bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
-    bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->song_info),node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->setup),node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->sequence),node,NULL);
+    bt_persistence_save(BT_PERSISTENCE(self->priv->wavetable),node,NULL);
   }
   return(node);
 }
 
-static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSong *self = BT_SONG(persistence);
   gboolean res=TRUE;
 
@@ -703,16 +702,16 @@ static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlDocPtr d
   for(node=node->children;(node && res);node=node->next) {
     if(!xmlNodeIsText(node)) {
       if(!strncmp((gchar *)node->name,"meta\0",5)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),doc,node,NULL);
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->song_info),node,NULL);
       }
       else if(!strncmp((gchar *)node->name,"setup\0",6)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),doc,node,NULL);
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->setup),node,NULL);
       }
       else if(!strncmp((gchar *)node->name,"sequence\0",9)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),doc,node,NULL);
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->sequence),node,NULL);
       }
       else if(!strncmp((gchar *)node->name,"wavetable\0",10)) {
-        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),doc,node,NULL);
+        res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),node,NULL);
       }
     }
   }

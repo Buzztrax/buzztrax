@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.8 2006-03-09 21:50:23 ensonic Exp $
+// $Id: persistence.c,v 1.9 2006-03-15 11:19:20 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -73,14 +73,16 @@ const gchar *bt_persistence_strfmt_ulong(gulong val) {
  *
  * Return: %TRUE if all elements have been serialized.
  */
-gboolean bt_persistence_save_list(const GList *list, xmlDocPtr doc, xmlNodePtr node) {
+gboolean bt_persistence_save_list(const GList *list,xmlNodePtr node) {
   gboolean res=TRUE;
 
   for(;(list && res);list=g_list_next(list)) {
-    res&=(bt_persistence_save(BT_PERSISTENCE(list->data),doc,node,NULL)!=NULL);
+    res&=(bt_persistence_save(BT_PERSISTENCE(list->data),node,NULL)!=NULL);
   }
   return(res);
 }
+
+//-- hashtable helper
 
 static void bt_persistence_save_hashtable_entries(gpointer key, gpointer value, gpointer user_data) {
   xmlNodePtr node;
@@ -93,19 +95,44 @@ static void bt_persistence_save_hashtable_entries(gpointer key, gpointer value, 
 /**
  * bt_persistence_save_hashtable:
  * @hashtable: a #GHashTable with strings
- * @doc; the xml-document
  * @node: the list xml node
  *
  * Iterates over a hashtable with strings and serializes them.
  *
  * Return: %TRUE if all elements have been serialized.
  */
-gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlDocPtr doc, xmlNodePtr node) {
+gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlNodePtr node) {
   gboolean res=TRUE;
 
   g_hash_table_foreach((GHashTable *)hashtable,bt_persistence_save_hashtable_entries,(gpointer)node);
   
   return(res);
+}
+
+/**
+ * bt_persistence_load_hashtable:
+ * @hashtable: a #GHashTable
+ * @node: the list xml node
+ *
+ * Iterates over the xml-node and deserializes elements into the hashtable.
+ *
+ * Return: %TRUE if all elements have been deserialized.
+ */
+gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
+  xmlChar *key,*value;
+  
+  // iterate over children
+  for(node=node->children;node;node=node->next) {
+    if(!xmlNodeIsText(node) && !strncmp((char *)node->name,"property\0",9)) {
+      key=xmlGetProp(node,XML_CHAR_PTR("key"));
+      value=xmlGetProp(node,XML_CHAR_PTR("value"));
+      //GST_DEBUG("    [%s] => [%s]",key,value);
+      g_hash_table_insert(hashtable,key,value);
+      // do not free, as the hastable now owns the memory
+      //xmlFree(key);xmlFree(value);
+    }
+  }
+  return(TRUE);
 }
 
 //-- gvalue helper
@@ -221,7 +248,6 @@ gchar *bt_persistence_get_value(GValue *gvalue) {
 /**
  * bt_persistence_save:
  * @self: a serialiable object
- * @doc; the xml-document
  * @parent_node: the parent xml node
  * @selection: an optional selection
  *
@@ -233,16 +259,15 @@ gchar *bt_persistence_get_value(GValue *gvalue) {
  * return new xmlNodePtr (or NULL for error)
  * subclassed objects call super first and use the returned node to save their own data
  */
-xmlNodePtr bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+xmlNodePtr bt_persistence_save(BtPersistence *self, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
   
-  return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, doc, parent_node, selection));
+  return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node, selection));
 }
 
 /**
  * bt_persistence_load:
  * @self: a deserialiable object
- * @doc; the xml-document
  * @node: the xml node
  * @selection: an optional selection
  *
@@ -250,10 +275,10 @@ xmlNodePtr bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr pa
  *
  * Return: %TRUE if the element has been deserialized.
  */
-gboolean bt_persistence_load(BtPersistence *self, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+gboolean bt_persistence_load(BtPersistence *self, xmlNodePtr node, BtPersistenceLocation *location) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
   
-  return (BT_PERSISTENCE_GET_INTERFACE (self)->load (self, doc, node, location));
+  return (BT_PERSISTENCE_GET_INTERFACE (self)->load (self, node, location));
 }
 
 //-- interface internals

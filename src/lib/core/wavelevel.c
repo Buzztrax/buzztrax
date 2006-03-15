@@ -1,4 +1,4 @@
-// $Id: wavelevel.c,v 1.11 2006-03-09 21:50:23 ensonic Exp $
+// $Id: wavelevel.c,v 1.12 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
@@ -92,7 +92,7 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtWavelevel *self = BT_WAVELEVEL(persistence);
   xmlNodePtr node=NULL;
   
@@ -108,7 +108,7 @@ static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlD
   return(node);
 }
 
-static gboolean bt_wavelevel_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_wavelevel_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   //BtWavelevel *self = BT_WAVELEVEL(persistence);
   gboolean res=FALSE;
   

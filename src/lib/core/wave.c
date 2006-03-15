@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.14 2006-03-09 21:50:23 ensonic Exp $
+// $Id: wave.c,v 1.15 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -115,7 +115,7 @@ gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel)
 
 //-- io interface
 
-static xmlNodePtr bt_wave_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_wave_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtWave *self = BT_WAVE(persistence);
   xmlNodePtr node=NULL;
   
@@ -131,7 +131,7 @@ static xmlNodePtr bt_wave_persistence_save(BtPersistence *persistence, xmlDocPtr
   return(node);
 }
 
-static gboolean bt_wave_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_wave_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   //BtWave *self = BT_WAVE(persistence);
   gboolean res=FALSE;
   

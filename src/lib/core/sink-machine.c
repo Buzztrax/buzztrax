@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.63 2006-03-10 17:18:27 ensonic Exp $
+// $Id: sink-machine.c,v 1.64 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -69,7 +69,7 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
@@ -77,21 +77,21 @@ static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, x
   GST_DEBUG("PERSISTENCE::sink-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,doc,parent_node,selection))) {
+  if((node=parent_iface->save(persistence,parent_node,selection))) {
     /* @todo: save own stuff */
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("sink"));
   }
   return(node);
 }
 
-static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSinkMachine *self = BT_SINK_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   
   g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
   
   // load parent class stuff
-  return(parent_iface->load(persistence,doc,node,location));
+  return(parent_iface->load(persistence,node,location));
 }
 
 static void bt_sink_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.196 2006-03-10 17:18:27 ensonic Exp $
+// $Id: machine.c,v 1.197 2006-03-15 11:19:20 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1964,7 +1964,7 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self) {
 
 //-- io interface
 
-static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtMachine *self = BT_MACHINE(persistence);
   GstObject *machine,*machine_voice;
   xmlNodePtr node=NULL;
@@ -2012,11 +2012,11 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlDoc
       }
     }
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
-      if(!bt_persistence_save_hashtable(self->priv->properties, doc, child_node)) goto Error;
+      if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
     }
     else goto Error;
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("patterns"),NULL))) {
-      bt_persistence_save_list(self->priv->patterns,doc,child_node);
+      bt_persistence_save_list(self->priv->patterns,child_node);
     }
     else goto Error;
   }
@@ -2024,20 +2024,40 @@ Error:
   return(node);
 }
 
-static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtMachine *self = BT_MACHINE(persistence);
   xmlChar *id;
+  xmlNodePtr child_node;
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   g_object_set(G_OBJECT(self),"id",id,NULL);
   xmlFree(id);
-  
-  /* @todo: implement me more */
-  // load prefsdata
-  // load globaldata
-  // load voicedata
-  // load properties
-  // load patterns
+
+  for(node=node->children;node;node=node->next) {
+    if(!xmlNodeIsText(node)) {
+      // @todo: load prefsdata
+      if(!strncmp((gchar *)node->name,"globaldata\0",11)) {
+        // @todo: load globaldata
+      }
+      else if(!strncmp((gchar *)node->name,"voicedata\0",10)) {
+        // @todo: load voicedata
+      }
+      else if(!strncmp((gchar *)node->name,"properties\0",11)) {
+        bt_persistence_load_hashtable(self->priv->properties,node);
+      }
+      else if(!strncmp((gchar *)node->name,"patterns\0",9)) {
+        BtPattern *pattern;
+        
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if(!xmlNodeIsText(child_node)) {
+            pattern=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",self->priv->song,"machine",self,NULL));
+            bt_persistence_load(BT_PERSISTENCE(pattern),child_node,NULL);
+            bt_machine_add_pattern(self,pattern);
+          }
+        }
+      }
+    }
+  }
 
   return(bt_machine_setup(self));
 }
@@ -2373,7 +2393,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      "plugin-name construct prop",
                                      "the name of the gst plugin for the machine",
                                      "unamed machine", /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICES,
                                   g_param_spec_ulong("voices",
@@ -2391,7 +2411,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
                                   g_param_spec_ulong("voice-params",
@@ -2400,7 +2420,7 @@ static void bt_machine_class_init(BtMachineClass *klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_MACHINE,
                                   g_param_spec_object("machine",

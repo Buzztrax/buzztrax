@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.97 2006-03-09 21:50:23 ensonic Exp $
+// $Id: sequence.c,v 1.98 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -918,7 +918,7 @@ gulong bt_sequence_limit_play_pos(const BtSequence *self,gulong play_pos) {
 
 //-- io interface
 
-static xmlNodePtr bt_sequence_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_sequence_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSequence *self = BT_SEQUENCE(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node,child_node2,child_node3;
@@ -975,7 +975,7 @@ Error:
   return(node);
 }
 
-static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSequence *self = BT_SEQUENCE(persistence);
   gboolean res=FALSE;
   xmlChar *loop_str,*loop_start_str,*loop_end_str;

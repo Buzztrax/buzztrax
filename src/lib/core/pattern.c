@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.75 2006-03-09 17:30:47 ensonic Exp $
+// $Id: pattern.c,v 1.76 2006-03-15 11:19:20 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -773,7 +773,7 @@ void bt_pattern_play_tick(const BtPattern *self, gulong tick) {
 
 //-- io interface
 
-static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtPattern *self = BT_PATTERN(persistence);
   gchar *id;
   xmlNodePtr node=NULL;
@@ -829,12 +829,27 @@ static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlDoc
   return(node);
 }
 
-static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtPattern *self = BT_PATTERN(persistence);
+static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
+  BtPattern *self = BT_PATTERN(persistence);
   gboolean res=FALSE;
+  xmlChar *id,*name,*length_str;
+  gulong length;
+
+  id=xmlGetProp(node,XML_CHAR_PTR("id"));
+  name=xmlGetProp(node,XML_CHAR_PTR("name"));
+  length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
+  length=length_str?atol((char *)length_str):0;
+  g_object_set(G_OBJECT(self),"id",id,"name",name,"length",length,NULL);
+  xmlFree(id);xmlFree(name);
   
-  /* @todo: implement me */
- 
+  if(!bt_pattern_init_data(self)) {
+    goto Error;
+  }
+
+  /* @todo: implement me more */
+
+  res=TRUE;
+Error:  
   return(res);
 }
 

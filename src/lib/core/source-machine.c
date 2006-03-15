@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.35 2006-03-10 17:18:27 ensonic Exp $
+// $Id: source-machine.c,v 1.36 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -59,7 +59,7 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
@@ -69,7 +69,7 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
   GST_DEBUG("PERSISTENCE::source-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,doc,parent_node,selection))) {
+  if((node=parent_iface->save(persistence,parent_node,selection))) {
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("source"));
 
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,"voices",&voices,NULL);
@@ -80,7 +80,7 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
   return(node);
 }
 
-static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlChar *plugin_name,*voices_str;
@@ -93,7 +93,7 @@ static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, x
   xmlFree(plugin_name);xmlFree(voices_str);
   
   // load parent class stuff
-  return(parent_iface->load(persistence,doc,node,location));
+  return(parent_iface->load(persistence,node,location));
 }
 
 static void bt_source_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

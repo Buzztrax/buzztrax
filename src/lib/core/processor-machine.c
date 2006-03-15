@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.37 2006-03-10 17:18:27 ensonic Exp $
+// $Id: processor-machine.c,v 1.38 2006-03-15 11:19:20 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -59,7 +59,7 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_processor_machine_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_processor_machine_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtProcessorMachine *self = BT_PROCESSOR_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
@@ -69,7 +69,7 @@ static xmlNodePtr bt_processor_machine_persistence_save(BtPersistence *persisten
   GST_DEBUG("PERSISTENCE::processor-machine");
 
   // save parent class stuff
-  if((node=parent_iface->save(persistence,doc,parent_node,selection))) {
+  if((node=parent_iface->save(persistence,parent_node,selection))) {
     xmlNewProp(node,XML_CHAR_PTR("type"),XML_CHAR_PTR("processor"));
 
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,"voices",&voices,NULL);
@@ -80,7 +80,7 @@ static xmlNodePtr bt_processor_machine_persistence_save(BtPersistence *persisten
   return(node);
 }
 
-static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtProcessorMachine *self = BT_PROCESSOR_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlChar *plugin_name,*voices_str;
@@ -93,7 +93,7 @@ static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence
   xmlFree(plugin_name);xmlFree(voices_str);
   
   // load parent class stuff
-  return(parent_iface->load(persistence,doc,node,location));
+  return(parent_iface->load(persistence,node,location));
 }
 
 static void bt_processor_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

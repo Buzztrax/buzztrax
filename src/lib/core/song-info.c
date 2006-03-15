@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.45 2006-03-08 15:30:35 ensonic Exp $
+// $Id: song-info.c,v 1.46 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -87,7 +87,7 @@ BtSongInfo *bt_song_info_new(const BtSong *song) {
 
 //-- io interface
 
-static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSongInfo *self = BT_SONG_INFO(persistence);
   xmlNodePtr node=NULL;
 
@@ -117,7 +117,7 @@ static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlD
   return(node);
 }
 
-static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSongInfo *self = BT_SONG_INFO(persistence);
   gboolean res=FALSE;
   xmlNodePtr child_node;

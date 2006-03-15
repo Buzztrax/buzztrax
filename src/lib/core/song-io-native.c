@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.104 2006-03-10 17:18:27 ensonic Exp $
+// $Id: song-io-native.c,v 1.105 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -803,16 +803,16 @@ gboolean bt_song_io_native_real_load(const gpointer _self, const BtSong *song) {
         else {
 #ifdef USE_OLD_LOADER
           GST_INFO("file looks good!");
-          if(bt_song_io_native_load_song_info(self,song,song_doc) &&
-            bt_song_io_native_load_setup(    self,song,song_doc) &&
-            bt_song_io_native_load_patterns( self,song,song_doc) &&
-            bt_song_io_native_load_sequence( self,song,song_doc) &&
-            bt_song_io_native_load_wavetable(self,song,song_doc)
+          if(bt_song_io_native_load_song_info(self,song) &&
+            bt_song_io_native_load_setup(    self,song) &&
+            bt_song_io_native_load_patterns( self,song) &&
+            bt_song_io_native_load_sequence( self,song) &&
+            bt_song_io_native_load_wavetable(self,song)
           ) {
             result=TRUE;
           }
 #else
-          result=bt_persistence_load(BT_PERSISTENCE(song),song_doc,root_node,NULL);
+          result=bt_persistence_load(BT_PERSISTENCE(song),root_node,NULL);
 #endif
         }
       }
@@ -1207,15 +1207,15 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
   g_object_set(G_OBJECT(self),"status",status,NULL);
 
   if((song_doc=xmlNewDoc(XML_CHAR_PTR("1.0")))) {
-#ifdef USE_OLD_SAVER
     xmlNodePtr root_node=NULL;
+#ifdef USE_OLD_SAVER
 
     // create the root-node
     root_node=xmlNewNode(NULL,XML_CHAR_PTR("buzztard"));
+    xmlDocSetRootElement(song_doc,root_node);
     xmlNewProp(root_node,XML_CHAR_PTR("xmlns"),(const xmlChar *)BT_NS_URL);
     xmlNewProp(root_node,XML_CHAR_PTR("xmlns:xsd"),XML_CHAR_PTR("http://www.w3.org/2001/XMLSchema-instance"));
     xmlNewProp(root_node,XML_CHAR_PTR("xsd:noNamespaceSchemaLocation"),XML_CHAR_PTR("buzztard.xsd"));
-    xmlDocSetRootElement(song_doc,root_node);
     // build the xml document tree
     if(bt_song_io_native_save_song_info(self,song,song_doc,root_node) &&
       bt_song_io_native_save_setup(    self,song,song_doc,root_node) &&
@@ -1229,7 +1229,8 @@ gboolean bt_song_io_native_real_save(const gpointer _self, const BtSong *song) {
       else GST_ERROR("failed to write song file \"%s\"",file_name);
     }
 #else
-    if(bt_persistence_save(BT_PERSISTENCE(song),song_doc,NULL,NULL)) {
+    if((root_node=bt_persistence_save(BT_PERSISTENCE(song),NULL,NULL))) {
+      xmlDocSetRootElement(song_doc,root_node);
       if(xmlSaveFile(file_name,song_doc)!=-1) {
         result=TRUE;
       }

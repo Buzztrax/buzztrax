@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.88 2006-03-10 17:18:27 ensonic Exp $
+// $Id: setup.c,v 1.89 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -521,7 +521,7 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
 
 //-- io interface
 
-static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtSetup *self = BT_SETUP(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
@@ -536,11 +536,11 @@ static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlDocPt
     else goto Error;
     */
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("machines"),NULL))) {
-      bt_persistence_save_list(self->priv->machines,doc,child_node);
+      bt_persistence_save_list(self->priv->machines,child_node);
     }
     else goto Error;
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wires"),NULL))) {
-      bt_persistence_save_list(self->priv->wires,doc,child_node);
+      bt_persistence_save_list(self->priv->wires,child_node);
     }
     else goto Error;
   }
@@ -548,7 +548,7 @@ Error:
   return(node);
 }
 
-static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSetup *self = BT_SETUP(persistence);
   gboolean res=FALSE;
   xmlNodePtr child_node;
@@ -576,7 +576,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr 
               }
               if(type) {
                 machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));
-                bt_persistence_load(BT_PERSISTENCE(machine),doc,child_node,NULL);
+                bt_persistence_load(BT_PERSISTENCE(machine),child_node,NULL);
                 bt_setup_add_machine(self,machine);
               }
               xmlFree(type_str);
@@ -590,7 +590,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlDocPtr 
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
             wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
-            bt_persistence_load(BT_PERSISTENCE(wire),doc,child_node,NULL);
+            bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL);
             bt_setup_add_wire(self,wire);
           }
         }

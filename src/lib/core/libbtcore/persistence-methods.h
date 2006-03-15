@@ -1,4 +1,4 @@
-/* $Id: persistence-methods.h,v 1.7 2006-03-09 21:50:23 ensonic Exp $
+/* $Id: persistence-methods.h,v 1.8 2006-03-15 11:19:20 ensonic Exp $
  * defines all public methods of the io interface
  */
 
@@ -19,15 +19,18 @@ extern const gchar *bt_persistence_strfmt_long(glong val);
 extern const gchar *bt_persistence_strfmt_ulong(gulong val);
 
 // list helper
-extern gboolean bt_persistence_save_list(const GList *list, xmlDocPtr doc, xmlNodePtr node);
-extern gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlDocPtr doc, xmlNodePtr node);
+extern gboolean bt_persistence_save_list(const GList *list, xmlNodePtr node);
+
+// hashtable helper
+extern gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlNodePtr node);
+extern gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node);
 
 // gvalue helper
 extern gboolean bt_persistence_set_value(GValue *gvalue, const gchar *svalue);
 extern gchar *bt_persistence_get_value(GValue *gvalue);
 
 // wrapper
-extern xmlNodePtr bt_persistence_save(BtPersistence *self, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection);
-extern gboolean bt_persistence_load(BtPersistence *self, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location);
+extern xmlNodePtr bt_persistence_save(BtPersistence *self, xmlNodePtr parent_node, BtPersistenceSelection *selection);
+extern gboolean bt_persistence_load(BtPersistence *self, xmlNodePtr node, BtPersistenceLocation *location);
 
 #endif // BT_PERSISTENCE_METHDOS_H

@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.74 2006-03-09 21:50:23 ensonic Exp $
+// $Id: wire.c,v 1.75 2006-03-15 11:19:21 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -414,7 +414,7 @@ GList *bt_wire_get_element_list(const BtWire *self) {
 
 //-- io interface
 
-static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtWire *self = BT_WIRE(persistence);
   gchar *id;
   xmlNodePtr node=NULL;
@@ -431,7 +431,7 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlDocPtr
   return(node);
 }
 
-static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlDocPtr doc, xmlNodePtr node, BtPersistenceLocation *location) {
+static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtWire *self = BT_WIRE(persistence);
   BtSetup *setup;
   xmlChar *id;
