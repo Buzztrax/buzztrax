@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.107 2006-03-15 16:27:10 ensonic Exp $
+// $Id: song-io-native.c,v 1.108 2006-03-16 19:09:33 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -14,8 +14,8 @@
 
 // the new bt_persistence code takes over
 // use defines below toreenable old code
-#define USE_OLD_SAVER
-#define USE_OLD_LOADER
+//#define USE_OLD_SAVER
+//#define USE_OLD_LOADER
 
 #include <libbtcore/core.h>
 

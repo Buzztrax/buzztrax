@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.198 2006-03-15 14:10:59 ensonic Exp $
+// $Id: machine.c,v 1.199 2006-03-16 19:09:33 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2064,11 +2064,11 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
           if(!xmlNodeIsText(child_node)) {
             name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
             value_str=xmlGetProp(child_node,XML_CHAR_PTR("value"));
-            param=bt_machine_get_global_param_index(self,name,&error);
+            param=bt_machine_get_global_param_index(self,(gchar *)name,&error);
             if(!error) {
               g_value_init(&value,self->priv->global_types[param]);
-              bt_persistence_set_value(&value,value_str);
-              g_object_set_property(G_OBJECT(machine),name,&value);
+              bt_persistence_set_value(&value,(gchar *)value_str);
+              g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
             }
             else {
               GST_WARNING("error while loading global machine data for param %d: %s",param,error->message);
@@ -2086,13 +2086,13 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
             voice=atol((char *)voice_str);
             name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
             value_str=xmlGetProp(child_node,XML_CHAR_PTR("value"));
-            param=bt_machine_get_voice_param_index(self,name,&error);
+            param=bt_machine_get_voice_param_index(self,(gchar *)name,&error);
             if(!error) {
               machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
         
               g_value_init(&value,self->priv->voice_types[param]);
-              bt_persistence_set_value(&value,value_str);
-              g_object_set_property(G_OBJECT(machine_voice),name,&value);
+              bt_persistence_set_value(&value,(gchar *)value_str);
+              g_object_set_property(G_OBJECT(machine_voice),(gchar *)name,&value);
 
               g_object_unref(machine_voice);
             }

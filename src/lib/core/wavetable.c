@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.17 2006-03-15 11:19:21 ensonic Exp $
+// $Id: wavetable.c,v 1.18 2006-03-16 19:09:33 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -140,6 +140,13 @@ static gboolean bt_wavetable_persistence_load(BtPersistence *persistence, xmlNod
   gboolean res=FALSE;
   
   // @todo: implement me
+  /*
+  for(child_node=node->children;child_node;child_node=child_node->next) {
+    if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
+      ...
+    }
+  }
+  */
   res=TRUE;
   return(res);
 }

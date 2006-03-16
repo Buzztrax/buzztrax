@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.89 2006-03-15 11:19:21 ensonic Exp $
+// $Id: setup.c,v 1.90 2006-03-16 19:09:33 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -29,7 +29,8 @@ enum {
 //-- property ids
 
 enum {
-  SETUP_SONG=1,
+  SETUP_PROPERTIES=1,
+  SETUP_SONG,
   SETUP_MACHINES,
   SETUP_WIRES,
 };
@@ -47,7 +48,7 @@ struct _BtSetupPrivate {
   /* (ui) properties accociated with this machine
      zoom. scroll-position
    */
-  //GHashTable *properties;
+  GHashTable *properties;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -529,12 +530,10 @@ static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlNodeP
   GST_DEBUG("PERSISTENCE::setup");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("setup"),NULL))) {
-    /*
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
-      if(!bt_persistence_save_hashtable(self->priv->properties, doc, child_node)) goto Error;
+      if(!bt_persistence_save_hashtable(self->priv->properties, child_node)) goto Error;
     }
     else goto Error;
-    */
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("machines"),NULL))) {
       bt_persistence_save_list(self->priv->machines,child_node);
     }
@@ -595,6 +594,9 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
           }
         }
       }
+      else if(!strncmp((gchar *)node->name,"properties\0",11)) {
+        bt_persistence_load_hashtable(self->priv->properties,node);
+      }
     }
   }
   res=TRUE;
@@ -621,6 +623,9 @@ static void bt_setup_get_property(GObject      *object,
   BtSetup *self = BT_SETUP(object);
   return_if_disposed();
   switch (property_id) {
+    case SETUP_PROPERTIES: {
+      g_value_set_pointer(value, self->priv->properties);
+    } break;
     case SETUP_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
@@ -707,6 +712,8 @@ static void bt_setup_finalize(GObject *object) {
     self->priv->wires=NULL;
   }
 
+  g_hash_table_destroy(self->priv->properties);
+  
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -716,6 +723,8 @@ static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {
   BtSetup *self = BT_SETUP(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETUP, BtSetupPrivate);
+  
+  self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
 static void bt_setup_class_init(BtSetupClass *klass) {
@@ -809,6 +818,12 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                         1, // n_params
                                         BT_TYPE_WIRE // param data
                                         );
+
+  g_object_class_install_property(gobject_class,SETUP_PROPERTIES,
+                                  g_param_spec_pointer("properties",
+                                     "properties prop",
+                                     "list of setup properties",
+                                     G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,SETUP_SONG,
                                   g_param_spec_object("song",

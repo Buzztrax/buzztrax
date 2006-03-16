@@ -1,3 +1,16 @@
+2006-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_persistence_load):
+	* src/lib/core/persistence.c:
+	* src/lib/core/setup.c: (bt_setup_persistence_save),
+	(bt_setup_persistence_load), (bt_setup_get_property),
+	(bt_setup_finalize), (bt_setup_init), (bt_setup_class_init):
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_load):
+	* src/ui/edit/main-page-machines.c: (update_machines_zoom),
+	(machine_view_refresh), (on_toolbar_zoom_fit_clicked):
+        fixed gcc-4 warnings, added property hashtable to setup
+
 2006-03-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c: (bt_sequence_persistence_save),

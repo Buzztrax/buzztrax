@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.9 2006-03-15 11:19:20 ensonic Exp $
+// $Id: persistence.c,v 1.10 2006-03-16 19:09:33 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -81,6 +81,20 @@ gboolean bt_persistence_save_list(const GList *list,xmlNodePtr node) {
   }
   return(res);
 }
+
+/*
+ * this isn't as useful as the _save_list version
+ *
+gboolean bt_persistence_load_list(const GList *list,xmlNodePtr node,gchar *name) {
+  gboolean res=TRUE;
+  gulong name_len=strlen(name);
+
+  for(node=node->children;node;node=node->next) {
+    if((!xmlNodeIsText(node)) && (!strncmp((char *)node->name,name,strlen))) {
+      ...
+    }
+  }
+*/
 
 //-- hashtable helper
 

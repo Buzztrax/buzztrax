@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.70 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-page-machines.c,v 1.71 2006-03-16 19:09:33 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -57,6 +57,9 @@ struct _BtMainPageMachinesPrivate {
   GnomeCanvasItem *new_wire;
   GnomeCanvasPoints *new_wire_points;
   BtMachineCanvasItem *new_wire_src,*new_wire_dst;
+  
+  /* cached setup properties */
+  GHashTable *properties;
 
   /* mouse coodinates on context menu invokation (used for placing machines there */
   gdouble mouse_x,mouse_y;
@@ -73,7 +76,7 @@ gboolean canvas_item_destroy(gpointer key,gpointer value,gpointer user_data) {
 
 //-- event handler helper
 
-// @todo this method probably should go to BtMachine, but otherwise it is GUI related
+// @todo this method probably should go to BtMachine, but on the other hand it is GUI related
 void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y) {
   gchar *prop;
 
@@ -97,7 +100,9 @@ void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gd
   else GST_WARNING("no properties supplied");
 }
 
-/**
+/*
+ * update_machine_zoom:
+ *
  * workaround for gnome_canvas bug, that fails to change font-sizes when zooming
  */
 static void update_machine_zoom(gpointer key,gpointer value,gpointer user_data) {
@@ -105,6 +110,10 @@ static void update_machine_zoom(gpointer key,gpointer value,gpointer user_data) 
 }
 
 static void update_machines_zoom(const BtMainPageMachines *self) {
+  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+  
+  g_hash_table_insert(self->priv->properties,g_strdup("zoom"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->zoom)));
+  
   g_hash_table_foreach(self->priv->machines,update_machine_zoom,&self->priv->zoom);
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
@@ -132,6 +141,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   gdouble pos_x,pos_y;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GList *node,*list;
+  gchar *prop;
   
   // clear the canvas
   GST_DEBUG("before destoying machine canvas items");
@@ -139,12 +149,19 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   GST_DEBUG("before destoying wire canvas items");
   g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   GST_DEBUG("done");
+  
+  // update view (@todo: remember scroller xpos,ypos)
+  g_object_get(G_OBJECT(setup),"properties",&self->priv->properties,NULL);
+  prop=(gchar *)g_hash_table_lookup(self->priv->properties,"zoom");
+  if(prop) {
+    self->priv->zoom=g_ascii_strtod(prop,NULL);
+  }
 
   // draw all machines
   g_object_get(G_OBJECT(setup),"machines",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
-    // get position, name and machine type
+    // get position
     g_object_get(machine,"properties",&properties,NULL);
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
     // draw machine
@@ -353,16 +370,43 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 }
 
 static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
-  //BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+  GHashTable *properties;
+  GList *node,*list;
+  gdouble pos_x,pos_y;
+  gdouble pos_xs=1.0,pos_ys=1.0,pos_xe=-1.0,pos_ye=-1.0;
+  gdouble xd,yd;
 
   g_assert(user_data);
 
-  /* TODO calculate bounds
-  self->priv->zoom*=???;
-  GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
+  //calculate bounds
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(setup),"machines",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    machine=BT_MACHINE(node->data);
+    // get position
+    g_object_get(machine,"properties",&properties,NULL);
+    machine_view_get_machine_position(properties,&pos_x,&pos_y);
+    if(pos_x<pos_xs) pos_xs=pos_x;
+    else if(pos_x>pos_xe) pos_xe=pos_x;
+    if(pos_y<pos_ys) pos_ys=pos_y;
+    else if(pos_y>pos_ye) pos_ye=pos_y;
+  }
+  g_object_unref(setup);
+  g_object_unref(song);
+  GST_INFO("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",pos_xs,pos_xe,pos_ys,pos_ye);
+  xd=pos_xe-pos_xs;
+  yd=pos_ye-pos_ys;
+
+  self->priv->zoom=2.0/MAX(xd,yd);
+  GST_INFO("toolbar zoom_fit event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+  // @todo: center
   update_machines_zoom(self);
-  */
 }
 
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
