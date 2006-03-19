@@ -16,7 +16,7 @@
     <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
-  <setup zoom="1.0">
+  <setup>
     <machines>
       <sink id="audio_sink">
         <properties>
@@ -32,6 +32,25 @@
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="0.2"/>
         </properties>
+        <patterns>
+          <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
+            <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
+            <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
+            <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
+            <tick time= "3"><globaldata name="volume" value="0.25"/></tick>
+            <tick time= "4"><globaldata name="volume" value="1.0"/></tick>
+            <tick time= "5"><globaldata name="volume" value="0.75"/></tick>
+            <tick time= "6"><globaldata name="volume" value="0.5"/></tick>
+            <tick time= "7"><globaldata name="volume" value="0.25"/></tick>
+            <tick time= "8"><globaldata name="volume" value="1.0"/></tick>
+            <tick time= "9"><globaldata name="volume" value="0.75"/></tick>
+            <tick time="10"><globaldata name="volume" value="0.5"/></tick>
+            <tick time="11"><globaldata name="volume" value="0.375"/></tick>
+            <tick time="12"><globaldata name="volume" value="0.25"/></tick>
+            <tick time="13"><globaldata name="volume" value="0.125"/></tick>
+            <tick time="14"><globaldata name="volume" value="0.0"/></tick>
+          </pattern>
+        </patterns>
       </processor>
       
       <source id="sine1" plugin-name="audiotestsrc" voices="0">
@@ -40,6 +59,36 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="sine1_beeps_up" machine="sine1" name="beeps_up" length="16">
+            <tick time="0">
+              <globaldata name="freq" value="440,0"/>
+              <globaldata name="volume" value="1,0"/>
+            </tick>
+            <tick time="4">
+              <globaldata name="freq" value="880,0"/>
+              <globaldata name="volume" value="1,0"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="freq" value="1760,0"/>
+              <globaldata name="volume" value="1,0"/>
+            </tick>
+          </pattern>
+          <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
+            <tick time="0">
+              <globaldata name="freq" value="1760.0"/>
+              <globaldata name="volume" value="1.0"/>
+            </tick>
+            <tick time="4">
+              <globaldata name="freq" value="880.0"/>
+              <globaldata name="volume" value="1.0"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="freq" value="440.0"/>
+              <globaldata name="volume" value="1.0"/>
+            </tick>
+          </pattern>
+        </patterns>
       </source>
 
       <source id="sine2" plugin-name="audiotestsrc" voices="0">
@@ -76,55 +125,7 @@
     </wires>    
   </setup>
   
-  <patterns>
-    <pattern id="sine1_beeps_up" machine="sine1" name="beeps_up" length="16">
-      <tick time="0">
-        <globaldata name="freq" value="440,0"/>
-        <globaldata name="volume" value="1,0"/>
-      </tick>
-      <tick time="4">
-        <globaldata name="freq" value="880,0"/>
-        <globaldata name="volume" value="1,0"/>
-      </tick>
-      <tick time="8">
-        <globaldata name="freq" value="1760,0"/>
-        <globaldata name="volume" value="1,0"/>
-      </tick>
-    </pattern>
-    <pattern id="sine1_beeps_down" machine="sine1" name="beeps_down" length="16">
-      <tick time="0">
-        <globaldata name="freq" value="1760.0"/>
-        <globaldata name="volume" value="1.0"/>
-      </tick>
-      <tick time="4">
-        <globaldata name="freq" value="880.0"/>
-        <globaldata name="volume" value="1.0"/>
-      </tick>
-      <tick time="8">
-        <globaldata name="freq" value="440.0"/>
-        <globaldata name="volume" value="1.0"/>
-      </tick>
-    </pattern>
-    <pattern id="amp1_fade" machine="amp1" name="fade" length="16">
-      <tick time= "0"><globaldata name="volume" value="1.0"/></tick>
-      <tick time= "1"><globaldata name="volume" value="0.75"/></tick>
-      <tick time= "2"><globaldata name="volume" value="0.5"/></tick>
-      <tick time= "3"><globaldata name="volume" value="0.25"/></tick>
-      <tick time= "4"><globaldata name="volume" value="1.0"/></tick>
-      <tick time= "5"><globaldata name="volume" value="0.75"/></tick>
-      <tick time= "6"><globaldata name="volume" value="0.5"/></tick>
-      <tick time= "7"><globaldata name="volume" value="0.25"/></tick>
-      <tick time= "8"><globaldata name="volume" value="1.0"/></tick>
-      <tick time= "9"><globaldata name="volume" value="0.75"/></tick>
-      <tick time="10"><globaldata name="volume" value="0.5"/></tick>
-      <tick time="11"><globaldata name="volume" value="0.375"/></tick>
-      <tick time="12"><globaldata name="volume" value="0.25"/></tick>
-      <tick time="13"><globaldata name="volume" value="0.125"/></tick>
-      <tick time="14"><globaldata name="volume" value="0.0"/></tick>
-    </pattern>
-  </patterns>
-  
-  <sequence>
+  <sequence length="64" tracks="2">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>

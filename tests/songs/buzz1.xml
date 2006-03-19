@@ -16,7 +16,7 @@
     <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
-  <setup zoom="1.0">
+  <setup>
     <machines>
       <sink id="audio_sink">
         <properties>
@@ -33,6 +33,21 @@
          <property key="ypos" value="20" />
         </properties>
         <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
+            <tick time="0">
+              <voicedata name="Dial-Number" voice="0" value="1"/>
+              <voicedata name="Sustain" voice ="0" value="200"/>
+              <voicedata name="Volume" voice="0" value="200"/>
+            </tick>
+            <tick time="4">
+              <voicedata name="Dial-Number" voice="0" value="2"/>
+            </tick>
+            <tick time="8">
+              <voicedata name="Dial-Number" voice="0" value="3"/>
+            </tick>
+          </pattern>
+        </patterns>
       </source>
     </machines>
     
@@ -40,24 +55,8 @@
       <wire src="gen" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
-  
-  <patterns>
-    <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
-      <tick time="0">
-        <voicedata name="Dial-Number" voice="0" value="1"/>
-        <voicedata name="Sustain" voice ="0" value="200"/>
-        <voicedata name="Volume" voice="0" value="200"/>
-      </tick>
-      <tick time="4">
-        <voicedata name="Dial-Number" voice="0" value="2"/>
-      </tick>
-      <tick time="8">
-        <voicedata name="Dial-Number" voice="0" value="3"/>
-      </tick>
-    </pattern>
-  </patterns>
-  
-  <sequence>
+    
+  <sequence length="64" tracks="1">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>

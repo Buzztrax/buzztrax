@@ -9,22 +9,20 @@
   <xsd:attribute name="value" type="xsd:string"/>
   <xsd:attribute name="voice" type="xsd:integer"/>
   <xsd:attribute name="voices" type="xsd:integer"/>
-  <xsd:attribute name="zoom" type="xsd:float"/>
   <xsd:attribute name="id" type="xsd:string"/>
   <xsd:attribute name="index" type="xsd:integer"/>
   <xsd:attribute name="plugin-name" type="xsd:string"/>
-  <xsd:attribute name="xpos" type="xsd:integer"/>
-  <xsd:attribute name="ypos" type="xsd:integer"/>
   <xsd:attribute name="src" type="xsd:string"/>
   <xsd:attribute name="dst" type="xsd:string"/>
-  <xsd:attribute name="gain" type="xsd:float"/>
-  <xsd:attribute name="pan" type="xsd:integer"/>
+  <xsd:attribute name="gain" type="xsd:float"/><!-- unused -->
+  <xsd:attribute name="pan" type="xsd:integer"/><!-- unused -->
   <xsd:attribute name="machine" type="xsd:string"/>
   <xsd:attribute name="length" type="xsd:integer"/>
   <xsd:attribute name="time" type="xsd:integer"/>
   <xsd:attribute name="pattern" type="xsd:string"/>
   <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="url" type="xsd:string"/>
+  <xsd:attribute name="tracks" type="xsd:integer"/>
   <xsd:attribute name="loop" type="xsd:string"/>
   <xsd:attribute name="loop-start" type="xsd:integer"/>
   <xsd:attribute name="loop-end" type="xsd:integer"/>
@@ -83,12 +81,33 @@
     </xsd:complexType>
   </xsd:element>
   
+  <xsd:element name="pattern">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="tick" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute ref="id" use="required"/>
+      <xsd:attribute ref="name" use="required"/>
+      <xsd:attribute ref="machine" use="required"/>
+      <xsd:attribute ref="length" use="required"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="patterns">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="pattern" minOccurs="1" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
   <xsd:element name="sink">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
     </xsd:complexType>
@@ -100,6 +119,7 @@
         <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
       <xsd:attribute ref="plugin-name" use="required"/>
@@ -113,6 +133,7 @@
         <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
       <xsd:attribute ref="id" use="required"/>
       <xsd:attribute ref="plugin-name" use="required"/>
@@ -150,10 +171,10 @@
   <xsd:element name="setup">
     <xsd:complexType>
       <xsd:sequence>
+        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="machines" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="wires" minOccurs="1" maxOccurs="1"/>
       </xsd:sequence>
-      <xsd:attribute ref="zoom" use="required"/>
     </xsd:complexType>
   </xsd:element>
   
@@ -164,26 +185,6 @@
         <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attribute ref="time" use="required"/>
-    </xsd:complexType>
-  </xsd:element>
-  
-  <xsd:element name="pattern">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="tick" minOccurs="1" maxOccurs="unbounded"/>
-      </xsd:sequence>
-      <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="name" use="required"/>
-      <xsd:attribute ref="machine" use="required"/>
-      <xsd:attribute ref="length" use="required"/>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="patterns">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="pattern" minOccurs="1" maxOccurs="unbounded"/>
-      </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
   
@@ -233,6 +234,8 @@
         <xsd:element ref="labels" minOccurs="1" maxOccurs="1"/>
         <xsd:element ref="tracks" minOccurs="1" maxOccurs="1"/>
       </xsd:sequence>
+      <xsd:attribute ref="length" use="required"/>
+      <xsd:attribute ref="tracks" use="required"/>
       <xsd:attribute ref="loop" use="optional"/>
       <xsd:attribute ref="loop-start" use="optional"/>
       <xsd:attribute ref="loop-end" use="optional"/>

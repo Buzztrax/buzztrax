@@ -16,7 +16,7 @@
     <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
-  <setup zoom="1.0">
+  <setup>
     <machines>
       <sink id="audio_sink">
         <properties>
@@ -33,6 +33,14 @@
           <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="bd_beats" machine="bd" name="beats" length="16">
+            <tick time= "0"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time= "8"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
+          </pattern>
+        </patterns>
       </source>
 
       <source id="snr" plugin-name="bml-ErsSnare" voices="1">
@@ -41,6 +49,12 @@
           <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="snr_beats" machine="snr" name="beats" length="16">
+            <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
+          </pattern>
+        </patterns>
       </source>
 
       <source id="hh" plugin-name="bml-ErsHihat" voices="1">
@@ -49,6 +63,14 @@
           <property key="ypos" value="0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="hh_beats" machine="hh" name="beats" length="16">
+            <tick time= "2"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time= "6"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time="10"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time="14"><voicedata name="Trig" voice="0" value="1"/></tick>
+          </pattern>
+        </patterns>
       </source>
     </machines>
     
@@ -59,26 +81,8 @@
     </wires>    
   </setup>
   
-  <patterns>
-    <pattern id="bd_beats" machine="bd" name="beats" length="16">
-      <tick time= "0"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time= "8"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
-    </pattern>
-    <pattern id="snr_beats" machine="snr" name="beats" length="16">
-      <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
-    </pattern>
-    <pattern id="hh_beats" machine="hh" name="beats" length="16">
-      <tick time= "2"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time= "6"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time="10"><voicedata name="Trig" voice="0" value="1"/></tick>
-      <tick time="14"><voicedata name="Trig" voice="0" value="1"/></tick>
-    </pattern>
-  </patterns>
   
-  <sequence>
+  <sequence length="64" tracks="3">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>

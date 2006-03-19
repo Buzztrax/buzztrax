@@ -16,7 +16,7 @@
     <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
-  <setup zoom="1.0">
+  <setup>
     <machines>
       
       <sink id="audio_sink">
@@ -42,6 +42,19 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
       </source>
+      <patterns>
+        <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
+          <tick time="0">
+            <globaldata name="Note" value="24"/>
+          </tick>
+          <tick time="4">
+            <globaldata name="Note" value="28"/>
+          </tick>
+          <tick time="8">
+            <globaldata name="Note" value="31"/>
+          </tick>
+        </pattern>
+      </patterns>
     </machines>
     
     <wires>
@@ -50,21 +63,7 @@
     </wires>    
   </setup>
   
-  <patterns>
-    <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
-      <tick time="0">
-        <globaldata name="Note" value="24"/>
-      </tick>
-      <tick time="4">
-        <globaldata name="Note" value="28"/>
-      </tick>
-      <tick time="8">
-        <globaldata name="Note" value="31"/>
-      </tick>
-    </pattern>
-  </patterns>
-  
-  <sequence>
+  <sequence length="64" tracks="1">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>

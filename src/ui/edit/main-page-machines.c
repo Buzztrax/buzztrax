@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.71 2006-03-16 19:09:33 ensonic Exp $
+// $Id: main-page-machines.c,v 1.72 2006-03-19 19:18:01 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -26,6 +26,7 @@ struct _BtMainPageMachinesPrivate {
   
   /* canvas for machine view */
   GnomeCanvas *canvas;
+  GtkAdjustment *hadjustment,*vadjustment;
   /* canvas background grid */
   GnomeCanvasItem *grid;
   
@@ -150,11 +151,18 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   GST_DEBUG("done");
   
-  // update view (@todo: remember scroller xpos,ypos)
+  // update view
   g_object_get(G_OBJECT(setup),"properties",&self->priv->properties,NULL);
-  prop=(gchar *)g_hash_table_lookup(self->priv->properties,"zoom");
-  if(prop) {
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"zoom"))) {
     self->priv->zoom=g_ascii_strtod(prop,NULL);
+    gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+    GST_INFO("set zoom to %6.4lf",self->priv->zoom);
+  }
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"xpos"))) {
+    gtk_adjustment_set_value(self->priv->hadjustment,g_ascii_strtod(prop,NULL));
+  }
+  if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"ypos"))) {
+    gtk_adjustment_set_value(self->priv->vadjustment,g_ascii_strtod(prop,NULL));
   }
 
   // draw all machines
@@ -506,6 +514,21 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
   bt_main_page_machine_draw_grid(self);
 }
 
+static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+  
+  g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,gtk_adjustment_get_value(adjustment))));  
+}
+
+static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+  
+  g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,gtk_adjustment_get_value(adjustment))));  
+}
+
+
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
@@ -772,6 +795,12 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
+  
+  self->priv->vadjustment=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
+  g_signal_connect(G_OBJECT(self->priv->vadjustment),"value-changed",G_CALLBACK(on_vadjustment_changed),(gpointer)self);
+  self->priv->hadjustment=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
+  g_signal_connect(G_OBJECT(self->priv->hadjustment),"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
+  
 
   // let settings control toolbar style
   on_toolbar_style_changed(settings,NULL,(gpointer)self);

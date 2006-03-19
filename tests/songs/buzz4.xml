@@ -16,7 +16,7 @@
       <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
   
-  <setup zoom="1.0">
+  <setup>
     <machines>
       <sink id="audio_sink">
         <properties>
@@ -52,7 +52,7 @@
     </pattern>
   </patterns>
   
-  <sequence>
+  <sequence length="96" tracks="1">
     <labels>
       <label time="0" name="start"/>
       <label time="95" name="end"/>
