@@ -18,23 +18,23 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
 
-      <processor id="chorus" plugin-name="bml-Chorus" voices="0">
+      <machine type="processor" id="chorus" plugin-name="bml-Chorus" voices="0">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="0.0"/>
         </properties>
-      </processor>
+      </machine>
 
-      <source id="gen" plugin-name="bml-GoaKick" voices="0">
+      <machine type="source" id="gen" plugin-name="bml-GoaKick" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -50,7 +50,7 @@
             <tick time="8"><globaldata name="Trigger" value="80"/></tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
     </machines>
     
     <wires>

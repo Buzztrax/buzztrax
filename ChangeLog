@@ -1,3 +1,40 @@
+2006-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/buzztard.xsd:
+	* src/lib/core/machine.c: (bt_machine_persistence_save),
+	(bt_machine_persistence_load):
+	* src/lib/core/pattern.c: (bt_pattern_persistence_save),
+	(bt_pattern_persistence_load):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_save),
+	(bt_song_info_persistence_load):
+	* src/lib/core/song.c: (bt_song_persistence_load):
+	* src/lib/core/wire.c: (bt_wire_persistence_save),
+	(bt_wire_persistence_load):
+	* tests/Makefile.am:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/example.xml:
+	* tests/songs/melo1.xml:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/simple1.xml:
+	* tests/songs/simple2.xml:
+	* tests/songs/simple3.xml:
+	* tests/songs/simple4.xml:
+	* tests/songs/simple5.xml:
+	* tests/songs/test-simple1.xml:
+	* tests/songs/test-simple2.xml:
+	fix test songs even more, more debug in persistence
+
 2006-03-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/buzztard.xsd:

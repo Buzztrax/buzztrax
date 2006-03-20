@@ -18,40 +18,39 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
       
-      <source id="gen" plugin-name="bml-GoaKick" voices="0">
+      <machine type="source" id="gen" plugin-name="bml-GoaKick" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
-      </source>
+        <patterns>
+          <pattern id="gen_beats" machine="gen" name="beats" length="16">
+            <tick time="0">
+              <globaldata name="Trigger" value="10"/>
+              <globaldata name="Tone" value="40"/>
+            </tick>
+            <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+            <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+          </pattern>
+        </patterns>
+      </machine>
     </machines>
     
     <wires>
       <wire src="gen" dst="audio_sink" gain="1.0" pan="-50"/>
     </wires>    
   </setup>
-  
-  <patterns>
-    <pattern id="gen_beats" machine="gen" name="beats" length="16">
-      <tick time="0">
-        <globaldata name="Trigger" value="10"/>
-        <globaldata name="Tone" value="40"/>
-      </tick>
-      <tick time="4"><globaldata name="Trigger" value="40"/></tick>
-      <tick time="8"><globaldata name="Trigger" value="80"/></tick>
-    </pattern>
-  </patterns>
-  
+    
   <sequence length="96" tracks="1">
     <labels>
       <label time="0" name="start"/>

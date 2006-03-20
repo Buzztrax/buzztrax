@@ -18,16 +18,16 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
       
-      <source id="bd" plugin-name="bml-ErsKick" voices="1">
+      <machine type="source" id="bd" plugin-name="bml-ErsKick" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -41,9 +41,9 @@
             <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
 
-      <source id="snr" plugin-name="bml-ErsSnare" voices="1">
+      <machine type="source" id="snr" plugin-name="bml-ErsSnare" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
@@ -55,9 +55,9 @@
             <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
 
-      <source id="hh" plugin-name="bml-ErsHihat" voices="1">
+      <machine type="source" id="hh" plugin-name="bml-ErsHihat" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.5"/>
@@ -71,7 +71,7 @@
             <tick time="14"><voicedata name="Trig" voice="0" value="1"/></tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
     </machines>
     
     <wires>

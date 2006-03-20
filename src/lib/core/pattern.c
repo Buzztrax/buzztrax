@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.77 2006-03-15 14:10:59 ensonic Exp $
+// $Id: pattern.c,v 1.78 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -779,6 +779,8 @@ static xmlNodePtr bt_pattern_persistence_save(BtPersistence *persistence, xmlNod
   xmlNodePtr node=NULL;
   xmlNodePtr child_node,child_node2;
   
+  GST_DEBUG("PERSISTENCE::pattern");
+  
   // @todo: hack, command-patterns start with "   "
   if(self->priv->name[0]==' ') return((xmlNodePtr)1);
 
@@ -838,6 +840,8 @@ static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlNodeP
   gulong length;
   xmlNodePtr child_node;
   GError *error=NULL;
+  
+  GST_DEBUG("PERSISTENCE::pattern");
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   name=xmlGetProp(node,XML_CHAR_PTR("name"));

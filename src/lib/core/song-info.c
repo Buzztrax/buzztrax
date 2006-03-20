@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.46 2006-03-15 11:19:21 ensonic Exp $
+// $Id: song-info.c,v 1.47 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -91,6 +91,8 @@ static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlN
   BtSongInfo *self = BT_SONG_INFO(persistence);
   xmlNodePtr node=NULL;
 
+  GST_DEBUG("PERSISTENCE::song-info");
+  
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
     if(self->priv->info) {
       xmlNewChild(node,NULL,XML_CHAR_PTR("info"),XML_CHAR_PTR(self->priv->info));
@@ -124,6 +126,8 @@ static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlNod
   xmlChar *elem;
   const gchar *property_name;
   
+  GST_DEBUG("PERSISTENCE::song-info");
+
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       child_node=node->children;

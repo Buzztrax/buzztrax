@@ -18,9 +18,9 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
-      </sink>
-      <source id="sine1" plugin-name="audiotestsrc" voices="0">
+      <machine type="sink" id="audio_sink">
+      </machine>
+      <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="0">
         <patterns>
           <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
             <tick time="0">
@@ -37,7 +37,7 @@
             </tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
     </machines>
     
     <wires>

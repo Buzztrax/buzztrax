@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.99 2006-03-15 16:27:06 ensonic Exp $
+// $Id: sequence.c,v 1.100 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -985,6 +985,8 @@ static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlNode
   glong loop_start,loop_end;
   gulong length,tracks;
   xmlNodePtr child_node,child_node2;
+  
+  GST_DEBUG("PERSISTENCE::sequence");
   
   length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
   tracks_str=xmlGetProp(node,XML_CHAR_PTR("tracks"));

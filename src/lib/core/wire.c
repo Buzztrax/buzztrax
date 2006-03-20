@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.75 2006-03-15 11:19:21 ensonic Exp $
+// $Id: wire.c,v 1.76 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -419,6 +419,8 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlNodePt
   gchar *id;
   xmlNodePtr node=NULL;
 
+  GST_DEBUG("PERSISTENCE::wire");
+  
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
     g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
@@ -435,6 +437,8 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr 
   BtWire *self = BT_WIRE(persistence);
   BtSetup *setup;
   xmlChar *id;
+  
+  GST_DEBUG("PERSISTENCE::wire");
   
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
 

@@ -10,6 +10,7 @@
   <xsd:attribute name="voice" type="xsd:integer"/>
   <xsd:attribute name="voices" type="xsd:integer"/>
   <xsd:attribute name="id" type="xsd:string"/>
+  <xsd:attribute name="type" type="xsd:string"/>
   <xsd:attribute name="index" type="xsd:integer"/>
   <xsd:attribute name="plugin-name" type="xsd:string"/>
   <xsd:attribute name="src" type="xsd:string"/>
@@ -101,7 +102,7 @@
     </xsd:complexType>
   </xsd:element>
 
-  <xsd:element name="sink">
+  <xsd:element name="machine">
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
@@ -109,44 +110,17 @@
         <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
       </xsd:sequence>
+      <xsd:attribute ref="type" use="required"/>
       <xsd:attribute ref="id" use="required"/>
-    </xsd:complexType>
-  </xsd:element>
-  
-  <xsd:element name="processor">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
-      </xsd:sequence>
-      <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="plugin-name" use="required"/>
+      <xsd:attribute ref="plugin-name"/>
       <xsd:attribute ref="voices"/>
     </xsd:complexType>
   </xsd:element>
-  
-  <xsd:element name="source">
-    <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="properties" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="globaldata" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="voicedata" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="patterns" minOccurs="0" maxOccurs="1"/>
-      </xsd:sequence>
-      <xsd:attribute ref="id" use="required"/>
-      <xsd:attribute ref="plugin-name" use="required"/>
-      <xsd:attribute ref="voices"/>
-    </xsd:complexType>
-  </xsd:element>
-  
+    
   <xsd:element name="machines">
     <xsd:complexType>
       <xsd:sequence>
-        <xsd:element ref="sink" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="processor" minOccurs="0" maxOccurs="unbounded"/>
-        <xsd:element ref="source" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="machine" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>

@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.90 2006-03-16 19:09:33 ensonic Exp $
+// $Id: setup.c,v 1.91 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -552,9 +552,11 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
   gboolean res=FALSE;
   xmlNodePtr child_node;
   
+  GST_DEBUG("PERSISTENCE::setup");
+  
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
-      if(!strncmp((gchar *)node->name,"machines\0",8)) {
+      if(!strncmp((gchar *)node->name,"machines\0",9)) {
         BtMachine *machine;
         xmlChar *type_str;
         GType type=0;
@@ -562,7 +564,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
         //bt_song_io_native_load_setup_machines(self,song,node->children);
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
-            if(!strncmp((gchar *)child_node->name,"machine\0",7)) {
+            if(!strncmp((gchar *)child_node->name,"machine\0",8)) {
               type_str=xmlGetProp(child_node,XML_CHAR_PTR("type"));
               if(!strncmp((gchar *)type_str,"processor\0",10)) {
                 type=BT_TYPE_PROCESSOR_MACHINE;
@@ -572,6 +574,9 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
               }
               else if(!strncmp((gchar *)type_str,"source\0",7)) {
                 type=BT_TYPE_SOURCE_MACHINE;
+              }
+              else {
+                GST_WARNING("machine node has no type");
               }
               if(type) {
                 machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));

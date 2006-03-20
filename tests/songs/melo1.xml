@@ -18,16 +18,16 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
             
-      <source id="beep1" plugin-name="simsyn" voices="0">
+      <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -49,9 +49,9 @@
             </tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
 
-      <source id="beep2" plugin-name="simsyn" voices="0">
+      <machine type="source" id="beep2" plugin-name="simsyn" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
@@ -67,7 +67,7 @@
             </tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
     </machines>
     
     <wires>

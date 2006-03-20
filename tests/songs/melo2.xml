@@ -18,38 +18,38 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
             
-      <source id="beep1" plugin-name="simsyn" voices="0">
+      <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
-      </source>
-      <patterns>
-        <pattern id="beep1::C-3_E-3_G-3" machine="beep1" name="C-3_E-3_G-3" length="16">
-          <tick time="0">
-            <globaldata name="note" value="c-3"/>
-            <globaldata name="volume" value="1.0"/>
-            <globaldata name="decay" value="0.9995"/>
-            <globaldata name="wave" value="2"/>
-          </tick>
-          <tick time="8">
-            <globaldata name="note" value="e-3"/>
-          </tick>
-          <tick time="12">
-            <globaldata name="note" value="g-3"/>
-          </tick>
-        </pattern>
-      </patterns>
+        <patterns>
+          <pattern id="beep1::C-3_E-3_G-3" machine="beep1" name="C-3_E-3_G-3" length="16">
+            <tick time="0">
+              <globaldata name="note" value="c-3"/>
+              <globaldata name="volume" value="1.0"/>
+              <globaldata name="decay" value="0.9995"/>
+              <globaldata name="wave" value="2"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="note" value="e-3"/>
+            </tick>
+            <tick time="12">
+              <globaldata name="note" value="g-3"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
     </machines>
     
     <wires>

@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.199 2006-03-16 19:09:33 ensonic Exp $
+// $Id: machine.c,v 1.200 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -1983,6 +1983,7 @@ static xmlNodePtr bt_machine_persistence_save(BtPersistence *persistence, xmlNod
   GValue value={0,};
 
   GST_DEBUG("PERSISTENCE::machine");
+
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("machine"),NULL))) {
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
 
@@ -2044,6 +2045,8 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
   glong param,voice;
   GstObject *machine,*machine_voice;
   GError *error=NULL;
+
+  GST_DEBUG("PERSISTENCE::machine");
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   g_object_set(G_OBJECT(self),"id",id,NULL);

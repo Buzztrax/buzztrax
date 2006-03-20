@@ -19,42 +19,42 @@
   <setup>
     <machines>
       
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
 
-      <processor id="filter" plugin-name="bml-SVF">
+      <machine type="processor" id="filter" plugin-name="bml-SVF">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="0.2"/>
         </properties>
-      </processor>
+      </machine>
 
-      <source id="guru2" plugin-name="bml-Gur--2" voices="0">
+      <machine type="source" id="guru2" plugin-name="bml-Gur--2" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
-      </source>
-      <patterns>
-        <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
-          <tick time="0">
-            <globaldata name="Note" value="24"/>
-          </tick>
-          <tick time="4">
-            <globaldata name="Note" value="28"/>
-          </tick>
-          <tick time="8">
-            <globaldata name="Note" value="31"/>
-          </tick>
-        </pattern>
-      </patterns>
+        <patterns>
+          <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
+            <tick time="0">
+              <globaldata name="Note" value="24"/>
+            </tick>
+            <tick time="4">
+              <globaldata name="Note" value="28"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="Note" value="31"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
     </machines>
     
     <wires>

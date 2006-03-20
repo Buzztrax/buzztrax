@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.121 2006-03-15 11:19:21 ensonic Exp $
+// $Id: song.c,v 1.122 2006-03-20 10:46:41 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -698,6 +698,8 @@ static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlNodePtr 
   BtSong *self = BT_SONG(persistence);
   gboolean res=TRUE;
 
+  GST_DEBUG("PERSISTENCE::song");
+  
   res=TRUE;
   for(node=node->children;(node && res);node=node->next) {
     if(!xmlNodeIsText(node)) {

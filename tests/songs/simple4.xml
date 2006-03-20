@@ -18,16 +18,16 @@
   
   <setup>
     <machines>
-      <sink id="audio_sink">
+      <machine type="sink" id="audio_sink">
         <properties>
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
-      </sink>
+      </machine>
       
-      <processor id="amp1" plugin-name="volume">
+      <machine type="processor" id="amp1" plugin-name="volume">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="-0.3"/>
@@ -51,16 +51,16 @@
             <tick time="14"><globaldata name="volume" value="0.0"/></tick>
           </pattern>
         </patterns>
-      </processor>
+      </machine>
 
-      <processor id="amp2" plugin-name="volume">
+      <machine type="processor" id="amp2" plugin-name="volume">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="+0.3"/>
         </properties>
-      </processor>
+      </machine>
 
-      <source id="sine1" plugin-name="audiotestsrc" voices="0">
+      <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
@@ -96,15 +96,15 @@
             </tick>
           </pattern>
         </patterns>
-      </source>
+      </machine>
 
-      <source id="sine2" plugin-name="audiotestsrc" voices="0">
+      <machine type="source" id="sine2" plugin-name="audiotestsrc" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
-      </source>
+      </machine>
     </machines>
     
     <wires>
