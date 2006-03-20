@@ -27,7 +27,7 @@
         <globaldata name="bpm" value="145"/>
       </machine>
       
-      <machine type="source" id="gen" plugin-name="bml-DTMF-1" voices="0">
+      <machine type="source" id="gen" plugin-name="bml-CyanPhase-DTMF-1" voices="0">
         <properties>
          <property key="xpos" value="10" />
          <property key="ypos" value="20" />

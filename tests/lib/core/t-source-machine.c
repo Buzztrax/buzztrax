@@ -1,4 +1,4 @@
-/* $Id: t-source-machine.c,v 1.8 2005-12-11 17:28:01 ensonic Exp $
+/* $Id: t-source-machine.c,v 1.9 2006-03-20 21:46:46 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -45,7 +45,6 @@ BT_END_TEST
 
 /**
 * try to create a machine which is a sink machine and not a source machine
-* here we mean the plugin-name from gst
 */
 BT_START_TEST(test_btsourcemachine_obj2) {
   BtApplication *app=NULL;

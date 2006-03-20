@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.78 2006-03-20 10:46:41 ensonic Exp $
+// $Id: pattern.c,v 1.79 2006-03-20 21:46:46 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -14,6 +14,7 @@
 #include <libbtcore/core.h>
 
 //-- signal ids
+
 
 enum {
   GLOBAL_PARAM_CHANGED_EVENT,
@@ -477,8 +478,8 @@ GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gul
   g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d",tick,self->priv->length);return(NULL); }
-  if(!(param<self->priv->global_params)) { GST_ERROR("param=%d beyond global_params=%d",param,self->priv->global_params);return(NULL); }
+  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  if(!(param<self->priv->global_params)) { GST_ERROR("param=%d beyond global_params=%d in pattern '%s'",param,self->priv->global_params,self->priv->id);return(NULL); }
 
   index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+param;
@@ -506,9 +507,9 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulo
   g_return_val_if_fail(tick<self->priv->length,NULL);
   g_return_val_if_fail(self->priv->data,NULL);
 
-  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d  beyond length=%d ",tick,self->priv->length);return(NULL); }
-  if(!(voice<self->priv->voices)) { GST_ERROR("voice=%d  beyond voices=%d ",voice,self->priv->voices);return(NULL); }
-  if(!(param<self->priv->voice_params)) { GST_ERROR("param=%d  beyond voice_ params=%d",param,self->priv->voice_params);return(NULL); }
+  if(!(tick<self->priv->length)) { GST_ERROR("tick=%d beyond length=%d in pattern '%s'",tick,self->priv->length,self->priv->id);return(NULL); }
+  if(!(voice<self->priv->voices)) { GST_ERROR("voice=%d beyond voices=%d in pattern '%s'",voice,self->priv->voices,self->priv->id);return(NULL); }
+  if(!(param<self->priv->voice_params)) { GST_ERROR("param=%d  beyond voice_ params=%d in pattern '%s'",param,self->priv->voice_params,self->priv->id);return(NULL); }
 
   index=(tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params))
        +       internal_params+self->priv->global_params+(voice*self->priv->voice_params)

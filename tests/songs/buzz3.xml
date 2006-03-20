@@ -27,7 +27,7 @@
         <globaldata name="bpm" value="145"/>
       </machine>
       
-      <machine type="source" id="gen" plugin-name="bml-Gur--2" voices="0">
+      <machine type="source" id="gen" plugin-name="bml-Arguelles-Guru-2" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>

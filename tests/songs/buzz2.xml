@@ -28,14 +28,14 @@
         <globaldata name="bpm" value="145"/>
       </machine>
 
-      <machine type="processor" id="filter" plugin-name="bml-SVF">
+      <machine type="processor" id="filter" plugin-name="bml-Elak-SVF">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="0.2"/>
         </properties>
       </machine>
 
-      <machine type="source" id="guru2" plugin-name="bml-Gur--2" voices="0">
+      <machine type="source" id="guru2" plugin-name="bml-Arguelles-Guru-2" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>

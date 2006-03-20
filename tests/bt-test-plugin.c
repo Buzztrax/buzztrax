@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.14 2006-01-16 21:39:25 ensonic Exp $ */
+/* $Id: bt-test-plugin.c,v 1.15 2006-03-20 21:46:46 ensonic Exp $ */
 /**
  * SECTION::bttestplugin:
  * @short_description: test gstreamer element for unit tests
@@ -29,6 +29,26 @@ enum {
   ARG_COUNT
 };
 
+//-- pad templates
+
+/*
+static GstStaticPadTemplate sink_pad_template =
+GST_STATIC_PAD_TEMPLATE (
+  "sink",
+  GST_PAD_SINK,
+  GST_PAD_ALWAYS,
+  GST_STATIC_CAPS ("ANY")
+);
+*/
+
+static GstStaticPadTemplate src_pad_template =
+GST_STATIC_PAD_TEMPLATE (
+  "src",
+  GST_PAD_SRC,
+  GST_PAD_ALWAYS,
+  GST_STATIC_CAPS ("ANY")
+);
+
 //-- tempo interface implementation
 
 static void bt_test_tempo_change_tempo(GstTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {  
@@ -47,7 +67,7 @@ static GstObject *bt_test_child_proxy_get_child_by_index (GstChildProxy *child_p
   GST_INFO("machine %p, getting child %d of %d",child_proxy,index,BT_TEST_POLY_SOURCE(child_proxy)->num_voices);
   g_return_val_if_fail(index<BT_TEST_POLY_SOURCE(child_proxy)->num_voices,NULL);
   
-  return(g_list_nth_data(BT_TEST_POLY_SOURCE(child_proxy)->voices,index));
+  return(g_object_ref(g_list_nth_data(BT_TEST_POLY_SOURCE(child_proxy)->voices,index)));
 }
 
 static guint bt_test_child_proxy_get_children_count (GstChildProxy *child_proxy) {
@@ -77,7 +97,7 @@ static void bt_test_mono_source_get_property(GObject *object,
       g_value_set_ulong(value, self->ulong_val);
     } break;
   }
-}  
+}
 
 static void bt_test_mono_source_set_property(GObject *object,
                               guint         property_id,
@@ -91,6 +111,16 @@ static void bt_test_mono_source_set_property(GObject *object,
       self->ulong_val = g_value_get_ulong(value);
       break;
   }
+}
+
+
+static void bt_test_mono_source_init (GTypeInstance *instance, gpointer g_class) {
+  BtTestMonoSource *self = BT_TEST_MONO_SOURCE(instance);
+  GstElementClass *klass = GST_ELEMENT_GET_CLASS(instance);
+  GstPad *src_pad;
+
+  src_pad = gst_pad_new_from_template(gst_element_class_get_pad_template(klass,"src"),"src");
+  gst_element_add_pad(GST_ELEMENT(self),src_pad);
 }
 
 static void bt_test_mono_source_class_init(BtTestMonoSourceClass *klass) {
@@ -122,6 +152,9 @@ static void bt_test_mono_source_base_init(BtTestMonoSourceClass *klass) {
   };
   GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
+  gst_element_class_add_pad_template (element_class,
+        gst_static_pad_template_get (&src_pad_template));
+    
   gst_element_class_set_details(element_class, &details);
 }
 
@@ -137,7 +170,7 @@ GType bt_test_mono_source_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtTestMonoSource),
       0,    // n_preallocs
-      NULL, // instance_init
+      (GInstanceInitFunc)bt_test_mono_source_init, // instance_init
       NULL  // value_table
     };
     static const GInterfaceInfo tempo_interface_info = {
@@ -214,6 +247,15 @@ static void bt_test_poly_source_finalize(GObject *object) {
   }
 }
 
+static void bt_test_poly_source_init (GTypeInstance *instance, gpointer g_class) {
+  BtTestPolySource *self = BT_TEST_POLY_SOURCE(instance);
+  GstElementClass *klass = GST_ELEMENT_GET_CLASS(instance);
+  GstPad *src_pad;
+
+  src_pad = gst_pad_new_from_template(gst_element_class_get_pad_template(klass,"src"),"src");
+  gst_element_add_pad(GST_ELEMENT(self),src_pad);
+}
+
 static void bt_test_poly_source_class_init(BtTestPolySourceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
@@ -245,6 +287,9 @@ static void bt_test_poly_source_base_init(BtTestPolySourceClass *klass) {
   };
   GstElementClass *element_class = GST_ELEMENT_CLASS(klass);
 
+  gst_element_class_add_pad_template (element_class,
+        gst_static_pad_template_get (&src_pad_template));
+
   gst_element_class_set_details(element_class, &details);
 }
 
@@ -260,7 +305,7 @@ GType bt_test_poly_source_get_type(void) {
       NULL, // class_data
       G_STRUCT_SIZE(BtTestPolySource),
       0,    // n_preallocs
-      NULL, // instance_init
+      (GInstanceInitFunc)bt_test_poly_source_init, // instance_init
       NULL  // value_table
     };
     static const GInterfaceInfo tempo_interface_info = {

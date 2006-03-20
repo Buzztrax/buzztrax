@@ -27,7 +27,7 @@
         <globaldata name="bpm" value="145"/>
       </machine>
 
-      <machine type="processor" id="chorus" plugin-name="bml-Chorus" voices="0">
+      <machine type="processor" id="chorus" plugin-name="bml-Jeskola-Chorus" voices="0">
         <properties>
           <property key="xpos" value="0.0"/>
           <property key="ypos" value="0.0"/>
@@ -42,10 +42,10 @@
         <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="bd_beats" machine="bd" name="beats" length="16">
-            <tick time= "0"><voicedata name="Trig" voice="0" value="1"/></tick>
-            <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
-            <tick time= "8"><voicedata name="Trig" voice="0" value="1"/></tick>
-            <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time= "0"><globaldata name="Trig" value="1"/></tick>
+            <tick time= "4"><globaldata name="Trig" value="1"/></tick>
+            <tick time= "8"><globaldata name="Trig" value="1"/></tick>
+            <tick time="12"><globaldata name="Trig" value="1"/></tick>
           </pattern>
         </patterns>
       </machine>
@@ -58,8 +58,8 @@
         <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="snr_beats" machine="snr" name="beats" length="16">
-            <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
-            <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time= "4"><globaldata name="Trig" value="1"/></tick>
+            <tick time="12"><globaldata name="Trig" value="1"/></tick>
           </pattern>
         </patterns>
       </machine>

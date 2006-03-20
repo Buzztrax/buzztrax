@@ -1,5 +1,27 @@
 2006-03-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c: (bt_machine_setup),
+	(bt_machine_persistence_load):
+	* src/lib/core/pattern.c: (bt_pattern_get_global_event_data),
+	(bt_pattern_get_voice_event_data):
+	* tests/bt-test-plugin.c: (bt_test_child_proxy_get_child_by_index),
+	(bt_test_mono_source_get_property), (bt_test_mono_source_init),
+	(bt_test_mono_source_base_init), (bt_test_mono_source_get_type),
+	(bt_test_poly_source_init), (bt_test_poly_source_base_init),
+	(bt_test_poly_source_get_type):
+	* tests/lib/core/t-source-machine.c:
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	fixing most tests again (2 remain), more debug log
+
+2006-03-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/buzztard.xsd:
 	* src/lib/core/machine.c: (bt_machine_persistence_save),
 	(bt_machine_persistence_load):

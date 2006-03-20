@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.200 2006-03-20 10:46:41 ensonic Exp $
+// $Id: machine.c,v 1.201 2006-03-20 21:46:46 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -842,7 +842,61 @@ static gboolean bt_machine_setup(BtMachine *self) {
   // initialize iface properties
   bt_machine_init_interfaces(self);
   // we need to make sure the machine is from the right class
-  // @todo: better test pad counts 
+  {
+    GstIterator *it;
+    GstPad *pad;
+    gulong pad_src_ct=0,pad_sink_ct=0;
+    gboolean done;
+    
+    // get pad counts per type
+    it=gst_element_iterate_pads(self->priv->machines[PART_MACHINE]);
+    done = FALSE;
+    while (!done) {
+      switch (gst_iterator_next (it, (gpointer)&pad)) {
+        case GST_ITERATOR_OK:
+          switch(gst_pad_get_direction(pad)) {
+            case GST_PAD_SRC: pad_src_ct++;break;
+            case GST_PAD_SINK: pad_sink_ct++;break;
+            default:
+              GST_INFO("unhandled pad type discovered");
+              break;
+          }
+          gst_object_unref(pad);
+          break;
+        case GST_ITERATOR_RESYNC:
+          gst_iterator_resync (it);
+          break;
+        case GST_ITERATOR_ERROR:
+        case GST_ITERATOR_DONE:
+          done = TRUE;
+          break;
+      }
+    }
+    gst_iterator_free(it);
+
+    // test pad counts and element type
+    if(BT_IS_SINK_MACHINE(self)) {
+      if(pad_src_ct>0 || pad_sink_ct==0) {
+        GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
+          self->priv->plugin_name,pad_src_ct,pad_sink_ct);
+        return(FALSE);
+      }
+    }
+    else if(BT_IS_SOURCE_MACHINE(self)) {
+      if(pad_src_ct==0 || pad_sink_ct>0) {
+        GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of 0",
+          self->priv->plugin_name,pad_src_ct,pad_sink_ct);
+        return(FALSE);
+      }
+    }
+    else if(BT_IS_PROCESSOR_MACHINE(self)) {
+      if(pad_src_ct==0 || pad_sink_ct==0) {
+        GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of >0",
+          self->priv->plugin_name,pad_src_ct,pad_sink_ct);
+        return(FALSE);
+      }
+    }
+  }
   /*
   {
     GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
@@ -2117,7 +2171,7 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
         
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
-            pattern=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",self->priv->song,"machine",self,NULL));
+            pattern=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",self->priv->song,"machine",self,"voices",self->priv->voices,NULL));
             bt_persistence_load(BT_PERSISTENCE(pattern),child_node,NULL);
             bt_machine_add_pattern(self,pattern);
           }
