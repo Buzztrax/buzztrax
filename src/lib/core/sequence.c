@@ -1,10 +1,13 @@
-// $Id: sequence.c,v 1.100 2006-03-20 10:46:41 ensonic Exp $
+// $Id: sequence.c,v 1.101 2006-03-24 15:30:38 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
  *
  * A sequence holds grid of #BtPatterns, with labels on the time axis and
- * #BtMachine instances on the track axis.
+ * #BtMachine instances on the track axis. It supports looping a section of the
+ * sequence (see #BtSequence:loop, #BtSequence:loop-start, #BtSequence:loop-end).
+ *
+ * The #BtSequence manages the #GstController event queues for the #BtMachines.
  */ 
  
 #define BT_CORE

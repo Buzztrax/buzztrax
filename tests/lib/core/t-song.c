@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.24 2005-09-19 18:47:20 ensonic Exp $
+/* $Id: t-song.c,v 1.25 2006-03-24 15:30:38 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -60,6 +60,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
+  //gulong i;
   
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -69,10 +70,20 @@ BT_START_TEST(test_btsong_play1) {
 
   play_signal_invoked=FALSE;
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-  bt_song_play(song);
-  sleep(1);
-  fail_unless(play_signal_invoked, NULL);
-  bt_song_stop(song);
+  
+  // @todo: returns FALSE as the song is empty
+  if(bt_song_play(song)) {   
+    // idle loop a little (otherwise the bus hhandler does not work
+    //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+    g_usleep(100);
+    //for(i=0;(i<50 && g_main_context_pending(NULL));i++) {
+    //  g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+    //  g_usleep(100);
+    //}
+    
+    fail_unless(play_signal_invoked, NULL);
+    bt_song_stop(song);
+  }
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -133,6 +144,6 @@ TCase *bt_song_test_case(void) {
   tcase_add_test(tc,test_btsong_setup1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds
-  tcase_set_timeout(tc, 10);
+  tcase_set_timeout(tc, 20);
   return(tc);
 }

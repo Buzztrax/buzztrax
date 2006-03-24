@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.201 2006-03-20 21:46:46 ensonic Exp $
+// $Id: machine.c,v 1.202 2006-03-24 15:30:38 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -51,7 +51,18 @@
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
- *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
+ *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
+ */
+/* @todo: alternative idea for states
+ *    whenever we link elements the target gets an adder
+ *    we always link an internal element (silence) to the first pad of the adder
+ *    the internal silence element
+ *      produces silence
+ *      has a timestamp read-only property
+ *    when muting a real source, we block the pad
+ *    when unmuting, we 
+ *      get the position from the silence element and
+ *      send a seek to the real source
  */
  
 #define BT_CORE
@@ -148,6 +159,7 @@ struct _BtMachinePrivate {
   GstElement *machines[PART_COUNT];
   /* additional elements we need for state handling */
   GstElement *silence;
+  GstQuery *state_position_query;
   
   /* public fields are
   GstElement *dst_elem,*src_elem;
@@ -236,6 +248,8 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
   GstPad *pad,*peer_pad;
   GstState state=GST_STATE_VOID_PENDING;
   GstStateChangeReturn state_ret;
+  GstEvent *seek_event;
+  gint64 pos_cur=0;
   
   GST_INFO("toggle mute state");
 
@@ -249,14 +263,24 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
   if((pad=gst_element_get_pad(machine,"src"))) {
     if((peer_pad=gst_pad_get_peer(pad))) {      
       if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {
-        GST_INFO("unlinking %s - %s",gst_element_get_name(machine),gst_element_get_name(peer_elem));
         // only block when song is playing (otherwise this never returns)
         if(state==GST_STATE_PLAYING) {
+          GST_INFO("blocking %s",gst_element_get_name(machine));
+          // send prepared GstPositionQuery to 'machine' and
+          if(!(gst_element_query(machine,self->priv->state_position_query))) {
+            GST_WARNING("can't query the position of the old machine in %s",self->priv->id);
+          }
+          else {
+            gst_query_parse_position(self->priv->state_position_query,NULL,&pos_cur);
+            GST_DEBUG("position of machine %s is %"G_GINT64_FORMAT,self->priv->id,pos_cur);
+          }
+
           if(!gst_pad_set_blocked(pad,TRUE)) {
             GST_WARNING("can't block src-pad of machine %s",self->priv->id);
           }
         }
         
+        GST_INFO("unlinking %s - %s",gst_element_get_name(machine),gst_element_get_name(peer_elem));
         gst_element_unlink(machine,peer_elem);
         if(!(gst_element_link(self->priv->silence,peer_elem))) {
           GST_WARNING("can't link silence element to machine %s",self->priv->id);
@@ -264,32 +288,22 @@ static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
         
         if(state==GST_STATE_PLAYING) {
           GstPad *new_pad;
-          /* @todo synchronize
-           * - get timestamp from 'machine' and
-           *   set as timestamp-offset in 'self->priv->silence'          
-           * - send a prepared GstPositionQuery to 'machine' and
-           *   send a seek to 'self->priv->silence'
-          
-          GstQuery *position_query;
-          position_query=gst_query_new_position(GST_FORMAT_DEFAULT);
-          
-          gst_element_query(machine,position_query);
-          gst_query_parse_position(position_query,NULL,&pos_cur);
+          GST_INFO("unblocking %s",gst_element_get_name(machine));
 
-          GstEvent *seek_event;
+          if(!gst_pad_set_blocked(pad,FALSE)) {
+            GST_WARNING("can't unblock src-pad of machine %s",self->priv->id);
+          }
+
+          // send a seek to 'self->priv->silence'
           seek_event = gst_event_new_seek(1.0, GST_FORMAT_DEFAULT,
             GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
             GST_SEEK_TYPE_SET, (GstClockTime)(pos_cur),
             GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));          
           
-          gst_element_send_event(GST_ELEMENT(self->priv->silence),seek_event));
-          
-          gst_query_unref(self->priv->position_query);
-           */
-
-          if(!gst_pad_set_blocked(pad,FALSE)) {
-            GST_WARNING("can't unblock src-pad of machine %s",self->priv->id);
+          if(!(gst_element_send_event(GST_ELEMENT(self->priv->silence),seek_event))) {
+            GST_WARNING("can't send new-segment to old machine in %s",self->priv->id);
           }
+
           if(!gst_element_set_locked_state(self->priv->silence,FALSE)) {
             GST_WARNING("can't set locked state of new machine to FALSE in %s",self->priv->id);
           }
@@ -699,6 +713,71 @@ static void bt_machine_init_interfaces(BtMachine *self) {
   GST_INFO("machine element instantiated and interfaces initialized");  
 }
 
+/*
+ * bt_machine_check_type:
+ *
+ * Sanity check if the machine is of the right type. It counts the source,
+ * sink pads and check with the machine class-type.
+ *
+ * Returns: %TRUE if type and pads match
+ */
+static gboolean bt_machine_check_type(BtMachine *self) {
+  GstIterator *it;
+  GstPad *pad;
+  gulong pad_src_ct=0,pad_sink_ct=0;
+  gboolean done;
+  
+  // get pad counts per type
+  it=gst_element_iterate_pads(self->priv->machines[PART_MACHINE]);
+  done = FALSE;
+  while (!done) {
+    switch (gst_iterator_next (it, (gpointer)&pad)) {
+      case GST_ITERATOR_OK:
+        switch(gst_pad_get_direction(pad)) {
+          case GST_PAD_SRC: pad_src_ct++;break;
+          case GST_PAD_SINK: pad_sink_ct++;break;
+          default:
+            GST_INFO("unhandled pad type discovered");
+            break;
+        }
+        gst_object_unref(pad);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync (it);
+        break;
+      case GST_ITERATOR_ERROR:
+      case GST_ITERATOR_DONE:
+        done = TRUE;
+        break;
+    }
+  }
+  gst_iterator_free(it);
+
+  // test pad counts and element type
+  if(BT_IS_SINK_MACHINE(self)) {
+    if(pad_src_ct>0 || pad_sink_ct==0) {
+      GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
+        self->priv->plugin_name,pad_src_ct,pad_sink_ct);
+      return(FALSE);
+    }
+  }
+  else if(BT_IS_SOURCE_MACHINE(self)) {
+    if(pad_src_ct==0 || pad_sink_ct>0) {
+      GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of 0",
+        self->priv->plugin_name,pad_src_ct,pad_sink_ct);
+      return(FALSE);
+    }
+  }
+  else if(BT_IS_PROCESSOR_MACHINE(self)) {
+    if(pad_src_ct==0 || pad_sink_ct==0) {
+      GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of >0",
+        self->priv->plugin_name,pad_src_ct,pad_sink_ct);
+      return(FALSE);
+    }
+  }
+
+}
+
 static void bt_machine_init_global_params(BtMachine *self) {
   GParamSpec **properties;
   guint number_of_properties;
@@ -842,88 +921,7 @@ static gboolean bt_machine_setup(BtMachine *self) {
   // initialize iface properties
   bt_machine_init_interfaces(self);
   // we need to make sure the machine is from the right class
-  {
-    GstIterator *it;
-    GstPad *pad;
-    gulong pad_src_ct=0,pad_sink_ct=0;
-    gboolean done;
-    
-    // get pad counts per type
-    it=gst_element_iterate_pads(self->priv->machines[PART_MACHINE]);
-    done = FALSE;
-    while (!done) {
-      switch (gst_iterator_next (it, (gpointer)&pad)) {
-        case GST_ITERATOR_OK:
-          switch(gst_pad_get_direction(pad)) {
-            case GST_PAD_SRC: pad_src_ct++;break;
-            case GST_PAD_SINK: pad_sink_ct++;break;
-            default:
-              GST_INFO("unhandled pad type discovered");
-              break;
-          }
-          gst_object_unref(pad);
-          break;
-        case GST_ITERATOR_RESYNC:
-          gst_iterator_resync (it);
-          break;
-        case GST_ITERATOR_ERROR:
-        case GST_ITERATOR_DONE:
-          done = TRUE;
-          break;
-      }
-    }
-    gst_iterator_free(it);
-
-    // test pad counts and element type
-    if(BT_IS_SINK_MACHINE(self)) {
-      if(pad_src_ct>0 || pad_sink_ct==0) {
-        GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
-          self->priv->plugin_name,pad_src_ct,pad_sink_ct);
-        return(FALSE);
-      }
-    }
-    else if(BT_IS_SOURCE_MACHINE(self)) {
-      if(pad_src_ct==0 || pad_sink_ct>0) {
-        GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of 0",
-          self->priv->plugin_name,pad_src_ct,pad_sink_ct);
-        return(FALSE);
-      }
-    }
-    else if(BT_IS_PROCESSOR_MACHINE(self)) {
-      if(pad_src_ct==0 || pad_sink_ct==0) {
-        GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of >0",
-          self->priv->plugin_name,pad_src_ct,pad_sink_ct);
-        return(FALSE);
-      }
-    }
-  }
-  /*
-  {
-    GstElementFactory *element_factory=gst_element_get_factory(self->priv->machines[PART_MACHINE]);
-    const gchar *element_class=gst_element_factory_get_klass(element_factory);
-    GST_INFO("checking machine class \"%s\"",element_class);
-    // @todo this breaks for sink-bin, it's not useful for this anyway
-    //if(BT_IS_SINK_MACHINE(self)) {
-    //  if(g_ascii_strncasecmp(element_class,"Sink/",5) && g_ascii_strncasecmp(element_class,"Sink\0",5)) {
-    //    GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Sink/...\"",self->priv->plugin_name,element_class);
-    //    return(FALSE);
-    //  }
-    //}
-    //else
-    if(BT_IS_SOURCE_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Source/",7) && g_ascii_strncasecmp(element_class,"Source\0",7)) {
-        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Source/...\"",self->priv->plugin_name,element_class);
-        return(FALSE);
-      }
-    }
-    else if(BT_IS_PROCESSOR_MACHINE(self)) {
-      if(g_ascii_strncasecmp(element_class,"Filter/",7) && g_ascii_strncasecmp(element_class,"Filter\0",7)) {
-        GST_ERROR("  plugin \"%s\" is in \"%s\" class instead of \"Filter/...\"",self->priv->plugin_name,element_class);
-        return(FALSE);
-      }
-    }
-  }
-  */
+  if(!bt_machine_check_type(self)) return(FALSE);
   
   // register global params
   bt_machine_init_global_params(self);
@@ -939,7 +937,7 @@ static gboolean bt_machine_setup(BtMachine *self) {
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
   g_assert(self->src_elem!=NULL);
   g_assert(self->dst_elem!=NULL);
-  if(!(self->priv->global_params+self->priv->voice_params)) {
+  if(!BT_IS_SINK_MACHINE(self) && !(self->priv->global_params+self->priv->voice_params)) {
     GST_WARNING("  machine %s has no params",self->priv->id);
   }
 
@@ -2374,6 +2372,8 @@ static void bt_machine_dispose(GObject *object) {
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);
   }
+  
+  gst_query_unref(self->priv->state_position_query);
 
   //GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
@@ -2433,6 +2433,8 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+  
+  self->priv->state_position_query=gst_query_new_position(GST_FORMAT_DEFAULT);
   
   GST_DEBUG("!!!! self=%p",self);
 }

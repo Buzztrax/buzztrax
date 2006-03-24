@@ -1,10 +1,12 @@
-// $Id: persistence.c,v 1.10 2006-03-16 19:09:33 ensonic Exp $
+// $Id: persistence.c,v 1.11 2006-03-24 15:30:38 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
  *
- * Classes can implement this interface to make store their data as xml and
- * restore them from xml.
+ * Classes can implement this interface to store their data as xml and
+ * restore them from xml. They should call the interface methods on their
+ * children objects (which also implement the interface) to serialize/
+ * deserialize a whole object hierarchy.
  *
  */ 
  
@@ -16,12 +18,12 @@
 //-- string formatting helper
 
 /**
- * bt_persistence_strfmt_ulong:
+ * bt_persistence_strfmt_uchar:
  * @val: a value
  *
  * Convinience methods, that formats a value to be serialized as a string.
  *
- * Return: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containg the formatted value.
  */
 const gchar *bt_persistence_strfmt_uchar(guchar val) {
   static gchar str[20];
@@ -36,7 +38,7 @@ const gchar *bt_persistence_strfmt_uchar(guchar val) {
  *
  * Convinience methods, that formats a value to be serialized as a string.
  *
- * Return: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containg the formatted value.
  */
 const gchar *bt_persistence_strfmt_long(glong val) {
   static gchar str[20];
@@ -51,7 +53,7 @@ const gchar *bt_persistence_strfmt_long(glong val) {
  *
  * Convinience methods, that formats a value to be serialized as a string.
  *
- * Return: a reference to static memory containg the formatted value.
+ * Returns: a reference to static memory containg the formatted value.
  */
 const gchar *bt_persistence_strfmt_ulong(gulong val) {
   static gchar str[20];
@@ -71,7 +73,7 @@ const gchar *bt_persistence_strfmt_ulong(gulong val) {
  * Iterates over a list of objects, which must implement the #BtPersistece
  * interface and calls bt_persistence_save() on each item.
  *
- * Return: %TRUE if all elements have been serialized.
+ * Returns: %TRUE if all elements have been serialized.
  */
 gboolean bt_persistence_save_list(const GList *list,xmlNodePtr node) {
   gboolean res=TRUE;
@@ -113,7 +115,7 @@ static void bt_persistence_save_hashtable_entries(gpointer key, gpointer value, 
  *
  * Iterates over a hashtable with strings and serializes them.
  *
- * Return: %TRUE if all elements have been serialized.
+ * Returns: %TRUE if all elements have been serialized.
  */
 gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlNodePtr node) {
   gboolean res=TRUE;
@@ -130,7 +132,7 @@ gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlNodePtr n
  *
  * Iterates over the xml-node and deserializes elements into the hashtable.
  *
- * Return: %TRUE if all elements have been deserialized.
+ * Returns: %TRUE if all elements have been deserialized.
  */
 gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
   xmlChar *key,*value;
@@ -158,7 +160,7 @@ gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
  *
  * Stores the supplied value into the given @gvalue.
  *
- * Return: %TRUE for success
+ * Returns: %TRUE for success
  */
 gboolean bt_persistence_set_value(GValue *gvalue, const gchar *svalue) {
   GType base_type;
@@ -208,7 +210,7 @@ gboolean bt_persistence_set_value(GValue *gvalue, const gchar *svalue) {
   return(TRUE);
 }
 
-/*
+/**
  * bt_persistence_get_value:
  * @gvalue: the event cell
  *
@@ -267,11 +269,7 @@ gchar *bt_persistence_get_value(GValue *gvalue) {
  *
  * Serializes the given object into @node.
  *
- * Return: the new node if the element has been serialized, ellse %NULL.
- */
-/* @todo: give parent_node to _save()
- * return new xmlNodePtr (or NULL for error)
- * subclassed objects call super first and use the returned node to save their own data
+ * Returns: the new node if the element has been serialized, ellse %NULL.
  */
 xmlNodePtr bt_persistence_save(BtPersistence *self, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
@@ -283,11 +281,11 @@ xmlNodePtr bt_persistence_save(BtPersistence *self, xmlNodePtr parent_node, BtPe
  * bt_persistence_load:
  * @self: a deserialiable object
  * @node: the xml node
- * @selection: an optional selection
+ * @location: an optional location
  *
  * Deserializes the given object from the @node.
  *
- * Return: %TRUE if the element has been deserialized.
+ * Returns: %TRUE if the element has been deserialized.
  */
 gboolean bt_persistence_load(BtPersistence *self, xmlNodePtr node, BtPersistenceLocation *location) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);

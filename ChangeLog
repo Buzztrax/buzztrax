@@ -1,3 +1,18 @@
+2006-03-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/machine.c: (bt_machine_toggle_mute),
+	(bt_machine_check_type), (bt_machine_setup), (bt_machine_dispose),
+	(bt_machine_init):
+	* src/lib/core/persistence.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_mode_get_type),
+	(bt_sink_bin_record_format_get_type), (bt_sink_bin_get_type):
+	* src/lib/core/song.c: (bt_song_play):
+	* tests/lib/core/t-network.c: (BT_START_TEST):
+	* tests/lib/core/t-song.c: (BT_START_TEST), (bt_song_test_case):
+	All tests run again, Doc fixes, More G_UNLIKLY helpers
+
 2006-03-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_setup),

@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.122 2006-03-20 10:46:41 ensonic Exp $
+// $Id: song.c,v 1.123 2006-03-24 15:30:38 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -260,6 +260,8 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  * The application should not be concered about this internal detail. Stopping
  * and restarting the idle loop should only be done, when massive changes are
  * about (e.g. loading a song).
+ *
+ * Returns: %TRUE for success
  */
 gboolean bt_song_idle_start(const BtSong *self) {
 #ifdef __ENABLE_IDLE_LOOP_
@@ -298,6 +300,8 @@ gboolean bt_song_idle_start(const BtSong *self) {
  * @self: a #BtSong
  *
  * Stops the idle loop.
+ *
+ * Returns: %TRUE for success
  */
 gboolean bt_song_idle_stop(const BtSong *self) {
 #ifdef __ENABLE_IDLE_LOOP_
@@ -336,6 +340,9 @@ gboolean bt_song_play(const BtSong *self) {
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
+  // do not play an empty song
+  if(!GST_BIN_NUMCHILDREN(self->priv->bin)) return(FALSE);
+  
   // do not play again
   if(self->priv->is_playing) return(TRUE);
   bt_song_idle_stop(self);

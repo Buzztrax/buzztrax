@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.16 2006-02-13 22:33:15 ensonic Exp $
+// $Id: sink-bin.c,v 1.17 2006-03-24 15:30:38 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -48,7 +48,7 @@ static GstBinClass *parent_class=NULL;
 
 GType bt_sink_bin_mode_get_type(void) {
   static GType type = 0;
-  if(type==0) {
+  if(G_UNLIKELY(type==0)) {
     static GEnumValue values[] = {
       { BT_SINK_BIN_MODE_PLAY,            "BT_SINK_BIN_MODE_PLAY",            "play the song" },
       { BT_SINK_BIN_MODE_RECORD,          "BT_SINK_BIN_MODE_RECORD",          "record to file" },
@@ -62,7 +62,7 @@ GType bt_sink_bin_mode_get_type(void) {
 
 GType bt_sink_bin_record_format_get_type(void) {
   static GType type = 0;
-  if(type==0) {
+  if(G_UNLIKELY(type==0)) {
     static GEnumValue values[] = {
       { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, "BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS", "ogg vorbis" },
       { BT_SINK_BIN_RECORD_FORMAT_MP3,        "BT_SINK_BIN_RECORD_FORMAT_MP3",        "mp3" },
@@ -577,7 +577,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass *klass) {
 
 GType bt_sink_bin_get_type(void) {
   static GType type = 0;
-  if (type == 0) {
+  if (G_UNLIKELY(type == 0)) {
     static const GTypeInfo info = {
       G_STRUCT_SIZE(BtSinkBinClass),
       NULL, // base_init
