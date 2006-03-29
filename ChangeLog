@@ -1,5 +1,18 @@
 2006-03-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_get_peer),
+	(bt_machine_get_sink_peer), (bt_machine_get_source_peer),
+	(bt_machine_make_internal_element), (bt_machine_add_input_element),
+	(bt_machine_add_output_element), (bt_machine_check_type),
+	(bt_machine_enable_input_level), (bt_machine_enable_input_gain),
+	(bt_machine_enable_output_gain), (bt_machine_activate_adder),
+	(bt_machine_activate_spreader):
+	* src/ui/edit/main-page-waves.c:
+
+2006-03-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gst/states1a.c: (query_and_print), (message_received),
 	(main):
 	* design/gst/states1b.c: (query_and_print), (message_received),

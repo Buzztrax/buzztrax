@@ -1,8 +1,12 @@
-// $Id: main-page-waves.c,v 1.29 2006-02-13 22:33:16 ensonic Exp $
+// $Id: main-page-waves.c,v 1.30 2006-03-29 16:39:11 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
- */ 
+ *
+ * This isn't very functional yet.
+ */
+/* @todo: use playbin to preview samples.
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_WAVES_C
