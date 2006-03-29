@@ -1,3 +1,15 @@
+2006-03-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/states1a.c: (query_and_print), (message_received),
+	(main):
+	* design/gst/states1b.c: (query_and_print), (message_received),
+	(main):
+	* design/gst/states1c.c: (query_and_print), (message_received),
+	(main):
+	* design/gst/states3a.c: (query_and_print), (message_received),
+	(main):
+	More state tests
+
 2006-03-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:
