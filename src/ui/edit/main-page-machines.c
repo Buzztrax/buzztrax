@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.73 2006-04-08 16:18:26 ensonic Exp $
+// $Id: main-page-machines.c,v 1.74 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -960,7 +960,7 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageMachinesPrivate));
   
   gobject_class->set_property = bt_main_page_machines_set_property;

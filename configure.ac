@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.70 2006-03-08 21:37:54 ensonic Exp $
+# $Id: configure.ac,v 1.71 2006-04-08 22:08:33 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -191,7 +191,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gobject-2.0  >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
+  gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 gstreamer-base-0.10 >= 0.10.0 \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \

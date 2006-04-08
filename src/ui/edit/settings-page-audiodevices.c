@@ -1,4 +1,4 @@
-// $Id: settings-page-audiodevices.c,v 1.19 2006-04-08 16:18:27 ensonic Exp $
+// $Id: settings-page-audiodevices.c,v 1.20 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
@@ -207,7 +207,7 @@ static void bt_settings_page_audiodevices_init(GTypeInstance *instance, gpointer
 static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_TABLE);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPageAudiodevicesPrivate));
   
   gobject_class->set_property = bt_settings_page_audiodevices_set_property;

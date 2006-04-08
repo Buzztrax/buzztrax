@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.36 2006-04-08 16:18:26 ensonic Exp $
+// $Id: main-page-info.c,v 1.37 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -402,7 +402,7 @@ static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
   
   gobject_class->set_property = bt_main_page_info_set_property;

@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.110 2006-04-08 16:18:24 ensonic Exp $
+// $Id: song-io-native.c,v 1.111 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -1308,10 +1308,9 @@ static void bt_song_io_native_class_init(BtSongIONativeClass *klass) {
   BtSongIOClass *base_class = BT_SONG_IO_CLASS(klass);
 
   error_domain=g_quark_from_static_string("BtSongIONative");
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongIONativePrivate));
 
-  parent_class=g_type_class_ref(BT_TYPE_SONG_IO);
-  
   gobject_class->set_property = bt_song_io_native_set_property;
   gobject_class->get_property = bt_song_io_native_get_property;
   gobject_class->dispose      = bt_song_io_native_dispose;

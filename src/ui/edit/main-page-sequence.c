@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.108 2006-04-08 16:18:26 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.109 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1965,7 +1965,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
 
   column_index_quark=g_quark_from_static_string("BtMainPageSequence::index");
 
-  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));
 
   gobject_class->set_property = bt_main_page_sequence_set_property;

@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.78 2006-04-08 16:18:25 ensonic Exp $
+// $Id: cmd-application.c,v 1.79 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -533,7 +533,7 @@ static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(BT_TYPE_APPLICATION);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtCmdApplicationPrivate));
   
   gobject_class->set_property = bt_cmd_application_set_property;

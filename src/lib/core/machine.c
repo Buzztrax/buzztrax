@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.204 2006-04-08 16:18:19 ensonic Exp $
+// $Id: machine.c,v 1.205 2006-04-08 22:08:33 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -307,7 +307,13 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
       g_list_free(machines);
     } break;
     case BT_MACHINE_STATE_BYPASS:  { // processor
-      // @todo disconnect its source and sink + set this machine to playing
+      GstElement *element=self->priv->machines[PART_MACHINE];
+      if(GST_IS_BASE_TRANSFORM(element)) {
+        gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),FALSE);
+      }
+      else {
+        // @todo: disconnect its source and sink + set this machine to playing
+      }
     } break;
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
@@ -339,7 +345,13 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
       g_list_free(machines);
     } break;
     case BT_MACHINE_STATE_BYPASS:  { // processor
-      // @todo set this machine to paused + connect its source and sink
+      GstElement *element=self->priv->machines[PART_MACHINE];
+      if(GST_IS_BASE_TRANSFORM(element)) {
+        gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),TRUE);
+      }
+      else {
+        // @todo set this machine to paused + connect its source and sink
+      }
     } break;
     case BT_MACHINE_STATE_NORMAL:
       //g_return_val_if_reached(FALSE);
@@ -2377,9 +2389,8 @@ static void bt_machine_class_init(BtMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
   error_domain=g_quark_from_static_string("BtMachine");
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePrivate));
-  
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
   
   gobject_class->set_property = bt_machine_set_property;
   gobject_class->get_property = bt_machine_get_property;

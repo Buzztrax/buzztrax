@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.39 2006-04-08 16:18:21 ensonic Exp $
+// $Id: processor-machine.c,v 1.40 2006-04-08 22:08:33 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -165,7 +165,7 @@ static void bt_processor_machine_init(GTypeInstance *instance, gpointer g_class)
 static void bt_processor_machine_class_init(BtProcessorMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(BT_TYPE_MACHINE);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtProcessorMachinePrivate));
   
   gobject_class->set_property = bt_processor_machine_set_property;

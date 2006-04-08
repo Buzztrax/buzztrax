@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.27 2006-04-08 16:18:19 ensonic Exp $
+// $Id: gconf-settings.c,v 1.28 2006-04-08 22:08:33 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -235,7 +235,7 @@ static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(BT_TYPE_SETTINGS);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtGConfSettingsPrivate));
 
   gobject_class->set_property = bt_gconf_settings_set_property;

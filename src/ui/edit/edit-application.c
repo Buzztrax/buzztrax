@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.72 2006-04-08 16:18:26 ensonic Exp $
+// $Id: edit-application.c,v 1.73 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -439,7 +439,7 @@ static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) 
 static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(BT_TYPE_APPLICATION);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtEditApplicationPrivate));
 
   gobject_class->set_property = bt_edit_application_set_property;

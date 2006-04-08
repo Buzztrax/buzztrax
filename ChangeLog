@@ -1,5 +1,52 @@
 2006-04-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/application.c: (bt_application_class_init):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_class_init):
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/machine.c: (bt_machine_change_state),
+	(bt_machine_class_init):
+	* src/lib/core/pattern.c: (bt_pattern_class_init):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_class_init):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_class_init):
+	* src/lib/core/sequence.c: (bt_sequence_class_init):
+	* src/lib/core/settings.c: (bt_settings_class_init):
+	* src/lib/core/setup.c: (bt_setup_class_init):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_class_init):
+	* src/lib/core/song-info.c: (bt_song_info_class_init):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_class_init):
+	* src/lib/core/song-io.c: (bt_song_io_class_init):
+	* src/lib/core/song.c: (bt_song_class_init):
+	* src/lib/core/source-machine.c: (bt_source_machine_class_init):
+	* src/lib/core/wire.c: (bt_wire_class_init):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_class_init):
+	* src/ui/edit/edit-application.c: (bt_edit_application_class_init):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_class_init):
+	* src/ui/edit/main-menu.c: (bt_main_menu_class_init):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_class_init):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_class_init):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_class_init):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_class_init):
+	* src/ui/edit/main-pages.c: (bt_main_pages_class_init):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_class_init):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_class_init):
+	* src/ui/edit/main-window.c: (bt_main_window_class_init):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_class_init):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_class_init):
+	use gst-base classes, try passthrough mode in basetransform elemnts,
+	use g_type_class_peek_parent() instead of g_type_class_ref()
+
+2006-04-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* TODO:
 	* docs/reference/bt-core/bt-core-sections.txt:

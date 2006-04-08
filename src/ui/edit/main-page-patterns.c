@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.86 2006-04-08 16:18:26 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.87 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1554,7 +1554,7 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
 
   column_index_quark=g_quark_from_static_string("BtMainPagePattern::index");
   
-  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPagePatternsPrivate));
     
   gobject_class->set_property = bt_main_page_patterns_set_property;

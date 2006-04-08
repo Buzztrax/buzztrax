@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.37 2006-04-08 16:18:24 ensonic Exp $
+// $Id: source-machine.c,v 1.38 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -164,7 +164,7 @@ static void bt_source_machine_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_source_machine_class_init(BtSourceMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(BT_TYPE_MACHINE);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSourceMachinePrivate));
   
   gobject_class->set_property = bt_source_machine_set_property;

@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.53 2006-04-08 16:18:26 ensonic Exp $
+// $Id: main-menu.c,v 1.54 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -687,7 +687,7 @@ static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_menu_class_init(BtMainMenuClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_MENU_BAR);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainMenuPrivate));
   
   gobject_class->set_property = bt_main_menu_set_property;

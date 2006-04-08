@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.80 2006-04-08 16:18:21 ensonic Exp $
+// $Id: pattern.c,v 1.81 2006-04-08 22:08:33 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -1052,7 +1052,7 @@ static void bt_pattern_class_init(BtPatternClass *klass) {
 
   error_domain=g_quark_from_static_string("BtPattern");
   
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPatternPrivate));
 
   gobject_class->set_property = bt_pattern_set_property;

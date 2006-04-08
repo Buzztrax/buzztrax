@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.23 2006-04-08 16:18:22 ensonic Exp $
+// $Id: settings.c,v 1.24 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -120,7 +120,7 @@ static void bt_settings_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_settings_class_init(BtSettingsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPrivate));
 
   gobject_class->set_property = bt_settings_set_property;

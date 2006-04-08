@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.77 2006-04-08 16:18:24 ensonic Exp $
+// $Id: wire.c,v 1.78 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -560,7 +560,7 @@ static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_wire_class_init(BtWireClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
   
   gobject_class->set_property = bt_wire_set_property;

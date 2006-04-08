@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.102 2006-04-08 16:18:21 ensonic Exp $
+// $Id: sequence.c,v 1.103 2006-04-08 22:08:33 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -1245,7 +1245,7 @@ static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_sequence_class_init(BtSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSequencePrivate));
   
   gobject_class->set_property = bt_sequence_set_property;

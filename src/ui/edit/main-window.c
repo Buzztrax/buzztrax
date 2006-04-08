@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.71 2006-04-08 16:18:26 ensonic Exp $
+// $Id: main-window.c,v 1.72 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -564,7 +564,7 @@ static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_window_class_init(BtMainWindowClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_WINDOW);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainWindowPrivate));
   
   gobject_class->set_property = bt_main_window_set_property;

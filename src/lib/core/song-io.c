@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.54 2006-04-08 16:18:24 ensonic Exp $
+// $Id: song-io.c,v 1.55 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -335,7 +335,7 @@ static void bt_song_io_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_song_io_class_init(BtSongIOClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongIOPrivate));
   
   gobject_class->set_property = bt_song_io_set_property;

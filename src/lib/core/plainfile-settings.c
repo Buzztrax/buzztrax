@@ -1,4 +1,4 @@
-// $Id: plainfile-settings.c,v 1.18 2006-04-08 16:18:21 ensonic Exp $
+// $Id: plainfile-settings.c,v 1.19 2006-04-08 22:08:33 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
@@ -131,7 +131,7 @@ static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class
 static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(BT_TYPE_SETTINGS);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPlainfileSettingsPrivate));
 
   gobject_class->set_property = bt_plainfile_settings_set_property;

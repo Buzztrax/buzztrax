@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.48 2006-04-08 16:18:24 ensonic Exp $
+// $Id: song-info.c,v 1.49 2006-04-08 22:08:34 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -378,7 +378,7 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_song_info_class_init(BtSongInfoClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongInfoPrivate));
 
   gobject_class->set_property = bt_song_info_set_property;

@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.28 2006-04-08 16:18:27 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.29 2006-04-08 22:08:35 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -491,7 +491,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GnomeCanvasItemClass *citem_class=GNOME_CANVAS_ITEM_CLASS(klass);
 
-  parent_class=g_type_class_ref(GNOME_TYPE_CANVAS_GROUP);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWireCanvasItemPrivate));
 
   gobject_class->set_property = bt_wire_canvas_item_set_property;
