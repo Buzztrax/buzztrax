@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.79 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-toolbar.c,v 1.80 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -603,9 +603,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
   
   g_object_try_weak_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_toolbar_finalize(GObject *object) {
@@ -613,9 +611,7 @@ static void bt_main_toolbar_finalize(GObject *object) {
   
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {

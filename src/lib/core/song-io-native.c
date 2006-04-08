@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.109 2006-03-19 19:18:01 ensonic Exp $
+// $Id: song-io-native.c,v 1.110 2006-04-08 16:18:24 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -1286,9 +1286,7 @@ static void bt_song_io_native_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_song_io_native_finalize(GObject *object) {
@@ -1296,9 +1294,7 @@ static void bt_song_io_native_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_song_io_native_init(GTypeInstance *instance, gpointer g_class) {

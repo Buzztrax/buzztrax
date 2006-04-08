@@ -1,4 +1,4 @@
-// $Id: main-pages.c,v 1.29 2006-03-10 16:19:42 ensonic Exp $
+// $Id: main-pages.c,v 1.30 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
@@ -207,9 +207,7 @@ static void bt_main_pages_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
   // this disposes the pages for us
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_pages_finalize(GObject *object) {
@@ -217,9 +215,7 @@ static void bt_main_pages_finalize(GObject *object) {
   
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {

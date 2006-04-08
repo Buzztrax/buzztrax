@@ -1,3 +1,103 @@
+2006-04-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* TODO:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/core/application.c: (bt_application_dispose),
+	(bt_application_finalize):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_dispose),
+	(bt_gconf_settings_finalize):
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_get_peer),
+	(bt_machine_get_sink_peer), (bt_machine_get_source_peer),
+	(bt_machine_set_mute), (bt_machine_unset_mute),
+	(bt_machine_change_state), (bt_machine_insert_element),
+	(bt_machine_make_internal_element), (bt_machine_add_input_element),
+	(bt_machine_add_output_element), (bt_machine_init_core_machine),
+	(bt_machine_check_type), (bt_machine_setup),
+	(bt_machine_enable_input_level), (bt_machine_enable_input_gain),
+	(bt_machine_enable_output_gain), (bt_machine_activate_adder),
+	(bt_machine_activate_spreader), (bt_machine_set_property),
+	(bt_machine_dispose), (bt_machine_finalize), (bt_machine_init):
+	* src/lib/core/pattern.c: (bt_pattern_dispose),
+	(bt_pattern_finalize):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_dispose), (bt_plainfile_settings_finalize):
+	* src/lib/core/processor-machine.c: (bt_processor_machine_dispose),
+	(bt_processor_machine_finalize):
+	* src/lib/core/sequence.c: (bt_sequence_dispose),
+	(bt_sequence_finalize):
+	* src/lib/core/settings.c: (bt_settings_dispose),
+	(bt_settings_finalize):
+	* src/lib/core/setup.c: (bt_setup_dispose), (bt_setup_finalize):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_dispose),
+	(bt_sink_machine_finalize):
+	* src/lib/core/song-info.c: (bt_song_info_dispose),
+	(bt_song_info_finalize):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_dispose),
+	(bt_song_io_native_finalize):
+	* src/lib/core/song-io.c: (bt_song_io_dispose),
+	(bt_song_io_finalize):
+	* src/lib/core/song.c: (bt_song_dispose), (bt_song_finalize):
+	* src/lib/core/source-machine.c: (bt_source_machine_dispose),
+	(bt_source_machine_finalize):
+	* src/lib/core/wire.c: (bt_wire_dispose), (bt_wire_finalize):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_dispose),
+	(bt_cmd_application_finalize):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_dispose),
+	(bt_edit_application_finalize):
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_get_type):
+	* src/ui/edit/gtkvumeter.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_dispose),
+	(bt_machine_canvas_item_finalize):
+	* src/ui/edit/main-menu.c: (bt_main_menu_dispose),
+	(bt_main_menu_finalize):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_dispose),
+	(bt_main_page_info_finalize):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_dispose), (bt_main_page_machines_finalize):
+	* src/ui/edit/main-page-patterns.c: (wavetable_menu_refresh),
+	(pattern_table_refresh), (on_sequence_tick), (on_song_changed),
+	(bt_main_page_patterns_init_ui), (bt_main_page_patterns_dispose),
+	(bt_main_page_patterns_finalize):
+	* src/ui/edit/main-page-sequence.c: (on_header_size_allocate),
+	(on_mute_toggled), (on_solo_toggled), (on_bypass_toggled),
+	(on_machine_state_changed_mute), (on_machine_state_changed_solo),
+	(on_machine_state_changed_bypass), (sequence_pos_table_init),
+	(sequence_table_refresh), (bt_main_page_sequence_init_ui),
+	(bt_main_page_sequence_dispose), (bt_main_page_sequence_finalize):
+	* src/ui/edit/main-pages.c: (bt_main_pages_dispose),
+	(bt_main_pages_finalize):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_dispose),
+	(bt_main_statusbar_finalize):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_dispose),
+	(bt_main_toolbar_finalize):
+	* src/ui/edit/main-window.c: (on_window_configure_event),
+	(bt_main_window_init_ui), (bt_main_window_dispose),
+	(bt_main_window_finalize):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_dispose),
+	(bt_sequence_view_finalize):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_dispose),
+	(bt_settings_dialog_finalize):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_dispose),
+	(bt_settings_page_audiodevices_finalize):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_dispose),
+	(bt_wire_canvas_item_finalize):
+	* tests/lib/core/e-machine.c: (BT_START_TEST),
+	(bt_machine_example_case):
+	* tests/lib/core/t-machine.c: (bt_machine_test_case):
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	  new test-songs, mute uses volume element, M/S/B Buttons in sequence
+	  view, playline in pattern view, tests reactivated
+	  
+
 2006-03-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

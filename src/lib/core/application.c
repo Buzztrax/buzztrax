@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.51 2006-02-28 19:03:29 ensonic Exp $
+// $Id: application.c,v 1.52 2006-04-08 16:18:19 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -246,9 +246,7 @@ static void bt_application_dispose(GObject *object) {
   g_object_try_unref(self->priv->settings);
 
   GST_DEBUG("  chaining up");
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -269,9 +267,7 @@ static void bt_application_finalize(GObject *object) {
   }
 
   GST_DEBUG("  chaining up");
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 

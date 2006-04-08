@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.203 2006-03-29 16:39:11 ensonic Exp $
+// $Id: machine.c,v 1.204 2006-04-08 16:18:19 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -52,17 +52,6 @@
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
- */
-/* @todo: alternative idea for states
- *    whenever we link elements the target gets an adder
- *    we always link an internal element (silence) to the first pad of the adder
- *    the internal silence element
- *      produces silence
- *      has a timestamp read-only property
- *    when muting a real source, we block the pad
- *    when unmuting, we 
- *      get the position from the silence element and
- *      send a seek to the real source
  */
  
 #define BT_CORE
@@ -157,9 +146,6 @@ struct _BtMachinePrivate {
   
   /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
-  /* additional elements we need for state handling */
-  GstElement *silence;
-  GstQuery *state_position_query;
   
   /* public fields are
   GstElement *dst_elem,*src_elem;
@@ -251,130 +237,33 @@ static GstElement *bt_machine_get_source_peer(GstElement *elem) {
 }
 
 /*
- * bt_machine_toggle_mute:
- * @self: the element to toggle the mute state
- * @setup: the setup of the song
- *
- * Toggles the mute state of a machine, by swapping it with a silence generator.
- *
- * Returns: %TRUE for success
+ * mute the machine output
  */
-static gboolean bt_machine_toggle_mute(BtMachine *self,BtSetup *setup) {
-  gboolean res=FALSE;
-  GstElement *machine,*peer_elem;
-  GstPad *pad,*peer_pad;
-  GstState state=GST_STATE_VOID_PENDING;
-  GstStateChangeReturn state_ret;
-  GstEvent *seek_event;
-  gint64 pos_cur=0;
-  
-  GST_INFO("toggle mute state");
-
-  machine=self->priv->machines[PART_MACHINE];
-  // get current element state (is the song playing?)
-  if((state_ret=gst_element_get_state(machine,&state,NULL,1))!=GST_STATE_CHANGE_SUCCESS) {
-    GST_WARNING("failed to get state for %s",self->priv->id);
-  }
-  GST_INFO("state for %s is %s",self->priv->id,gst_element_state_get_name(state));
-
-  if((pad=gst_element_get_pad(machine,"src"))) {
-    if((peer_pad=gst_pad_get_peer(pad))) {      
-      if((peer_elem=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad))))) {
-        // only block when song is playing (otherwise this never returns)
-        if(state==GST_STATE_PLAYING) {
-          GST_INFO("blocking %s",gst_element_get_name(machine));
-          // send prepared GstPositionQuery to 'machine' and
-          if(!(gst_element_query(machine,self->priv->state_position_query))) {
-            GST_WARNING("can't query the position of the old machine in %s",self->priv->id);
-          }
-          else {
-            gst_query_parse_position(self->priv->state_position_query,NULL,&pos_cur);
-            GST_DEBUG("position of machine %s is %"G_GINT64_FORMAT,self->priv->id,pos_cur);
-          }
-
-          if(!gst_pad_set_blocked(pad,TRUE)) {
-            GST_WARNING("can't block src-pad of machine %s",self->priv->id);
-          }
-        }
-        
-        GST_INFO("unlinking %s - %s",gst_element_get_name(machine),gst_element_get_name(peer_elem));
-        gst_element_unlink(machine,peer_elem);
-        if(!(gst_element_link(self->priv->silence,peer_elem))) {
-          GST_WARNING("can't link silence element to machine %s",self->priv->id);
-        }
-        
-        if(state==GST_STATE_PLAYING) {
-          GstPad *new_pad;
-          GST_INFO("unblocking %s",gst_element_get_name(machine));
-
-          if(!gst_pad_set_blocked(pad,FALSE)) {
-            GST_WARNING("can't unblock src-pad of machine %s",self->priv->id);
-          }
-
-          // send a seek to 'self->priv->silence'
-          seek_event = gst_event_new_seek(1.0, GST_FORMAT_DEFAULT,
-            GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-            GST_SEEK_TYPE_SET, (GstClockTime)(pos_cur),
-            GST_SEEK_TYPE_SET, (GstClockTime)(G_MAXUINT64-1));          
-          
-          if(!(gst_element_send_event(GST_ELEMENT(self->priv->silence),seek_event))) {
-            GST_WARNING("can't send new-segment to old machine in %s",self->priv->id);
-          }
-
-          if(!gst_element_set_locked_state(self->priv->silence,FALSE)) {
-            GST_WARNING("can't set locked state of new machine to FALSE in %s",self->priv->id);
-          }
-          if((state_ret=gst_element_set_state(self->priv->silence,GST_STATE_PLAYING))!=GST_STATE_CHANGE_SUCCESS) {
-            GST_WARNING("failed to set state of new machine to PLAYING in %s, ret=%d",self->priv->id,state_ret);
-          }
-
-          // we need to do this to keep the restart the task for the element
-          new_pad=gst_element_get_pad(self->priv->silence,"src");
-          gst_pad_set_active(new_pad,FALSE);
-          if(!gst_pad_set_active(new_pad,TRUE)) {
-            GST_WARNING("can't activate src-pad of machine %s",self->priv->id);
-          }
-          gst_object_unref(new_pad);
-
-          if((state_ret=gst_element_set_state(machine,GST_STATE_READY))!=GST_STATE_CHANGE_SUCCESS) {
-            GST_WARNING("failed to set state of old machine to READY in %s, ret=%d",self->priv->id,state_ret);
-          }
-          if(!gst_element_set_locked_state(machine,TRUE)) {
-            GST_WARNING("can't set locked state of old machine to TRUE in %s",self->priv->id);
-          }
-        }
-        // swap elements
-        self->priv->machines[PART_MACHINE]=self->priv->silence;
-        self->priv->silence=machine;
-        
-        res=TRUE;
-        gst_object_unref(peer_elem);
-      }
-      else {
-        GST_WARNING("can't get sink-peer machine for %s",self->priv->id);
-      }
-      gst_object_unref(peer_pad);
-    }
-    else {
-      GST_WARNING("can't get peer-pad of %s",self->priv->id);
-    }
-    gst_object_unref(pad);
-  }
-  else {
-    GST_WARNING("can't get src pad of machine of %s",self->priv->id);
-  }
-  GST_INFO("toggle mute state = %d",res);
-  return(res);
-}
-
 static gboolean bt_machine_set_mute(BtMachine *self,BtSetup *setup) {
+  BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
+
   if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
-  return(bt_machine_toggle_mute(self,setup));
+
+  if(self->priv->machines[part]) {
+    g_object_set(self->priv->machines[part],"mute",TRUE,NULL);
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
+/*
+ * unmute the machine output
+ */
 static gboolean bt_machine_unset_mute(BtMachine *self,BtSetup *setup) {
+  BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
+  
   if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
-  return(bt_machine_toggle_mute(self,setup));
+
+  if(self->priv->machines[part]) {
+    g_object_set(self->priv->machines[part],"mute",FALSE,NULL);
+    return(TRUE);
+  }
+  return(FALSE);
 }
 
 /*
@@ -401,7 +290,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
   // return to normal state
   switch(self->priv->state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_toggle_mute(self,setup)) res=FALSE;
+      if(!bt_machine_unset_mute(self,setup)) res=FALSE;
     } break;
     case BT_MACHINE_STATE_SOLO:  { // source
       GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
@@ -414,6 +303,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
         }
         g_object_unref(machine);
       }
+      GST_INFO("unmuted %d elements with result = %d",g_list_length(machines),res);
       g_list_free(machines);
     } break;
     case BT_MACHINE_STATE_BYPASS:  { // processor
@@ -426,7 +316,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
   // set to new state
   switch(new_state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
-      if(!bt_machine_toggle_mute(self,setup)) res=FALSE;
+      if(!bt_machine_set_mute(self,setup)) res=FALSE;
     } break;
     case BT_MACHINE_STATE_SOLO:  { // source
       GList *node,*machines=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
@@ -436,7 +326,6 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
         machine=BT_MACHINE(node->data);
         if(machine!=self) {
           // if a different machine is solo, set it to normal and unmute the current source
-          // @todo graphics need to listen to notify::state
           if(machine->priv->state==BT_MACHINE_STATE_SOLO) {
             machine->priv->state=BT_MACHINE_STATE_NORMAL;
             g_object_notify(G_OBJECT(machine),"state");
@@ -446,6 +335,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
         }
         g_object_unref(machine);
       }
+      GST_INFO("muted %d elements with result = %d",g_list_length(machines),res);
       g_list_free(machines);
     } break;
     case BT_MACHINE_STATE_BYPASS:  { // processor
@@ -478,7 +368,7 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
   BtSetup *setup;
   BtWire *wire;
     
-  //seek elements before and after part_position
+  // look for elements before and after part_position
   pre=post=-1;
   for(i=part_position-1;i>-1;i--) {
     if(self->priv->machines[i]) {
@@ -556,22 +446,6 @@ static gboolean bt_machine_insert_element(BtMachine *self,GstElement *peer,BtMac
     GST_ERROR("failed to link part '%s' in broken machine",GST_OBJECT_NAME(self->priv->machines[part_position]));
   }
   return(res);
-}
-
-/*
- * bt_machine_make_name:
- * @self: the machine to generate the unique name for
- *
- * Generates a system wide unique name by adding the song instance address as a
- * postfix to the name.
- *
- * Return: the name in newly allocated memory
- */
-static gchar *bt_machine_make_name(const BtMachine *self) {
-  gchar *name;
-  
-  name=g_strdup_printf("%s_%p",self->priv->id,self->priv->song);
-  return(name);
 }
 
 /*
@@ -734,7 +608,7 @@ static gboolean bt_machine_add_input_element(BtMachine *self,const BtMachinePart
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     self->dst_elem=self->priv->machines[part];
-    GST_INFO("sucessfully added element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully prepended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   else {
     GST_DEBUG("machine '%s' is connected to '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]),GST_OBJECT_NAME(peer));
@@ -743,7 +617,7 @@ static gboolean bt_machine_add_input_element(BtMachine *self,const BtMachinePart
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     gst_object_unref(peer);
-    GST_INFO("sucessfully added element'%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   res=TRUE;
 Error:
@@ -772,8 +646,8 @@ static gboolean bt_machine_add_output_element(BtMachine *self,const BtMachinePar
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
-    self->dst_elem=self->priv->machines[part];
-    GST_INFO("sucessfully added element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    self->src_elem=self->priv->machines[part];
+    GST_INFO("sucessfully appended element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   else {
     GST_DEBUG("machine '%s' is connected to '%s'",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]),GST_OBJECT_NAME(peer));
@@ -782,7 +656,7 @@ static gboolean bt_machine_add_output_element(BtMachine *self,const BtMachinePar
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
     gst_object_unref(peer);
-    GST_INFO("sucessfully added element'%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
+    GST_INFO("sucessfully inserted element'%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
   }
   res=TRUE;
 Error:
@@ -793,19 +667,15 @@ Error:
 
 static gboolean bt_machine_init_core_machine(BtMachine *self) {
   gboolean res=FALSE;
-  gchar *name=bt_machine_make_name(self);
-    
-  if(!(self->priv->machines[PART_MACHINE]=gst_element_factory_make(self->priv->plugin_name,name))) {
-    GST_ERROR("  failed to instantiate machine \"%s\"",self->priv->plugin_name);
-    goto Error;
-  }
+  
+  if(!bt_machine_make_internal_element(self,PART_MACHINE,self->priv->plugin_name,self->priv->id)) goto Error;
+
   // there is no adder or spreader in use by default
   self->dst_elem=self->src_elem=self->priv->machines[PART_MACHINE];
   GST_INFO("  instantiated machine %p, \"%s\", machine->ref_count=%d",self->priv->machines[PART_MACHINE],self->priv->plugin_name,G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count);
 
   res=TRUE;
 Error:
-  g_free(name);
   return(res);
 }
 
@@ -1035,6 +905,10 @@ static void bt_machine_init_voice_params(BtMachine *self) {
 }
 
 static gboolean bt_machine_setup(BtMachine *self) {
+
+  // get the bin from the song, we're in
+  g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
+
   // name the machine and try to instantiate it
   if(!bt_machine_init_core_machine(self)) return(FALSE);
 
@@ -1047,10 +921,6 @@ static gboolean bt_machine_setup(BtMachine *self) {
   bt_machine_init_global_params(self);
   // register voice params
   bt_machine_init_voice_params(self);
-
-  // add to the songs bin
-  g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
-  gst_bin_add(self->priv->bin,self->priv->machines[PART_MACHINE]);
   
   // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_count=%d  bin->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count,G_OBJECT(self->priv->bin)->ref_count);
@@ -1071,16 +941,8 @@ static gboolean bt_machine_setup(BtMachine *self) {
     bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
   }
   // prepare state handling elements
-  {
-    gchar *name=g_strdup_printf("silence_%p",self);
-
-    self->priv->silence=gst_element_factory_make("audiotestsrc",name);
-    g_object_set(self->priv->silence,"wave",4,NULL);
-    gst_bin_add(self->priv->bin,self->priv->silence);
-    if(gst_element_set_state(self->priv->silence, GST_STATE_READY)==GST_STATE_CHANGE_FAILURE) {
-      fprintf(stderr,"Can't set state to READY for silence\n");exit(-1);
-    }
-    gst_element_set_locked_state(self->priv->silence,TRUE);
+  if(!BT_IS_SINK_MACHINE(self)) {
+    bt_machine_enable_output_gain(self);
   }
   return(TRUE);
 }
@@ -2378,9 +2240,10 @@ static void bt_machine_set_property(GObject      *object,
       self->priv->id = g_value_dup_string(value);
       GST_DEBUG("set the id for machine: %s",self->priv->id);
       if(self->priv->machines[PART_MACHINE]) {
-        gchar *name=bt_machine_make_name(self);
+        gchar *name=g_alloca(strlen(self->priv->id)+16);
+
+        g_sprintf(name,"%s_%p",self->priv->id,self);
         gst_element_set_name(self->priv->machines[PART_MACHINE],name);
-        g_free(name);
       }
       bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
@@ -2438,9 +2301,7 @@ static void bt_machine_dispose(GObject *object) {
   
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  if(self->priv->bin) {
-    GstStateChangeReturn state_ret;
-    
+  if(self->priv->bin) {   
     for(i=0;i<PART_COUNT;i++) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));
@@ -2450,20 +2311,10 @@ static void bt_machine_dispose(GObject *object) {
         GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
       }
     }
-    // release silence element
-    if(!gst_element_set_locked_state(self->priv->silence,FALSE)) {
-      GST_WARNING("can't set locked state of silence to FALSE in %s",self->priv->id);
-    }
-    if((state_ret=gst_element_set_state(self->priv->silence,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
-      GST_WARNING("failed to set state of silence to NULL in %s, ret=%d",self->priv->id,state_ret);
-    }
-    gst_bin_remove(self->priv->bin,self->priv->silence);
     // release the bin (that is ref'ed in bt_machine_new() )
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);
   }
-  
-  gst_query_unref(self->priv->state_position_query);
 
   //GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
@@ -2480,10 +2331,7 @@ static void bt_machine_dispose(GObject *object) {
   }
 
   GST_DEBUG("  chaining up");
-
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -2511,9 +2359,7 @@ static void bt_machine_finalize(GObject *object) {
     self->priv->patterns=NULL;
   }
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
@@ -2523,9 +2369,7 @@ static void bt_machine_init(GTypeInstance *instance, gpointer g_class) {
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
-  
-  self->priv->state_position_query=gst_query_new_position(GST_FORMAT_DEFAULT);
-  
+    
   GST_DEBUG("!!!! self=%p",self);
 }
 

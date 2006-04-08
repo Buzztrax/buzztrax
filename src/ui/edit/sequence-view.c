@@ -1,10 +1,10 @@
-// $Id: sequence-view.c,v 1.19 2006-02-17 08:19:57 ensonic Exp $
+// $Id: sequence-view.c,v 1.20 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
- * @see_also: #BtMainPageSequence,#MainPagePatterns
+ * @see_also: #BtMainPageSequence
  *
- * This widget derives from the #GtkTreeView to additional draw loop- and
+ * This widget derives from the #GtkTreeView to additionaly draw loop- and
  * play-position bars.
  */ 
  
@@ -40,7 +40,6 @@ struct _BtSequenceViewPrivate {
   
   /* cache some ressources */
   GdkWindow *window;
-  //GdkBitmap *loop_pos_stipple;
   GdkGC *play_pos_gc,*loop_pos_gc;
 };
 
@@ -252,10 +251,7 @@ static void bt_sequence_view_dispose(GObject *object) {
   
   g_object_try_unref(self->priv->play_pos_gc);
 
-  // this disposes the pages for us
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_sequence_view_finalize(GObject *object) {
@@ -263,9 +259,7 @@ static void bt_sequence_view_finalize(GObject *object) {
   
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {

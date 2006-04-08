@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.107 2006-03-08 14:58:29 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.108 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -49,6 +49,9 @@ struct _BtMainPageSequencePrivate {
   GtkTreeView *sequence_table;
   /* the pattern list */
   GtkTreeView *pattern_list;
+  
+  /* position-table header label widget */
+  GtkWidget *pos_header;
 
   /* sequence context_menu */
   GtkMenu *context_menu;
@@ -346,13 +349,84 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
   g_free(str);
 }
 
+/*
+ * on_header_size_allocate:
+ *
+ * Adjusts the height of the header widget of the first treeview (pos) to the
+ * height of the second treeview.
+ */
+static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  
+  GST_INFO("#### header label size %d x %d",
+    allocation->width,allocation->height);
+  gtk_widget_set_size_request(self->priv->pos_header,-1,allocation->height);
+}
+
+static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+
+  if(gtk_toggle_button_get_active(togglebutton)) {
+    g_object_set(machine,"state",BT_MACHINE_STATE_MUTE,NULL);
+  }
+  else {
+    g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+  }
+}
+
+static void on_solo_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+
+  if(gtk_toggle_button_get_active(togglebutton)) {
+    g_object_set(machine,"state",BT_MACHINE_STATE_SOLO,NULL);
+  }
+  else {
+    g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+  }
+}
+
+static void on_bypass_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+
+  if(gtk_toggle_button_get_active(togglebutton)) {
+    g_object_set(machine,"state",BT_MACHINE_STATE_BYPASS,NULL);
+  }
+  else {
+    g_object_set(machine,"state",BT_MACHINE_STATE_NORMAL,NULL);
+  }
+}
+
+static void on_machine_state_changed_mute(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
+  BtMachineState state;
+  
+  g_object_get(machine,"state",&state,NULL);
+  gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_MUTE));
+}
+
+static void on_machine_state_changed_solo(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
+  BtMachineState state;
+  
+  g_object_get(machine,"state",&state,NULL);
+  gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_SOLO));
+}
+
+static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  GtkToggleButton *button=GTK_TOGGLE_BUTTON(user_data);
+  BtMachineState state;
+  
+  g_object_get(machine,"state",&state,NULL);
+  gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_BYPASS));
+}
+
 //-- event handler helper
 
 /*
  * sequence_pos_table_init:
  * @self: the sequence page
  *
- * inserts the Pos column.
+ * inserts the 'Pos.' column into the first (left) treeview
  */
 static void sequence_pos_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
@@ -360,6 +434,9 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
   gint col_index=0;
   
   // add static column
+  self->priv->pos_header=gtk_label_new(_("Pos."));
+  gtk_widget_show_all(self->priv->pos_header);
+  
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
     "mode",GTK_CELL_RENDERER_MODE_INERT,
@@ -368,12 +445,13 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
     "foreground","blue",
     NULL);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
-  if((tree_col=gtk_tree_view_column_new_with_attributes(_("Pos."),renderer,
+  if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
     "text",SEQUENCE_TABLE_POS,
     "foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
   ) {
     g_object_set(tree_col,
+      "widget",self->priv->pos_header,
       "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
       "fixed-width",40,
       NULL);
@@ -456,7 +534,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtSequence *sequence;
   BtMachine *machine;
   BtPattern *pattern;
-  GtkWidget *label;
+  GtkWidget *header;
   gchar *str;
   gulong i,j,col_ct,timeline_ct,track_ct,pos=0;
   gint col_index;
@@ -579,32 +657,71 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       NULL);
     gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
 
-    // set machine name as column header
+    // setup column header
     if(machine) {
+      GtkWidget *label,*button,*box;
+      // add hbox that contains the machine-name + Mute, Solo and Bypass buttons
+      // @todo: add context menu like that in the machine_view
+      // @todo: this is still to spacy (to much padding)
+      // @todo: buttons don't work
+      
+      header=gtk_vbox_new(TRUE,0);
+      
       g_object_get(G_OBJECT(machine),"id",&str,NULL);
       label=gtk_label_new(str);
+      gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
+      //gtk_misc_set_padding(GTK_MISC(label),0,0);
       g_free(str);
+      gtk_box_pack_start(GTK_BOX(header),label,TRUE,TRUE,0);
+      
+      box=gtk_hbox_new(TRUE,0);
+      // add M/S/B butons and connect signal handlers
+      button=gtk_toggle_button_new_with_label("M");
+      gtk_container_set_border_width(GTK_CONTAINER(button),0);
+      gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
+      g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_mute_toggled),(gpointer)machine);
+      g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_mute), (gpointer)button);
+      if(!BT_IS_SINK_MACHINE(machine)) {
+        button=gtk_toggle_button_new_with_label("S");
+        gtk_container_set_border_width(GTK_CONTAINER(button),0);
+        gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
+        g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_solo_toggled),(gpointer)machine);
+        g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_solo), (gpointer)button);
+      }
+      if(BT_IS_PROCESSOR_MACHINE(machine)) {
+        button=gtk_toggle_button_new_with_label("B");
+        gtk_container_set_border_width(GTK_CONTAINER(button),0);
+        gtk_box_pack_start(GTK_BOX(box),button,FALSE,FALSE,0);
+        g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
+        g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
+      }
+      // @todo: add level-meter instead and connect
+      gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(gtk_label_new(" ")),TRUE,TRUE,0);
+      
+      gtk_box_pack_start(GTK_BOX(header),GTK_WIDGET(box),TRUE,TRUE,0);
+
+      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
+      if(j==0) {
+        // connect to the size-allocate signal to adjust the height of the other treeview header
+        g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
+      }
     }
     else {
-      label=gtk_label_new("???");
+      header=gtk_label_new("???");
       GST_WARNING("can't get machine for column %d",j);
     }
-    // @todo here we can add hbox that containts Mute, Solo, Bypass buttons as well
-    // or popup button that shows the whole context menu like that in the machine_view
-    gtk_widget_show(label);
+    gtk_widget_show_all(header);
     if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
     /*  "text",SEQUENCE_TABLE_PRE_CT+j,*/
       NULL))
     ) {
       g_object_set(tree_col,
-        "widget",label,
+        "widget",header,
         "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
         "fixed-width",SEQUENCE_CELL_WIDTH,
         NULL);
       g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(j));
       gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
-          
-      g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
     
       // color code columns
       if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -1478,7 +1595,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_ETCHED_IN);
-  //self->priv->sequence_pos_table=GTK_TREE_VIEW(gtk_tree_view_new());
   self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
   g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,-1);
@@ -1493,7 +1609,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-  //self->priv->sequence_table=GTK_TREE_VIEW(gtk_tree_view_new());
   self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
   g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
@@ -1820,9 +1935,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_page_sequence_finalize(GObject *object) {
@@ -1830,9 +1943,7 @@ static void bt_main_page_sequence_finalize(GObject *object) {
   
   //GST_DEBUG("!!!! self=%p",self);  
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class) {

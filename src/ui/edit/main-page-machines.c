@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.72 2006-03-19 19:18:01 ensonic Exp $
+// $Id: main-page-machines.c,v 1.73 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -933,9 +933,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->grid_density_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_page_machines_finalize(GObject *object) {
@@ -944,9 +942,7 @@ static void bt_main_page_machines_finalize(GObject *object) {
   g_hash_table_destroy(self->priv->machines);
   g_hash_table_destroy(self->priv->wires);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class) {

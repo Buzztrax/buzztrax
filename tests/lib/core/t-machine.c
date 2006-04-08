@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.14 2006-01-18 13:11:55 ensonic Exp $
+/* $Id: t-machine.c,v 1.15 2006-04-08 16:18:27 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -32,13 +32,10 @@ BT_START_TEST(test_btmachine_abstract) {
 BT_END_TEST
 */
 
-/**
+/*
  * audiotestsrc | volume | audio_sink
  * mute audiotestsrc, mute volume, unmute volume, test if volume still is muted
- *
- * needs song in playing state
  */
-#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btmachine_state1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -107,15 +104,11 @@ BT_START_TEST(test_btmachine_state1) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-#endif
 
-/**
+/*
  * audiotestsrc1, audiotestsrc2 | audio_sink
  * solo audiotestsrc1, solo audiotestsrc2, test that audiotestsrc1 is not solo
- *
- * needs song in playing state
  */
-#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btmachine_state2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -175,18 +168,14 @@ BT_START_TEST(test_btmachine_state2) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-#endif
 
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
   
   // @todo try catching the critical log
   //tcase_add_test(tc, test_btmachine_abstract);
-  /* @todo state change tests need the song to be in playing state,
-     otherwise the calls block
   tcase_add_test(tc, test_btmachine_state1);
   tcase_add_test(tc, test_btmachine_state2);
-  */
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds
   tcase_set_timeout(tc, 10);

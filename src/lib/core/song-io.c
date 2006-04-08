@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.53 2006-02-28 19:03:30 ensonic Exp $
+// $Id: song-io.c,v 1.54 2006-04-08 16:18:24 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -315,9 +315,7 @@ static void bt_song_io_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_song_io_finalize(GObject *object) {
@@ -325,9 +323,7 @@ static void bt_song_io_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_song_io_init(GTypeInstance *instance, gpointer g_class) {

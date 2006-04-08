@@ -20,6 +20,7 @@
 <!ENTITY BtMainToolbar SYSTEM "xml/btmaintoolbar.xml">
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtPatternPropertiesDialog SYSTEM "xml/btpatternpropertiesdialog.xml">
+<!ENTITY BtPatternView SYSTEM "xml/btpatternview.xml">
 <!ENTITY BtSequenceView SYSTEM "xml/btsequenceview.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
@@ -73,6 +74,7 @@
     &BtMainStatusbar;
     &BtMainToolbar;
     &BtPatternPropertiesDialog;
+    &BtPatternView;
     &BtSequenceView;
     &BtSettingsDialog;
     &BtSettingsPageAudiodevices;

@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.71 2006-02-28 19:03:30 ensonic Exp $
+// $Id: edit-application.c,v 1.72 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -410,17 +410,14 @@ static void bt_edit_application_dispose(GObject *object) {
   }
   g_object_try_unref(self->priv->song);
 
-  //if(self->priv->main_window) {
+  //if(self->priv->main_window)
     //GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
-  //}
   //g_object_try_unref(self->priv->main_window);
   
   g_object_try_unref(self->priv->ui_ressources);
 
   GST_DEBUG("  chaining up");
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -429,9 +426,7 @@ static void bt_edit_application_finalize(GObject *object) {
   
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 

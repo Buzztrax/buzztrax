@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.52 2006-03-08 21:37:54 ensonic Exp $
+// $Id: main-menu.c,v 1.53 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -667,9 +667,7 @@ static void bt_main_menu_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);  
   g_object_try_weak_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_menu_finalize(GObject *object) {
@@ -677,9 +675,7 @@ static void bt_main_menu_finalize(GObject *object) {
   
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_menu_init(GTypeInstance *instance, gpointer g_class) {

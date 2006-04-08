@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.26 2006-02-28 19:03:29 ensonic Exp $
+// $Id: gconf-settings.c,v 1.27 2006-04-08 16:18:19 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -206,9 +206,7 @@ static void bt_gconf_settings_dispose(GObject *object) {
   g_object_unref(self->priv->client);
 
   GST_DEBUG("!!!! self=%p",self);
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_gconf_settings_finalize(GObject *object) {
@@ -216,9 +214,7 @@ static void bt_gconf_settings_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {

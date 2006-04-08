@@ -1,24 +1,24 @@
-// $Id: main-page-patterns.c,v 1.85 2006-03-08 14:58:29 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.86 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
- * @see_also: #BtSequenceView
+ * @see_also: #BtPatternView
  */
  
-/* @todo main-page-patterns tasks
- *   - use BtSequenceView alike class
- *   - focus pattern_view after switching patterns, entering the page ?
- *   - test wheter we can use pango-markup for tree-view labels to make font
- *     smaller
- *   - need diverders for global and voice data (2 pixel wide column?)
- *   - shortcuts
- *     - Ctrl-I : Interpolate
- *       - from min/max of parameter or content of start/end cell (also multi-column)
- *       - what if only start or end is given?
- *     - Ctrl-R : Randomize
- *       - from min/max of parameter or content of start/end cell (also multi-column)
- *     - Ctrl-S : Smooth
- *       - low pass median filter over changes
+/* @todo: main-page-patterns tasks
+ * - focus pattern_view after switching patterns, entering the page ?
+ * - test wheter we can use pango-markup for tree-view labels to make font
+ *   smaller
+ * - need dividers for global and voice data (2 pixel wide column?)
+ * - shortcuts
+ *   - Ctrl-I : Interpolate
+ *     - from min/max of parameter or content of start/end cell (also multi-column)
+ *     - what if only start or end is given?
+ *   - Ctrl-R : Randomize
+ *     - from min/max of parameter or content of start/end cell (also multi-column)
+ *   - Ctrl-S : Smooth
+ *     - low pass median filter over changes
+ * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  */
 
 #define BT_EDIT
@@ -569,7 +569,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
   // update pattern menu
   store=gtk_list_store_new(2,G_TYPE_STRING,BT_TYPE_WAVE);
   
-  // @todo scan wavetable list for waves
+  // @todo: scan wavetable list for waves
   
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->wavetable_menu),(wave!=NULL));
   gtk_combo_box_set_model(self->priv->wavetable_menu,GTK_TREE_MODEL(store));
@@ -760,6 +760,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       }
     }    
     g_object_unref(machine);
+    
+    g_object_set(self->priv->pattern_table,"visible-rows",number_of_ticks,NULL);
+    g_object_set(self->priv->pattern_pos_table,"visible-rows",number_of_ticks,NULL);
   }
   else {
     // create empty list model, so that the context menu works
@@ -915,6 +918,56 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   g_object_try_unref(machine);
 }
 
+static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtSequence *sequence;
+  BtMachine *machine,*cur_machine;
+  BtPattern *pattern;
+  gulong i,j,pos;
+  gulong tracks,length,spos,sequence_length;
+  gdouble play_pos;
+  gboolean found=FALSE;
+  
+  if(!self->priv->pattern) return;
+    
+  g_object_get(G_OBJECT(self->priv->pattern),"machine",&cur_machine,"length",&length,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+  g_object_get(G_OBJECT(sequence),"tracks",&tracks,"length",&sequence_length,NULL);
+  
+  if(pos<sequence_length) { 
+    // check all tracks
+    for(i=0;((i<tracks) && !found);i++) {
+      machine=bt_sequence_get_machine(sequence,i);
+      if(machine==cur_machine) {
+        // find pattern start
+        spos=(pos>length)?(pos-length):0;
+        for(j=spos;((j<pos) && !found);j++) {
+          // get pattern for current machine and current tick from sequence
+          if((pattern=bt_sequence_get_pattern(sequence,j,i))) {
+            // if it is the pattern we currently show, set play-line
+            if(pattern==self->priv->pattern) {
+              play_pos=(gdouble)(pos-j)/(gdouble)length;
+              g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
+              g_object_set(self->priv->pattern_pos_table,"play-position",play_pos,NULL);
+              found=TRUE;
+            }
+            g_object_unref(pattern);
+          }
+        }
+      }
+      g_object_unref(machine);
+    }
+  }
+  if(!found) {
+    // unfortunately the 2nd widget may lag behind with redrawing itself :(
+    g_object_set(self->priv->pattern_table,"play-position",0.0,NULL);
+    g_object_set(self->priv->pattern_pos_table,"play-position",0.0,NULL);
+  }
+  // release the references
+  g_object_try_unref(sequence);
+  g_object_try_unref(cur_machine);
+}
+
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
@@ -934,6 +987,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   wavetable_menu_refresh(self);
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  // subscribe to play-pos changes of song->sequence
+  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
   // release the references
   g_object_try_unref(setup);
   g_object_try_unref(song);
@@ -1205,8 +1260,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_ETCHED_IN);
-  self->priv->pattern_pos_table=GTK_TREE_VIEW(gtk_tree_view_new());
-  //self->priv->pattern_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
+  self->priv->pattern_pos_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
   g_object_set(self->priv->pattern_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_pos_table),40,-1);
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_pos_table);
@@ -1224,11 +1278,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
-  self->priv->pattern_table=GTK_TREE_VIEW(gtk_tree_view_new());
+  self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  //gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
   g_signal_connect_after(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
@@ -1474,17 +1527,13 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 	gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_page_patterns_finalize(GObject *object) {
   //BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
   
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class) {

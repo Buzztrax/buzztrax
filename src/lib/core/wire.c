@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.76 2006-03-20 10:46:41 ensonic Exp $
+// $Id: wire.c,v 1.77 2006-04-08 16:18:24 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -530,7 +530,7 @@ static void bt_wire_dispose(GObject *object) {
   // remove the GstElements from the bin
   if(self->priv->bin) {
     bt_wire_unlink_machines(self); // removes convert and scale if in use
-    // @todo add the remaining elements to remove (which?)
+    // @todo add the remaining elements to remove (none yet)
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);
   }
@@ -540,9 +540,7 @@ static void bt_wire_dispose(GObject *object) {
   g_object_try_unref(self->priv->dst);
   g_object_try_unref(self->priv->src);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_wire_finalize(GObject *object) {
@@ -550,9 +548,7 @@ static void bt_wire_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {

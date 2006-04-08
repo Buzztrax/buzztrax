@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.62 2006-03-08 21:37:54 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.63 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -635,9 +635,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("  destroying done");
 
   GST_DEBUG("  chaining up");  
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -646,9 +644,7 @@ static void bt_machine_canvas_item_finalize(GObject *object) {
 
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 

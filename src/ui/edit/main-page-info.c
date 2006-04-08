@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.35 2006-02-28 19:03:30 ensonic Exp $
+// $Id: main-page-info.c,v 1.36 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -384,17 +384,13 @@ static void bt_main_page_info_dispose(GObject *object) {
 
   g_object_try_weak_unref(self->priv->app);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_page_info_finalize(GObject *object) {
   //BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {

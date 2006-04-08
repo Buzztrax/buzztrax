@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.32 2006-03-08 21:37:54 ensonic Exp $
+/* $Id: bt-edit.h,v 1.33 2006-04-08 16:18:26 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -36,6 +36,7 @@
 #include "main-toolbar-methods.h"
 #include "main-window-methods.h"
 #include "pattern-properties-dialog-methods.h"
+#include "pattern-view-methods.h"
 #include "sequence-view-methods.h"
 #include "settings-dialog-methods.h"
 #include "settings-page-audiodevices-methods.h"

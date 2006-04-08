@@ -1,4 +1,4 @@
-$Id: TODO,v 1.25 2006-01-16 21:39:22 ensonic Exp $
+$Id: TODO,v 1.26 2006-04-08 16:18:18 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -13,9 +13,11 @@ when releasing do:
     audio-generators (and implement the instrument interface)
     audio-effects
   * bt-edit
-    * have a ui_ressource singleton
-      GdkColors
-      GdkPixbuf, GtkImage
+    * add volume-control to wire
+      (look at volume popup from gnome-media)
+    * sequence headings
+      * add levvel-meter
+      * add M/S/B Buttons
 
 * how do we implement multiple voices per machine?
   * simulate

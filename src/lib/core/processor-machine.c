@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.38 2006-03-15 11:19:20 ensonic Exp $
+// $Id: processor-machine.c,v 1.39 2006-04-08 16:18:21 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -145,9 +145,7 @@ static void bt_processor_machine_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_processor_machine_finalize(GObject *object) {
@@ -155,9 +153,7 @@ static void bt_processor_machine_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_processor_machine_init(GTypeInstance *instance, gpointer g_class) {

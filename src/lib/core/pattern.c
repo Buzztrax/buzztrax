@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.79 2006-03-20 21:46:46 ensonic Exp $
+// $Id: pattern.c,v 1.80 2006-04-08 16:18:21 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -1026,9 +1026,7 @@ static void bt_pattern_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->song);
   g_object_try_weak_unref(self->priv->machine);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_pattern_finalize(GObject *object) {
@@ -1040,9 +1038,7 @@ static void bt_pattern_finalize(GObject *object) {
   g_free(self->priv->name);
   g_free(self->priv->data);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_pattern_init(GTypeInstance *instance, gpointer g_class) {

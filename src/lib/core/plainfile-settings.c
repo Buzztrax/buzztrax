@@ -1,4 +1,4 @@
-// $Id: plainfile-settings.c,v 1.17 2006-02-28 19:03:29 ensonic Exp $
+// $Id: plainfile-settings.c,v 1.18 2006-04-08 16:18:21 ensonic Exp $
 /**
  * SECTION:btplainfilesettings
  * @short_description: plain file based implementation sub class for buzztard 
@@ -108,9 +108,7 @@ static void bt_plainfile_settings_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
   
   GST_DEBUG("!!!! self=%p",self);
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_plainfile_settings_finalize(GObject *object) {
@@ -120,9 +118,7 @@ static void bt_plainfile_settings_finalize(GObject *object) {
 
   //g_hash_table_destroy(self->priv->settings);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_plainfile_settings_init(GTypeInstance *instance, gpointer g_class) {

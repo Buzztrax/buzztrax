@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.101 2006-03-24 15:30:38 ensonic Exp $
+// $Id: sequence.c,v 1.102 2006-04-08 16:18:21 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -1217,9 +1217,7 @@ static void bt_sequence_dispose(GObject *object) {
     }
   }
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_sequence_finalize(GObject *object) {
@@ -1232,9 +1230,7 @@ static void bt_sequence_finalize(GObject *object) {
   g_free(self->priv->patterns);
   g_hash_table_destroy(self->priv->damage);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_sequence_init(GTypeInstance *instance, gpointer g_class) {

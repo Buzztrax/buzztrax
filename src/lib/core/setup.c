@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.91 2006-03-20 10:46:41 ensonic Exp $
+// $Id: setup.c,v 1.92 2006-04-08 16:18:22 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -696,9 +696,7 @@ static void bt_setup_dispose(GObject *object) {
     }
   }
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_setup_finalize(GObject *object) {
@@ -719,9 +717,7 @@ static void bt_setup_finalize(GObject *object) {
 
   g_hash_table_destroy(self->priv->properties);
   
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_setup_init(GTypeInstance *instance, gpointer g_class) {

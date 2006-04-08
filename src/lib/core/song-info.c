@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.47 2006-03-20 10:46:41 ensonic Exp $
+// $Id: song-info.c,v 1.48 2006-04-08 16:18:24 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -325,9 +325,7 @@ static void bt_song_info_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->song);
 
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_song_info_finalize(GObject *object) {
@@ -346,9 +344,7 @@ static void bt_song_info_finalize(GObject *object) {
   g_free(self->priv->create_dts);
   g_free(self->priv->change_dts);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {

@@ -1,4 +1,4 @@
-// $Id: source-machine.c,v 1.36 2006-03-15 11:19:21 ensonic Exp $
+// $Id: source-machine.c,v 1.37 2006-04-08 16:18:24 ensonic Exp $
 /**
  * SECTION:btsourcemachine
  * @short_description: class for signal processing machines with outputs only
@@ -144,9 +144,7 @@ static void bt_source_machine_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_source_machine_finalize(GObject *object) {
@@ -154,9 +152,7 @@ static void bt_source_machine_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_source_machine_init(GTypeInstance *instance, gpointer g_class) {

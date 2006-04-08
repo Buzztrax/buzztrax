@@ -1,10 +1,21 @@
-/***************************************************************************
- *            gtkvumeter.c
+// $Id: gtkvumeter.c,v 1.10 2006-04-08 16:18:26 ensonic Exp $
+/*
+ * gtkvumeter.c
  *
- *  Fri Jan 10 20:06:23 2003
- *  Copyright  2003  Todd Goyen
- *  wettoad@knighthoodofbuh.org
- ****************************************************************************/
+ * Fri Jan 10 20:06:23 2003
+ * Copyright  2003  Todd Goyen
+ * wettoad@knighthoodofbuh.org
+ *
+ * heavily modified by ensonic@user.sf.net
+ */
+/* @todo:
+ * - make it use cairo
+ * - shade lines (100%, 50% brightness)
+ * - add properties:
+ *   - vertical : gboolean, readonly
+ *   - min,max,rms,peak : gint, read/write
+ *   - peaks_falloff,scale_type : enum, read/write
+ */
 
 #include <math.h>
 #include <gtk/gtk.h>
@@ -32,7 +43,7 @@ GtkType gtk_vumeter_get_type (void)
 {
     static GType vumeter_type = 0;
     
-    if (!vumeter_type) {
+    if (G_UNLIKELY(!vumeter_type)) {
         static const GTypeInfo vumeter_info = {
             sizeof (GtkVUMeterClass),
             NULL, NULL,
@@ -51,6 +62,8 @@ GtkType gtk_vumeter_get_type (void)
  * @vertical: %TRUE for a vertical VUMeter, %FALSE for horizontal VUMeter.
  *
  * Creates a new VUMeter widget.
+ *
+ * Returns: the new #GtkWidget
  */
 GtkWidget* gtk_vumeter_new (gboolean vertical)
 {
@@ -455,11 +468,11 @@ void gtk_vumeter_set_peaks_falloff (GtkVUMeter *vumeter, gint peaks_falloff)
 /**
  * gtk_vumeter_set_scale:
  * @vumeter: the vumeter widget to change the scaling type
- * @level: gint for the scale either GTK_VUMETER_SCALE_LINEAR or GTK_VUMETER_SCALE_LOG
+ * @scale: the scale type, either GTK_VUMETER_SCALE_LINEAR or GTK_VUMETER_SCALE_LOG
  *
  * Sets the scale of the VU Meter.
  * It is either log or linear and defaults to linear.
- * No matter which scale you set the input should always be linear, gtkVUMeter
+ * No matter which scale you set the input should always be linear, #GtkVUMeter
  * does the log calculation. 0db is red. -6db is yellow. -18db is green.
  * Whatever min turns into is dark green.
  */

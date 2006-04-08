@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.70 2006-03-08 21:37:54 ensonic Exp $
+// $Id: main-window.c,v 1.71 2006-04-08 16:18:26 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -71,6 +71,17 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
     gtk_main_quit();
   }
 }
+
+static gboolean on_window_configure_event(GtkWidget *widget,GdkEventConfigure *event,gpointer user_data) {
+  //BtMainWindow *self=BT_MAIN_WINDOW(user_data);
+  
+  GST_INFO("#### window pos & size %d x %d , %d x %d",
+    event->x,event->y,
+    event->width,event->height);
+  // @todo: store as properties per song or gconf settings
+  return(TRUE);
+}
+
 
 static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
@@ -152,6 +163,13 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   gtk_window_set_default_size(GTK_WINDOW(self),800,600);
   
+  /* @todo: restore pos & size
+   * - setup.properties or bt_settings?
+   * - call
+   *   gtk_window_move(self,x,y);
+   *   gtk_window_resize(self,w,h);
+   */
+  
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self),box);
@@ -183,6 +201,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
+  g_signal_connect(G_OBJECT(self),"configure-event",G_CALLBACK(on_window_configure_event),(gpointer)self);
 
   GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 
@@ -523,9 +542,7 @@ static void bt_main_window_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -534,9 +551,7 @@ static void bt_main_window_finalize(GObject *object) {
 
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 

@@ -1,4 +1,4 @@
-/* $Id: e-machine.c,v 1.6 2005-09-25 18:36:33 ensonic Exp $
+/* $Id: e-machine.c,v 1.7 2006-04-08 16:18:27 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -18,7 +18,10 @@ static void test_teardown(void) {
 
 //-- tests
 
-BT_START_TEST(test_btmachine_insert_input_level1) {
+/*
+ * activate the input level meter in an unconnected machine
+ */
+BT_START_TEST(test_btmachine_enable_input_level1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine;
@@ -43,7 +46,10 @@ BT_START_TEST(test_btmachine_insert_input_level1) {
 }
 BT_END_TEST
 
-BT_START_TEST(test_btmachine_insert_input_level2) {
+/*
+ * activate the input level meter in a connected machine
+ */
+BT_START_TEST(test_btmachine_enable_input_level2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtMachine *machine1,*machine2;
@@ -76,12 +82,72 @@ BT_START_TEST(test_btmachine_insert_input_level2) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
+
+/*
+ * activate the input gain control in an unconnected machine
+ */
+BT_START_TEST(test_btmachine_enable_input_gain1) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtMachine *machine;
+  gboolean res;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  /* create a new song */
+  song=bt_song_new(app);
   
+  /* create a machine */
+  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
+  fail_unless(machine != NULL, NULL);
+  
+  res=bt_machine_enable_input_gain(machine);
+  fail_unless(res == TRUE, NULL);
+  
+  g_object_checked_unref(song);
+  g_object_checked_unref(machine);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+/*
+ * activate the output gain control in an unconnected machine
+ */
+BT_START_TEST(test_btmachine_enable_output_gain1) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtMachine *machine;
+  gboolean res;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  /* create a new song */
+  song=bt_song_new(app);
+  
+  /* create a machine */
+  machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
+  fail_unless(machine != NULL, NULL);
+  
+  res=bt_machine_enable_output_gain(machine);
+  fail_unless(res == TRUE, NULL);
+  
+  g_object_checked_unref(song);
+  g_object_checked_unref(machine);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 TCase *bt_machine_example_case(void) {
   TCase *tc = tcase_create("BtMachineExamples");
 
-  tcase_add_test(tc,test_btmachine_insert_input_level1);
-  tcase_add_test(tc,test_btmachine_insert_input_level2);
+  tcase_add_test(tc,test_btmachine_enable_input_level1);
+  tcase_add_test(tc,test_btmachine_enable_input_level2);
+  tcase_add_test(tc,test_btmachine_enable_input_gain1);
+  tcase_add_test(tc,test_btmachine_enable_output_gain1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  // we need to raise the default timeout of 3 seconds
+  tcase_set_timeout(tc, 5);
   return(tc);
 }

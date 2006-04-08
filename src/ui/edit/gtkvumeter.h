@@ -1,10 +1,13 @@
-/***************************************************************************
- *            gtkvumeter.h
+// $Id: gtkvumeter.h,v 1.3 2006-04-08 16:18:26 ensonic Exp $
+/*
+ * gtkvumeter.h
  *
- *  Fri Jan 10 20:06:41 2003
- *  Copyright  2003  Todd Goyen
- *  wettoad@knighthoodofbuh.org
- ****************************************************************************/
+ * Fri Jan 10 20:06:41 2003
+ * Copyright  2003  Todd Goyen
+ * wettoad@knighthoodofbuh.org
+ *
+ * heavily modified by ensonic@user.sf.net
+ */
 
 #ifndef __GTKVUMETER_H__
 #define __GTKVUMETER_H__

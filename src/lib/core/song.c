@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.123 2006-03-24 15:30:38 ensonic Exp $
+// $Id: song.c,v 1.124 2006-04-08 16:18:24 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -863,9 +863,7 @@ static void bt_song_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
 
   GST_DEBUG("  chaining up");
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -875,9 +873,7 @@ static void bt_song_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
   
   GST_DEBUG("  chaining up");
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 

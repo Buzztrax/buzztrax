@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.27 2006-02-28 19:03:30 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.28 2006-04-08 16:18:27 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -377,9 +377,7 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
   GST_DEBUG("  chaining up");  
-  if(G_OBJECT_CLASS(parent_class)->dispose) {
-    (G_OBJECT_CLASS(parent_class)->dispose)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
 
@@ -388,9 +386,7 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
 
   //GST_DEBUG("!!!! self=%p",self);
 
-  if(G_OBJECT_CLASS(parent_class)->finalize) {
-    (G_OBJECT_CLASS(parent_class)->finalize)(object);
-  }
+  G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
 }
 
