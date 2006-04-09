@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.71 2006-04-08 22:08:33 ensonic Exp $
+# $Id: configure.ac,v 1.72 2006-04-09 17:05:37 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -47,11 +47,6 @@ VERSION=${BT_VERSION}
 # Initialise the automake tool
 AM_INIT_AUTOMAKE([check-news std-options ])
 
-# i18n
-ALL_LINGUAS="de"
-localedir='${datadir}/locale'
-AC_SUBST(localedir)
-
 # m4 - everyone who develops should have aclocal installed
 AC_PATH_PROG(PROG_ACLOCAL, aclocal, no)
 AC_MSG_CHECKING(where to install .m4 files to)
@@ -85,6 +80,13 @@ fi
 # Initialise gettext
 AM_GNU_GETTEXT([external],[need-ngettext])
 AM_GNU_GETTEXT_VERSION(0.12.1)
+
+# i18n
+# ALL_LINGUAS="de"
+ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
+localedir='${datadir}/locale'
+AC_SUBST(localedir)
+
 # this macro comes from gnome.m4, which we do not want to require
 # AM_ACLOCAL_INCLUDE(./m4)
 

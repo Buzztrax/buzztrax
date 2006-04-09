@@ -1,5 +1,10 @@
 2006-04-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	Added LINUAGS file
+
+2006-04-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c: (bt_sink_bin_class_init):
 	* src/lib/core/wave.c: (bt_wave_class_init):
 	* src/lib/core/wavelevel.c: (bt_wavelevel_class_init):
