@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.20 2006-04-08 16:18:26 ensonic Exp $
+// $Id: sequence-view.c,v 1.21 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -272,7 +272,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
   GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_TREE_VIEW);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSequenceViewPrivate));
 
   gobject_class->set_property = bt_sequence_view_set_property;

@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.20 2006-03-08 21:37:54 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.21 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -418,7 +418,7 @@ static void bt_machine_preferences_dialog_init(GTypeInstance *instance, gpointer
 static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePreferencesDialogPrivate));
   
   gobject_class->set_property = bt_machine_preferences_dialog_set_property;

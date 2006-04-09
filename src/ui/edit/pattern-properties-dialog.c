@@ -1,4 +1,4 @@
-// $Id: pattern-properties-dialog.c,v 1.11 2006-02-13 22:33:16 ensonic Exp $
+// $Id: pattern-properties-dialog.c,v 1.12 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btpatternpropertiesdialog
  * @short_description: 
@@ -295,7 +295,7 @@ static void bt_pattern_properties_dialog_init(GTypeInstance *instance, gpointer 
 static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPatternPropertiesDialogPrivate));
   
   gobject_class->set_property = bt_pattern_properties_dialog_set_property;

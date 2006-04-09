@@ -1,4 +1,4 @@
-// $Id: ui-ressources.c,v 1.7 2006-02-17 08:19:57 ensonic Exp $
+// $Id: ui-ressources.c,v 1.8 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btuiressources
  * @short_description: common shared ui ressources like icons and colors
@@ -327,7 +327,7 @@ static void bt_ui_ressources_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_ui_ressources_class_init(BtUIRessourcesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtUIRessourcesPrivate));
 
   gobject_class->set_property = bt_ui_ressources_set_property;

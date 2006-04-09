@@ -1,4 +1,4 @@
-// $Id: machine-menu.c,v 1.2 2006-02-13 22:33:16 ensonic Exp $
+// $Id: machine-menu.c,v 1.3 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btmachinemenu
  * @short_description: class for the machine selection sub-menu
@@ -239,7 +239,7 @@ static void bt_machine_menu_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_MENU);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
   
   gobject_class->set_property = bt_machine_menu_set_property;

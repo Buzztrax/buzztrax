@@ -1,3 +1,21 @@
+2006-04-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c: (bt_sink_bin_class_init):
+	* src/lib/core/wave.c: (bt_wave_class_init):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_class_init):
+	* src/lib/core/wavetable.c: (bt_wavetable_class_init):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_class_init):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_class_init):
+	* src/ui/edit/main-page-waves.c: (bt_main_page_waves_class_init):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_class_init):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_class_init):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_class_init):
+        use g_type_class_peek_parent() instead of g_type_class_ref()
+
 2006-04-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

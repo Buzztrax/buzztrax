@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.30 2006-03-29 16:39:11 ensonic Exp $
+// $Id: main-page-waves.c,v 1.31 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -456,7 +456,7 @@ static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_VBOX);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageWavesPrivate));
     
   gobject_class->set_property = bt_main_page_waves_set_property;

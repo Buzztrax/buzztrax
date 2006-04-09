@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.15 2006-03-15 11:19:21 ensonic Exp $
+// $Id: wave.c,v 1.16 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -272,7 +272,7 @@ static void bt_wave_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_wave_class_init(BtWaveClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavePrivate));
 
   gobject_class->set_property = bt_wave_set_property;

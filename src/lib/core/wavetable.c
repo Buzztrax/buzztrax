@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.18 2006-03-16 19:09:33 ensonic Exp $
+// $Id: wavetable.c,v 1.19 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -258,7 +258,7 @@ static void bt_wavetable_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_wavetable_class_init(BtWavetableClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavetablePrivate));
 
   gobject_class->set_property = bt_wavetable_set_property;

@@ -1,4 +1,4 @@
-// $Id: wavelevel.c,v 1.12 2006-03-15 11:19:21 ensonic Exp $
+// $Id: wavelevel.c,v 1.13 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
@@ -238,7 +238,7 @@ static void bt_wavelevel_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_wavelevel_class_init(BtWavelevelClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(G_TYPE_OBJECT);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavelevelPrivate));
 
   gobject_class->set_property = bt_wavelevel_set_property;

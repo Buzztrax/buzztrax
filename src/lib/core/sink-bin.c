@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.17 2006-03-24 15:30:38 ensonic Exp $
+// $Id: sink-bin.c,v 1.18 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -543,7 +543,7 @@ static void bt_sink_bin_init(GTypeInstance *instance, gpointer g_class) {
 static void bt_sink_bin_class_init(BtSinkBinClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GST_TYPE_BIN);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkBinPrivate));
   
   gobject_class->set_property = bt_sink_bin_set_property;

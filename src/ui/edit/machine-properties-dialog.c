@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.43 2006-02-13 22:33:16 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.44 2006-04-09 12:20:45 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -622,7 +622,7 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_ref(GTK_TYPE_DIALOG);
+  parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePropertiesDialogPrivate));
   
   gobject_class->set_property = bt_machine_properties_dialog_set_property;
