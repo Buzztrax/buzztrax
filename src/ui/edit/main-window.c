@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.72 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-window.c,v 1.73 2006-04-14 23:02:48 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -79,7 +79,9 @@ static gboolean on_window_configure_event(GtkWidget *widget,GdkEventConfigure *e
     event->x,event->y,
     event->width,event->height);
   // @todo: store as properties per song or gconf settings
-  return(TRUE);
+  
+  // return FALSE so that the event is also processed further
+  return(FALSE);
 }
 
 

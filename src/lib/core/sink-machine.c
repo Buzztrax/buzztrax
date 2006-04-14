@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.66 2006-04-08 22:08:34 ensonic Exp $
+// $Id: sink-machine.c,v 1.67 2006-04-14 23:02:48 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -23,6 +23,23 @@ struct _BtSinkMachinePrivate {
 static BtMachineClass *parent_class=NULL;
 
 //-- helper methods
+
+static void bt_sink_machine_post_init(BtSinkMachine *self) {
+  BtSong *song;
+  gchar *id;
+  
+  g_object_get(G_OBJECT(self),"song",&song,"id",&id,NULL);
+  
+  GST_DEBUG("  %s this will be the master for the song",id);
+  g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
+
+  //g_object_get(G_OBJECT (self), "machine", &elem, NULL);
+  //g_object_set(G_OBJECT (elem), "sync", FALSE, NULL);
+  //gst_object_unref(GST_OBJECT(elem));
+  
+  g_object_unref(song);
+  g_free(id);
+}
 
 //-- constructor methods
 
@@ -51,13 +68,7 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
-
-  GST_DEBUG("  %s this will be the master for the song",id);
-  g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
-
-  //g_object_get(G_OBJECT (self), "machine", &elem, NULL);
-  //g_object_set(G_OBJECT (elem), "sync", FALSE, NULL);
-  //gst_object_unref(GST_OBJECT(elem));
+  bt_sink_machine_post_init(self);
   
   return(self);
 Error:
@@ -87,11 +98,16 @@ static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, x
 static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSinkMachine *self = BT_SINK_MACHINE(persistence);
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  gboolean res;
   
   g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
   
   // load parent class stuff
-  return(parent_iface->load(persistence,node,location));
+  res=parent_iface->load(persistence,node,location);
+  
+  bt_sink_machine_post_init(self);
+  
+  return(res);
 }
 
 static void bt_sink_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

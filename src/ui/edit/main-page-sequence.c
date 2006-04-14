@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.109 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.110 2006-04-14 23:02:48 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -715,8 +715,13 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     /*  "text",SEQUENCE_TABLE_PRE_CT+j,*/
       NULL))
     ) {
+      //GST_INFO("treeview column %d uses header widget %p",j,tree_col->button);
+      //tree_col->button=header;
       g_object_set(tree_col,
         "widget",header,
+        /*
+        "clickable",TRUE, // this unfortunately makes the whole widget clickable, not just the content
+        */
         "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
         "fixed-width",SEQUENCE_CELL_WIDTH,
         NULL);

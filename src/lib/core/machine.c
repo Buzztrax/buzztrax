@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.205 2006-04-08 22:08:33 ensonic Exp $
+// $Id: machine.c,v 1.206 2006-04-14 23:02:48 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -791,8 +791,8 @@ static void bt_machine_init_global_params(BtMachine *self) {
     guint number_of_child_properties;
     gboolean skip;
 
-    // check if the elemnt implements the GstChildProxy interface
-    if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
+    // check if the elemnt implements the GstChildBin interface
+    if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
       GstObject *voice_child;
 
       g_assert(gst_child_proxy_get_children_count(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE])));
@@ -864,7 +864,7 @@ static void bt_machine_init_voice_params(BtMachine *self) {
   guint number_of_properties;
 
   // check if the elemnt implements the GstChildProxy interface
-  if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
+  if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
     
     // register voice params
@@ -1321,7 +1321,7 @@ gboolean bt_machine_is_polyphonic(const BtMachine *self) {
   gboolean res;
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
 
-  res=GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE]);
+  res=GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]);
   GST_INFO(" is machine \"%s\" polyphonic ? %d",self->priv->id,res);
   return(res);
 }
@@ -1845,7 +1845,7 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index
   g_return_val_if_fail(index<self->priv->voice_params,FALSE);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
   
-  if(GST_IS_CHILD_PROXY(self->priv->machines[PART_MACHINE])) {
+  if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
 
     // get child for voice 0
@@ -2267,11 +2267,13 @@ static void bt_machine_set_property(GObject      *object,
     case MACHINE_VOICES: {
       voices=self->priv->voices;
       self->priv->voices = g_value_get_ulong(value);
-      if(voices!=self->priv->voices) {
-        GST_DEBUG("set the voices for machine: %d",self->priv->voices);
-        bt_machine_resize_voices(self,voices);
-        bt_machine_resize_pattern_voices(self);
-        bt_song_set_unsaved(self->priv->song,TRUE);
+      if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+        if(voices!=self->priv->voices) {
+          GST_DEBUG("set the voices for machine: %d",self->priv->voices);
+          bt_machine_resize_voices(self,voices);
+          bt_machine_resize_pattern_voices(self);
+          bt_song_set_unsaved(self->priv->song,TRUE);
+        }
       }
     } break;
     case MACHINE_GLOBAL_PARAMS: {

@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.93 2006-04-08 22:08:34 ensonic Exp $
+// $Id: setup.c,v 1.94 2006-04-14 23:02:48 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -549,7 +549,6 @@ Error:
 
 static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtSetup *self = BT_SETUP(persistence);
-  gboolean res=FALSE;
   xmlNodePtr child_node;
   
   GST_DEBUG("PERSISTENCE::setup");
@@ -604,8 +603,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
       }
     }
   }
-  res=TRUE;
-  return(res);
+  return(TRUE);
 }
 
 static void bt_setup_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

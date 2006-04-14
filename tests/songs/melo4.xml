@@ -38,7 +38,7 @@
             <tick time="0">
               <globaldata name="note" value="c-4"/>
               <globaldata name="volume" value="1.0"/>
-              <globaldata name="decay" value="0.9995"/>
+              <globaldata name="decay" value="0.25"/>
               <globaldata name="wave" value="3"/>
             </tick>
             <tick time="8">
@@ -62,7 +62,7 @@
             <tick time="0">
               <globaldata name="note" value="c-1"/>
               <globaldata name="volume" value="0.5"/>
-              <globaldata name="decay" value="0.99995"/>
+              <globaldata name="decay" value="1.0"/>
               <globaldata name="wave" value="2"/>
             </tick>
           </pattern>
@@ -80,7 +80,7 @@
             <tick time="0">
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="1.0"/>
-              <globaldata name="decay" value="0.9995"/>
+              <globaldata name="decay" value="0.1"/>
               <globaldata name="wave" value="3"/>
             </tick>
             <tick time="2">

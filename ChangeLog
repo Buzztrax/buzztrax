@@ -1,3 +1,24 @@
+2006-04-15  Stefan Kost  <ensonic@users.sf.net>
+	* src/lib/core/machine.c: (bt_machine_init_global_params),
+	(bt_machine_init_voice_params), (bt_machine_is_polyphonic),
+	(bt_machine_describe_voice_param_value), (bt_machine_set_property):
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_post_init),
+	(bt_sink_machine_new), (bt_sink_machine_persistence_load):
+	Fix master-element creation when loading songs
+	
+	* src/ui/edit/main-page-sequence.c: (sequence_table_refresh):
+	moove treeview header experiments
+	
+	* src/ui/edit/main-window.c: (on_window_configure_event):
+	Pass on configure event 
+	
+	* tests/songs/melo1.xml:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	Changed songs for new decay behaviour
+
 2006-04-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
