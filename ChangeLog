@@ -1,3 +1,16 @@
+2006-04-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_post_init), (bt_processor_machine_new),
+	(bt_processor_machine_persistence_load):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_get_player_elements):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_post_init):
+	* src/lib/core/song.c:
+	add sync handling for sink-machine
+	* tests/lib/core/e-song.c: (BT_START_TEST), (bt_song_example_case):
+	more test ideas
+
 2006-04-15  Stefan Kost  <ensonic@users.sf.net>
 	* src/lib/core/machine.c: (bt_machine_init_global_params),
 	(bt_machine_init_voice_params), (bt_machine_is_polyphonic),

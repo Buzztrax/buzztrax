@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.40 2006-04-08 22:08:33 ensonic Exp $
+// $Id: processor-machine.c,v 1.41 2006-04-16 00:21:07 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -20,6 +20,18 @@ struct _BtProcessorMachinePrivate {
 };
 
 static BtMachineClass *parent_class=NULL;
+
+//-- helper methods
+
+static void bt_processor_machine_post_init(BtProcessorMachine *self) {
+  GstElement *element;
+  
+  g_object_get(self,"machine",&element,NULL);
+  if(GST_IS_BASE_TRANSFORM(element)) {
+    gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(element),FALSE);
+  }
+  gst_object_unref(element);
+}
 
 //-- constructor methods
 
@@ -49,6 +61,7 @@ BtProcessorMachine *bt_processor_machine_new(const BtSong *song, const gchar *id
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
+  bt_processor_machine_post_init(self);
   return(self);
 Error:
   g_object_try_unref(self);
@@ -85,6 +98,7 @@ static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlChar *plugin_name,*voices_str;
   gulong voices;
+  gboolean res;
 
   plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
   voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
@@ -93,7 +107,11 @@ static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence
   xmlFree(plugin_name);xmlFree(voices_str);
   
   // load parent class stuff
-  return(parent_iface->load(persistence,node,location));
+  res=parent_iface->load(persistence,node,location);
+  
+  bt_processor_machine_post_init(self);
+  
+  return(res);
 }
 
 static void bt_processor_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {

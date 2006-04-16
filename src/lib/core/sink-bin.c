@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.18 2006-04-09 12:20:45 ensonic Exp $
+// $Id: sink-bin.c,v 1.19 2006-04-16 00:21:07 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -197,6 +197,13 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin *self) {
   if(!(element=gst_element_factory_make(plugin_name,"player"))) {
     GST_INFO("Can't instantiate '%d' element",plugin_name);goto Error;
   }
+  if(GST_IS_BASE_SINK(element)) {
+    // @todo: what is the *real* difference between TRUE and FALSE here
+    gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
+  }
+  //else {
+  //g_object_set(G_OBJECT (element), "sync", FALSE, NULL);
+  //}
   list=g_list_append(list,element);
   
 Error:

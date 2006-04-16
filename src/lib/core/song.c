@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.125 2006-04-08 22:08:34 ensonic Exp $
+// $Id: song.c,v 1.126 2006-04-16 00:21:07 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -64,7 +64,7 @@ struct _BtSongPrivate {
   GstQuery *position_query;
   /* seek events */
   GstEvent *play_seek_event;
-	GstEvent *idle_seek_event;
+  GstEvent *idle_seek_event;
 };
 
 static GObjectClass *parent_class=NULL;

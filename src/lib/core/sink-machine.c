@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.67 2006-04-14 23:02:48 ensonic Exp $
+// $Id: sink-machine.c,v 1.68 2006-04-16 00:21:07 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -32,10 +32,6 @@ static void bt_sink_machine_post_init(BtSinkMachine *self) {
   
   GST_DEBUG("  %s this will be the master for the song",id);
   g_object_set(G_OBJECT(song),"master",G_OBJECT(self),NULL);
-
-  //g_object_get(G_OBJECT (self), "machine", &elem, NULL);
-  //g_object_set(G_OBJECT (elem), "sync", FALSE, NULL);
-  //gst_object_unref(GST_OBJECT(elem));
   
   g_object_unref(song);
   g_free(id);

@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.11 2006-01-16 21:39:26 ensonic Exp $
+/* $Id: e-song.c,v 1.12 2006-04-16 00:21:07 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -106,6 +106,41 @@ BT_START_TEST(test_btsong_load2) {
 }
 BT_END_TEST
 
+// test if after the song loading everything is there
+BT_START_TEST(test_btsong_load3) {
+  BtApplication *app=NULL;
+  BtSong *song;
+  BtSongIO *loader;
+  gboolean load_ret = FALSE;
+  BtSinkMachine *master;
+  
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  
+  song=bt_song_new(app);
+  fail_unless(song != NULL, NULL);
+  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
+  loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
+  mark_point();
+  fail_unless(loader != NULL, NULL);
+  //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_WARNING);
+  load_ret = bt_song_io_load(loader,song);
+  mark_point();
+  fail_unless(load_ret, NULL);
+  
+  g_object_get(song,"master",&master,NULL);
+  fail_unless(master != NULL, NULL);
+  g_object_unref(master);
+  
+  mark_point();
+  g_object_checked_unref(loader);
+  mark_point();
+  g_object_checked_unref(song);
+  mark_point();
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 // test if the song play routine works without failure
 BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
@@ -135,6 +170,9 @@ BT_START_TEST(test_btsong_play1) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
+
+/* @todo: play, wait a little, stop, play again */
+/* @todo: load a new song which the first plays */
 
 // test, if a newly created song contains empty setup, sequence, song-info and 
 // wavetable
@@ -187,6 +225,7 @@ TCase *bt_song_example_case(void) {
   tcase_add_test(tc,test_btsong_obj1);
   tcase_add_test(tc,test_btsong_load1);
   tcase_add_test(tc,test_btsong_load2);
+  tcase_add_test(tc,test_btsong_load3);
   tcase_add_test(tc,test_btsong_play1);
   tcase_add_test(tc,test_btsong_new1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);

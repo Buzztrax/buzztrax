@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.75 2006-04-08 22:08:34 ensonic Exp $
+/* $Id: core.h,v 1.76 2006-04-16 00:21:07 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -34,6 +34,7 @@
 #include <gst/propertymeta/propertymeta.h>
 #include <gst/tempo/tempo.h>
 
+#include <gst/base/gstbasesink.h>
 #include <gst/base/gstbasetransform.h>
 //-- libxml2
 #include <libxml/parser.h>
