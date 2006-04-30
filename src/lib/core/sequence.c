@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.103 2006-04-08 22:08:33 ensonic Exp $
+// $Id: sequence.c,v 1.104 2006-04-30 22:30:56 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -572,10 +572,10 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern *pattern
             bt_sequence_invalidate_global_param(self,this_machine,j+tick,param);
           }
         }
-        g_object_unref(that_pattern);
+        g_object_try_unref(that_pattern);
       }
     }
-    g_object_unref(that_machine);
+    g_object_try_unref(that_machine);
   }
   g_object_unref(this_machine);
   // repair damage
@@ -609,10 +609,10 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern *pattern,
             bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param);
           }
         }
-        g_object_unref(that_pattern);
+        g_object_try_unref(that_pattern);
       }
     }
-    g_object_unref(that_machine);
+    g_object_try_unref(that_machine);
   }
   g_object_unref(this_machine);
   // repair damage

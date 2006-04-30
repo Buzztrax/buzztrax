@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.31 2006-03-10 16:19:42 ensonic Exp $
+// $Id: bt-edit.c,v 1.32 2006-04-30 22:30:55 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -78,6 +78,9 @@ int main(int argc, char **argv) {
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
+
+  g_set_application_name(_("Buzztard"));
+  gtk_window_set_default_icon_name("buzztard");
 
 #ifdef USE_GNOME
   BT_LOG_MARK_FUNCTION("before gnome_program_init()");

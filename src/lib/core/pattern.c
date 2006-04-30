@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.81 2006-04-08 22:08:33 ensonic Exp $
+// $Id: pattern.c,v 1.82 2006-04-30 22:30:56 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -550,6 +550,12 @@ gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong 
         return(TRUE);
       }
     }
+    else {
+      GST_INFO("failed to set GValue for cell at tick=%lu, param=%lu",tick,param);
+    }
+  }
+  else {
+    GST_DEBUG("no GValue found for cell at tick=%lu, param=%lu",tick,param);
   }
   return(FALSE);
 }
@@ -571,7 +577,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
 
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
-
+  
   if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
     if(!G_IS_VALUE(event)) {
       bt_pattern_init_voice_event(self,event,param);
@@ -586,6 +592,12 @@ gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong v
         return(TRUE);
       }
     }
+    else {
+      GST_INFO("failed to set GValue for cell at tick=%lu, voice=%lu, param=%lu",tick,voice,param);
+    }
+  }
+  else {
+    GST_DEBUG("no GValue found for cell at tick=%lu, voice=%lu, param=%lu",tick,voice,param);
   }
   return(FALSE);
 }

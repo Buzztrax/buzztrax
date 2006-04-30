@@ -7,6 +7,6 @@ _Comment=Edit buzztard song files
 TryExec=bt-edit
 Exec=bt-edit --command=load --input-file=%f
 Terminal=0
-Icon=@prefix@/share/buzztard/pixmaps/buzztard.png
+Icon=@prefix@/share/buzztard/pixmaps/buzztard
 DocPath=buzztard/buzztard.xml
 Categories=Gnome;Gtk;Audio;Sequencer

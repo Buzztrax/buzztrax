@@ -1,3 +1,40 @@
+2006-05-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+        Add gdk_pixbuf to the deprecation list
+
+	* Makefile.am:
+	* pixmaps/48x48/buzztard.png:
+	* pixmaps/buzztard.svg:
+	* src/ui/edit/bt-edit.desktop.in.in:
+	* src/ui/edit/bt-edit.c: (main):
+        Add icon handling (according to gnome tasks)
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_info):
+	Show more info
+
+	* src/lib/core/pattern.c: (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event):
+	* src/lib/core/sequence.c:
+	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_on_pattern_voice_param_changed):	
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(pattern_table_refresh), (bt_main_page_patterns_class_init):
+	* src/ui/edit/main-page-sequence.c: (on_header_size_allocate),
+	(sequence_table_refresh), (on_sequence_table_key_release_event),
+	(bt_main_page_sequence_class_init):
+	Add basic pattern editing
+	
+	* tests/bt-cmd-info.sh:
+	* tests/songs/.cvsignore:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	* tests/songs/melo5.xml:
+	Cleanup examples, test more info
+
 2006-04-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/core.h:

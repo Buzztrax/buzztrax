@@ -7,7 +7,7 @@
 
   <meta>
     <info>a two voice melody</info>
-    <name>melo 4</name>
+    <name>melo 5</name>
     <genre>chip-music</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>
@@ -37,7 +37,7 @@
           <pattern id="beep1::C-4_E-4_G-4" machine="beep1" name="C-4_E-4_G-4" length="16">
             <tick time="0">
               <globaldata name="note" value="c-4"/>
-              <globaldata name="volume" value="1.0"/>
+              <globaldata name="volume" value="0.85"/>
               <globaldata name="decay" value="0.25"/>
               <globaldata name="wave" value="3"/>
             </tick>
@@ -61,7 +61,7 @@
           <pattern id="beep2::C-1" machine="beep2" name="C-1" length="16">
             <tick time="0">
               <globaldata name="note" value="c-1"/>
-              <globaldata name="volume" value="0.5"/>
+              <globaldata name="volume" value="0.4"/>
               <globaldata name="decay" value="1.0"/>
               <globaldata name="wave" value="2"/>
             </tick>
@@ -76,22 +76,54 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="beep3::C-2_C-3" machine="beep3" name="C-2_C-3" length="8">
+          <pattern id="beep3::C-2_C-3" machine="beep3" name="C-2_C-3" length="16">
             <tick time="0">
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="1.0"/>
-              <globaldata name="decay" value="0.1"/>
-              <globaldata name="wave" value="3"/>
+              <globaldata name="decay" value="0.15"/>
+              <globaldata name="wave" value="2"/>
+              <globaldata name="filter" value="1"/>
+              <globaldata name="cut-off" value="0.05"/>
+              <globaldata name="resonance" value="0.1"/>
             </tick>
             <tick time="2">
               <globaldata name="note" value="c-3"/>
+              <globaldata name="cut-off" value="0.1"/>
             </tick>
             <tick time="6">
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="0.7"/>
+              <globaldata name="cut-off" value="0.15"/>
+              <globaldata name="resonance" value="0.2"/>
             </tick>
             <tick time="6">
               <globaldata name="note" value="c-3"/>
+              <globaldata name="cut-off" value="0.2"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="note" value="c-2"/>
+              <globaldata name="volume" value="1.0"/>
+              <globaldata name="cut-off" value="0.25"/>
+              <globaldata name="resonance" value="0.3"/>
+            </tick>
+            <tick time="10">
+              <globaldata name="note" value="c-3"/>
+              <globaldata name="cut-off" value="0.3"/>
+            </tick>
+            <tick time="12">
+              <globaldata name="note" value="c-2"/>
+              <globaldata name="volume" value="0.7"/>
+              <globaldata name="cut-off" value="0.35"/>
+              <globaldata name="resonance" value="0.4"/>
+            </tick>
+            <tick time="14">
+              <globaldata name="note" value="c-3"/>
+              <globaldata name="cut-off" value="0.4"/>
+            </tick>
+            <tick time="15">
+              <globaldata name="note" value="c-4"/>
+              <globaldata name="cut-off" value="0.45"/>
+              <globaldata name="resonance" value="0.5"/>
             </tick>
           </pattern>
         </patterns>
@@ -116,7 +148,7 @@
     </wires>    
   </setup>
   
-  <sequence loop="off" length="64" tracks="5">
+  <sequence loop="off" length="100" tracks="5">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>
@@ -134,13 +166,11 @@
       </track>
       <track index="2" machine="beep3">
         <position time="0" pattern="beep3::C-2_C-3"/>
-        <position time="8" pattern="beep3::C-2_C-3"/>
         <position time="16" pattern="beep3::C-2_C-3"/>
-        <position time="24" pattern="beep3::C-2_C-3"/>
         <position time="32" pattern="beep3::C-2_C-3"/>
-        <position time="40" pattern="beep3::C-2_C-3"/>
         <position time="48" pattern="beep3::C-2_C-3"/>
-        <position time="56" pattern="beep3::C-2_C-3"/>
+        <position time="64" pattern="beep3::C-2_C-3"/>
+        <position time="80" pattern="beep3::C-2_C-3"/>
       </track>
       <track index="3" machine="echo1"/>
       <track index="4" machine="audio_sink"/>

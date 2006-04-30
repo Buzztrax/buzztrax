@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.54 2006-04-08 16:18:18 ensonic Exp $
+## $Id: Makefile.am,v 1.55 2006-04-30 22:30:54 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -21,6 +21,7 @@ songdata_DATA = \
 	tests/songs/melo2.xml \
 	tests/songs/melo3.xml \
 	tests/songs/melo4.xml \
+	tests/songs/melo5.xml \
 	tests/songs/simple1.xml \
 	tests/songs/simple2.xml \
 	tests/songs/simple3.xml \
@@ -51,6 +52,15 @@ pixmapdata_DATA = \
 	pixmaps/tab_waves.png \
 	pixmaps/tab_info.png
 
+icon16dir = $(datadir)/icons/hicolor/16x16/apps
+icon16_DATA = pixmaps/buzztard.png
+icon48dir = $(datadir)/icons/hicolor/48x48/apps
+icon48_DATA = pixmaps/48x48/buzztard.png
+svgicondir = $(datadir)/icons/hicolor/scalable/apps
+svgicon_DATA = pixmaps/buzztard.svg
+
+gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
+
 schemasdir = $(GCONF_SCHEMA_FILE_DIR)
 schemas_in_files = buzztard.schemas.in
 schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
@@ -77,7 +87,17 @@ DISTCLEANFILES = \
 
 clean-local:
 	rm -f po/.intltool-merge-cache
-	
+  
+install-data-hook:
+	@-if test -z "$(DESTDIR)"; then \
+		echo "Updating Gtk icon cache."; \
+		$(gtk_update_icon_cache); \
+	else \
+		echo "*** Icon cache not updated.  After install, run this:"; \
+		echo "***   $(gtk_update_icon_cache)"; \
+	fi
+
+
 ##if GCONF_SCHEMAS_INSTALL (this should be conditional)
 install-data-local:
 	-$(mkinstalldirs) $(songdatadir)
@@ -89,7 +109,7 @@ install-data-local:
 		done ; \
 	fi
 
-## thiis seems to fail during make distcheck
+## this seems to fail during make distcheck
 ##uninstall-local:
 ##	rm -r $(datadir)/$(PACKAGE)
 

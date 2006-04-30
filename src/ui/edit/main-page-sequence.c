@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.110 2006-04-14 23:02:48 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.111 2006-04-30 22:30:55 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -6,18 +6,15 @@
  */ 
 
 /* @todo main-page-sequence tasks
- *  - disallowing to move to position column (bug in GtkTreeView)
- *    - work around by haveing more synchronized views
  *  - cut/copy/paste
  *  - focus sequence_view after entering the page ?
  *  - sequence header
  *    - add table to separate scrollable window
  *      (no own adjustments, share x-adjustment with sequence-view, show full height)
- *      - add mute/solo/bypass buttons
  *      - add level meters
  *      - add the same context menu as the machines have in machine view
  *    - sequence view will have no visible column headers
- *  - support different rythms
+ *  - support different rhythms
  *    - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
  *    - use different highlighing (strong bar every start of a beat)
  *  - insert/remove rows
@@ -360,7 +357,7 @@ static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
   
   GST_INFO("#### header label size %d x %d",
     allocation->width,allocation->height);
-  gtk_widget_set_size_request(self->priv->pos_header,-1,allocation->height);
+  gtk_widget_set_size_request(self->priv->pos_header,-1,(allocation->height-8));
 }
 
 static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
@@ -719,6 +716,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       //tree_col->button=header;
       g_object_set(tree_col,
         "widget",header,
+        /* @todo: this requires patch in gtk+ */
+        "wrap-header-widget",FALSE,
         /*
         "clickable",TRUE, // this unfortunately makes the whole widget clickable, not just the content
         */
@@ -1058,25 +1057,27 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       res=TRUE;
     }
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
-      BtPattern *pattern;
-      if((pattern=bt_sequence_get_pattern(sequence,time,track))) {
-        BtMainWindow *main_window;
-        BtMainPages *pages;
-        BtMainPagePatterns *patterns_page;
-
-        g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-        g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-        g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+      if(modifier==GDK_CONTROL_MASK) {
+        BtPattern *pattern;
+        if((pattern=bt_sequence_get_pattern(sequence,time,track))) {
+          BtMainWindow *main_window;
+          BtMainPages *pages;
+          BtMainPagePatterns *patterns_page;
   
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
-        bt_main_page_patterns_show_pattern(patterns_page,pattern);
-
-        g_object_try_unref(patterns_page);
-        g_object_try_unref(pages);
-        g_object_try_unref(main_window);
-
-        g_object_unref(pattern);
-        res=TRUE;
+          g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+          g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+          g_object_get(G_OBJECT(pages),"patterns-page",&patterns_page,NULL);
+    
+          gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
+          bt_main_page_patterns_show_pattern(patterns_page,pattern);
+  
+          g_object_try_unref(patterns_page);
+          g_object_try_unref(pages);
+          g_object_try_unref(main_window);
+  
+          g_object_unref(pattern);
+          res=TRUE;
+        }
       }
     }
     else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
@@ -1968,7 +1969,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  column_index_quark=g_quark_from_static_string("BtMainPageSequence::index");
+  column_index_quark=g_quark_from_static_string("BtMainPageSequence::column-index");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageSequencePrivate));

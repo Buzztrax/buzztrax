@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.79 2006-04-08 22:08:34 ensonic Exp $
+// $Id: cmd-application.c,v 1.80 2006-04-30 22:30:56 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -281,8 +281,11 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     BtSetup *setup;
     BtWavetable *wavetable;
     BtMachine *machine;
-    gchar *name,*info,*id,*create_dts,*change_dts;
+    gchar *name,*info,*author,*genre,*id,*create_dts,*change_dts;
+    gulong beats_per_minute,ticks_per_beat;
     gulong length,tracks,n_patterns=0;
+    gboolean loop;
+    glong loop_start,loop_end;
     GList *machines,*wires,*patterns,*waves,*node;
     GstBin *bin;
     gulong msec,sec,min;
@@ -294,14 +297,26 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
 
     // print some info about the song
-    g_object_get(G_OBJECT(song_info),"name",&name,"info",&info,"create-dts",&create_dts,"change-dts",&change_dts,NULL);
+    g_object_get(G_OBJECT(song_info),
+      "name",&name,"author",&author,"genre",&genre,"info",&info,
+      "bpm",&beats_per_minute,"tpb",&ticks_per_beat,
+      "create-dts",&create_dts,"change-dts",&change_dts,
+      NULL);
     g_fprintf(output_file,"song.song_info.name: \"%s\"\n",name);g_free(name);
+    g_fprintf(output_file,"song.song_info.author: \"%s\"\n",author);g_free(author);
+    g_fprintf(output_file,"song.song_info.genre: \"%s\"\n",genre);g_free(genre);
     g_fprintf(output_file,"song.song_info.info: \"%s\"\n",info);g_free(info);
+    g_fprintf(output_file,"song.song_info.bpm: %lu\n",beats_per_minute);
+    g_fprintf(output_file,"song.song_info.tpb: %lu\n",ticks_per_beat);
     g_fprintf(output_file,"song.song_info.created: \"%s\"\n",create_dts);g_free(create_dts);
     g_fprintf(output_file,"song.song_info.changed: \"%s\"\n",change_dts);g_free(change_dts);
-    g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,NULL);
+    // print some info about the sequence
+    g_object_get(G_OBJECT(sequence),"length",&length,"tracks",&tracks,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
     g_fprintf(output_file,"song.sequence.length: %lu\n",length);
     g_fprintf(output_file,"song.sequence.tracks: %lu\n",tracks);
+    g_fprintf(output_file,"song.sequence.loop: %s\n",(loop?"yes":"no"));
+    g_fprintf(output_file,"song.sequence.loop-start: %ld\n",loop_start);
+    g_fprintf(output_file,"song.sequence.loop-end: %ld\n",loop_end);
     // print playing-time
     msec=(gulong)((length*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
     min=(gulong)(msec/60000);msec-=(min*60000);

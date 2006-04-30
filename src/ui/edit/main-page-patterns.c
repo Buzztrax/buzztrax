@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.87 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.88 2006-04-30 22:30:55 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -101,6 +101,7 @@ enum {
 #define PATTERN_CELL_HEIGHT 28
 
 static GQuark column_index_quark=0;
+static GQuark voice_index_quark=0;
 
 //-- tree cell data functions
 
@@ -256,22 +257,24 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
-    BtMainWindow *main_window;
-    BtMainPages *pages;
-    //BtMainPageSequence *sequence_page;
-
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-    //g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+    if(modifier==GDK_CONTROL_MASK) {
+      BtMainWindow *main_window;
+      BtMainPages *pages;
+      //BtMainPageSequence *sequence_page;
   
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
-    //bt_main_page_sequence_goto_???(sequence_page,pattern);
-
-    //g_object_try_unref(sequence_page);
-    g_object_try_unref(pages);
-    g_object_try_unref(main_window);
-
-    res=TRUE;
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+      //g_object_get(G_OBJECT(pages),"sequence-page",&sequence_page,NULL);
+    
+      gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_SEQUENCE_PAGE);
+      //bt_main_page_sequence_goto_???(sequence_page,pattern);
+  
+      //g_object_try_unref(sequence_page);
+      g_object_try_unref(pages);
+      g_object_try_unref(main_window);
+  
+      res=TRUE;
+    }
   }
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     if(modifier==GDK_SHIFT_MASK) {
@@ -482,6 +485,51 @@ static gboolean on_pattern_table_motion_notify_event(GtkWidget *widget,GdkEventM
   return(res);
 }
 
+static void on_pattern_global_cell_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  GtkTreeModel *store;
+  GtkTreeIter iter;
+  
+  store=gtk_tree_view_get_model(self->priv->pattern_table);
+  if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
+    gulong param,tick;
+    
+    param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
+    gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
+    
+    GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
+    // store the changed text in the model and pattern
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
+    bt_pattern_set_global_event(self->priv->pattern,tick,param,new_text);
+  }
+}
+
+static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  GtkTreeModel *store;
+  GtkTreeIter iter;
+
+  store=gtk_tree_view_get_model(self->priv->pattern_table);
+  if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
+    BtMachine *machine;
+    gulong voice,param,tick;
+    gulong ix,global_params,voice_params;
+    
+    voice=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),voice_index_quark));
+    param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
+    gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
+    GST_INFO("%p, voice cell edited path='%s', content='%s', voice=%lu, param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),voice,param,tick);
+    // store the changed text in the model and pattern
+    g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+    g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+
+    ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
+    gtk_list_store_set(GTK_LIST_STORE(store),&iter,ix+param,g_strdup(new_text),-1);
+    bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,new_text);    
+    
+    g_object_unref(machine);
+  }
+}
 
 //-- event handler helper
 
@@ -716,9 +764,18 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     for(j=0;j<global_params;j++) {
       renderer=gtk_cell_renderer_text_new();
       g_object_set(G_OBJECT(renderer),
-        "mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+        //"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+        "mode",GTK_CELL_RENDERER_MODE_EDITABLE,
         "xalign",1.0,
+        "family","Monospace",
+        "family-set",TRUE,
+        "editable",TRUE,
+        "editable-set",TRUE,
         NULL);
+      // set location data
+      g_object_set_qdata(G_OBJECT(renderer),column_index_quark,GUINT_TO_POINTER(j));
+      gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
+      g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_global_cell_edited),(gpointer)self);
       if((tree_col=gtk_tree_view_column_new_with_attributes(
         bt_machine_get_global_param_name(machine,j),renderer,
           "text",ix,
@@ -739,9 +796,19 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       for(k=0;k<voice_params;k++) {
         renderer=gtk_cell_renderer_text_new();
         g_object_set(G_OBJECT(renderer),
-          "mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+          //"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+          "mode",GTK_CELL_RENDERER_MODE_EDITABLE,
           "xalign",1.0,
+          "family","Monospace",
+          "family-set",TRUE,
+          "editable",TRUE,
+          "editable-set",TRUE,
           NULL);
+        // set location data
+        g_object_set_qdata(G_OBJECT(renderer),voice_index_quark,GUINT_TO_POINTER(j));
+        g_object_set_qdata(G_OBJECT(renderer),column_index_quark,GUINT_TO_POINTER(k));
+        gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
+        g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_voice_cell_edited),(gpointer)self);
         if((tree_col=gtk_tree_view_column_new_with_attributes(
           bt_machine_get_voice_param_name(machine,k),renderer,
             "text",ix,
@@ -1552,7 +1619,8 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  column_index_quark=g_quark_from_static_string("BtMainPagePattern::index");
+  column_index_quark=g_quark_from_static_string("BtMainPagePattern::column-index");
+  voice_index_quark=g_quark_from_static_string("BtMainPagePattern::voice-index");
   
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPagePatternsPrivate));
