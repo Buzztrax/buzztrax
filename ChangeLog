@@ -1,3 +1,11 @@
+2006-05-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c: (bt_sequence_set_property):
+	  when activating loop, make sure loop-start and loop-end are sensible
+	* src/ui/edit/main-page-sequence.c: (sequence_view_set_pos),
+	(on_sequence_table_button_press_event):
+	 when clicking below the data area in the sequence view go to the end
+
 2006-05-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

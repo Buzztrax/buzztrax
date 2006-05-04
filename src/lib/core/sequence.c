@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.104 2006-04-30 22:30:56 ensonic Exp $
+// $Id: sequence.c,v 1.105 2006-05-04 21:54:27 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -1171,6 +1171,19 @@ static void bt_sequence_set_property(GObject      *object,
     case SEQUENCE_LOOP: {
       self->priv->loop = g_value_get_boolean(value);
       GST_DEBUG("set the loop for sequence: %d",self->priv->loop);
+      if(self->priv->loop) {
+        if(self->priv->loop_start==-1) {
+          self->priv->loop_start=0;
+          g_object_notify(G_OBJECT(self), "loop-start");
+        }
+        self->priv->play_start=self->priv->loop_start;
+        if(self->priv->loop_start==-1) {
+          self->priv->loop_start=self->priv->length;
+          g_object_notify(G_OBJECT(self), "loop-end");
+        }
+        self->priv->play_end=self->priv->loop_end;
+        bt_sequence_limit_play_pos_internal(self);
+      }
       bt_song_set_unsaved(self->priv->song,TRUE);
     } break;
     case SEQUENCE_LOOP_START: {

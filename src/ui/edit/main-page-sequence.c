@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.111 2006-04-30 22:30:55 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.112 2006-05-04 21:54:27 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -882,6 +882,40 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
   g_list_free(list);
 }
 
+static void sequence_view_set_pos(const BtMainPageSequence *self,gulong modifier,glong row) {
+  // set play or loop bars
+  BtSong *song;
+  BtSequence *sequence;
+  gulong sequence_length;
+  gdouble loop_pos;
+  
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_get(sequence,"length",&sequence_length,NULL);
+  if(row==-1) row=sequence_length;
+  // use a keyboard qualifier to set loop_start and end
+  /* @todo should the sequence-view listen to notify::xxx ? */
+  switch(modifier) {
+    case 0:
+      g_object_set(song,"play-pos",row,NULL);
+      break;
+    case GDK_CONTROL_MASK:
+      g_object_set(sequence,"loop-start",row,NULL);
+      loop_pos=(gdouble)row/(gdouble)sequence_length;
+      g_object_set(self->priv->sequence_table,"loop-start",loop_pos,NULL);
+      g_object_set(self->priv->sequence_pos_table,"loop-start",loop_pos,NULL);
+      break;
+    case GDK_MOD4_MASK:
+      g_object_set(sequence,"loop-end",row,NULL);
+      loop_pos=(gdouble)row/(gdouble)sequence_length;
+      g_object_set(self->priv->sequence_table,"loop-end",loop_pos,NULL);
+      g_object_set(self->priv->sequence_pos_table,"loop-start",loop_pos,NULL);
+      break;
+  }
+  g_object_unref(sequence);
+  g_object_unref(song);
+}
+
 //-- event handler
 
 static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
@@ -1289,43 +1323,14 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
     if(gtk_tree_view_get_bin_window(GTK_TREE_VIEW(widget))==(event->window)) {
       GtkTreePath *path;
       GtkTreeViewColumn *column;
+      gulong modifier=(gulong)event->state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
       // determine sequence position from mouse coordinates
       if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),event->x,event->y,&path,&column,NULL,NULL)) {
         gulong track,row;
         if(sequence_view_get_cursor_pos(GTK_TREE_VIEW(widget),path,column,&track,&row)) {
           GST_INFO("  left click to column %d, row %d",track,row);
           if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
-            // set play or loop bars
-            BtSong *song;
-            BtSequence *sequence;
-            gulong modifier=(gulong)event->state&(GDK_CONTROL_MASK|GDK_MOD4_MASK);
-            gulong sequence_length;
-            gdouble loop_pos;
-            
-            g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-            g_object_get(song,"sequence",&sequence,NULL);
-            g_object_get(sequence,"length",&sequence_length,NULL);
-            // use a keyboard qualifier to set loop_start and end
-            /* @todo should the sequence-view listen to notify::xxx ? */
-            switch(modifier) {
-              case 0:
-                g_object_set(song,"play-pos",row,NULL);
-                break;
-              case GDK_CONTROL_MASK:
-                g_object_set(sequence,"loop-start",row,NULL);
-                loop_pos=(gdouble)row/(gdouble)sequence_length;
-                g_object_set(self->priv->sequence_table,"loop-start",loop_pos,NULL);
-                g_object_set(self->priv->sequence_pos_table,"loop-start",loop_pos,NULL);
-                break;
-              case GDK_MOD4_MASK:
-                g_object_set(sequence,"loop-end",row,NULL);
-                loop_pos=(gdouble)row/(gdouble)sequence_length;
-                g_object_set(self->priv->sequence_table,"loop-end",loop_pos,NULL);
-                g_object_set(self->priv->sequence_pos_table,"loop-start",loop_pos,NULL);
-                break;
-            }
-            g_object_unref(sequence);
-            g_object_unref(song);
+            sequence_view_set_pos(self,modifier,(glong)row);
           }
           else {
             // set cell focus
@@ -1336,6 +1341,10 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
           }
           res=TRUE;
         }
+      }
+      else {
+        GST_INFO("clicked outside data area - #1");
+        sequence_view_set_pos(self,modifier,-1);
       }
       if(path) gtk_tree_path_free(path);
     }
