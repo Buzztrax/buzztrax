@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.206 2006-04-14 23:02:48 ensonic Exp $
+// $Id: machine.c,v 1.207 2006-05-06 22:15:16 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -589,7 +589,7 @@ static gboolean bt_machine_make_internal_element(BtMachine *self,const BtMachine
   // add initernal element
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_ERROR("failed to create %s for '%s'",element_name,GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
+    GST_ERROR("failed to create %s",element_name);goto Error;
   }
   gst_bin_add(self->priv->bin,self->priv->machines[part]);
   res=TRUE;

@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.105 2006-05-04 21:54:27 ensonic Exp $
+// $Id: sequence.c,v 1.106 2006-05-06 22:15:16 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -696,7 +696,8 @@ Error:
  */
 BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
   g_return_val_if_fail(BT_IS_SEQUENCE(self),NULL);
-  g_return_val_if_fail(track<self->priv->tracks,NULL);
+  
+  if(track>=self->priv->tracks) return(NULL);
 
   return(g_object_try_ref(self->priv->machines[track]));
 }
@@ -1177,8 +1178,8 @@ static void bt_sequence_set_property(GObject      *object,
           g_object_notify(G_OBJECT(self), "loop-start");
         }
         self->priv->play_start=self->priv->loop_start;
-        if(self->priv->loop_start==-1) {
-          self->priv->loop_start=self->priv->length;
+        if(self->priv->loop_end==-1) {
+          self->priv->loop_end=self->priv->length;
           g_object_notify(G_OBJECT(self), "loop-end");
         }
         self->priv->play_end=self->priv->loop_end;

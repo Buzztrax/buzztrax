@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.126 2006-04-16 00:21:07 ensonic Exp $
+// $Id: song.c,v 1.127 2006-05-06 22:15:16 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -349,11 +349,16 @@ gboolean bt_song_play(const BtSong *self) {
   
   GST_INFO("prepare playback");
   // prepare playback
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
+  res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
+  GST_INFO("->PAUSED state change returned %d",res);
+  if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
     return(FALSE);
   }
-  GST_DEBUG("state change returned %d",res);
+  else if(res==GST_STATE_CHANGE_ASYNC) {
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    GST_INFO("->PAUSED state change after async-wait returned %d",res);
+  }
   
   // seek to start time
   self->priv->play_pos=0;
@@ -404,7 +409,7 @@ gboolean bt_song_play(const BtSong *self) {
     GST_WARNING("can't go to playing state");
     return(FALSE);
   }
-  GST_DEBUG("state change returned %d",res);
+  GST_INFO("->PLAYING state change returned %d",res);
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
 

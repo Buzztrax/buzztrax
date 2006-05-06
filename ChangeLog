@@ -1,3 +1,14 @@
+2006-05-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_make_internal_element):
+	* src/lib/core/sequence.c: (bt_sequence_get_machine),
+	(bt_sequence_set_property):
+	* src/lib/core/song.c: (bt_song_play):
+	* tests/lib/core/e-sequence.c: (BT_START_TEST),
+	(bt_sequence_example_case):
+	add test for sane loop settings & fix borked logic, fix failing source-
+	machine test, downgrade g_return_val_if_fail to normal if-return
+
 2006-05-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c: (bt_sequence_set_property):

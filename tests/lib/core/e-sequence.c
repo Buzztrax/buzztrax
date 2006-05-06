@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.11 2005-12-16 21:54:44 ensonic Exp $
+/* $Id: e-sequence.c,v 1.12 2006-05-06 22:15:16 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -388,6 +388,38 @@ BT_START_TEST(test_btsequence_update) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btsequence_validate_loop) {
+  BtApplication *app=NULL;
+  BtSong *song;
+  BtSequence *sequence;
+  gulong loop_start,loop_end;
+  gboolean loop;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  /* create a new song */
+  song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_set(sequence,"length",16L,NULL);
+  
+  g_object_get(sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
+  fail_unless(loop==FALSE, NULL);
+  fail_unless(loop_start==-1, NULL);
+  fail_unless(loop_end==-1, NULL);
+  
+  g_object_set(sequence,"loop",TRUE,NULL);
+  g_object_get(sequence,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
+  fail_unless(loop_start==0L, NULL);
+  fail_unless(loop_end==16L, NULL);
+  
+  g_object_try_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 TCase *bt_sequence_example_case(void) {
   TCase *tc = tcase_create("BtSequenceExamples");
 
@@ -399,6 +431,7 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_btsequence_shrink_track);
   tcase_add_test(tc,test_btsequence_enlarge_both_vals);
   tcase_add_test(tc,test_btsequence_update);
+  tcase_add_test(tc,test_btsequence_validate_loop);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }
