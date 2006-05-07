@@ -1,5 +1,18 @@
 2006-05-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/song-info.c: (bt_song_info_set_property),
+	(bt_song_info_init):
+	* src/lib/core/song.c: (bt_song_update_play_seek_event),
+	(bt_song_on_loop_changed), (bt_song_on_loop_start_changed),
+	(bt_song_on_loop_end_changed), (bt_song_on_length_changed),
+	(bt_song_new):
+	* src/ui/edit/main-page-sequence.c: (sequence_table_refresh):
+        did some tests for loop-changes in gstreamer (no success yet),
+        deprecation chages for glib2.10, check for pending gtk+ patches
+
+2006-05-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_make_internal_element):
 	* src/lib/core/sequence.c: (bt_sequence_get_machine),
 	(bt_sequence_set_property):

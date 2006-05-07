@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.49 2006-04-08 22:08:34 ensonic Exp $
+// $Id: song-info.c,v 1.50 2006-05-07 19:52:53 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -299,14 +299,22 @@ static void bt_song_info_set_property(GObject      *object,
           strcpy(self->priv->change_dts,dts);
 					// parse date and update tag
 					strptime(dts, "%FT%TZ", &tm);
+#ifdef HAVE_GLIB_2_10
+          g_date_set_time_t(self->priv->tag_date,mktime(&tm));
+#else
 					g_date_set_time(self->priv->tag_date,mktime(&tm));
+#endif
   				gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
         }
       }
       else {
         time_t now=time(NULL);
         strftime(self->priv->change_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
+#ifdef HAVE_GLIB_2_10
+				g_date_set_time_t(self->priv->tag_date,now);
+#else
 				g_date_set_time(self->priv->tag_date,now);
+#endif
 				gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
       }
     } break;
@@ -368,7 +376,11 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   
   // init taglist
   self->priv->tag_date=g_date_new();
+#ifdef HAVE_GLIB_2_10
+  g_date_set_time_t(self->priv->tag_date,now);
+#else
   g_date_set_time(self->priv->tag_date,now);
+#endif
   gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,
     GST_TAG_TITLE, self->priv->name,
     GST_TAG_DATE, self->priv->tag_date,

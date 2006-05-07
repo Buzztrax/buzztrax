@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.127 2006-05-06 22:15:16 ensonic Exp $
+// $Id: song.c,v 1.128 2006-05-07 19:52:53 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -100,23 +100,25 @@ static void bt_song_seek_to_play_pos(BtSong *self) {
 	}
 }
 
-static void bt_song_update_play_seek_event(BtSong *self) {
+static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
   gboolean loop;
   glong loop_start,loop_end,length;
   GstClockTime bar_time;
+  GstSeekFlags flags;
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
+  flags=first?0L:GST_SEEK_FLAG_FLUSH;
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        flags | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        GST_SEEK_FLAG_FLUSH,
+        flags,
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
@@ -166,19 +168,19 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
 }
 
 static void bt_song_on_loop_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
 static void bt_song_on_loop_start_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
 static void bt_song_on_loop_end_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
 static void bt_song_on_length_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data));
+  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
 //-- constructor methods
@@ -219,6 +221,7 @@ BtSong *bt_song_new(const BtApplication *app) {
   g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
   GST_INFO("  new song created: %p",self);
+  bt_song_update_play_seek_event(BT_SONG(self),TRUE);
   bt_song_idle_start(self);
   return(self);
 Error:

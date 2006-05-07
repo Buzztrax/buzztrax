@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.73 2006-04-30 22:30:54 ensonic Exp $
+# $Id: configure.ac,v 1.74 2006-05-07 19:52:53 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -260,6 +260,19 @@ if pkg-config --atleast-version=2.8 glib-2.0; then
 else
   AC_MSG_RESULT(no)
 fi
+AC_MSG_CHECKING([glib version >= 2.10])
+if pkg-config --atleast-version=2.10 glib-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GLIB_2_10, [1], [Define to 1 if we can use API new in glib-2.10])
+else
+  AC_MSG_RESULT(no)
+fi
+
+# check for pending gtk+ addditions
+AC_CHECK_LIB( gtk-x11-2.0, gtk_tree_view_column_set_wrap_header_widget, \
+  AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have the pending gtk+ patch applied]) \
+)
+
 
 # Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
