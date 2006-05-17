@@ -1,5 +1,17 @@
 2006-05-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_new),
+	(bt_pattern_view_realize), (bt_pattern_view_unrealize),
+	(bt_pattern_view_expose_event), (bt_pattern_view_get_property),
+	(bt_pattern_view_set_property), (bt_pattern_view_dispose),
+	(bt_pattern_view_finalize), (bt_pattern_view_init),
+	(bt_pattern_view_class_init), (bt_pattern_view_get_type):
+	* src/ui/edit/pattern-view.h:
+	* tests/bt-cmd-encode.sh:
+        Added more missing files (thanks Tommi Sakari Uimonen)
+
+2006-05-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/pattern-view-methods.h:
         Added missing file (thanks Tommi Sakari Uimonen)
 
