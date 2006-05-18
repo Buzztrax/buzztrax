@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.207 2006-05-06 22:15:16 ensonic Exp $
+// $Id: machine.c,v 1.208 2006-05-18 21:20:33 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -163,7 +163,7 @@ static guint signals[LAST_SIGNAL]={0,};
 GType bt_machine_state_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type == 0)) {
-    static GEnumValue values[] = {
+    static const GEnumValue values[] = {
       { BT_MACHINE_STATE_NORMAL,"BT_MACHINE_STATE_NORMAL","just working" },
       { BT_MACHINE_STATE_MUTE,  "BT_MACHINE_STATE_MUTE",   "be quiet" },
       { BT_MACHINE_STATE_SOLO,  "BT_MACHINE_STATE_SOLO",  "be the only one playing" },

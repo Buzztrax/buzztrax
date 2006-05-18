@@ -1,4 +1,4 @@
-// $Id: sink-bin.c,v 1.19 2006-04-16 00:21:07 ensonic Exp $
+// $Id: sink-bin.c,v 1.20 2006-05-18 21:20:33 ensonic Exp $
 /**
  * SECTION:btsinkbin
  * @short_description: bin to be used by #BtSinkMachine
@@ -49,7 +49,7 @@ static GstBinClass *parent_class=NULL;
 GType bt_sink_bin_mode_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type==0)) {
-    static GEnumValue values[] = {
+    static const GEnumValue values[] = {
       { BT_SINK_BIN_MODE_PLAY,            "BT_SINK_BIN_MODE_PLAY",            "play the song" },
       { BT_SINK_BIN_MODE_RECORD,          "BT_SINK_BIN_MODE_RECORD",          "record to file" },
       { BT_SINK_BIN_MODE_PLAY_AND_RECORD, "BT_SINK_BIN_MODE_PLAY_AND_RECORD", "play and record together" },
@@ -63,7 +63,7 @@ GType bt_sink_bin_mode_get_type(void) {
 GType bt_sink_bin_record_format_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type==0)) {
-    static GEnumValue values[] = {
+    static const GEnumValue values[] = {
       { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, "BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS", "ogg vorbis" },
       { BT_SINK_BIN_RECORD_FORMAT_MP3,        "BT_SINK_BIN_RECORD_FORMAT_MP3",        "mp3" },
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        "BT_SINK_BIN_RECORD_FORMAT_WAV",        "wav" },

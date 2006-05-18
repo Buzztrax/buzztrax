@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.82 2006-04-30 22:30:56 ensonic Exp $
+// $Id: pattern.c,v 1.83 2006-05-18 21:20:33 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -82,7 +82,7 @@ static gulong internal_params=1;
 GType bt_pattern_cmd_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type == 0)) {
-    static GEnumValue values[] = {
+    static const GEnumValue values[] = {
       { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","just working" },
       { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
       { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "be quiet immediately" },

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.33 2006-04-08 16:18:26 ensonic Exp $
+/* $Id: bt-edit.h,v 1.34 2006-05-18 21:20:33 ensonic Exp $
  */
 
 #ifndef BT_EDIT_H
@@ -42,6 +42,7 @@
 #include "settings-page-audiodevices-methods.h"
 #include "tools.h"
 #include "ui-ressources-methods.h"
+#include "volume-popup.h"
 #include "wire-canvas-item-methods.h"
 
 //-- misc

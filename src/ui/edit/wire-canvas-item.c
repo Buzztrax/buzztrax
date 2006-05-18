@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.29 2006-04-08 22:08:35 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.30 2006-05-18 21:20:33 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -231,8 +231,8 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   BtSetup *setup;
 
   g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
-   g_object_get(G_OBJECT(app),"song",&song,NULL);
-   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   self=BT_WIRE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_WIRE_CANVAS_ITEM,
@@ -390,7 +390,7 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
   GST_DEBUG("  done");
 }
 
-/**
+/*
  * bt_wire_canvas_item_realize:
  *
  * draw something that looks a bit like a buzz-wire
@@ -438,7 +438,14 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
   switch(event->type) {
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
-      if(event->button.button==3) {
+      if(event->button.button==1) {
+        GST_INFO("showing volume-popup at %lf,%lf  %lf,%lf",
+          event->button.x,event->button.y,
+          event->button.x_root,event->button.y_root);
+        bt_main_page_machines_show_volume_popup(self->priv->main_page_machines, self->priv->wire, (gint)event->button.x_root, (gint)event->button.y_root);
+        res=TRUE;
+      }
+      else if(event->button.button==3) {
         // show context menu
         gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
         res=TRUE;

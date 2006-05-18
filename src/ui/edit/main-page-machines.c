@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.74 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-page-machines.c,v 1.75 2006-05-18 21:20:33 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -64,6 +64,11 @@ struct _BtMainPageMachinesPrivate {
 
   /* mouse coodinates on context menu invokation (used for placing machines there */
   gdouble mouse_x,mouse_y;
+  
+  /* volume popup slider */
+  BtVolumePopup *vol_popup;
+  GtkObject *vol_popup_adj;
+  BtWire *vol_popup_wire;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -645,6 +650,30 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   g_free(toolbar_style);
 }
 
+/*
+static gboolean on_user_function(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  
+}
+*/
+
+static void on_volume_popup_changed(GtkAdjustment *adj, gpointer data) {
+  GST_INFO(">>>> CHANGED");
+/* @todo: use it
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+  gdouble v;
+
+  if (self->lock) return;
+  self->lock = TRUE;
+
+  v = gtk_adjustment_get_value (adj);
+  bt_wire_set_volume(self->priv->wire, v);
+
+  applet->lock = FALSE;
+  applet->force_next_update = TRUE;
+*/
+}
+
+
 //-- helper methods
 
 static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachines *self) {
@@ -708,6 +737,7 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
 }
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
+  BtMainWindow *main_window;
   BtSettings *settings;
   GtkWidget *image,*scrolled_window;
   GtkWidget *tool_item;
@@ -800,13 +830,23 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   g_signal_connect(G_OBJECT(self->priv->vadjustment),"value-changed",G_CALLBACK(on_vadjustment_changed),(gpointer)self);
   self->priv->hadjustment=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   g_signal_connect(G_OBJECT(self->priv->hadjustment),"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
-  
 
   // let settings control toolbar style
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
 
+  // create vlume popup
+  self->priv->vol_popup_adj=gtk_adjustment_new(50, 0, 100, 4, 10, 0);
+  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
+  // set parent (container), for signal forwarding
+  //gtk_widget_set_parent(GTK_WIDGET(self->priv->vol_popup),GTK_WIDGET(self));
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(self->priv->vol_popup),GTK_WINDOW(main_window));
+
+  g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
+
   g_object_unref(settings);
+  g_object_try_unref(main_window);
 
   GST_DEBUG("  done");
   return(TRUE);
@@ -874,6 +914,33 @@ void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWi
   g_object_try_unref(wire);
 }
 
+
+void bt_main_page_machines_hide_volume_popup(const BtMainPageMachines *self) {
+  bt_volume_popup_hide(self->priv->vol_popup);
+  self->priv->vol_popup_wire=NULL;
+}
+
+gboolean bt_main_page_machines_show_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos) {
+  GtkWidget *popup=GTK_WIDGET(self->priv->vol_popup);
+
+  if(self->priv->vol_popup_wire) {
+    bt_main_page_machines_hide_volume_popup(self);
+  }
+  
+  self->priv->vol_popup_wire=wire;
+
+  /* @todo: need to set initial value */
+  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj), 
+          /*bt_wire_get_volume (self->priv->wire)*/ 100);
+  
+  /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
+  gtk_window_move(GTK_WINDOW(popup),xpos,ypos);
+  bt_volume_popup_show(self->priv->vol_popup);
+
+  return(TRUE);
+}
+
+
 //-- wrapper
 
 //-- class internals
@@ -924,6 +991,15 @@ static void bt_main_page_machines_dispose(GObject *object) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+
+  GST_DEBUG("  unrefing popup");
+  if(self->priv->vol_popup) {
+    if(self->priv->vol_popup_wire) {
+      bt_main_page_machines_hide_volume_popup(self);
+    }
+    //gtk_widget_unparent(GTK_WIDGET(self->priv->vol_popup));
+    gtk_object_destroy(GTK_OBJECT(self->priv->vol_popup));
+  }
 
   //g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);

@@ -1,3 +1,27 @@
+2006-05-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_state_get_type):
+	* src/lib/core/pattern.c: (bt_pattern_cmd_get_type):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_mode_get_type),
+	(bt_sink_bin_record_format_get_type):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c: (on_volume_popup_changed),
+	(bt_main_page_machines_init_ui),
+	(bt_main_page_machines_hide_volume_popup),
+	(bt_main_page_machines_show_volume_popup),
+	(bt_main_page_machines_dispose):
+	* src/ui/edit/volume-popup.c: (cb_timeout), (cb_button_press),
+	(cb_button_release), (cb_dock_press), (bt_volume_popup_new),
+	(bt_volume_popup_show), (bt_volume_popup_hide),
+	(bt_volume_popup_dispose), (bt_volume_popup_class_init),
+	(bt_volume_popup_init), (bt_volume_popup_get_type):
+	* src/ui/edit/volume-popup.h:
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_new),
+	(bt_wire_canvas_item_event):
+  Added Volume popups for wires (no audioble effect yet)
+
 2006-05-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-view.c: (bt_pattern_view_new),
@@ -8,12 +32,12 @@
 	(bt_pattern_view_class_init), (bt_pattern_view_get_type):
 	* src/ui/edit/pattern-view.h:
 	* tests/bt-cmd-encode.sh:
-        Added more missing files (thanks Tommi Sakari Uimonen)
+  Added more missing files (thanks Tommi Sakari Uimonen)
 
 2006-05-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-view-methods.h:
-        Added missing file (thanks Tommi Sakari Uimonen)
+  Added missing file (thanks Tommi Sakari Uimonen)
 
 2006-05-07  Stefan Kost  <ensonic@users.sf.net>
 
@@ -25,8 +49,8 @@
 	(bt_song_on_loop_end_changed), (bt_song_on_length_changed),
 	(bt_song_new):
 	* src/ui/edit/main-page-sequence.c: (sequence_table_refresh):
-        did some tests for loop-changes in gstreamer (no success yet),
-        deprecation chages for glib2.10, check for pending gtk+ patches
+  did some tests for loop-changes in gstreamer (no success yet),
+  deprecation chages for glib2.10, check for pending gtk+ patches
 
 2006-05-07  Stefan Kost  <ensonic@users.sf.net>
 
@@ -8865,4 +8889,3 @@
 
 	* docs/: design.txt, use-case.txt:
 	Initial revision
-
