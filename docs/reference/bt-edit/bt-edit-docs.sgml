@@ -25,6 +25,7 @@
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
 <!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
+<!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
 
 <!ENTITY GtkVUMeter SYSTEM "xml/gtkvumeter.xml">
@@ -80,6 +81,7 @@
     &BtSettingsPageAudiodevices;
 		&BtUIRessources;
     &BtWireCanvasItem;
+    &BtVolumePopup;
     
     &GtkVUMeter;
   </chapter>

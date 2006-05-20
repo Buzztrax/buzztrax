@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.25 2006-04-08 16:18:19 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.26 2006-05-20 22:48:23 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -167,6 +167,7 @@ BtMainPageMachines
 bt_main_page_machines_new
 bt_main_page_machines_remove_machine_item
 bt_main_page_machines_remove_wire_item
+bt_main_page_machines_wire_volume_popup
 <SUBSECTION Standard>
 BtMainPageMachinesClass
 BT_MAIN_PAGE_MACHINES
@@ -213,6 +214,10 @@ BtMainPagePatternsPrivate
 <TITLE>BtMainPageSequence</TITLE>
 BtMainPageSequence
 bt_main_page_sequence_new
+bt_main_page_sequence_copy_selection
+bt_main_page_sequence_cut_selection
+bt_main_page_sequence_delete_selection
+bt_main_page_sequence_paste_selection
 bt_main_page_sequence_get_current_machine
 bt_main_page_sequence_get_current_pos
 <SUBSECTION Standard>
@@ -401,6 +406,8 @@ BtSettingsPageAudiodevicesPrivate
 <FILE>btuiressources</FILE>
 <TITLE>BtUIRessources</TITLE>
 BtUIRessources
+BtUIRessourcesColors
+BtUIRessourcesMachineColors
 bt_ui_ressources_new
 bt_ui_ressources_get_pixbuf_by_machine
 bt_ui_ressources_get_image_by_machine
@@ -418,6 +425,25 @@ BT_TYPE_UI_RESSOURCES
 <SUBSECTION Private>
 bt_ui_ressources_get_type
 BtUIRessourcesPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btvolumepopup</FILE>
+<TITLE>BtVolumePopup</TITLE>
+BtVolumePopup
+bt_volume_popup_new
+bt_volume_popup_show
+bt_volume_popup_hide
+<SUBSECTION Standard>
+BtVolumePopupClass
+BT_VOLUME_POPUP
+BT_IS_VOLUME_POPUP
+BT_VOLUME_POPUP_CLASS
+BT_IS_VOLUME_POPUP_CLASS
+BT_VOLUME_POPUP_GET_CLASS
+BT_TYPE_VOLUME_POPUP
+<SUBSECTION Private>
+bt_volume_popup_get_type
 </SECTION>
 
 <SECTION>

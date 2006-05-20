@@ -1,3 +1,26 @@
+2006-05-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	update docs
+	
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/wire.c: (bt_wire_make_internal_element),
+	(bt_wire_link_machines), (bt_wire_unlink_machines),
+	(bt_wire_connect), (bt_wire_get_property), (bt_wire_set_property),
+	(bt_wire_dispose), (bt_wire_init), (bt_wire_class_init):
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c: (on_volume_popup_changed),
+	(bt_main_page_machines_init_ui),
+	(bt_main_page_machines_wire_volume_popup),
+	(bt_main_page_machines_dispose):
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_event):
+	add gain element to wire and make it work, let volume popup control this
+
 2006-05-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_state_get_type):
@@ -20,7 +43,7 @@
 	* src/ui/edit/volume-popup.h:
 	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_new),
 	(bt_wire_canvas_item_event):
-  Added Volume popups for wires (no audioble effect yet)
+	Added Volume popups for wires (no audioble effect yet)
 
 2006-05-17  Stefan Kost  <ensonic@users.sf.net>
 
@@ -32,12 +55,12 @@
 	(bt_pattern_view_class_init), (bt_pattern_view_get_type):
 	* src/ui/edit/pattern-view.h:
 	* tests/bt-cmd-encode.sh:
-  Added more missing files (thanks Tommi Sakari Uimonen)
+	Added more missing files (thanks Tommi Sakari Uimonen)
 
 2006-05-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/pattern-view-methods.h:
-  Added missing file (thanks Tommi Sakari Uimonen)
+	Added missing file (thanks Tommi Sakari Uimonen)
 
 2006-05-07  Stefan Kost  <ensonic@users.sf.net>
 
@@ -49,8 +72,8 @@
 	(bt_song_on_loop_end_changed), (bt_song_on_length_changed),
 	(bt_song_new):
 	* src/ui/edit/main-page-sequence.c: (sequence_table_refresh):
-  did some tests for loop-changes in gstreamer (no success yet),
-  deprecation chages for glib2.10, check for pending gtk+ patches
+	did some tests for loop-changes in gstreamer (no success yet),
+	deprecation chages for glib2.10, check for pending gtk+ patches
 
 2006-05-07  Stefan Kost  <ensonic@users.sf.net>
 

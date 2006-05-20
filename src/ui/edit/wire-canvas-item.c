@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.30 2006-05-18 21:20:33 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.31 2006-05-20 22:48:24 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -442,7 +442,7 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
         GST_INFO("showing volume-popup at %lf,%lf  %lf,%lf",
           event->button.x,event->button.y,
           event->button.x_root,event->button.y_root);
-        bt_main_page_machines_show_volume_popup(self->priv->main_page_machines, self->priv->wire, (gint)event->button.x_root, (gint)event->button.y_root);
+        bt_main_page_machines_wire_volume_popup(self->priv->main_page_machines, self->priv->wire, (gint)event->button.x_root, (gint)event->button.y_root);
         res=TRUE;
       }
       else if(event->button.button==3) {

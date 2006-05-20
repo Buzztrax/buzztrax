@@ -1,4 +1,4 @@
-/* $Id: main-page-machines-methods.h,v 1.5 2006-05-18 21:20:33 ensonic Exp $
+/* $Id: main-page-machines-methods.h,v 1.6 2006-05-20 22:48:24 ensonic Exp $
  * defines all public methods of the main machines page class
  */
 
@@ -17,8 +17,7 @@ extern void machine_view_get_machine_position(GHashTable *properties, gdouble *p
 extern void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, BtMachineCanvasItem *item);
 extern void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item);
 
-extern void bt_main_page_machines_hide_volume_popup(const BtMainPageMachines *self);
-extern gboolean bt_main_page_machines_show_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
+extern gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos);
 
 
 #endif // BT_MAIN_PAGE_MACHINES_METHDOS_H

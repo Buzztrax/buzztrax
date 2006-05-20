@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.76 2006-04-16 00:21:07 ensonic Exp $
+/* $Id: core.h,v 1.77 2006-05-20 22:48:23 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -10,6 +10,7 @@
 
 //-- ansi c
 #include <dirent.h>
+#include <math.h>
 #include <string.h>
 //#define _XOPEN_SOURCE /* glibc2 needs this */
 #define __USE_XOPEN

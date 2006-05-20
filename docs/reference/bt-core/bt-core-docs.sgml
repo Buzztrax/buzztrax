@@ -9,6 +9,8 @@
 <!ENTITY BtMachine SYSTEM "xml/btmachine.xml">
 <!ENTITY BtPattern SYSTEM "xml/btpattern.xml">
 <!ENTITY BtPersistence SYSTEM "xml/btpersistence.xml">
+<!ENTITY BtPersistenceLocation SYSTEM "xml/btpersistencelocation.xml">
+<!ENTITY BtPersistenceSelection SYSTEM "xml/btpersistenceselection.xml">
 <!ENTITY BtPlainfileSettings SYSTEM "xml/btplainfilesettings.xml">
 <!ENTITY BtProcessorMachine SYSTEM "xml/btprocessormachine.xml">
 <!ENTITY BtSequence SYSTEM "xml/btsequence.xml">
@@ -104,6 +106,8 @@
     &BtMachine;
     &BtPattern;
     &BtPersistence;
+    &BtPersistenceLocation;
+    &BtPersistenceSelection;
     &BtPlainfileSettings;
     &BtProcessorMachine;
     &BtSequence;

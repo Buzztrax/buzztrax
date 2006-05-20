@@ -1,4 +1,4 @@
-// $Id: volume-popup.c,v 1.1 2006-05-18 21:20:33 ensonic Exp $
+// $Id: volume-popup.c,v 1.2 2006-05-20 22:48:24 ensonic Exp $
 /* GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *
@@ -97,11 +97,8 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
   BtVolumePopup *popup = BT_VOLUME_POPUP(data);
 
-  GST_INFO(">>>>>> finish ?");
-  
   if (event->type == GDK_BUTTON_PRESS) {
     bt_volume_popup_hide(popup);
-    GST_INFO(">>>>>> yes !");
     return TRUE;
   }
   return FALSE;
@@ -111,13 +108,20 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 
 //-- constructor methods
 
+/**
+ * bt_volume_popup_new:
+ * @adj: the adjustment for the popup
+ *
+ * Create a new instance
+ *
+ * Returns: the new instance or %NULL in case of an error
+ */
 GtkWidget *
 bt_volume_popup_new(GtkAdjustment *adj) {
   GtkWidget *table, *button, *scale, *frame;
   BtVolumePopup *self;
 
   self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
-  //gtk_widget_add_events(GTK_WIDGET(self), GDK_FOCUS_CHANGE_MASK);
 
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
@@ -161,7 +165,12 @@ bt_volume_popup_new(GtkAdjustment *adj) {
 
 //-- methods
 
-
+/**
+ * bt_volume_popup_show:
+ * @self: the popup widget
+ *
+ * Show and activate the widget
+ */
 void bt_volume_popup_show(BtVolumePopup *self) {
   gtk_widget_show_all(GTK_WIDGET(self));
   //gtk_window_set_focus(GTK_WINDOW(popup),GTK_WIDGET(self->priv->vol_popup->scale));
@@ -177,6 +186,12 @@ void bt_volume_popup_show(BtVolumePopup *self) {
   gdk_keyboard_grab(GTK_WIDGET(self)->window, TRUE, GDK_CURRENT_TIME);
 }
 
+/**
+ * bt_volume_popup_hide:
+ * @self: the popup widget
+ *
+ * Hide and deactivate the widget
+ */
 void bt_volume_popup_hide(BtVolumePopup *self) {
   /* ungrab focus */
   gdk_keyboard_ungrab (GDK_CURRENT_TIME);

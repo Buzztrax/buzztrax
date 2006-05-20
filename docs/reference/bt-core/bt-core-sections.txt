@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.69 2006-03-29 16:39:10 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.70 2006-05-20 22:48:23 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -167,6 +167,36 @@ BT_IS_PERSISTENCE
 BT_PERSISTENCE_GET_INTERFACE
 <SUBSECTION Private>
 bt_persistence_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btpersistencelocation</FILE>
+<TITLE>BtPersistenceLocation</TITLE>
+<SUBSECTION Standard>
+BtPersistenceLocation
+BT_PERSISTENCE_LOCATION
+BT_IS_PERSISTENCE_LOCATION
+BT_PERSISTENCE_LOCATION_CLASS
+BT_IS_PERSISTENCE_LOCATION_CLASS
+BT_TYPE_PERSISTENCE_LOCATION
+BT_PERSISTENCE_LOCATION_GET_CLASS
+<SUBSECTION Private>
+bt_persistence_location_get_type
+</SECTION>
+
+<SECTION>
+<FILE>btpersistenceselection</FILE>
+<TITLE>BtPersistenceSelection</TITLE>
+<SUBSECTION Standard>
+BtPersistenceSelection
+BT_PERSISTENCE_SELECTION
+BT_IS_PERSISTENCE_SELECTION
+BT_PERSISTENCE_SELECTION_CLASS
+BT_IS_PERSISTENCE_SELECTION_CLASS
+BT_TYPE_PERSISTENCE_SELECTION
+BT_PERSISTENCE_SELECTION_GET_CLASS
+<SUBSECTION Private>
+bt_persistence_selection_get_type
 </SECTION>
 
 <SECTION>

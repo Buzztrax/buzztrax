@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.75 2006-05-18 21:20:33 ensonic Exp $
+// $Id: main-page-machines.c,v 1.76 2006-05-20 22:48:24 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -650,27 +650,21 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   g_free(toolbar_style);
 }
 
-/*
-static gboolean on_user_function(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
-  
-}
-*/
 
-static void on_volume_popup_changed(GtkAdjustment *adj, gpointer data) {
+static void on_volume_popup_changed(GtkAdjustment *adj, gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  gdouble gain;
+
   GST_INFO(">>>> CHANGED");
-/* @todo: use it
-  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-  gdouble v;
 
-  if (self->lock) return;
-  self->lock = TRUE;
+  //if (self->priv->lock) return;
+  //self->priv->lock = TRUE;
 
-  v = gtk_adjustment_get_value (adj);
-  bt_wire_set_volume(self->priv->wire, v);
+  gain = gtk_adjustment_get_value (adj);
+  g_object_set(G_OBJECT(self->priv->vol_popup_wire),"gain",gain,NULL);
 
-  applet->lock = FALSE;
-  applet->force_next_update = TRUE;
-*/
+  //self->priv->lock = FALSE;
+  //self->priv->force_next_update = TRUE;
 }
 
 
@@ -836,7 +830,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
 
   // create vlume popup
-  self->priv->vol_popup_adj=gtk_adjustment_new(50, 0, 100, 4, 10, 0);
+  self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
   self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
   // set parent (container), for signal forwarding
   //gtk_widget_set_parent(GTK_WIDGET(self->priv->vol_popup),GTK_WIDGET(self));
@@ -914,24 +908,25 @@ void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWi
   g_object_try_unref(wire);
 }
 
-
-void bt_main_page_machines_hide_volume_popup(const BtMainPageMachines *self) {
-  bt_volume_popup_hide(self->priv->vol_popup);
-  self->priv->vol_popup_wire=NULL;
-}
-
-gboolean bt_main_page_machines_show_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos) {
+/**
+ * bt_main_page_machines_wire_volume_popup:
+ * @self: the machines page
+ * @wire: the wire to popup the volume control for
+ * @xpos: the x-position for the popup
+ * @ypos: the y-position for the popup
+ *
+ * Activates the volume-popup for the given wire.
+ *
+ * Returns: %TRUE for succes.
+ */
+gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos) {
   GtkWidget *popup=GTK_WIDGET(self->priv->vol_popup);
-
-  if(self->priv->vol_popup_wire) {
-    bt_main_page_machines_hide_volume_popup(self);
-  }
-  
+  gdouble gain;
+ 
   self->priv->vol_popup_wire=wire;
-
-  /* @todo: need to set initial value */
-  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj), 
-          /*bt_wire_get_volume (self->priv->wire)*/ 100);
+  /* set initial value */
+  g_object_get(G_OBJECT(wire),"gain",&gain,NULL);
+  gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
   
   /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
   gtk_window_move(GTK_WINDOW(popup),xpos,ypos);
@@ -994,9 +989,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
 
   GST_DEBUG("  unrefing popup");
   if(self->priv->vol_popup) {
-    if(self->priv->vol_popup_wire) {
-      bt_main_page_machines_hide_volume_popup(self);
-    }
+    bt_volume_popup_hide(self->priv->vol_popup);
     //gtk_widget_unparent(GTK_WIDGET(self->priv->vol_popup));
     gtk_object_destroy(GTK_OBJECT(self->priv->vol_popup));
   }
