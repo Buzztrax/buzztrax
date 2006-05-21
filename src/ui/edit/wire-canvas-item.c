@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.31 2006-05-20 22:48:24 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.32 2006-05-21 20:24:31 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -46,6 +46,9 @@ struct _BtWireCanvasItemPrivate {
   /* wire context_menu */
   GtkMenu *context_menu;
   
+  /* the analysis dialog */
+  GtkWidget *analysis_dialog;
+  
   /* interaction state */
   gboolean dragging,moved;
   gdouble offx,offy,dragx,dragy;
@@ -62,7 +65,7 @@ static void wire_set_line_points(GnomeCanvasPoints *points,gdouble w,gdouble h) 
   points->coords[3]=h;
 }
 
-/**
+/*
  * add a triangle pointing from src to dest at the middle of the wire
  */
 static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble h) {
@@ -129,6 +132,15 @@ static void wire_set_triangle_points(GnomeCanvasPoints *points,gdouble w,gdouble
 
 //-- event handler
 
+static void on_wire_analysis_dialog_destroy(GtkWidget *widget, gpointer user_data) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("machine properties dialog destroy occurred");
+  self->priv->analysis_dialog=NULL;
+}
+
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *src,*dst;
@@ -148,7 +160,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_try_unref(dst);
 }
 
-void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
+static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *src_machine,*dst_machine;
   GHashTable *properties;  
@@ -192,10 +204,10 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   BtSetup *setup;
   
   g_assert(user_data);
-  GST_INFO("context_menu disconnect event occurred");
+  GST_INFO("context_menu disconnect item selected");
     
-   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   bt_setup_remove_wire(setup,self->priv->wire);
   bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
@@ -204,6 +216,16 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   g_object_try_unref(song);
 }
 
+static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
+  
+  g_assert(user_data);
+  GST_INFO("context_menu analysis item selected");
+  if(!self->priv->analysis_dialog) {
+    self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire));
+    g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
+  }
+}
 //-- helper methods
 
 //-- constructor methods
@@ -373,7 +395,11 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->main_page_machines);
 
   GST_DEBUG("  unrefing done");
-    
+
+  if(self->priv->analysis_dialog) {
+    gtk_widget_destroy(self->priv->analysis_dialog);
+  }
+  
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
   GST_DEBUG("  chaining up");  
@@ -491,6 +517,7 @@ static void bt_wire_canvas_item_init(GTypeInstance *instance, gpointer g_class) 
   menu_item=gtk_menu_item_new_with_label(_("Signal Analysis ..."));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_analysis_activate),(gpointer)self);
 
 }
 

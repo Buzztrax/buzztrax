@@ -1,5 +1,26 @@
 2006-05-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/wire-analysis-dialog-methods.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_init_ui), (bt_wire_analysis_dialog_new),
+	(bt_wire_analysis_dialog_get_property),
+	(bt_wire_analysis_dialog_set_property),
+	(bt_wire_analysis_dialog_dispose),
+	(bt_wire_analysis_dialog_finalize), (bt_wire_analysis_dialog_init),
+	(bt_wire_analysis_dialog_class_init),
+	(bt_wire_analysis_dialog_get_type):
+	* src/ui/edit/wire-analysis-dialog.h:
+	* src/ui/edit/wire-canvas-item.c:
+	(on_wire_analysis_dialog_destroy), (on_wire_position_changed),
+	(on_context_menu_disconnect_activate),
+	(on_context_menu_analysis_activate), (bt_wire_canvas_item_dispose),
+	(bt_wire_canvas_item_init):
+	Add boilerplate for audio-analysis dialog for the wire
+
+2006-05-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-docs.sgml:
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* docs/reference/bt-edit/bt-edit-docs.sgml:
