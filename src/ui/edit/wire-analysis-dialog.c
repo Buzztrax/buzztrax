@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.1 2006-05-21 20:24:31 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.2 2006-05-25 16:29:21 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -62,6 +62,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   
   /*
    * @todo: add spectrum analyzer drawable
+   * @todo: add big level meter (with scales)
+   * @todo: if stereo add pan-meter (whats the propper name?)
    */
   
   g_object_try_unref(main_window);

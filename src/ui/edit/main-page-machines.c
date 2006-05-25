@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.76 2006-05-20 22:48:24 ensonic Exp $
+// $Id: main-page-machines.c,v 1.77 2006-05-25 16:29:18 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -204,7 +204,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   GST_DEBUG("drawing done");
 }
 
-static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
+static void bt_main_page_machines_draw_grid(const BtMainPageMachines *self) {
   GnomeCanvasPoints *points;
   gdouble s,step;
   gulong color;
@@ -253,7 +253,7 @@ static void bt_main_page_machine_draw_grid(const BtMainPageMachines *self) {
   gnome_canvas_points_free(points);
 }
 
-static void bt_main_page_machine_add_wire(const BtMainPageMachines *self) {
+static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
   BtSong *song;
   BtSetup *setup;
   BtWire *wire;
@@ -285,7 +285,7 @@ static void bt_main_page_machine_add_wire(const BtMainPageMachines *self) {
   g_object_try_unref(song);
 }
 
-static BtMachineCanvasItem *bt_main_page_machine_get_machine_canvas_item_at(const BtMainPageMachines *self,gdouble mouse_x,gdouble mouse_y) {
+static BtMachineCanvasItem *bt_main_page_machines_get_machine_canvas_item_at(const BtMainPageMachines *self,gdouble mouse_x,gdouble mouse_y) {
   BtMachineCanvasItem *mitem=NULL;
   GnomeCanvasItem *ci,*pci;
 
@@ -302,7 +302,7 @@ static BtMachineCanvasItem *bt_main_page_machine_get_machine_canvas_item_at(cons
   return(mitem);
 }
 
-static gboolean bt_main_page_machine_check_wire(const BtMainPageMachines *self) {
+static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self) {
   gboolean ret=FALSE;
   BtSong *song;
   BtSetup *setup;
@@ -468,7 +468,7 @@ static void on_toolbar_grid_density_off_activated(GtkMenuItem *menuitem, gpointe
   g_object_set(G_OBJECT(settings),"grid-density","off",NULL);
   g_object_unref(settings);
 
-  bt_main_page_machine_draw_grid(self);
+  bt_main_page_machines_draw_grid(self);
 }
 
 static void on_toolbar_grid_density_low_activated(GtkMenuItem *menuitem, gpointer user_data) {
@@ -484,7 +484,7 @@ static void on_toolbar_grid_density_low_activated(GtkMenuItem *menuitem, gpointe
   g_object_set(G_OBJECT(settings),"grid-density","low",NULL);
   g_object_unref(settings);
 
-  bt_main_page_machine_draw_grid(self);
+  bt_main_page_machines_draw_grid(self);
 }
 
 static void on_toolbar_grid_density_mid_activated(GtkMenuItem *menuitem, gpointer user_data) {
@@ -500,7 +500,7 @@ static void on_toolbar_grid_density_mid_activated(GtkMenuItem *menuitem, gpointe
   g_object_set(G_OBJECT(settings),"grid-density","medium",NULL);
   g_object_unref(settings);
 
-  bt_main_page_machine_draw_grid(self);
+  bt_main_page_machines_draw_grid(self);
 }
 
 static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpointer user_data) {
@@ -516,7 +516,7 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
   g_object_set(G_OBJECT(settings),"grid-density","high",NULL);
   g_object_unref(settings);
 
-  bt_main_page_machine_draw_grid(self);
+  bt_main_page_machines_draw_grid(self);
 }
 
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
@@ -542,6 +542,8 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   gdouble mouse_x,mouse_y;
   gchar *color;
   BtMachine *machine;
+  
+  //GST_INFO("canvas event received: type=%d", event->type);
 
   g_assert(user_data);
   switch(event->type) {
@@ -549,7 +551,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       // store mouse coordinates, so that we can later place a newly added machine there
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
       if(!(ci=gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y))) {
-        GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);        
+        GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
         if(event->button.button==3) {
           // show context menu
           gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
@@ -602,8 +604,8 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         self->priv->new_wire_points->coords[2]=mouse_x;
         self->priv->new_wire_points->coords[3]=mouse_y;
         color="red";
-        if((self->priv->new_wire_dst=bt_main_page_machine_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
-          if(bt_main_page_machine_check_wire(self)) {
+        if((self->priv->new_wire_dst=bt_main_page_machines_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
+          if(bt_main_page_machines_check_wire(self)) {
             color="green";
           }
           g_object_unref(self->priv->new_wire_dst);
@@ -620,9 +622,9 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
           gnome_canvas_item_ungrab(self->priv->new_wire,event->button.time);
         }
         gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
-        if((self->priv->new_wire_dst=bt_main_page_machine_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
-          if(bt_main_page_machine_check_wire(self)) {
-            bt_main_page_machine_add_wire(self);
+        if((self->priv->new_wire_dst=bt_main_page_machines_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
+          if(bt_main_page_machines_check_wire(self)) {
+            bt_main_page_machines_add_wire(self);
           }
           g_object_unref(self->priv->new_wire_dst);
         }
@@ -731,7 +733,6 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
 }
 
 static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
-  BtMainWindow *main_window;
   BtSettings *settings;
   GtkWidget *image,*scrolled_window;
   GtkWidget *tool_item;
@@ -814,7 +815,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
-  bt_main_page_machine_draw_grid(self);
+  bt_main_page_machines_draw_grid(self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -829,18 +830,13 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
 
-  // create vlume popup
+  // create volume popup
   self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
-  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
-  // set parent (container), for signal forwarding
-  //gtk_widget_set_parent(GTK_WIDGET(self->priv->vol_popup),GTK_WIDGET(self));
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  gtk_window_set_transient_for(GTK_WINDOW(self->priv->vol_popup),GTK_WINDOW(main_window));
+  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj),GTK_WIDGET(self)));
 
   g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
 
   g_object_unref(settings);
-  g_object_try_unref(main_window);
 
   GST_DEBUG("  done");
   return(TRUE);
@@ -921,8 +917,13 @@ void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWi
  */
 gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self, BtWire *wire, gint xpos, gint ypos) {
   GtkWidget *popup=GTK_WIDGET(self->priv->vol_popup);
+  BtMainWindow *main_window;
   gdouble gain;
- 
+  
+  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  gtk_window_set_transient_for(GTK_WINDOW(self->priv->vol_popup),GTK_WINDOW(main_window));
+  g_object_try_unref(main_window);
+
   self->priv->vol_popup_wire=wire;
   /* set initial value */
   g_object_get(G_OBJECT(wire),"gain",&gain,NULL);

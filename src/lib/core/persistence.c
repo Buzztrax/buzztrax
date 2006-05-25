@@ -1,4 +1,4 @@
-// $Id: persistence.c,v 1.11 2006-03-24 15:30:38 ensonic Exp $
+// $Id: persistence.c,v 1.12 2006-05-25 16:29:18 ensonic Exp $
 /**
  * SECTION:btpersistence
  * @short_description: object persistence interface
@@ -59,6 +59,21 @@ const gchar *bt_persistence_strfmt_ulong(gulong val) {
   static gchar str[20];
 
   g_sprintf(str,"%lu",val);
+  return(str);
+}
+
+/**
+ * bt_persistence_strfmt_double:
+ * @val: a value
+ *
+ * Convinience methods, that formats a value to be serialized as a string.
+ *
+ * Returns: a reference to static memory containg the formatted value.
+ */
+const gchar *bt_persistence_strfmt_double(gdouble val) {
+  static gchar str[20];
+
+  g_sprintf(str,"%lf",val);
   return(str);
 }
 

@@ -1,4 +1,4 @@
-// $Id: volume-popup.c,v 1.2 2006-05-20 22:48:24 ensonic Exp $
+// $Id: volume-popup.c,v 1.3 2006-05-25 16:29:21 ensonic Exp $
 /* GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *
@@ -95,10 +95,41 @@ cb_button_release(GtkWidget *widget, GdkEventButton *button, gpointer data)
 static gboolean
 cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
-  BtVolumePopup *popup = BT_VOLUME_POPUP(data);
+  BtVolumePopup *self = BT_VOLUME_POPUP(data);
 
   if (event->type == GDK_BUTTON_PRESS) {
-    bt_volume_popup_hide(popup);
+    /*
+    GdkEventButton *e;
+    gboolean retval;
+    GtkWidget *parent=GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(self)));
+    //GtkWidget *parent=gtk_widget_get_parent(GTK_WIDGET(self));
+    
+    GST_INFO("FORWARD : popup=%p, widget=%p, parent=%p", self, widget, parent);
+    */
+
+    bt_volume_popup_hide(self);
+
+    /* I can't get this to work, which way ever I do it, the main_window never
+     * sees the event
+     *
+    // forward event
+    e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);
+    //e->window = widget->window;
+    e->window = parent->window;
+    //e->window = self->parent_widget->window;
+    e->type = GDK_BUTTON_PRESS;
+    //gtk_widget_event (widget, (GdkEvent *) e);
+    retval=gtk_widget_event (parent, (GdkEvent *) e);
+    GST_INFO("  result =%d", retval);
+    //gtk_widget_event (self->parent_widget, (GdkEvent *) e);
+    gtk_main_do_event ((GdkEvent *) e);
+    //g_signal_emit_by_name(self->parent_widget, "event", 0, &retval, e);
+    //g_signal_emit_by_name(parent, "event", 0, &retval, e);
+    //GST_INFO("  result =%d", retval);
+    e->window = event->window;
+    gdk_event_free ((GdkEvent *) e);
+    */
+
     return TRUE;
   }
   return FALSE;
@@ -111,17 +142,19 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 /**
  * bt_volume_popup_new:
  * @adj: the adjustment for the popup
+ * @parent: parent for event-forwarding when poping down
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
 GtkWidget *
-bt_volume_popup_new(GtkAdjustment *adj) {
+bt_volume_popup_new(GtkAdjustment *adj, GtkWidget *parent) {
   GtkWidget *table, *button, *scale, *frame;
   BtVolumePopup *self;
 
   self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
+  self->parent_widget = parent;
 
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
@@ -136,6 +169,7 @@ bt_volume_popup_new(GtkAdjustment *adj) {
   g_signal_connect(button, "button-release-event", G_CALLBACK(cb_button_release), self);
   gtk_widget_show(button);
 
+  // @todo: add ruler ? */
   scale = gtk_vscale_new(adj);
   self->scale = GTK_RANGE(scale);
   gtk_widget_set_size_request(scale, -1,100);

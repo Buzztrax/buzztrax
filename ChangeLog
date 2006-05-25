@@ -1,3 +1,38 @@
+2006-05-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/persistence.c: (bt_persistence_strfmt_double):
+	add double formatting helper
+	
+	* src/lib/core/wire.c: (bt_wire_change_gain),
+	(bt_wire_link_machines), (bt_wire_persistence_save),
+	(bt_wire_persistence_load), (bt_wire_set_property):
+	persistence of wire->gain
+	
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_draw_grid),
+	(bt_main_page_machines_add_wire),
+	(bt_main_page_machines_get_machine_canvas_item_at),
+	(bt_main_page_machines_check_wire),
+	(on_toolbar_grid_density_off_activated),
+	(on_toolbar_grid_density_low_activated),
+	(on_toolbar_grid_density_mid_activated),
+	(on_toolbar_grid_density_high_activated), (on_canvas_event),
+	(bt_main_page_machines_init_ui),
+	(bt_main_page_machines_wire_volume_popup):
+	rename methods (add missing 's')
+	
+	* src/ui/edit/main-page-sequence.c: (on_header_size_allocate):
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	* src/ui/edit/volume-popup.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_init_ui):
+	try harder to get event fallthrough work to no avail
+	
+	* tests/bt-cmd-encode.sh:
+	remove obsolete '^'
+
 2006-05-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:

@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.113 2006-05-07 19:52:53 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.114 2006-05-25 16:29:19 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -357,7 +357,11 @@ static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
   
   GST_INFO("#### header label size %d x %d",
     allocation->width,allocation->height);
+#ifdef HAVE_GTK_TREE_VIEW_COLUMN_PATCH
   gtk_widget_set_size_request(self->priv->pos_header,-1,(allocation->height-8));
+#else
+  gtk_widget_set_size_request(self->priv->pos_header,-1,allocation->height);
+#endif
 }
 
 static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {

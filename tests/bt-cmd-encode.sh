@@ -1,10 +1,10 @@
 #!/bin/sh
-# $Id: bt-cmd-encode.sh,v 1.1 2006-05-17 18:32:54 ensonic Exp $
+# $Id: bt-cmd-encode.sh,v 1.2 2006-05-25 16:29:21 ensonic Exp $
 # run bt-cmd --command=encode on all example and test for crashes
 
 # add these later: songs/buzz*.xml 
 E_SONGS="songs/melo*.xml songs/simple*.xml"
-T_SONGS="songs/broken*.xml songs/test*.xml^"
+T_SONGS="songs/broken*.xml songs/test*.xml"
 
 # test examples
 for song in $E_SONGS; do

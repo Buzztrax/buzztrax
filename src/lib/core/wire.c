@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.79 2006-05-20 22:48:24 ensonic Exp $
+// $Id: wire.c,v 1.80 2006-05-25 16:29:18 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -44,6 +44,7 @@ enum {
  * GstElement *spectrum;
  * // or do we just put a tee element in there after which we add the analyzers
  * // (and needed converion elements)
+ * // where do we put the tee? after GAIN or before?
  */
 typedef enum {
   /* source element in the wire for convinience */
@@ -122,6 +123,20 @@ Error:
 }
 
 /*
+ * bt_wire_change_gain:
+ * @self: the wire for which the gain to change
+ *
+ * Updates the wire gain control. Bypasses gain control, if gain is very close
+ * to 100%.
+ */
+static void bt_wire_change_gain(const BtWire *self) {
+  gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
+  
+  g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
+  gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
+}
+
+/*
  * bt_wire_link_machines:
  * @self: the wire that should be used for this connection
  *
@@ -143,13 +158,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
   if(!self->priv->machines[PART_GAIN]) {
-    gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
-
     if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
-    
-    g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
-    gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
-
+    bt_wire_change_gain(self);    
     GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
   
@@ -468,6 +478,8 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlNodePt
     g_object_get(G_OBJECT(self->priv->dst),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
+
+    xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->gain)));
   }
   return(node);
 }
@@ -475,7 +487,7 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlNodePt
 static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
   BtWire *self = BT_WIRE(persistence);
   BtSetup *setup;
-  xmlChar *id;
+  xmlChar *id, *gain;
   
   GST_DEBUG("PERSISTENCE::wire");
   
@@ -488,6 +500,10 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr 
   id=xmlGetProp(node,XML_CHAR_PTR("dst"));
   self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
   xmlFree(id);
+
+  gain=xmlGetProp(node,XML_CHAR_PTR("gain"));
+  self->priv->gain=g_ascii_strtod(gain,NULL);
+  xmlFree(gain);
 
   return(bt_wire_connect(self));
 }
@@ -558,10 +574,7 @@ static void bt_wire_set_property(GObject      *object,
     case WIRE_GAIN: {
       self->priv->gain=g_value_get_double(value);
       if(self->priv->machines[PART_GAIN]) {
-        gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
-        
-        g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
-        gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
+        bt_wire_change_gain(self);
       }
     } break;
     default: {
