@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.73 2006-04-14 23:02:48 ensonic Exp $
+// $Id: main-window.c,v 1.74 2006-05-26 22:35:57 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -75,9 +75,9 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
 static gboolean on_window_configure_event(GtkWidget *widget,GdkEventConfigure *event,gpointer user_data) {
   //BtMainWindow *self=BT_MAIN_WINDOW(user_data);
   
-  GST_INFO("#### window pos & size %d x %d , %d x %d",
-    event->x,event->y,
-    event->width,event->height);
+  //GST_DEBUG("#### window pos & size %d x %d , %d x %d",
+  //  event->x,event->y,
+  //  event->width,event->height);
   // @todo: store as properties per song or gconf settings
   
   // return FALSE so that the event is also processed further
@@ -150,6 +150,19 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
   }
 }
 
+/* just for testing 
+static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer user_data) {
+  if(event->type==GDK_BUTTON_PRESS) {
+    GdkEventButton *e=(GdkEventButton*)event;
+
+    GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
+    GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
+    GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
+  }
+  return(FALSE);
+}
+*/
+
 //-- helper methods
 
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
@@ -204,6 +217,9 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"configure-event",G_CALLBACK(on_window_configure_event),(gpointer)self);
+  /* just for testing 
+  g_signal_connect(G_OBJECT(self),"event",G_CALLBACK(on_window_event),(gpointer)self);
+  */
 
   GST_INFO("signal connected, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 

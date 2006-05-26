@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.77 2006-05-25 16:29:18 ensonic Exp $
+// $Id: main-page-machines.c,v 1.78 2006-05-26 22:35:57 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -548,6 +548,13 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   g_assert(user_data);
   switch(event->type) {
     case GDK_BUTTON_PRESS:
+      {
+        GdkEventButton *e=(GdkEventButton*)event;
+        GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
+        GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
+        GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
+      }
+    
       // store mouse coordinates, so that we can later place a newly added machine there
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
       if(!(ci=gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y))) {
@@ -694,6 +701,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
 
   menu_item=gtk_menu_item_new_with_label(_("Unmute all machines"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  /* @todo: implement me */
   gtk_widget_show(menu_item);
 }
 
@@ -832,8 +840,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
 
   // create volume popup
   self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
-  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj),GTK_WIDGET(self)));
-
+  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
   g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
 
   g_object_unref(settings);

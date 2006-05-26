@@ -1,4 +1,4 @@
-// $Id: volume-popup.h,v 1.2 2006-05-25 16:29:21 ensonic Exp $
+// $Id: volume-popup.h,v 1.3 2006-05-26 22:35:57 ensonic Exp $
 /*
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *               2006 Stefan Kost <ensonic@users.sf.net>
@@ -50,16 +50,13 @@ typedef struct _BtVolumePopup {
   guint timeout;
   /* for +/- buttons */
   gint direction;
-  
-  GtkWidget *parent_widget;
-
 } BtVolumePopup;
 
 typedef struct _BtVolumePopupClass {
   GtkWindowClass klass;
 } BtVolumePopupClass;
 
-GtkWidget *bt_volume_popup_new(GtkAdjustment *adj,GtkWidget *parent);
+GtkWidget *bt_volume_popup_new(GtkAdjustment *adj);
 
 void bt_volume_popup_show(BtVolumePopup *self);
 void bt_volume_popup_hide(BtVolumePopup *self);

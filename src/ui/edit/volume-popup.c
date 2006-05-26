@@ -1,4 +1,4 @@
-// $Id: volume-popup.c,v 1.3 2006-05-25 16:29:21 ensonic Exp $
+// $Id: volume-popup.c,v 1.4 2006-05-26 22:35:57 ensonic Exp $
 /* GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *
@@ -98,37 +98,41 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
   BtVolumePopup *self = BT_VOLUME_POPUP(data);
 
   if (event->type == GDK_BUTTON_PRESS) {
-    /*
     GdkEventButton *e;
-    gboolean retval;
+    //GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",event->type,event->window,event->send_event,event->time);
+    //GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",event->x,event->y,event->axes,event->state);
+    //GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",event->button,event->device,event->x_root,event->y_root);
+
+    /*
     GtkWidget *parent=GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(self)));
     //GtkWidget *parent=gtk_widget_get_parent(GTK_WIDGET(self));
+    //gboolean retval;
     
-    GST_INFO("FORWARD : popup=%p, widget=%p, parent=%p", self, widget, parent);
+    GST_INFO("FORWARD : popup=%p, widget=%p", self, widget);
+    GST_INFO("FORWARD : parent=%p, parent->window=%p", parent, parent->window);
     */
 
     bt_volume_popup_hide(self);
 
-    /* I can't get this to work, which way ever I do it, the main_window never
-     * sees the event
-     *
     // forward event
-    e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);
+    e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);    
+    //GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
+    //GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
+    //GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
     //e->window = widget->window;
-    e->window = parent->window;
-    //e->window = self->parent_widget->window;
-    e->type = GDK_BUTTON_PRESS;
-    //gtk_widget_event (widget, (GdkEvent *) e);
-    retval=gtk_widget_event (parent, (GdkEvent *) e);
-    GST_INFO("  result =%d", retval);
-    //gtk_widget_event (self->parent_widget, (GdkEvent *) e);
+    //e->window = parent->window;
+    //e->type = GDK_BUTTON_PRESS;
+    
     gtk_main_do_event ((GdkEvent *) e);
+    //retval=gtk_widget_event (widget, (GdkEvent *) e);
+    //retval=gtk_widget_event (parent, (GdkEvent *) e);
+    //retval=gtk_widget_event (self->parent_widget, (GdkEvent *) e);
+    //GST_INFO("  result =%d", retval);
     //g_signal_emit_by_name(self->parent_widget, "event", 0, &retval, e);
     //g_signal_emit_by_name(parent, "event", 0, &retval, e);
     //GST_INFO("  result =%d", retval);
-    e->window = event->window;
+    //e->window = event->window;
     gdk_event_free ((GdkEvent *) e);
-    */
 
     return TRUE;
   }
@@ -142,19 +146,17 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 /**
  * bt_volume_popup_new:
  * @adj: the adjustment for the popup
- * @parent: parent for event-forwarding when poping down
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
 GtkWidget *
-bt_volume_popup_new(GtkAdjustment *adj, GtkWidget *parent) {
+bt_volume_popup_new(GtkAdjustment *adj) {
   GtkWidget *table, *button, *scale, *frame;
   BtVolumePopup *self;
 
   self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
-  self->parent_widget = parent;
 
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);

@@ -1,4 +1,4 @@
-// $Id: machine-menu.c,v 1.3 2006-04-09 12:20:45 ensonic Exp $
+// $Id: machine-menu.c,v 1.4 2006-05-26 22:35:57 ensonic Exp $
 /**
  * SECTION:btmachinemenu
  * @short_description: class for the machine selection sub-menu
@@ -98,6 +98,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
 
   // scan registered sources
   element_names=bt_gst_registry_get_element_names_by_class("Source/Audio");
+  // @todo: sort list
   for(node=element_names;node;node=g_list_next(node)) {
     GST_INFO("found source element : '%s'",node->data);
     factory=gst_element_factory_find(node->data);
@@ -122,6 +123,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
 
   // scan registered processors
   element_names=bt_gst_registry_get_element_names_by_class("Filter/Effect/Audio");
+  // @todo: sort list
   for(node=element_names;node;node=g_list_next(node)) {
     GST_INFO("found processor element : '%s'",node->data);
     factory=gst_element_factory_find(node->data);

@@ -1,3 +1,17 @@
+2006-05-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_ui):
+	* src/ui/edit/main-page-machines.c: (on_canvas_event),
+	(bt_main_page_machines_init_main_context_menu),
+	(bt_main_page_machines_init_ui):
+	* src/ui/edit/main-window.c: (on_window_configure_event),
+	(bt_main_window_init_ui):
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	* src/ui/edit/volume-popup.h:
+	make event forwarding work, remove obsolete param from volume popup,
+	add more todo comments
+
 2006-05-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/persistence-methods.h:
