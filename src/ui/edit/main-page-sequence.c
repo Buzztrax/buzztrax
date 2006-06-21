@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.114 2006-05-25 16:29:19 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.115 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -35,7 +35,10 @@ struct _BtMainPageSequencePrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* bars selection menu */
   GtkComboBox *bars_menu;

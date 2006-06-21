@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.128 2006-05-07 19:52:53 ensonic Exp $
+// $Id: song.c,v 1.129 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -54,11 +54,17 @@ struct _BtSongPrivate {
   gboolean is_playing,is_idle;
 
   /* the application that currently uses the song */
-  BtApplication *app;
+  union {
+    BtApplication *app;
+    gpointer app_ptr;
+  };
   /* the main gstreamer container element */
   GstBin *bin;
   /* the element that has the clock */
-  BtSinkMachine *master;
+  union {
+    BtSinkMachine *master;
+    gpointer master_ptr;
+  };
   
   /* the query is used in update_playback_position */
   GstQuery *position_query;
@@ -807,7 +813,7 @@ static void bt_song_set_property(GObject      *object,
       g_object_try_weak_unref(self->priv->app);
       self->priv->app = BT_APPLICATION(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->app);
-      //GST_DEBUG("set the app for the song: %p",self->priv->app);
+      GST_DEBUG("set the app for the song: %p",self->priv->app);
     } break;
     case SONG_BIN: {
       if(self->priv->bin) gst_object_unref(self->priv->bin);
@@ -858,7 +864,7 @@ static void bt_song_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_start_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
-
+  
   g_object_try_weak_unref(self->priv->master);
   g_object_try_unref(self->priv->song_info);
   g_object_try_unref(self->priv->sequence);

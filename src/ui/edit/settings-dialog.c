@@ -1,4 +1,4 @@
-// $Id: settings-dialog.c,v 1.24 2006-04-08 22:08:35 ensonic Exp $
+// $Id: settings-dialog.c,v 1.25 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
@@ -30,7 +30,10 @@ struct _BtSettingsDialogPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
 
   /* the list of settings pages */
   GtkTreeView *settings_list;

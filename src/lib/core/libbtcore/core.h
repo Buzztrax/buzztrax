@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.77 2006-05-20 22:48:23 ensonic Exp $
+/* $Id: core.h,v 1.78 2006-06-21 16:16:39 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -225,6 +225,16 @@
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
+
+/*
+GCC 4.1 introduced this crazy warning that complains about casting between
+different pointer types. The question is why this includes void* ?
+Sadly they don't gave tips how they belive to get rid of the warning.
+
+#define bt_type_pun_to_gpointer(val) \
+  (((union { gpointer __a; __typeof__((val)) __b; }){__b:(val)}).__a)
+*/
+
 /**
  * g_object_try_weak_ref:
  * @obj: the object to reference
@@ -232,7 +242,15 @@
  * If the supplied object is not %NULL then reference it via
  * g_object_add_weak_pointer().
  */
-#define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
+#define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
+/*
+#define g_object_try_weak_ref(obj) \
+  if(obj) { \
+    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
+    GST_DEBUG("  reffing : %p",ptr); \
+    g_object_add_weak_pointer(G_OBJECT(obj),ptr); \
+  }
+*/
 
 /**
  * g_object_try_weak_unref:
@@ -241,7 +259,15 @@
  * If the supplied object is not %NULL then release the reference via
  * g_object_remove_weak_pointer().
  */
-#define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj);
+#define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
+/*
+#define g_object_try_weak_unref(obj) \
+  if(obj) { \
+    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
+    GST_DEBUG("  unreffing : %p",ptr); \
+    g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&bt_type_pun_to_gpointer(obj)); \
+  }
+*/
 
 /*
 @idea g_alloca_printf

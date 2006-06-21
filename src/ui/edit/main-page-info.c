@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.37 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-page-info.c,v 1.38 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -27,7 +27,10 @@ struct _BtMainPageInfoPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;

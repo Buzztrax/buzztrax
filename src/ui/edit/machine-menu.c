@@ -1,4 +1,4 @@
-// $Id: machine-menu.c,v 1.4 2006-05-26 22:35:57 ensonic Exp $
+// $Id: machine-menu.c,v 1.5 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmachinemenu
  * @short_description: class for the machine selection sub-menu
@@ -19,7 +19,10 @@ struct _BtMachineMenuPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* MenuItems */
   //GtkWidget *save_item;  

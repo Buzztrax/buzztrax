@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.78 2006-05-26 22:35:57 ensonic Exp $
+// $Id: main-page-machines.c,v 1.79 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -19,7 +19,10 @@ struct _BtMainPageMachinesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
 
   /* the toolbar widget */
   GtkWidget *toolbar;
@@ -548,12 +551,14 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   g_assert(user_data);
   switch(event->type) {
     case GDK_BUTTON_PRESS:
+      /*
       {
         GdkEventButton *e=(GdkEventButton*)event;
         GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
         GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
         GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
       }
+      */
     
       // store mouse coordinates, so that we can later place a newly added machine there
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);

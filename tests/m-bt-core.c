@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.20 2005-12-16 21:54:44 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.21 2006-06-21 16:16:39 ensonic Exp $
  * core library unit tests
  */
 
@@ -64,6 +64,7 @@ int main(int argc, char **argv) {
 
   sr=srunner_create(bt_core_suite());
   srunner_add_suite(sr, bt_machine_suite());
+  /*
   srunner_add_suite(sr, bt_network_suite());
   srunner_add_suite(sr, bt_pattern_suite());
   srunner_add_suite(sr, bt_processor_machine_suite());
@@ -77,6 +78,7 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_source_machine_suite());
   srunner_add_suite(sr, bt_wire_suite());
   srunner_add_suite(sr, bt_settings_suite());
+  */
   // this make tracing errors with gdb easier (use env CK_FORK="no" gdb ...)
   //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);

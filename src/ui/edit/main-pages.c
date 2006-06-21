@@ -1,4 +1,4 @@
-// $Id: main-pages.c,v 1.31 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-pages.c,v 1.32 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainpages
  * @short_description: class for the editor main pages
@@ -29,7 +29,10 @@ struct _BtMainPagesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* the machines tab */
   BtMainPageMachines *machines_page;

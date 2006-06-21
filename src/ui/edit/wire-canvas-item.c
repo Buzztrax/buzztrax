@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.32 2006-05-21 20:24:31 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.33 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -29,7 +29,10 @@ struct _BtWireCanvasItemPrivate {
   /* the application */
   BtEditApplication *app;
   /* the machine page we are on */
-  BtMainPageMachines *main_page_machines;
+  union {
+    BtMainPageMachines *main_page_machines;
+    gpointer main_page_machines_ptr;
+  };
 
   /* the underlying wire */
   BtWire *wire;

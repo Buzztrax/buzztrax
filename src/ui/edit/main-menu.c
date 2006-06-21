@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.54 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-menu.c,v 1.55 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -23,7 +23,10 @@ struct _BtMainMenuPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* MenuItems */
   GtkWidget *save_item;  

@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.19 2006-04-09 12:20:45 ensonic Exp $
+// $Id: wavetable.c,v 1.20 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -31,7 +31,10 @@ struct _BtWavetablePrivate {
   gboolean dispose_has_run;
   
   /* the song the wavetable belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
   
   GList *waves;    // each entry points to a BtWave
 };

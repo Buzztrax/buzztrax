@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.74 2006-05-07 19:52:53 ensonic Exp $
+# $Id: configure.ac,v 1.75 2006-06-21 16:16:39 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -101,6 +101,7 @@ AC_MSG_RESULT($enable_debug)
 if test "$enable_debug" = "yes"; then
   AC_DEFINE(APP_DEBUG, [1], [enable runtime debugging code])
   DEBUG_CFLAGS="-O0 -Wall -Werror -g"
+  # DEBUG_CFLAGS="-O0 -Wall -Werror -Wno-strict-aliasing -g"
 else
   AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
   AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])

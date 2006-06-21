@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.88 2006-04-30 22:30:55 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.89 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -35,7 +35,10 @@ struct _BtMainPagePatternsPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* machine selection menu */
   GtkComboBox *machine_menu;

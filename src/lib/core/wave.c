@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.16 2006-04-09 12:20:45 ensonic Exp $
+// $Id: wave.c,v 1.17 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -33,7 +33,10 @@ struct _BtWavePrivate {
   gboolean dispose_has_run;
   
   /* the song the wave belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
 
   /* each wave has an index number, the list of waves can have empty slots */
   gulong index;  

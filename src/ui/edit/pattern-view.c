@@ -1,4 +1,4 @@
-// $Id: pattern-view.c,v 1.1 2006-05-17 18:32:54 ensonic Exp $
+// $Id: pattern-view.c,v 1.2 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btpatternview
  * @short_description: the editor main pattern table view
@@ -25,7 +25,10 @@ struct _BtPatternViewPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;

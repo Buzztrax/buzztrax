@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.94 2006-04-14 23:02:48 ensonic Exp $
+// $Id: setup.c,v 1.95 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -40,7 +40,10 @@ struct _BtSetupPrivate {
   gboolean dispose_has_run;
   
   /* the song the setup belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
   
   GList *machines;  // each entry points to BtMachine
   GList *wires;      // each entry points to BtWire

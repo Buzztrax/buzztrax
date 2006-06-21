@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.81 2006-04-08 22:08:35 ensonic Exp $
+// $Id: main-toolbar.c,v 1.82 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -26,7 +26,10 @@ struct _BtMainToolbarPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* the toolbar widget */
   GtkWidget *toolbar;

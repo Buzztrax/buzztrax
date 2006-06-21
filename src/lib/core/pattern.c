@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.83 2006-05-18 21:20:33 ensonic Exp $
+// $Id: pattern.c,v 1.84 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -39,7 +39,11 @@ struct _BtPatternPrivate {
   gboolean dispose_has_run;
   
   /* the song the pattern belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
+
   /* the id, we can use to lookup the pattern */
   gchar *id;
   /* the display name of the pattern */
@@ -56,7 +60,10 @@ struct _BtPatternPrivate {
   /* the number of dynamic params the machine provides per instance and voice */
   gulong voice_params;
   /* the machine the pattern belongs to */
-  BtMachine *machine;
+  union {
+    BtMachine *machine;
+    gpointer machine_ptr;
+  };
 
   /* an array of GValues (not pointing to)
    * with the size of length*(internal_params+global_params+voices*voice_params)

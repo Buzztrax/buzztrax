@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.64 2006-04-08 22:08:35 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.65 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -48,7 +48,10 @@ struct _BtMachineCanvasItemPrivate {
   /* the application */
   BtEditApplication *app;
   /* the machine page we are on */
-  BtMainPageMachines *main_page_machines;
+  union {
+    BtMainPageMachines *main_page_machines;
+    gpointer main_page_machines_ptr;
+  };
 
   /* the underlying machine */
   BtMachine *machine;

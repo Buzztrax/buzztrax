@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.106 2006-05-06 22:15:16 ensonic Exp $
+// $Id: sequence.c,v 1.107 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -33,7 +33,10 @@ struct _BtSequencePrivate {
   gboolean dispose_has_run;
   
   /* the song the sequence belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
 
   /* the number of timeline entries */
   gulong length;

@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.208 2006-05-18 21:20:33 ensonic Exp $
+// $Id: machine.c,v 1.209 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -115,7 +115,10 @@ struct _BtMachinePrivate {
   GHashTable *properties;
   
   /* the song the machine belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
   /* the main gstreamer container element */
   GstBin *bin;
 
@@ -313,6 +316,7 @@ static gboolean bt_machine_change_state(BtMachine *self, BtMachineState new_stat
       }
       else {
         // @todo: disconnect its source and sink + set this machine to playing
+        GST_INFO("element does not support passthrough");
       }
     } break;
     case BT_MACHINE_STATE_NORMAL:
@@ -2307,6 +2311,7 @@ static void bt_machine_dispose(GObject *object) {
     BtSongInfo *song_info;
     g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
     if(song_info) {
+      GST_DEBUG("  diconnecting song-info handlers");
       g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);
       g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_tpb_changed,NULL);
       g_object_unref(song_info);

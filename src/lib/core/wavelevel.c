@@ -1,4 +1,4 @@
-// $Id: wavelevel.c,v 1.13 2006-04-09 12:20:45 ensonic Exp $
+// $Id: wavelevel.c,v 1.14 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btwavelevel
  * @short_description: a single part of a #BtWave item
@@ -28,7 +28,10 @@ struct _BtWavelevelPrivate {
   gboolean dispose_has_run;
   
   /* the song the wavelevel belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
   
   /* the wave the wavelevel belongs to */
   BtWave *wave;

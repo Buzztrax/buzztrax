@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.74 2006-05-26 22:35:57 ensonic Exp $
+// $Id: main-window.c,v 1.75 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -25,7 +25,10 @@ struct _BtMainWindowPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
 
   /* the menu of the window */
   BtMainMenu *menu;
@@ -133,7 +136,7 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
   GST_INFO("something has been dropped on our app: window=%p data='%s'",user_data,selection_data->data);
   // find first \0 or \n or \r
   while((*ptr) && (*ptr!='\n') && (*ptr!='\r')) {
-    *ptr++;i++;
+    ptr++;i++;
   }
   if(i) {
     gchar *file_name=g_strndup((gchar *)selection_data->data,i);

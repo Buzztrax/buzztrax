@@ -1,4 +1,4 @@
-// $Id: settings-page-audiodevices.c,v 1.20 2006-04-08 22:08:35 ensonic Exp $
+// $Id: settings-page-audiodevices.c,v 1.21 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
@@ -18,7 +18,10 @@ struct _BtSettingsPageAudiodevicesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   GtkComboBox *audiosink_menu;
   GList *audiosink_names;

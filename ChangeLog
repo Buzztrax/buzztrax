@@ -1,3 +1,40 @@
+2006-06-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c: (bt_machine_change_state),
+	(bt_machine_dispose):
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c: (bt_song_set_property), (bt_song_dispose):
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire.c: (bt_wire_link_machines),
+	(bt_wire_unlink_machines), (bt_wire_persistence_load),
+	(bt_wire_dispose):
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c: (on_canvas_event):
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-window.c: (on_window_dnd_drop):
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/wire-canvas-item.c:
+	* tests/m-bt-core.c: (main):
+	  add new files to POTFILE.in, fix gcc 4.1 warnings, prepare use of analyzers on wires
+
 2006-05-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_ui):

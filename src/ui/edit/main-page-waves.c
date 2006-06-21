@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.31 2006-04-09 12:20:45 ensonic Exp $
+// $Id: main-page-waves.c,v 1.32 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -23,7 +23,10 @@ struct _BtMainPageWavesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
 
   /* the toolbar widgets */
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;

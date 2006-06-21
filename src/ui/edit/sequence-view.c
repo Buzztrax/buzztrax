@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.21 2006-04-09 12:20:45 ensonic Exp $
+// $Id: sequence-view.c,v 1.22 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -27,7 +27,10 @@ struct _BtSequenceViewPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;

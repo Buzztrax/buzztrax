@@ -1,4 +1,4 @@
-// $Id: song-info.c,v 1.50 2006-05-07 19:52:53 ensonic Exp $
+// $Id: song-info.c,v 1.51 2006-06-21 16:16:39 ensonic Exp $
 /**
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
@@ -31,7 +31,10 @@ struct _BtSongInfoPrivate {
   gboolean dispose_has_run;
   
   /* the song the song-info belongs to */
-  BtSong *song;
+  union {
+    BtSong *song;
+    gpointer song_ptr;
+  };
   
   /* the song-info as tag-data */
   GstTagList *taglist;
