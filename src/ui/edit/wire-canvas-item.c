@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.33 2006-06-21 16:16:39 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.34 2006-07-22 15:37:06 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -140,7 +140,7 @@ static void on_wire_analysis_dialog_destroy(GtkWidget *widget, gpointer user_dat
 
   g_assert(user_data);
 
-  GST_INFO("machine properties dialog destroy occurred");
+  GST_INFO("wire analysis dialog destroy occurred");
   self->priv->analysis_dialog=NULL;
 }
 
@@ -380,6 +380,9 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
 
 static void bt_wire_canvas_item_dispose(GObject *object) {
   BtWireCanvasItem *self = BT_WIRE_CANVAS_ITEM(object);
+  BtSong *song;
+  BtSetup *setup;
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -390,6 +393,11 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   if(self->priv->dst) {
     g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
   }
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);

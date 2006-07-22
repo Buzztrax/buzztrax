@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.81 2006-06-21 16:16:39 ensonic Exp $
+// $Id: wire.c,v 1.82 2006-07-22 15:37:05 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -29,7 +29,8 @@ enum {
   WIRE_SONG=1,
   WIRE_SRC,
   WIRE_DST,
-  WIRE_GAIN
+  WIRE_GAIN,
+  WIRE_ANALYZERS
 };
 
 typedef enum {
@@ -47,17 +48,6 @@ typedef enum {
   /* how many elements are used */
   PART_COUNT
 } BtWirePart;
-
-/* @todo: add more later:
- * waveform (oszilloscope)
- * panorama (spacescope)
-typedef enum {
-  ANALYZER_LEVEL=0,
-  ANALYZER_SPECTRUM,
-  // how many elements are used
-  ANALYZER_COUNT
-} BtWireAnalyzer;
-*/
  
 struct _BtWirePrivate {
   /* used to validate if dispose has run */
@@ -81,9 +71,8 @@ struct _BtWirePrivate {
   /* the gstreamer elements that is used */
   GstElement *machines[PART_COUNT];
   
-  /* wire analyzer
-  GstElement *analyzers[ANALYZER_COUNT];
-  */
+  /* wire analyzers */
+  GList *analyzers;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -103,7 +92,7 @@ static gboolean bt_wire_make_internal_element(const BtWire *self,const BtWirePar
   gboolean res=FALSE;
   gchar *name;
   
-  // add initernal element
+  // add internal element
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_ERROR("failed to create %s",element_name);goto Error;
@@ -112,6 +101,63 @@ static gboolean bt_wire_make_internal_element(const BtWire *self,const BtWirePar
   res=TRUE;
 Error:
   return(res);
+}
+
+/*
+ * bt_wire_activate_analyzers:
+ * @self: the wire
+ *
+ * Add all analyzers to the bin and link them. 
+ */
+static void bt_wire_activate_analyzers(BtWire *self) {
+  gboolean res=TRUE;
+  GList* node;
+  GstElement *prev,*next;
+  
+  if(!self->priv->analyzers) return;
+
+  GST_INFO("add analyzers");
+  prev=self->priv->machines[PART_TEE];
+  for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
+    next=GST_ELEMENT(node->data);
+    
+    if(!(res=gst_bin_add(self->priv->bin,next))) {
+      GST_INFO("cannot add element \"%s\" to bin",gst_element_get_name(next));
+    }
+    if(!(res=gst_element_link(prev,next))) {
+      GST_INFO("cannot link elements \"%s\" -> \"%s\"",gst_element_get_name(prev),gst_element_get_name(next));
+    }
+    prev=next;
+  }
+}
+
+/*
+ * bt_wire_deactivate_analyzers:
+ * @self: the wire
+ *
+ * Remove all analyzers to the bin and unlink them. 
+ */
+static void bt_wire_deactivate_analyzers(BtWire *self) {
+  gboolean res=TRUE;
+  GList* node;
+  GstElement *prev,*next;
+
+  if(!self->priv->analyzers) return;
+
+  GST_INFO("remove analyzers");
+  prev=self->priv->machines[PART_TEE];
+  for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
+    next=GST_ELEMENT(node->data);
+    
+    gst_element_unlink(prev,next);
+    prev=next;
+  }
+  for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
+    next=GST_ELEMENT(node->data);
+    if(!(res=gst_bin_remove(self->priv->bin,next))) {
+      GST_INFO("cannot remove element \"%s\" from bin",gst_element_get_name(next));
+    }
+  }
 }
 
 /*
@@ -494,9 +540,10 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr 
   self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
   xmlFree(id);
 
-  gain=xmlGetProp(node,XML_CHAR_PTR("gain"));
-  self->priv->gain=g_ascii_strtod((gchar *)gain,NULL);
-  xmlFree(gain);
+  if((gain=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
+    self->priv->gain=g_ascii_strtod((gchar *)gain,NULL);
+    xmlFree(gain);
+  }
 
   return(bt_wire_connect(self));
 }
@@ -532,6 +579,9 @@ static void bt_wire_get_property(GObject      *object,
     } break;
     case WIRE_GAIN: {
       g_value_set_double(value, self->priv->gain);
+    } break;
+    case WIRE_ANALYZERS: {
+      g_value_set_pointer(value, self->priv->analyzers);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -570,6 +620,11 @@ static void bt_wire_set_property(GObject      *object,
         bt_wire_change_gain(self);
       }
     } break;
+    case WIRE_ANALYZERS: {
+      bt_wire_deactivate_analyzers(self);
+      self->priv->analyzers=g_value_get_pointer(value);
+      bt_wire_activate_analyzers(self);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -593,6 +648,8 @@ static void bt_wire_dispose(GObject *object) {
     if(self->priv->machines[PART_GAIN]) {
       gst_bin_remove(self->priv->bin, self->priv->machines[PART_GAIN]);
     }
+    bt_wire_deactivate_analyzers(self);
+    
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);
   }
@@ -659,6 +716,12 @@ static void bt_wire_class_init(BtWireClass *klass) {
                                      0.0,
                                      4.0,
                                      1.0,
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,WIRE_ANALYZERS,
+                                  g_param_spec_pointer("analyzers",
+                                     "analyzers prop",
+                                     "list of wire analyzers",
                                      G_PARAM_READWRITE));
 }
 

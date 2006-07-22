@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.22 2006-04-08 22:08:34 ensonic Exp $
+/* $Id: machine.h,v 1.23 2006-07-22 15:37:06 ensonic Exp $
  * base class for a machine
  */
 
@@ -37,6 +37,7 @@ struct _BtMachine {
   /*< private >*/
   BtMachinePrivate *priv;
 };
+
 /* structure of the machine class */
 struct _BtMachineClass {
   GObjectClass parent;

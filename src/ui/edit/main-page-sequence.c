@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.115 2006-06-21 16:16:39 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.116 2006-07-22 15:37:06 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -929,7 +929,6 @@ static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtSetup *setup;
   BtMachine *machine;
   gchar *id;
-  gulong number_of_tracks;
 
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -939,11 +938,7 @@ static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   id=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   GST_INFO("adding track for machine \"%s\"",id);
   if((machine=bt_setup_get_machine_by_id(setup,id))) {
-    // change number of tracks
-    g_object_get(sequence,"tracks",&number_of_tracks,NULL);
-    g_object_set(sequence,"tracks",(gulong)(number_of_tracks+1),NULL);
-    // set the machine for the new track
-    bt_sequence_set_machine(sequence,number_of_tracks,machine);
+    bt_sequence_add_track(sequence,machine);
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
@@ -968,7 +963,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   // change number of tracks
   g_object_get(sequence,"tracks",&number_of_tracks,NULL);
   if(number_of_tracks>0) {
-    g_object_set(sequence,"tracks",(gulong)(number_of_tracks-1),NULL);
+    bt_sequence_remove_track_by_ix(sequence,number_of_tracks-1);
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
@@ -1431,11 +1426,26 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  
+  BtSong *song;
+  BtSequence *sequence;
+
   g_assert(user_data);
   
   GST_INFO("machine has been removed");
+
   machine_menu_refresh(self,setup);
+
+  // get song from app and then setup from song
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+
+  bt_sequence_remove_track_by_machine(sequence,machine);
+  // reinit the view
+  sequence_table_refresh(self,song);
+  sequence_model_recolorize(self);
+
+  g_object_unref(sequence);
+  g_object_unref(song);
 }
 
 static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {

@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.53 2006-04-08 22:08:33 ensonic Exp $
+// $Id: application.c,v 1.54 2006-07-22 15:37:05 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -183,6 +183,7 @@ void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handle
     entry=(BtBusWatchEntry *)node->data;
     if(entry->handler==handler) {
       self->priv->bus_handlers=g_list_remove(self->priv->bus_handlers,entry);
+      g_free(entry);
       break;
     }
   }

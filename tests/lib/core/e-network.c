@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.22 2006-01-18 13:11:55 ensonic Exp $
+/* $Id: e-network.c,v 1.23 2006-07-22 15:37:06 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -78,7 +78,7 @@ BT_START_TEST(test_btcore_net_example1) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",1L,NULL);
-  bt_sequence_set_machine(sequence,0,gen1);
+  bt_sequence_add_track(sequence,gen1);
   
   /* try to start playing the song */
   if(bt_song_play(song)) {
@@ -152,8 +152,8 @@ BT_START_TEST(test_btcore_net_example2) {
   
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_set_machine(sequence,0,gen1);
-  bt_sequence_set_machine(sequence,1,gen2);
+  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen2);
   mark_point();
 
   /* try to start playing the song */
@@ -246,8 +246,8 @@ BT_START_TEST(test_btcore_net_example3) {
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
-  bt_sequence_set_machine(sequence,0,gen1);
-  bt_sequence_set_machine(sequence,1,gen2);
+  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen2);
   mark_point();
 
   /* try to start playing the song */

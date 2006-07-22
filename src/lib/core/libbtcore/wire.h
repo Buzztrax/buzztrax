@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.13 2005-12-23 14:03:03 ensonic Exp $
+/* $Id: wire.h,v 1.14 2006-07-22 15:37:06 ensonic Exp $
  * class for a machine to machine connection
  */
 
@@ -32,6 +32,7 @@ struct _BtWire {
   /*< private >*/
   BtWirePrivate *priv;
 };
+
 /* structure of the wire class */
 struct _BtWireClass {
   GObjectClass parent;

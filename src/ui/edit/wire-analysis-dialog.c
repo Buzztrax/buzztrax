@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.2 2006-05-25 16:29:21 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.3 2006-07-22 15:37:06 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -16,6 +16,25 @@ enum {
   WIRE_ANALYSIS_DIALOG_WIRE
 };
 
+/* @todo: add more later:
+ * waveform (oszilloscope)
+ * panorama (spacescope)
+ */
+typedef enum {
+  ANALYZER_LEVEL=0,
+  ANALYZER_SPECTRUM,
+  // this can be 'mis'used for an aoszilloscope by connecting to hand-off
+  ANALYZER_FAKESINK,
+  // how many elements are used
+  ANALYZER_COUNT
+} BtWireAnalyzer;
+
+#define SPECT_BANDS 256
+#define SPECT_WIDTH (SPECT_BANDS)
+#define SPECT_HEIGHT 64
+#define LEVEL_WIDTH (SPECT_BANDS)
+#define LEVEL_HEIGHT 16
+
 struct _BtWireAnalysisDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -23,26 +42,140 @@ struct _BtWireAnalysisDialogPrivate {
   /* the application */
   BtEditApplication *app;
 
-  /* the underlying machine */
+  /* the wire we analyze */
   BtWire *wire;
+  
+  /* the paint handler source id */
+  guint paint_handler_id;
+  /* the analyzer-graphs */
+  GtkWidget *spectrum_drawingarea, *level_drawingarea;
+  
+    /* the gstreamer elements that is used */
+  GstElement *analyzers[ANALYZER_COUNT];
+  GList *analyzers_list;
+  
+  /* the analyzer results */
+  gdouble rms[2], peak[2];
+  guchar spect[SPECT_BANDS]; 
 };
 
 static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
 
+static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+  gboolean res=FALSE;
+  g_assert(user_data);
+  
+  switch(GST_MESSAGE_TYPE(message)) {
+    case GST_MESSAGE_ELEMENT: {
+      const GstStructure *structure=gst_message_get_structure(message);
+      const gchar *name = gst_structure_get_name(structure);
+      
+      if(!strcmp(name,"level")) {
+        const GValue *l_rms,*l_peak;
+        guint i;
+  
+        GST_INFO("get level data");
+        l_rms=(GValue *)gst_structure_get_value(structure, "rms");
+        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+        //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+        for(i=0;i<gst_value_list_get_size(l_rms);i++) {
+          self->priv->rms[i]=g_value_get_double(gst_value_list_get_value(l_rms,i));
+          self->priv->peak[i]=g_value_get_double(gst_value_list_get_value(l_peak,i));
+          //GST_INFO("level.%d  %.3f %.3f", i, self->priv->rms[i], self->priv->peak[i]);
+        }
+        res=TRUE;
+      }
+      else if(!strcmp(name,"spectrum")) {
+        const GValue *list;
+        const GValue *value;
+        guint i;
+  
+        GST_INFO("get spectrum data");
+        list = gst_structure_get_value (structure, "spectrum");
+        // SPECT_BANDS=gst_value_list_get_size(list)
+        for (i = 0; i < SPECT_BANDS; ++i) {
+          value = gst_value_list_get_value (list, i);
+          self->priv->spect[i] = g_value_get_uchar (value);
+        }
+      }
+    } break;
+    default:
+      //GST_INFO("received bus message: type=%s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
+      break;
+  }
+  return(res);
+}
+
 //-- helper methods
+
+static gboolean on_wire_analyzer_redraw(gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+  
+  // TODO: draw
+  if (self->priv->level_drawingarea) {
+    GdkRectangle rect = { 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT };
+    GtkWidget *da=self->priv->level_drawingarea;
+    
+    gdk_window_begin_paint_rect (da->window, &rect);
+    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
+    //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms[i]*10.0), (gint)(peak[i]*10.0));
+    gdk_window_end_paint (da->window);
+  }
+
+  // draw spectrum
+  if (self->priv->spectrum_drawingarea) {
+    gint i;
+    GdkRectangle rect = { 0, 0, SPECT_WIDTH, SPECT_HEIGHT };
+    GtkWidget *da=self->priv->spectrum_drawingarea;
+    
+    gdk_window_begin_paint_rect (da->window, &rect);
+    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, SPECT_BANDS, SPECT_HEIGHT);
+    for (i = 0; i < SPECT_BANDS; i++) {
+      gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, SPECT_HEIGHT - self->priv->spect[i], 1, self->priv->spect[i]);
+    }
+    gdk_window_end_paint (da->window);
+  }
+  return(TRUE);
+}
+
+/*
+ * bt_wire_analysis_dialog_make_element:
+ * @self: the wire-analysis dialog
+ * @part: which analyzer element to create
+ * @factory_name: the element-factories name (also used to build the elemnt name)
+ *
+ * Create analyzer elements. Store them in the analyzers array and link them into the list.
+ */
+static gboolean bt_wire_analysis_dialog_make_element(const BtWireAnalysisDialog *self,BtWireAnalyzer part, const gchar *factory_name) {
+  gboolean res=FALSE;
+  gchar *name;
+  
+  // add analyzer element
+  name=g_alloca(strlen(factory_name)+16);g_sprintf(name,"%s_%p",factory_name,self->priv->wire);
+  if(!(self->priv->analyzers[part]=gst_element_factory_make(factory_name,name))) {
+    GST_ERROR("failed to create %s",factory_name);goto Error;
+  }
+  self->priv->analyzers_list=g_list_prepend(self->priv->analyzers_list,self->priv->analyzers[part]);
+  res=TRUE;
+Error:
+  return(res);
+}
+
 
 static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self) {
   BtMainWindow *main_window;
   BtMachine *src_machine,*dst_machine;
   gchar *src_id,*dst_id,*title;
   //GdkPixbuf *window_icon=NULL;
+  GtkWidget *vbox;
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
   
-  /* @todo: create and set *proper* window icon
+  /* @todo: create and set *proper* window icon (analyzer, scope)
   if((window_icon=bt_ui_ressources_get_pixbuf_by_wire(self->priv->wire))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
@@ -60,11 +193,42 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   g_object_try_unref(src_machine);
   g_object_try_unref(dst_machine);
   
-  /*
-   * @todo: add spectrum analyzer drawable
-   * @todo: add big level meter (with scales)
-   * @todo: if stereo add pan-meter (whats the propper name?)
+  vbox = gtk_vbox_new(FALSE, 6);
+  
+  /* @todo: add scales for spectrum analyzer drawable */
+  self->priv->spectrum_drawingarea = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (self->priv->spectrum_drawingarea, SPECT_WIDTH, SPECT_HEIGHT);
+  gtk_container_add (GTK_CONTAINER (vbox), self->priv->spectrum_drawingarea);
+
+  /* @todo: add big level meter (with scales)
+   * @todo: if stereo add pan-meter (L-R, R-L)
    */
+  self->priv->level_drawingarea = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (self->priv->level_drawingarea, LEVEL_WIDTH, LEVEL_HEIGHT);
+  gtk_container_add (GTK_CONTAINER (vbox), self->priv->level_drawingarea);
+
+  gtk_container_add (GTK_CONTAINER (self), vbox);
+   
+  // create fakesink
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_FAKESINK,"fakesink")) return(FALSE);
+  // create spectrum analyzer
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_SPECTRUM,"spectrum")) return(FALSE);
+  g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
+      "bands", SPECT_BANDS, "threshold", -80, "message", TRUE,
+      NULL);
+  // create level meter
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) return(FALSE);
+  g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]),
+      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
+      "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 20.0,
+      NULL);
+  
+  g_object_set(G_OBJECT(self->priv->wire),"analyzers",self->priv->analyzers_list,NULL);
+   
+  bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change,(gpointer)self);
+  
+  // add idle-handler that redraws gfx
+  self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_wire_analyzer_redraw,(gpointer)self,NULL);
   
   g_object_try_unref(main_window);
   return(TRUE);
@@ -92,6 +256,7 @@ BtWireAnalysisDialog *bt_wire_analysis_dialog_new(const BtEditApplication *app,c
     goto Error;
   }
   gtk_widget_show_all(GTK_WIDGET(self));
+  GST_DEBUG("dialog created and shown");
   return(self);
 Error:
   g_object_try_unref(self);
@@ -156,6 +321,12 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  g_source_remove(self->priv->paint_handler_id);
+  bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change);
+
+  // this destroys the analyzers too  
+  g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
     
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);

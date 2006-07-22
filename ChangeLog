@@ -1,3 +1,37 @@
+2006-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/application.c: (bt_application_remove_bus_watch):
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c: (bt_machine_make_internal_element):
+	* src/lib/core/sequence.c: (bt_sequence_get_track_by_machine),
+	(bt_sequence_add_track), (bt_sequence_remove_track_by_ix),
+	(bt_sequence_remove_track_by_machine):
+	* src/lib/core/song-io-native.c:
+	(bt_song_io_native_load_sequence_track_data):
+	* src/lib/core/wire.c: (bt_wire_make_internal_element),
+	(bt_wire_activate_analyzers), (bt_wire_deactivate_analyzers),
+	(bt_wire_persistence_load), (bt_wire_get_property),
+	(bt_wire_set_property), (bt_wire_dispose), (bt_wire_class_init):
+	* src/ui/edit/main-page-sequence.c: (on_track_add_activated),
+	(on_track_remove_activated), (on_machine_removed):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_dispose):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(on_wire_analyzer_redraw), (bt_wire_analysis_dialog_make_element),
+	(bt_wire_analysis_dialog_init_ui), (bt_wire_analysis_dialog_new),
+	(bt_wire_analysis_dialog_dispose):
+	* src/ui/edit/wire-canvas-item.c:
+	(on_wire_analysis_dialog_destroy), (bt_wire_canvas_item_dispose):
+	* tests/lib/core/e-network.c: (BT_START_TEST):
+	* tests/lib/core/e-sequence.c: (BT_START_TEST):
+	* tests/lib/core/t-sequence.c: (BT_START_TEST),
+	(bt_sequence_test_case):
+	* tests/m-bt-core.c: (main):
+          add new files to POTFILE.in, fix unit-tests, new API for track
+          manipulation in sequence, more work on wire-analyzers
+
 2006-06-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

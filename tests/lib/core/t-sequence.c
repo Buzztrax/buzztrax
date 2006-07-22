@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.17 2005-11-27 22:44:47 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.18 2006-07-22 15:37:06 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -50,7 +50,7 @@ BT_START_TEST(test_btsequence_obj1) {
 BT_END_TEST
 
 /* try to add a NULL machine to the sequence */
-BT_START_TEST(test_btsequence_track1) {
+BT_START_TEST(test_btsequence_add_track1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
@@ -62,8 +62,8 @@ BT_START_TEST(test_btsequence_track1) {
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
   
-  check_init_error_trapp("bt_sequence_set_machine","BT_IS_MACHINE(machine)");
-  bt_sequence_set_machine(sequence,0,NULL);
+  check_init_error_trapp("","BT_IS_MACHINE(machine)");
+  bt_sequence_add_track(sequence,NULL);
   fail_unless(check_has_error_trapped(), NULL);
   
   g_object_try_unref(sequence);
@@ -72,8 +72,8 @@ BT_START_TEST(test_btsequence_track1) {
 }
 BT_END_TEST
 
-/* try to set a new machine for the sequence with NULL for the sequence parameter */
-BT_START_TEST(test_btsequence_track2) {
+/* try to add a new machine for the sequence with NULL for the sequence parameter */
+BT_START_TEST(test_btsequence_add_track2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
@@ -89,8 +89,8 @@ BT_START_TEST(test_btsequence_track2) {
   machine=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(machine!=NULL, NULL);
   
-  check_init_error_trapp("bt_sequence_set_machine","BT_IS_SEQUENCE(self)");
-  bt_sequence_set_machine(NULL,0,BT_MACHINE(machine));
+  check_init_error_trapp("","BT_IS_SEQUENCE(self)");
+  bt_sequence_add_track(NULL,BT_MACHINE(machine));
   fail_unless(check_has_error_trapped(), NULL);
   
   g_object_try_unref(machine);
@@ -99,12 +99,11 @@ BT_START_TEST(test_btsequence_track2) {
 }
 BT_END_TEST
 
-/* try to add a machine to the sequence beyond the number of tracks */
-BT_START_TEST(test_btsequence_track3) {
+/* try to remove a NULL machine from the sequence */
+BT_START_TEST(test_btsequence_rem_track1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
-  BtMachine *machine;
   
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -112,15 +111,36 @@ BT_START_TEST(test_btsequence_track3) {
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
-  /* create a source machine */
-  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
-  fail_unless(machine!=NULL,NULL);
-  /* enlarge tracks */
-  g_object_set(sequence,"tracks",4L,NULL);
   
-  check_init_error_trapp("bt_sequence_set_machine","track<self->priv->tracks");
-  bt_sequence_set_machine(sequence,5,machine);
+  check_init_error_trapp("","BT_IS_MACHINE(machine)");
+  bt_sequence_remove_track_by_machine(sequence,NULL);
   fail_unless(check_has_error_trapped(), NULL);
+  
+  g_object_try_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+/* try to remove a machine from the sequence that has never added */
+BT_START_TEST(test_btsequence_rem_track2) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSequence *sequence=NULL;
+  BtSourceMachine *machine=NULL;
+  
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+  song=bt_song_new(app);
+  g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
+  fail_unless(sequence!=NULL,NULL);
+  
+  /* try to create a source machine */
+  machine=bt_source_machine_new(song,"id","audiotestsrc",0);
+  fail_unless(machine!=NULL, NULL);
+  
+  bt_sequence_remove_track_by_machine(sequence,BT_MACHINE(machine));
   
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
@@ -225,8 +245,8 @@ BT_START_TEST(test_btsequence_pattern2) {
   g_object_set(sequence,"length",4L,"tracks",2L,NULL);
 
   /* set machines */
-  bt_sequence_set_machine(sequence,0,machine1);
-  bt_sequence_set_machine(sequence,1,machine2);
+  bt_sequence_add_track(sequence,machine1);
+  bt_sequence_add_track(sequence,machine2);
 
   /* get pattern */
   pattern2=bt_sequence_get_pattern(sequence,0,1);
@@ -251,9 +271,10 @@ TCase *bt_sequence_test_case(void) {
 
   tcase_add_test(tc,test_btsequence_properties);
   tcase_add_test(tc,test_btsequence_obj1);
-  tcase_add_test(tc,test_btsequence_track1);
-  tcase_add_test(tc,test_btsequence_track2);
-  tcase_add_test(tc,test_btsequence_track3);
+  tcase_add_test(tc,test_btsequence_add_track1);
+  tcase_add_test(tc,test_btsequence_add_track2);
+  tcase_add_test(tc,test_btsequence_rem_track1);
+  tcase_add_test(tc,test_btsequence_rem_track2);
   tcase_add_test(tc,test_btsequence_length1);
   tcase_add_test(tc,test_btsequence_pattern1);
   tcase_add_test(tc,test_btsequence_pattern2);

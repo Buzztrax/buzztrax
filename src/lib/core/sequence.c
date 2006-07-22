@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.107 2006-06-21 16:16:39 ensonic Exp $
+// $Id: sequence.c,v 1.108 2006-07-22 15:37:05 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -180,7 +180,8 @@ static void bt_sequence_resize_data_length(const BtSequence *self, gulong length
  * @self: the sequence to resize the tracks number
  * @tracks: the old number of tracks
  *
- * Resizes the pattern data grid to the new number of tracks. Keeps previous values.
+ * Resizes the pattern data grid to the new number of tracks (add removes at the
+ * end). Keeps previous values.
  */
 static void bt_sequence_resize_data_tracks(const BtSequence *self, gulong tracks) {
   //gulong old_data_count=self->priv->length*tracks;
@@ -243,6 +244,27 @@ static void bt_sequence_resize_data_tracks(const BtSequence *self, gulong tracks
     GST_WARNING("extending sequence machines from %d to %d failed",tracks,self->priv->tracks);
   }  
 }
+
+/*
+ * bt_sequence_get_track_by_machine:
+ * @self: the sequence to search in
+ * @machine: the machine to find the first track for
+ *
+ * Gets the first track this @machine is on.
+ *
+ * Returns: the track-index or -1 if there is no track for this @machine.
+ */
+static glong bt_sequence_get_track_by_machine(const BtSequence *self,const BtMachine *machine) {
+  gulong track;
+  
+  for(track=0;track<self->priv->tracks;track++) {
+    if(self->priv->machines[track]==machine) {
+      return((glong)track);
+    }
+  }
+  return(-1);
+}
+
 
 /*
  * bt_sequence_limit_play_pos_internal:
@@ -705,6 +727,105 @@ BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
   return(g_object_try_ref(self->priv->machines[track]));
 }
 
+/*
+@todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
+as it should not be allowed to change the machine later on
+*/
+
+/**
+ * bt_sequence_add_track:
+ * @self: the #BtSequence that holds the tracks
+ * @machine: the #BtMachine
+ *
+ * Adds a new track with the @machine to the end.
+ * 
+ * Returns: %TRUE for success
+ */
+gboolean bt_sequence_add_track(const BtSequence *self,const BtMachine *machine) {
+  gulong track;
+
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
+  
+  track=self->priv->tracks;
+  GST_INFO("add track for machine %p at position %d",machine,track);
+
+  g_object_set(G_OBJECT(self),"tracks",(gulong)(track+1),NULL);
+  self->priv->machines[track]=g_object_ref(G_OBJECT(machine));
+  // check if that has already been connected
+  if(!g_signal_handler_find(G_OBJECT(machine), G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self)) {
+    g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
+  }
+  return(TRUE);
+}
+
+
+/**
+ * bt_sequence_remove_track_by_ix:
+ * @self: the #BtSequence that holds the tracks
+ * @track: the requested track index
+ *
+ * Removes the specified @track.
+ * 
+ * Returns: %TRUE for success
+ */
+gboolean bt_sequence_remove_track_by_ix(const BtSequence *self,gulong track) {
+  BtPattern **src,**dst;
+  gulong i,count;
+  glong other_track;
+
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  g_return_val_if_fail(track<self->priv->tracks,FALSE);
+  
+  count=(self->priv->tracks-1)-track;
+  GST_INFO("remove track %d/%d",track,self->priv->tracks);
+
+  src=&self->priv->patterns[track+1];
+  dst=&self->priv->patterns[track];
+  for(i=0;i<self->priv->length;i++) {
+    g_object_try_unref(*src);
+    if(count) {
+      memcpy(dst,src,count*sizeof(gpointer));
+    }
+    src=&src[self->priv->tracks];
+    dst=&dst[self->priv->tracks];
+  }
+  // disconnect signal handler if its the last of this machine
+  other_track=bt_sequence_get_track_by_machine(self,self->priv->machines[track]);
+  if(other_track==-1 || other_track==track) {
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->machines[track]),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA, 0, 0, NULL, bt_sequence_on_pattern_removed, (gpointer)self);
+  }
+  memcpy(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
+  g_object_set(G_OBJECT(self),"tracks",(gulong)(self->priv->tracks-1),NULL);
+  return(TRUE); 
+}
+
+/**
+ * bt_sequence_remove_track_by_machine:
+ * @self: the #BtSequence that holds the tracks
+ * @machine: the #BtMachine
+ *
+ * Removes all tracks that belong the the given @machine.
+ * 
+ * Returns: %TRUE for success
+ */
+gboolean bt_sequence_remove_track_by_machine(const BtSequence *self,const BtMachine *machine) {
+  gboolean res=TRUE;
+  glong track;
+
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
+  g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
+  
+  GST_INFO("remove track for machine %p",machine);
+
+  // do bt_sequence_remove_track_by_ix() for each occurance
+  while(((track=bt_sequence_get_track_by_machine(self,machine))>-1) && res) {
+    res=bt_sequence_remove_track_by_ix(self,(gulong)track);
+  }
+  return(res);
+}
+
+
 /**
  * bt_sequence_set_machine:
  * @self: the #BtSequence that holds the tracks
@@ -713,7 +834,8 @@ BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track) {
  *
  * Sets the #BtMachine for the respective @track.
  * This should only be done once for each track.
- */
+ * @todo: deprecate_me!
+ *
 void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine) {
   g_return_if_fail(BT_IS_SEQUENCE(self));
   g_return_if_fail(BT_IS_MACHINE(machine));
@@ -721,8 +843,6 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
 
   GST_INFO("set machine for track %d",track);
   
-  // @todo shouldn't we better make self->priv->tracks a readonly property and offer methods to insert/remove tracks
-  // as it should not be allowed to change the machine later on
   if(!self->priv->machines[track]) {
     self->priv->machines[track]=g_object_ref(G_OBJECT(machine));
     g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
@@ -731,6 +851,7 @@ void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtM
     GST_ERROR("machine has already be set!");
   }
 }
+*/
 
 /**
  * bt_sequence_get_label:
@@ -855,7 +976,7 @@ void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulo
  * @self: the #BtSequence of the song
  *
  * Calculates the length of one sequence bar in microseconds.
- * Divide it by G_USEC_PER_SEC to get it in milliseconds.
+ * Divide it by %G_USEC_PER_SEC to get it in milliseconds.
  *
  * Returns: the length of one sequence bar in microseconds
  */
@@ -889,7 +1010,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
  * @self: the #BtSequence of the song
  *
  * Calculates the length of the song loop in microseconds.
- * Divide it by G_USEC_PER_SEC to get it in milliseconds.
+ * Divide it by %G_USEC_PER_SEC to get it in milliseconds.
  *
  * Returns: the length of the song loop in microseconds
  *

@@ -1,4 +1,4 @@
-// $Id: song-io-native.c,v 1.111 2006-04-08 22:08:34 ensonic Exp $
+// $Id: song-io-native.c,v 1.112 2006-07-22 15:37:05 ensonic Exp $
 /**
  * SECTION:btsongionative
  * @short_description: class for song input and output in builtin native format
@@ -587,7 +587,7 @@ static gboolean bt_song_io_native_load_sequence_track_data(const BtSongIONative 
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
 
-  bt_sequence_set_machine(sequence,index,machine);
+  (sequence,index,machine);
   while(xml_node) {
     if((!xmlNodeIsText(xml_node)) && (!strncmp((char *)xml_node->name,"position\0",9))) {
       time_str=xmlGetProp(xml_node,XML_CHAR_PTR("time"));
