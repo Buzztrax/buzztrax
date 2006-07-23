@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.82 2006-07-22 15:37:05 ensonic Exp $
+// $Id: wire.c,v 1.83 2006-07-23 18:21:45 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -116,7 +116,7 @@ static void bt_wire_activate_analyzers(BtWire *self) {
   
   if(!self->priv->analyzers) return;
 
-  GST_INFO("add analyzers");
+  GST_INFO("add analyzers (%d elements)",g_list_length(self->priv->analyzers));
   prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
@@ -144,7 +144,7 @@ static void bt_wire_deactivate_analyzers(BtWire *self) {
 
   if(!self->priv->analyzers) return;
 
-  GST_INFO("remove analyzers");
+  GST_INFO("remove analyzers (%d elements)",g_list_length(self->priv->analyzers));
   prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);

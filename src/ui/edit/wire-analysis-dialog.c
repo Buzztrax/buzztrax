@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.3 2006-07-22 15:37:06 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.4 2006-07-23 18:21:46 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -21,7 +21,10 @@ enum {
  * panorama (spacescope)
  */
 typedef enum {
-  ANALYZER_LEVEL=0,
+  // needed to buffer
+  ANALYZER_QUEUE=0,
+  // real analyzers
+  ANALYZER_LEVEL,
   ANALYZER_SPECTRUM,
   // this can be 'mis'used for an aoszilloscope by connecting to hand-off
   ANALYZER_FAKESINK,
@@ -114,13 +117,15 @@ static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpoint
 static gboolean on_wire_analyzer_redraw(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   
-  // TODO: draw
+  //GST_DEBUG("redraw analyzers");
+  // draw levels
   if (self->priv->level_drawingarea) {
     GdkRectangle rect = { 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT };
     GtkWidget *da=self->priv->level_drawingarea;
     
     gdk_window_begin_paint_rect (da->window, &rect);
     gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
+    // @todo: draw levels
     //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms[i]*10.0), (gint)(peak[i]*10.0));
     gdk_window_end_paint (da->window);
   }
@@ -211,6 +216,9 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
    
   // create fakesink
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_FAKESINK,"fakesink")) return(FALSE);
+  g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_FAKESINK]),
+      "sync", FALSE, "qos", FALSE, "silent", TRUE,
+      NULL);
   // create spectrum analyzer
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_SPECTRUM,"spectrum")) return(FALSE);
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
@@ -222,13 +230,27 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
       "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
       "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 20.0,
       NULL);
+  // create queue
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_QUEUE,"queue")) return(FALSE);
   
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",self->priv->analyzers_list,NULL);
    
   bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change,(gpointer)self);
   
   // add idle-handler that redraws gfx
-  self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_wire_analyzer_redraw,(gpointer)self,NULL);
+  self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,on_wire_analyzer_redraw,(gpointer)self,NULL);
+  
+  // DEBUG
+  /*
+  {
+    BtSong *song;
+    
+    g_object_get(self->priv->app,"song",&song,NULL);
+    bt_song_write_to_dot_file(song);
+    g_object_unref(song);
+  }
+  */
+  // DEBUG
   
   g_object_try_unref(main_window);
   return(TRUE);
@@ -327,6 +349,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
   // this destroys the analyzers too  
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
+  g_list_free(self->priv->analyzers_list);
     
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);

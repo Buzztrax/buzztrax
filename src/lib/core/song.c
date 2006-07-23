@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.129 2006-06-21 16:16:39 ensonic Exp $
+// $Id: song.c,v 1.130 2006-07-23 18:21:45 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -365,7 +365,9 @@ gboolean bt_song_play(const BtSong *self) {
     return(FALSE);
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    GST_INFO("->PAUSED needs async wait");
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
     GST_INFO("->PAUSED state change after async-wait returned %d",res);
   }
   
@@ -377,6 +379,7 @@ gboolean bt_song_play(const BtSong *self) {
   }
   
   // send tags
+  GST_DEBUG("about to send metadata");
   g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
   it=gst_bin_iterate_all_by_interface(self->priv->bin,GST_TYPE_TAG_SETTER);
   done=FALSE;
@@ -414,11 +417,17 @@ gboolean bt_song_play(const BtSong *self) {
   */
 
   // start playback
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
+  res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+  GST_INFO("->PLAYING state change returned %d",res);
+  if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to playing state");
     return(FALSE);
   }
-  GST_INFO("->PLAYING state change returned %d",res);
+  else if(res==GST_STATE_CHANGE_ASYNC) {
+    GST_INFO("->PLAYING needs async wait");
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    GST_INFO("->PLAYING state change after async-wait returned %d",res);
+  }
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
 
@@ -443,11 +452,11 @@ gboolean bt_song_stop(const BtSong *self) {
 
   GST_INFO("stopping playback");
   
-  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
-    GST_WARNING("can't go to null state");
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to ready state");
     return(FALSE);
   }
-  GST_DEBUG("state change returned %d",res);
+  GST_DEBUG("->READY state change returned %d",res);
   
   self->priv->is_playing=FALSE;
   g_object_notify(G_OBJECT(self),"is-playing");
@@ -847,6 +856,7 @@ static void bt_song_set_property(GObject      *object,
 
 static void bt_song_dispose(GObject *object) {
   BtSong *self = BT_SONG(object);
+  GstStateChangeReturn res;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -859,6 +869,11 @@ static void bt_song_dispose(GObject *object) {
   
   if(self->priv->is_playing) bt_song_stop(self);
   else if(self->priv->is_idle) bt_song_idle_stop(self);
+
+  if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to null state");
+  }
+  GST_DEBUG("->NULL state change returned %d",res);
   
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_start_changed,NULL);

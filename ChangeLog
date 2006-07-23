@@ -1,3 +1,14 @@
+2006-07-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (bt_song_play), (bt_song_stop),
+	(bt_song_dispose):
+	* src/lib/core/wire.c: (bt_wire_activate_analyzers),
+	(bt_wire_deactivate_analyzers):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_redraw),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose):
+          better song state change handling, add queue before analyzers
+
 2006-07-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:
