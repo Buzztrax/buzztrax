@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.130 2006-07-23 18:21:45 ensonic Exp $
+// $Id: song.c,v 1.131 2006-07-25 20:08:27 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -79,16 +79,26 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper
 
+/*
+ * bt_song_seek_to_play_pos:
+ * @self: #BtSong to seek
+ *
+ * Send a new playback segment, that goes from the current playback position to
+ * the new end position (loop or song end).
+ */
 static void bt_song_seek_to_play_pos(BtSong *self) {
 	GstEvent *event;
 	gboolean loop;
-	glong loop_start,loop_end,length;
+	glong loop_end,length;
 	GstClockTime bar_time;
 
 	if(!self->priv->is_playing) return;
 	
-	g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
+	g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
 	bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+  
+  GST_DEBUG("loop %d? %ld, length %ld, bar_time %"G_GINT64_FORMAT,loop,loop_end,length,bar_time);
+  
 	if (loop) {
 		event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
 				GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
@@ -106,6 +116,15 @@ static void bt_song_seek_to_play_pos(BtSong *self) {
 	}
 }
 
+/*
+ * bt_song_seek_to_play_pos:
+ * @self: #BtSong to seek
+ * @first: first time invocations (do not need to flush)
+ * 
+ * Prepares a new playback segment, that goes from the new start position (loop
+ * or song start) to the new end position (loop or song end).
+ * Also calls bt_song_seek_to_play_pos() to update the current playback segment.
+ */
 static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
   gboolean loop;
   glong loop_start,loop_end,length;
@@ -114,6 +133,9 @@ static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
   bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+  
+  GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"G_GINT64_FORMAT,loop,loop_start,loop_end,length,bar_time);
+  
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   flags=first?0L:GST_SEEK_FLAG_FLUSH;
   if (loop) {
@@ -128,9 +150,7 @@ static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
-  /* @todo if playing -> send event
-   * the update needs to take the current play-position into account
-   */
+  /* the update needs to take the current play-position into account */
 	bt_song_seek_to_play_pos(self);
 }
 

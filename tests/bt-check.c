@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.20 2006-01-16 21:39:25 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.21 2006-07-25 20:08:27 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -772,3 +772,18 @@ void check_shutdown_test_server(void) {
   }
 #endif
 }
+
+// gtk+ gui screenshooter
+
+/*
+
+void check_make_widget_screenshot(GtkWidget *widget) {
+
+  window = self.widget.window
+  (x,y,width,height,depth) = window.get_geometry()
+  pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,width,height)
+  pixbuf.get_from_drawable(window,self.widget.get_colormap(),0,0,0,0,width,height)
+  pixbuf.save("screenshot.png","png")
+  pixbuf = pixbuf.scale_simple(width*0.75, height*0.75, gdk.INTERP_HYPER)
+}
+*/

@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.83 2006-07-23 18:21:45 ensonic Exp $
+// $Id: wire.c,v 1.84 2006-07-25 20:08:27 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -284,22 +284,25 @@ static void bt_wire_unlink_machines(const BtWire *self) {
   GstElement **machines=self->priv->machines;
 
   g_assert(BT_IS_WIRE(self));
-
-  GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
-  /*if(machines[PART_CONVERT] && machines[PART_SCALE]) {
-    gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
-  }
-  else*/
-  if(machines[PART_CONVERT]) {
-    gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], self->priv->dst->dst_elem, NULL);
-  }
-  /*
-  else if(machines[PART_SCALE]) {
-    gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
-  }
-  */
-  else {
-    gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], self->priv->dst->dst_elem, NULL);
+  
+  // check if wire has been properly initialized
+  if(self->priv->src->src_elem && self->priv->dst->dst_elem && machines[PART_TEE] && machines[PART_GAIN]) {
+    GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
+    /*if(machines[PART_CONVERT] && machines[PART_SCALE]) {
+      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
+    }
+    else*/
+    if(machines[PART_CONVERT]) {
+      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], self->priv->dst->dst_elem, NULL);
+    }
+    /*
+    else if(machines[PART_SCALE]) {
+      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
+    }
+    */
+    else {
+      gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], self->priv->dst->dst_elem, NULL);
+    }
   }
   if(machines[PART_CONVERT]) {
     GST_DEBUG("  removing convert from bin, obj->ref_count=%d",G_OBJECT(machines[PART_CONVERT])->ref_count);

@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.13 2006-07-22 15:37:06 ensonic Exp $
+/* $Id: e-sequence.c,v 1.14 2006-07-25 20:08:27 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -135,6 +135,7 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   BtApplication *app=NULL;
   BtSong *song;
   BtSequence *sequence;
+  BtMachine *machine;
   gulong tracks;
 
   /* create a dummy app */
@@ -143,15 +144,21 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
+  /* create a source machine */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0));
+  fail_unless(machine!=NULL, NULL);
   
   /* now tracks should be 0 */
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==0, NULL);
 
   /* try to enlarge tracks */
-  g_object_set(sequence,"tracks",16L,NULL);
+  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine);
+  bt_sequence_add_track(sequence,machine);
   g_object_get(sequence,"tracks",&tracks,NULL);
-  fail_unless(tracks==16, NULL);
+  fail_unless(tracks==4, NULL);
   
   /* clean up */
   g_object_try_unref(sequence);
@@ -367,7 +374,7 @@ BT_START_TEST(test_btsequence_update) {
   fail_unless(pattern1!=NULL, NULL);
 
   /* enlarge length */
-  g_object_set(sequence,"length",4L,"tracks",1L,NULL);
+  g_object_set(sequence,"length",4L,NULL);
 
   /* set machine */
   bt_sequence_add_track(sequence,machine);

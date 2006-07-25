@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.108 2006-07-22 15:37:05 ensonic Exp $
+// $Id: sequence.c,v 1.109 2006-07-25 20:08:27 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -987,6 +987,8 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence *self) {
   gulong beats_per_minute,ticks_per_beat,ticks_per_minute;
 
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+  
+  GST_DEBUG("getting songs bar-time");
 
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);

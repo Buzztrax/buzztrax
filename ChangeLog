@@ -1,3 +1,17 @@
+2006-07-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c: (bt_sequence_get_bar_time):
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event):
+	* src/lib/core/wire.c: (bt_wire_unlink_machines):
+	* tests/bt-check.c:
+	* tests/lib/core/e-sequence.c: (BT_START_TEST):
+	* tests/lib/core/t-sequence.c: (BT_START_TEST):
+	* tests/lib/core/t-setup.c: (BT_START_TEST):
+          more docs in song.c, unit-test fixes after recent sequence api
+          changes, more debug logs in song.c/sequence.c
+
+
 2006-07-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (bt_song_play), (bt_song_stop),

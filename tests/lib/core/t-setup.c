@@ -1,4 +1,4 @@
-/* $Id: t-setup.c,v 1.31 2006-02-17 08:37:19 ensonic Exp $
+/* $Id: t-setup.c,v 1.32 2006-07-25 20:08:27 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -697,7 +697,6 @@ BT_START_TEST(test_btsetup_obj14) {
   bt_setup_remove_wire(setup,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }

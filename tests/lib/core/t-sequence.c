@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.18 2006-07-22 15:37:06 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.19 2006-07-25 20:08:27 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -180,7 +180,7 @@ BT_START_TEST(test_btsequence_pattern1) {
   BtSong *song;
   BtSequence *sequence;
   BtMachine *machine;
-  BtPattern *pattern1,*pattern2,*pattern3;
+  BtPattern *pattern;
 
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -188,30 +188,23 @@ BT_START_TEST(test_btsequence_pattern1) {
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
-   /* create a source machine */
+  /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0));
   fail_unless(machine!=NULL, NULL);
   /* create a pattern */
-  pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
-  fail_unless(pattern1!=NULL, NULL);
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  fail_unless(pattern!=NULL, NULL);
 
   /* enlarge length & tracks */
-  g_object_set(sequence,"length",4L,"tracks",2L,NULL);
+  g_object_set(sequence,"length",4L,NULL);
 
-  /* get current pattern */
-  pattern2=bt_sequence_get_pattern(sequence,0,0);
-	
-  /* set pattern (which should be rejected - no machine has been set) */
-	check_init_error_trapp("bt_sequence_set_pattern","self->priv->machines[track]");
-  bt_sequence_set_pattern(sequence,0,0,pattern1);
+  /* set pattern (which should be rejected - no track has been added) */
+	check_init_error_trapp("bt_sequence_set_pattern","track<self->priv->tracks");
+  bt_sequence_set_pattern(sequence,0,0,pattern);
 	fail_unless(check_has_error_trapped(), NULL);
 	
-  /* get pattern again and verify that it has not been changed*/
-  pattern3=bt_sequence_get_pattern(sequence,0,0);
-  fail_unless(pattern2==pattern3, NULL);
-
   /* clean up */
-  g_object_try_unref(pattern1);
+  g_object_try_unref(pattern);
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
@@ -241,10 +234,10 @@ BT_START_TEST(test_btsequence_pattern2) {
   pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine1);
   fail_unless(pattern1!=NULL, NULL);
 
-  /* enlarge length & tracks */
-  g_object_set(sequence,"length",4L,"tracks",2L,NULL);
+  /* enlarge length*/
+  g_object_set(sequence,"length",4L,NULL);
 
-  /* set machines */
+  /* add tracks */
   bt_sequence_add_track(sequence,machine1);
   bt_sequence_add_track(sequence,machine2);
 
