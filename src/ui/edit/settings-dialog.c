@@ -1,4 +1,4 @@
-// $Id: settings-dialog.c,v 1.25 2006-06-21 16:16:39 ensonic Exp $
+// $Id: settings-dialog.c,v 1.26 2006-07-27 20:16:37 ensonic Exp $
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
@@ -75,6 +75,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter tree_iter;
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("buzztard settings"));
   
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   gtk_window_set_title(GTK_WINDOW(self), _("buzztard settings"));

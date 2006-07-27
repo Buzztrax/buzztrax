@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.75 2006-06-21 16:16:39 ensonic Exp $
+// $Id: main-window.c,v 1.76 2006-07-27 20:16:37 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -171,6 +171,8 @@ static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer us
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
   
   self->priv->accel_group=gtk_accel_group_new();
   

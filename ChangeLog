@@ -1,3 +1,27 @@
+2006-07-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_dispose):
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_init_ui):
+	* tests/Makefile.am:
+	* tests/bt-check.c: (check_setup_test_server),
+	(check_make_widget_screenshot):
+	* tests/bt-check.h:
+	* tests/bt-cmd-encode.sh:
+	* tests/lib/core/Makefile.am:
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/cmd/t-bt-cmd-application.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+          check xfont-path during configure to make the GUI tests work,
+          fix more gui/cmd tests and reenable them, better wire-analyzer layout
+
 2006-07-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c: (bt_sequence_get_bar_time):

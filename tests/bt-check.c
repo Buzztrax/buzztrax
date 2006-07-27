@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.21 2006-07-25 20:08:27 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.22 2006-07-27 20:16:38 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -7,8 +7,6 @@
 #include "bt-check.h"
 #include <sys/types.h>
 #include <signal.h>
-//-- gtk/gdk
-#include <gdk/gdk.h>
 
 /*
  * error trapping:
@@ -638,7 +636,9 @@ void check_setup_test_server(void) {
     ":9",
     "-ac",
     "-nolisten","tcp",
-		"-fp","/usr/share/fonts/misc",
+    // @todo: xset q | grep fonts
+    "-fp", XFONT_PATH, /*"/usr/X11R6/lib/X11/fonts/misc"*/
+		/*"-fp","/usr/share/fonts/misc",*/
     /*"-reset",
     "-terminate",*/
     "-screen","0","1024x786x16",
@@ -776,14 +776,33 @@ void check_shutdown_test_server(void) {
 // gtk+ gui screenshooter
 
 /*
-
+ * check_make_widget_screenshot:
+ * @widget: a #GtkWidget to screenshoot
+ *
+ * 
+ */
 void check_make_widget_screenshot(GtkWidget *widget) {
+  GdkColormap *colormap=gdk_colormap_get_system();
+  GdkWindow *window=widget->window;
+  GdkPixbuf *pixbuf, *scaled_pixbuf;
+  gint wx,wy,ww,wh;
+  gchar *filename;
+  
+  g_return_if_fail(GTK_IS_WIDGET(widget));
 
-  window = self.widget.window
-  (x,y,width,height,depth) = window.get_geometry()
-  pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,False,8,width,height)
-  pixbuf.get_from_drawable(window,self.widget.get_colormap(),0,0,0,0,width,height)
-  pixbuf.save("screenshot.png","png")
-  pixbuf = pixbuf.scale_simple(width*0.75, height*0.75, gdk.INTERP_HYPER)
+  // make sure the window gets drawn  
+  while(gtk_events_pending()) gtk_main_iteration();
+  
+  filename=g_strdup_printf("/tmp/%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget));
+
+  gdk_window_get_geometry(window,&wx,&wy,&ww,&wh,NULL);
+  pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,ww,wh);
+  gdk_pixbuf_get_from_drawable(pixbuf,window,colormap,0,0,0,0,ww,wh);
+  scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
+  gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
+
+  g_object_unref(pixbuf);
+  g_object_unref(scaled_pixbuf);
+  g_object_unref(colormap);
+  g_free(filename);
 }
-*/

@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.83 2006-07-22 15:37:06 ensonic Exp $
+// $Id: main-toolbar.c,v 1.84 2006-07-27 20:16:37 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -602,8 +602,10 @@ static void bt_main_toolbar_dispose(GObject *object) {
   bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change);
 	
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
-  g_object_unref(song);
+  if(song) {
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+    g_object_unref(song);
+  }
 
   if(self->priv->gain) gst_object_unref(self->priv->gain);
   

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.75 2006-06-21 16:16:39 ensonic Exp $
+# $Id: configure.ac,v 1.76 2006-07-27 20:16:37 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -75,6 +75,8 @@ AM_PROG_CC_STDC
 AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then
   AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
+  xfont_path=`xset q | grep fonts | sed 's/^\ *//'`
+  AC_DEFINE_UNQUOTED(XFONT_PATH, "$xfont_path", [X font path])
 fi
 
 # Initialise gettext

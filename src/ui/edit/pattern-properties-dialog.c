@@ -1,4 +1,4 @@
-// $Id: pattern-properties-dialog.c,v 1.12 2006-04-09 12:20:45 ensonic Exp $
+// $Id: pattern-properties-dialog.c,v 1.13 2006-07-27 20:16:37 ensonic Exp $
 /**
  * SECTION:btpatternpropertiesdialog
  * @short_description: 
@@ -93,6 +93,8 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   //GdkPixbuf *window_icon=NULL;
   GList *buttons;
 
+  gtk_widget_set_name(GTK_WIDGET(self),_("pattern properties"));
+  
   // create and set window icon
   /* e.v. tab_pattern.png
   if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {

@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.9 2005-09-14 10:16:35 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.10 2006-07-27 20:16:38 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -36,6 +36,10 @@ BT_START_TEST(test_create_dialog) {
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));
+  
+  // make screenshot
+  check_make_widget_screenshot(GTK_WIDGET(dialog));
+  
   gtk_widget_destroy(dialog);
   
   // close window

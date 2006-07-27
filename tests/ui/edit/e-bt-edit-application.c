@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.13 2005-09-14 10:16:35 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.14 2006-07-27 20:16:38 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -45,21 +45,26 @@ BT_START_TEST(test_create_app) {
   // close window
   g_object_unref(main_window);
   GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
+  
+  // make screenshot
+  check_make_widget_screenshot(GTK_WIDGET(main_window));
 
   // needs a main-loop (version 1,2)
   gtk_widget_destroy(GTK_WIDGET(main_window));
   // version 1
   while(gtk_events_pending()) gtk_main_iteration();
-  //GST_INFO("mainlevel is %d",gtk_main_level());
-  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+  /*
+  GST_INFO("mainlevel is %d",gtk_main_level());
+  while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
   // after this loop the window should be gone
   
   // version 2 (makes the window visible :( )
-  //g_timeout_add(2000,timeout,main_window);
-  //gtk_main();
+  g_timeout_add(2000,timeout,main_window);
+  gtk_main();
 
   // version 3 (does not work)
-  //g_object_checked_unref(main_window);
+  g_object_checked_unref(main_window);
+  */
   
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
@@ -91,6 +96,7 @@ BT_START_TEST(test_new1) {
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
+
   // close window
   g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));

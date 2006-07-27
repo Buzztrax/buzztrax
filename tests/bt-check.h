@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.12 2006-01-16 21:39:25 ensonic Exp $
+/* $Id: bt-check.h,v 1.13 2006-07-27 20:16:38 ensonic Exp $
  * testing helpers
  */
 
@@ -13,6 +13,9 @@
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
+//-- gtk/gdk
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
 //-- gstreamer
 #include <gst/gst.h>
 //-- buzztard
@@ -70,5 +73,7 @@ extern void check_setup_test_server(void);
 extern void check_setup_test_display(void);
 extern void check_shutdown_test_display(void);
 extern void check_shutdown_test_server(void);
+
+extern void check_make_widget_screenshot(GtkWidget *widget);
 
 #endif /* BT_CHECK_H */

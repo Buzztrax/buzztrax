@@ -1,4 +1,4 @@
-/* $Id: t-bt-cmd-application.c,v 1.6 2005-09-27 17:59:16 ensonic Exp $ 
+/* $Id: t-bt-cmd-application.c,v 1.7 2006-07-27 20:16:38 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -28,8 +28,12 @@ BT_START_TEST(test_play1) {
   
   app=bt_cmd_application_new(FALSE);
   fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
+  
+  check_init_error_trapp("bt_cmd_application_play","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_play(app, NULL);
+  fail_unless(check_has_error_trapped(), NULL);
   fail_unless(ret==FALSE, NULL);
+  
   g_object_get(G_OBJECT(app),"bin",&bin,"settings",&settings,NULL);
   fail_unless(bin!=NULL, NULL);
   fail_unless(settings!=NULL, NULL);
@@ -44,7 +48,10 @@ BT_START_TEST(test_play2) {
   gboolean ret=FALSE;
   
   app=bt_cmd_application_new(FALSE);
+  
+  check_init_error_trapp("bt_cmd_application_play","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_play(app, "");
+  fail_unless(check_has_error_trapped(), NULL);
   fail_unless(ret==FALSE, NULL);
   // free application
   g_object_checked_unref(app);
@@ -58,7 +65,10 @@ BT_START_TEST(test_info1) {
   gboolean ret=FALSE;
   
   app=bt_cmd_application_new(FALSE);
+  
+  check_init_error_trapp("bt_cmd_application_info","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_info(app, NULL, NULL);
+  fail_unless(check_has_error_trapped(), NULL);
   fail_unless(ret==FALSE, NULL);
   // free application
   g_object_checked_unref(app);
@@ -72,7 +82,10 @@ BT_START_TEST(test_info2) {
   gboolean ret=FALSE;
   
   app=bt_cmd_application_new(FALSE);
+  
+  check_init_error_trapp("bt_cmd_application_info","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_info(app, "", NULL);
+  fail_unless(check_has_error_trapped(), NULL);
   fail_unless(ret==FALSE, NULL);
   // free application
   g_object_checked_unref(app);

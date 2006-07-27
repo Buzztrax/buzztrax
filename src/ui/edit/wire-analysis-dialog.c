@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.4 2006-07-23 18:21:46 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.5 2006-07-27 20:16:37 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -212,6 +212,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_widget_set_size_request (self->priv->level_drawingarea, LEVEL_WIDTH, LEVEL_HEIGHT);
   gtk_container_add (GTK_CONTAINER (vbox), self->priv->level_drawingarea);
 
+  gtk_container_set_border_width(GTK_CONTAINER (self), 6);
   gtk_container_add (GTK_CONTAINER (self), vbox);
    
   // create fakesink
