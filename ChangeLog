@@ -1,5 +1,11 @@
 2006-07-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/Makefile.am:
+	* xmldocs.make:
+          fix #1530418 by making scrollkeeper usage conditional
+
+2006-07-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/t-pattern.c:
           document test
 

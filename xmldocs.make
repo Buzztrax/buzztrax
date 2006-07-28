@@ -45,6 +45,8 @@ xml_files = $(entities) $(docname).xml
 EXTRA_DIST = $(xml_files) $(omffile)
 CLEANFILES = omf_timestamp
 
+if ENABLE_SCROLLKEEPER
+
 # If the following file is in a subdir (like help/) you need to add that to the path
 include $(top_srcdir)/omf.make
 
@@ -55,6 +57,8 @@ $(docname).xml: $(entities)
 	cd $(srcdir);   \
 	cp $(entities) $$ourdir
 
+endif
+
 app-dist-hook:
 	if test "$(figdir)"; then \
 	  $(mkinstalldirs) $(distdir)/$(figdir); \
@@ -63,6 +67,8 @@ app-dist-hook:
 	    $(INSTALL_DATA) $$file $(distdir)/$(figdir)/$$basefile; \
 	  done \
 	fi
+
+if ENABLE_SCROLLKEEPER
 
 install-data-local: omf
 	$(mkinstalldirs) $(DESTDIR)$(docdir)
@@ -94,3 +100,4 @@ uninstall-local-doc:
 	done
 	-rmdir $(DESTDIR)$(docdir)
 
+endif
