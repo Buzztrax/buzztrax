@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.84 2006-06-21 16:16:39 ensonic Exp $
+// $Id: pattern.c,v 1.85 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -868,7 +868,7 @@ static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlNodeP
   length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
   length=length_str?atol((char *)length_str):0;
   g_object_set(G_OBJECT(self),"id",id,"name",name,"length",length,NULL);
-  xmlFree(id);xmlFree(name);
+  xmlFree(id);xmlFree(name);xmlFree(length_str);
   
   if(!bt_pattern_init_data(self)) {
     GST_WARNING("Can't init pattern data");

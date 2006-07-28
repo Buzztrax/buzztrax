@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.79 2006-06-21 16:16:39 ensonic Exp $
+// $Id: main-page-machines.c,v 1.80 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -605,6 +605,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
       if(self->priv->connecting) {
         if(!self->priv->moved) {
+          // @todo: do we leak the cursor here [gdk_cursor_unref(fleur)];
           fleur=gdk_cursor_new(GDK_FLEUR);
           gnome_canvas_item_grab(self->priv->new_wire, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */

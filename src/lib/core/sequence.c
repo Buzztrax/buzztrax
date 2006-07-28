@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.109 2006-07-25 20:08:27 ensonic Exp $
+// $Id: sequence.c,v 1.110 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -834,7 +834,7 @@ gboolean bt_sequence_remove_track_by_machine(const BtSequence *self,const BtMach
  *
  * Sets the #BtMachine for the respective @track.
  * This should only be done once for each track.
- * @todo: deprecate_me!
+ * @deprecated: use bt_sequence_add_track()
  *
 void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine) {
   g_return_if_fail(BT_IS_SEQUENCE(self));

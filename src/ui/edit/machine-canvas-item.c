@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.65 2006-06-21 16:16:39 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.66 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -841,6 +841,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
           g_object_get(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",&bg_color,NULL);
           bg_color&=0xFFFFFF7F;
           gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",bg_color,NULL);
+          // @todo: do we leak the cursor here [gdk_cursor_unref(fleur)];
           fleur=gdk_cursor_new(GDK_FLEUR);
           gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */

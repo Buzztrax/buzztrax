@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.116 2006-07-22 15:37:06 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.117 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -880,8 +880,9 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     if(GTK_IS_LABEL(label)) {
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
     }
-    g_list_free(widgets);
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
+    g_list_free(widgets);
+    g_free(str);
   }
   g_list_free(list);
 }

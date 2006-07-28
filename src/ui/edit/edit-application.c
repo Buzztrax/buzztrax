@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.73 2006-04-08 22:08:35 ensonic Exp $
+// $Id: edit-application.c,v 1.74 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -199,7 +199,6 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
       
-    cursor=gdk_cursor_new(GDK_WATCH);
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
@@ -242,6 +241,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     }  
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
+    gdk_cursor_unref(cursor);
     g_object_unref(song);
     g_object_unref(loader);
   }
@@ -269,7 +269,6 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
       
-    cursor=gdk_cursor_new(GDK_WATCH);
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
@@ -286,6 +285,7 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
 
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
+    gdk_cursor_unref(cursor);
     g_object_unref(saver);
   }
   return(res);

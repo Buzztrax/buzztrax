@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.89 2006-06-21 16:16:39 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.90 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1228,6 +1228,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   GtkTreeSelection *tree_sel;
   GtkAdjustment *vadjust;
   gint i;
+  gchar oct_str[2];
   
   GST_DEBUG("!!!! self=%p",self);
   
@@ -1301,7 +1302,8 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->base_octave_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
   for(i=0;i<8;i++) {
-    gtk_combo_box_append_text(self->priv->base_octave_menu,g_strdup_printf("%1d",i));
+    sprintf(oct_str,"%1d",i);
+    gtk_combo_box_append_text(self->priv->base_octave_menu,oct_str);
   }
   gtk_combo_box_set_active(self->priv->base_octave_menu,3);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Octave")),FALSE,FALSE,2);

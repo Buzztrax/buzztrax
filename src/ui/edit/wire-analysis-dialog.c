@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.5 2006-07-27 20:16:37 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.6 2006-07-28 20:27:57 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -66,6 +66,13 @@ static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
 
+/*
+ * on_wire_analyzer_change:
+ *
+ * #GstBus handler that listens for new data from analyzers and stores them away
+ * for on_wire_analyzer_redraw().
+ */
+
 static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   gboolean res=FALSE;
@@ -84,10 +91,21 @@ static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpoint
         l_rms=(GValue *)gst_structure_get_value(structure, "rms");
         l_peak=(GValue *)gst_structure_get_value(structure, "peak");
         //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-        for(i=0;i<gst_value_list_get_size(l_rms);i++) {
-          self->priv->rms[i]=g_value_get_double(gst_value_list_get_value(l_rms,i));
-          self->priv->peak[i]=g_value_get_double(gst_value_list_get_value(l_peak,i));
-          //GST_INFO("level.%d  %.3f %.3f", i, self->priv->rms[i], self->priv->peak[i]);
+        // size of list is number of channels
+        switch(gst_value_list_get_size(l_rms)) {
+          case 1:
+              self->priv->rms[0]=g_value_get_double(gst_value_list_get_value(l_rms,0));
+              self->priv->rms[1]=self->priv->rms[0];
+              self->priv->peak[0]=g_value_get_double(gst_value_list_get_value(l_peak,0));
+              self->priv->peak[1]=self->priv->peak[0];
+            break;
+          case 2:
+            for(i=0;i<2;i++) {
+              self->priv->rms[i]=g_value_get_double(gst_value_list_get_value(l_rms,i));
+              self->priv->peak[i]=g_value_get_double(gst_value_list_get_value(l_peak,i));
+              //GST_INFO("level.%d  %.3f %.3f", i, self->priv->rms[i], self->priv->peak[i]);
+            }
+            break;
         }
         res=TRUE;
       }
@@ -112,8 +130,13 @@ static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpoint
   return(res);
 }
 
-//-- helper methods
-
+/*
+ * on_wire_analyzer_redraw:
+ * @user_data: conatins the self pointer
+ *
+ * Called as idle function to repaint the analyzers. Data is gathered by
+ * on_wire_analyzer_change()
+ */
 static gboolean on_wire_analyzer_redraw(gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   
@@ -122,11 +145,12 @@ static gboolean on_wire_analyzer_redraw(gpointer user_data) {
   if (self->priv->level_drawingarea) {
     GdkRectangle rect = { 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT };
     GtkWidget *da=self->priv->level_drawingarea;
+    gint middle=LEVEL_WIDTH>>1;
     
     gdk_window_begin_paint_rect (da->window, &rect);
     gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
-    // @todo: draw levels
     //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms[i]*10.0), (gint)(peak[i]*10.0));
+    gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, middle-self->priv->rms[0], 0, self->priv->rms[0]+self->priv->rms[1], LEVEL_HEIGHT);
     gdk_window_end_paint (da->window);
   }
 
@@ -145,6 +169,8 @@ static gboolean on_wire_analyzer_redraw(gpointer user_data) {
   }
   return(TRUE);
 }
+
+//-- helper methods
 
 /*
  * bt_wire_analysis_dialog_make_element:

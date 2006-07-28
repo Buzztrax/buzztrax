@@ -1,6 +1,23 @@
 2006-07-28  Stefan Kost  <ensonic@users.sf.net>
 
-	reviewed by: <delete if not using a buddy>
+	* design/gst/registry.c: (bt_plugin_feature_check), (main):
+          new test example
+	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
+	* src/lib/core/sequence.c:
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song),
+	(bt_edit_application_save_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_event):
+	* src/ui/edit/main-page-machines.c: (on_canvas_event):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_init_ui):
+	* src/ui/edit/main-page-sequence.c: (machine_menu_refresh):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(on_wire_analyzer_redraw):
+          fix memory leaks, more doc-comments, prepare level-meter drawinf in
+          analyzer window
+
+2006-07-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/bt-check.c: (check_has_error_trapped):
           fix #1530308 by always returning TRUE in check_has_error_trapped() if
