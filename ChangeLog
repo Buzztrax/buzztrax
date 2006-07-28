@@ -1,5 +1,13 @@
 2006-07-28  Stefan Kost  <ensonic@users.sf.net>
 
+	reviewed by: <delete if not using a buddy>
+
+	* tests/bt-check.c: (check_has_error_trapped):
+          fix #1530308 by always returning TRUE in check_has_error_trapped() if
+          logging is not active
+
+2006-07-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/help/bt-edit/C/Makefile.am:
 	* xmldocs.make:
           fix #1530418 by making scrollkeeper usage conditional

@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.22 2006-07-27 20:16:38 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.23 2006-07-28 18:11:32 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -21,6 +21,9 @@ static GLogLevelFlags __fatal_mask=0;
 // is set during setup_log_capture()
 static gchar *__log_file_name=NULL;
 
+/*
+ * Install a new error trap for function and output.
+ */
 void check_init_error_trapp(gchar *method, gchar *test) {
   __check_method=method;
   __check_test=test;
@@ -28,9 +31,18 @@ void check_init_error_trapp(gchar *method, gchar *test) {
   __fatal_mask=g_log_set_always_fatal(G_LOG_FATAL_MASK);
 }
 
+/*
+ * Check if the monitored log-output has been emitted.
+ * If Gstreamer has not been compiled using --gst-enable-debug, this returns
+ * %TRUE as there is no logoutput at all.
+ */
 gboolean check_has_error_trapped(void) {
   g_log_set_always_fatal(__fatal_mask);
+#ifndef GST_DISABLE_GST_DEBUG
   return(__check_error_trapped);
+#else
+  return(TRUE);
+#endif
 }
 
 
