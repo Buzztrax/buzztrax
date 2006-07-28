@@ -1,4 +1,4 @@
-/* $Id: t-pattern.c,v 1.7 2005-09-21 19:46:04 ensonic Exp $
+/* $Id: t-pattern.c,v 1.8 2006-07-28 17:39:47 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -18,6 +18,10 @@ static void test_teardown(void) {
 
 //-- tests
 
+/*
+ * try creating a pattern for a NULL machine, with an invalid id and an invalid
+ * name
+ */
 BT_START_TEST(test_btpattern_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
