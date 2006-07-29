@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.34 2006-07-22 15:37:06 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.35 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -43,7 +43,7 @@ struct _BtWireCanvasItemPrivate {
   /* source and dst machine canvas item */
   BtMachineCanvasItem *src,*dst;
   
-  /* the parts of the wire item */
+  /* the graphcal components */
   GnomeCanvasItem *line,*triangle;
   
   /* wire context_menu */

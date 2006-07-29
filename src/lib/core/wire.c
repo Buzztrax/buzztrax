@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.84 2006-07-25 20:08:27 ensonic Exp $
+// $Id: wire.c,v 1.85 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -127,6 +127,9 @@ static void bt_wire_activate_analyzers(BtWire *self) {
     if(!(res=gst_element_link(prev,next))) {
       GST_INFO("cannot link elements \"%s\" -> \"%s\"",gst_element_get_name(prev),gst_element_get_name(next));
     }
+    if(!(gst_element_sync_state_with_parent(next))) {
+      GST_INFO("cannot sync state for elements \"%s\"",gst_element_get_name(next));
+    }
     prev=next;
   }
 }
@@ -141,6 +144,7 @@ static void bt_wire_deactivate_analyzers(BtWire *self) {
   gboolean res=TRUE;
   GList* node;
   GstElement *prev,*next;
+  GstStateChangeReturn state_ret;
 
   if(!self->priv->analyzers) return;
 
@@ -149,6 +153,9 @@ static void bt_wire_deactivate_analyzers(BtWire *self) {
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
     
+    if((state_ret=gst_element_set_state(next,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
+      GST_INFO("cannot set state to NULL for element \"%s\", ret=%d",gst_element_get_name(next),state_ret);
+    }
     gst_element_unlink(prev,next);
     prev=next;
   }

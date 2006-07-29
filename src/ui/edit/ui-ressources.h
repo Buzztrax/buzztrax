@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.h,v 1.5 2006-02-17 08:19:57 ensonic Exp $
+/* $Id: ui-ressources.h,v 1.6 2006-07-29 19:55:06 ensonic Exp $
  * singleton class that hold shared ui ressources
  */
 
@@ -58,6 +58,7 @@ typedef enum {
   BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      /* list view even */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* machine title */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
+  BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer widnow peak marks */
   BT_UI_RES_COLOR_COUNT
 } BtUIRessourcesColors;
 

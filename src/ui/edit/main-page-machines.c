@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.80 2006-07-28 20:27:57 ensonic Exp $
+// $Id: main-page-machines.c,v 1.81 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -56,7 +56,10 @@ struct _BtMainPageMachinesPrivate {
   /* interaction state */
   gboolean connecting,moved;
   gdouble offx,offy,dragx,dragy;
-  
+
+  /* cursor for moving */
+  GdkCursor *drag_cursor;
+
   /* used for adding a new wire*/
   GnomeCanvasItem *new_wire;
   GnomeCanvasPoints *new_wire_points;
@@ -540,7 +543,6 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
-  GdkCursor *fleur;
   GnomeCanvasItem *ci,*pci;
   gdouble mouse_x,mouse_y;
   gchar *color;
@@ -605,12 +607,10 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       //GST_DEBUG("GDK_MOTION_NOTIFY: %f,%f",event->button.x,event->button.y);
       if(self->priv->connecting) {
         if(!self->priv->moved) {
-          // @todo: do we leak the cursor here [gdk_cursor_unref(fleur)];
-          fleur=gdk_cursor_new(GDK_FLEUR);
           gnome_canvas_item_grab(self->priv->new_wire, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */
                                 /* GDK_LEAVE_NOTIFY_MASK | */
-          GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);
+          GDK_BUTTON_RELEASE_MASK, self->priv->drag_cursor, event->button.time);
         }
         // handle setting the coords of the connection line
         gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
@@ -1016,6 +1016,8 @@ static void bt_main_page_machines_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->grid_density_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
+  gdk_cursor_unref(self->priv->drag_cursor);
+
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
@@ -1038,6 +1040,9 @@ static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class
   
   self->priv->machines=g_hash_table_new(g_direct_hash,g_direct_equal);
   self->priv->wires=g_hash_table_new(g_direct_hash,g_direct_equal);
+
+  // the cursor for dragging
+  self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
 }
 
 static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {

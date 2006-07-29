@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.131 2006-07-25 20:08:27 ensonic Exp $
+// $Id: song.c,v 1.132 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -156,7 +156,7 @@ static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
 
 //-- handler
 
-static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
+static gboolean bt_song_bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
   gboolean res=FALSE;
   BtSong *self = BT_SONG(user_data);
   
@@ -240,7 +240,7 @@ BtSong *bt_song_new(const BtApplication *app) {
   if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
     goto Error;
   }
-  bt_application_add_bus_watch(app,bus_handler,(gpointer)self);
+  bt_application_add_bus_watch(app,GST_DEBUG_FUNCPTR(bt_song_bus_handler),(gpointer)self);
   gst_object_unref(bin);
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
@@ -899,6 +899,8 @@ static void bt_song_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_start_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
+  
+  bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler);
   
   g_object_try_weak_unref(self->priv->master);
   g_object_try_unref(self->priv->song_info);

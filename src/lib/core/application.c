@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.54 2006-07-22 15:37:05 ensonic Exp $
+// $Id: application.c,v 1.55 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -66,10 +66,11 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   
   g_return_val_if_fail(GST_IS_BUS(bus),TRUE);
   
-  //GST_INFO("received bus messgage: '%s'",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
+  GST_INFO("received bus messgage: '%s', forwarding to %d handlers",gst_message_type_get_name(GST_MESSAGE_TYPE(message)),g_list_length(self->priv->bus_handlers));
   
   for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
+    GST_DEBUG("Calling %s(%p) ",GST_DEBUG_FUNCPTR_NAME(entry->handler),entry->user_data);
     handled=entry->handler(bus,message,entry->user_data);
   }
   if(!handled) {
@@ -152,10 +153,11 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,g
   g_return_if_fail(BT_IS_APPLICATION(self));
   g_return_if_fail(handler);
   
+  // check if handler is already connected
   for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
     if((entry->handler==handler) && (entry->user_data==user_data)) {
-      GST_WARNING("trying to register bus_watch again");
+      GST_WARNING("trying to register bus_watch \"%s\" again",GST_DEBUG_FUNCPTR_NAME(handler));
       return;
     }
   }
@@ -163,6 +165,7 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,g
   entry->handler=handler;
   entry->user_data=user_data;
   self->priv->bus_handlers=g_list_prepend(self->priv->bus_handlers,entry);
+  GST_INFO("bus_watch \"%s\" added",GST_DEBUG_FUNCPTR_NAME(handler));
 }
 
 /**
@@ -174,6 +177,7 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,g
  */
 void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handler) {
   BtBusWatchEntry *entry;
+  gboolean found=FALSE;
   GList* node;
   
   g_return_if_fail(BT_IS_APPLICATION(self));
@@ -184,8 +188,13 @@ void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handle
     if(entry->handler==handler) {
       self->priv->bus_handlers=g_list_remove(self->priv->bus_handlers,entry);
       g_free(entry);
+      found=TRUE;
+      GST_INFO("bus_watch \"%s\" removed",GST_DEBUG_FUNCPTR_NAME(handler));
       break;
     }
+  }
+  if(!found) {
+    GST_WARNING("failed to remove bus_watch \"%s\"",GST_DEBUG_FUNCPTR_NAME(handler));
   }
 }
 

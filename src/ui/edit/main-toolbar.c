@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.84 2006-07-27 20:16:37 ensonic Exp $
+// $Id: main-toolbar.c,v 1.85 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -370,7 +370,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
 
     g_assert(GST_IS_ELEMENT(level));
-    bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
+    bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),GST_DEBUG_FUNCPTR(on_song_level_change),(gpointer)self);
 
     // get the pad from the input-level and listen there for channel negotiation
     if((pad=gst_element_get_pad(level,"src"))) {

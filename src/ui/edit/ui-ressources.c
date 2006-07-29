@@ -1,4 +1,4 @@
-// $Id: ui-ressources.c,v 1.8 2006-04-09 12:20:45 ensonic Exp $
+// $Id: ui-ressources.c,v 1.9 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btuiressources
  * @short_description: common shared ui ressources like icons and colors
@@ -85,6 +85,9 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      0.80,0.80,1.00);
   MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        0.40,0.40,0.60);
   MAKE_COLOR(BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        0.20,0.20,0.50);
+  
+  // analyzer window
+  MAKE_COLOR(BT_UI_RES_COLOR_ANALYZER_PEAK,             1.00,0.75,0.00);
    
   // now allocate colors
   colormap=gdk_colormap_get_system();

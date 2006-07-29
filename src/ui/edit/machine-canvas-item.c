@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.66 2006-07-28 20:27:57 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.67 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -71,6 +71,9 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *label;
   GnomeCanvasItem *box;
   GnomeCanvasItem *state_switch,*state_mute,*state_solo,*state_bypass;
+  
+  /* cursor for moving */
+  GdkCursor *drag_cursor;
 
   /* the zoomration in pixels/per unit */
   double zoom;
@@ -632,6 +635,8 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
     gtk_widget_destroy(self->priv->preferences_dialog);
   }
   GST_DEBUG("  destroying dialogs done");
+
+  gdk_cursor_unref(self->priv->drag_cursor);
   
   // this causes warnings on gtk 2.4
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
@@ -796,7 +801,6 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
   gboolean res=FALSE;
   gdouble dx, dy, px, py;
-  GdkCursor *fleur;
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
   guint bg_color;
 
@@ -841,12 +845,10 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
           g_object_get(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",&bg_color,NULL);
           bg_color&=0xFFFFFF7F;
           gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->box),"fill-color-rgba",bg_color,NULL);
-          // @todo: do we leak the cursor here [gdk_cursor_unref(fleur)];
-          fleur=gdk_cursor_new(GDK_FLEUR);
           gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */
                                 /* GDK_LEAVE_NOTIFY_MASK | */
-          GDK_BUTTON_RELEASE_MASK, fleur, event->button.time);          
+          GDK_BUTTON_RELEASE_MASK, self->priv->drag_cursor, event->button.time);          
         }
         dx=event->button.x-self->priv->dragx;
         dy=event->button.y-self->priv->dragy;
@@ -906,9 +908,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       break;
   }
   /* we don't want the click falling through to the parent canvas item, if we have handled it */
-  //if(res) {
-  //  g_signal_stop_emission_by_name(citem->canvas,"event-after");
-  //}
+  //if(res) g_signal_stop_emission_by_name(citem->canvas,"event-after");
   if(!res) {
     if(GNOME_CANVAS_ITEM_CLASS(parent_class)->event) {
       res=(GNOME_CANVAS_ITEM_CLASS(parent_class)->event)(citem,event);
@@ -925,6 +925,9 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
   // generate the context menu  
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
   // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
+
+  // the cursor for dragging
+  self->priv->drag_cursor=gdk_cursor_new(GDK_FLEUR);
 }
 
 static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {

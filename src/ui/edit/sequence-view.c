@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.22 2006-06-21 16:16:39 ensonic Exp $
+// $Id: sequence-view.c,v 1.23 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -253,6 +253,7 @@ static void bt_sequence_view_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
   
   g_object_try_unref(self->priv->play_pos_gc);
+  g_object_try_unref(self->priv->loop_pos_gc);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

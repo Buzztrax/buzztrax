@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.21 2006-04-09 12:20:45 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.22 2006-07-29 19:55:06 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -201,10 +201,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
           GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
           gint value;
           gdouble step;
-          //gchar *str_value;
           
           g_object_get(machine,property->name,&value,NULL);
-          //str_value=g_strdup_printf("%d",value);
           step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
           GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
           spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
@@ -212,8 +210,23 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
           gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
           gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
           widget2=NULL;
-          //g_free(str_value);
-          // @todo connect handlers
+          // connect handlers
+          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+        }
+        else if(param_type==G_TYPE_PARAM_UINT) {
+          GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+          guint value;
+          gdouble step;
+          
+          g_object_get(machine,property->name,&value,NULL);
+          step=(gdouble)(uint_property->maximum-uint_property->minimum)/1024.0;
+          GST_INFO("  uint : %u...%u, step=%f",uint_property->minimum,uint_property->maximum,step);
+          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint_property->minimum, (gdouble)uint_property->maximum,1.0,step,step));
+          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+          widget2=NULL;
+          // connect handlers
           g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
         }
         else if(param_type==G_TYPE_PARAM_DOUBLE) {

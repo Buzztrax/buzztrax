@@ -1,3 +1,72 @@
+2006-07-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+          added entries for new newsletter
+
+	* pixmaps/tab_info.png:
+          new tab-icon
+
+	* src/lib/core/application.c: (bus_handler),
+	(bt_application_add_bus_watch), (bt_application_remove_bus_watch):
+          better debug output
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_uint_range_property_notify), (on_uint_range_property_changed),
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(make_uint_range_widget), (bt_machine_properties_dialog_init_ui):
+          support uint properties
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/song.c: (bt_song_bus_handler), (bt_song_new),
+	(bt_song_dispose):
+	* src/lib/core/wire.c: (bt_wire_activate_analyzers),
+	(bt_wire_deactivate_analyzers):
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song),
+	(bt_edit_application_save_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_dispose), (bt_machine_canvas_item_event),
+	(bt_machine_canvas_item_init):
+	* src/ui/edit/main-page-machines.c: (on_canvas_event),
+	(bt_main_page_machines_dispose), (bt_main_page_machines_init):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_dispose):
+	* src/ui/edit/wire-canvas-item.c:
+          more mem-leaks plugged
+
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_init_colors):
+	* src/ui/edit/ui-ressources.h:
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(on_wire_analyzer_redraw), (bt_wire_analysis_dialog_realize),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose):
+          add rulers, draw peak volume
+
+2006-07-29  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/wire.c: (bt_wire_activate_analyzers),
+	(bt_wire_deactivate_analyzers):
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song),
+	(bt_edit_application_save_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_dispose), (bt_machine_canvas_item_event),
+	(bt_machine_canvas_item_init):
+	* src/ui/edit/main-page-machines.c: (on_canvas_event),
+	(bt_main_page_machines_dispose), (bt_main_page_machines_init):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_dispose):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_init_colors):
+	* src/ui/edit/ui-ressources.h:
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(on_wire_analyzer_redraw), (bt_wire_analysis_dialog_realize),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose):
+	* src/ui/edit/wire-canvas-item.c:
+
 2006-07-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/registry.c: (bt_plugin_feature_check), (main):
