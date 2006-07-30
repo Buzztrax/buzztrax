@@ -1,3 +1,11 @@
+2006-07-30  Thomas Wabner  <waffel@users.sf.net>
+
+	* docs/reference/bt-core/tmpl/.dummy.sgml:
+        * docs/reference/bt-cmd/tmpl/.dummy.sgml:
+        * docs/reference/bt-edit/tmpl/.dummy.sgml:
+	  added for gt-doc which should fix the problem 
+	  of rerunning the gtk-doc tool again and again
+
 2006-07-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWS:
