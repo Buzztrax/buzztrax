@@ -1,5 +1,6 @@
 src/lib/buzztard.keys.in
 src/lib/buzztard.xml.in
+src/lib/core/application.c
 src/lib/core/core.c
 src/lib/core/pattern.c
 src/lib/core/song-io-native.c
@@ -26,5 +27,7 @@ src/ui/edit/pattern-properties-dialog.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
 src/ui/edit/tools.c
+src/ui/edit/volume-popup.c
+src/ui/edit/wire-analysis-dialog.c
 src/ui/edit/wire-canvas-item.c
 buzztard.schemas

@@ -1,3 +1,5 @@
 design/gui/buzztard.glade
 design/gui/sequence.glade
 src/ui/edit/bt-edit.desktop.in.in
+src/ui/edit/bt-edit.desktop.in
+buzztard.schemas.in
