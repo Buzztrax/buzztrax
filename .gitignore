@@ -26,6 +26,9 @@ intltool*
 m4
 mkinstalldirs
 coverage
+buzztard.schemas
+*.prj
+*.pws
 *.log
 *.cache
 *.tar.gz

@@ -6,3 +6,6 @@
 *.bbg
 Makefile
 Makefile.in
+buzztard.applications
+buzztard.keys
+buzztard.xml
