@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.85 2006-07-29 19:55:06 ensonic Exp $
+// $Id: wire.c,v 1.86 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -554,6 +554,8 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr 
     self->priv->gain=g_ascii_strtod((gchar *)gain,NULL);
     xmlFree(gain);
   }
+  
+  g_object_unref(setup);
 
   return(bt_wire_connect(self));
 }

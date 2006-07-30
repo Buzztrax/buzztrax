@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.76 2006-07-27 20:16:37 ensonic Exp $
+// $Id: main-window.c,v 1.77 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -356,17 +356,20 @@ void bt_main_window_new_song(const BtMainWindow *self) {
  * be loaded and the ui will be refreshed upon success.
  */
 void bt_main_window_open_song(const BtMainWindow *self) {
-  GtkWidget *dialog=gtk_file_selection_new(_("Open a song"));
+  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Open a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_OPEN,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+				      NULL);
   gint result;
   gchar *file_name=NULL;
     
-  // set a default file_name
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
+  // set a default songs folder
+  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
-      file_name=g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
+      file_name=gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:
@@ -431,7 +434,10 @@ void bt_main_window_save_song(const BtMainWindow *self) {
 void bt_main_window_save_song_as(const BtMainWindow *self) {
   BtSong *song;
   BtSongInfo *song_info;
-  GtkWidget *dialog=gtk_file_selection_new(_("Save a song"));
+  GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_SAVE,
+				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+				      NULL);
   gint result;
   char *file_name=NULL,*file_path;
     
@@ -441,7 +447,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
   // set a default file_name
   file_path=g_strconcat(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S,file_name,NULL);
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(dialog),file_path);
+  gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_path);
   GST_INFO("generated default path is %s",file_path);
   g_free(file_name);file_name=NULL;
   g_free(file_path);
@@ -449,7 +455,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK:
-      file_name=g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(dialog)));
+      file_name=gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
       break;
     case GTK_RESPONSE_REJECT:
     case GTK_RESPONSE_CANCEL:

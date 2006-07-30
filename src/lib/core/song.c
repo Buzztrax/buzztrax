@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.132 2006-07-29 19:55:06 ensonic Exp $
+// $Id: song.c,v 1.133 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -588,14 +588,11 @@ void bt_song_write_to_xml_file(const BtSong *self) {
  */
 void bt_song_write_to_dot_file(const BtSong *self) {
   FILE *out;
-  BtSongInfo *song_info;
-  BtSetup *setup;
   gchar *song_name, *file_name;
   
   g_return_if_fail(BT_IS_SONG(self));
   
-  g_object_get(G_OBJECT(self),"song-info",&song_info,"setup",&setup,NULL);
-  g_object_get(song_info,"name",&song_name,NULL);
+  g_object_get(self->priv->song_info,"name",&song_name,NULL);
   file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s.dot",song_name);
 
@@ -625,7 +622,7 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     );
     
     // iterate over machines list
-    g_object_get(setup,"machines",&list,NULL);
+    g_object_get(self->priv->setup,"machines",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       machine=BT_MACHINE(node->data);
       g_object_get(machine,"id",&id,NULL);
@@ -658,7 +655,7 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     g_list_free(list);
     
     // iterate over wire list
-    g_object_get(setup,"wires",&list,NULL);
+    g_object_get(self->priv->setup,"wires",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
       g_object_get(wire,"src",&src,"dst",&dst,NULL);
@@ -719,8 +716,6 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     fclose(out);
   }
   g_free(song_name);
-  g_object_unref(song_info);
-  g_object_unref(setup);
 }
 
 //-- io interface
@@ -806,6 +801,7 @@ static void bt_song_get_property(GObject      *object,
       g_value_set_object(value, self->priv->song_info);
     } break;
     case SONG_SEQUENCE: {
+      GST_DEBUG("sequence-refs: %d",(G_OBJECT(self->priv->sequence))->ref_count);
       g_value_set_object(value, self->priv->sequence);
     } break;
     case SONG_SETUP: {
@@ -900,9 +896,15 @@ static void bt_song_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
   
-  bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler);
+  bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
   
   g_object_try_weak_unref(self->priv->master);
+  GST_DEBUG("refs: song_info: %d, sequence: %d, setup: %d, wavetable: %d",
+    (G_OBJECT(self->priv->song_info))->ref_count,
+    (G_OBJECT(self->priv->sequence))->ref_count,
+    (G_OBJECT(self->priv->setup))->ref_count,
+    (G_OBJECT(self->priv->wavetable))->ref_count
+  );
   g_object_try_unref(self->priv->song_info);
   g_object_try_unref(self->priv->sequence);
   g_object_try_unref(self->priv->setup);

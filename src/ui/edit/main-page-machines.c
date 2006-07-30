@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.81 2006-07-29 19:55:06 ensonic Exp $
+// $Id: main-page-machines.c,v 1.82 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -415,6 +415,7 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
     if(pos_y<pos_ys) pos_ys=pos_y;
     else if(pos_y>pos_ye) pos_ye=pos_y;
   }
+  g_list_free(list);
   g_object_unref(setup);
   g_object_unref(song);
   GST_INFO("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",pos_xs,pos_xe,pos_ys,pos_ye);

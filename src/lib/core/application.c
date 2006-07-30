@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.55 2006-07-29 19:55:06 ensonic Exp $
+// $Id: application.c,v 1.56 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -66,11 +66,11 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   
   g_return_val_if_fail(GST_IS_BUS(bus),TRUE);
   
-  GST_INFO("received bus messgage: '%s', forwarding to %d handlers",gst_message_type_get_name(GST_MESSAGE_TYPE(message)),g_list_length(self->priv->bus_handlers));
+  GST_LOG("received bus messgage: '%s', forwarding to %d handlers",gst_message_type_get_name(GST_MESSAGE_TYPE(message)),g_list_length(self->priv->bus_handlers));
   
   for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
-    GST_DEBUG("Calling %s(%p) ",GST_DEBUG_FUNCPTR_NAME(entry->handler),entry->user_data);
+    GST_LOG("Calling %s(%p) ",GST_DEBUG_FUNCPTR_NAME(entry->handler),entry->user_data);
     handled=entry->handler(bus,message,entry->user_data);
   }
   if(!handled) {
@@ -172,10 +172,11 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,g
  * bt_application_remove_bus_watch:
  * @self: the application instance
  * @handler : function to remove from the handler list.
+ * @user_data : user data passed to handler
  *
  * Unregister a handler previously registered using bt_application_add_bus_watch().
  */
-void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handler) {
+void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handler,gpointer user_data) {
   BtBusWatchEntry *entry;
   gboolean found=FALSE;
   GList* node;
@@ -185,7 +186,7 @@ void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handle
   
   for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
     entry=(BtBusWatchEntry *)node->data;
-    if(entry->handler==handler) {
+    if((entry->handler==handler) && (entry->user_data==user_data)) {
       self->priv->bus_handlers=g_list_remove(self->priv->bus_handlers,entry);
       g_free(entry);
       found=TRUE;

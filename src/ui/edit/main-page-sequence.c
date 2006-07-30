@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.117 2006-07-28 20:27:57 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.118 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -992,16 +992,17 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
     g_object_set(self->priv->sequence_pos_table,"play-position",play_pos,NULL);
   }
 
-  //GST_INFO("sequence tick received : %d",pos);
+  //GST_DEBUG("sequence tick received : %d",pos);
   
   // do nothing for invisible rows
-  if(!IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars) || !GTK_WIDGET_REALIZED(self->priv->sequence_table)) return;
-  // scroll  to make play pos visible
-  if((path=gtk_tree_path_new_from_indices(pos,-1))) {
-    // that would try to keep the cursor in the middle (means it will scroll more)
-    gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
-    //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
-    gtk_tree_path_free(path);
+  if(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars) || GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+    // scroll  to make play pos visible
+    if((path=gtk_tree_path_new_from_indices(pos,-1))) {
+      // that would try to keep the cursor in the middle (means it will scroll more)
+      gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
+      //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+      gtk_tree_path_free(path);
+    }
   }
   g_object_unref(sequence);
 }

@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.7 2006-07-29 19:55:06 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.8 2006-07-30 08:34:23 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -465,7 +465,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   g_object_try_unref(self->priv->peak_gc);
   
   g_source_remove(self->priv->paint_handler_id);
-  bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change);
+  bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change,(gpointer)self);
 
   // this destroys the analyzers too  
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);

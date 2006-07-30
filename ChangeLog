@@ -1,3 +1,28 @@
+2006-07-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+          fix Patrics name
+
+	* src/lib/core/application.c: (bus_handler),
+	(bt_application_remove_bus_watch):
+	* src/lib/core/libbtcore/application-methods.h:
+          use handler and user-data for looksups
+
+	* src/ui/edit/main-window.c: (bt_main_window_open_song),
+	(bt_main_window_save_song_as):
+          file_selection -> file_chooser_dialog
+
+	* src/lib/core/song.c: (bt_song_write_to_dot_file),
+	(bt_song_get_property), (bt_song_dispose):
+	* src/lib/core/wire.c: (bt_wire_persistence_load):
+	* src/ui/edit/main-page-machines.c: (on_toolbar_zoom_fit_clicked):
+	* src/ui/edit/main-page-sequence.c: (on_sequence_tick):
+	* src/ui/edit/main-statusbar.c: (on_sequence_tick):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_dispose):
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_dispose):
+          fix ref-leaks
+
 2006-07-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWS:
