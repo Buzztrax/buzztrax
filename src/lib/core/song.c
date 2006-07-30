@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.133 2006-07-30 08:34:23 ensonic Exp $
+// $Id: song.c,v 1.134 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -801,7 +801,6 @@ static void bt_song_get_property(GObject      *object,
       g_value_set_object(value, self->priv->song_info);
     } break;
     case SONG_SEQUENCE: {
-      GST_DEBUG("sequence-refs: %d",(G_OBJECT(self->priv->sequence))->ref_count);
       g_value_set_object(value, self->priv->sequence);
     } break;
     case SONG_SETUP: {
@@ -852,7 +851,7 @@ static void bt_song_set_property(GObject      *object,
       g_object_try_weak_unref(self->priv->master);
       self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->master);
-      GST_DEBUG("set the master for the song: %p",self->priv->master);
+      GST_DEBUG("set the master for the song: %p (machine-refs: %d)",self->priv->master,(G_OBJECT(self->priv->master))->ref_count);
     } break;
     case SONG_UNSAVED: {
       self->priv->unsaved = g_value_get_boolean(value);
@@ -898,6 +897,7 @@ static void bt_song_dispose(GObject *object) {
   
   bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
   
+  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
   g_object_try_weak_unref(self->priv->master);
   GST_DEBUG("refs: song_info: %d, sequence: %d, setup: %d, wavetable: %d",
     (G_OBJECT(self->priv->song_info))->ref_count,

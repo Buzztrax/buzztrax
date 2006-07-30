@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.85 2006-07-28 20:27:57 ensonic Exp $
+// $Id: pattern.c,v 1.86 2006-07-30 21:35:21 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -374,22 +374,18 @@ Error:
  */
 BtPattern *bt_pattern_copy(const BtPattern *self) {
   BtPattern *pattern;
-  BtSong *song;
-  BtMachine *machine;
   gchar *id,*name,*mid;
-  glong length;
   
   g_return_val_if_fail(BT_IS_PATTERN(self),NULL);
   
   GST_INFO("copying pattern");
   
-  g_object_get(G_OBJECT(self),"song",&song,"length",&length,"machine",&machine,NULL);
-  g_object_get(G_OBJECT(machine),"id",&mid,NULL);
+  g_object_get(G_OBJECT(self->priv->machine),"id",&mid,NULL);
   
-  name=bt_machine_get_unique_pattern_name(machine);
+  name=bt_machine_get_unique_pattern_name(self->priv->machine);
   id=g_strdup_printf("%s %s",mid,name);
 
-  if((pattern=bt_pattern_new(song,id,name,length,machine))) {
+  if((pattern=bt_pattern_new(self->priv->song,id,name,self->priv->length,self->priv->machine))) {
     gulong data_count=self->priv->length*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params);
 
     // copy data
@@ -400,8 +396,6 @@ BtPattern *bt_pattern_copy(const BtPattern *self) {
   g_free(mid);
   g_free(id);
   g_free(name);
-  g_object_unref(machine);
-  g_object_unref(song);
   return(pattern);
 }
 
@@ -1023,7 +1017,7 @@ static void bt_pattern_set_property(GObject      *object,
       g_object_try_weak_ref(self->priv->machine);
       // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
       g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
-      GST_DEBUG("set the machine for pattern: %p",self->priv->machine);
+      GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
     } break;
     case PATTERN_IS_INTERNAL: {
       self->priv->is_internal = g_value_get_boolean(value);

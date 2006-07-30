@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.86 2006-07-30 08:34:23 ensonic Exp $
+// $Id: main-toolbar.c,v 1.87 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -165,11 +165,16 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     
     // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    bt_song_play(song);
-    self->priv->playback_update_id=g_timeout_add(500,on_song_playback_update,song);
+    if(bt_song_play(song)) {
+      self->priv->playback_update_id=g_timeout_add(500,on_song_playback_update,song);
 
-    // enable stop button
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
+      // enable stop button
+      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
+    }
+    else {
+      // re-enable play button
+      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
+    }
     
     // release the reference
     g_object_try_unref(song);

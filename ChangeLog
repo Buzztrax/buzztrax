@@ -1,3 +1,33 @@
+2006-07-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_setup):
+	* src/lib/core/pattern.c: (bt_pattern_copy),
+	(bt_pattern_set_property):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_get_property):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_new):
+	* src/lib/core/song.c: (bt_song_get_property),
+	(bt_song_set_property), (bt_song_dispose):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_dispose):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_dispose):
+	* src/ui/edit/main-page-patterns.c: (selection_cell_data_function),
+	(machine_model_get_iter_by_machine),
+	(pattern_model_get_iter_by_pattern), (machine_menu_add),
+	(bt_main_page_patterns_get_current_machine),
+	(bt_main_page_patterns_get_current_pattern),
+	(bt_main_page_patterns_dispose):
+	* src/ui/edit/main-page-sequence.c:
+	(source_machine_cell_data_function),
+	(processor_machine_cell_data_function),
+	(sink_machine_cell_data_function):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_play_clicked):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_dispose):
+          more leak fixes + reverted a few, fix bt-edit crashing when song can't
+          play
+
 2006-07-30  Thomas Wabner  <waffel@users.sf.net>
 
 	* docs/reference/bt-core/tmpl/.dummy.sgml:
@@ -5,6 +35,30 @@
         * docs/reference/bt-edit/tmpl/.dummy.sgml:
 	  added for gt-doc which should fix the problem 
 	  of rerunning the gtk-doc tool again and again
+
+2006-07-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_setup):
+	* src/lib/core/pattern.c: (bt_pattern_copy),
+	(bt_pattern_set_property):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_new):
+	* src/lib/core/song.c: (bt_song_get_property),
+	(bt_song_set_property):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_dispose):
+	* src/ui/edit/main-page-patterns.c: (selection_cell_data_function),
+	(machine_model_get_iter_by_machine),
+	(pattern_model_get_iter_by_pattern), (machine_menu_add),
+	(bt_main_page_patterns_get_current_machine),
+	(bt_main_page_patterns_get_current_pattern),
+	(bt_main_page_patterns_dispose):
+	* src/ui/edit/main-page-sequence.c:
+	(source_machine_cell_data_function),
+	(processor_machine_cell_data_function),
+	(sink_machine_cell_data_function):
+          more mem and ref-leaks plugged
 
 2006-07-30  Stefan Kost  <ensonic@users.sf.net>
 

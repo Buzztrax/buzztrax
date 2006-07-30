@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.82 2006-07-30 08:34:23 ensonic Exp $
+// $Id: main-page-machines.c,v 1.83 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -1002,8 +1002,9 @@ static void bt_main_page_machines_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("  unrefing popup");
+  GST_DEBUG("!!!! self=%p",self);  
   if(self->priv->vol_popup) {
+    GST_DEBUG("  unrefing popup");
     bt_volume_popup_hide(self->priv->vol_popup);
     //gtk_widget_unparent(GTK_WIDGET(self->priv->vol_popup));
     gtk_object_destroy(GTK_OBJECT(self->priv->vol_popup));

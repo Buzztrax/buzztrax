@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.118 2006-07-30 08:34:23 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.119 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -163,6 +163,7 @@ static void source_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
@@ -191,6 +192,7 @@ static void processor_machine_cell_data_function(GtkTreeViewColumn *col, GtkCell
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
@@ -220,6 +222,7 @@ static void sink_machine_cell_data_function(GtkTreeViewColumn *col, GtkCellRende
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 //-- tree model helper

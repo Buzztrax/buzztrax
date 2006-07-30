@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.67 2006-07-29 19:55:06 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.68 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -622,6 +622,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
+  GST_DEBUG("machine-refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
   g_object_try_weak_unref(self->priv->main_page_machines);

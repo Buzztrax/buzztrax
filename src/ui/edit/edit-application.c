@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.75 2006-07-29 19:55:06 ensonic Exp $
+// $Id: edit-application.c,v 1.76 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -145,7 +145,8 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     id=bt_setup_get_unique_machine_id(setup,"master");
     if((machine=BT_MACHINE(bt_sink_machine_new(song,id)))) {
       GHashTable *properties;
-    
+
+      GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
       g_object_get(machine,"properties",&properties,NULL);
       if(properties) {
         gchar str[G_ASCII_DTOSTR_BUF_SIZE];
@@ -155,6 +156,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       if(bt_machine_enable_input_level(machine) &&
         bt_machine_enable_input_gain(machine)
       ) {
+        GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
         // set new song
         g_object_set(G_OBJECT(self),"song",song,NULL);
         res=TRUE;
@@ -162,6 +164,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       else {
         GST_WARNING("Can't add input level/gain element in sink machine");
       }
+      GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
       g_object_unref(machine);
     }
     else {

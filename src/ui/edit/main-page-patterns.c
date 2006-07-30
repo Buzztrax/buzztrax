@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.90 2006-07-28 20:27:57 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.91 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -135,6 +135,7 @@ static void selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer
     "background-gdk",bg_col,
     "text",str,
      NULL);
+  g_free(str);
 }
 
 
@@ -146,7 +147,11 @@ static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *i
   gtk_tree_model_get_iter_first(store,iter);
   do {
     gtk_tree_model_get(store,iter,MACHINE_MENU_MACHINE,&this_machine,-1);
-    if(this_machine==that_machine) break;
+    if(this_machine==that_machine) {
+      g_object_unref(this_machine);
+      break;
+    }
+    g_object_unref(this_machine);
   } while(gtk_tree_model_iter_next(store,iter));
 }
 
@@ -156,7 +161,11 @@ static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *i
   gtk_tree_model_get_iter_first(store,iter);
   do {
     gtk_tree_model_get(store,iter,PATTERN_MENU_PATTERN,&this_pattern,-1);
-    if(this_pattern==that_pattern) break;
+    if(this_pattern==that_pattern) {
+      g_object_unref(this_pattern);
+      break;
+    }
+    g_object_unref(this_pattern);
   } while(gtk_tree_model_iter_next(store,iter));
 }
 
@@ -541,7 +550,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   GtkTreeIter menu_iter;
 
   g_object_get(G_OBJECT(machine),"id",&str,NULL);
-  GST_INFO("  adding \"%s\"",str);
+  GST_INFO("  adding \"%s\"  (machine-refs: %d)",str,(G_OBJECT(machine))->ref_count);
 
   gtk_list_store_append(store,&menu_iter);
   gtk_list_store_set(store,&menu_iter,
@@ -551,6 +560,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
     -1);
   g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
   
+  GST_INFO("  (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
   g_free(str);
 }
 
@@ -1477,7 +1487,9 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
     if(machine) {
-      return(g_object_ref(machine));
+      // gtk_tree_model_get already refs()
+      return(machine);
+      //return(g_object_ref(machine));
     }
   }
   return(NULL);
@@ -1505,14 +1517,17 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
     if(machine) {
-      GST_DEBUG("  got machine");
+      GST_DEBUG("  got machine: (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
       if(gtk_combo_box_get_active_iter(self->priv->pattern_menu,&iter)) {
         store=gtk_combo_box_get_model(self->priv->pattern_menu);
         gtk_tree_model_get(store,&iter,PATTERN_MENU_PATTERN,&pattern,-1);
         if(pattern) {
-          return(g_object_ref(pattern));
+          // gtk_tree_model_get already refs()
+          return(pattern);
+          //return(g_object_ref(pattern));
         }
       }
+      g_object_unref(machine);
     }
   }
   return(NULL);
@@ -1590,13 +1605,18 @@ static void bt_main_page_patterns_set_property(GObject      *object,
 
 static void bt_main_page_patterns_dispose(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
+   
+  GST_DEBUG("!!!! self=%p",self);  
   g_object_try_weak_unref(self->priv->app);
   g_object_try_unref(self->priv->pattern);
   
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+  gtk_object_destroy(GTK_OBJECT(self->priv->machine_menu));
+  gtk_object_destroy(GTK_OBJECT(self->priv->pattern_menu));
+  gtk_object_destroy(GTK_OBJECT(self->priv->wavetable_menu));
 	gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
 
   G_OBJECT_CLASS(parent_class)->dispose(object);

@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.95 2006-06-21 16:16:39 ensonic Exp $
+// $Id: setup.c,v 1.96 2006-07-30 21:35:21 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -636,9 +636,15 @@ static void bt_setup_get_property(GObject      *object,
       g_value_set_object(value, self->priv->song);
     } break;
     case SETUP_MACHINES: {
+      /* @todo: this is not good, lists returned by bt_setup_get_xxx_by_yyy
+       * returns a new list where one has to unref the elements
+       */
       g_value_set_pointer(value,g_list_copy(self->priv->machines));
     } break;
     case SETUP_WIRES: {
+      /* @todo: this is not good, lists returned by bt_setup_get_xxx_by_yyy
+       * returns a new list where one has to unref the elements
+       */
       g_value_set_pointer(value,g_list_copy(self->priv->wires));
     } break;
     default: {

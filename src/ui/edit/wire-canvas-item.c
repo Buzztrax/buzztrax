@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.35 2006-07-29 19:55:06 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.36 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -399,6 +399,7 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_object_try_unref(setup);
   g_object_try_unref(song);
 
+  GST_DEBUG("wire-refs: %d",(G_OBJECT(self->priv->wire))->ref_count);
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);

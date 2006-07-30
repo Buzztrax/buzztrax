@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.68 2006-04-16 00:21:07 ensonic Exp $
+// $Id: sink-machine.c,v 1.69 2006-07-30 21:35:22 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -61,10 +61,13 @@ BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
   if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL)))) {
     goto Error;
   }
+  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
+  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
   bt_sink_machine_post_init(self);
+  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
   
   return(self);
 Error:

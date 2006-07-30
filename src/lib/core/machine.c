@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.210 2006-07-22 15:37:05 ensonic Exp $
+// $Id: machine.c,v 1.211 2006-07-30 21:35:21 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -932,11 +932,15 @@ static gboolean bt_machine_setup(BtMachine *self) {
   bt_machine_init_interfaces(self);
   // we need to make sure the machine is from the right class
   if(!bt_machine_check_type(self)) return(FALSE);
+    
+  GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
   
   // register global params
   bt_machine_init_global_params(self);
   // register voice params
   bt_machine_init_voice_params(self);
+  
+  GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
   
   // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_count=%d  bin->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count,G_OBJECT(self->priv->bin)->ref_count);
@@ -960,6 +964,9 @@ static gboolean bt_machine_setup(BtMachine *self) {
   if(!BT_IS_SINK_MACHINE(self)) {
     bt_machine_enable_output_gain(self);
   }
+  
+  GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
+  
   return(TRUE);
 }
 
