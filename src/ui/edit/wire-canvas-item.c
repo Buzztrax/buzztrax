@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.36 2006-07-30 21:35:22 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.37 2006-07-31 17:22:46 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -21,6 +21,8 @@ enum {
   WIRE_CANVAS_ITEM_DST
 };
 
+// @todo what do we set here?
+#define BT_WIRE_MAX_EXTEND 100000.0
 
 struct _BtWireCanvasItemPrivate {
   /* used to validate if dispose has run */
@@ -254,10 +256,15 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   GnomeCanvas *canvas;
   BtSong *song;
   BtSetup *setup;
+  gdouble w,h;
 
   g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
   g_object_get(G_OBJECT(app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  
+  w=(pos_xe-pos_xs);
+  h=(pos_ye-pos_ys);
+  /* @todo: if we clip agains BT_WIRE_MAX_EXTEND here, the wire will look bad */
 
   self=BT_WIRE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_WIRE_CANVAS_ITEM,
@@ -266,8 +273,8 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
                             "wire", wire,
                             "x", pos_xs,
                             "y", pos_ys,
-                            "w", (pos_xe-pos_xs),
-                            "h", (pos_ye-pos_ys),
+                            "w", w,
+                            "h", h,
                             "src", src_machine_item,
                             "dst", dst_machine_item,
                             NULL));
@@ -582,8 +589,8 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                   g_param_spec_double("w",
                                      "width prop",
                                      "width of the wire",
-                                     -10000.0,
-                                     10000.0, // @todo what do we set here?
+                                     -BT_WIRE_MAX_EXTEND,
+                                     BT_WIRE_MAX_EXTEND,
                                      1.0,
                                      G_PARAM_READWRITE));
 
@@ -591,8 +598,8 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                   g_param_spec_double("h",
                                      "height prop",
                                      "height of the wire",
-                                     -10000.0,
-                                     10000.0, // @todo what do we set here?
+                                     -BT_WIRE_MAX_EXTEND,
+                                     BT_WIRE_MAX_EXTEND,
                                      1.0,
                                      G_PARAM_READWRITE));
 

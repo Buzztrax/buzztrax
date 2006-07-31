@@ -1,5 +1,14 @@
 2006-07-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_new),
+	(bt_wire_canvas_item_class_init):
+          add constant for wire bounds, extend by 10.0, add @todo: comment
+
+	* tests/songs/example.xml:
+          fix bogus positions, fixes #1531362
+
+2006-07-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* .cvsignore:
 	* src/lib/.cvsignore:
 	* tests/songs/.cvsignore:

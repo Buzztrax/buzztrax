@@ -30,16 +30,16 @@
       
       <machine type="processor" id="amp1" plugin-name="volume">
         <properties>
-          <property key="xpos" value="10"/>
-          <property key="ypos" value="20"/>
+          <property key="xpos" value="0.3"/>
+          <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="minvolume" value="1.0"/>
       </machine>
       
       <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="2">
         <properties>
-          <property key="xpos" value="20"/>
-          <property key="ypos" value="80"/>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="0.0"/>
         </properties>
         <globaldata name="volume" value="80"/>
         <globaldata name="bpm" value="4"/>
