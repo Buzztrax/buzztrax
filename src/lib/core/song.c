@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.134 2006-07-30 21:35:22 ensonic Exp $
+// $Id: song.c,v 1.135 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -706,8 +706,8 @@ void bt_song_write_to_dot_file(const BtSong *self) {
       fprintf(out,"  %s -> %s\n",src_name,dst_name);
       */
       
-      //g_object_unref(src);
-      //g_object_unref(dst);
+      g_object_unref(src);
+      g_object_unref(dst);
     }
     g_list_free(list);
     
@@ -897,7 +897,7 @@ static void bt_song_dispose(GObject *object) {
   
   bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
   
-  GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
+  if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
   g_object_try_weak_unref(self->priv->master);
   GST_DEBUG("refs: song_info: %d, sequence: %d, setup: %d, wavetable: %d",
     (G_OBJECT(self->priv->song_info))->ref_count,

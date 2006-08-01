@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.96 2006-07-30 21:35:21 ensonic Exp $
+// $Id: setup.c,v 1.97 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -584,6 +584,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
                 machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));
                 bt_persistence_load(BT_PERSISTENCE(machine),child_node,NULL);
                 bt_setup_add_machine(self,machine);
+                g_object_unref(machine);
               }
               xmlFree(type_str);
             }
@@ -598,6 +599,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
             wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
             bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL);
             bt_setup_add_wire(self,wire);
+            g_object_unref(wire);
           }
         }
       }

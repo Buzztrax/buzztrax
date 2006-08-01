@@ -1,3 +1,27 @@
+2006-08-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_persistence_load):
+	* src/lib/core/pattern.c: (bt_pattern_copy):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/song-io.c: (bt_song_io_load):
+	* src/lib/core/song.c: (bt_song_write_to_dot_file),
+	(bt_song_dispose):
+	* src/lib/core/wire.c: (bt_wire_connect):
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-sequence.c: (sequence_table_refresh),
+	(pattern_list_refresh), (bt_main_page_sequence_dispose):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+          more ref-count logging and more ref-leak fixes
+
+2006-07-31  Patric Schmitz  <berzerka@users.sourceforge.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Removed shadows for sequence and sequence_pos treeviews and added
+          VSeparator instead. Made the Labels column header listen to
+          size_allocate events if no machines are present. Sequence_pos column
+          header now always gets properly updated.
+
 2006-07-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_new),

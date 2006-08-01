@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.120 2006-07-31 21:38:10 berzerka Exp $
+// $Id: main-page-sequence.c,v 1.121 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -771,7 +771,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       }
     }
     else GST_WARNING("can't create treeview column");
-    g_object_unref(machine);
+    g_object_try_unref(machine);
   }
   // add a final column that eats remaining space
   renderer=gtk_cell_renderer_text_new();
@@ -819,13 +819,15 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   machine=bt_main_page_sequence_get_current_machine(self);
   if(machine!=self->priv->machine) {
     if(self->priv->machine) {
+      GST_INFO("unref old cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
       g_object_unref(self->priv->machine);
       self->priv->pattern_added_handler=0;
       self->priv->pattern_removed_handler=0;
     }
-    if(machine) {    
+    if(machine) {
+      GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
       self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
       self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
     }
@@ -1992,12 +1994,14 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);  
   g_object_try_weak_unref(self->priv->app);
   if(self->priv->machine) {
+    GST_INFO("unref old cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
     g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
     g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
     g_object_unref(self->priv->machine);
   }
   
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
+  gtk_object_destroy(GTK_OBJECT(self->priv->bars_menu));
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

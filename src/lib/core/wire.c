@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.86 2006-07-30 08:34:23 ensonic Exp $
+// $Id: wire.c,v 1.87 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -369,10 +369,9 @@ static gboolean bt_wire_connect(BtWire *self) {
   g_object_try_unref(other_wire);
 
 
-  GST_DEBUG("about to link machines, bin->ref_count=%d",G_OBJECT(self->priv->bin)->ref_count);
   src=self->priv->src;
   dst=self->priv->dst;
-
+  GST_DEBUG("bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
 
   // if there is already a connection from src && src has not yet an spreader (in use)
@@ -383,6 +382,7 @@ static gboolean bt_wire_connect(BtWire *self) {
     // create spreader (if needed)
     old_peer=src->src_elem;
     if(!bt_machine_activate_spreader(src)) {
+      g_object_unref(other_wire);
       goto Error;
     }
     // if there is no conversion element on the wire ..
@@ -405,6 +405,7 @@ static gboolean bt_wire_connect(BtWire *self) {
     // create adder (if needed)
     old_peer=dst->dst_elem;
     if(!bt_machine_activate_adder(dst)) {
+      g_object_unref(other_wire);
       goto Error;
     }
     // if there is no conversion element on the wire ..
@@ -418,12 +419,14 @@ static gboolean bt_wire_connect(BtWire *self) {
     }
     g_object_unref(other_wire);
   }
+
+  GST_DEBUG("link prepared, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
   
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed");goto Error;
   }
   res=TRUE;
-  GST_DEBUG("linking machines succeeded, bin->ref_count=%d",G_OBJECT(self->priv->bin)->ref_count);
+  GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 Error:
   g_object_try_unref(setup);
   return(res);

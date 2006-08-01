@@ -1,4 +1,4 @@
-// $Id: pattern.c,v 1.86 2006-07-30 21:35:21 ensonic Exp $
+// $Id: pattern.c,v 1.87 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btpattern
  * @short_description: class for an event pattern of a #BtMachine instance
@@ -391,6 +391,8 @@ BtPattern *bt_pattern_copy(const BtPattern *self) {
     // copy data
     memcpy(pattern->priv->data,self->priv->data,data_count*sizeof(GValue));
     GST_INFO("  data copied");
+    // add the pattern to the machine
+    bt_machine_add_pattern(self->priv->machine,self);
   }
 
   g_free(mid);

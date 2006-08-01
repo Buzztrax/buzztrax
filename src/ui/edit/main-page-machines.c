@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.83 2006-07-30 21:35:22 ensonic Exp $
+// $Id: main-page-machines.c,v 1.84 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -60,7 +60,7 @@ struct _BtMainPageMachinesPrivate {
   /* cursor for moving */
   GdkCursor *drag_cursor;
 
-  /* used for adding a new wire*/
+  /* used when interactivly adding a new wire*/
   GnomeCanvasItem *new_wire;
   GnomeCanvasPoints *new_wire_points;
   BtMachineCanvasItem *new_wire_src,*new_wire_dst;

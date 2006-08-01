@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.211 2006-07-30 21:35:21 ensonic Exp $
+// $Id: machine.c,v 1.212 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -2147,6 +2147,7 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
             pattern=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",self->priv->song,"machine",self,"voices",self->priv->voices,NULL));
             bt_persistence_load(BT_PERSISTENCE(pattern),child_node,NULL);
             bt_machine_add_pattern(self,pattern);
+            g_object_unref(pattern);
           }
         }
       }

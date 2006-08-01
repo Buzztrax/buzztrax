@@ -1,4 +1,4 @@
-// $Id: main-toolbar.c,v 1.87 2006-07-30 21:35:22 ensonic Exp $
+// $Id: main-toolbar.c,v 1.88 2006-08-01 17:13:58 ensonic Exp $
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
@@ -369,7 +369,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     GstPad *pad;
     gdouble volume;
     
-    GST_INFO("connect to input-level : song=%p,  master=%p",song,master);
+    GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,master,(G_OBJECT(master))->ref_count);
 
     // get the input_level property from audio_sink
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
