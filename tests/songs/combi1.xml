@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
+
+  <meta>
+    <info>a two voice melody</info>
+    <name>melo 3</name>
+    <genre>chip-music</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
+    <create-dts>2006-01-12T22:10:56Z</create-dts>
+    <change-dts>2006-01-12T22:10:56Z</change-dts>
+  </meta>
+  
+  <setup>
+    <machines>
+      <machine type="sink" id="audio_sink">
+        <properties>
+          <property key="xpos" value="0.7"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="145"/>
+      </machine>
+            
+      <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="beep1::C-3_E-3_G-3" machine="beep1" name="C-3_E-3_G-3" length="16">
+            <tick time="0">
+              <globaldata name="note" value="c-3"/>
+              <globaldata name="volume" value="1.0"/>
+              <globaldata name="decay" value="0.25"/>
+              <globaldata name="wave" value="3"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="note" value="e-3"/>
+            </tick>
+            <tick time="12">
+              <globaldata name="note" value="g-3"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+      <machine type="source" id="beep2" plugin-name="simsyn" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="0.0"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="beep2::C-1" machine="beep2" name="C-1" length="16">
+            <tick time="0">
+              <globaldata name="note" value="c-1"/>
+              <globaldata name="volume" value="0.5"/>
+              <globaldata name="decay" value="1.0"/>
+              <globaldata name="wave" value="2"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+      <machine type="processor" id="echo1" plugin-name="audiodelay" voices="0">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="delaytime" value="25.0"/>
+        <globaldata name="feedback" value="75.0"/>
+        <globaldata name="drywet" value="50.0"/>
+      </machine>
+
+      <machine type="source" id="beat" plugin-name="bml-Arguelles-GoaKick" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="beat_beats" machine="beat" name="beats" length="16">
+            <tick time="0">
+              <globaldata name="Trigger" value="10"/>
+              <globaldata name="Tone" value="40"/>
+            </tick>
+            <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+            <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+    </machines>
+    
+    <wires>
+      <wire src="beep1" dst="echo1" gain="1.0"/>
+      <wire src="echo1" dst="audio_sink" gain="1.0"/>
+      <wire src="beep2" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="beat" dst="audio_sink" gain="1.0" pan="0"/>
+    </wires>    
+  </setup>
+  
+  <sequence loop="off" length="96" tracks="5">
+    <labels>
+      <label time="0" name="start"/>
+      <label time="63" name="end"/>
+    </labels>
+    <tracks>
+      <track index="0" machine="beep1">
+        <position time="0" pattern="beep1::C-3_E-3_G-3"/>
+        <position time="32" pattern="beep1::C-3_E-3_G-3"/>
+      </track>
+      <track index="1" machine="beep2">
+        <position time="0" pattern="beep2::C-1"/>
+        <position time="16" pattern="beep2::C-1"/>
+        <position time="32" pattern="beep2::C-1"/>
+        <position time="48" pattern="beep2::C-1"/>
+      </track>
+      <track index="2" machine="echo1"/>
+      <track index="3" machine="beat">
+        <position time="0" pattern="beat_beats"/>
+        <position time="32" pattern="beat_beats"/>
+        <position time="48" pattern="beat_beats"/>
+        <position time="64" pattern="beat_beats"/>
+        <position time="80" pattern="beat_beats"/>
+      </track>
+      <track index="4" machine="audio_sink"/>
+    </tracks>
+  </sequence>
+
+</buzztard>

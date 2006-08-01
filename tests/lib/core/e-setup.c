@@ -1,8 +1,4 @@
-/* $Id: e-setup.c,v 1.27 2005-11-27 22:44:47 ensonic Exp $
- */
-
-/* @todo write tests for:
- * bt_setup_get_unique_machine_id()
+/* $Id: e-setup.c,v 1.28 2006-08-01 20:02:07 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -356,6 +352,53 @@ BT_START_TEST(test_btsetup_machine1) {
   ref_machine=bt_setup_get_machine_by_type(setup, machine_type);
   fail_unless(BT_IS_SOURCE_MACHINE(ref_machine),NULL);
   fail_unless(ref_machine==BT_MACHINE(source),NULL);
+  g_object_unref(ref_machine);
+  
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+/**
+* In this test case we check the _unique_id function.
+*/
+BT_START_TEST(test_btsetup_unique_id1){
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtSetup *setup=NULL;
+  // machine
+  BtSourceMachine *source=NULL;
+  BtMachine *ref_machine=NULL;
+  gchar *id;
+  
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+  /* create a new song */
+  song=bt_song_new(app);
+  g_object_get(song,"setup",&setup,NULL);
+  
+  /* try to create generator1 */
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  fail_unless(source!=NULL, NULL);
+  
+  /* get an id for a new machine, with the same name */
+  id=bt_setup_get_unique_machine_id(setup,"src");
+  fail_unless(id!=NULL, NULL);
+  fail_unless(strcmp(id,"src"), NULL);
+  
+  /* there should be no machine using this id */
+  ref_machine=bt_setup_get_machine_by_id(setup,id);
+  fail_unless(ref_machine==NULL, NULL);
+
+  g_free(id);
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -369,6 +412,7 @@ TCase *bt_setup_example_case(void) {
   tcase_add_test(tc,test_btsetup_wire1);
   tcase_add_test(tc,test_btsetup_wire2);
   tcase_add_test(tc,test_btsetup_machine1);
+  tcase_add_test(tc,test_btsetup_unique_id1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
 }

@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.7 2006-01-17 13:47:16 ensonic Exp $ 
+/* $Id: e-bt-cmd-application.c,v 1.8 2006-08-01 20:02:07 ensonic Exp $ 
  */
 
 #include "m-bt-cmd.h"
@@ -56,6 +56,24 @@ BT_START_TEST(test_play2) {
 }
 BT_END_TEST
 
+// postive test, this test should not fail
+BT_START_TEST(test_play3) {
+  BtCmdApplication *app;
+  gboolean ret=FALSE;
+  
+  app=bt_cmd_application_new(FALSE);
+
+  ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple1.xml"));
+  fail_unless(ret==TRUE, NULL);
+
+  ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple2.xml"));
+  fail_unless(ret==TRUE, NULL);
+
+  // free application
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
 // Tests if the info method works as expected.
 // This is a positive test.
 BT_START_TEST(test_info1) {
@@ -79,6 +97,7 @@ TCase *bt_cmd_application_example_case(void) {
   tcase_add_test(tc,test_create_app);
   tcase_add_test(tc,test_play1);
   tcase_add_test(tc,test_play2);
+  tcase_add_test(tc,test_play3);
   tcase_add_test(tc,test_info1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
