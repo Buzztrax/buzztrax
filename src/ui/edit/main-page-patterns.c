@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.91 2006-07-30 21:35:22 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.92 2006-08-02 19:34:19 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1241,6 +1241,8 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gchar oct_str[2];
   
   GST_DEBUG("!!!! self=%p",self);
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("pattern view"));
   
   // add toolbar
   toolbar=gtk_toolbar_new();

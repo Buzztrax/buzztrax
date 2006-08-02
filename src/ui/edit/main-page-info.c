@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.38 2006-06-21 16:16:39 ensonic Exp $
+// $Id: main-page-info.c,v 1.39 2006-08-02 19:34:19 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -201,6 +201,8 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   gchar *str;
   
   GST_DEBUG("!!!! self=%p",self);
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("song information"));
   
   // first row of vbox
   frame=gtk_frame_new(NULL);

@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.32 2006-06-21 16:16:39 ensonic Exp $
+// $Id: main-page-waves.c,v 1.33 2006-08-02 19:34:20 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -206,6 +206,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   GtkTooltips *tips;
   
   GST_DEBUG("!!!! self=%p",self);
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("wave table view"));
   
   tips=gtk_tooltips_new();
   

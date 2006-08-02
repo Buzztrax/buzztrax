@@ -1,4 +1,4 @@
-/* $Id: t-settings.c,v 1.8 2005-09-14 10:16:34 ensonic Exp $ */
+/* $Id: t-settings.c,v 1.9 2006-08-02 19:34:20 ensonic Exp $ */
 
 #include "m-bt-core.h"
 
@@ -49,6 +49,7 @@ BT_START_TEST(test_btsettings_get_audiosink1) {
   
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
   
+  /* clean up */
   g_object_unref(settings);
   g_free(saved_audiosink_name);
   g_free(test_audiosink_name);

@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.84 2006-08-01 17:13:58 ensonic Exp $
+// $Id: main-page-machines.c,v 1.85 2006-08-02 19:34:19 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -755,6 +755,8 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   gchar *density;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("machine view"));
   
   tips=gtk_tooltips_new();
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);

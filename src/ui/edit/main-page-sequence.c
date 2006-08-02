@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.121 2006-08-01 17:13:58 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.122 2006-08-02 19:34:19 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1589,6 +1589,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkAdjustment *vadjust;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("sequence view"));
   
   // add toolbar
   toolbar=gtk_toolbar_new();

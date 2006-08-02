@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.14 2006-07-27 20:16:38 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.15 2006-08-02 19:34:20 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -42,13 +42,12 @@ BT_START_TEST(test_create_app) {
   fail_unless(main_window != NULL, NULL);
   GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
 
+  // make screenshot
+  check_make_widget_screenshot(GTK_WIDGET(main_window),NULL);
+
   // close window
   g_object_unref(main_window);
   GST_INFO("main_window->ref_ct=%d",G_OBJECT(main_window)->ref_count);
-  
-  // make screenshot
-  check_make_widget_screenshot(GTK_WIDGET(main_window));
-
   // needs a main-loop (version 1,2)
   gtk_widget_destroy(GTK_WIDGET(main_window));
   // version 1
@@ -130,6 +129,9 @@ BT_START_TEST(test_load1) {
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
 
+  // make screenshot
+  check_make_widget_screenshot(GTK_WIDGET(main_window),"song");
+
   // close window
   g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -150,6 +152,8 @@ BT_START_TEST(test_tabs1) {
   BtMainWindow *main_window;
   BtMainPages *pages;
   BtSong *song;
+  GtkWidget *child;
+  GList *children;
   guint i,num_pages;
 
   app=bt_edit_application_new();
@@ -168,11 +172,18 @@ BT_START_TEST(test_tabs1) {
  
   // view all tabs
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
-  num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
+  children=gtk_container_get_children(GTK_CONTAINER(pages));
+  //num_pages=gtk_notebook_get_n_pages(GTK_NOTEBOOK(pages));
+  num_pages=g_list_length(children);
   for(i=0;i<num_pages;i++) {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
+    child=GTK_WIDGET(g_list_nth_data(children,i));
+
+    // make screenshot
+    check_make_widget_screenshot(GTK_WIDGET(pages),gtk_widget_get_name(child));
     while(gtk_events_pending()) gtk_main_iteration();
   }
+  g_list_free(children);
   g_object_unref(pages);
   
   // close window

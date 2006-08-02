@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.76 2006-07-27 20:16:37 ensonic Exp $
+# $Id: configure.ac,v 1.77 2006-08-02 19:34:19 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -351,7 +351,6 @@ AC_CONFIG_FILES(Makefile \
       docs/help/bt-edit/Makefile \
         docs/help/bt-edit/C/Makefile \
         docs/help/bt-edit/C/bt-edit-C.omf \
-        docs/help/bt-edit/C/bt-edit.xml \
     docs/reference/Makefile \
       docs/reference/bt-cmd/Makefile \
       docs/reference/bt-core/Makefile \

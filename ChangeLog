@@ -1,3 +1,48 @@
+2006-08-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/help/bt-edit/C/Makefile.am:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* docs/help/bt-edit/C/bt-edit.xml.in:
+	* docs/help/bt-edit/C/figures/main-window.png:
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	* docs/help/bt-edit/C/figures/page-machine-view.png:
+	* docs/help/bt-edit/C/figures/page-pattern-view.png:
+	* docs/help/bt-edit/C/figures/page-sequence-view.png:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	* docs/help/bt-edit/C/figures/pattern-properties.png:
+	* docs/help/bt-edit/C/figures/settings.png:
+	* docs/version.entities.in:
+          lots of small corrections, include new pictures
+
+	* po/.cvsignore:
+          ignore more
+
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_init_ui):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_init_ui):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_init_ui):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-page-waves.c: (bt_main_page_waves_init_ui):
+          add names for screenshots
+
+	* tests/bt-check.c: (check_make_widget_screenshot):
+	* tests/bt-check.h:
+	* tests/lib/core/Makefile.am:
+	* tests/lib/core/e-setup.c: (BT_START_TEST):
+	* tests/lib/core/s-song-info.c: (bt_song_info_suite):
+	* tests/lib/core/t-sequence.c: (BT_START_TEST):
+	* tests/lib/core/t-settings.c: (BT_START_TEST):
+	* tests/lib/core/t-setup.c: (BT_START_TEST), (bt_setup_test_case):
+	* tests/lib/core/t-song-info.c: (test_setup), (test_teardown),
+	(BT_START_TEST), (bt_song_info_test_case):
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+          test cleanups and new tests
+
 2006-08-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

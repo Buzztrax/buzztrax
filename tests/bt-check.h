@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.13 2006-07-27 20:16:38 ensonic Exp $
+/* $Id: bt-check.h,v 1.14 2006-08-02 19:34:20 ensonic Exp $
  * testing helpers
  */
 
@@ -74,6 +74,6 @@ extern void check_setup_test_display(void);
 extern void check_shutdown_test_display(void);
 extern void check_shutdown_test_server(void);
 
-extern void check_make_widget_screenshot(GtkWidget *widget);
+extern void check_make_widget_screenshot(GtkWidget *widget, const gchar *name);
 
 #endif /* BT_CHECK_H */

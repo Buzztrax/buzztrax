@@ -1,4 +1,4 @@
-/* $Id: e-setup.c,v 1.28 2006-08-01 20:02:07 ensonic Exp $
+/* $Id: e-setup.c,v 1.29 2006-08-02 19:34:20 ensonic Exp $
  */
 
 #include "m-bt-core.h"
@@ -22,16 +22,15 @@ static void test_teardown(void) {
 /**
 * In this test case we demonstrate how to create a setup and adding a machine
 * to the setup. 
-* Then we use the iterator to get the current added machine back and looking
-* if the machine was added nice.
-*
+* Then we use the iterator to get the current added machine back and check
+* if the machine was added correctly.
 */
 BT_START_TEST(test_btsetup_obj1){
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   // machine
-  BtSourceMachine *gen1=NULL;
+  BtSourceMachine *source=NULL;
   BtMachine *ref_machine=NULL;
   GList *list,*node;
   
@@ -43,9 +42,9 @@ BT_START_TEST(test_btsetup_obj1){
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
   
-  /* try to create generator1 */
-  gen1 = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
-  fail_unless(gen1!=NULL, NULL);
+  /* try to create machine */
+  source = bt_source_machine_new(song,"src","buzztard-test-mono-source",0);
+  fail_unless(source!=NULL, NULL);
   
   g_object_get(G_OBJECT(setup),"machines",&list,NULL);
   /* the list should not be null */
@@ -55,13 +54,19 @@ BT_START_TEST(test_btsetup_obj1){
   /* the pointer should be pointing to the gen1 machine */
   ref_machine=node->data;
   fail_unless(ref_machine!=NULL, NULL);
-  fail_unless(ref_machine==BT_MACHINE(gen1), NULL);
+  fail_unless(ref_machine==BT_MACHINE(source), NULL);
   fail_unless(BT_IS_SOURCE_MACHINE(ref_machine)==TRUE, NULL);
   
   /* the list should contain only one element */
   fail_unless(g_list_length(list)==1, NULL);
   
   g_list_free(list);
+
+  /* clean up */
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -131,6 +136,14 @@ BT_START_TEST(test_btsetup_obj2) {
   fail_unless(ref_wire!=NULL, NULL);
   fail_unless(ref_wire==wire, NULL);
   g_object_try_unref(ref_wire);  
+
+  /* clean up */
+  g_object_unref(wire);
+  g_object_unref(sink);
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -170,6 +183,12 @@ BT_START_TEST(test_btsetup_obj3) {
   /* try to get the machine back from the setup, the ref_machine should be null */
   ref_machine=bt_setup_get_machine_by_id(setup, "src");
   fail_unless(ref_machine==NULL, NULL);
+
+  /* clean up */
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -220,6 +239,14 @@ BT_START_TEST(test_btsetup_obj4) {
   /* check if we can get the wire from the setup. The ref_wire should be null */
   ref_wire=bt_setup_get_wire_by_src_machine(setup, BT_MACHINE(source));
   fail_unless(ref_wire==NULL,NULL);
+
+  /* clean up */
+  g_object_unref(wire);
+  g_object_unref(sink);
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -269,6 +296,13 @@ BT_START_TEST(test_btsetup_wire1) {
   g_object_unref(ref_wire);
   g_list_free(wire_list);
   
+  /* clean up */
+  g_object_unref(wire);
+  g_object_unref(sink);
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -318,6 +352,13 @@ BT_START_TEST(test_btsetup_wire2) {
   g_object_unref(ref_wire);
   g_list_free(wire_list);
   
+  /* clean up */
+  g_object_unref(wire);
+  g_object_unref(sink);
+  g_object_unref(source);
+  g_object_unref(setup);
+  g_object_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -354,6 +395,7 @@ BT_START_TEST(test_btsetup_machine1) {
   fail_unless(ref_machine==BT_MACHINE(source),NULL);
   g_object_unref(ref_machine);
   
+  /* clean up */
   g_object_unref(source);
   g_object_unref(setup);
   g_object_unref(song);
@@ -394,6 +436,7 @@ BT_START_TEST(test_btsetup_unique_id1){
   ref_machine=bt_setup_get_machine_by_id(setup,id);
   fail_unless(ref_machine==NULL, NULL);
 
+  /* clean up */
   g_free(id);
   g_object_unref(source);
   g_object_unref(setup);

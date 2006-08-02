@@ -1,0 +1,384 @@
+<?xml version="1.0"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY legal SYSTEM "legal.xml">
+<!ENTITY % version-entities SYSTEM "./version.entities">
+%version-entities;
+<!ENTITY app "Buzztard">
+]>
+<!--
+  (Do not remove this comment block.)
+  Maintained by Buzztard Developer team <buzztard-devel@lists.sourceforge.net>
+  Template version: 0.1
+  Template last modified: Dec 12, 2002
+-->
+<!-- ===========Document Header ======================== -->
+<article id="index" lang="en">
+<!-- 
+  please do not change the id: for translations, change lang to
+  appropriate code
+-->
+<articleinfo>
+  <title>&app; manual (&appversion;)</title>
+
+  <copyright>
+    <year>&rel_year;</year>
+    <holder>Stefan Kost</holder>
+  </copyright>
+
+  <!-- translators: uncomment this:
+  <copyright>
+    <year>2004</year>
+    <holder>ME-THE-TRANSLATOR (Latin translation)</holder>
+  </copyright>
+  -->
+
+  <publisher>
+    <publishername>Buzztard Developer Team</publishername>
+  </publisher>
+
+  &legal;
+
+  <authorgroup>
+    <author>
+      <firstname>Stefan</firstname>
+      <surname>Kost</surname>
+      <affiliation>
+        <orgname>Buzztard Developer team</orgname>
+        <address> <email>buzztard-devel@lists.sourceforge.net</email></address>
+      </affiliation>
+    </author>
+  </authorgroup>
+
+  <revhistory>
+    <revision>
+      <revnumber>&app; manual (&appversion;)</revnumber>
+      <date>&rel_date;</date>
+      <revdescription>
+        <para role="author">
+          Buzztard Developer team
+          <email>buzztard-devel@lists.sourceforge.net</email>
+        </para>
+      </revdescription>
+    </revision>
+  </revhistory>
+
+  <releaseinfo>This manual describes version &appversion; of &app;.</releaseinfo>
+  <legalnotice>
+    <title>Feedback</title>
+    <para>
+      To report a bug or make a suggestion regarding the &app; application
+      or this manual, see the Buzztard website at
+      <ulink url="http://www.buzztard.org">http://www.buzztard.org</ulink>.
+    </para>
+    <!-- Translators may also add feedback address for translations here -->
+  </legalnotice>
+</articleinfo>
+
+<indexterm><primary>&app;</primary></indexterm>
+<indexterm><primary>buzztard</primary></indexterm>
+
+<!--
+@todo: dialogs
+  machine properties
+  machine preferences
+  wire analysis
+  pattern properties
+-->
+
+<sect1 id="bt-edit-introduction">
+  <title>Introduction</title>
+  <para>
+    <application>&app;</application> is a music composer for the GNOME desktop.
+    It partly follows the concepts of programs like SoundTracker, FastTracker
+    and the like, but is based on a modern audio network engine (gstreamer).
+    This engine support vitual sound generator and effects in the form of
+    numerous plugins.
+  </para>
+  <para>
+    The &app; help system is separated into these sections:
+    <itemizedlist>
+      <listitem><para><link linkend="bt-edit-main" endterm="bt-edit-main.title"/></para></listitem>
+      <listitem><para><link linkend="bt-edit-pref" endterm="bt-edit-prefs.title"/></para></listitem>
+      <listitem><para><link linkend="bt-edit-reference" endterm="bt-edit-reference.title"/></para></listitem>
+    </itemizedlist>
+  </para>
+</sect1>
+
+<sect1 id="bt-edit-main">
+  <title id='bt-edit-main.title'>The main window</title>
+  <para>
+    After starting the <application>&app; Music Editor</application>, you will see the main window.
+    If you start the application without specifing an initial file
+    (as a parameter on the commandline or by double clicking a song in <application>Nautilus</application>),
+    the window will look like this.
+  </para>
+  
+  <figure id="bt-edit-main-window-fig">
+    <title>&app; window</title>
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="figures/main-window.png" format="PNG"/>
+        </imageobject>
+        <textobject>
+          <phrase>Shows &app; main window with menubar, toolbars, editor views and status area.</phrase>
+        </textobject>
+      </mediaobject>
+    </screenshot>
+  </figure>
+  
+  <para>
+    On the very top of the window is <link linkend="bt-edit-main-menu">the menu bar</link>.
+    Below one finds the toolbar.
+    And below again are tabs to switch between various views. Each view is for 
+    editing certain aspects of the song.
+    On the bottom is a status bar.
+  </para>
+
+  <sect2 id="bt-edit-main-menu">
+    <title id='bt-edit-main-menu.title'>The menu bar</title>
+    <para>
+      The menu bar gives you access to file operations, standard editing function,
+      settings and help.
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-main-toolbar">
+    <title id='bt-edit-main-toolbar.title'>The tool bar</title>
+    <para>
+      In contrast to <link linkend="bt-edit-main">the menu bar</link> the tool
+      bar only shows common operations as shortcuts.
+      On the right end the tollbar shows a volume-meter for each audio-channel
+      and a volume control.
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-main-views">
+    <title id='bt-edit-main-views.title'>The song views</title>
+    <para>
+      Each part of a song is represented by a specialized views which one can
+      switch to with the tabs.
+      Next we briefly introduce each tab, where in the next sub section they will
+      be described in detail.
+    </para>
+    
+    <sect3 id="bt-edit-main-view-machines">
+      <title id='bt-edit-main-view-machines.title'>The machine view of a song</title>
+      <para>
+        A song utilises sound generators, effects and sinks - all called machines.
+        A new machine can be added from the context menu that apprear on a right
+        click over the page area.
+        Machines can be moved around by grabing them with the mouse and draging
+        them around.
+        To connect machines, move pointer over the source, press shift+left mousebutton
+        and drag the wire to the target machine. The wire turns green, if the
+        connect can be made.
+      </para>
+      <figure id="bt-edit-page-machine-view-fig">
+        <title>Machine view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-machine-view.png" format="PNG"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs machine view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        The machines have a state switch in the upper left corner. You can click
+        this to set it to working state. Additionally holding Ctrl, Win (Mod) or
+        Ctrl+Win keys sets the machine to mute, solo or bypass.
+        Not all machines support all these states.
+      </para>
+      <para>
+        Machines and wires have context menues. The menu for the wire can be
+        accessed by right clicking over the triangle shape.
+      </para>
+      <note><title>Limmitations</title>
+        <para>
+          Panorama stuff is still missing and so are stereo elements.
+        </para>
+      </note>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-patterns">
+      <title id='bt-edit-main-view-patterns.title'>The pattern view of a song</title>
+      <para>
+        Patterns are the building blocks of a song. They are short snippets of
+        events for one machine, that can be reused in the sequence.
+      </para>
+      <figure id="bt-edit-page-pattern-view-fig">
+        <title>Pattern view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-pattern-view.png" format="PNG"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs pattern view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+	      To switch to the sequence editor press 'Enter' while the pattern editor has focus.
+      </para>
+      <note><title>Limmitations</title>
+        <para>
+          Editing the pattern is currently not realy comfortable.
+        </para>
+      </note>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-sequence">
+      <title id='bt-edit-main-view-sequence.title'>The sequence view of a song</title>
+      <para>
+        A song consists of several tracks (columns), where in each track patterns
+        are played. The rows are time slots.
+      </para>
+      <figure id="bt-edit-page-sequence-view-fig">
+        <title>Sequence view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-sequence-view.png" format="PNG"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs sequence view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <para>
+        Patterns can be entered into tracks by pressing the associated key.
+	      To switch to the pattern editor with the pattern the cursor is over selected,
+	      press 'Enter'.
+      </para>
+      <para>
+        To set play position click with left-mouse button in 'pos' column at the
+	      desired time location. To modify the loop start/end instead hold down
+	      the Ctrl or Win (Mod) key while clicking.
+      </para>
+      <note><title>Limmitations</title>
+        <para>
+          One can't yet expand or shorten the sequence.
+        </para>
+      </note>
+      <para>
+        (FIXME: special-patterns = {mute, solo, bypass, stop}) 
+      </para>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-waves">
+      <title id='bt-edit-main-view-waves.title'>The wavetable view of a song</title>
+      <para>
+        The wavetable hold sampled audio snippet that can be used e.g. from
+        tracker sources.
+      </para>
+      <figure id="bt-edit-page-wavetable-view-fig">
+        <title>Wave-table view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-sequence-view.png" format="PNG"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs wave-table view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+      <note><title>Limmitations</title>
+        <para>
+          Not working yet at all.
+        </para>
+      </note>
+    </sect3>
+
+    <sect3 id="bt-edit-main-view-info">
+      <title id='bt-edit-main-view-info.title'>The information view of a song</title>
+      <para>
+        This page allows you to change song parameters, such as speed and
+        timing resolutions and to enter information about the song.
+        The meta data will be used for the tags when creating a final mix-down.
+      </para>
+      <figure id="bt-edit-page-info-view-fig">
+        <title>Info view</title>
+        <screenshot>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="figures/page-sequence-view.png" format="PNG"/>
+            </imageobject>
+            <textobject>
+              <phrase>The songs info view.</phrase>
+            </textobject>
+          </mediaobject>
+        </screenshot>
+      </figure>
+    </sect3>
+
+  </sect2>
+
+  <sect2 id="bt-edit-main-statusbar">
+    <title id='bt-edit-main-statusbar.title'>The status bar</title>
+    <para>
+      The status bar that is located at the bottom of the window.
+      On the left side it shows the status of longer operations like saving and loading.
+      On the right side, it displays the length of the song, the loop and the playposition.
+    </para>
+  </sect2>
+
+</sect1>
+
+<sect1 id="bt-edit-prefs">
+  <title id='bt-edit-prefs.title'>The settings window</title>
+  <para>
+    This window contains all settings for the <application>&app;</application>
+    application. All settings are grouped into categories that can be chosen from
+    the list on the left side.
+  </para>
+
+  <figure id="bt-edit-settings-fig">
+    <title>Settings dialog</title>
+    <screenshot>
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="figures/settings.png" format="PNG"/>
+        </imageobject>
+        <textobject>
+          <phrase>Shows settings dialog.</phrase>
+        </textobject>
+      </mediaobject>
+    </screenshot>
+  </figure>
+
+  <sect2 id="bt-edit-prefs-audio">
+    <title id='bt-edit-prefs-audio.title'>Audio device settings</title>
+    
+    <para>
+      (FIXME:)
+    </para>
+  </sect2>
+
+</sect1>
+
+<sect1 id="bt-edit-reference">
+  <title id='bt-edit-reference.title'>Reference</title>
+  <para>
+    This chapter contains a few useful lists for reference.
+  </para>
+
+  <sect2 id="bt-edit-reference-shortcuts">
+    <title id='bt-edit-reference-shortcuts.title'>Keyboard shortcuts</title>
+
+    <para>
+      (FIXME:)
+    </para>
+  </sect2>
+
+</sect1>
+
+</article>

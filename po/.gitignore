@@ -6,6 +6,7 @@ insert-header.sin
 *@quot.header
 *@boldquot.header
 *.gmo
+@GETTEXT_PACKAGE@.pot
 notexist
 buzztard.pot
 boldquot.sed

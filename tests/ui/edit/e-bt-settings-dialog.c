@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.10 2006-07-27 20:16:38 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.11 2006-08-02 19:34:20 ensonic Exp $
  */
 
 #include "m-bt-edit.h"
@@ -38,7 +38,7 @@ BT_START_TEST(test_create_dialog) {
   //gtk_dialog_run(GTK_DIALOG(dialog));
   
   // make screenshot
-  check_make_widget_screenshot(GTK_WIDGET(dialog));
+  check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
   
   gtk_widget_destroy(dialog);
   

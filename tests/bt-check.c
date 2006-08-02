@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.23 2006-07-28 18:11:32 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.24 2006-08-02 19:34:20 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -793,7 +793,7 @@ void check_shutdown_test_server(void) {
  *
  * 
  */
-void check_make_widget_screenshot(GtkWidget *widget) {
+void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   GdkColormap *colormap=gdk_colormap_get_system();
   GdkWindow *window=widget->window;
   GdkPixbuf *pixbuf, *scaled_pixbuf;
@@ -805,13 +805,29 @@ void check_make_widget_screenshot(GtkWidget *widget) {
   // make sure the window gets drawn  
   while(gtk_events_pending()) gtk_main_iteration();
   
-  filename=g_strdup_printf("/tmp/%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget));
+  if(!name) {
+    filename=g_strdup_printf("/tmp/%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget));
+  }
+  else {
+    filename=g_strdup_printf("/tmp/%s_%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget),name);
+  }
 
   gdk_window_get_geometry(window,&wx,&wy,&ww,&wh,NULL);
   pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,ww,wh);
   gdk_pixbuf_get_from_drawable(pixbuf,window,colormap,0,0,0,0,ww,wh);
   scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
   gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
+  
+  /* @todo: add shadow to screenshots
+  // see: http://developer.gnome.org/doc/books/WGA/graphics-gdk-pixbuf.html
+  // add alpha channel for shadow
+  shadow_pixbuf = gdk_pixbuf_add_alpha(scaled_pixbuf, FALSE, 0,0,0);
+  // enlarge pixbuf
+  gdk_pixbuf_copy_area(const GdkPixbuf *src_pixbuf,
+    int src_x, int src_y, int width, int height,
+    GdkPixbuf *dest_pixbuf, int dest_x, int dest_y);
+  // draw shadow
+  */
 
   g_object_unref(pixbuf);
   g_object_unref(scaled_pixbuf);

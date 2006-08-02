@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.19 2006-07-25 20:08:27 ensonic Exp $ 
+/* $Id: t-sequence.c,v 1.20 2006-08-02 19:34:20 ensonic Exp $ 
  */
 
 #include "m-bt-core.h"
@@ -17,6 +17,7 @@ static void test_teardown(void) {
   //puts(__FILE__":teardown");
 }
 
+/* apply generic property tests to sequence */
 BT_START_TEST(test_btsequence_properties) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
@@ -34,9 +35,12 @@ BT_START_TEST(test_btsequence_properties) {
   
   check_prop_ret=check_gobject_properties(G_OBJECT(sequence));
   fail_unless(check_prop_ret==TRUE,NULL);
+
+  /* clean up */
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
 }
 BT_END_TEST
-
 
 /* try to create a new sequence with NULL for song object */
 BT_START_TEST(test_btsequence_obj1) {
@@ -65,7 +69,8 @@ BT_START_TEST(test_btsequence_add_track1) {
   check_init_error_trapp("","BT_IS_MACHINE(machine)");
   bt_sequence_add_track(sequence,NULL);
   fail_unless(check_has_error_trapped(), NULL);
-  
+
+  /* clean up */  
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -93,6 +98,7 @@ BT_START_TEST(test_btsequence_add_track2) {
   bt_sequence_add_track(NULL,BT_MACHINE(machine));
   fail_unless(check_has_error_trapped(), NULL);
   
+  /* clean up */  
   g_object_try_unref(machine);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -116,6 +122,7 @@ BT_START_TEST(test_btsequence_rem_track1) {
   bt_sequence_remove_track_by_machine(sequence,NULL);
   fail_unless(check_has_error_trapped(), NULL);
   
+  /* clean up */  
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -142,6 +149,7 @@ BT_START_TEST(test_btsequence_rem_track2) {
   
   bt_sequence_remove_track_by_machine(sequence,BT_MACHINE(machine));
   
+  /* clean up */  
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
@@ -169,6 +177,7 @@ BT_START_TEST(test_btsequence_length1) {
   bt_sequence_set_label(sequence,5,"test");
   fail_unless(check_has_error_trapped(), NULL);
   
+  /* clean up */  
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
