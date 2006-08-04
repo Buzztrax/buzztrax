@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.24 2006-08-02 19:34:20 ensonic Exp $ */
+/* $Id: bt-check.c,v 1.25 2006-08-04 21:29:47 ensonic Exp $ */
 /**
  * SECTION::btcheck:
  * @short_description: testing helpers
@@ -714,14 +714,51 @@ void check_setup_test_display(void) {
   if(display_number>-1) {
     // activate the display for use with gtk
     if((display_manager = gdk_display_manager_get())) {
+      GdkScreen *default_screen;
+      GtkSettings *default_settings;
+      gchar *theme_name;
+      
 			default_display = gdk_display_manager_get_default_display(display_manager);
+      if((default_screen = gdk_display_get_default_screen(default_display))) {
+        /* this block when protected by gdk_threads_enter() and crashes if not :( */
+        //gdk_threads_enter();
+        if((default_settings = gtk_settings_get_for_screen(default_screen))) {
+          g_object_get(default_settings,"gtk-theme-name",&theme_name,NULL);
+          GST_INFO("current theme is \"%s\"",theme_name);
+          //g_object_unref(default_settings);
+        }
+        else GST_WARNING("can't get default_settings");
+        //gdk_threads_leave();
+        //g_object_unref(default_screen);
+      }
+      else GST_WARNING("can't get default_screen");
+      
 			if((test_display = gdk_display_open(display_name))) {
+        GdkScreen *test_screen;
+        GtkSettings *test_settings;
+
+        /* this causes gtk to freak out :( */
+        if((test_screen = gdk_display_get_default_screen(test_display))) {
+          //gdk_threads_enter();
+          if((test_settings = gtk_settings_get_for_screen(test_screen))) {
+            g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
+            gtk_rc_reparse_all_for_settings(test_settings,TRUE);
+            GST_INFO("theme switched ");
+            //g_object_unref(test_settings);
+          }
+          else GST_WARNING("can't get test_settings on display: \"%s\"",display_name);
+          //gdk_threads_leave();
+          //g_object_unref(test_screen);
+        }
+        else GST_WARNING("can't get test_screen on display: \"%s\"",display_name);
+
 				gdk_display_manager_set_default_display(display_manager,test_display);
-				GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
+				GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));        
 			}
 			else {
 				GST_WARNING("failed to open display: \"%s\"",display_name);
 			}
+      //g_free(theme_name);
 		}
 		else {
 			GST_WARNING("can't get display-manager");
@@ -749,7 +786,7 @@ void check_shutdown_test_display(void) {
     GST_INFO("display has been restored");
 		// TODO here it hangs
     //gdk_display_close(test_display);
-		/* gdk_display_close does basically (which still hangs):
+		/* gdk_display_close() does basically the following (which still hangs):
 		//g_object_run_dispose (G_OBJECT (test_display));
 		GST_INFO("test_display has been disposed");
     //g_object_unref (test_display);
@@ -820,6 +857,8 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   
   /* @todo: add shadow to screenshots
   // see: http://developer.gnome.org/doc/books/WGA/graphics-gdk-pixbuf.html
+  // gdk_drawable_get_image / gdk_pixbuf_get_from_image
+  
   // add alpha channel for shadow
   shadow_pixbuf = gdk_pixbuf_add_alpha(scaled_pixbuf, FALSE, 0,0,0);
   // enlarge pixbuf
@@ -827,6 +866,7 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
     int src_x, int src_y, int width, int height,
     GdkPixbuf *dest_pixbuf, int dest_x, int dest_y);
   // draw shadow
+  // how to draw into a pixbuf? map to offscreen drawable?
   */
 
   g_object_unref(pixbuf);

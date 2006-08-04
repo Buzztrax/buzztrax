@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.87 2006-08-01 17:13:58 ensonic Exp $
+// $Id: wire.c,v 1.88 2006-08-04 21:29:47 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -16,6 +16,8 @@
  *    gst_element_add_ghost_pad and gst_element_remove_ghost_pad
  *  What if we can directly connect src->dst, then the wire can't be an element (nothing there to use as ghost-pads).
  *  On the other hand this is only the case, if we do not need converters and have no volume and no monitors.
+ *
+ * * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
  */
  
 #define BT_CORE

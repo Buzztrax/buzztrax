@@ -15,26 +15,29 @@ dist-hook: app-dist-hook
 
 update_figures:
 	if [ -e "/tmp/check_buzzard_main window.png" ]; then \
-	  cp "/tmp/check_buzzard_main window.png" figures/main-window.png; \
+	  pngtopnm "/tmp/check_buzzard_main window.png" | ../../mk-shadow.sh | pnmtopng >figures/main-window.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_pattern properties.png" ]; then \
-	  cp "/tmp/check_buzzard_pattern properties.png" figures/pattern-properties.png; \
+	  pngtopnm "/tmp/check_buzzard_pattern properties.png" | ../../mk-shadow.sh | pnmtopng >figures/pattern-properties.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_buzztard settings.png" ]; then \
-	  cp "/tmp/check_buzzard_buzztard settings.png" figures/settings.png; \
+	  pngtopnm "/tmp/check_buzzard_buzztard settings.png" | ../../mk-shadow.sh | pnmtopng >figures/settings.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_song views_machine view.png" ]; then \
-	  cp "/tmp/check_buzzard_song views_machine view.png" figures/page-machine-view.png; \
+	  pngtopnm "/tmp/check_buzzard_song views_machine view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-machine-view.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_song views_pattern view.png" ]; then \
-	  cp "/tmp/check_buzzard_song views_pattern view.png" figures/page-pattern-view.png; \
+	  pngtopnm "/tmp/check_buzzard_song views_pattern view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-pattern-view.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_song views_sequence view.png" ]; then \
-	  cp "/tmp/check_buzzard_song views_sequence view.png" figures/page-sequence-view.png; \
+	  pngtopnm "/tmp/check_buzzard_song views_sequence view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-sequence-view.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_song views_song information.png" ]; then \
-	  cp "/tmp/check_buzzard_song views_song information.png" figures/page-info-view.png; \
+	  pngtopnm "/tmp/check_buzzard_song views_song information.png" | ../../mk-shadow.sh | pnmtopng >figures/page-info-view.png; \
 	fi; \
 	if [ -e "/tmp/check_buzzard_song views_wave table view.png" ]; then \
-	  cp "/tmp/check_buzzard_song views_wave table view.png" figures/page-wavetable-view.png; \
+	  pngtopnm "/tmp/check_buzzard_song views_wave table view.png" | ../../mk-shadow.sh | pnmtopng >figures/page-wavetable-view.png; \
 	fi;
+
+## add shadows (now integrated above)
+## for PNG in *.png; do pngtopnm "$PNG" | ../../../mk-shadow.sh | pnmtopng > "${PNG//.png}"-with-shadow.png

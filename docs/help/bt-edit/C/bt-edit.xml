@@ -283,7 +283,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-sequence-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-wavetable-view.png" format="PNG"/>
             </imageobject>
             <textobject>
               <phrase>The songs wave-table view.</phrase>
@@ -310,7 +310,7 @@
         <screenshot>
           <mediaobject>
             <imageobject>
-              <imagedata fileref="figures/page-sequence-view.png" format="PNG"/>
+              <imagedata fileref="figures/page-info-view.png" format="PNG"/>
             </imageobject>
             <textobject>
               <phrase>The songs info view.</phrase>

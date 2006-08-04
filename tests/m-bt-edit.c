@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.17 2005-12-16 21:54:44 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.18 2006-08-04 21:29:47 ensonic Exp $
  * graphical editor app unit tests
  */
 
@@ -48,14 +48,14 @@ void bt_edit_setup(void) {
 
   check_setup_test_display();
 
-  //gdk_threads_try_enter();
+  //gdk_threads_enter();
 	
   GST_INFO("================================================================================");
 }
 
 void bt_edit_teardown(void) {
   GST_INFO("................................................................................");
-  //gdk_threads_try_leave();
+  //gdk_threads_leave();
 
   check_shutdown_test_display();
   GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
@@ -87,10 +87,11 @@ int main(int argc, char **argv) {
   sr=srunner_create(bt_edit_application_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());
+  srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
-
+  
   check_shutdown_test_server();
 	
   return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 

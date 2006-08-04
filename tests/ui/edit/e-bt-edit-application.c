@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.15 2006-08-02 19:34:20 ensonic Exp $ 
+/* $Id: e-bt-edit-application.c,v 1.16 2006-08-04 21:29:47 ensonic Exp $ 
  */
 
 #include "m-bt-edit.h"
@@ -119,7 +119,7 @@ BT_START_TEST(test_load1) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
   
-  bt_edit_application_load_song(app,"songs/test-simple1.xml");
+  bt_edit_application_load_song(app,"songs/melo3.xml");
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   g_object_unref(song);
@@ -160,7 +160,7 @@ BT_START_TEST(test_tabs1) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
   
-  bt_edit_application_load_song(app,"songs/test-simple1.xml");
+  bt_edit_application_load_song(app,"songs/melo3.xml");
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   g_object_unref(song);

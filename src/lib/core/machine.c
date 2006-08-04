@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.212 2006-08-01 17:13:58 ensonic Exp $
+// $Id: machine.c,v 1.213 2006-08-04 21:29:47 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -48,10 +48,12 @@
  * event patterns that form a #BtSequence.
  */ 
 /*
- * @todo try to derive this from GstBin!
+ * @todo: try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
  *  when adding internal machines we need to fix the ghost pads (this may require relinking)
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
+ *
+ * @todo: when using the tee, we need queue elements after
  */
  
 #define BT_CORE

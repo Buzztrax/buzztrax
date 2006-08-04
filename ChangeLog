@@ -1,3 +1,38 @@
+2006-08-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/Makefile.am:
+          add copying screenshots from test-runs
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+          fix wrong screenshot refs
+
+	* docs/help/bt-edit/C/figures/main-window.png:
+	* docs/help/bt-edit/C/figures/page-info-view.png:
+	* docs/help/bt-edit/C/figures/page-machine-view.png:
+	* docs/help/bt-edit/C/figures/page-pattern-view.png:
+	* docs/help/bt-edit/C/figures/page-sequence-view.png:
+	* docs/help/bt-edit/C/figures/page-wavetable-view.png:
+	* docs/help/bt-edit/C/figures/pattern-properties.png:
+	* docs/help/bt-edit/C/figures/settings.png:
+          new screenshots again
+
+	* docs/help/mk-shadow.sh:
+          imagemagick-script to create shadows for screenshots
+
+	* docs/reference/bt-cmd/tmpl/.cvsignore:
+          ignore more
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+          two comments about future queue usage
+
+	* tests/bt-check.c: (check_setup_test_display),
+	(check_shutdown_test_display), (check_make_widget_screenshot):
+	* tests/m-bt-edit.c: (bt_edit_setup), (bt_edit_teardown), (main):
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST):
+          use a loaded song in tab-test to see something, disable FORK for gui
+          test, clone theme settings for virtual display
+
 2006-08-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
