@@ -20,8 +20,8 @@
     <machines>
       <machine type="sink" id="audio_sink">
         <properties>
-         <property key="xpos" value="10" />
-         <property key="ypos" value="40" />
+         <property key="xpos" value="0.7" />
+         <property key="ypos" value="0.0" />
         </properties>
         <globaldata name="volume" value="20"/>
         <globaldata name="bpm" value="145"/>
@@ -29,22 +29,22 @@
       
       <machine type="source" id="gen" plugin-name="bml-CyanPhase-DTMF-1" voices="0">
         <properties>
-         <property key="xpos" value="10" />
-         <property key="ypos" value="20" />
+         <property key="xpos" value="-0.7" />
+         <property key="ypos" value="0.0" />
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
             <tick time="0">
-              <voicedata name="Dial-Number" voice="0" value="1"/>
-              <voicedata name="Sustain" voice ="0" value="200"/>
-              <voicedata name="Volume" voice="0" value="200"/>
+              <globaldata name="Dial-Number" value="1"/>
+              <globaldata name="Sustain" value="200"/>
+              <globaldata name="Volume" value="200"/>
             </tick>
             <tick time="4">
-              <voicedata name="Dial-Number" voice="0" value="2"/>
+              <globaldata name="Dial-Number" value="2"/>
             </tick>
             <tick time="8">
-              <voicedata name="Dial-Number" voice="0" value="3"/>
+              <globaldata name="Dial-Number" value="3"/>
             </tick>
           </pattern>
         </patterns>
@@ -56,7 +56,7 @@
     </wires>    
   </setup>
     
-  <sequence length="64" tracks="1">
+  <sequence loop="off" length="64" tracks="1">
     <labels>
       <label time="0" name="start"/>
       <label time="63" name="end"/>

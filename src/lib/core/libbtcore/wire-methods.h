@@ -1,4 +1,4 @@
-/* $Id: wire-methods.h,v 1.11 2005-09-28 19:34:56 ensonic Exp $
+/* $Id: wire-methods.h,v 1.12 2006-08-05 16:14:18 ensonic Exp $
  * defines all public methods of the wire class
  */
 
@@ -12,5 +12,6 @@ extern BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, con
 extern gboolean bt_wire_reconnect(BtWire *self);
 
 extern GList *bt_wire_get_element_list(const BtWire *self);
+extern void bt_wire_dbg_print_parts(const BtWire *self);
 
 #endif // BT_WIRE_METHDOS_H

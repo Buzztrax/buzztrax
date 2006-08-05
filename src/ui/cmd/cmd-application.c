@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.80 2006-04-30 22:30:56 ensonic Exp $
+// $Id: cmd-application.c,v 1.81 2006-08-05 16:14:18 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -218,7 +218,7 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   
   GST_INFO("objects initialized");
   
-  if(bt_song_io_load(loader,song)) {
+  if(bt_song_io_load(loader,song)) {   
     if(bt_cmd_application_play_song(self,song)) {
       res=TRUE;
     }

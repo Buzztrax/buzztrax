@@ -36,13 +36,19 @@
         <patterns>
           <pattern id="gen_beeps" machine="gen" name="beeps" length="16">
             <tick time="0">
-              <globaldata name="Note" value="24"/>
+              <globaldata name="Note" value="36"/>
+              <globaldata name="Length" value="80"/>
+              <globaldata name="Hi-Volume" value="32766"/>
+              <globaldata name="Flt-Decay" value="15"/>
             </tick>
             <tick time="4">
-              <globaldata name="Note" value="28"/>
+              <globaldata name="Note" value="40"/>
             </tick>
             <tick time="8">
-              <globaldata name="Note" value="31"/>
+              <globaldata name="Note" value="43"/>
+            </tick>
+            <tick time="10">
+              <globaldata name="Note" value="43"/>
             </tick>
           </pattern>
         </patterns>

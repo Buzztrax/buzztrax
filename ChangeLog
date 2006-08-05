@@ -1,3 +1,20 @@
+2006-08-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/song.c: (bt_song_play):
+	* src/lib/core/wire.c: (bt_wire_link_machines),
+	(bt_wire_dbg_print_parts):
+          more debug, always use audioconvert for links
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play):
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz9.xml:
+	* tests/songs/combi1.xml:
+          new song, other fixed to be more audible
+
 2006-08-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/Makefile.am:

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<buzztard
+  xmlns="http://www.buzztard.org/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance"
+  xsd:noNamespaceSchemaLocation="buzztard.xsd">
+
+  <meta>
+    <info>one buzz generator</info>
+    <name>buzz 1</name>
+    <genre>dark-wave</genre>
+    <bpm>120</bpm>
+    <tpb>4</tpb>
+    <bars>16</bars>
+    <create-dts>2005-09-20T22:10:56Z</create-dts>
+    <change-dts>2005-09-20T22:10:56Z</change-dts>
+  </meta>
+  
+  <setup>
+    <machines>
+      <machine type="sink" id="audio_sink">
+        <properties>
+         <property key="xpos" value="0.7" />
+         <property key="ypos" value="0.0" />
+        </properties>
+        <globaldata name="volume" value="20"/>
+        <globaldata name="bpm" value="145"/>
+      </machine>
+      
+      <machine type="source" id="beeps" plugin-name="bml-CyanPhase-DTMF-1" voices="0">
+        <properties>
+         <property key="xpos" value="-0.7" />
+         <property key="ypos" value="0.2" />
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="beeps_beeps" machine="beeps" name="beeps" length="16">
+            <tick time="0">
+              <globaldata name="Dial-Number" value="1"/>
+              <globaldata name="Sustain" value="30"/>
+              <globaldata name="Volume" value="50"/>
+            </tick>
+            <tick time="4">
+              <globaldata name="Dial-Number" value="2"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="Dial-Number" value="3"/>
+            </tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+      <machine type="source" id="beats" plugin-name="bml-Arguelles-GoaKick" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="beats_beats" machine="beats" name="beats" length="16">
+            <tick time="0">
+              <globaldata name="Trigger" value="90"/>
+              <globaldata name="Tone" value="40"/>
+            </tick>
+            <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+            <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+            <tick time="14"><globaldata name="Trigger" value="40"/></tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+    </machines>
+    
+    <wires>
+      <wire src="beeps" dst="audio_sink" gain="1.0" pan="-50"/>
+      <wire src="beats" dst="audio_sink" gain="1.0" pan="50"/>
+    </wires>    
+  </setup>
+    
+  <sequence loop="off" length="64" tracks="2">
+    <labels>
+      <label time="0" name="start"/>
+      <label time="63" name="end"/>
+    </labels>
+    <tracks>
+      <track index="0" machine="beeps">
+        <position time="0" pattern="beeps_beeps"/>
+        <position time="32" pattern="beeps_beeps"/>
+      </track>
+      <track index="1" machine="beats">
+        <position time="0" pattern="beats_beats"/>
+        <position time="16" pattern="beats_beats"/>
+        <position time="32" pattern="beats_beats"/>
+        <position time="48" pattern="beats_beats"/>
+      </track>
+    </tracks>
+  </sequence>
+
+</buzztard>

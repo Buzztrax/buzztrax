@@ -1,4 +1,4 @@
-// $Id: wire.c,v 1.88 2006-08-04 21:29:47 ensonic Exp $
+// $Id: wire.c,v 1.89 2006-08-05 16:14:18 ensonic Exp $
 /**
  * SECTION:btwire
  * @short_description: class for a connection of two #BtMachines
@@ -218,8 +218,10 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
   
   GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   // try link src to dst {directly, with convert, with scale, with ...}
+  /*
   if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL)) {
     gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL);
+    */
     if(!machines[PART_CONVERT]) {
       bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
       g_assert(machines[PART_CONVERT]!=NULL);
@@ -273,12 +275,14 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
       machines[PART_DST]=machines[PART_CONVERT];
       GST_DEBUG("  wire okay with convert");
     }
+  /*
   }
   else {
     machines[PART_SRC]=machines[PART_TEE];
     machines[PART_DST]=machines[PART_GAIN];
     GST_DEBUG("  wire okay");
   }
+  */
   return(res);
 }
 
@@ -513,6 +517,25 @@ GList *bt_wire_get_element_list(const BtWire *self) {
   }
   
   return(list);
+}
+
+void bt_wire_dbg_print_parts(const BtWire *self) {
+  gchar *sid=NULL,*did=NULL;
+  
+  if(self->priv->src) g_object_get(self->priv->src,"id",&sid,NULL);
+  if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
+      
+  /* [Src T G C S Dst] */
+  GST_DEBUG("%s->%s [%s %s %s %s %s %s]", sid, did,  
+    self->priv->machines[PART_SRC]?"SRC":"src",
+    self->priv->machines[PART_TEE]?"T":"t",
+    self->priv->machines[PART_GAIN]?"G":"g",
+    self->priv->machines[PART_CONVERT]?"C":"c",
+    self->priv->machines[PART_SCALE]?"S":"s",
+    self->priv->machines[PART_DST]?"DST":"dst"
+  );
+  g_free(sid);
+  g_free(did);
 }
 
 //-- io interface

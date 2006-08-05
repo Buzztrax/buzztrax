@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.135 2006-08-01 17:13:58 ensonic Exp $
+// $Id: song.c,v 1.136 2006-08-05 16:14:18 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -377,11 +377,28 @@ gboolean bt_song_play(const BtSong *self) {
   bt_song_idle_stop(self);
   
   GST_INFO("prepare playback");
+  // DEBUG
+  {
+    GList *list,*node;
+    BtWire *wire;
+
+    bt_machine_dbg_print_parts(BT_MACHINE(self->priv->master));
+    list=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
+    for(node=list;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      bt_wire_dbg_print_parts(wire);
+      g_object_unref(wire);
+    }
+    g_list_free(list);
+  }
+  // DEBUG  
+  
   // prepare playback
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
   GST_INFO("->PAUSED state change returned %d",res);
   if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
+    bt_machine_dbg_print_parts(BT_MACHINE(self->priv->master));
     return(FALSE);
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
@@ -441,6 +458,7 @@ gboolean bt_song_play(const BtSong *self) {
   GST_INFO("->PLAYING state change returned %d",res);
   if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to playing state");
+    bt_machine_dbg_print_parts(BT_MACHINE(self->priv->master));
     return(FALSE);
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
