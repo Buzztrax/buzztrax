@@ -1,8 +1,11 @@
-// $Id: machine-preferences-dialog.c,v 1.22 2006-07-29 19:55:06 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.23 2006-08-05 23:29:22 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
  */ 
+
+/* @todo: filter certain properties (tempo iface, ...)
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_PREFERENCES_DIALOG_C

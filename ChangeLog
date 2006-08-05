@@ -1,3 +1,28 @@
+2006-08-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/application.c: (bus_handler), (bt_application_init):
+          Change priority of bus handler to get loop-end messages
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_int_range_global_property_format_value),
+	(on_int_range_voice_property_format_value),
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(on_double_range_property_notify),
+	(on_double_range_property_changed),
+	(on_int_range_property_changed), (on_uint_range_property_changed),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_double_range_widget), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_class_init):
+          line up range-widgets, add custom labels for values
+
+	* src/ui/edit/main-page-machines.c: (on_toolbar_zoom_fit_clicked):
+          try to get zoom-fit to work (not ready, but better)
+
+	* tests/songs/buzz8.xml:
+          add another generator
+
 2006-08-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

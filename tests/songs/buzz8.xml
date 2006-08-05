@@ -34,43 +34,90 @@
         </properties>
       </machine>
 
-      <machine type="source" id="gen" plugin-name="bml-Arguelles-GoaKick" voices="0">
+      <machine type="source" id="kick" plugin-name="bml-Arguelles-GoaKick" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="gen_beats" machine="gen" name="beats" length="16">
+          <pattern id="kick_beats" machine="kick" name="beats" length="16">
             <tick time="0">
-              <globaldata name="Trigger" value="10"/>
+              <globaldata name="Trigger" value="110"/>
               <globaldata name="Tone" value="40"/>
             </tick>
-            <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+            <tick time="4"><globaldata name="Trigger" value="60"/></tick>
             <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+            <tick time="12"><globaldata name="Trigger" value="60"/></tick>
+          </pattern>
+        </patterns>
+      </machine>
+      <machine type="source" id="guru2" plugin-name="bml-Arguelles-Guru-2" voices="0">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="-0.5"/>
+        </properties>
+        <globaldata name="volume" value="1.0"/>
+        <patterns>
+          <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
+            <tick time="0">
+              <globaldata name="Note" value="36"/>
+              <globaldata name="Length" value="40"/>
+              <globaldata name="Hi-Volume" value="32766"/>
+              <globaldata name="Flt-Decay" value="15"/>
+            </tick>
+            <tick time="2">
+              <globaldata name="Note" value="24"/>
+            </tick>
+            <tick time="4">
+              <globaldata name="Note" value="40"/>
+            </tick>
+            <tick time="6">
+              <globaldata name="Note" value="24"/>
+            </tick>
+            <tick time="8">
+              <globaldata name="Note" value="43"/>
+            </tick>
+            <tick time="10">
+              <globaldata name="Note" value="43"/>
+            </tick>
+            <tick time="12">
+              <globaldata name="Note" value="24"/>
+            </tick>
+            <tick time="14">
+              <globaldata name="Note" value="24"/>
+            </tick>
           </pattern>
         </patterns>
       </machine>
     </machines>
     
     <wires>
-      <wire src="gen" dst="chorus" gain="1.0" pan="0"/>
+      <wire src="kick" dst="chorus" gain="1.5" pan="0"/>
+      <wire src="guru2" dst="chorus" gain="0.5" pan="0"/>
       <wire src="chorus" dst="audio_sink" gain="1.0" pan="0"/>
     </wires>    
   </setup>
   
-  <sequence length="96" tracks="1">
+  <sequence length="96" tracks="2">
     <labels>
       <label time="0" name="start"/>
       <label time="95" name="end"/>
     </labels>
     <tracks>
-      <track index="0" machine="gen">
-        <position time="0" pattern="gen_beats"/>
-        <position time="32" pattern="gen_beats"/>
-        <position time="48" pattern="gen_beats"/>
-        <position time="64" pattern="gen_beats"/>
-        <position time="80" pattern="gen_beats"/>
+      <track index="0" machine="kick">
+        <position time="0" pattern="kick_beats"/>
+        <position time="32" pattern="kick_beats"/>
+        <position time="48" pattern="kick_beats"/>
+        <position time="64" pattern="kick_beats"/>
+        <position time="80" pattern="kick_beats"/>
+      </track>
+      <track index="1" machine="guru2">
+        <position time="0" pattern="guru2_beeps"/>
+        <position time="16" pattern="guru2_beeps"/>
+        <position time="32" pattern="guru2_beeps"/>
+        <position time="64" pattern="guru2_beeps"/>
+        <position time="80" pattern="guru2_beeps"/>
       </track>
     </tracks>
   </sequence>

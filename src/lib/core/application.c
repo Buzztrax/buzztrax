@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.56 2006-07-30 08:34:23 ensonic Exp $
+// $Id: application.c,v 1.57 2006-08-05 23:29:22 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -85,6 +85,11 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
       case GST_MESSAGE_ERROR:
         msg_type=_("Error");
         gst_message_parse_error (message, &err, &debug);
+        break;
+      /* its unlikely that we don't listen to them */
+      case GST_MESSAGE_EOS:
+      case GST_MESSAGE_SEGMENT_DONE:
+        GST_WARNING("unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
         break;
       default:
         //GST_DEBUG("  unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
@@ -293,7 +298,9 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   
   bus=gst_element_get_bus(self->priv->bin);
   g_assert(GST_IS_BUS(bus));
-  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
+  // this was too low as we lost SEGMENT_DONE bus messages
+  //gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
+  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT-10,bus_handler,(gpointer)self,NULL);
   gst_object_unref(bus);
   
   // if we enable this we get lots of diagnostics

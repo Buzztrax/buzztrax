@@ -1,8 +1,12 @@
-// $Id: machine-properties-dialog.c,v 1.45 2006-07-29 19:55:06 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.46 2006-08-05 23:29:22 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
  */ 
+
+/* @todo: try to line-up GtkHScales
+ * this need another table column and labels for the scales
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -33,6 +37,9 @@ struct _BtMachinePropertiesDialogPrivate {
 
 static GtkDialogClass *parent_class=NULL;
 
+static GQuark range_label_quark=0;
+static GQuark range_parent_quark=0;
+
 //-- event handler
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data);
@@ -41,8 +48,52 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data);
 static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer user_data);
 static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data);
 
+static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_global_param_index(machine,name,NULL);
+  GValue int_value={0,};
+  
+  g_value_init(&int_value,G_TYPE_INT);
+  g_value_set_int(&int_value,(gint)value);
+  return(bt_machine_describe_global_param_value(machine,index,&int_value));
+}
+
+static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_voice_param_index(machine,name,NULL);
+  GValue int_value={0,};
+  
+  g_value_init(&int_value,G_TYPE_INT);
+  g_value_set_int(&int_value,(gint)value);
+  return(bt_machine_describe_voice_param_value(machine,index,&int_value));
+}
+
+static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_global_param_index(machine,name,NULL);
+  GValue uint_value={0,};
+  
+  g_value_init(&uint_value,G_TYPE_UINT);
+  g_value_set_uint(&uint_value,(guint)value);
+  return(bt_machine_describe_global_param_value(machine,index,&uint_value));
+}
+
+static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
+  BtMachine *machine=BT_MACHINE(user_data);
+  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
+  glong index=bt_machine_get_voice_param_index(machine,name,NULL);
+  GValue uint_value={0,};
+  
+  g_value_init(&uint_value,G_TYPE_UINT);
+  g_value_set_uint(&uint_value,(guint)value);
+  return(bt_machine_describe_voice_param_value(machine,index,&uint_value));
+}
+
+
 static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
- 
   GtkWidget *widget=GTK_WIDGET(user_data);
   gdouble value;
   
@@ -56,18 +107,20 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
 }
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
-
   GstElement *machine=GST_ELEMENT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  gdouble value;
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
+  gdouble value=gtk_range_get_value(range);
+  gchar str[20];
   
   g_assert(user_data);
   //GST_INFO("property value change received");
 
-  value=gtk_range_get_value(range);
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
   g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
+  g_printf(str,"%lf",value);
+  gtk_label_set_text(label,str);
 }
 
 static void on_int_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -86,15 +139,22 @@ static void on_int_range_property_notify(const GstElement *machine,GParamSpec *p
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  gint value;
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),range_parent_quark));
+  gdouble value=gtk_range_get_value(range);
   
   g_assert(user_data);
   //GST_INFO("property value change received");
 
-  value=(gint)gtk_range_get_value(range);
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
-  g_object_set(param_parent,name,value,NULL);
+  g_object_set(param_parent,name,(gint)value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_notify,(gpointer)range);
+  if(GST_IS_ELEMENT(param_parent)) {
+    gtk_label_set_text(label,on_int_range_global_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
+  }
+  else {
+    gtk_label_set_text(label,on_int_range_voice_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
+  }
 }
 
 static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -113,15 +173,22 @@ static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *
 static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  guint value;
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),range_parent_quark));
+  gdouble value=gtk_range_get_value(range);
   
   g_assert(user_data);
   //GST_INFO("property value change received");
 
-  value=(guint)gtk_range_get_value(range);
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_notify,(gpointer)range);
-  g_object_set(param_parent,name,value,NULL);
+  g_object_set(param_parent,name,(guint)value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_notify,(gpointer)range);
+  if(GST_IS_ELEMENT(param_parent)) {
+    gtk_label_set_text(label,on_uint_range_global_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
+  }
+  else {
+    gtk_label_set_text(label,on_uint_range_voice_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
+  }
 }
 
 static void on_combobox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
@@ -178,49 +245,6 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
 }
 
-static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
-  BtMachine *machine=BT_MACHINE(user_data);
-  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
-  glong index=bt_machine_get_global_param_index(machine,name,NULL);
-  GValue int_value={0,};
-  
-  g_value_init(&int_value,G_TYPE_INT);
-  g_value_set_int(&int_value,(gint)value);
-  return(bt_machine_describe_global_param_value(machine,index,&int_value));
-}
-
-static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
-  BtMachine *machine=BT_MACHINE(user_data);
-  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
-  glong index=bt_machine_get_voice_param_index(machine,name,NULL);
-  GValue int_value={0,};
-  
-  g_value_init(&int_value,G_TYPE_INT);
-  g_value_set_int(&int_value,(gint)value);
-  return(bt_machine_describe_voice_param_value(machine,index,&int_value));
-}
-
-static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
-  BtMachine *machine=BT_MACHINE(user_data);
-  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
-  glong index=bt_machine_get_global_param_index(machine,name,NULL);
-  GValue uint_value={0,};
-  
-  g_value_init(&uint_value,G_TYPE_UINT);
-  g_value_set_uint(&uint_value,(guint)value);
-  return(bt_machine_describe_global_param_value(machine,index,&uint_value));
-}
-
-static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
-  BtMachine *machine=BT_MACHINE(user_data);
-  const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
-  glong index=bt_machine_get_voice_param_index(machine,name,NULL);
-  GValue uint_value={0,};
-  
-  g_value_init(&uint_value,G_TYPE_UINT);
-  g_value_set_uint(&uint_value,(guint)value);
-  return(bt_machine_describe_voice_param_value(machine,index,&uint_value));
-}
 
 //-- helper methods
 
@@ -243,7 +267,7 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self, Gs
   return(widget);
 }
 
-static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
+static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gint value;
@@ -253,12 +277,14 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   // @todo how to detect option menus
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
-  gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
-  gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
+  gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
+  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
-  
+
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_int_range_property_notify, (gpointer)widget);
@@ -269,11 +295,13 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   else {
     g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_int_range_voice_property_format_value, (gpointer)self->priv->machine);
   }
+
+  g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   
   return(widget);
 }
 
-static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
+static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gint value;
@@ -283,10 +311,12 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   // @todo how to detect option menus
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_uint(range_min),g_value_get_uint(range_max),1.0);
-  gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
-  gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
+  gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
+  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
   
   signal_name=g_alloca(9+strlen(property->name));
@@ -299,12 +329,13 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   else {
     g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_uint_range_voice_property_format_value, (gpointer)self->priv->machine);
   }
+
+  g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   
   return(widget);
 }
 
-
-static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max) {
+static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property,GValue *range_min,GValue *range_max,GtkWidget *label) {
   GtkWidget *widget;
   gchar *signal_name;
   gdouble step,value;
@@ -315,10 +346,12 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   step=(value_max-value_min)/1024.0;
 
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
-  gtk_scale_set_draw_value(GTK_SCALE(widget),TRUE);
-  gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
+  gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
+  //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -327,6 +360,8 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(G_OBJECT(widget), "value-changed", (GCallback)on_double_range_property_changed, (gpointer)machine);
   //g_signal_connect(G_OBJECT(widget), "format-value", (GCallback)on_double_range_global_property_format_value, (gpointer)machine);
   
+  g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
+
   return(widget);
 }
 
@@ -357,7 +392,8 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
-  GtkWidget *box,*vbox,*expander,*label,*widget,*table,*scrolled_window;
+  GtkWidget *box,*vbox,*expander,*label,*table,*scrolled_window;
+  GtkWidget *widget1,*widget2;
   GtkTooltips *tips=gtk_tooltips_new();
   gchar *id,*title;
   GdkPixbuf *window_icon=NULL;
@@ -425,7 +461,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         gtk_box_pack_start(GTK_BOX(vbox),expander,TRUE,TRUE,0);
         
         // add global machine controls into the table
-        table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
+        table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
         for(i=0,k=0;i<global_params;i++) {
           if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
           if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
@@ -453,35 +489,52 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     
           // @todo implement more widget types
           if(param_type==G_TYPE_STRING) {
-            widget=gtk_label_new("string");
+            widget1=gtk_label_new("string");
+            widget2=NULL;
           }
           else if(param_type==G_TYPE_BOOLEAN) {
-            widget=make_checkbox_widget(self,GST_OBJECT(machine),property);
+            widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
+            widget2=NULL;
           }
           else if(param_type==G_TYPE_INT) {
-            widget=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=gtk_label_new(NULL);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_UINT ) {
-            widget=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=gtk_label_new(NULL);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_DOUBLE) {
-            widget=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=gtk_label_new(NULL);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_ENUM) {
-            widget=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=NULL;
           }
           else {
             gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-            widget=gtk_label_new(str);g_free(str);
+            widget1=gtk_label_new(str);g_free(str);
+            widget2=NULL;
           }
           if(range_min) { g_free(range_min);range_min=NULL; }
           if(range_max) { g_free(range_max);range_max=NULL; }
           
-          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
-          gtk_table_attach(GTK_TABLE(table),widget, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+          if(!widget2) {
+            gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          }
+          else {
+            gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+            gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+          }
           k++;
         }
-        gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         gtk_container_add(GTK_CONTAINER(expander),table);
       }
       else {
@@ -535,35 +588,52 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 
           // @todo implement more widget types
           if(param_type==G_TYPE_STRING) {
-            widget=gtk_label_new("string");
+            widget1=gtk_label_new("string");
+            widget2=NULL;
           }
           else if(param_type==G_TYPE_BOOLEAN) {
-            widget=make_checkbox_widget(self,machine_voice,property);
+            widget1=make_checkbox_widget(self,machine_voice,property);
+            widget2=NULL;
           }
           else if(param_type==G_TYPE_INT ) {
-            widget=make_int_range_widget(self,machine_voice,property,range_min,range_max);
+            widget2=gtk_label_new(NULL);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_UINT ) {
-            widget=make_uint_range_widget(self,machine_voice,property,range_min,range_max);
+            widget2=gtk_label_new(NULL);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_DOUBLE) {
-            widget=make_double_range_widget(self,machine_voice,property,range_min,range_max);
+            widget2=gtk_label_new(NULL);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_ENUM) {
-            widget=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=NULL;
           }
           else {
             gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-            widget=gtk_label_new(str);g_free(str);
+            widget1=gtk_label_new(str);g_free(str);
+            widget2=NULL;
           }
           if(range_min) { g_free(range_min);range_min=NULL; }
           if(range_max) { g_free(range_max);range_max=NULL; }
           
-          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget,g_param_spec_get_blurb(property),NULL);
-          gtk_table_attach(GTK_TABLE(table),widget, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+          if(!widget2) {
+            gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          }
+          else {
+            gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+            gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+          }
           k++;
         }
-        gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         gtk_container_add(GTK_CONTAINER(expander),table);
       }
     }
@@ -708,6 +778,9 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
+  range_label_quark=g_quark_from_static_string("BtMachinePropertiesDialog::range-label");
+  range_parent_quark=g_quark_from_static_string("BtMachinePropertiesDialog::range-parent");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePropertiesDialogPrivate));
