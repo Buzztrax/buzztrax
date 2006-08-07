@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.122 2006-08-02 19:34:19 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.123 2006-08-07 20:22:59 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -623,8 +623,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
         g_object_get(pattern,"is-internal",&is_internal,NULL);
         if(!is_internal) {
-          g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-          g_object_try_unref(pattern);
+          g_object_get(pattern,"name",&str,NULL);
           free_str=TRUE;
         }
         else {
@@ -646,7 +645,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
               str="???";
               GST_ERROR("implement me");
           }
-        }        
+        }
+        g_object_try_unref(pattern);        
       }
       else {
         str=" ";

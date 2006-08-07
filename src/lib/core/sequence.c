@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.112 2006-08-01 17:13:58 ensonic Exp $
+// $Id: sequence.c,v 1.113 2006-08-07 20:22:58 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -470,6 +470,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
         if((cur_value=bt_pattern_get_global_event_data(pattern,tick-j,param)) && G_IS_VALUE(cur_value)) {
           value=cur_value;
         }
+        g_object_unref(pattern);
       }      
     }
   }

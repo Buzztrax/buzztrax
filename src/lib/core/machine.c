@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.213 2006-08-04 21:29:47 ensonic Exp $
+// $Id: machine.c,v 1.214 2006-08-07 20:22:58 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -762,6 +762,7 @@ static gboolean bt_machine_check_type(BtMachine *self) {
   gst_iterator_free(it);
 
   // test pad counts and element type
+  // @todo: use virtual method in machines : bt_xxx_machine_check_type(machine,pad_src_ct,pad_sink_ct);
   if(BT_IS_SINK_MACHINE(self)) {
     if(pad_src_ct>0 || pad_sink_ct==0) {
       GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
@@ -923,6 +924,7 @@ static void bt_machine_init_voice_params(BtMachine *self) {
 }
 
 static gboolean bt_machine_setup(BtMachine *self) {
+  BtPattern *pattern;
 
   // get the bin from the song, we're in
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
@@ -954,15 +956,25 @@ static gboolean bt_machine_setup(BtMachine *self) {
   }
 
   // prepare internal patterns for the machine
-  bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK);
-  bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE);
+  // @todo: use virtual method in machines: bt_xxx_machine_create_default_patterns(machine);
+  if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK))) {
+    g_object_unref(pattern);
+  }
+  if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE))) {
+    g_object_unref(pattern);
+  }
   if(BT_IS_SOURCE_MACHINE(self)) {
-    bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO);
+    if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO))) {
+      g_object_unref(pattern);
+    }
   }
   else if(BT_IS_PROCESSOR_MACHINE(self)) {
-    bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS);
+    if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS))) {
+      g_object_unref(pattern);
+    }
   }
   // prepare state handling elements
+  // @todo: use virtual method in machines: bt_xxx_machine_configure_elements(machine);
   if(!BT_IS_SINK_MACHINE(self)) {
     bt_machine_enable_output_gain(self);
   }

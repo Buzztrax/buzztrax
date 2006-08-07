@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.86 2006-08-05 23:29:22 ensonic Exp $
+// $Id: main-page-machines.c,v 1.87 2006-08-07 20:22:59 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -395,13 +395,13 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   BtMachine *machine;
   GHashTable *properties;
   GList *node,*list;
-  gdouble fc_x,fc_y,c_x,c_y;
+  gdouble fc_x,fc_y,c_x,c_y,ms;
   // machine area
   gdouble ma_xs=MACHINE_VIEW_ZOOM_X,ma_x,ma_xe=-MACHINE_VIEW_ZOOM_X,ma_xd;
   gdouble ma_ys=MACHINE_VIEW_ZOOM_Y,ma_y,ma_ye=-MACHINE_VIEW_ZOOM_Y,ma_yd;
   // page area
-  gdouble pg_xs,pg_x,pg_xe,pg_xd;
-  gdouble pg_ys,pg_y,pg_ye,pg_yd;
+  gdouble pg_xs,pg_x,pg_xe,pg_xd,pg_xl;
+  gdouble pg_ys,pg_y,pg_ye,pg_yd,pg_yl;
 
   g_assert(user_data);
 
@@ -427,25 +427,34 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   g_object_unref(song);
   /* @todo: need to add machine extends + some space */
   GST_INFO("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",ma_xs,ma_xe,ma_ys,ma_ye);
-  ma_xd=ma_xe-ma_xs;
-  ma_yd=ma_ye-ma_ys;
+  ms=MACHINE_VIEW_MACHINE_SIZE_X/MACHINE_VIEW_ZOOM_X;
+  ma_xd=(ma_xe+ms)-(ma_xs-ms);
+  ms=MACHINE_VIEW_MACHINE_SIZE_Y/MACHINE_VIEW_ZOOM_Y;
+  ma_yd=(ma_ye+ms)-(ma_ys-ms);
   
-  g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,NULL);
-  g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,NULL);
+  g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,"page-size",&pg_xl,NULL);
+  g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,"page-size",&pg_yl,NULL);
   pg_xd=(pg_xe-pg_xs)/MACHINE_VIEW_ZOOM_X;
   pg_yd=(pg_ye-pg_ys)/MACHINE_VIEW_ZOOM_Y;
-  GST_INFO("page: x:%+6.4lf y:%+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",pg_x,pg_y,pg_xs,pg_xe,pg_ys,pg_ye);
+  GST_INFO("page: pos x/y:%+6.4lf %+6.4lf size x/y: %+6.4lf %+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
+    pg_x,pg_y,pg_xl,pg_yl,pg_xs,pg_xe,pg_ys,pg_ye);
 
   // zoom
   fc_x=pg_xd/ma_xd;
   fc_y=pg_yd/ma_yd;
-  GST_INFO("zoom x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",pg_xd,ma_xd,fc_x,pg_yd,ma_yd,fc_y);
+  GST_INFO("zoom old=%6.4lf, x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",self->priv->zoom,pg_xd,ma_xd,fc_x,pg_yd,ma_yd,fc_y);
+  /* @todo: this still is wrong :( */
   self->priv->zoom=MIN(fc_x,fc_y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
+  // does it change? pos x/y and upper x/y changes
+  //g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,"page-size",&pg_xl,NULL);
+  //g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,"page-size",&pg_yl,NULL);
+  //GST_INFO("page: pos x/y:%+6.4lf %+6.4lf size x/y: %+6.4lf %+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
+  //  pg_x,pg_y,pg_xl,pg_yl,pg_xs,pg_xe,pg_ys,pg_ye);
+
   // center
-  /* @todo: this still is wrong :( */
-  c_x=MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X*(ma_xs+(ma_xd/2.0));
-  c_y=MACHINE_VIEW_ZOOM_Y+MACHINE_VIEW_ZOOM_Y*(ma_ys+(ma_yd/2.0));
+  c_x=(MACHINE_VIEW_ZOOM_X-(pg_xl/2.0))+MACHINE_VIEW_ZOOM_X*(ma_xs+(ma_xd/2.0));
+  c_y=(MACHINE_VIEW_ZOOM_Y-(pg_yl/2.0))+MACHINE_VIEW_ZOOM_Y*(ma_ys+(ma_yd/2.0));
   gtk_adjustment_set_value(self->priv->hadjustment,c_x);
   gtk_adjustment_set_value(self->priv->vadjustment,c_y);
   
