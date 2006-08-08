@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.123 2006-08-07 20:22:59 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.124 2006-08-08 19:46:14 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1582,7 +1582,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *split_box,*box,*tool_item;
   GtkWidget *scrolled_window,*scrolled_sync_window;
   GtkWidget *menu_item,*image;
-  GtkWidget *vseparator;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
   GtkTreeSelection *tree_sel;
@@ -1661,7 +1660,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
   self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
   g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,-1);
+  // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
+  gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,40);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_pos_table_init(self);
@@ -1670,8 +1670,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   g_signal_connect(G_OBJECT(self->priv->sequence_pos_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   
   // add vertical separator
-  vseparator=gtk_vseparator_new() ;
-  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(vseparator), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
 
   // add sequence list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -1692,6 +1691,16 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
+
+  // add vertical separator
+  gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
+
+  // add hbox for pattern list
+  box=gtk_hbox_new(FALSE,0);
+  gtk_paned_pack2(GTK_PANED(split_box),box,FALSE,FALSE);
+
+  // add vertical separator
+  gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
 
   // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -1716,7 +1725,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   else GST_WARNING("can't create treeview column");
   
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
-  gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),FALSE,FALSE,0);
+  //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);

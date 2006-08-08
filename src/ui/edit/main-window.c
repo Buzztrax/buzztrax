@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.77 2006-07-30 08:34:23 ensonic Exp $
+// $Id: main-window.c,v 1.78 2006-08-08 19:46:14 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -180,15 +180,20 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   if((window_icon=gdk_pixbuf_new_from_filename("buzztard.png"))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
+  // this enforces a minimum size
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-  gtk_window_set_default_size(GTK_WINDOW(self),800,600);
+  // this causes a problem with resizing the sequence-view
+  //gtk_window_set_default_size(GTK_WINDOW(self),800,600);
+  // this is deprecated
+  //gtk_widget_set_usize(GTK_WIDGET(self), 800,600);
   
   /* @todo: restore pos & size
    * - setup.properties or bt_settings?
    * - call
-   *   gtk_window_move(self,x,y);
-   *   gtk_window_resize(self,w,h);
+   *   gtk_window_move(GTK_WINDOW(self),x,y);
+   *   gtk_window_resize(GTK_WINDOW(self),w,h);
    */
+  gtk_window_resize(GTK_WINDOW(self),800,600);
   
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);

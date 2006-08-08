@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.92 2006-08-02 19:34:19 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.93 2006-08-08 19:46:13 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1343,16 +1343,20 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // add pattern-pos list-view
   scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_ETCHED_IN);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
   self->priv->pattern_pos_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
   g_object_set(self->priv->pattern_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
-  gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_pos_table),40,-1);
+  // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
+  gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_pos_table),40,40);
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_pos_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   pattern_pos_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_sync_window),GTK_WIDGET(self->priv->pattern_pos_table));
   gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_sync_window), FALSE, FALSE, 0);
   //g_signal_connect(G_OBJECT(self->priv->pattern_pos_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
+
+  // add vertical separator
+  gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
 
   /* @idea what about adding one control for global params and one for each voice,
    * - then these controls can be folded
@@ -1361,7 +1365,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);

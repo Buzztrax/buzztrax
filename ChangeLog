@@ -1,3 +1,17 @@
+2006-08-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/syncviews.c: (init):
+          made this more similar to the sequence view to figure out what is
+          going wrong with the resizing
+
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_init_ui):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+          fixed sizing problem, applied separator and no-shadow change to
+          pattern view, added separators around split-pane handle
+
 2006-08-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_check_type),
