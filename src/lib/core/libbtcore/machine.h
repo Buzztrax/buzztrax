@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.23 2006-07-22 15:37:06 ensonic Exp $
+/* $Id: machine.h,v 1.24 2006-08-09 21:15:43 ensonic Exp $
  * base class for a machine
  */
 
@@ -42,8 +42,16 @@ struct _BtMachine {
 struct _BtMachineClass {
   GObjectClass parent;
 
+  /*< private >*/
+  /* signal callbacks */
   void (*pattern_added_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
   void (*pattern_removed_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
+  
+  /*< public >*/
+  /* virtual methods for subclasses */
+  gboolean (*check_type)(const BtMachine *machine,gulong pad_src_ct,gulong pad_sink_ct);
+  void (*setup)(const BtMachine *machine);
+
 };
 
 #define BT_TYPE_MACHINE_STATE       (bt_machine_state_get_type())

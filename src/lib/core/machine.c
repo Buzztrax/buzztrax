@@ -1,4 +1,4 @@
-// $Id: machine.c,v 1.214 2006-08-07 20:22:58 ensonic Exp $
+// $Id: machine.c,v 1.215 2006-08-09 21:15:43 ensonic Exp $
 /**
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
@@ -730,10 +730,16 @@ static void bt_machine_init_interfaces(BtMachine *self) {
  * Returns: %TRUE if type and pads match
  */
 static gboolean bt_machine_check_type(BtMachine *self) {
+  BtMachineClass *klass=BT_MACHINE_GET_CLASS(self);
   GstIterator *it;
   GstPad *pad;
   gulong pad_src_ct=0,pad_sink_ct=0;
   gboolean done;
+  
+  if(!klass->check_type) {
+    GST_WARNING("no BtMachine::check_type() implemented");
+    return(TRUE);
+  }
   
   // get pad counts per type
   it=gst_element_iterate_pads(self->priv->machines[PART_MACHINE]);
@@ -762,27 +768,8 @@ static gboolean bt_machine_check_type(BtMachine *self) {
   gst_iterator_free(it);
 
   // test pad counts and element type
-  // @todo: use virtual method in machines : bt_xxx_machine_check_type(machine,pad_src_ct,pad_sink_ct);
-  if(BT_IS_SINK_MACHINE(self)) {
-    if(pad_src_ct>0 || pad_sink_ct==0) {
-      GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
-        self->priv->plugin_name,pad_src_ct,pad_sink_ct);
-      return(FALSE);
-    }
-  }
-  else if(BT_IS_SOURCE_MACHINE(self)) {
-    if(pad_src_ct==0 || pad_sink_ct>0) {
-      GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of 0",
-        self->priv->plugin_name,pad_src_ct,pad_sink_ct);
-      return(FALSE);
-    }
-  }
-  else if(BT_IS_PROCESSOR_MACHINE(self)) {
-    if(pad_src_ct==0 || pad_sink_ct==0) {
-      GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of >0",
-        self->priv->plugin_name,pad_src_ct,pad_sink_ct);
-      return(FALSE);
-    }
+  if(!((klass->check_type)(self,pad_src_ct,pad_sink_ct))) { 
+    return(FALSE);
   }
   return(TRUE);
 }
@@ -924,9 +911,10 @@ static void bt_machine_init_voice_params(BtMachine *self) {
 }
 
 static gboolean bt_machine_setup(BtMachine *self) {
+  BtMachineClass *klass=BT_MACHINE_GET_CLASS(self);
   BtPattern *pattern;
 
-  // get the bin from the song, we're in
+  // get the bin from the song, we are in
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
 
   // name the machine and try to instantiate it
@@ -955,29 +943,19 @@ static gboolean bt_machine_setup(BtMachine *self) {
     GST_WARNING("  machine %s has no params",self->priv->id);
   }
 
-  // prepare internal patterns for the machine
-  // @todo: use virtual method in machines: bt_xxx_machine_create_default_patterns(machine);
+  // prepare common internal patterns for the machine
   if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BREAK))) {
     g_object_unref(pattern);
   }
   if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_MUTE))) {
     g_object_unref(pattern);
   }
-  if(BT_IS_SOURCE_MACHINE(self)) {
-    if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_SOLO))) {
-      g_object_unref(pattern);
-    }
+
+  // prepare additional internal patterns for the machine and setup elements
+  if(klass->setup) {
+    (klass->setup)(self);
   }
-  else if(BT_IS_PROCESSOR_MACHINE(self)) {
-    if((pattern=bt_pattern_new_with_event(self->priv->song,self,BT_PATTERN_CMD_BYPASS))) {
-      g_object_unref(pattern);
-    }
-  }
-  // prepare state handling elements
-  // @todo: use virtual method in machines: bt_xxx_machine_configure_elements(machine);
-  if(!BT_IS_SINK_MACHINE(self)) {
-    bt_machine_enable_output_gain(self);
-  }
+
   
   GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
   

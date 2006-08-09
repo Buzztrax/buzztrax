@@ -1,4 +1,4 @@
-// $Id: sink-machine.c,v 1.69 2006-07-30 21:35:22 ensonic Exp $
+// $Id: sink-machine.c,v 1.70 2006-08-09 21:15:43 ensonic Exp $
 /**
  * SECTION:btsinkmachine
  * @short_description: class for signal processing machines with inputs only
@@ -118,7 +118,22 @@ static void bt_sink_machine_persistence_interface_init(gpointer g_iface, gpointe
 
 //-- wrapper
 
-//-- class internals
+//-- bt_machine overrides
+
+static gboolean bt_sink_machine_check_type(const BtMachine *self,gulong pad_src_ct,gulong pad_sink_ct) {
+  if(pad_src_ct>0 || pad_sink_ct==0) {
+    gchar *plugin_name;
+    
+    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
+    GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
+      plugin_name,pad_src_ct,pad_sink_ct);
+    g_free(plugin_name);
+    return(FALSE);
+  }
+  return(TRUE);
+}
+
+//-- g_object overrides
 
 /* returns a property for the given property_id for this object */
 static void bt_sink_machine_get_property(GObject      *object,
@@ -167,6 +182,8 @@ static void bt_sink_machine_finalize(GObject *object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
+//-- class internals
+
 static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
   BtSinkMachine *self = BT_SINK_MACHINE(instance);
   
@@ -175,6 +192,7 @@ static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
 
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  BtMachineClass *machine_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkMachinePrivate));
@@ -183,6 +201,9 @@ static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
   gobject_class->get_property = bt_sink_machine_get_property;
   gobject_class->dispose      = bt_sink_machine_dispose;
   gobject_class->finalize     = bt_sink_machine_finalize;
+
+  machine_class->check_type   = bt_sink_machine_check_type;
+  //machine_class->setup        = bt_sink_machine_setup;
 }
 
 GType bt_sink_machine_get_type(void) {

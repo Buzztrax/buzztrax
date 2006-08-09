@@ -1,4 +1,4 @@
-// $Id: processor-machine.c,v 1.41 2006-04-16 00:21:07 ensonic Exp $
+// $Id: processor-machine.c,v 1.42 2006-08-09 21:15:43 ensonic Exp $
 /**
  * SECTION:btprocessormachine
  * @short_description: class for signal processing machines with inputs and 
@@ -124,7 +124,35 @@ static void bt_processor_machine_persistence_interface_init(gpointer g_iface, gp
 
 //-- wrapper
 
-//-- class internals
+//-- bt_machine overrides
+
+static gboolean bt_processor_machine_check_type(const BtMachine *self,gulong pad_src_ct,gulong pad_sink_ct) {
+  if(pad_src_ct==0 || pad_sink_ct==0) {
+    gchar *plugin_name;
+    
+    g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
+    GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of >0",
+      plugin_name,pad_src_ct,pad_sink_ct);
+    g_free(plugin_name);
+    return(FALSE);
+  }
+  return(TRUE);
+}
+
+static void bt_processor_machine_setup(const BtMachine *self) {
+  BtPattern *pattern;
+  BtSong *song;
+  
+  g_object_get(G_OBJECT(self),"song",&song,NULL);
+  if((pattern=bt_pattern_new_with_event(song,self,BT_PATTERN_CMD_BYPASS))) {
+    g_object_unref(pattern);
+  }
+  g_object_unref(song);
+  bt_machine_enable_output_gain(BT_MACHINE(self));
+}
+
+
+//-- g_object overrides
 
 /* returns a property for the given property_id for this object */
 static void bt_processor_machine_get_property(GObject      *object,
@@ -180,8 +208,11 @@ static void bt_processor_machine_init(GTypeInstance *instance, gpointer g_class)
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PROCESSOR_MACHINE, BtProcessorMachinePrivate);
 }
 
+//-- class internals
+
 static void bt_processor_machine_class_init(BtProcessorMachineClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+  BtMachineClass *machine_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtProcessorMachinePrivate));
@@ -190,6 +221,9 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass *klass) {
   gobject_class->get_property = bt_processor_machine_get_property;
   gobject_class->dispose      = bt_processor_machine_dispose;
   gobject_class->finalize     = bt_processor_machine_finalize;
+
+  machine_class->check_type   = bt_processor_machine_check_type;
+  machine_class->setup        = bt_processor_machine_setup;
 }
 
 GType bt_processor_machine_get_type(void) {
