@@ -1,5 +1,19 @@
 2006-08-10  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/tools.c: (bt_cpu_load_init),
+	(bt_cpu_load_get_current):
+	* src/ui/edit/main-statusbar.c: (on_cpu_load_update),
+	(bt_main_statusbar_init_ui):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change):
+          added CPU monitor to core lib and to statusbar in bt-edit, disabled
+          some repetive log wire-analysis, added note to settings for disabling
+          the CPU monitor
+
+2006-08-10  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/machine.h:
 	* src/lib/core/machine.c: (bt_machine_check_type),
 	(bt_machine_setup):

@@ -1,4 +1,4 @@
-// $Id: settings-dialog.c,v 1.26 2006-07-27 20:16:37 ensonic Exp $
+// $Id: settings-dialog.c,v 1.27 2006-08-10 20:02:31 ensonic Exp $
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
@@ -158,7 +158,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 	
 	/* @todo more settings
 	 * - initial song bpm (from, to)
-	 *
+	 * - cpu monitor (view menu?)
 	 */
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);

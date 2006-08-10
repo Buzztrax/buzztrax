@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.45 2006-07-30 08:34:23 ensonic Exp $
+// $Id: main-statusbar.c,v 1.46 2006-08-10 20:02:31 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -48,6 +48,8 @@ struct _BtMainStatusbarPrivate {
   GtkStatusbar *loop;
   /* identifier of the loop message group */
   gint loop_context_id;
+  
+  GtkProgressBar *cpu_load;
 };
 
 static GtkHBoxClass *parent_class=NULL;
@@ -126,6 +128,18 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(song);
 }
 
+static gboolean on_cpu_load_update(gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  guint cpu_load=bt_cpu_load_get_current();
+  gchar str[strlen("CPU: 000 %") + 3];
+  
+  g_assert(user_data);
+  g_sprintf(str,"CPU: %d %%",cpu_load);
+  gtk_progress_bar_set_fraction(self->priv->cpu_load,(gdouble)cpu_load/100.0);
+  gtk_progress_bar_set_text(self->priv->cpu_load,str);
+  return(TRUE);
+}
+
 //-- helper methods
 
 static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
@@ -159,9 +173,15 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->loop),100,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->loop),self->priv->loop_context_id,str);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->loop),FALSE,FALSE,1);
+  
+  // @todo: make this dependend on settings (view menu?)
+  self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
+  g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+
   return(TRUE);
 }
 

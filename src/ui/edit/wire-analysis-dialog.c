@@ -1,4 +1,4 @@
-// $Id: wire-analysis-dialog.c,v 1.8 2006-07-30 08:34:23 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.9 2006-08-10 20:02:31 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
@@ -98,7 +98,7 @@ static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpoint
         guint i;
         gdouble val;
   
-        GST_INFO("get level data");
+        //GST_INFO("get level data");
         l_rms=(GValue *)gst_structure_get_value(structure, "rms");
         l_peak=(GValue *)gst_structure_get_value(structure, "peak");
         //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
@@ -129,7 +129,7 @@ static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpoint
         const GValue *value;
         guint i;
   
-        GST_INFO("get spectrum data");
+        //GST_INFO("get spectrum data");
         list = gst_structure_get_value (structure, "spectrum");
         // SPECT_BANDS=gst_value_list_get_size(list)
         for (i = 0; i < SPECT_BANDS; ++i) {

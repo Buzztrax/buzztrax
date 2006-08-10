@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.25 2006-03-10 16:19:42 ensonic Exp $
+/* $Id: tools.c,v 1.26 2006-08-10 20:02:31 ensonic Exp $
  */
  
 #define BT_CORE
@@ -147,4 +147,59 @@ void bt_log_mark(const char *format, ...) {
 
   access (str, F_OK);
   g_free (str);
+}
+
+/* cpu load monitoring */
+
+static GstClockTime treal_last=G_GINT64_CONSTANT(0),tuser_last=G_GINT64_CONSTANT(0),tsys_last=G_GINT64_CONSTANT(0);
+//long clk=1;
+
+/*
+ * bt_cpu_load_init:
+ *
+ * Initializes cpu usage monitoring.
+ */
+static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
+  struct timeval now;
+    
+  gettimeofday(&now,NULL);
+  treal_last=GST_TIMEVAL_TO_TIME(now);
+  //clk=sysconf(_SC_CLK_TCK);
+}
+
+/**
+ * bt_cpu_load_get_current:
+ *
+ * Determines the current CPU load.
+ *
+ * Returns: CPU usage as integer ranging from 0% to 100%
+ */
+guint bt_cpu_load_get_current(void) {
+  struct rusage rus,ruc;
+  //struct tms tms;
+  GstClockTime tnow,treal,tuser,tsys;
+  struct timeval now;
+  guint cpuload;
+  
+  gettimeofday(&now,NULL);
+  tnow=GST_TIMEVAL_TO_TIME(now);
+  treal=tnow-treal_last;
+  treal_last=tnow;
+  // version 1
+  getrusage(RUSAGE_SELF,&rus);
+  getrusage(RUSAGE_CHILDREN,&ruc);
+  tnow=GST_TIMEVAL_TO_TIME(rus.ru_utime)+GST_TIMEVAL_TO_TIME(ruc.ru_utime);
+  tuser=tnow-tuser_last;
+  tuser_last=tnow;
+  tnow=GST_TIMEVAL_TO_TIME(rus.ru_stime)+GST_TIMEVAL_TO_TIME(ruc.ru_stime);
+  tsys=tnow-tsys_last;
+  tsys_last=tnow;
+  // version 2
+  //times(&tms);
+  // percentage
+  cpuload=(guint)gst_util_uint64_scale(tuser+tsys,G_GINT64_CONSTANT(100),treal);
+  GST_DEBUG("real %"GST_TIME_FORMAT", user %"GST_TIME_FORMAT", sys %"GST_TIME_FORMAT" => cpuload %d",GST_TIME_ARGS(treal),GST_TIME_ARGS(tuser),GST_TIME_ARGS(tsys),cpuload);
+  //printf("user %6.4lf, sys %6.4lf\n",(double)tms.tms_utime/(double)clk,(double)tms.tms_stime/(double)clk);
+
+  return(cpuload);
 }

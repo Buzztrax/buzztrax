@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.11 2006-03-10 16:19:42 ensonic Exp $
+/* $Id: tools.h,v 1.12 2006-08-10 20:02:31 ensonic Exp $
  */
 
 #ifndef BT_TOOLS_H
@@ -31,5 +31,7 @@ extern void bt_log_mark(const char *format, ...);
 #else
 #define BT_LOG_MARK_FUNCTION(str)
 #endif
+
+extern guint bt_cpu_load_get_current(void);
 
 #endif // BT_TOOLS_H

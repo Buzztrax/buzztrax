@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.79 2006-07-29 19:55:06 ensonic Exp $
+/* $Id: core.h,v 1.80 2006-08-10 20:02:31 ensonic Exp $
  */
 
 #ifndef BT_CORE_H
@@ -12,11 +12,15 @@
 #include <dirent.h>
 #define __USE_ISOC99 /* for isinf() and co. */
 #include <math.h>
+#include <stdio.h>
 #include <string.h>
 //#define _XOPEN_SOURCE /* glibc2 needs this */
 #define __USE_XOPEN
 #include <time.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/resource.h>
 //-- locale
 #ifdef HAVE_X11_XLOCALE_H
 /* defines a more portable setlocale for X11 (_Xsetlocale) */
