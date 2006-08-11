@@ -1,3 +1,9 @@
+2006-08-11  Thomas Wabner  <waffel@users.sf.net>
+
+	* tests/m-bt-edit.c: (main):
+          fixed bug in array initialisation which causes a seg fault
+          if the bt_edit test is start up
+
 2006-08-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/core.h:

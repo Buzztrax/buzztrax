@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.18 2006-08-04 21:29:47 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.19 2006-08-11 20:06:21 waffel Exp $
  * graphical editor app unit tests
  */
 
@@ -18,7 +18,7 @@ extern Suite *bt_settings_dialog_suite(void);
 gint test_argc=2;
 gchar test_arg0[]="check_buzzard";
 gchar test_arg1[]="--sync";
-gchar *test_argv[1];
+gchar *test_argv[2];
 gchar **test_argvptr;
 
 /* common setup and teardown code */
@@ -68,12 +68,15 @@ int main(int argc, char **argv) {
 
   g_type_init();
   setup_log(argc,argv);
+  setup_log_capture();
   test_argv[0]=test_arg0;
   test_argv[1]=test_arg1;
   test_argvptr=test_argv;
  
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+
 
   /*
   if(!g_thread_supported()) {  // are g_threads() already initialized
