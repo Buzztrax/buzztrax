@@ -1,6 +1,8 @@
-/* $Id: m-bt-edit.c,v 1.19 2006-08-11 20:06:21 waffel Exp $
+/* $Id: m-bt-edit.c,v 1.20 2006-08-12 10:19:20 ensonic Exp $
  * graphical editor app unit tests
  */
+/* @todo: try gdk_error_trap_push() to use FORK mode and trap XErrors
+ */ 
 
 #define BT_CHECK
  

@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.97 2006-08-01 17:13:58 ensonic Exp $
+// $Id: setup.c,v 1.98 2006-08-12 10:19:20 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -582,8 +582,12 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
               }
               if(type) {
                 machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));
-                bt_persistence_load(BT_PERSISTENCE(machine),child_node,NULL);
-                bt_setup_add_machine(self,machine);
+                if(bt_persistence_load(BT_PERSISTENCE(machine),child_node,NULL)) {
+                  bt_setup_add_machine(self,machine);
+                }
+                else {
+                  /* @todo: collect failed machines, gerror in song/each class? */
+                }
                 g_object_unref(machine);
               }
               xmlFree(type_str);

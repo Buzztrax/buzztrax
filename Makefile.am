@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.57 2006-08-05 16:14:18 ensonic Exp $
+## $Id: Makefile.am,v 1.58 2006-08-12 10:19:20 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -39,7 +39,6 @@ pixmapdata_DATA = \
 	pixmaps/menu_processor_machine.png \
 	pixmaps/menu_sink_machine.png \
 	pixmaps/menu_source_machine.png \
-	pixmaps/stock_about.png \
 	pixmaps/stock_media-fwd.png \
 	pixmaps/stock_media-pause.png \
 	pixmaps/stock_media-play.png \

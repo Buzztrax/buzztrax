@@ -326,8 +326,10 @@
     <title id='bt-edit-main-statusbar.title'>The status bar</title>
     <para>
       The status bar that is located at the bottom of the window.
-      On the left side it shows the status of longer operations like saving and loading.
-      On the right side, it displays the length of the song, the loop and the playposition.
+      On the left side it shows the status of longer operations like saving and
+      loading with a text message.
+      On the right side, it displays the length of the song, the loop range, the
+      playback position and the current CPU usage.
     </para>
   </sect2>
 

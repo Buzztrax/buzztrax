@@ -1,3 +1,19 @@
+2006-08-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* pixmaps/stock_about.png:
+	* src/ui/edit/main-menu.c: (on_menu_about_activate),
+	(bt_main_menu_init_ui):
+          remove obsolete about.png (stock icon in gtk+-2.6), about uses
+          customized GtkAboutDialog
+
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+          added idea about machine-load error tracking
+
+	* tests/m-bt-edit.c:
+          add idea abou xerrro trapping
+
 2006-08-11  Thomas Wabner  <waffel@users.sf.net>
 
 	* tests/m-bt-edit.c: (main):
