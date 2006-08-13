@@ -1,5 +1,19 @@
 2006-08-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* README:
+	* src/ui/edit/main-menu.c: (on_menu_about_activate):
+          use themed icon in about dialog
+
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song):
+	* src/ui/edit/main-window.c: (bt_main_window_open_song),
+	(bt_main_window_save_song):
+          show missing components stuff after loading songs
+
+	* src/ui/edit/tools.c: (bt_dialog_message):
+          add comment about icon type
+
+2006-08-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWS:
 	* src/ui/edit/main-menu.c: (on_about_dialog_url_clicked),
 	(on_menu_about_activate):

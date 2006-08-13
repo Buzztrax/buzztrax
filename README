@@ -1,4 +1,4 @@
-$Id: README,v 1.20 2006-01-18 10:35:32 ensonic Exp $
+$Id: README,v 1.21 2006-08-13 14:41:34 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -49,8 +49,9 @@ pkg-config:
   export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$HOME/buzztard/lib/pkgconfig"
 gstreamer
   export GST_PLUGIN_PATH="$HOME/buzztard/lib/gstreamer-0.10"
-mime-database:
+mime-database & icon-themes:
   export XDG_DATA_HOME="$XDG_DATA_HOME:$HOME/buzztard/share"
+  export XDG_DATA_DIRS="$XDG_DATA_DIRS:$HOME/buzztard/share"
 
 run:
 update-mime-database $HOME/buzztard/share/mime/

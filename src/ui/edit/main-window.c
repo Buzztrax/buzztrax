@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.78 2006-08-08 19:46:14 ensonic Exp $
+// $Id: main-window.c,v 1.79 2006-08-13 14:41:34 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -387,7 +387,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
-      gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
+      gchar *msg=g_strdup_printf(_("An error occured while loading the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
       g_free(msg);
     }
@@ -415,7 +415,7 @@ void bt_main_window_save_song(const BtMainWindow *self) {
   // check the file_name of the song
   if(file_name) {
     if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-      gchar *msg=g_strdup_printf(_("An error occured while trying to save the song to file '%s'"),file_name);
+      gchar *msg=g_strdup_printf(_("An error occured while saving the song to file '%s'"),file_name);
       bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
       g_free(msg);
     }

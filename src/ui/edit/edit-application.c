@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.76 2006-07-30 21:35:22 ensonic Exp $
+// $Id: edit-application.c,v 1.77 2006-08-13 14:41:34 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -213,20 +213,127 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     if((song=bt_song_new(BT_APPLICATION(self)))) {
       if(bt_song_io_load(loader,song)) {
         BtSetup *setup;
+        BtWavetable *wavetable;
         BtMachine *machine;
       
-        g_object_get(song,"setup",&setup,NULL);
+        g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
         // get sink-machine
         if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
           if(bt_machine_enable_input_level(machine) &&
             bt_machine_enable_input_gain(machine)
           ) {
+            GList *missing_machines,*missing_waves;
+
             // DEBUG
             bt_song_write_to_dot_file(song);
             // DEBUG
             // set new song
             g_object_set(G_OBJECT(self),"song",song,NULL);
             res=TRUE;
+
+            // get missing element info
+            g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
+            g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+            // tell about missing machines and/or missing waves
+            if(missing_machines || missing_waves) {
+              GtkWidget *label,*icon,*hbox,*vbox;
+              gchar *str; 
+              GtkWidget *dialog;
+      
+              dialog = gtk_dialog_new_with_buttons(_("Missing elements in song"),
+                                                    GTK_WINDOW(self->priv->main_window),
+                                                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                                    NULL);
+            
+              hbox=gtk_hbox_new(FALSE,12);
+              gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
+            
+              icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_WARNING,GTK_ICON_SIZE_DIALOG);
+              gtk_container_add(GTK_CONTAINER(hbox),icon);
+              
+              vbox=gtk_vbox_new(FALSE,6);
+              label=gtk_label_new(NULL);
+              str=g_strdup_printf("<big><b>%s</b></big>",_("Missing elements in song"));
+              gtk_label_set_markup(GTK_LABEL(label),str);
+              gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
+              g_free(str);
+              gtk_container_add(GTK_CONTAINER(vbox),label);
+              if(missing_machines) {
+                GList *node;
+                GtkWidget *missing_list, *missing_list_view;
+                gchar *missing_text,*ptr;
+                gint length=0;
+                
+                label=gtk_label_new(_("The machines listed below are missing or failed to load."));
+                gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
+                gtk_container_add(GTK_CONTAINER(vbox),label);
+                
+                for(node=missing_machines;node;node=g_list_next(node)) {
+                  length+=2+strlen((gchar *)(node->data));
+                }
+                ptr=missing_text=g_malloc(length);
+                for(node=missing_machines;node;node=g_list_next(node)) {
+                  length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
+                  ptr=&ptr[length];
+                }
+                
+                missing_list = gtk_text_view_new();
+                gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
+                gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
+                gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(missing_list), GTK_WRAP_WORD);
+                gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
+                gtk_widget_show(missing_list);
+                g_free(missing_text);
+              
+                missing_list_view = gtk_scrolled_window_new(NULL, NULL);
+                gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
+                gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+                gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
+                gtk_widget_show(missing_list_view);
+                gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
+              }
+              if(missing_waves) {
+                GList *node;
+                GtkWidget *missing_list, *missing_list_view;
+                gchar *missing_text,*ptr;
+                gint length=0;
+                
+                label=gtk_label_new(_("The waves listed below are missing or failed to load."));
+                gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
+                gtk_container_add(GTK_CONTAINER(vbox),label);
+      
+                for(node=missing_waves;node;node=g_list_next(node)) {
+                  length+=2+strlen((gchar *)(node->data));
+                }
+                ptr=missing_text=g_malloc(length);
+                for(node=missing_waves;node;node=g_list_next(node)) {
+                  length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
+                  ptr=&ptr[length];
+                }
+                
+                missing_list = gtk_text_view_new();
+                gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
+                gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
+                gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(missing_list), GTK_WRAP_WORD);
+                gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
+                gtk_widget_show(missing_list);
+                g_free(missing_text);
+              
+                missing_list_view = gtk_scrolled_window_new(NULL, NULL);
+                gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
+                gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+                gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
+                gtk_widget_show(missing_list_view);
+                gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);        
+              }       
+              gtk_container_add(GTK_CONTAINER(hbox),vbox);
+              gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
+              gtk_widget_show_all(dialog);
+                                                              
+              gtk_dialog_run(GTK_DIALOG(dialog));
+              gtk_widget_destroy(dialog);
+            }      
           }
           else {
             GST_WARNING("Can't add input level/gain element in sink machine");
@@ -237,6 +344,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
           GST_WARNING("Can't look up sink machine");
         }
         g_object_try_unref(setup);
+            g_object_unref(wavetable);
       }
       else {
         GST_ERROR("could not load song \"%s\"",file_name);

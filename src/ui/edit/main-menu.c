@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.57 2006-08-13 12:45:03 ensonic Exp $
+// $Id: main-menu.c,v 1.58 2006-08-13 14:41:34 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -364,7 +364,6 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
   GtkWidget *dialog,*news,*news_view;
-  
   static const gchar *authors[] = {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
     "Thomas 'waffel' Wabner <waffel@users.sf.net>",
@@ -379,14 +378,16 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
   GST_INFO("menu about event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-
-  /* old version
-  str=g_strdup_printf(
-    "%s\n\nhttp://www.buzztard.org",
-    _("brought to you by\n\nStefan 'ensonic' Kost\nThomas 'waffel' Wabner")
-  );
-  bt_dialog_message(main_window,_("About ..."),PACKAGE_STRING,str);
-  g_free(str);
+  
+  /* we can get logo via icon name, so this here is just for educational purpose
+  GdkPixbuf *logo;
+  GError *error = NULL;
+  logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",48,0,&error);
+  //logo = gdk_pixbuf_new_from_file(DATADIR""G_DIR_SEPARATOR_S"icons"G_DIR_SEPARATOR_S"hicolor"G_DIR_SEPARATOR_S"48x48"G_DIR_SEPARATOR_S"apps"G_DIR_SEPARATOR_S""PACKAGE".png",&error);
+  if(!logo) {
+    GST_WARNING("Couldn't load icon: %s", error->message);
+    g_error_free(error);
+  }
   */
   
   /* use GtkAboutDialog */
@@ -397,7 +398,7 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
     "copyright",_("Copyright \xc2\xa9 2003-2006 Buzztard developer team"),
     "documenters", documenters,
     "license", _("This package is free software released under the GNU Library General Public License"),
-    /*"logo-icon-name","buzztard",*/
+    "logo-icon-name",PACKAGE_NAME,
     "version", PACKAGE_VERSION,
     "website","http://www.buzztard.org",
     "wrap-license",TRUE,
