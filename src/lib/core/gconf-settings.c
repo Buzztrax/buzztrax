@@ -1,4 +1,4 @@
-// $Id: gconf-settings.c,v 1.28 2006-04-08 22:08:33 ensonic Exp $
+// $Id: gconf-settings.c,v 1.29 2006-08-13 20:24:33 ensonic Exp $
 /**
  * SECTION:btgconfsettings
  * @short_description: gconf based implementation sub class for buzztard 
@@ -128,6 +128,11 @@ static void bt_gconf_settings_get_property(GObject      *object,
         g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
       }
     } break;
+    case BT_SETTINGS_NEWS_SEEN: {
+      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/news-seen",NULL);
+      GST_DEBUG("application reads news-seen gconf_settings : '%u'",prop);
+      g_value_set_uint(value, prop);
+    } break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
       GST_DEBUG("application reads system audiosink gconf_settings : '%s'",prop);
@@ -183,6 +188,13 @@ static void bt_gconf_settings_set_property(GObject      *object,
       GST_DEBUG("application writes grid-density gconf_settings : %s",prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",prop,NULL);
       g_free(prop);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_NEWS_SEEN: {
+      gboolean gconf_ret=FALSE;
+      guint prop=g_value_get_uint(value);
+      GST_DEBUG("application writes news-seen gconf_settings : %u",prop);
+      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/news-seen",prop,NULL);
       g_return_if_fail(gconf_ret == TRUE);
     } break;
     default: {

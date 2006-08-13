@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.58 2006-08-13 14:41:34 ensonic Exp $
+// $Id: main-menu.c,v 1.59 2006-08-13 20:24:33 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -356,86 +356,12 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
 #endif
 }
 
-static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link, gpointer user_data) {
-  gnome_vfs_url_show(link);
-}
-
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  BtMainWindow *main_window;
-  GtkWidget *dialog,*news,*news_view;
-  static const gchar *authors[] = {
-    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
-    "Thomas 'waffel' Wabner <waffel@users.sf.net>",
-    NULL
-  };
-  static const gchar *documenters[] = {
-    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
-    NULL
-  };
 
   g_assert(user_data);
-
-  GST_INFO("menu about event occurred");
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   
-  /* we can get logo via icon name, so this here is just for educational purpose
-  GdkPixbuf *logo;
-  GError *error = NULL;
-  logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",48,0,&error);
-  //logo = gdk_pixbuf_new_from_file(DATADIR""G_DIR_SEPARATOR_S"icons"G_DIR_SEPARATOR_S"hicolor"G_DIR_SEPARATOR_S"48x48"G_DIR_SEPARATOR_S"apps"G_DIR_SEPARATOR_S""PACKAGE".png",&error);
-  if(!logo) {
-    GST_WARNING("Couldn't load icon: %s", error->message);
-    g_error_free(error);
-  }
-  */
-  
-  /* use GtkAboutDialog */
-  dialog = gtk_about_dialog_new();
-  g_object_set(dialog,
-    "authors",authors,
-    "comments",_("Music production environment"),
-    "copyright",_("Copyright \xc2\xa9 2003-2006 Buzztard developer team"),
-    "documenters", documenters,
-    "license", _("This package is free software released under the GNU Library General Public License"),
-    "logo-icon-name",PACKAGE_NAME,
-    "version", PACKAGE_VERSION,
-    "website","http://www.buzztard.org",
-    "wrap-license",TRUE,
-    NULL);
-    
-  // install hooks for hyper-links
-  gtk_about_dialog_set_email_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
-  gtk_about_dialog_set_url_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
-
-  // add the NEWS directly below copyright
-  news = gtk_text_view_new();
-  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(news), FALSE);
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
-  gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("This is a technical preview version. It is not complete or end-user ready yet. "
-      "The fileformat of the songs can also change.\n\n"
-      "Nonetheless if you find bugs or have comments, please take your time to contact us."
-    ),-1);
-  gtk_widget_show(news);
-
-  news_view = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (news_view), GTK_SHADOW_IN);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (news_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(news_view), news);
-  gtk_widget_show(news_view);
-  gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), news_view, TRUE, TRUE, 0);
-
-  // set parent relationship
-  gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
-  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-	gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
-  
-  g_object_try_unref(main_window);
+  bt_edit_application_show_about(self->priv->app);
 }
 
 static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {

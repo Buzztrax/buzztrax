@@ -1,5 +1,24 @@
 2006-08-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* buzztard.schemas.in:
+	* configure.ac:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_property),
+	(bt_gconf_settings_set_property):
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/settings.c: (bt_settings_class_init):
+	* src/ui/edit/edit-application-methods.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_run_ui),
+	(on_about_dialog_url_clicked), (bt_edit_application_show_about):
+	* src/ui/edit/main-menu.c: (on_menu_about_activate):
+          shows news for each release
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+          also try buzz-songs for encoding
+
+2006-08-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* README:
 	* src/ui/edit/main-menu.c: (on_menu_about_activate):
           use themed icon in about dialog

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.77 2006-08-02 19:34:19 ensonic Exp $
+# $Id: configure.ac,v 1.78 2006-08-13 20:24:33 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -41,6 +41,8 @@ AC_SUBST(BT_VERSION_NUMBER)
 AC_SUBST(BT_MAJORMINOR)
 AC_SUBST(BT_RELEASE_YEAR)
 AC_SUBST(BT_RELEASE_DATE)
+
+AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, ${BT_VERSION_NUMBER}, [version as a number])
 
 VERSION=${BT_VERSION}
 

@@ -1,4 +1,4 @@
-// $Id: settings.c,v 1.24 2006-04-08 22:08:34 ensonic Exp $
+// $Id: settings.c,v 1.25 2006-08-13 20:24:33 ensonic Exp $
 /**
  * SECTION:btsettings
  * @short_description: base class for buzztard settings handling
@@ -131,6 +131,8 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
   //klass->get           = bt_settings_real_get;
   //klass->set           = bt_settings_real_set;
 
+  // application settings
+  
   g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",
                                      "audiosink prop",
@@ -158,6 +160,17 @@ static void bt_settings_class_init(BtSettingsClass *klass) {
                                      "machine view grid detail level",
                                      "low", /* default value */
                                      G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_NEWS_SEEN,
+                                  g_param_spec_uint("news-seen",
+                                     "news-seen prop",
+                                     "version number for that the user has seen the news",
+                                     0,
+                                     G_MAXUINT,
+                                     0, /* default value */
+                                     G_PARAM_READWRITE));
+
+  // system settings
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,
                                   g_param_spec_string("system-audiosink",

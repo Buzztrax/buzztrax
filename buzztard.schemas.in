@@ -48,5 +48,16 @@
 				</long>
       </locale>
     </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/news-seen</key>
+      <applyto>/apps/buzztard/news-seen</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>0</default>
+        <short>Version number for that the user has seen the news</short>
+        <long>Tracks for which application version the user has seen the news already.</long>
+      </locale>
+    </schema>
   </schemalist>
 </gconfschemafile>

@@ -1,4 +1,4 @@
-/* $Id: edit-application-methods.h,v 1.4 2004-11-18 17:58:16 ensonic Exp $
+/* $Id: edit-application-methods.h,v 1.5 2006-08-13 20:24:33 ensonic Exp $
  * defines all public methods of the edit application class
  */
 
@@ -15,5 +15,7 @@ extern gboolean bt_edit_application_save_song(const BtEditApplication *self,cons
 
 extern gboolean bt_edit_application_run(const BtEditApplication *self);
 extern gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const gchar *input_file_name);
+
+extern void bt_edit_application_show_about(const BtEditApplication *self) ;
 
 #endif // BT_EDIT_APPLICATION_METHDOS_H

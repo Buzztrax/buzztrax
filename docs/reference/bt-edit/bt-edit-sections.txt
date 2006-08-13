@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.26 2006-05-20 22:48:23 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.27 2006-08-13 20:24:33 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -21,6 +21,7 @@ bt_edit_application_load_song
 bt_edit_application_save_song
 bt_edit_application_run
 bt_edit_application_load_and_run
+bt_edit_application_show_about
 <SUBSECTION Standard>
 BtEditApplicationClass
 BT_EDIT_APPLICATION

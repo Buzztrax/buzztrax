@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.77 2006-08-13 14:41:34 ensonic Exp $
+// $Id: edit-application.c,v 1.78 2006-08-13 20:24:33 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -67,6 +67,8 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
 //-- helper methods
 
 static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
+  BtSettings *settings;
+  guint version;
   gboolean res;
   
   g_assert(self);
@@ -74,10 +76,26 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   
   GST_INFO("application.run_ui launched");
   
+  g_object_get(G_OBJECT(self),"settings",&settings,NULL);
+  g_object_get(G_OBJECT(settings),"news-seen",&version,NULL);
+
+  if(PACKAGE_VERSION_NUMBER>version) {
+    // show about
+    bt_edit_application_show_about(self);
+    // store new version
+    version=PACKAGE_VERSION_NUMBER;
+    g_object_set(G_OBJECT(settings),"news-seen",version,NULL);
+  }  
+  g_object_unref(settings);
+  
   res=bt_main_window_run(self->priv->main_window);
 
   GST_INFO("application.run_ui finished");
   return(res);
+}
+
+static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link, gpointer user_data) {
+  gnome_vfs_url_show(link);
 }
 
 //-- constructor methods
@@ -450,6 +468,83 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
   }
   GST_INFO("application.load_and_run finished");
   return(res);
+}
+
+/**
+ * bt_edit_application_show_about:
+ * @self: the application instance
+ *
+ * Shows the applications about window
+ */
+void bt_edit_application_show_about(const BtEditApplication *self) {
+  GtkWidget *dialog,*news,*news_view;
+  static const gchar *authors[] = {
+    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
+    "Thomas 'waffel' Wabner <waffel@users.sf.net>",
+    NULL
+  };
+  static const gchar *documenters[] = {
+    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
+    NULL
+  };
+
+  GST_INFO("menu about event occurred");
+  
+  /* we can get logo via icon name, so this here is just for educational purpose
+  GdkPixbuf *logo;
+  GError *error = NULL;
+  logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",48,0,&error);
+  //logo = gdk_pixbuf_new_from_file(DATADIR""G_DIR_SEPARATOR_S"icons"G_DIR_SEPARATOR_S"hicolor"G_DIR_SEPARATOR_S"48x48"G_DIR_SEPARATOR_S"apps"G_DIR_SEPARATOR_S""PACKAGE".png",&error);
+  if(!logo) {
+    GST_WARNING("Couldn't load icon: %s", error->message);
+    g_error_free(error);
+  }
+  */
+  
+  /* use GtkAboutDialog */
+  dialog = gtk_about_dialog_new();
+  g_object_set(dialog,
+    "authors",authors,
+    "comments",_("Music production environment"),
+    "copyright",_("Copyright \xc2\xa9 2003-2006 Buzztard developer team"),
+    "documenters", documenters,
+    "license", _("This package is free software released under the GNU Library General Public License"),
+    "logo-icon-name",PACKAGE_NAME,
+    "version", PACKAGE_VERSION,
+    "website","http://www.buzztard.org",
+    "wrap-license",TRUE,
+    NULL);
+    
+  // install hooks for hyper-links
+  gtk_about_dialog_set_email_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
+  gtk_about_dialog_set_url_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
+
+  // add the NEWS directly below copyright
+  news = gtk_text_view_new();
+  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(news), FALSE);
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
+  gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
+    _("This is a technical preview version. It is not complete or end-user ready yet. "
+      "The fileformat of the songs can also change.\n\n"
+      "Nonetheless if you find bugs or have comments, please take your time to contact us."
+    ),-1);
+  gtk_widget_show(news);
+
+  news_view = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (news_view), GTK_SHADOW_IN);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (news_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(news_view), news);
+  gtk_widget_show(news_view);
+  gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), news_view, TRUE, TRUE, 0);
+
+  // set parent relationship
+  gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
+  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
+	gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
 }
 
 //-- wrapper
