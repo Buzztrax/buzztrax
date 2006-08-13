@@ -1,4 +1,4 @@
-// $Id: wire-canvas-item.c,v 1.37 2006-07-31 17:22:46 ensonic Exp $
+// $Id: wire-canvas-item.c,v 1.38 2006-08-13 12:45:06 ensonic Exp $
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
@@ -227,8 +227,12 @@ static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer use
   g_assert(user_data);
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
-    self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire));
-    g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
+    if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire)))) {
+      g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
+    }
+  }
+  else {
+    gtk_window_present(GTK_WINDOW(self->priv->analysis_dialog));
   }
 }
 //-- helper methods

@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.56 2006-08-12 10:19:20 ensonic Exp $
+// $Id: main-menu.c,v 1.57 2006-08-13 12:45:03 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -356,6 +356,10 @@ static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
 #endif
 }
 
+static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link, gpointer user_data) {
+  gnome_vfs_url_show(link);
+}
+
 static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
   BtMainWindow *main_window;
@@ -398,6 +402,10 @@ static void on_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
     "website","http://www.buzztard.org",
     "wrap-license",TRUE,
     NULL);
+    
+  // install hooks for hyper-links
+  gtk_about_dialog_set_email_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
+  gtk_about_dialog_set_url_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
 
   // add the NEWS directly below copyright
   news = gtk_text_view_new();

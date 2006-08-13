@@ -1,4 +1,4 @@
-// $Id: machine-preferences-dialog.c,v 1.23 2006-08-05 23:29:22 ensonic Exp $
+// $Id: machine-preferences-dialog.c,v 1.24 2006-08-13 12:45:04 ensonic Exp $
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
@@ -145,7 +145,10 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   }
   
   // leave the choice of width to gtk
-  gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
+  //gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
+  gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
+  //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
+  
   // set a title
   g_object_get(self->priv->machine,"id",&id,"machine",&machine,NULL);
   title=g_strdup_printf(_("%s preferences"),id);

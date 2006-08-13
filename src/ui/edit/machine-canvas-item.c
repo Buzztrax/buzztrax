@@ -1,4 +1,4 @@
-// $Id: machine-canvas-item.c,v 1.68 2006-07-30 21:35:22 ensonic Exp $
+// $Id: machine-canvas-item.c,v 1.69 2006-08-13 12:45:03 ensonic Exp $
 /**
  * SECTION:btmachinecanvasitem
  * @short_description: class for the editor machine views machine canvas item
@@ -260,8 +260,12 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
   g_assert(user_data);
 
   if(!self->priv->properties_dialog) {
-    self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
-    g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+    if((self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine)))) {
+      g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+    }
+  }
+  else {
+    gtk_window_present(GTK_WINDOW(self->priv->properties_dialog));
   }
 }
 
@@ -271,8 +275,12 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
   g_assert(user_data);
 
   if(!self->priv->preferences_dialog) {
-    self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->app,self->priv->machine));
-    g_signal_connect(G_OBJECT(self->priv->preferences_dialog),"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+    if((self->priv->preferences_dialog=GTK_WIDGET(bt_machine_preferences_dialog_new(self->priv->app,self->priv->machine)))) {
+      g_signal_connect(G_OBJECT(self->priv->preferences_dialog),"destroy",G_CALLBACK(on_machine_preferences_dialog_destroy),(gpointer)self);
+    }
+  }
+  else {
+    gtk_window_present(GTK_WINDOW(self->priv->preferences_dialog));
   }
 }
 

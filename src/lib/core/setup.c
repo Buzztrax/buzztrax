@@ -1,4 +1,4 @@
-// $Id: setup.c,v 1.98 2006-08-12 10:19:20 ensonic Exp $
+// $Id: setup.c,v 1.99 2006-08-13 12:45:07 ensonic Exp $
 /**
  * SECTION:btsetup
  * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
@@ -33,6 +33,7 @@ enum {
   SETUP_SONG,
   SETUP_MACHINES,
   SETUP_WIRES,
+  SETUP_MISSING_MACHINES
 };
 
 struct _BtSetupPrivate {
@@ -45,10 +46,11 @@ struct _BtSetupPrivate {
     gpointer song_ptr;
   };
   
-  GList *machines;  // each entry points to BtMachine
-  GList *wires;      // each entry points to BtWire
+  GList *machines;         // each entry points to BtMachine
+  GList *wires;            // each entry points to BtWire
+  GList *missing_machines; // each entry points to a gchar*
   
-  /* (ui) properties accociated with this machine
+  /* (ui) properties accociated with this song
      zoom. scroll-position
    */
   GHashTable *properties;
@@ -523,6 +525,21 @@ gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name) {
   return(id);
 }
 
+/**
+ * bt_setup_remember_missing_machine:
+ * @self: the setup
+ * @str: human readable description of the missing machine
+ *
+ * Loaders can use this function to collect information about machines that
+ * failed to load.
+ * The front-end can access this later by reading BtSetup::missing-machines
+ * property.
+ */
+void bt_setup_remember_missing_machine(const BtSetup *self,const gchar *str) {
+  GST_INFO("missing machine %s",str);
+  self->priv->missing_machines=g_list_prepend(self->priv->missing_machines,(gpointer)str);
+}
+
 //-- io interface
 
 static xmlNodePtr bt_setup_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
@@ -586,7 +603,13 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
                   bt_setup_add_machine(self,machine);
                 }
                 else {
-                  /* @todo: collect failed machines, gerror in song/each class? */
+                  // collect failed machines
+                  gchar *id,*plugin_name,*str;
+                  
+                  g_object_get(machine,"id",&id,"plugin-name",&plugin_name,NULL);        
+                  str=g_strdup_printf("%s: %s",id, plugin_name);
+                  bt_setup_remember_missing_machine(self,str);
+                  g_free(id);g_free(plugin_name);
                 }
                 g_object_unref(machine);
               }
@@ -601,8 +624,9 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
             wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
-            bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL);
-            bt_setup_add_wire(self,wire);
+            if(bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL)) {
+              bt_setup_add_wire(self,wire);
+            }
             g_object_unref(wire);
           }
         }
@@ -652,6 +676,9 @@ static void bt_setup_get_property(GObject      *object,
        * returns a new list where one has to unref the elements
        */
       g_value_set_pointer(value,g_list_copy(self->priv->wires));
+    } break;
+    case SETUP_MISSING_MACHINES: {
+      g_value_set_pointer(value,self->priv->missing_machines);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -725,7 +752,16 @@ static void bt_setup_finalize(GObject *object) {
   // free list of machines
   if(self->priv->machines) {
     g_list_free(self->priv->machines);
-    self->priv->wires=NULL;
+    self->priv->machines=NULL;
+  }
+  // free list of missing_machines
+  if(self->priv->missing_machines) {
+    GList* node;
+    for(node=self->priv->missing_machines;node;node=g_list_next(node)) {
+      g_free(node->data);
+    }
+    g_list_free(self->priv->missing_machines);
+    self->priv->missing_machines=NULL;
   }
 
   g_hash_table_destroy(self->priv->properties);
@@ -856,6 +892,12 @@ static void bt_setup_class_init(BtSetupClass *klass) {
                                   g_param_spec_pointer("wires",
                                      "wire list prop",
                                      "A copy of the list of wires",
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,SETUP_MISSING_MACHINES,
+                                  g_param_spec_pointer("missing-machines",
+                                     "missing-machines list prop",
+                                     "The list of missing machines, don't change",
                                      G_PARAM_READABLE));
 }
 

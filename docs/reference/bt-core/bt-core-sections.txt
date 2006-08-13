@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.71 2006-07-22 15:37:05 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.72 2006-08-13 12:45:06 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -302,6 +302,7 @@ bt_setup_get_wire_by_machines
 bt_setup_get_wires_by_src_machine
 bt_setup_get_wires_by_dst_machine
 bt_setup_get_unique_machine_id
+bt_setup_remember_missing_machine
 <SUBSECTION Standard>
 BtSetupClass
 BT_SETUP
@@ -470,6 +471,7 @@ BtSourceMachinePrivate
 BtWave
 bt_wave_new
 bt_wave_add_wavelevel
+bt_wave_load_from_url
 <SUBSECTION Standard>
 BtWaveClass
 BT_WAVE
@@ -508,6 +510,7 @@ BtWavetable
 bt_wavetable_new
 bt_wavetable_add_wave
 bt_wavetable_get_wave_by_index
+bt_wavetable_remember_missing_wave
 <SUBSECTION Standard>
 BtWavetableClass
 BT_WAVETABLE

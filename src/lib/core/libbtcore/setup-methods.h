@@ -1,4 +1,4 @@
-/* $Id: setup-methods.h,v 1.19 2005-03-02 16:14:39 ensonic Exp $
+/* $Id: setup-methods.h,v 1.20 2006-08-13 12:45:07 ensonic Exp $
  * defines all public methods of the setup class
  */
 
@@ -32,5 +32,7 @@ extern GList *bt_setup_get_wires_by_src_machine(const BtSetup *self,const BtMach
 extern GList *bt_setup_get_wires_by_dst_machine(const BtSetup *self,const BtMachine *dst);
 
 extern gchar *bt_setup_get_unique_machine_id(const BtSetup *self,gchar *base_name);
+
+extern void bt_setup_remember_missing_machine(const BtSetup *self,const gchar *str);
 
 #endif // BT_SETUP_METHDOS_H

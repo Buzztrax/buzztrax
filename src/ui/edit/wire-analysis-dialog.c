@@ -1,8 +1,15 @@
-// $Id: wire-analysis-dialog.c,v 1.9 2006-08-10 20:02:31 ensonic Exp $
+// $Id: wire-analysis-dialog.c,v 1.10 2006-08-13 12:45:06 ensonic Exp $
 /**
  * SECTION:btwireanalysisdialog
  * @short_description: audio analysis for this wire
- */ 
+ *
+ * The dialog shows a mono-spectrum analyzer and level-meters for left/right
+ * channel.
+ *
+ * The dialog is not modal.
+ */
+
+/* @todo: make dialog resizable */
 
 #define BT_EDIT
 #define BT_WIRE_ANALYSIS_DIALOG_C

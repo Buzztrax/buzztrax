@@ -1,4 +1,4 @@
-// $Id: cmd-application.c,v 1.81 2006-08-05 16:14:18 ensonic Exp $
+// $Id: cmd-application.c,v 1.82 2006-08-13 12:45:07 ensonic Exp $
 /**
  * SECTION:btcmdapplication
  * @short_description: class for a commandline based buzztard tool application
@@ -287,6 +287,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     gboolean loop;
     glong loop_start,loop_end;
     GList *machines,*wires,*patterns,*waves,*node;
+    GList *missing_machines,*missing_waves;
     GstBin *bin;
     gulong msec,sec,min;
 
@@ -295,7 +296,10 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     //DEBUG
 
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
-
+    // get missing element info
+    g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
+    g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+    
     // print some info about the song
     g_object_get(G_OBJECT(song_info),
       "name",&name,"author",&author,"genre",&genre,"info",&info,
@@ -333,10 +337,18 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
       g_list_free(patterns);
     }
     g_fprintf(output_file,"song.setup.number_of_patterns: %lu\n",n_patterns);
+    g_fprintf(output_file,"song.setup.number_of_missing_machines: %u\n",g_list_length(missing_machines));
+    for(node=missing_machines;node;node=g_list_next(node)) {
+      g_fprintf(output_file,"  %s\n",(gchar *)(node->data));
+    }
     g_list_free(machines);
     g_list_free(wires);
     g_object_get(G_OBJECT(wavetable),"waves",&waves,NULL);
     g_fprintf(output_file,"song.wavetable.number_of_waves: %u\n",g_list_length(waves));
+    g_fprintf(output_file,"song.wavetable.number_of_missing_waves: %u\n",g_list_length(missing_waves));
+    for(node=missing_waves;node;node=g_list_next(node)) {
+      g_fprintf(output_file,"  %s\n",(gchar *)(node->data));
+    }
     g_list_free(waves);
     g_object_get(G_OBJECT(self),"bin",&bin,NULL);
     g_fprintf(output_file,"app.bin.number_of_elements: %u\n",GST_BIN_NUMCHILDREN(bin));

@@ -1,4 +1,4 @@
-// $Id: wave.c,v 1.17 2006-06-21 16:16:39 ensonic Exp $
+// $Id: wave.c,v 1.18 2006-08-13 12:45:07 ensonic Exp $
 /**
  * SECTION:btwave
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
@@ -25,7 +25,7 @@ enum {
   WAVE_WAVELEVELS,
   WAVE_INDEX,
   WAVE_NAME,
-  WAVE_FILE_NAME
+  WAVE_URL
 };
 
 struct _BtWavePrivate {
@@ -42,7 +42,7 @@ struct _BtWavePrivate {
   gulong index;  
   /* the name of the wave and the the sample file */
   gchar *name;
-  gchar *file_name;
+  gchar *url;
   
   GList *wavelevels;    // each entry points to a BtWavelevel
 };
@@ -51,26 +51,28 @@ static GObjectClass *parent_class=NULL;
 
 //static guint signals[LAST_SIGNAL]={0,};
 
+//-- helper
+
 //-- constructor methods
 
 /**
  * bt_wave_new:
  * @song: the song the new instance belongs to
  * @name: the display name for the new wave
- * @file_name: the file system path of the sample data
+ * @url: the location of the sample data
  * @index: the list slot for the new wave
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *file_name,gulong index) {
+BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *url,gulong index) {
   BtWave *self;
   BtWavetable *wavetable;
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  if(!(self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"file-name",file_name,"index",index,NULL)))) {
+  if(!(self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"url",url,"index",index,NULL)))) {
     goto Error;
   }
   // add the wave to the wavetable of the song
@@ -116,30 +118,83 @@ gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel)
   return ret;
 }
 
+/**
+ * bt_wave_load_from_url:
+ * @self: the wave to load
+ *
+ * Will check the URI and if valid load the wavedata.
+ *
+ * Returns: %TRUE if the wavedata could be loaded 
+ */
+gboolean bt_wave_load_from_url(const BtWave *self) {
+  GnomeVFSURI *uri;
+  gboolean res=TRUE;
+
+  uri=gnome_vfs_uri_new(self->priv->url);
+  // check if the url is valid
+  if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
+    
+  // @todo: load wave-data (into wavelevels)
+  
+done:
+  gnome_vfs_uri_unref(uri);
+  return(res);
+
+  /* Errors */
+invalid_uri:
+  res=FALSE;
+  goto done;
+}
+
 //-- io interface
 
 static xmlNodePtr bt_wave_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
   BtWave *self = BT_WAVE(persistence);
   xmlNodePtr node=NULL;
+  xmlNodePtr child_node;
   
   GST_DEBUG("PERSISTENCE::wave");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wave"),NULL))) {
     xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
-    xmlNewProp(node,XML_CHAR_PTR("url"),XML_CHAR_PTR(self->priv->file_name));
+    xmlNewProp(node,XML_CHAR_PTR("url"),XML_CHAR_PTR(self->priv->url));
     
-    // @todo save wavelevels
+    // save wavelevels
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wavelevels"),NULL))) {
+      bt_persistence_save_list(self->priv->wavelevels,node);
+    }
   }
   return(node);
 }
 
 static gboolean bt_wave_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtWave *self = BT_WAVE(persistence);
+  BtWave *self = BT_WAVE(persistence);
+  BtWavelevel *wave_level;
+  xmlChar *index_str,*name,*url;
+  gulong index;
+  xmlNodePtr child_node;
   gboolean res=FALSE;
   
-  // @todo: implement me
-  res=TRUE;
+  index_str=xmlGetProp(node,XML_CHAR_PTR("index"));
+  index=index_str?atol((char *)index_str):0;
+  name=xmlGetProp(node,XML_CHAR_PTR("name"));
+  url=xmlGetProp(node,XML_CHAR_PTR("url"));
+  g_object_set(G_OBJECT(self),"index",index,"name",name,"url",url,NULL);
+  xmlFree(index_str);xmlFree(name);xmlFree(url);
+  
+  for(child_node=node->children;child_node;child_node=child_node->next) {
+    if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
+      wave_level=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,NULL));
+      if(bt_persistence_load(BT_PERSISTENCE(wave_level),child_node,NULL)) {
+        bt_wave_add_wavelevel(self,wave_level);
+      }
+      g_object_unref(wave_level);
+    }
+  }
+  // try to load wavedata
+  res=bt_wave_load_from_url(self);
+  
   return(res);
 }
 
@@ -175,8 +230,8 @@ static void bt_wave_get_property(GObject      *object,
     case WAVE_NAME: {
       g_value_set_string(value, self->priv->name);
     } break;
-    case WAVE_FILE_NAME: {
-      g_value_set_string(value, self->priv->file_name);
+    case WAVE_URL: {
+      g_value_set_string(value, self->priv->url);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -208,10 +263,10 @@ static void bt_wave_set_property(GObject      *object,
       self->priv->name = g_value_dup_string(value);
       GST_DEBUG("set the name for wave: %s",self->priv->name);
     } break;
-    case WAVE_FILE_NAME: {
-      g_free(self->priv->file_name);
-      self->priv->file_name = g_value_dup_string(value);
-      GST_DEBUG("set the file-name for wave: %s",self->priv->file_name);
+    case WAVE_URL: {
+      g_free(self->priv->url);
+      self->priv->url = g_value_dup_string(value);
+      GST_DEBUG("set the url for wave: %s",self->priv->url);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -259,7 +314,7 @@ static void bt_wave_finalize(GObject *object) {
     self->priv->wavelevels=NULL;
   }
   g_free(self->priv->name);
-  g_free(self->priv->file_name);
+  g_free(self->priv->url);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -312,10 +367,10 @@ static void bt_wave_class_init(BtWaveClass *klass) {
                                      "unamed wave", /* default value */
                                      G_PARAM_READWRITE));
 
-  g_object_class_install_property(gobject_class,WAVE_FILE_NAME,
-                                  g_param_spec_string("file-name",
-                                     "file-name prop",
-                                     "The file-name of the wave",
+  g_object_class_install_property(gobject_class,WAVE_URL,
+                                  g_param_spec_string("url",
+                                     "url prop",
+                                     "The url of the wave",
                                      NULL, /* default value */
                                      G_PARAM_READWRITE));
 }

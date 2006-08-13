@@ -1,4 +1,4 @@
-// $Id: wavetable.c,v 1.20 2006-06-21 16:16:39 ensonic Exp $
+// $Id: wavetable.c,v 1.21 2006-08-13 12:45:07 ensonic Exp $
 /**
  * SECTION:btwavetable
  * @short_description: the list of #BtWave items in a #BtSong
@@ -23,7 +23,8 @@ enum {
 
 enum {
   WAVETABLE_SONG=1,
-  WAVETABLE_WAVES
+  WAVETABLE_WAVES,
+  WAVETABLE_MISSING_WAVES
 };
 
 struct _BtWavetablePrivate {
@@ -36,7 +37,8 @@ struct _BtWavetablePrivate {
     gpointer song_ptr;
   };
   
-  GList *waves;    // each entry points to a BtWave
+  GList *waves;         // each entry points to a BtWave
+  GList *missing_waves; // each entry points to a gchar*
 };
 
 static GObjectClass *parent_class=NULL;
@@ -124,6 +126,21 @@ BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index) {
   return(NULL);
 }
 
+/**
+ * bt_wavetable_remember_missing_wave:
+ * @self: the wavetable
+ * @str: human readable description of the missing wave
+ *
+ * Loaders can use this function to collect information about wavetable entries
+ * that failed to load.
+ * The front-end can access this later by reading BtWavetable::missing-waves
+ * property.
+ */
+void bt_wavetable_remember_missing_wave(const BtWavetable *self,const gchar *str) {
+  GST_INFO("missing wave %s",str);
+  self->priv->missing_waves=g_list_prepend(self->priv->missing_waves,(gpointer)str);
+}
+
 //-- io interface
 
 static xmlNodePtr bt_wavetable_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
@@ -139,17 +156,29 @@ static xmlNodePtr bt_wavetable_persistence_save(BtPersistence *persistence, xmlN
 }
 
 static gboolean bt_wavetable_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtWavetable *self = BT_WAVETABLE(persistence);
+  BtWavetable *self = BT_WAVETABLE(persistence);
+  BtWave *wave;
+  xmlNodePtr child_node;
   gboolean res=FALSE;
   
-  // @todo: implement me
-  /*
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
-      ...
+      wave=BT_WAVE(g_object_new(BT_TYPE_WAVE,NULL));
+      if(bt_persistence_load(BT_PERSISTENCE(wave),child_node,NULL)) {
+        bt_wavetable_add_wave(self,wave);
+      }
+      else {
+        // collect failed waves
+        gchar *name,*url,*str;
+        
+        g_object_get(wave,"name",&name,"url",&url,NULL);        
+        str=g_strdup_printf("%s: %s",name, url);
+        bt_wavetable_remember_missing_wave(self,str);
+        g_free(name);g_free(url);
+      }
+      g_object_unref(wave);
     }
   }
-  */
   res=TRUE;
   return(res);
 }
@@ -179,6 +208,9 @@ static void bt_wavetable_get_property(GObject      *object,
     } break;
     case WAVETABLE_WAVES: {
       g_value_set_pointer(value,g_list_copy(self->priv->waves));
+    } break;
+    case WAVETABLE_MISSING_WAVES: {
+      g_value_set_pointer(value,self->priv->missing_waves);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -246,6 +278,15 @@ static void bt_wavetable_finalize(GObject *object) {
     g_list_free(self->priv->waves);
     self->priv->waves=NULL;
   }
+  // free list of missing_waves
+  if(self->priv->missing_waves) {
+    GList* node;
+    for(node=self->priv->missing_waves;node;node=g_list_next(node)) {
+      g_free(node->data);
+    }
+    g_list_free(self->priv->missing_waves);
+    self->priv->missing_waves=NULL;
+  }
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -280,6 +321,12 @@ static void bt_wavetable_class_init(BtWavetableClass *klass) {
                                   g_param_spec_pointer("waves",
                                      "waves list prop",
                                      "A copy of the list of waves",
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,WAVETABLE_MISSING_WAVES,
+                                  g_param_spec_pointer("missing-waves",
+                                     "missing-waves list prop",
+                                     "The list of missing waves, don't change",
                                      G_PARAM_READABLE));
 }
 

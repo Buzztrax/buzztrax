@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.46 2006-08-05 23:29:22 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.47 2006-08-13 12:45:06 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -111,15 +111,15 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
   gdouble value=gtk_range_get_value(range);
-  gchar str[20];
+  gchar str[30];
   
   g_assert(user_data);
-  //GST_INFO("property value change received");
+  GST_INFO("property value change received");
 
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
   g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
-  g_printf(str,"%lf",value);
+  g_sprintf(str,"%lf",value);
   gtk_label_set_text(label,str);
 }
 
@@ -412,7 +412,10 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   }
   
   // leave the choice of width to gtk
-  gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
+  //gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
+  gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
+  //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
+
   // set a title
   g_object_get(self->priv->machine,
     "id",&id,

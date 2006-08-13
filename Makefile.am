@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.58 2006-08-12 10:19:20 ensonic Exp $
+## $Id: Makefile.am,v 1.59 2006-08-13 12:45:03 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -8,6 +8,7 @@ DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
 songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
 	tests/songs/broken1.xml \
+	tests/songs/broken2.xml \
 	tests/songs/buzz1.xml \
 	tests/songs/buzz2.xml \
 	tests/songs/buzz3.xml \

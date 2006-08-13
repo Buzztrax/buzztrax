@@ -1,4 +1,4 @@
-// $Id: sequence.c,v 1.113 2006-08-07 20:22:58 ensonic Exp $
+// $Id: sequence.c,v 1.114 2006-08-13 12:45:07 ensonic Exp $
 /**
  * SECTION:btsequence
  * @short_description: class for the event timeline of a #BtSong instance
@@ -1188,7 +1188,7 @@ static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlNode
               //g_object_unref(machine);
             }
             else {
-              GST_ERROR("invalid machine %s referenced at track %d",(gchar *)machine_id,index);
+              GST_INFO("invalid or missing machine %s referenced at track %d",(gchar *)machine_id,index);
             }
             xmlFree(index_str);xmlFree(machine_id);
           }

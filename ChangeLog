@@ -1,3 +1,53 @@
+2006-08-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* src/ui/edit/main-menu.c: (on_about_dialog_url_clicked),
+	(on_menu_about_activate):
+          finetune NEWS and add url-click callbacks
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/setup-methods.h:
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wavetable-methods.h:
+	* src/lib/core/machine.c: (bt_machine_persistence_load):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_remember_missing_machine),
+	(bt_setup_persistence_load), (bt_setup_get_property),
+	(bt_setup_finalize), (bt_setup_class_init):
+	* src/lib/core/wave.c: (bt_wave_new), (bt_wave_load_from_url),
+	(bt_wave_persistence_save), (bt_wave_persistence_load),
+	(bt_wave_get_property), (bt_wave_set_property), (bt_wave_finalize),
+	(bt_wave_class_init):
+	* src/lib/core/wavetable.c: (bt_wavetable_remember_missing_wave),
+	(bt_wavetable_persistence_load), (bt_wavetable_get_property),
+	(bt_wavetable_finalize), (bt_wavetable_class_init):
+          track missing elements, tests url existence in waves
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_info):
+          list missing machines, waves
+
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_properties_activate),
+	(on_context_menu_preferences_activate):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_double_range_property_changed),
+	(bt_machine_properties_dialog_init_ui):
+	* src/ui/edit/wire-analysis-dialog.c:
+	* src/ui/edit/wire-canvas-item.c:
+	(on_context_menu_analysis_activate):
+          bring dialog to front if already open, fix double-property formatting,
+          experiment with default size
+
+	* Makefile.am:
+	* tests/songs/broken2.xml:
+          new test song for checking missing machines & waves
+
+	* tests/songs/test-simple1.xml:
+	* tests/songs/test-simple2.xml:
+          fix patterns
+
 2006-08-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:
