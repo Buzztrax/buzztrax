@@ -1,4 +1,4 @@
-// $Id: song-io.c,v 1.56 2006-08-01 17:13:58 ensonic Exp $
+// $Id: song-io.c,v 1.57 2006-08-14 20:49:40 ensonic Exp $
 /**
  * SECTION:btsongio
  * @short_description: base class for song input and output
@@ -74,7 +74,7 @@ static void bt_song_io_register_plugins(void) {
       g_sprintf(plugin_name,LIBDIR"/songio/%s",dire->d_name);
       // skip symlinks
       if(readlink((const char *)plugin_name,link_target,FILENAME_MAX-1)!=-1) continue;
-      GST_INFO("    found file \"%s\"",dire->d_name);
+      GST_INFO("    found file '%s'",dire->d_name);
       //   2.) try to open each as g_module
       //if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LAZY))!=NULL) {
       if((plugin=g_module_open(plugin_name,G_MODULE_BIND_LOCAL))!=NULL) {
@@ -106,7 +106,7 @@ static GType bt_song_io_detect(const gchar *file_name) {
   GList *node;
   BtSongIODetect detect;
   
-  GST_INFO("detecting loader for file \"%s\"",file_name);
+  GST_INFO("detecting loader for file '%s'",file_name);
   
   if(!plugins) bt_song_io_register_plugins();
   

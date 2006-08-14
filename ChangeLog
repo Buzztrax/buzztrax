@@ -1,3 +1,20 @@
+2006-08-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/LINGUAS:
+	* po/de.po:
+	* po/POTFILES.in:
+	* src/lib/core/libbtcore/song-io-native.h:
+	* src/ui/edit/main-window.c: (bt_main_window_save_song),
+	(bt_main_window_save_song_as):
+	* src/lib/core/song-io.c: (bt_song_io_register_plugins),
+	(bt_song_io_detect):
+           translate a lot of german strings, unify some more strings
+
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect),
+	(bt_song_io_native_load), (bt_song_io_native_save),
+	(bt_song_io_native_class_init):
+           remove old loader/saver code, remove cached xpath expresssions
+
 2006-08-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* buzztard.schemas.in:

@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.79 2006-08-13 14:41:34 ensonic Exp $
+// $Id: main-window.c,v 1.80 2006-08-14 20:49:40 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -415,7 +415,7 @@ void bt_main_window_save_song(const BtMainWindow *self) {
   // check the file_name of the song
   if(file_name) {
     if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-      gchar *msg=g_strdup_printf(_("An error occured while saving the song to file '%s'"),file_name);
+      gchar *msg=g_strdup_printf(_("An error occured while saving the song to file '%s'."),file_name);
       bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
       g_free(msg);
     }
@@ -478,7 +478,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     if((file=fopen(file_name,"rb"))) {
       GST_INFO("file already exists");
       // it already exists, ask the user what to do (do not save, choose new name, overwrite song)
-      cont=bt_dialog_question(self,_("File already exists"),_("File already exists"),_("Choose 'Okay' to overwrite and 'Cancel' to abort saving the song."));
+      cont=bt_dialog_question(self,_("File already exists"),_("File already exists"),_("Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."));
       fclose(file);
     }
     else {
@@ -489,7 +489,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
       switch(errno) {
         case EACCES:  // Permission denied.
           cont=FALSE;
-          msg=g_strdup_printf(_("An error occured while trying to open the file '%s' for writing : %s"),file_name,reason);
+          msg=g_strdup_printf(_("An error occured while trying to open the file '%s' for writing: %s"),file_name,reason);
           bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
           g_free(msg);
           break;
@@ -501,7 +501,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     }
     if(cont) {
       if(!bt_edit_application_save_song(self->priv->app,file_name)) {
-        gchar *msg=g_strdup_printf(_("An error occured while trying to save the song to file '%s'"),file_name);
+        gchar *msg=g_strdup_printf(_("An error occured while trying to save the song to file '%s'."),file_name);
         bt_dialog_message(self,_("Can't save song"),_("Can't save song"),msg);
         g_free(msg);
       }
