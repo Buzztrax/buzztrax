@@ -1,4 +1,4 @@
-// $Id: bt-cmd.c,v 1.33 2006-02-15 11:27:39 ensonic Exp $
+// $Id: bt-cmd.c,v 1.34 2006-08-17 17:46:38 ensonic Exp $
 /**
  * SECTION:btcmd
  * @short_description: buzztard commandline tool
@@ -44,9 +44,9 @@ int main(int argc, char **argv) {
   GOptionEntry options[] = {
     {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,      N_("Show version"),     NULL },
     {"quiet",       'q',  G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_quiet,        N_("Be quiet"),         NULL },
-    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,          N_("Command name"),     N_("{info, play, convert, encode}") },
-    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name,  N_("Input file name"),  N_("SONGFILE") },
-    {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, &output_file_name, N_("Output file name"), N_("SONGFILE") },
+    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,          N_("Command name"),     "{info, play, convert, encode}" },
+    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name,  N_("Input file name"),  N_("<songfile>") },
+    {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, &output_file_name, N_("Output file name"), N_("<songfile>") },
     {NULL}
   };
 

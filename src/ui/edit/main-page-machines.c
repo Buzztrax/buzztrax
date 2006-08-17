@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.87 2006-08-07 20:22:59 ensonic Exp $
+// $Id: main-page-machines.c,v 1.88 2006-08-17 17:46:38 ensonic Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -400,8 +400,8 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   gdouble ma_xs=MACHINE_VIEW_ZOOM_X,ma_x,ma_xe=-MACHINE_VIEW_ZOOM_X,ma_xd;
   gdouble ma_ys=MACHINE_VIEW_ZOOM_Y,ma_y,ma_ye=-MACHINE_VIEW_ZOOM_Y,ma_yd;
   // page area
-  gdouble pg_xs,pg_x,pg_xe,pg_xd,pg_xl;
-  gdouble pg_ys,pg_y,pg_ye,pg_yd,pg_yl;
+  gdouble /*pg_xs,pg_x,pg_xe,pg_xd,*/pg_xl;
+  gdouble /*pg_ys,pg_y,pg_ye,pg_yd,*/pg_yl;
 
   g_assert(user_data);
 
@@ -414,47 +414,46 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
     // get position
     g_object_get(machine,"properties",&properties,NULL);
     machine_view_get_machine_position(properties,&ma_x,&ma_y);
-    ma_x/=MACHINE_VIEW_ZOOM_X;
-    ma_y/=MACHINE_VIEW_ZOOM_Y;
     if(ma_x<ma_xs) ma_xs=ma_x;
     if(ma_x>ma_xe) ma_xe=ma_x;
     if(ma_y<ma_ys) ma_ys=ma_y;
     if(ma_y>ma_ye) ma_ye=ma_y;
-    GST_INFO("machines: x:%+6.4lf y:%+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",ma_x,ma_y,ma_xs,ma_xe,ma_ys,ma_ye);
+    GST_DEBUG("machines: x:%+6.4lf y:%+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",ma_x,ma_y,ma_xs,ma_xe,ma_ys,ma_ye);
   }
   g_list_free(list);
   g_object_unref(setup);
   g_object_unref(song);
-  /* @todo: need to add machine extends + some space */
+  /* need to add machine extends + some space */
   GST_INFO("machines ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",ma_xs,ma_xe,ma_ys,ma_ye);
-  ms=MACHINE_VIEW_MACHINE_SIZE_X/MACHINE_VIEW_ZOOM_X;
-  ma_xd=(ma_xe+ms)-(ma_xs-ms);
-  ms=MACHINE_VIEW_MACHINE_SIZE_Y/MACHINE_VIEW_ZOOM_Y;
-  ma_yd=(ma_ye+ms)-(ma_ys-ms);
+  ms=2*MACHINE_VIEW_MACHINE_SIZE_X;
+  ma_xs-=ms;ma_xe+=ms;
+  ma_xd=(ma_xe-ma_xs);
+  ms=2*MACHINE_VIEW_MACHINE_SIZE_Y;
+  ma_ys-=ms;ma_ye+=ms;
+  ma_yd=(ma_ye-ma_ys);
   
-  g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,"page-size",&pg_xl,NULL);
-  g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,"page-size",&pg_yl,NULL);
+  g_object_get(G_OBJECT(self->priv->hadjustment),/*"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,*/"page-size",&pg_xl,NULL);
+  g_object_get(G_OBJECT(self->priv->vadjustment),/*"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,*/"page-size",&pg_yl,NULL);
+  /*
   pg_xd=(pg_xe-pg_xs)/MACHINE_VIEW_ZOOM_X;
   pg_yd=(pg_ye-pg_ys)/MACHINE_VIEW_ZOOM_Y;
   GST_INFO("page: pos x/y:%+6.4lf %+6.4lf size x/y: %+6.4lf %+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
-    pg_x,pg_y,pg_xl,pg_yl,pg_xs,pg_xe,pg_ys,pg_ye);
+    pg_x,pg_y,pg_xl,pg_yl, pg_xs,pg_xe,pg_ys,pg_ye);
+  */
 
   // zoom
-  fc_x=pg_xd/ma_xd;
-  fc_y=pg_yd/ma_yd;
-  GST_INFO("zoom old=%6.4lf, x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",self->priv->zoom,pg_xd,ma_xd,fc_x,pg_yd,ma_yd,fc_y);
-  /* @todo: this still is wrong :( */
+  fc_x=pg_xl/ma_xd;
+  fc_y=pg_yl/ma_yd;
+  GST_INFO("zoom old=%6.4lf, x:%+6.4lf / %+6.4lf = %+6.4lf and y:%+6.4lf / %+6.4lf = %+6.4lf",self->priv->zoom, pg_xl,ma_xd,fc_x, pg_yl,ma_yd,fc_y);
   self->priv->zoom=MIN(fc_x,fc_y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  // does it change? pos x/y and upper x/y changes
-  //g_object_get(G_OBJECT(self->priv->hadjustment),"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,"page-size",&pg_xl,NULL);
-  //g_object_get(G_OBJECT(self->priv->vadjustment),"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,"page-size",&pg_yl,NULL);
-  //GST_INFO("page: pos x/y:%+6.4lf %+6.4lf size x/y: %+6.4lf %+6.4lf -> ranging from x:%+6.4lf...%+6.4lf and y:%+6.4lf...%+6.4lf",
-  //  pg_x,pg_y,pg_xl,pg_yl,pg_xs,pg_xe,pg_ys,pg_ye);
 
   // center
-  c_x=(MACHINE_VIEW_ZOOM_X-(pg_xl/2.0))+MACHINE_VIEW_ZOOM_X*(ma_xs+(ma_xd/2.0));
-  c_y=(MACHINE_VIEW_ZOOM_Y-(pg_yl/2.0))+MACHINE_VIEW_ZOOM_Y*(ma_ys+(ma_yd/2.0));
+  /* pos can be between: lower ... upper-page_size) */
+  GST_INFO("x: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_xl,(ma_xd*self->priv->zoom),((pg_xl-(ma_xd*self->priv->zoom))/2.0));
+  GST_INFO("y: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_yl,(ma_yd*self->priv->zoom),((pg_yl-(ma_yd*self->priv->zoom))/2.0));
+  c_x=MACHINE_VIEW_ZOOM_X+ma_xs-((pg_xl-(ma_xd*self->priv->zoom))/2.0);
+  c_y=MACHINE_VIEW_ZOOM_Y+ma_ys-((pg_yl-(ma_yd*self->priv->zoom))/2.0);
   gtk_adjustment_set_value(self->priv->hadjustment,c_x);
   gtk_adjustment_set_value(self->priv->vadjustment,c_y);
   
@@ -562,15 +561,19 @@ static void on_toolbar_grid_density_high_activated(GtkMenuItem *menuitem, gpoint
 static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+  gdouble val=gtk_adjustment_get_value(adjustment);
   
-  g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,gtk_adjustment_get_value(adjustment))));  
+  //GST_INFO("ypos: %lf",val);
+  g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));  
 }
 
 static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
+  gdouble val=gtk_adjustment_get_value(adjustment);
   
-  g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,gtk_adjustment_get_value(adjustment))));  
+  //GST_INFO("xpos: %lf",val);
+  g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));  
 }
 
 
@@ -819,7 +822,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
   self->priv->zoom_in=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_IN));
   gtk_widget_set_name(self->priv->zoom_in,_("Zoom In"));
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(self->priv->zoom_in),GTK_TOOLTIPS(tips),_("Zoom in so more details are visible"),NULL);
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(self->priv->zoom_in),GTK_TOOLTIPS(tips),_("Zoom in for more details"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(self->priv->zoom_in),-1);
   g_signal_connect(G_OBJECT(self->priv->zoom_in),"clicked",G_CALLBACK(on_toolbar_zoom_in_clicked),(gpointer)self);
 

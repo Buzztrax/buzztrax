@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.32 2006-04-30 22:30:55 ensonic Exp $
+// $Id: bt-edit.c,v 1.33 2006-08-17 17:46:38 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -43,8 +43,8 @@ int main(int argc, char **argv) {
   
   GOptionEntry options[] = {
     {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,     N_("Show version"),    NULL },
-    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    N_("{load}") },
-    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("SONGFILE") },
+    {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
+    {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
     POPT_TABLEEND
   };
   
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
-  g_set_application_name(_("Buzztard"));
+  g_set_application_name("Buzztard");
   gtk_window_set_default_icon_name("buzztard");
 
 #ifdef USE_GNOME

@@ -1,3 +1,22 @@
+2006-08-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+          more docs
+
+	* configure.ac:
+	* po/de.po:
+          i18n build + more translations
+
+	* src/ui/cmd/bt-cmd.c: (main):
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/main-menu.c: (bt_main_menu_init_ui):
+          fix some i18n strings (appname and commands) do not need translation
+
+	* src/ui/edit/main-page-machines.c: (on_toolbar_zoom_fit_clicked),
+	(on_vadjustment_changed), (on_hadjustment_changed),
+	(bt_main_page_machines_init_ui):
+          fix zoom-fit and disable scroll debug-logging again
+
 2006-08-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/LINGUAS:

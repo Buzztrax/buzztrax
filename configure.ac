@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.78 2006-08-13 20:24:33 ensonic Exp $
+# $Id: configure.ac,v 1.79 2006-08-17 17:46:37 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -85,9 +85,9 @@ fi
 AM_GNU_GETTEXT([external],[need-ngettext])
 AM_GNU_GETTEXT_VERSION(0.12.1)
 
-# i18n
+# i18n -- ALL_LINGUAS seems to be not neccesary anymore
 # ALL_LINGUAS="de"
-ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
+# ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
 localedir='${datadir}/locale'
 AC_SUBST(localedir)
 

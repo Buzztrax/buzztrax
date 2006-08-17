@@ -90,18 +90,56 @@
   <para>
     <application>&app;</application> is a music composer for the GNOME desktop.
     It partly follows the concepts of programs like SoundTracker, FastTracker
-    and the like, but is based on a modern audio network engine (gstreamer).
-    This engine support vitual sound generator and effects in the form of
+    and the like, but is based on a modern media engine (<ulink url="http://gstreamer.freedesktop.org">gstreamer</ulink>).
+    This engine supports virtual sound generator and effects in the form of
     numerous plugins.
   </para>
   <para>
-    The &app; help system is separated into these sections:
+    During the next section we describe the concept of the <application>&app;</application>
+    and also compare it to similar applications. If you are familiar with some
+    of those, the resoective sections should help to understand the way
+    <application>&app;</application> works.
+  </para>
+  <para>
+    The main chapter of the help system is separated into these sections:
     <itemizedlist>
       <listitem><para><link linkend="bt-edit-main" endterm="bt-edit-main.title"/></para></listitem>
       <listitem><para><link linkend="bt-edit-pref" endterm="bt-edit-prefs.title"/></para></listitem>
       <listitem><para><link linkend="bt-edit-reference" endterm="bt-edit-reference.title"/></para></listitem>
     </itemizedlist>
   </para>
+  
+  <sect2 id="bt-edit-intro-concept">
+    <title id='bt-edit-intro-concept.title'>The concept behind <application>&app;</application></title>
+    <para>
+      (FIXME:)
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-intro-buzz">
+    <title id='bt-edit-intro-buzz.title'>Comparision to <application>Buzz</application></title>
+    <para>
+      (FIXME:)
+      <itemizedlist>
+        <listitem><para>buzztard can have multiple analyzers open</para></listitem>
+        <listitem><para>buzztard can render songs to wav/mp3,ogg-vorbis/...</para></listitem>
+        <listitem><para>buzztard uses color-codes for machine-types through its ui</para></listitem>
+        <listitem><para>buzztard generates cleaner machine UIs (hiding, more widgets)</para></listitem>
+      </itemizedlist>
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-intro-tracker">
+    <title id='bt-edit-intro-tracker.title'>Comparision to Tracker applications</title>
+    <para>
+      (FIXME:)
+      <itemizedlist>
+        <listitem><para>trackers are sample based, buzztard also uses software synthesizers</para></listitem>
+        <listitem><para>trackers have a fixed track concept, buzztard uses tracker per device (source/effect/sink)</para></listitem>
+        <listitem><para>trackers do not have the virtual machine routing</para></listitem>
+      </itemizedlist>
+    </para>
+  </sect2>
 </sect1>
 
 <sect1 id="bt-edit-main">

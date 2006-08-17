@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.59 2006-08-13 20:24:33 ensonic Exp $
+// $Id: main-menu.c,v 1.60 2006-08-17 17:46:38 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -460,22 +460,22 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_CUT,accel_group);
-  gtk_widget_set_name(subitem,_("cut"));
+  gtk_widget_set_name(subitem,_("Cut"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_cut_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_COPY,accel_group);
-  gtk_widget_set_name(subitem,_("copy"));
+  gtk_widget_set_name(subitem,_("Copy"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_copy_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PASTE,accel_group);
-  gtk_widget_set_name(subitem,_("paste"));
+  gtk_widget_set_name(subitem,_("Paste"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_paste_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,accel_group);
-  gtk_widget_set_name(subitem,_("delete"));
+  gtk_widget_set_name(subitem,_("Delete"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_delete_activate),(gpointer)self);
 
@@ -485,7 +485,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES,accel_group);
-  gtk_widget_set_name(subitem,_("settings"));
+  gtk_widget_set_name(subitem,_("Settings"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_settings_activate),(gpointer)self);
   
