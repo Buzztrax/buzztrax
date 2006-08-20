@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.124 2006-08-08 19:46:14 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.125 2006-08-20 20:53:54 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -827,7 +827,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       self->priv->pattern_removed_handler=0;
     }
     if(machine) {
-      GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
+      GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(machine))->ref_count);
       self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
       self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
     }

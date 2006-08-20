@@ -1,4 +1,4 @@
-// $Id: application.c,v 1.57 2006-08-05 23:29:22 ensonic Exp $
+// $Id: application.c,v 1.58 2006-08-20 20:53:54 ensonic Exp $
 /**
  * SECTION:btapplication
  * @short_description: base class for a buzztard based application
@@ -52,6 +52,7 @@ typedef struct {
 
 //-- handler
 
+#if 0
 /*
  * bus_handler:
  *
@@ -105,6 +106,8 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
   // pop off *all* messages
   return(TRUE);
 }
+#endif
+
 //-- constructor methods
 
 /**
@@ -281,6 +284,7 @@ static void bt_application_finalize(GObject *object) {
     g_list_free(self->priv->bus_handlers);
     self->priv->bus_handlers=NULL;
   }
+  // @todo: g_source_remove(id);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -298,9 +302,12 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   
   bus=gst_element_get_bus(self->priv->bin);
   g_assert(GST_IS_BUS(bus));
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  /*
   // this was too low as we lost SEGMENT_DONE bus messages
   //gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
   gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT-10,bus_handler,(gpointer)self,NULL);
+  */
   gst_object_unref(bus);
   
   // if we enable this we get lots of diagnostics

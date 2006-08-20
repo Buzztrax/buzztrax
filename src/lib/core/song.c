@@ -1,4 +1,4 @@
-// $Id: song.c,v 1.136 2006-08-05 16:14:18 ensonic Exp $
+// $Id: song.c,v 1.137 2006-08-20 20:53:54 ensonic Exp $
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -156,6 +156,7 @@ static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
 
 //-- handler
 
+#if 0
 static gboolean bt_song_bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
   gboolean res=FALSE;
   BtSong *self = BT_SONG(user_data);
@@ -192,6 +193,34 @@ static gboolean bt_song_bus_handler(GstBus *bus, GstMessage *message, gpointer u
   }
   return(res);
 }
+#endif
+
+static void on_song_segment_done(GstBus * bus, GstMessage * message, gpointer user_data) {
+  BtSong *self = BT_SONG(user_data);
+
+  GST_INFO("received SEGMENT_DONE bus message");
+  if(self->priv->is_playing) {
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+      GST_WARNING("element failed to handle continuing play seek event");
+    }
+  }
+  else {
+    GST_INFO("song isn't playing ?!?");
+    /*
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->idle_seek_event)))) {
+      GST_WARNING("element failed to handle continuing idle seek event");
+    }
+    */				
+  }
+}
+
+static void on_song_eos(GstBus * bus, GstMessage * message, gpointer user_data) {
+  BtSong *self = BT_SONG(user_data);
+
+  GST_INFO("received EOS bus message");
+  bt_song_stop(self);
+}
+
 
 static void bt_song_on_loop_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
@@ -232,7 +261,7 @@ static void bt_song_on_length_changed(BtSequence *sequence, GParamSpec *arg, gpo
 BtSong *bt_song_new(const BtApplication *app) {
   BtSong *self=NULL;
   GstBin *bin;
-  //GstBus *bus;
+  GstBus *bus;
   
   g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
@@ -240,7 +269,12 @@ BtSong *bt_song_new(const BtApplication *app) {
   if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
     goto Error;
   }
-  bt_application_add_bus_watch(app,GST_DEBUG_FUNCPTR(bt_song_bus_handler),(gpointer)self);
+  // @todo: remove?
+  //bt_application_add_bus_watch(app,GST_DEBUG_FUNCPTR(bt_song_bus_handler),(gpointer)self);
+  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
+  g_signal_connect(bus, "message::eos", (GCallback)on_song_eos, (gpointer)self);
+  gst_object_unref(bus);
   gst_object_unref(bin);
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
@@ -378,7 +412,7 @@ gboolean bt_song_play(const BtSong *self) {
   
   GST_INFO("prepare playback");
   // DEBUG
-  {
+  /* {
     GList *list,*node;
     BtWire *wire;
 
@@ -390,7 +424,7 @@ gboolean bt_song_play(const BtSong *self) {
       g_object_unref(wire);
     }
     g_list_free(list);
-  }
+  } */
   // DEBUG  
   
   // prepare playback
@@ -463,7 +497,8 @@ gboolean bt_song_play(const BtSong *self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PLAYING needs async wait");
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
     GST_INFO("->PLAYING state change after async-wait returned %d",res);
   }
   self->priv->is_playing=TRUE;
@@ -890,6 +925,7 @@ static void bt_song_set_property(GObject      *object,
 static void bt_song_dispose(GObject *object) {
   BtSong *self = BT_SONG(object);
   GstStateChangeReturn res;
+  GstBus *bus;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -913,7 +949,12 @@ static void bt_song_dispose(GObject *object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
   
-  bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
+  // @todo: remove
+  //bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
+  bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_segment_done,NULL);
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_eos,NULL);
+  gst_object_unref(bus);
   
   if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
   g_object_try_weak_unref(self->priv->master);

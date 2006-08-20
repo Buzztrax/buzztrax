@@ -119,12 +119,13 @@
   <sect2 id="bt-edit-intro-buzz">
     <title id='bt-edit-intro-buzz.title'>Comparision to <application>Buzz</application></title>
     <para>
-      (FIXME:)
+      &app;:
       <itemizedlist>
-        <listitem><para>buzztard can have multiple analyzers open</para></listitem>
-        <listitem><para>buzztard can render songs to wav/mp3,ogg-vorbis/...</para></listitem>
-        <listitem><para>buzztard uses color-codes for machine-types through its ui</para></listitem>
-        <listitem><para>buzztard generates cleaner machine UIs (hiding, more widgets)</para></listitem>
+        <listitem><para>can have multiple analyzers open</para></listitem>
+        <listitem><para>can render songs to wav/mp3,ogg-vorbis/...</para></listitem>
+        <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
+        <listitem><para>generates cleaner machine UIs (hiding, more widgets)</para></listitem>
+        <listitem><para>has a zoomable machine view</para></listitem>
       </itemizedlist>
     </para>
   </sect2>

@@ -1,3 +1,26 @@
+2006-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+          buzz comparison
+
+	* src/lib/core/application.c: (bt_application_finalize),
+	(bt_application_init):
+	* src/lib/core/song.c: (on_song_segment_done), (on_song_eos),
+	(bt_song_new), (bt_song_play), (bt_song_dispose):
+	* src/ui/edit/main-page-sequence.c: (pattern_list_refresh):
+	* src/ui/edit/main-statusbar.c: (on_song_is_playing_notify),
+	(on_sequence_tick), (bt_main_statusbar_init_ui),
+	(bt_main_statusbar_dispose):
+	* src/ui/edit/main-toolbar.c: (on_song_is_playing_notify),
+	(on_song_level_change), (on_song_level_negotiated),
+	(on_channels_negotiated), (on_song_changed),
+	(bt_main_toolbar_dispose):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose):
+          rework bus-message handling, disconnect more signal handler when
+          leaving, fix bug in log-message
+
 2006-08-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/bt-edit.xml:

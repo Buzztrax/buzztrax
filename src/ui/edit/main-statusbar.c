@@ -1,4 +1,4 @@
-// $Id: main-statusbar.c,v 1.46 2006-08-10 20:02:31 ensonic Exp $
+// $Id: main-statusbar.c,v 1.47 2006-08-20 20:53:54 ensonic Exp $
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
@@ -50,6 +50,7 @@ struct _BtMainStatusbarPrivate {
   gint loop_context_id;
   
   GtkProgressBar *cpu_load;
+  guint cpu_load_handler_id;
 };
 
 static GtkHBoxClass *parent_class=NULL;
@@ -57,13 +58,13 @@ static GtkHBoxClass *parent_class=NULL;
 //-- event handler
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   gboolean is_playing;
 
   g_assert(user_data);
 
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   if(!is_playing) {
+    BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
     gchar str[]="00:00.000";
 
     // update statusbar fields
@@ -79,6 +80,7 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   gulong msec,sec,min,pos;
   
   g_assert(user_data);
+  GST_DEBUG("tick update");
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
@@ -177,7 +179,7 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   // @todo: make this dependend on settings (view menu?)
   self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
-  g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
+  self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -268,10 +270,23 @@ static void bt_main_statusbar_set_property(GObject      *object,
 
 static void bt_main_statusbar_dispose(GObject *object) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
+  BtSong *song;
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(song) {
+    
+    GST_DEBUG("disconnect handlers from song=%p",song);
+    
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_sequence_tick,NULL);
+    g_object_unref(song);
+  }
+  g_source_remove(self->priv->cpu_load_handler_id);
   
   g_object_try_weak_unref(self->priv->app);
   
