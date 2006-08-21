@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.78 2006-08-13 20:24:33 ensonic Exp $
+// $Id: edit-application.c,v 1.79 2006-08-21 18:04:39 berzerka Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -158,7 +158,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 
     g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
     // add some initial timelines
-    g_object_set(sequence,"length",10,NULL);
+    g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
     // add audiosink
     id=bt_setup_get_unique_machine_id(setup,"master");
     if((machine=BT_MACHINE(bt_sink_machine_new(song,id)))) {

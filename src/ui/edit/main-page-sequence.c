@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.125 2006-08-20 20:53:54 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.126 2006-08-21 18:04:39 berzerka Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -69,6 +69,7 @@ struct _BtMainPageSequencePrivate {
   /* cursor */
   glong cursor_column;
   glong cursor_row;
+  glong row_filter_pos;
   /* selection range */
   glong selection_start_column;
   glong selection_start_row;
@@ -103,6 +104,7 @@ enum {
 #define SEQUENCE_CELL_HEIGHT 28
 #define SEQUENCE_CELL_XPAD 0
 #define SEQUENCE_CELL_YPAD 0
+
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
@@ -121,15 +123,27 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpointer user_data) {
   //gboolean visible=TRUE;
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  gulong pos;
+  BtSong *song;
+  BtSequence *sequence;
+  gulong pos,length;
+
+  g_object_get( G_OBJECT(self->priv->app), "song", &song, NULL ) ;
+  g_object_get( song, "sequence", &sequence, NULL ) ;
+  g_object_get( sequence, "length", &length, NULL ) ;
+
+  gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);  
   
-  g_assert(user_data);
+  if( pos >= self->priv->row_filter_pos )
+    return FALSE ;
+  else
+    return TRUE ;
   
   // determine row number and hide or show accordingly
-  gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
+  //gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
   //visible=IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars);
   //GST_INFO("bars=%d, pos=%d, -> visible=%1d",self->priv->bars,pos,visible);
-  return(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars));
+  
+  //return(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars));
 }
 
 //-- tree cell data functions
@@ -1065,6 +1079,11 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
 
 static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSong *song;
+  BtSequence *sequence;
+  gulong length;
+  
+  GtkTreeModelFilter *filtered_store;
   GtkTreePath *path;
   GtkTreeViewColumn *column;
   gulong cursor_column,cursor_row;
@@ -1084,8 +1103,46 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       pattern_list_refresh(self);
     }
     GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+    g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+    
+    gtk_tree_view_get_cursor(self->priv->sequence_table,
+			     &path,
+			     &column);
+
+    if( cursor_row >= self->priv->row_filter_pos-1 )
+    {
+      self->priv->row_filter_pos++ ;
+      if( self->priv->row_filter_pos > length )
+      {
+	g_object_set(sequence,"length",length+SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
+	sequence_table_refresh(self,song);
+      }
+      else
+      {
+	filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
+	gtk_tree_model_filter_refilter(filtered_store);
+      }
+
+      gtk_tree_view_set_cursor(self->priv->sequence_table,
+			       path,
+			       NULL,
+			       FALSE ) ;
+
+      gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+    }
+    gtk_tree_view_scroll_to_cell(self->priv->sequence_table,
+				 path,
+				 NULL,
+				 FALSE,
+				 1.0,
+				 0.0);
+    
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
   }
+  
   return(FALSE);
 }
 
@@ -1102,7 +1159,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   gchar *str=NULL;
   gboolean free_str=FALSE;
   gboolean change=FALSE;
-  gulong time,track;
+  gulong row,track;
 
   g_assert(user_data);
 
@@ -1110,13 +1167,14 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   
   GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+
   // determine timeline and timelinetrack from cursor pos
-  if(bt_main_page_sequence_get_current_pos(self,&time,&track)) {
+  if(bt_main_page_sequence_get_current_pos(self,&row,&track)) {
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
     //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
     // look up pattern for key
     if(event->keyval==' ') {
-      bt_sequence_set_pattern(sequence,time,track,NULL);
+      bt_sequence_set_pattern(sequence,row,track,NULL);
       str=" ";
       change=TRUE;
       res=TRUE;
@@ -1124,7 +1182,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
       if(modifier==GDK_CONTROL_MASK) {
         BtPattern *pattern;
-        if((pattern=bt_sequence_get_pattern(sequence,time,track))) {
+        if((pattern=bt_sequence_get_pattern(sequence,row,track))) {
           BtMainWindow *main_window;
           BtMainPages *pages;
           BtMainPagePatterns *patterns_page;
@@ -1278,7 +1336,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
           gulong index=(gulong)pos-(gulong)pattern_keys;
         
           if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
-            bt_sequence_set_pattern(sequence,time,track,pattern);
+            bt_sequence_set_pattern(sequence,row,track,pattern);
             g_object_get(G_OBJECT(pattern),"name",&str,NULL);
             g_object_unref(pattern);
             free_str=TRUE;
@@ -1289,6 +1347,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         }
       }
     }
+
     // update tree-view model
     if(change) {
       GtkTreeModelFilter *filtered_store;
@@ -1304,7 +1363,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         if(path && column) {
           GtkTreeIter iter,filter_iter;
           
-          GST_INFO("  update model");
+          GST_INFO("  update model");	  
           
           if(gtk_tree_model_get_iter(GTK_TREE_MODEL(filtered_store),&filter_iter,path)) {
             GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
@@ -1325,6 +1384,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         else {
           GST_WARNING("  can't evaluate cursor pos");
         }
+
         if(path) gtk_tree_path_free(path);
       }
       else {
@@ -1332,6 +1392,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       }
     }
     //else if(!select) GST_INFO("  nothing assgned to this key");
+
     if(free_str) g_free(str);
   }
   else {
@@ -1446,6 +1507,48 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
   }  
   return(res);
 }
+
+static gboolean on_sequence_table_scroll_event( GtkWidget      *widget,
+						GdkEventScroll *event,
+						gpointer        user_data )
+{
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data) ;
+  GdkEventKey keyevent ;
+
+  keyevent.type = GDK_KEY_PRESS ;
+  keyevent.window = event->window ;
+  keyevent.state = 0 ;
+  keyevent.send_event = 0 ;
+  keyevent.time = GDK_CURRENT_TIME ;
+  keyevent.length = 0 ;
+  keyevent.string = 0 ;
+  keyevent.group =  0 ;
+
+  if( event )
+  {
+    if( event->direction == GDK_SCROLL_UP )
+    {
+      keyevent.keyval = GDK_Up ;   
+      keyevent.hardware_keycode = 98 ;
+    }
+    else if( event->direction == GDK_SCROLL_DOWN )
+    {
+      keyevent.keyval = GDK_Down ;
+      keyevent.hardware_keycode = 104 ;
+    }
+    else
+      return FALSE ;
+
+    g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-press-event", &keyevent ) ;
+    keyevent.type = GDK_KEY_RELEASE ;
+    g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-release-event", &keyevent );
+
+    return TRUE ;
+  }
+
+  return FALSE ;
+}
+
 
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1687,6 +1790,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "motion-notify-event", G_CALLBACK(on_sequence_table_motion_notify_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->sequence_table), "scroll-event", G_CALLBACK(on_sequence_table_scroll_event), (gpointer)self);
 
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
@@ -2038,6 +2142,7 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv->selection_start_row=-1;
   self->priv->selection_end_column=-1;
   self->priv->selection_end_row=-1;
+  self->priv->row_filter_pos=32;
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {

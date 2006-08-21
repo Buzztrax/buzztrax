@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.h,v 1.8 2005-10-08 18:12:13 ensonic Exp $
+/* $Id: main-page-sequence.h,v 1.9 2006-08-21 18:04:39 berzerka Exp $
  * class for the editor main sequence page
  */
 
@@ -14,6 +14,8 @@
 #define BT_IS_MAIN_PAGE_SEQUENCE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE))
 #define BT_IS_MAIN_PAGE_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE))
 #define BT_MAIN_PAGE_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))
+
+#define SEQUENCE_ROW_ADDITION_INTERVAL 64
 
 /* type macros */
 
