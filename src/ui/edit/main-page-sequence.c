@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.126 2006-08-21 18:04:39 berzerka Exp $
+// $Id: main-page-sequence.c,v 1.127 2006-08-22 23:26:19 berzerka Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -127,16 +127,16 @@ static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpoint
   BtSequence *sequence;
   gulong pos,length;
 
-  g_object_get( G_OBJECT(self->priv->app), "song", &song, NULL ) ;
-  g_object_get( song, "sequence", &sequence, NULL ) ;
-  g_object_get( sequence, "length", &length, NULL ) ;
+  g_object_get( G_OBJECT(self->priv->app), "song", &song, NULL );
+  g_object_get( song, "sequence", &sequence, NULL );
+  g_object_get( sequence, "length", &length, NULL );
 
   gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);  
   
-  if( pos >= self->priv->row_filter_pos )
-    return FALSE ;
+  if( pos < self->priv->row_filter_pos && IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars))
+    return TRUE;
   else
-    return TRUE ;
+    return FALSE;
   
   // determine row number and hide or show accordingly
   //gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);
@@ -522,7 +522,7 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
   //gtk_misc_set_padding(GTK_MISC(label),0,0);  
   gtk_box_pack_start(GTK_BOX(header),label,TRUE,FALSE,0);
   
-  combo=gtk_combo_box_new() ;
+  combo=gtk_combo_box_new();
   gtk_box_pack_start(GTK_BOX(header),combo,TRUE,FALSE,0);
 
   gtk_widget_show_all(header);
@@ -1082,7 +1082,8 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   BtSong *song;
   BtSequence *sequence;
   gulong length;
-  
+  gulong lastbar;
+
   GtkTreeModelFilter *filtered_store;
   GtkTreePath *path;
   GtkTreeViewColumn *column;
@@ -1112,9 +1113,12 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
 			     &path,
 			     &column);
 
-    if( cursor_row >= self->priv->row_filter_pos-1 )
+    // calculate the last visible row from step-filter and scroll-filter
+    lastbar=self->priv->row_filter_pos-1-((self->priv->row_filter_pos-1)%self->priv->bars);
+
+    if( cursor_row >= lastbar )
     {
-      self->priv->row_filter_pos++ ;
+      self->priv->row_filter_pos += self->priv->bars;
       if( self->priv->row_filter_pos > length )
       {
 	g_object_set(sequence,"length",length+SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
@@ -1129,7 +1133,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       gtk_tree_view_set_cursor(self->priv->sequence_table,
 			       path,
 			       NULL,
-			       FALSE ) ;
+			       FALSE );
 
       gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
     }
@@ -1512,41 +1516,41 @@ static gboolean on_sequence_table_scroll_event( GtkWidget      *widget,
 						GdkEventScroll *event,
 						gpointer        user_data )
 {
-  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data) ;
-  GdkEventKey keyevent ;
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  GdkEventKey keyevent;
 
-  keyevent.type = GDK_KEY_PRESS ;
-  keyevent.window = event->window ;
-  keyevent.state = 0 ;
-  keyevent.send_event = 0 ;
-  keyevent.time = GDK_CURRENT_TIME ;
-  keyevent.length = 0 ;
-  keyevent.string = 0 ;
-  keyevent.group =  0 ;
+  keyevent.type = GDK_KEY_PRESS;
+  keyevent.window = event->window;
+  keyevent.state = 0;
+  keyevent.send_event = 0;
+  keyevent.time = GDK_CURRENT_TIME;
+  keyevent.length = 0;
+  keyevent.string = 0;
+  keyevent.group =  0;
 
   if( event )
   {
     if( event->direction == GDK_SCROLL_UP )
     {
-      keyevent.keyval = GDK_Up ;   
-      keyevent.hardware_keycode = 98 ;
+      keyevent.keyval = GDK_Up;   
+      keyevent.hardware_keycode = 98;
     }
     else if( event->direction == GDK_SCROLL_DOWN )
     {
-      keyevent.keyval = GDK_Down ;
-      keyevent.hardware_keycode = 104 ;
+      keyevent.keyval = GDK_Down;
+      keyevent.hardware_keycode = 104;
     }
     else
-      return FALSE ;
+      return FALSE;
 
-    g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-press-event", &keyevent ) ;
-    keyevent.type = GDK_KEY_RELEASE ;
+    g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-press-event", &keyevent );
+    keyevent.type = GDK_KEY_RELEASE;
     g_signal_emit_by_name(G_OBJECT(self->priv->sequence_table), "key-release-event", &keyevent );
 
-    return TRUE ;
+    return TRUE;
   }
 
-  return FALSE ;
+  return FALSE;
 }
 
 

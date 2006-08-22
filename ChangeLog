@@ -1,6 +1,11 @@
-2006-08-21  Patric Schmitz  <berzerka@users.sf.net>
+2006-08-23  Patric Schmitz  <berzerka@users.sf.net>
 
-	reviewed by: <delete if not using a buddy>
+	* src/ui/edit/main-page-sequence.c: (step_visible_filter),
+	(sequence_table_init), (on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_scroll_event):
+	made scroll-filter for row expansion and step filter work together.
+
+2006-08-21  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/ui/edit/edit-application.c: (bt_edit_application_new_song):
 	made new songs contain SEQUENCE_ROW_ADDITION_INTERVAL rows per default
