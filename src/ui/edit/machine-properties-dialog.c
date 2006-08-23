@@ -1,4 +1,4 @@
-// $Id: machine-properties-dialog.c,v 1.47 2006-08-13 12:45:06 ensonic Exp $
+// $Id: machine-properties-dialog.c,v 1.48 2006-08-23 20:47:52 ensonic Exp $
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
@@ -746,12 +746,16 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_object_get(self->priv->machine,"machine",&machine,"voices",&voices,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
+  g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
+  g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   for(j=0;j<voices;j++) {
     machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
+    g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
+    g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
   }
   g_object_unref(machine);
   

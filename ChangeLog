@@ -1,3 +1,9 @@
+2006-08-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_dispose):
+        disconnect more handlers when closing the window
+
 2006-08-23  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c: (step_visible_filter),
@@ -9,6 +15,7 @@
 
 	* src/ui/edit/edit-application.c: (bt_edit_application_new_song):
 	made new songs contain SEQUENCE_ROW_ADDITION_INTERVAL rows per default
+
 	* src/ui/edit/main-page-sequence.c: (step_visible_filter),
 	(on_sequence_table_cursor_changed_idle),
 	(on_sequence_table_key_release_event),
@@ -17,6 +24,7 @@
 	captured up/down scroll-events and generated up-down-keypresses instead
 	to get buzz-like scrolling. implemented dynamic population of sequence-
 	table in cursor_changed_idle.
+
 	* src/ui/edit/main-page-sequence.h:
 	added #define SEQUENCE_ROW_ADDITION_INTERVAL 64
 
