@@ -1,4 +1,4 @@
-// $Id: pattern-view.c,v 1.2 2006-06-21 16:16:39 ensonic Exp $
+// $Id: pattern-view.c,v 1.3 2006-08-24 20:00:54 ensonic Exp $
 /**
  * SECTION:btpatternview
  * @short_description: the editor main pattern table view
@@ -46,6 +46,19 @@ static GtkTreeViewClass *parent_class=NULL;
 //-- event handler
 
 //-- helper methods
+
+#if 0
+// this doesn't make the drawing better :(
+static void bt_pattern_view_invalidate(const BtPatternView *self, gdouble old_pos, gdouble new_pos) {
+  gdouble h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
+  gint y;
+
+  y=(gint)(old_pos*h);  
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
+  y=(gint)(new_pos*h);  
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
+}
+#endif
 
 //-- constructor methods
 
@@ -168,6 +181,8 @@ static void bt_pattern_view_set_property(GObject      *object,
                               GParamSpec   *pspec)
 {
   BtPatternView *self = BT_PATTERN_VIEW(object);
+  //gdouble old_pos;
+
   return_if_disposed();
   switch (property_id) {
     case PATTERN_VIEW_APP: {
@@ -177,15 +192,17 @@ static void bt_pattern_view_set_property(GObject      *object,
       //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
     } break;
     case PATTERN_VIEW_PLAY_POSITION: {
+      //old_pos = self->priv->play_pos;
       self->priv->play_pos = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	      gtk_widget_queue_draw(GTK_WIDGET(self));
+        gtk_widget_queue_draw(GTK_WIDGET(self));
+        //bt_pattern_view_invalidate(self,old_pos,self->priv->play_pos);
       }
     } break;
     case PATTERN_VIEW_VISIBLE_ROWS: {
       self->priv->visible_rows = g_value_get_ulong(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
-	      gtk_widget_queue_draw(GTK_WIDGET(self));
+        gtk_widget_queue_draw(GTK_WIDGET(self));
       }
     } break;
     default: {

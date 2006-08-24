@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.23 2006-07-29 19:55:06 ensonic Exp $
+// $Id: sequence-view.c,v 1.24 2006-08-24 20:00:54 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -53,6 +53,19 @@ static gint8 loop_pos_dash_list[]= {4};
 //-- event handler
 
 //-- helper methods
+
+#if 0
+// this doesn't make the drawing better :(
+static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_pos, gdouble new_pos) {
+  gdouble h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
+  gint y;
+
+  y=(gint)(old_pos*h);  
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
+  y=(gint)(new_pos*h);  
+  gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
+}
+#endif
 
 //-- constructor methods
 
@@ -204,6 +217,8 @@ static void bt_sequence_view_set_property(GObject      *object,
                               GParamSpec   *pspec)
 {
   BtSequenceView *self = BT_SEQUENCE_VIEW(object);
+  //gdouble old_pos;
+
   return_if_disposed();
   switch (property_id) {
     case SEQUENCE_VIEW_APP: {
@@ -213,23 +228,27 @@ static void bt_sequence_view_set_property(GObject      *object,
       //GST_DEBUG("set the app for sequence_view: %p",self->priv->app);
     } break;
     case SEQUENCE_VIEW_PLAY_POSITION: {
+      //old_pos = self->priv->play_pos;
       self->priv->play_pos = g_value_get_double(value);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
 	      gtk_widget_queue_draw(GTK_WIDGET(self));
+        //bt_sequence_view_invalidate(self,old_pos,self->priv->play_pos);
       }
     } break;
     case SEQUENCE_VIEW_LOOP_START: {
+      //old_pos = self->priv->loop_start;
       self->priv->loop_start = g_value_get_double(value);
-      GST_DEBUG("set the loop-start for sequence_view: %f",self->priv->loop_start);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
 	      gtk_widget_queue_draw(GTK_WIDGET(self));
+        //bt_sequence_view_invalidate(self,old_pos,self->priv->loop_start);
       }
     } break;
     case SEQUENCE_VIEW_LOOP_END: {
+      //old_pos = self->priv->loop_end;
       self->priv->loop_end = g_value_get_double(value);
-      GST_DEBUG("set the loop-end for sequence_view: %f",self->priv->loop_end);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
 	      gtk_widget_queue_draw(GTK_WIDGET(self));
+        //bt_sequence_view_invalidate(self,old_pos,self->priv->loop_end);
       }
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {

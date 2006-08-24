@@ -1,4 +1,23 @@
-// $Id: song.c,v 1.137 2006-08-20 20:53:54 ensonic Exp $
+/* $Id: song.c,v 1.138 2006-08-24 20:00:52 ensonic Exp $
+ *
+ * Buzztard
+ * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 /**
  * SECTION:btsong
  * @short_description: class of a song project object (contains #BtSongInfo, 
@@ -151,7 +170,7 @@ static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
   /* the update needs to take the current play-position into account */
-	bt_song_seek_to_play_pos(self);
+  bt_song_seek_to_play_pos(self);
 }
 
 //-- handler
@@ -202,6 +221,10 @@ static void on_song_segment_done(GstBus * bus, GstMessage * message, gpointer us
   if(self->priv->is_playing) {
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
+    }
+    else {
+      gst_pipeline_set_new_stream_time (GST_PIPELINE (self->priv->bin), 0);
+      gst_element_get_state (GST_ELEMENT (self->priv->bin), NULL, NULL, 40 * GST_MSECOND);
     }
   }
   else {

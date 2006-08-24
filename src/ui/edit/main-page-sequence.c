@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.127 2006-08-22 23:26:19 berzerka Exp $
+// $Id: main-page-sequence.c,v 1.128 2006-08-24 20:00:54 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1121,13 +1121,13 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       self->priv->row_filter_pos += self->priv->bars;
       if( self->priv->row_filter_pos > length )
       {
-	g_object_set(sequence,"length",length+SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
-	sequence_table_refresh(self,song);
+        g_object_set(sequence,"length",length+SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
+        sequence_table_refresh(self,song);
       }
       else
       {
-	filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
-	gtk_tree_model_filter_refilter(filtered_store);
+        filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
+        gtk_tree_model_filter_refilter(filtered_store);
       }
 
       gtk_tree_view_set_cursor(self->priv->sequence_table,

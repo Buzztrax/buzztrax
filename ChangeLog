@@ -1,3 +1,147 @@
+2006-08-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	* src/lib/core/application.c:
+	* src/lib/core/core.c:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbtcore/application-methods.h:
+	* src/lib/core/libbtcore/application-private.h:
+	* src/lib/core/libbtcore/application.h:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/gconf-settings-methods.h:
+	* src/lib/core/libbtcore/gconf-settings.h:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/machine-private.h:
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/libbtcore/pattern.h:
+	* src/lib/core/libbtcore/persistence-location.h:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/persistence-selection.h:
+	* src/lib/core/libbtcore/persistence.h:
+	* src/lib/core/libbtcore/plainfile-settings-methods.h:
+	* src/lib/core/libbtcore/plainfile-settings.h:
+	* src/lib/core/libbtcore/processor-machine-methods.h:
+	* src/lib/core/libbtcore/processor-machine.h:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/libbtcore/sequence.h:
+	* src/lib/core/libbtcore/settings-methods.h:
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/libbtcore/settings.h:
+	* src/lib/core/libbtcore/setup-methods.h:
+	* src/lib/core/libbtcore/setup.h:
+	* src/lib/core/libbtcore/sink-bin-methods.h:
+	* src/lib/core/libbtcore/sink-bin.h:
+	* src/lib/core/libbtcore/sink-machine-methods.h:
+	* src/lib/core/libbtcore/sink-machine.h:
+	* src/lib/core/libbtcore/song-info-methods.h:
+	* src/lib/core/libbtcore/song-info.h:
+	* src/lib/core/libbtcore/song-io-methods.h:
+	* src/lib/core/libbtcore/song-io-native-methods.h:
+	* src/lib/core/libbtcore/song-io-native.h:
+	* src/lib/core/libbtcore/song-io.h:
+	* src/lib/core/libbtcore/song-methods.h:
+	* src/lib/core/libbtcore/song.h:
+	* src/lib/core/libbtcore/source-machine-methods.h:
+	* src/lib/core/libbtcore/source-machine.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/libbtcore/version.h.in:
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wave.h:
+	* src/lib/core/libbtcore/wavelevel-methods.h:
+	* src/lib/core/libbtcore/wavelevel.h:
+	* src/lib/core/libbtcore/wavetable-methods.h:
+	* src/lib/core/libbtcore/wavetable.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/persistence-location.c:
+	* src/lib/core/persistence-selection.c:
+	* src/lib/core/persistence.c:
+	* src/lib/core/plainfile-settings.c:
+	* src/lib/core/processor-machine.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/settings.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/sink-bin.c:
+	* src/lib/core/sink-machine.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song-io-native.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/song.c: (bt_song_update_play_seek_event),
+	(on_song_segment_done):
+	* src/lib/core/source-machine.c:
+	* src/lib/core/tools.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed_idle):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_invalidate),
+	(bt_pattern_view_set_property):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_invalidate),
+	(bt_sequence_view_set_property):
+	* tests/bt-check.c:
+	* tests/bt-check.h:
+	* tests/bt-test-plugin.c:
+	* tests/bt-test-plugin.h:
+	* tests/lib/core/e-machine.c:
+	* tests/lib/core/e-network.c:
+	* tests/lib/core/e-pattern.c:
+	* tests/lib/core/e-processor-machine.c:
+	* tests/lib/core/e-sequence.c:
+	* tests/lib/core/e-setup.c:
+	* tests/lib/core/e-song-info.c:
+	* tests/lib/core/e-song.c:
+	* tests/lib/core/e-source-machine.c:
+	* tests/lib/core/m-bt-core.h:
+	* tests/lib/core/s-core.c:
+	* tests/lib/core/s-machine.c:
+	* tests/lib/core/s-network.c:
+	* tests/lib/core/s-pattern.c:
+	* tests/lib/core/s-processor-machine.c:
+	* tests/lib/core/s-sequence.c:
+	* tests/lib/core/s-settings.c:
+	* tests/lib/core/s-setup.c:
+	* tests/lib/core/s-sink-machine.c:
+	* tests/lib/core/s-song-info.c:
+	* tests/lib/core/s-song-io-native.c:
+	* tests/lib/core/s-song-io.c:
+	* tests/lib/core/s-song.c:
+	* tests/lib/core/s-source-machine.c:
+	* tests/lib/core/s-wire.c:
+	* tests/lib/core/t-core.c:
+	* tests/lib/core/t-machine.c:
+	* tests/lib/core/t-network.c:
+	* tests/lib/core/t-pattern.c:
+	* tests/lib/core/t-sequence.c:
+	* tests/lib/core/t-settings.c:
+	* tests/lib/core/t-setup.c:
+	* tests/lib/core/t-sink-machine.c:
+	* tests/lib/core/t-song-info.c:
+	* tests/lib/core/t-song-io-native.c:
+	* tests/lib/core/t-song-io.c:
+	* tests/lib/core/t-song.c:
+	* tests/lib/core/t-source-machine.c:
+	* tests/lib/core/t-wire.c:
+	* tests/m-bt-cmd.c:
+	* tests/m-bt-core.c:
+	* tests/m-bt-edit.c:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	* tests/ui/cmd/m-bt-cmd.h:
+	* tests/ui/cmd/s-bt-cmd-application.c:
+	* tests/ui/cmd/t-bt-cmd-application.c:
+	* tests/ui/edit/e-bt-edit-application.c:
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	* tests/ui/edit/m-bt-edit.h:
+	* tests/ui/edit/s-bt-edit-application.c:
+	* tests/ui/edit/s-bt-pattern-properties-dialog.c:
+	* tests/ui/edit/s-bt-settings-dialog.c:
+        add copyright headers, fix loop playback (more)
+
 2006-08-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:

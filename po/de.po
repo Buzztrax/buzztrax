@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-08-15 22:34+0300\n"
+"Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2006-08-17 22:00+0300\n"
 "PO-Revision-Date: 2004-08-06 23:50+0200\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -258,12 +258,12 @@ msgstr "_Datei"
 msgid "file menu"
 msgstr "Datei Menü"
 
-#: ../src/ui/edit/main-menu.c:418 ../src/ui/edit/main-toolbar.c:436
+#: ../src/ui/edit/main-menu.c:418 ../src/ui/edit/main-toolbar.c:467
 msgid "New"
 msgstr "Neu"
 
 #: ../src/ui/edit/main-menu.c:423 ../src/ui/edit/main-page-waves.c:288
-#: ../src/ui/edit/main-toolbar.c:442
+#: ../src/ui/edit/main-toolbar.c:473
 msgid "Open"
 msgstr "Öffnen"
 
@@ -272,7 +272,7 @@ msgstr "Öffnen"
 msgid "separator"
 msgstr "Trenner"
 
-#: ../src/ui/edit/main-menu.c:433 ../src/ui/edit/main-toolbar.c:448
+#: ../src/ui/edit/main-menu.c:433 ../src/ui/edit/main-toolbar.c:479
 msgid "Save"
 msgstr "Speichern"
 
@@ -400,68 +400,68 @@ msgid "free text info"
 msgstr "Freitextinformation"
 
 #. menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-#: ../src/ui/edit/main-page-machines.c:733
+#: ../src/ui/edit/main-page-machines.c:731
 msgid "Add nachine"
 msgstr "Gerät hinzufügen"
 
-#: ../src/ui/edit/main-page-machines.c:747
+#: ../src/ui/edit/main-page-machines.c:745
 msgid "Unmute all machines"
 msgstr "Stummschaltung für alle Machinen aufheben"
 
-#: ../src/ui/edit/main-page-machines.c:759
+#: ../src/ui/edit/main-page-machines.c:757
 msgid "Off"
 msgstr "Aus"
 
-#: ../src/ui/edit/main-page-machines.c:766
+#: ../src/ui/edit/main-page-machines.c:764
 msgid "Low"
 msgstr "Niedrig"
 
-#: ../src/ui/edit/main-page-machines.c:773
+#: ../src/ui/edit/main-page-machines.c:771
 msgid "Medium"
 msgstr "Mittel"
 
-#: ../src/ui/edit/main-page-machines.c:780
+#: ../src/ui/edit/main-page-machines.c:778
 msgid "High"
 msgstr "Hoch"
 
-#: ../src/ui/edit/main-page-machines.c:797 ../src/ui/edit/main-pages.c:89
+#: ../src/ui/edit/main-page-machines.c:795 ../src/ui/edit/main-pages.c:89
 msgid "machine view"
 msgstr "Geräteansicht"
 
-#: ../src/ui/edit/main-page-machines.c:816
+#: ../src/ui/edit/main-page-machines.c:814
 msgid "machine view tool bar"
 msgstr "Maschienenansichts-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-machines.c:819
+#: ../src/ui/edit/main-page-machines.c:817
 msgid "Zoom Fit"
 msgstr "Einpassen"
 
-#: ../src/ui/edit/main-page-machines.c:820
+#: ../src/ui/edit/main-page-machines.c:818
 msgid "Zoom in/out so that everything is visible"
 msgstr "Vergrößerung so anpassen, das Alles sichtbar ist"
 
-#: ../src/ui/edit/main-page-machines.c:825
+#: ../src/ui/edit/main-page-machines.c:823
 msgid "Zoom In"
 msgstr "Vergrößern"
 
-#: ../src/ui/edit/main-page-machines.c:827
+#: ../src/ui/edit/main-page-machines.c:825
 msgid "Zoom in for more details"
 msgstr "Für mehr Details vergrößern"
 
-#: ../src/ui/edit/main-page-machines.c:832
+#: ../src/ui/edit/main-page-machines.c:830
 msgid "Zoom Out"
 msgstr "Verkleinern"
 
-#: ../src/ui/edit/main-page-machines.c:834
+#: ../src/ui/edit/main-page-machines.c:832
 msgid "Zoom out for better overview"
 msgstr "Für eine bessere Übersicht verkleinern"
 
-#: ../src/ui/edit/main-page-machines.c:842
+#: ../src/ui/edit/main-page-machines.c:840
 msgid "Grid"
 msgstr "Raster"
 
-#: ../src/ui/edit/main-page-machines.c:844
-#: ../src/ui/edit/main-page-machines.c:845
+#: ../src/ui/edit/main-page-machines.c:842
+#: ../src/ui/edit/main-page-machines.c:843
 msgid "Show background grid"
 msgstr "Raster anzeigen"
 
@@ -599,7 +599,7 @@ msgid "sample list tool bar"
 msgstr ""
 
 #: ../src/ui/edit/main-page-waves.c:231 ../src/ui/edit/main-page-waves.c:275
-#: ../src/ui/edit/main-toolbar.c:459
+#: ../src/ui/edit/main-toolbar.c:490
 msgid "Play"
 msgstr ""
 
@@ -608,7 +608,7 @@ msgid "Play current wave table entry"
 msgstr ""
 
 #: ../src/ui/edit/main-page-waves.c:237 ../src/ui/edit/main-page-waves.c:281
-#: ../src/ui/edit/main-toolbar.c:466
+#: ../src/ui/edit/main-toolbar.c:497
 msgid "Stop"
 msgstr ""
 
@@ -707,44 +707,44 @@ msgstr "Vorgabe"
 msgid "Ready to rock!"
 msgstr "Bereit zum rocken!"
 
-#: ../src/ui/edit/main-toolbar.c:428
+#: ../src/ui/edit/main-toolbar.c:459
 msgid "handlebox for toolbar"
 msgstr "Griffbox für die Werkzeugleiste"
 
-#: ../src/ui/edit/main-toolbar.c:431
+#: ../src/ui/edit/main-toolbar.c:462
 msgid "tool bar"
 msgstr "Werkzeugleiste"
 
-#: ../src/ui/edit/main-toolbar.c:437
+#: ../src/ui/edit/main-toolbar.c:468
 msgid "Prepare a new empty song"
 msgstr "Einen leeren Song anlegen"
 
-#: ../src/ui/edit/main-toolbar.c:443
+#: ../src/ui/edit/main-toolbar.c:474
 msgid "Load a new song"
 msgstr "Einen neuen Song laden"
 
-#: ../src/ui/edit/main-toolbar.c:449
+#: ../src/ui/edit/main-toolbar.c:480
 msgid "Save this song"
 msgstr "Diesen Song abspeichern"
 
-#: ../src/ui/edit/main-toolbar.c:460
+#: ../src/ui/edit/main-toolbar.c:491
 msgid "Play this song"
 msgstr "Diesen Song abspielen"
 
-#: ../src/ui/edit/main-toolbar.c:467
+#: ../src/ui/edit/main-toolbar.c:498
 msgid "Stop playback of this song"
 msgstr "Abspielen dieses Songs beenden"
 
-#: ../src/ui/edit/main-toolbar.c:475 ../src/ui/edit/main-toolbar.c:476
+#: ../src/ui/edit/main-toolbar.c:506 ../src/ui/edit/main-toolbar.c:507
 msgid "Loop"
 msgstr "Wiederholen"
 
-#: ../src/ui/edit/main-toolbar.c:477
+#: ../src/ui/edit/main-toolbar.c:508
 msgid "Toggle looping of playback"
 msgstr "Wiederholen der Wiedergabe umschalten"
 
 #. @idea have distinct tooltips
-#: ../src/ui/edit/main-toolbar.c:493
+#: ../src/ui/edit/main-toolbar.c:524
 #, fuzzy
 msgid "playback volume"
 msgstr "Abspiellautstärke ändern"
@@ -753,11 +753,11 @@ msgstr "Abspiellautstärke ändern"
 #. min=
 #. max=
 #. step=
-#: ../src/ui/edit/main-toolbar.c:502
+#: ../src/ui/edit/main-toolbar.c:533
 msgid "Change playback volume"
 msgstr "Abspiellautstärke ändern"
 
-#: ../src/ui/edit/main-toolbar.c:508
+#: ../src/ui/edit/main-toolbar.c:539
 msgid "Volume"
 msgstr "Lautstärke"
 
