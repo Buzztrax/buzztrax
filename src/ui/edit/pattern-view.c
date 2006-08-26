@@ -1,4 +1,4 @@
-// $Id: pattern-view.c,v 1.3 2006-08-24 20:00:54 ensonic Exp $
+// $Id: pattern-view.c,v 1.4 2006-08-26 15:03:22 ensonic Exp $
 /**
  * SECTION:btpatternview
  * @short_description: the editor main pattern table view
@@ -90,8 +90,6 @@ Error:
 
 static void bt_pattern_view_realize(GtkWidget *widget) {
   BtPatternView *self = BT_PATTERN_VIEW(widget);
-  GtkTreePath *path;
-  GdkRectangle br;
 
   // first let the parent realize itslf
   if(GTK_WIDGET_CLASS(parent_class)->realize) {
@@ -102,14 +100,7 @@ static void bt_pattern_view_realize(GtkWidget *widget) {
   // allocation graphical contexts for drawing the overlay lines
   self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
   gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
-  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
-  
-  // determine row height
-  path=gtk_tree_path_new_from_indices(0,-1);
-  gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
-  self->priv->row_height=br.height;
-  GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
-  
+  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);  
 }
 
 static void bt_pattern_view_unrealize(GtkWidget *widget) {
@@ -142,7 +133,19 @@ static gboolean bt_pattern_view_expose_event(GtkWidget *widget,GdkEventExpose *e
     gint w,y;
     gdouble h;
     GdkRectangle vr;
-    
+
+    if(G_UNLIKELY(!self->priv->row_height)) {
+      GtkTreePath *path;
+      GdkRectangle br;
+
+      // determine row height
+      path=gtk_tree_path_new_from_indices(0,-1);
+      gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
+      self->priv->row_height=br.height;
+      gtk_tree_path_free(path);
+      GST_INFO("view=%p, cell background visible rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height); 
+    }
+
     gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
 
     w=widget->allocation.width;

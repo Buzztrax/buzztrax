@@ -1,5 +1,17 @@
 2006-08-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_ui):
+          sort sub menus by plugin-name
+
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_realize),
+	(bt_pattern_view_expose_event):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_realize),
+	(bt_sequence_view_unrealize), (bt_sequence_view_expose_event):
+          move cell-size calculation into expose, in realize and was not always
+          the final size (fixes #1546214)
+
+2006-08-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-info.c: (on_song_changed):
           block signal handlers to avoid trigger change-events on init
 

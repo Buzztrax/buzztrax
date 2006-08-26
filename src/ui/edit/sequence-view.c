@@ -1,4 +1,4 @@
-// $Id: sequence-view.c,v 1.24 2006-08-24 20:00:54 ensonic Exp $
+// $Id: sequence-view.c,v 1.25 2006-08-26 15:03:22 ensonic Exp $
 /**
  * SECTION:btsequenceview
  * @short_description: the editor main sequence table view
@@ -97,8 +97,6 @@ Error:
 
 static void bt_sequence_view_realize(GtkWidget *widget) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
-  GtkTreePath *path;
-  GdkRectangle br;
 
   // first let the parent realize itslf
   if(GTK_WIDGET_CLASS(parent_class)->realize) {
@@ -115,13 +113,6 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
   gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_LOOPLINE));
   gdk_gc_set_line_attributes(self->priv->loop_pos_gc,2,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
   gdk_gc_set_dashes(self->priv->loop_pos_gc,0,loop_pos_dash_list,1);
-  
-  // determine row height
-  path=gtk_tree_path_new_from_indices(0,-1);
-  gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
-  self->priv->row_height=br.height;
-  GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
-  
 }
 
 static void bt_sequence_view_unrealize(GtkWidget *widget) {
@@ -137,7 +128,6 @@ static void bt_sequence_view_unrealize(GtkWidget *widget) {
   
   g_object_unref(self->priv->loop_pos_gc);
   self->priv->loop_pos_gc=NULL;
-  
 }
 
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
@@ -157,16 +147,21 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
   if(self->priv->window==event->window) {
     gint w,y;
     gdouble h;
-    GdkRectangle vr/*,br*/;
-    //GtkTreePath *path;
-    
+    GdkRectangle vr;
+
+    if(G_UNLIKELY(!self->priv->row_height)) {
+      GtkTreePath *path;
+      GdkRectangle br;
+
+      // determine row height
+      path=gtk_tree_path_new_from_indices(0,-1);
+      gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
+      self->priv->row_height=br.height;
+      gtk_tree_path_free(path);
+      GST_INFO("view=%p, cell background visible rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height); 
+    }
+
     gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
-    // path should point to the last row (of course there is no way the API will tell us ...)
-    //path=gtk_tree_path_new_from_indices(0,-1);
-    //gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
-    //GST_INFO(" tree view visible rect: %d x %d, %d x %d",vr.x,vr.y,vr.width,vr.height);
-    //GST_INFO(" cell background visible rect: %d x %d, %d x %d",br.x,br.y,br.width,br.height);
-    //GST_INFO(" tree view allocation: %d x %d",widget->allocation.width,widget->allocation.height);
 
     //h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
     //w=vr.width;
