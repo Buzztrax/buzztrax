@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.52 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: song-info.c,v 1.53 2006-08-26 11:42:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -384,16 +384,16 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
 
-  self->priv->name=g_strdup("unamed song");
+  self->priv->name=g_strdup(_("unnamed song"));
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute=125;  // 1..1000
   self->priv->ticks_per_beat=4;      // 1..128
   self->priv->bars=4;                // 1..16
   // init dates 'YYYY-MM-DDThh:mm:ssZ'
-  self->priv->create_dts=g_new0(gchar,DTS_LEN+1);
-  self->priv->change_dts=g_new0(gchar,DTS_LEN+1);
+  self->priv->create_dts=g_new(gchar,DTS_LEN+1);
+  self->priv->change_dts=g_new(gchar,DTS_LEN+1);
   strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
-  strcpy(self->priv->change_dts,self->priv->create_dts);
+  strncpy(self->priv->change_dts,self->priv->create_dts,DTS_LEN+1);
   GST_DEBUG("date initialized as %s",self->priv->change_dts);
   
   // init taglist

@@ -1,3 +1,19 @@
+2006-08-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c: (bt_song_info_init):
+          fix typo, cleanup date init
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/cmd/bt-cmd.h:
+	* src/ui/cmd/cmd-application-methods.h:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/cmd/cmd-application.h:
+          add copyright headers
+
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+          fix parameter names and voice/global params
+
 2006-08-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/de.po:
