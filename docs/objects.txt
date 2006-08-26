@@ -1,13 +1,13 @@
-//$Id: objects.txt,v 1.14 2004-10-22 16:15:52 ensonic Exp $ :mode=c:collapseFolds=1:folding=indent:
+//$Id: objects.txt,v 1.15 2006-08-26 10:13:47 berzerka Exp $ :mode=c:collapseFolds=1:folding=indent:
 //==============================================================================
 
 // to find out which types exist do
 // grep -o "#define BT_[A-Z_]*_TYPE" ./src/lib/core/libbtcore/*.h
 // grep -o "#define BT_[A-Z_]*_TYPE" ./src/lib/core/libbtcore/*.h | wc -l
 
-BtMachine {	// no interface, but base-class
-	// public methods
-	void bt_machine_mute(BtMachinePtr machine);
+BtMachine {  // no interface, but base-class
+  // public methods
+  void bt_machine_mute(BtMachinePtr machine);
 }
 
 BtSourceMachine extends BtMachine {
@@ -23,26 +23,26 @@ BtWire { // was BtConnection
 }
 
 BtSong {
-	// data
-	   gchar* name;
+  // data
+     gchar* name;
   BtSongInfo* song_info; //buztard/meta
   BtSequence* sequence;  //buzztard/sequence
-	 BtSetup* setup;     //buzztard/setup
+   BtSetup* setup;     //buzztard/setup
 
-	// public methods
-	BtSongPtr bt_song_new(void)
-	BtSongPtr bt_song_new_from_file(gchar *file_name);
+  // public methods
+  BtSongPtr bt_song_new(void)
+  BtSongPtr bt_song_new_from_file(gchar *file_name);
        void bt_song_destroy(BtSongPtr song);
-			 
-	  GstBin* bt_song_get_bin(BtSongPtr song);
-	     void bt_song_set_master(BtSongPtr song, BtMachinePtr master);
-			 
-	 gboolean bt_song_play(BtSongPtr song);	// shouldn't this
+       
+    GstBin* bt_song_get_bin(BtSongPtr song);
+       void bt_song_set_master(BtSongPtr song, BtMachinePtr master);
+       
+   gboolean bt_song_play(BtSongPtr song);  // shouldn't this
    gboolean bt_song_stop(BtSongPtr song);   // go to BtApplication ?
 }
 
 BtSequence {
-	BtTimeLine **timelines;
+  BtTimeLine **timelines;
   guint        length;       // number of timelines
 }
 
@@ -57,46 +57,46 @@ BtTimeLineTrack {
 }
 
 BtSetup {
-	GList *machines;	// each entry points to BtMachine
-	GList *wires;			// each entry points to BtWire
+  GList *machines;  // each entry points to BtMachine
+  GList *wires;      // each entry points to BtWire
 }
 
 BtPattern {
   BtMachine *machine;
-	GValue  ***data;
+  GValue  ***data;
   guint      length;
 }
 
 BtPlayLine {
-	BtPattern **tracks; // row with pattern id per track
-	guint       tick;   // tickpointer
+  BtPattern **tracks; // row with pattern id per track
+  guint       tick;   // tickpointer
 }
 
 BtSongIO { // base class (because of factory for import) and virtaul methods
-	void bt_song_io_register_all();
-	GType bt_song_io_detect(const gchar *);
+  void bt_song_io_register_all();
+  GType bt_song_io_detect(const gchar *);
 
-	// we need default implementations for methods like save, that returns an error,
-	// as external plugins might not offer a save method  
+  // we need default implementations for methods like save, that returns an error,
+  // as external plugins might not offer a save method  
 
-	// how does the user select the file-type (and therewith the plugin)?
-	// do we just try them, one after the other until one groks the file
-	//
-	// we need a factory function in the base-class GType bt_song_io_detect(const gchar *)
+  // how does the user select the file-type (and therewith the plugin)?
+  // do we just try them, one after the other until one groks the file
+  //
+  // we need a factory function in the base-class GType bt_song_io_detect(const gchar *)
   // * when it is initialized (base_init : static GList *modules is NULL)
-	//   it calls bt_song_io_register_all() which 
-	//   1.) scans plugin-folder
-	//   2.) opens each g_modules
-	//   3.) gets the address of GType bt_song_io_custom_detect(const gchar *);
-	//   4.) stores the g_module handle and the function pointer in a list (uhm, global (static) variable)
-	// * afterwards it
-	//   first tried bt_song_io_native_detect(const gchar *);
-	//   if that is okay return(bt_song_io_native_get_type(void));
-	//   if that fails it further
-	//   iterates the list and calls GType bt_song_io_XXXX_detect(const gchar *); for each entry
-	//   every entry tests if it can handle the file
-	//   if yes, it does return(bt_song_io_XXXX_get_type(void));
-	//
+  //   it calls bt_song_io_register_all() which 
+  //   1.) scans plugin-folder
+  //   2.) opens each g_modules
+  //   3.) gets the address of GType bt_song_io_custom_detect(const gchar *);
+  //   4.) stores the g_module handle and the function pointer in a list (uhm, global (static) variable)
+  // * afterwards it
+  //   first tried bt_song_io_native_detect(const gchar *);
+  //   if that is okay return(bt_song_io_native_get_type(void));
+  //   if that fails it further
+  //   iterates the list and calls GType bt_song_io_XXXX_detect(const gchar *); for each entry
+  //   every entry tests if it can handle the file
+  //   if yes, it does return(bt_song_io_XXXX_get_type(void));
+  //
 }
 
 BtSongIONative extends BtSongIO { // loads and saves songs in buzztard xml/zip format
@@ -108,8 +108,8 @@ BtSongIO<XXXX> extends BtSongIO { // external import export plugins
 //--
 
 BtApplication {
-	GstElemnt *bin;
-	GstElement *audio_sink;
+  GstElemnt *bin;
+  GstElement *audio_sink;
 
    gboolean bt_application_play_song(BtApplicationPtr app,BtSongPtr song);
    gboolean bt_application_stop_song(BtApplicationPtr app,BtSongPtr song);

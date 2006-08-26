@@ -1,30 +1,30 @@
-* $Id: roadmap.txt,v 1.3 2004-02-18 17:38:23 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: roadmap.txt,v 1.4 2006-08-26 10:13:47 berzerka Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * 1.) finalize decission on player
-	- gstreamer
+  - gstreamer
 
 * 2.) run player with static sound generation
-	- sinesrc->esdsink
+  - sinesrc->esdsink
 
 * 3.) make two (internal) machines
-	- sine-generator and clipping-amplifier
-	- plugin network
-	- connect both with a static song
+  - sine-generator and clipping-amplifier
+  - plugin network
+  - connect both with a static song
 
 * 4.) song fileformat and i/o
-	- design directory structure
-	- design fileformat
-	- implement zipping
+  - design directory structure
+  - design fileformat
+  - implement zipping
 
 * 6.) wrap buzz machines
-	- libtool based wrapping
+  - libtool based wrapping
 
 * 7.) song converters
-	- from buzz, amiga tracker, ...
+  - from buzz, amiga tracker, ...
 
 * 8.) basic gui
-	- loading songs
-	- viewing song data
-	- start, stop playing
+  - loading songs
+  - viewing song data
+  - start, stop playing
 *

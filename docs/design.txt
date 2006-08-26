@@ -1,91 +1,91 @@
-* $Id: design.txt,v 1.18 2004-10-12 17:41:02 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: design.txt,v 1.19 2006-08-26 10:13:47 berzerka Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * architecture [modular ofcourse ;-)]
-	** ui
-	  *** bt-cmd (command line tool)
-		  bt-cmd -c <cmd> -i <input_file> -o <output_file>
-			-c,--command
-			-i,--input-file
-			-o,--output-file
-			<cmd> can be {play, convert, info}
-		*** bt-edit (graphical composer, editor)
-		*** bt-mix (graphical dj-player, can not edit the songs)
+  ** ui
+    *** bt-cmd (command line tool)
+      bt-cmd -c <cmd> -i <input_file> -o <output_file>
+      -c,--command
+      -i,--input-file
+      -o,--output-file
+      <cmd> can be {play, convert, info}
+    *** bt-edit (graphical composer, editor)
+    *** bt-mix (graphical dj-player, can not edit the songs)
     *** bt-session (graphical realtime composer/arranger)
-	** core-lib
-		- put all player code into libbtcore
-				- so that this can be used in players like xmms
-				- lib should contain no UI code
-		- sub-modules
-			- player
-			- file i/o
-			- sample processing
-			- song edit operations
+  ** core-lib
+    - put all player code into libbtcore
+        - so that this can be used in players like xmms
+        - lib should contain no UI code
+    - sub-modules
+      - player
+      - file i/o
+      - sample processing
+      - song edit operations
 
 
 * general
-	** machine-index.xml
-		- we will deliver a machine-index.xml with the buzztard distribution
-			- it will list only useful elements
-			- it will hide tool elements (e.g. float2int)
-		- support online-updates (machines via machine-index.xml)
+  ** machine-index.xml
+    - we will deliver a machine-index.xml with the buzztard distribution
+      - it will list only useful elements
+      - it will hide tool elements (e.g. float2int)
+    - support online-updates (machines via machine-index.xml)
 
 
 * gstreamer usage
-	** for general playing
-	** for loading wavetable samples
-		- add internal sink at the end of the bin
-	** for bouncing
-		- exchange audio_sink with encoder chain to render song as { riff-wav, mp3, ogg, ... }
+  ** for general playing
+  ** for loading wavetable samples
+    - add internal sink at the end of the bin
+  ** for bouncing
+    - exchange audio_sink with encoder chain to render song as { riff-wav, mp3, ogg, ... }
 
 
 * gstreamer how-to
-	** get list of generators, effect, outputs
-		- see gst-editor sources
-	** find out how to feed parameters into elements (done)
-		- synchonous (from the GUI)
-				GstElement *sinesrc;
-				GstDParamManager *dpman;
-				GstDParam *volume;
-				gfloat set_to_value = 0.5; /* or value from slider */
-				GValue *set_val = g_new0(GValue,1);
-				g_value_init(set_val, G_TYPE_FLOAT);
-				...
-				sinesrc = gst_element_factory_make("sinesrc","sine-source");
-				...
-				dpman = gst_dpman_get_manager (sinesrc);
-				gst_dpman_set_mode(dpman, "synchronous");
-				...
-				volume = gst_dparam_new(G_TYPE_FLOAT);
-				if (gst_dpman_attach_dparam (dpman, "volume", volume)){
-					/* the dparam was successfully attached */
-					...
-					g_value_set_float(set_val, set_to_value);
-					g_object_set_property(G_OBJECT(volume), "value_float", set_val);
-					...
-				}
-		- asynchronous (from the sequence data, when playing)
-			like above, but
-			gst_dpman_set_mode(dpman, "asynchronous");
-			...
-			
-		- find out how to implement timelined parameters
-	** find out how mixing works, route two source into into one sink (done)
-		- mixing element is called 'adder'
+  ** get list of generators, effect, outputs
+    - see gst-editor sources
+  ** find out how to feed parameters into elements (done)
+    - synchonous (from the GUI)
+        GstElement *sinesrc;
+        GstDParamManager *dpman;
+        GstDParam *volume;
+        gfloat set_to_value = 0.5; /* or value from slider */
+        GValue *set_val = g_new0(GValue,1);
+        g_value_init(set_val, G_TYPE_FLOAT);
+        ...
+        sinesrc = gst_element_factory_make("sinesrc","sine-source");
+        ...
+        dpman = gst_dpman_get_manager (sinesrc);
+        gst_dpman_set_mode(dpman, "synchronous");
+        ...
+        volume = gst_dparam_new(G_TYPE_FLOAT);
+        if (gst_dpman_attach_dparam (dpman, "volume", volume)){
+          /* the dparam was successfully attached */
+          ...
+          g_value_set_float(set_val, set_to_value);
+          g_object_set_property(G_OBJECT(volume), "value_float", set_val);
+          ...
+        }
+    - asynchronous (from the sequence data, when playing)
+      like above, but
+      gst_dpman_set_mode(dpman, "asynchronous");
+      ...
+      
+    - find out how to implement timelined parameters
+  ** find out how mixing works, route two source into into one sink (done)
+    - mixing element is called 'adder'
 
 
 * timing
-	- we have two clock rates:
-		audio-rate: sampling-rate/audio-buffer size
-		controldata-rate: determined from BPM, clock (e.g. 4/4) and TPB (ticks per beat)
-			(buzz only does 4/4)
-		with 160 BPM and 4/4: 160/4 => 40 clock cycles = loops_per_minute
-		with 16 TPB, 40 loops_per_min: 40*16 => 640 ticks_per_minute
+  - we have two clock rates:
+    audio-rate: sampling-rate/audio-buffer size
+    controldata-rate: determined from BPM, clock (e.g. 4/4) and TPB (ticks per beat)
+      (buzz only does 4/4)
+    with 160 BPM and 4/4: 160/4 => 40 clock cycles = loops_per_minute
+    with 16 TPB, 40 loops_per_min: 40*16 => 640 ticks_per_minute
                                   640/60 => 10.6667 ticks_per_second
                                   60/640 =>  0.8..  seconds_per_tick
-		at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
-		2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
-		SPT=(SRAT*60*4)/(BPM*TPB)
+    at sampling-rate=44100 Hz: 44100*60 => 2646000 samples_per_minute
+    2646000 samples_per_min / 640 ticks_per_min => 4134 samples_per_tick
+    SPT=(SRAT*60*4)/(BPM*TPB)
   - examples
     - 4/4 : bars=16, tpb=4
       ticks beats  bars
@@ -130,87 +130,87 @@
       06    3
       07
   
-	- audio callback
-		- run our machine-plugin graph
-	- controldata callback
-			- set new machine parameters from patterndata
+  - audio callback
+    - run our machine-plugin graph
+  - controldata callback
+      - set new machine parameters from patterndata
 
 
 * plugin network
-	** user plugins
-	= ladspa plugins
-	
-	0 input, 1 output : sources    : generators
-	1 input, 1 output : processors : effects
-	1 input, 0 output : sinks      : player, analyser
-	
-	= original buzz machines 
-	wrap original buzz dll like e.g. mplayer does with windows codecs
+  ** user plugins
+  = ladspa plugins
+  
+  0 input, 1 output : sources    : generators
+  1 input, 1 output : processors : effects
+  1 input, 0 output : sinks      : player, analyser
+  
+  = original buzz machines 
+  wrap original buzz dll like e.g. mplayer does with windows codecs
 
-	** internal plugins
-	= ladspa plugins
-	hide the input mixing,output spreading
-	hide channel conversion (see open questions)
+  ** internal plugins
+  = ladspa plugins
+  hide the input mixing,output spreading
+  hide channel conversion (see open questions)
 
 
 * controller ids
-	- define a few standart controller ids to aid cut/copy/paste of pattern data
+  - define a few standart controller ids to aid cut/copy/paste of pattern data
 
 
 * recording
   ** we record via gstreamer
-	** own jack-driver wav-record (deprecated)
-		when telling buzztard to record wav-out instead of playing it, we attach a new
-		wav-record driver to jack and supplying filename and jack-driver name. Then we
-		diconnect our wave-out from the current playback driver and connect it to the
-		newly created wav-record driver and start playback. The driver will then start
-		recording and stop, when the clients have benn detached again.
-		Recording will be done as fast as possible, as the jack-driver will have
-		0-waits.
-		QUESTION: can we attach drivers to running jackd?
+  ** own jack-driver wav-record (deprecated)
+    when telling buzztard to record wav-out instead of playing it, we attach a new
+    wav-record driver to jack and supplying filename and jack-driver name. Then we
+    diconnect our wave-out from the current playback driver and connect it to the
+    newly created wav-record driver and start playback. The driver will then start
+    recording and stop, when the clients have benn detached again.
+    Recording will be done as fast as possible, as the jack-driver will have
+    0-waits.
+    QUESTION: can we attach drivers to running jackd?
 
 
 * open questions
-	** can we have multiple sinks (visualisation, statistics) ?
-		- should the audio_sink be the master?
-		- can we synchronize audio and video?
-	** midi - no concept yet at all in gst
-		- midi input (for playing machines, recording notes)
-		- midi output (tick timing!)
-	** timelined dparams
-		- add dparam changes with timestamp to a queue, that is attached to the element
-		- the one that drives the process_loop of the element needs to check,
-		  if there are elements in the head of the queue which will need to be aplied during the next loop
-		- if yes, the loop must be splitted, and invoked several times
-		- example:
-			loop_len = 500
-			event_wating @ 200
-			=> loop_len1 = 200, set_dparam, loop_len2=300
-	** pass through note_on and note_off events
-		- when entering a note in a source this generates a note_on event
-		- the note_length determines when the note_off gets generated
-		- now it would be useful if effect-plugins could react on note_on/off as well
-			- starting an envelope, reseting an LFO
-		- Problem 1: how to pass this data
-		- Problem 2: when more than 1 source is routed into one effect, what to do with these events
-	** find out how auto-plugging works (automatically inserting converters)
-		- audioformat (float2int)
-		- channels (channel merger, channel spreader)
-		- gain control
-		- mixer (multiple sources to one sink)
-	** how do we do the multi-track feature of buzz
-		(useful for keeping a few things static for multiple voices)
-		- sources: play multiple notes
-		- effects: delay=multi-tap-delay, pitchshift=make-chords
-	** how do we handle multi-channel connections
+  ** can we have multiple sinks (visualisation, statistics) ?
+    - should the audio_sink be the master?
+    - can we synchronize audio and video?
+  ** midi - no concept yet at all in gst
+    - midi input (for playing machines, recording notes)
+    - midi output (tick timing!)
+  ** timelined dparams
+    - add dparam changes with timestamp to a queue, that is attached to the element
+    - the one that drives the process_loop of the element needs to check,
+      if there are elements in the head of the queue which will need to be aplied during the next loop
+    - if yes, the loop must be splitted, and invoked several times
+    - example:
+      loop_len = 500
+      event_wating @ 200
+      => loop_len1 = 200, set_dparam, loop_len2=300
+  ** pass through note_on and note_off events
+    - when entering a note in a source this generates a note_on event
+    - the note_length determines when the note_off gets generated
+    - now it would be useful if effect-plugins could react on note_on/off as well
+      - starting an envelope, reseting an LFO
+    - Problem 1: how to pass this data
+    - Problem 2: when more than 1 source is routed into one effect, what to do with these events
+  ** find out how auto-plugging works (automatically inserting converters)
+    - audioformat (float2int)
+    - channels (channel merger, channel spreader)
+    - gain control
+    - mixer (multiple sources to one sink)
+  ** how do we do the multi-track feature of buzz
+    (useful for keeping a few things static for multiple voices)
+    - sources: play multiple notes
+    - effects: delay=multi-tap-delay, pitchshift=make-chords
+  ** how do we handle multi-channel connections
     see multichannel.txt
-		src has n channels, dst has m channels
-		*** n=m
-			just connect
-		*** n<m
-			n=1 : make copies of the src channel
-			n>1 :
-		*** n>m
-			m=1 : mix all src channels down to one dst channel
-			m>1 :
+    src has n channels, dst has m channels
+    *** n=m
+      just connect
+    *** n<m
+      n=1 : make copies of the src channel
+      n>1 :
+    *** n>m
+      m=1 : mix all src channels down to one dst channel
+      m>1 :
 *

@@ -1,33 +1,33 @@
-* $Id: technology.txt,v 1.7 2004-02-20 15:57:02 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: technology.txt,v 1.8 2006-08-26 10:13:47 berzerka Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * libraries
-	** glib-2
-	 - portabillity
-	
-	** gtk+-2
-		- user interface
-	
-	** libxml2
-		- file format (songs,presets)
-		
-	** libz (see contrib/minizip)
-		- zip archive i/o
-	
-	** gstreamer
-		- media and plugin-network handling
-		-	alternatives
-			- alsaplayer (http://www.alsaplayer.org) [active development]
-				- except the jack-plugin not callback based
-				- support alsa (final), oss, nas, sparc, esd, ...
-			- soundtracker (http://www.soundtracker.org) [development suspended]
-				- supports oss, alsa, jack, esd, sparc, sgi
-			- portaudio (http://www.portaudio.com/) [active development]
-				- cross platform
-			- gstreamer (http://www.gstreamer.net) [active development]
-				- already contains plugin registry, graph processing, ...
+  ** glib-2
+   - portabillity
+  
+  ** gtk+-2
+    - user interface
+  
+  ** libxml2
+    - file format (songs,presets)
+    
+  ** libz (see contrib/minizip)
+    - zip archive i/o
+  
+  ** gstreamer
+    - media and plugin-network handling
+    -  alternatives
+      - alsaplayer (http://www.alsaplayer.org) [active development]
+        - except the jack-plugin not callback based
+        - support alsa (final), oss, nas, sparc, esd, ...
+      - soundtracker (http://www.soundtracker.org) [development suspended]
+        - supports oss, alsa, jack, esd, sparc, sgi
+      - portaudio (http://www.portaudio.com/) [active development]
+        - cross platform
+      - gstreamer (http://www.gstreamer.net) [active development]
+        - already contains plugin registry, graph processing, ...
 
 * unknown
-	** zip i/o
-	** midi i/o
+  ** zip i/o
+  ** midi i/o
 *

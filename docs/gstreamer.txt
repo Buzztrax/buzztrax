@@ -1,15 +1,15 @@
-* $Id: gstreamer.txt,v 1.8 2005-06-14 07:19:53 ensonic Exp $ :mode=outline:collapseFolds=1:folding=indent:
+* $Id: gstreamer.txt,v 1.9 2006-08-26 10:13:47 berzerka Exp $ :mode=outline:collapseFolds=1:folding=indent:
 ================================================================================
 
 * gst-launch-0.8 tests
-	gst-launch-0.8 sinesrc freq=1000 ! audioconvert ! esdsink
-	gst-launch-0.8 sinesrc freq=1000 ! adder ! audioconvert ! esdsink sinesrc freq=500 ! adder0.sink1
-	gst-launch-0.8 sinesrc freq=1000 audioconvert ! adder ! esdsink sinesrc freq=500 ! audioconvert ! adder0.sink1
-	
-	gst-launch-0.8 filesrc location=~/download/03-Drowning.mp3 ! mad ! audioscale ! audioconvert ! esdsink
-	gst-launch-0.8 gnomevfssrc location=http://www.eksor.de/songs/antivalenz/04-MazeOfLife.mp3 ! mad ! audioscale ! audioconvert ! esdsink
-	
-	gst-launch-0.8 esdmon ! goom ! { queue ! ffmpegcolorspace ! ximagesink }
+  gst-launch-0.8 sinesrc freq=1000 ! audioconvert ! esdsink
+  gst-launch-0.8 sinesrc freq=1000 ! adder ! audioconvert ! esdsink sinesrc freq=500 ! adder0.sink1
+  gst-launch-0.8 sinesrc freq=1000 audioconvert ! adder ! esdsink sinesrc freq=500 ! audioconvert ! adder0.sink1
+  
+  gst-launch-0.8 filesrc location=~/download/03-Drowning.mp3 ! mad ! audioscale ! audioconvert ! esdsink
+  gst-launch-0.8 gnomevfssrc location=http://www.eksor.de/songs/antivalenz/04-MazeOfLife.mp3 ! mad ! audioscale ! audioconvert ! esdsink
+  
+  gst-launch-0.8 esdmon ! goom ! { queue ! ffmpegcolorspace ! ximagesink }
 
 * play video
   gst-launch-0.8 filesrc location=/usr/share/data/video-fun/Pixar\ -\ For\ the\ Birds.avi ! spider ! ffcolorspace ! ximagesink
