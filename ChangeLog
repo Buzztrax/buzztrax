@@ -1,5 +1,31 @@
 2006-08-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c: (bt_machine_persistence_load):
+	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_persistence_load):
+	* src/lib/core/sequence.c: (bt_sequence_persistence_load):
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_persistence_load):
+	* src/lib/core/song-info.c: (bt_song_info_persistence_load):
+	* src/lib/core/song.c: (bt_song_persistence_load):
+	* src/lib/core/source-machine.c:
+	(bt_source_machine_persistence_load):
+	* src/lib/core/wave.c: (bt_wave_persistence_load):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_persistence_load):
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_load):
+	* src/lib/core/wire.c: (bt_wire_persistence_load):
+          add g_assert(node); fixes #1547072
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+          add more songs
+
+	* tests/songs/buzz5.xml:
+          fix voice/global params
+
+2006-08-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-info.c: (bt_song_info_init):
           fix typo, cleanup date init
 

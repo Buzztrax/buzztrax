@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.90 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: wire.c,v 1.91 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -586,6 +586,7 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr 
   xmlChar *id, *gain;
   
   GST_DEBUG("PERSISTENCE::wire");
+  g_assert(node);
   
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
 

@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.88 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: pattern.c,v 1.89 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -877,6 +877,7 @@ static gboolean bt_pattern_persistence_load(BtPersistence *persistence, xmlNodeP
   GError *error=NULL;
   
   GST_DEBUG("PERSISTENCE::pattern");
+  g_assert(node);
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   name=xmlGetProp(node,XML_CHAR_PTR("name"));

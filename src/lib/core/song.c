@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.138 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: song.c,v 1.139 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -820,6 +820,7 @@ static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlNodePtr 
   gboolean res=TRUE;
 
   GST_DEBUG("PERSISTENCE::song");
+  g_assert(node);
   
   res=TRUE;
   for(node=node->children;(node && res);node=node->next) {

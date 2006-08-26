@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.15 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: wavelevel.c,v 1.16 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -131,10 +131,34 @@ static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlN
 }
 
 static gboolean bt_wavelevel_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  //BtWavelevel *self = BT_WAVELEVEL(persistence);
+  BtWavelevel *self = BT_WAVELEVEL(persistence);
   gboolean res=FALSE;
+  xmlChar *root_note_str,*length_str,*rate_str,*loop_start_str,*loop_end_str;
+  glong loop_start,loop_end;
+  gulong length,rate;
+  guchar root_note;
   
-  // @todo: implement me
+  GST_DEBUG("PERSISTENCE::wavelevel");
+  g_assert(node);
+
+  root_note_str=xmlGetProp(node,XML_CHAR_PTR("root-note"));
+  length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
+  rate_str=xmlGetProp(node,XML_CHAR_PTR("rate"));
+  loop_start_str=xmlGetProp(node,XML_CHAR_PTR("loop-start"));
+  loop_end_str=xmlGetProp(node,XML_CHAR_PTR("loop-end"));
+  
+  root_note=root_note_str?atol((char *)root_note_str):0;
+  length=length_str?atol((char *)length_str):0;
+  rate=rate_str?atol((char *)rate_str):0;
+  loop_start=loop_start_str?atol((char *)loop_start_str):-1;
+  loop_end=loop_end_str?atol((char *)loop_end_str):-1;
+
+  g_object_set(self,"root-note",root_note,"length",length,"rate",rate,
+    "loop-start",loop_start,"loop-end",loop_end,
+    NULL);
+  xmlFree(root_note_str);xmlFree(length_str);xmlFree(rate_str);
+  xmlFree(loop_start_str);xmlFree(loop_end_str);
+  
   res=TRUE;
   return(res);
 }

@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.43 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: processor-machine.c,v 1.44 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -118,6 +118,9 @@ static gboolean bt_processor_machine_persistence_load(BtPersistence *persistence
   xmlChar *plugin_name,*voices_str;
   gulong voices;
   gboolean res;
+  
+  GST_DEBUG("PERSISTENCE::processor_machine");
+  g_assert(node);
 
   plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
   voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));

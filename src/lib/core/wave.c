@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.19 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: wave.c,v 1.20 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -194,6 +194,9 @@ static gboolean bt_wave_persistence_load(BtPersistence *persistence, xmlNodePtr 
   gulong index;
   xmlNodePtr child_node;
   gboolean res=FALSE;
+  
+  GST_DEBUG("PERSISTENCE::wave");
+  g_assert(node);
   
   index_str=xmlGetProp(node,XML_CHAR_PTR("index"));
   index=index_str?atol((char *)index_str):0;

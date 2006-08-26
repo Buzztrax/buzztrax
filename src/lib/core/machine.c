@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.217 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: machine.c,v 1.218 2006-08-26 12:13:26 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2085,6 +2085,7 @@ static gboolean bt_machine_persistence_load(BtPersistence *persistence, xmlNodeP
   GError *error=NULL;
 
   GST_DEBUG("PERSISTENCE::machine");
+  g_assert(node);
 
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   g_object_set(G_OBJECT(self),"id",id,NULL);

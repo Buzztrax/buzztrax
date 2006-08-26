@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.40 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: source-machine.c,v 1.41 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -105,6 +105,9 @@ static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, x
   xmlChar *plugin_name,*voices_str;
   gulong voices;
 
+  GST_DEBUG("PERSISTENCE::source_machine");
+  g_assert(node);
+  
   plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
   voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
   voices=voices_str?atol((char *)voices_str):0;

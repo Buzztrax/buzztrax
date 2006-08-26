@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.22 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: wavetable.c,v 1.23 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -179,6 +179,9 @@ static gboolean bt_wavetable_persistence_load(BtPersistence *persistence, xmlNod
   BtWave *wave;
   xmlNodePtr child_node;
   gboolean res=FALSE;
+
+  GST_DEBUG("PERSISTENCE::wavetable");
+  g_assert(node);
   
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {

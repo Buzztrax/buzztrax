@@ -1,8 +1,8 @@
 #!/bin/sh
-# $Id: bt-cmd-info.sh,v 1.3 2006-08-13 20:24:33 ensonic Exp $
+# $Id: bt-cmd-info.sh,v 1.4 2006-08-26 12:13:27 ensonic Exp $
 # run bt-cmd --command=info on all example and test for crashes
 
-E_SONGS="songs/buzz*.xml songs/melo*.xml songs/simple*.xml songs/broken2.xml"
+E_SONGS="songs/buzz*.xml songs/combi*.xml songs/melo*.xml songs/simple*.xml songs/broken2.xml"
 T_SONGS="songs/broken1.xml songs/test*.xml^"
 
 # test examples

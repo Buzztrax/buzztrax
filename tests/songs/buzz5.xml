@@ -35,15 +35,9 @@
         <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="bass2_beeps" machine="bass2" name="beeps" length="16">
-            <tick time="0">
-              <globaldata name="Note" value="24"/>
-            </tick>
-            <tick time="4">
-              <globaldata name="Note" value="28"/>
-            </tick>
-            <tick time="8">
-              <globaldata name="Note" value="31"/>
-            </tick>
+            <tick time="0"><voicedata name="Note" voice="0" value="24"/></tick>
+            <tick time="4"><voicedata name="Note" voice="0" value="28"/></tick>
+            <tick time="8"><voicedata name="Note" voice="0" value="31"/></tick>
           </pattern>
         </patterns>
       </machine>

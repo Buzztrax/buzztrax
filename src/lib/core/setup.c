@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.100 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: setup.c,v 1.101 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -591,6 +591,7 @@ static gboolean bt_setup_persistence_load(BtPersistence *persistence, xmlNodePtr
   xmlNodePtr child_node;
   
   GST_DEBUG("PERSISTENCE::setup");
+  g_assert(node);
   
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {

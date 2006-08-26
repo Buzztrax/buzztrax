@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.71 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: sink-machine.c,v 1.72 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -118,6 +118,9 @@ static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xml
   BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   gboolean res;
   
+  GST_DEBUG("PERSISTENCE::sink_machine");
+  g_assert(node);
+
   g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
   
   // load parent class stuff

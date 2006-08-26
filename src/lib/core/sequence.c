@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.115 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: sequence.c,v 1.116 2006-08-26 12:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1137,6 +1137,7 @@ static gboolean bt_sequence_persistence_load(BtPersistence *persistence, xmlNode
   xmlNodePtr child_node,child_node2;
   
   GST_DEBUG("PERSISTENCE::sequence");
+  g_assert(node);
   
   length_str=xmlGetProp(node,XML_CHAR_PTR("length"));
   tracks_str=xmlGetProp(node,XML_CHAR_PTR("tracks"));
