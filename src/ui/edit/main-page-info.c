@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.39 2006-08-02 19:34:19 ensonic Exp $
+// $Id: main-page-info.c,v 1.40 2006-08-26 13:07:41 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -45,38 +45,6 @@ struct _BtMainPageInfoPrivate {
 static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler
-
-static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
-  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  BtSong *song;
-  BtSongInfo *song_info;
-  gchar *name,*genre,*author;
-  gulong bpm,tpb;
-  gchar *info;
-
-  g_assert(user_data);
-
-  GST_INFO("song has changed : app=%p, self=%p",app,self);
-  // get song from app
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_return_if_fail(song);
-
-  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  // update info fields
-  g_object_get(G_OBJECT(song_info),
-    "name",&name,"genre",&genre,"author",&author,"info",&info,
-    "bpm",&bpm,"tpb",&tpb,
-    NULL);
-  gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
-  gtk_entry_set_text(self->priv->genre,safe_string(genre));g_free(genre);
-  gtk_entry_set_text(self->priv->author,safe_string(author));g_free(author);
-  gtk_spin_button_set_value(self->priv->bpm,(gdouble)bpm);
-  gtk_spin_button_set_value(self->priv->tpb,(gdouble)tpb);
-  gtk_text_buffer_set_text(gtk_text_view_get_buffer(self->priv->info),safe_string(info),-1);g_free(info);
-  // release the references
-  g_object_try_unref(song_info);
-  g_object_try_unref(song);
-}
 
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
@@ -187,6 +155,58 @@ static void on_info_changed(GtkTextBuffer *textbuffer,gpointer user_data) {
   g_object_set(G_OBJECT(song_info),"info",str,NULL);
   g_free(str);
   // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+  GtkTextBuffer *buffer;
+  gchar *name,*genre,*author;
+  gulong bpm,tpb;
+  gchar *info;
+
+  g_assert(user_data);
+
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_return_if_fail(song);
+
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+  g_object_get(G_OBJECT(song_info),
+    "name",&name,"genre",&genre,"author",&author,"info",&info,
+    "bpm",&bpm,"tpb",&tpb,
+    NULL);
+  g_signal_handlers_block_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
+  gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
+  g_signal_handlers_unblock_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
+
+  g_signal_handlers_block_matched(self->priv->genre,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_genre_changed,(gpointer)self);
+  gtk_entry_set_text(self->priv->genre,safe_string(genre));g_free(genre);
+  g_signal_handlers_unblock_matched(self->priv->genre,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_genre_changed,(gpointer)self);
+
+  g_signal_handlers_block_matched(self->priv->author,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_author_changed,(gpointer)self);
+  gtk_entry_set_text(self->priv->author,safe_string(author));g_free(author);
+  g_signal_handlers_unblock_matched(self->priv->author,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_author_changed,(gpointer)self);
+
+  g_signal_handlers_block_matched(self->priv->bpm,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_bpm_changed,(gpointer)self);
+  gtk_spin_button_set_value(self->priv->bpm,(gdouble)bpm);
+  g_signal_handlers_unblock_matched(self->priv->bpm,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_bpm_changed,(gpointer)self);
+
+  g_signal_handlers_block_matched(self->priv->tpb,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_tpb_changed,(gpointer)self);
+  gtk_spin_button_set_value(self->priv->tpb,(gdouble)tpb);
+  g_signal_handlers_unblock_matched(self->priv->tpb,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_tpb_changed,(gpointer)self);
+
+  buffer=gtk_text_view_get_buffer(self->priv->info);
+  g_signal_handlers_block_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
+  gtk_text_buffer_set_text(buffer,safe_string(info),-1);g_free(info);
+  g_signal_handlers_unblock_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
+
+// release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);
 }
