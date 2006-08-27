@@ -21,6 +21,7 @@ bt_sequence_view_get_type
 bt_settings_dialog_get_type
 bt_settings_page_audiodevices_get_type
 bt_ui_ressources_get_type
+bt_wire_analysis_dialog_get_type
 bt_wire_canvas_item_get_type
 
 gtk_vumeter_get_type

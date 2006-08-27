@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.27 2006-08-13 20:24:33 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.28 2006-08-27 20:31:29 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -187,6 +187,7 @@ MACHINE_VIEW_MACHINE_SIZE_Y
 MACHINE_VIEW_GRID_FC
 MACHINE_VIEW_WIRE_PAD_SIZE
 MACHINE_VIEW_ZOOM_X
+machine_view_get_machine_position
 </SECTION>
 
 <SECTION>
@@ -221,6 +222,7 @@ bt_main_page_sequence_delete_selection
 bt_main_page_sequence_paste_selection
 bt_main_page_sequence_get_current_machine
 bt_main_page_sequence_get_current_pos
+SEQUENCE_ROW_ADDITION_INTERVAL
 <SUBSECTION Standard>
 BtMainPageSequenceClass
 BT_MAIN_PAGE_SEQUENCE
@@ -448,6 +450,24 @@ bt_volume_popup_get_type
 </SECTION>
 
 <SECTION>
+<FILE>btwireanalysisdialog</FILE>
+<TITLE>BtWireAnalysisDialog</TITLE>
+BtWireAnalysisDialog
+bt_wire_analysis_dialog_new
+<SUBSECTION Standard>
+BtWireAnalysisDialogClass
+BT_WIRE_ANALYSIS_DIALOG
+BT_IS_WIRE_ANALYSIS_DIALOG
+BT_WIRE_ANALYSIS_DIALOG_CLASS
+BT_IS_WIRE_ANALYSIS_DIALOG_CLASS
+BT_WIRE_ANALYSIS_DIALOG_GET_CLASS
+BT_TYPE_WIRE_ANALYSIS_DIALOG
+<SUBSECTION Private>
+bt_wire_analysis_dialog_get_type
+BtWireAnalysisDialogPrivate
+</SECTION>
+
+<SECTION>
 <FILE>btwirecanvasitem</FILE>
 <TITLE>BtWireCanvasItem</TITLE>
 BtWireCanvasItem
@@ -498,6 +518,7 @@ bt_threads_init
 gdk_threads_try_enter
 gdk_threads_try_leave
 gtk_toolbar_get_style_from_string
+GNOME_CANVAS_BROKEN_PROPERTIES
 <SUBSECTION Private>
 GST_CAT_DEFAULT
 </SECTION>

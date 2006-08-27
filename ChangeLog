@@ -1,5 +1,23 @@
 2006-08-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* src/lib/core/core.c: (bt_init_post), (bt_init_get_option_group),
+	(bt_init_check):
+          clean up docs a bit
+
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/tools.c:
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/bt-edit.h:
+          remove trace-log, we now have gst-plot-timeslines
+
+	* tests/bt-cmd-encode.sh:
+           use -q and write no encoding log
+
+2006-08-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* AUTHORS:
 	* Makefile.am:
 	* NEWS:

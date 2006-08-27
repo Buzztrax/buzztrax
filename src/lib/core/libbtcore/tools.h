@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.13 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: tools.h,v 1.14 2006-08-27 20:31:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -29,27 +29,18 @@ extern void gst_element_dbg_pads(GstElement *elem);
 
 #ifndef HAVE_GLIB_2_8
 extern gpointer g_try_malloc0(gulong n_bytes);
-#endif
 
-#ifndef HAVE_GLIB_2_8
 #define g_try_new(struct_type, n_structs) \
   g_try_malloc(sizeof(struct_type)*n_structs)
 
 #define g_try_new0(struct_type, n_structs) \
   g_try_malloc0(sizeof(struct_type)*n_structs)
-#endif
+#endif // !HAVE_GLIB_2_8
 
 extern GType bt_g_type_get_base_type(GType type);
 
-#endif
-
-extern void bt_log_mark(const char *format, ...);
-#ifdef APP_DEBUG
-#define BT_LOG_MARK_FUNCTION(str) bt_log_mark("%s : %s",__FUNCTION__,str);
-#else
-#define BT_LOG_MARK_FUNCTION(str)
-#endif
-
 extern guint bt_cpu_load_get_current(void);
 
-#endif // BT_TOOLS_H
+#endif // !BT_TOOLS_C
+
+#endif // !BT_TOOLS_H

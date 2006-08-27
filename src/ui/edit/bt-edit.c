@@ -1,4 +1,4 @@
-// $Id: bt-edit.c,v 1.33 2006-08-17 17:46:38 ensonic Exp $
+// $Id: bt-edit.c,v 1.34 2006-08-27 20:31:30 ensonic Exp $
 /**
  * SECTION:btedit
  * @short_description: buzztard graphical editor application
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
   g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
   bt_init_add_option_groups(ctx);
   g_option_context_add_group(ctx, gtk_get_option_group(TRUE));
-  BT_LOG_MARK_FUNCTION("before option parsing");
+  GST_DEBUG("before option parsing");
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     exit(1);
@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
     exit(0);
   }
-  BT_LOG_MARK_FUNCTION("options parsed");
+  GST_DEBUG("options parsed");
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
   gtk_window_set_default_icon_name("buzztard");
 
 #ifdef USE_GNOME
-  BT_LOG_MARK_FUNCTION("before gnome_program_init()");
+  GST_DEBUG("before gnome_program_init()");
   gnome_app=gnome_program_init("bt-edit", VERSION, LIBGNOME_MODULE, argc, argv, 
     GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
 #endif

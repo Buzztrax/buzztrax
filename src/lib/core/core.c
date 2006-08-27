@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.25 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: core.c,v 1.26 2006-08-27 20:31:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -75,7 +75,7 @@ static gboolean bt_init_pre (void) {
 static gboolean bt_init_post (void) {
   gboolean res=FALSE;
   
-  BT_LOG_MARK_FUNCTION("beg");
+  GST_DEBUG("beg");
   
   //-- initialize gstreamer
   //gst_init(argc,argv);
@@ -85,7 +85,7 @@ static gboolean bt_init_post (void) {
 
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-core", 0, "music production environment / core library");
 
-  BT_LOG_MARK_FUNCTION("init xml");
+  GST_DEBUG("init xml");
   //-- initialize libxml
   // set own error handler
   //xmlSetGenericErrorFunc("libxml-error: ",&gitk_libxmlxslt_error_func);
@@ -97,7 +97,7 @@ static gboolean bt_init_post (void) {
   xmlLoadExtDtdDefaultValue=TRUE;            // always load DTD default values (even when not validating)
   xmlDoValidityCheckingDefaultValue=FALSE;  // do not validate files (we load xsl files as well  
   
-  BT_LOG_MARK_FUNCTION("init gnome-vfs");
+  GST_DEBUG("init gnome-vfs");
   //-- initialize gnome-vfs
   if (!gnome_vfs_init ()) {
     GST_WARNING("gnome vfs failed to initialize");
@@ -107,7 +107,7 @@ static gboolean bt_init_post (void) {
   res=TRUE;
   
 Error:
-  BT_LOG_MARK_FUNCTION("end");
+  GST_DEBUG("end");
   return(res);
 }
   
@@ -133,7 +133,7 @@ GOptionGroup *bt_init_get_option_group(void) {
     {NULL}
   };
   
-  BT_LOG_MARK_FUNCTION("beg");
+  GST_DEBUG("beg");
   
   group = g_option_group_new("bt-core", _("Buzztard core options"),_("Show buzztard core options"), NULL, NULL);
   g_option_group_set_parse_hooks(group, (GOptionParseFunc)bt_init_pre, (GOptionParseFunc)bt_init_post);
@@ -175,7 +175,7 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
   GOptionContext *ctx;
   gboolean res;
 
-  BT_LOG_MARK_FUNCTION("beg");
+  GST_DEBUG("beg");
 
   if(bt_initialized) {
     //g_print("already initialized Buzztard core");
@@ -191,7 +191,7 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
     bt_initialized=TRUE;
   }
 
-  BT_LOG_MARK_FUNCTION("end");
+  GST_DEBUG("end");
   
   return(res);
 }

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.27 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: tools.c,v 1.28 2006-08-27 20:31:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -135,36 +135,6 @@ GType bt_g_type_get_base_type(GType type) {
 
   while((base=g_type_parent(type))) type=base;
   return(type);
-}
-
-/**
- * bt_log_mark:
- * @format: msg format
- * @...: msg args
- *
- * Produces log marks for <code>plot-timeline.py</code>. Add invokations to the
- * source. Then call:
- * <programmlisting>
- *   strace -ttt -f -o /tmp/logfile.strace my-program
- *   plot-timeline.py -o prettygraph.png /tmp/logfile.strace
- * </programmlisting>
- */
-/* @todo: move that to gst_info.c and call from debug-log handler
- * allow to disable via env-var ?
- */
-void bt_log_mark(const char *format, ...) {
-  va_list args;
-  char *formatted, *str;
-
-  va_start (args, format);
-  formatted = g_strdup_vprintf (format, args);
-  va_end (args);
-
-  str = g_strdup_printf ("MARK: %s: %s", g_get_prgname(), formatted);
-  g_free (formatted);
-
-  access (str, F_OK);
-  g_free (str);
 }
 
 /* cpu load monitoring */

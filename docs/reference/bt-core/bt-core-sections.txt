@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.72 2006-08-13 12:45:06 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.73 2006-08-27 20:31:29 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -152,6 +152,7 @@ BtPatternPrivate
 bt_persistence_strfmt_uchar
 bt_persistence_strfmt_long
 bt_persistence_strfmt_ulong
+bt_persistence_strfmt_double
 bt_persistence_save_list
 bt_persistence_save_hashtable
 bt_persistence_load_hashtable
@@ -162,6 +163,7 @@ bt_persistence_load
 <SUBSECTION Standard>
 BtPersistence
 BtPersistenceInterface
+BT_TYPE_PERSISTENCE
 BT_PERSISTENCE
 BT_IS_PERSISTENCE
 BT_PERSISTENCE_GET_INTERFACE
@@ -174,6 +176,7 @@ bt_persistence_get_type
 <TITLE>BtPersistenceLocation</TITLE>
 <SUBSECTION Standard>
 BtPersistenceLocation
+BtPersistenceLocationClass
 BT_PERSISTENCE_LOCATION
 BT_IS_PERSISTENCE_LOCATION
 BT_PERSISTENCE_LOCATION_CLASS
@@ -189,6 +192,7 @@ bt_persistence_location_get_type
 <TITLE>BtPersistenceSelection</TITLE>
 <SUBSECTION Standard>
 BtPersistenceSelection
+BtPersistenceSelectionClass
 BT_PERSISTENCE_SELECTION
 BT_IS_PERSISTENCE_SELECTION
 BT_PERSISTENCE_SELECTION_CLASS
@@ -541,6 +545,7 @@ BT_TYPE_WIRE
 <SUBSECTION Private>
 bt_wire_get_type
 BtWirePrivate
+bt_wire_dbg_print_parts
 bt_wire_get_element_list
 </SECTION>
 
@@ -562,7 +567,7 @@ g_object_try_weak_ref
 g_object_try_weak_unref
 bt_gst_registry_get_element_names_by_class
 bt_g_type_get_base_type
-bt_log_mark
+bt_cpu_load_get_current
 bt_init_get_option_group
 bt_init_add_option_groups
 bt_init_check
