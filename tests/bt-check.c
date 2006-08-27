@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.26 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: bt-check.c,v 1.27 2006-08-27 20:02:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -219,6 +219,7 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 gchar *check_get_test_song_path(const gchar *name) {
   static gchar path[2048];
   
+  // TESTSONGDIR gets defined in Makefile.am
   snprintf(path,2048,TESTSONGDIR"/%s",name);
   return(path);
 }

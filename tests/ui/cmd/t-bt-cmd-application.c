@@ -1,4 +1,4 @@
-/* $Id: t-bt-cmd-application.c,v 1.8 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-bt-cmd-application.c,v 1.9 2006-08-27 20:02:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,7 +44,7 @@ BT_START_TEST(test_play1) {
   GstBin *bin=NULL;
   BtSettings *settings=NULL;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
   
   check_init_error_trapp("bt_cmd_application_play","BT_IS_STRING(input_file_name)");
@@ -65,7 +65,7 @@ BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   
   check_init_error_trapp("bt_cmd_application_play","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_play(app, "");
@@ -82,7 +82,7 @@ BT_START_TEST(test_info1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   
   check_init_error_trapp("bt_cmd_application_info","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_info(app, NULL, NULL);
@@ -99,7 +99,7 @@ BT_START_TEST(test_info2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   
   check_init_error_trapp("bt_cmd_application_info","BT_IS_STRING(input_file_name)");
   ret = bt_cmd_application_info(app, "", NULL);

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.79 2006-08-17 17:46:37 ensonic Exp $
+# $Id: configure.ac,v 1.80 2006-08-27 20:02:53 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -11,14 +11,14 @@
 #
 
 # Initialise the autoconf/automake tool
-AC_INIT([buzztard], [0.0.1], [buzztard-devel@lists.sourceforge.net])
+AC_INIT([buzztard], [0.1.0], [buzztard-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_MACRO_DIR(m4)
 
 BT_MAJOR_VERSION=0
-BT_MINOR_VERSION=0
-BT_MICRO_VERSION=1
+BT_MINOR_VERSION=1
+BT_MICRO_VERSION=0
 BT_VERSION=$BT_MAJOR_VERSION.$BT_MINOR_VERSION.$BT_MICRO_VERSION
 BT_VERSION_INFO=`expr $BT_MAJOR_VERSION + $BT_MINOR_VERSION`:$BT_MICRO_VERSION:$BT_MINOR_VERSION
 BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + $BT_MICRO_VERSION`
@@ -372,6 +372,7 @@ AC_CONFIG_FILES(Makefile \
       src/ui/edit/Makefile \
       src/ui/edit/bt-edit.desktop.in \
   tests/Makefile \
+  tests/bt-cfg.sh \
     tests/lib/Makefile \
       tests/lib/core/Makefile \
     tests/ui/Makefile \

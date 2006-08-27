@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.83 2006-08-26 11:42:32 ensonic Exp $
+/* $Id: cmd-application.c,v 1.84 2006-08-27 20:02:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -105,7 +105,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
       g_usleep(1000);
     }
     GST_INFO("finished playing: is_playing=%d, pos=%ld < length=%d",is_playing,pos,length);
-    printf("\n");
+    if(!self->priv->quiet) puts("");
     /*
     GMainLoop *main_loop; // make global
     main_loop=g_main_loop_new(NULL,FALSE);

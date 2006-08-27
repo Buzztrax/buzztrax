@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.17 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: e-bt-edit-application.c,v 1.18 2006-08-27 20:02:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -137,7 +137,7 @@ BT_START_TEST(test_load1) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
   
-  bt_edit_application_load_song(app,"songs/melo3.xml");
+  bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   g_object_unref(song);
@@ -178,7 +178,7 @@ BT_START_TEST(test_tabs1) {
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
   
-  bt_edit_application_load_song(app,"songs/melo3.xml");
+  bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
   g_object_unref(song);

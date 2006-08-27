@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.9 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: e-bt-cmd-application.c,v 1.10 2006-08-27 20:02:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -39,7 +39,7 @@ static void test_teardown(void) {
 BT_START_TEST(test_create_app) {
   BtCmdApplication *app;
 
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   fail_unless(app != NULL, NULL);
   fail_unless(G_OBJECT(app)->ref_count == 1, NULL);
   // free application
@@ -53,7 +53,7 @@ BT_START_TEST(test_play1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple1.xml"));
   fail_unless(ret==TRUE, NULL);
   // free application
@@ -66,7 +66,7 @@ BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple2.xml"));
   fail_unless(ret==TRUE, NULL);
   // free application
@@ -74,12 +74,13 @@ BT_START_TEST(test_play2) {
 }
 BT_END_TEST
 
-// postive test, this test should not fail
+// Tests to play one song after another
+// This is a positive test.
 BT_START_TEST(test_play3) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
 
   ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple1.xml"));
   fail_unless(ret==TRUE, NULL);
@@ -99,7 +100,7 @@ BT_START_TEST(test_info1) {
   gboolean ret=FALSE;
   gchar *tmp_file_name;
     
-  app=bt_cmd_application_new(FALSE);
+  app=bt_cmd_application_new(TRUE);
   tmp_file_name=tmpnam(NULL);
   ret = bt_cmd_application_info(app, check_get_test_song_path("test-simple1.xml"), tmp_file_name);
   fail_unless(ret==TRUE, NULL);

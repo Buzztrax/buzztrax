@@ -1,0 +1,5 @@
+#!/bin/sh
+# $Id: bt-cfg.sh.in,v 1.1 2006-08-27 20:02:54 ensonic Exp $
+
+TESTSONGDIR="@top_srcdir@/tests/songs"
+TESTRESULTDIR="@top_builddir@/tests/songs"

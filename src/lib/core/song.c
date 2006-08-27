@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.139 2006-08-26 12:13:27 ensonic Exp $
+/* $Id: song.c,v 1.140 2006-08-27 20:02:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -932,7 +932,7 @@ static void bt_song_set_property(GObject      *object,
     } break;
     case SONG_UNSAVED: {
       self->priv->unsaved = g_value_get_boolean(value);
-      GST_DEBUG("set the unsaved flag for the song: %d",self->priv->unsaved);
+      GST_WARNING("set the unsaved flag for the song: %d (please use bt_song_set_unsaved())",self->priv->unsaved);
     } break;
     case SONG_PLAY_POS: {
       self->priv->play_pos=bt_sequence_limit_play_pos(self->priv->sequence,g_value_get_ulong(value));

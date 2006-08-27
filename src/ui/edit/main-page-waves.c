@@ -1,4 +1,4 @@
-// $Id: main-page-waves.c,v 1.33 2006-08-02 19:34:20 ensonic Exp $
+// $Id: main-page-waves.c,v 1.34 2006-08-27 20:02:54 ensonic Exp $
 /**
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
@@ -330,6 +330,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
   g_object_set(self->priv->wavelevels_list,"enable-search",FALSE,"rules-hint",TRUE,NULL);
   renderer=gtk_cell_renderer_text_new();
   //g_object_set(G_OBJECT(renderer),"xalign",1.0,NULL);
+
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Root"),renderer,"text",0,NULL);
   renderer=gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes(self->priv->wavelevels_list,-1,_("Length"),renderer,"text",1,NULL);

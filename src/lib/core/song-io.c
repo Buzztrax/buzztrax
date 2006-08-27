@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.58 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: song-io.c,v 1.59 2006-08-27 20:02:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -230,6 +230,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
     //DEBUG
     //bt_song_write_to_dot_file(song);
     //bt_song_write_to_xml_file(song);
+    /*
     {
       BtSetup *setup;
       BtMachine *machine;
@@ -246,7 +247,7 @@ gboolean bt_song_io_load(const gpointer self, const BtSong *song) {
       g_list_free(list);
       g_object_unref(setup);
     }
-    /**/
+    */
     //DEBUG
   }
   bt_song_idle_start(self);

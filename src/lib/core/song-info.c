@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.54 2006-08-26 12:13:27 ensonic Exp $
+/* $Id: song-info.c,v 1.55 2006-08-27 20:02:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -385,7 +385,7 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
 
-  self->priv->name=g_strdup(_("unnamed song"));
+  self->priv->name=g_strdup(_("untitled song"));
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute=125;  // 1..1000
   self->priv->ticks_per_beat=4;      // 1..128

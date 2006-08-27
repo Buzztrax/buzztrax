@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.37 2006-07-27 20:16:37 ensonic Exp $
+## $Id: Makefile.am,v 1.38 2006-08-27 20:02:54 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -61,7 +61,11 @@ INCLUDES = \
 	@VALGRIND_CFLAGS@
 endif
 
-EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh
+EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh \
+  bt-cfg.sh.in bt-cmd-info.sh bt-cmd-encode.sh
+
+clean-local:
+	rm -f $(top_builddir)/tests/songs/*.txt $(top_builddir)/tests/songs/*.ogg
 
 ## todo: check if code has been compiled using --enable-debug
 ##

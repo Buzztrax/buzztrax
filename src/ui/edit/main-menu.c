@@ -1,4 +1,4 @@
-// $Id: main-menu.c,v 1.60 2006-08-17 17:46:38 ensonic Exp $
+// $Id: main-menu.c,v 1.61 2006-08-27 20:02:54 ensonic Exp $
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
@@ -370,10 +370,10 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 
   g_assert(user_data);
   
-  GST_INFO("song.unsaved has changed : song=%p, menu=%p",song,user_data);
-  
   g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
   gtk_widget_set_sensitive(self->priv->save_item,unsaved);
+
+  GST_INFO("song.unsaved has changed : song=%p, menu=%p, unsaved=%d",song,user_data,unsaved);
 }  
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {

@@ -1,4 +1,4 @@
-// $Id: edit-application.c,v 1.79 2006-08-21 18:04:39 berzerka Exp $
+// $Id: edit-application.c,v 1.80 2006-08-27 20:02:54 ensonic Exp $
 /**
  * SECTION:bteditapplication
  * @short_description: class for a gtk based buzztard editor application
@@ -175,7 +175,8 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
         bt_machine_enable_input_gain(machine)
       ) {
         GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
-        // set new song
+        // set new song in application
+        g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
         g_object_set(G_OBJECT(self),"song",song,NULL);
         res=TRUE;
       }
@@ -481,6 +482,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   static const gchar *authors[] = {
     "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
     "Thomas 'waffel' Wabner <waffel@users.sf.net>",
+    "Patric Schmitz  <berzerka@users.sf.net>",
     NULL
   };
   static const gchar *documenters[] = {
@@ -508,7 +510,23 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
     "comments",_("Music production environment"),
     "copyright",_("Copyright \xc2\xa9 2003-2006 Buzztard developer team"),
     "documenters", documenters,
-    "license", _("This package is free software released under the GNU Library General Public License"),
+    /* http://www.gnu.org/licenses/lgpl.html, http://www.gnu.de/lgpl-ger.html */
+    "license", _(
+      "This package is free software; you can redistribute it and/or "
+      "modify it under the terms of the GNU Library General Public "
+      "License as published by the Free Software Foundation; either "
+      "version 2 of the License, or (at your option) any later version."
+      "\n\n"
+      "This package is distributed in the hope that it will be useful, "
+      "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+      "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU "
+      "Library General Public License for more details."
+      "\n\n"
+      "You should have received a copy of the GNU Library General Public "
+      "License along with this package; if not, write to the "
+      "Free Software Foundation, Inc., 59 Temple Place - Suite 330, "
+      "Boston, MA 02111-1307, USA."
+    ),
     "logo-icon-name",PACKAGE_NAME,
     "version", PACKAGE_VERSION,
     "website","http://www.buzztard.org",
@@ -525,8 +543,8 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("This is a technical preview version. It is not complete or end-user ready yet. "
-      "The fileformat of the songs can also change.\n\n"
+    _("This is a technical preview version. The application is not complete or end-user ready yet. "
+      "The fileformat of the songs can still change.\n\n"
       "Nonetheless if you find bugs or have comments, please take your time to contact us."
     ),-1);
   gtk_widget_show(news);

@@ -5,6 +5,7 @@ src/lib/core/application.c
 src/lib/core/core.c
 src/lib/core/pattern.c
 src/lib/core/song-io-native.c
+src/lib/core/song-info.c
 src/ui/cmd/bt-cmd.c
 src/ui/cmd/cmd-application.c
 src/ui/edit/bt-edit.c

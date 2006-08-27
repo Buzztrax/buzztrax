@@ -1,4 +1,4 @@
-$Id: README,v 1.21 2006-08-13 14:41:34 ensonic Exp $
+$Id: README,v 1.22 2006-08-27 20:02:53 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -20,6 +20,11 @@ gnome-canvas
 = supported packages =
 check (http://check.sf.net - for unit tests)
 gconf
+
+= building from cvs =
+To build use autogen.sh instead of configure. This accept the same options like
+configure. Later one can use autoregen.sh to rerun the bootstrapping.
+To build from CVS one needs gconf2-dev (see #1530372).
 
 = directories =
 design : little test sources, not needed for releases, not built during make

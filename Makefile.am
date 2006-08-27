@@ -1,9 +1,9 @@
-## $Id: Makefile.am,v 1.59 2006-08-13 12:45:03 ensonic Exp $
+## $Id: Makefile.am,v 1.60 2006-08-27 20:02:53 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
 
-DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
+DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc --enable-debug
 
 songdatadir = $(datadir)/$(PACKAGE)/songs
 songdata_DATA = \
@@ -35,7 +35,6 @@ songdata_DATA = \
 
 pixmapdatadir = $(datadir)/$(PACKAGE)/pixmaps
 pixmapdata_DATA = \
-	pixmaps/buzztard.png \
 	pixmaps/grid.png \
 	pixmaps/menu_processor_machine.png \
 	pixmaps/menu_sink_machine.png \
@@ -69,7 +68,7 @@ schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
 
 EXTRA_DIST = \
 	$(songdata_DATA) \
-	$(pixmapdata_DATA) \
+	$(pixmapdata_DATA) $(icon16_DATA) $(icon48_DATA) $(svgicon_DATA) \
 	$(schemas_DATA) \
 	intltool-extract.in \
 	intltool-merge.in \

@@ -1,4 +1,4 @@
-// $Id: main-window.c,v 1.80 2006-08-14 20:49:40 ensonic Exp $
+// $Id: main-window.c,v 1.81 2006-08-27 20:02:54 ensonic Exp $
 /**
  * SECTION:btmainwindow
  * @short_description: root buzztard editor window
@@ -96,16 +96,16 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
 
   g_assert(user_data);
   
-  GST_INFO("song.unsaved has changed : song=%p, window=%p",song,user_data);
-  
   g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
   // we don't use PACKAGE_NAME = 'buzztard' for the window title
-  title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):""));g_free(name);
+  title=g_strdup_printf("%s (%s) - Buzztard",name,(unsaved?_("unsaved"):_("saved")));g_free(name);
   gtk_window_set_title(GTK_WINDOW(self), title);g_free(title);
   //-- release the references
   g_object_try_unref(song_info);
+
+  GST_INFO("song.unsaved has changed : song=%p, menu=%p, unsaved=%d",song,user_data,unsaved);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {

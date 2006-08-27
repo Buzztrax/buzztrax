@@ -1,3 +1,41 @@
+2006-08-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* AUTHORS:
+	* Makefile.am:
+	* NEWS:
+	* README:
+	* configure.ac:
+          prepare 0.1 release
+
+	* po/POTFILES.in:
+	* po/de.po:
+          more translations
+
+	* src/lib/core/song-info.c: (bt_song_info_init):
+	* src/lib/core/song-io.c: (bt_song_io_load):
+	* src/lib/core/song.c: (bt_song_set_property):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song),
+	(bt_edit_application_show_about):
+	* src/ui/edit/main-menu.c: (on_song_unsaved_changed):
+	* src/ui/edit/main-page-waves.c: (bt_main_page_waves_init_ui):
+	* src/ui/edit/main-window.c: (on_song_unsaved_changed):
+          a new song is unchanged, no need to warn when exiting
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song):
+          don't print newlines in quiet mode
+
+	* tests/Makefile.am:
+	* tests/bt-cfg.sh.in:
+	* tests/bt-check.c: (check_get_test_song_path):
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST):
+          make distcheck fixes
+
+	* tests/ui/cmd/e-bt-cmd-application.c: (BT_START_TEST):
+	* tests/ui/cmd/t-bt-cmd-application.c: (BT_START_TEST):
+          run in quiet mode
+
 2006-08-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_ui):
