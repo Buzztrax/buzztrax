@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.128 2006-08-24 20:00:54 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.129 2006-08-28 14:28:10 berzerka Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -69,7 +69,6 @@ struct _BtMainPageSequencePrivate {
   /* cursor */
   glong cursor_column;
   glong cursor_row;
-  glong row_filter_pos;
   /* selection range */
   glong selection_start_column;
   glong selection_start_row;
@@ -79,6 +78,10 @@ struct _BtMainPageSequencePrivate {
   glong selection_column;
   glong selection_row;
   BtMachine *machine;
+  
+  /* step filtering */
+  gulong list_length;     /* number of [dummy] rows contained in the model */
+  glong row_filter_pos;   /* the number of visible (not-filtered) rows */
   
   /* signal handler id's */
   gulong pattern_added_handler, pattern_removed_handler;
@@ -319,11 +322,14 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
   GtkTreeIter iter;
   gboolean odd_row=FALSE;
   gulong rows=0;
+  gulong filter_pos;
 
   GST_INFO("recolorize sequence tree view");
   
   if((store=sequence_model_get_store(self))) {
     if(gtk_tree_model_get_iter_first(store,&iter)) {
+      filter_pos=self->priv->row_filter_pos;
+      self->priv->row_filter_pos=self->priv->list_length;
       do {
         if(step_visible_filter(store,&iter,self)) {
           if(odd_row) {
@@ -344,8 +350,9 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
           rows++;
         }
       } while(gtk_tree_model_iter_next(store,&iter));
-      g_object_set(self->priv->sequence_table,"visible-rows",rows,NULL);
-      g_object_set(self->priv->sequence_pos_table,"visible-rows",rows,NULL);
+      self->priv->row_filter_pos=filter_pos;
+//      g_object_set(self->priv->sequence_table,"visible-rows",rows,NULL);
+//      g_object_set(self->priv->sequence_pos_table,"visible-rows",rows,NULL);
     }
   }
   else {
@@ -618,7 +625,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store=gtk_list_store_newv(col_ct,store_types);
   g_free(store_types);
   // add patterns
-  for(i=0;i<timeline_ct;i++) {
+  //for(i=0;i<timeline_ct;i++) {
+  for(i=0;i<self->priv->list_length;i++) {
     gtk_list_store_append(store, &tree_iter);
     // set position, highlight-color
     gtk_list_store_set(store,&tree_iter,
@@ -626,23 +634,24 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       SEQUENCE_TABLE_TICK_FG_SET,FALSE,
       -1);
     pos++;
-    // set label
-    if((str=bt_sequence_get_label(sequence,i))) {
-      gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
-      g_free(str);
-    }
-    // set patterns
-    for(j=0;j<track_ct;j++) {
-      free_str=FALSE;
-      if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
-        g_object_get(pattern,"is-internal",&is_internal,NULL);
-        if(!is_internal) {
-          g_object_get(pattern,"name",&str,NULL);
-          free_str=TRUE;
-        }
-        else {
-          BtPatternCmd cmd=bt_pattern_get_cmd(pattern,0);
-          switch(cmd) {
+    if( i < timeline_ct ) {
+      // set label
+      if((str=bt_sequence_get_label(sequence,i))) {
+	gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
+	g_free(str);
+      }
+      // set patterns
+      for(j=0;j<track_ct;j++) {
+	free_str=FALSE;
+	if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
+	  g_object_get(pattern,"is-internal",&is_internal,NULL);
+	  if(!is_internal) {
+	    g_object_get(pattern,"name",&str,NULL);
+	    free_str=TRUE;
+	  }
+	  else {
+	    BtPatternCmd cmd=bt_pattern_get_cmd(pattern,0);
+	    switch(cmd) {
             case BT_PATTERN_CMD_BREAK:
               str="---";
               break;
@@ -658,16 +667,18 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
             default:
               str="???";
               GST_ERROR("implement me");
-          }
-        }
-        g_object_try_unref(pattern);        
+	    }
+	  }
+	  g_object_try_unref(pattern);        
+	}
+	else {
+	  str=" ";
+	}
+	//GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
+	gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
+	if(free_str) 
+	  g_free(str);
       }
-      else {
-        str=" ";
-      }
-      //GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
-      gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
-      if(free_str) g_free(str);
     }
   }
   // create a filterd model to realize step filtering
@@ -1119,16 +1130,15 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
     if( cursor_row >= lastbar )
     {
       self->priv->row_filter_pos += self->priv->bars;
-      if( self->priv->row_filter_pos > length )
+      if( self->priv->row_filter_pos > self->priv->list_length )
       {
-        g_object_set(sequence,"length",length+SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
-        sequence_table_refresh(self,song);
+	 self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
+	 sequence_table_refresh(self,song);
+	 sequence_model_recolorize(self);
       }
-      else
-      {
-        filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
-        gtk_tree_model_filter_refilter(filtered_store);
-      }
+
+      filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
+      gtk_tree_model_filter_refilter(filtered_store);
 
       gtk_tree_view_set_cursor(self->priv->sequence_table,
 			       path,
@@ -1596,6 +1606,33 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
   pattern_list_refresh(self);
 }
 
+//-- helper methods
+
+static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *self,gulong bars) {
+  GtkListStore *store;
+  GtkTreeIter iter;
+  gchar str[4];
+  gulong i;
+  /* @todo the useful stepping depends on the rythm
+     4/4 -> 1,4,8,16,32
+     3/4 -> 1,3,6,12,24
+  */
+  store=gtk_list_store_new(1,G_TYPE_STRING);
+  
+  gtk_list_store_append(store,&iter);
+  gtk_list_store_set(store,&iter,0,"1",-1);
+  for(i=bars;i<=bars*32;i*=2) {
+    sprintf(str,"%lu",i);
+    gtk_list_store_append(store,&iter);
+    gtk_list_store_set(store,&iter,0,str,-1);
+  }
+  gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
+  gtk_combo_box_set_active(self->priv->bars_menu,0);
+  g_object_unref(store); // drop with combobox
+  
+  return(TRUE);
+}
+
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1603,7 +1640,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSongInfo *song_info;
   BtSetup *setup;
   BtSequence *sequence;
-  glong index,bars;
+  glong bars;
+  //glong index;
   glong loop_start_pos,loop_end_pos;
   gulong sequence_length;
   gdouble loop_start,loop_end;
@@ -1625,21 +1663,22 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
+  bt_main_page_sequence_init_bars_menu(self,bars);
   // find out to which entry it belongs and set the index
   // 1 -> 0, 2 -> 1, 4 -> 2 , 8 -> 3
-  if(bars<4) {
-    index=bars-1;
-  }
-  else {
-    index=1+(bars>>2);
-  }
+  //if(bars<4) {
+  //  index=bars-1;
+  //}
+  //else {
+  //  index=1+(bars>>2);
+  //}
   //GST_INFO("  bars=%d, index=%d",bars,index);
-  if(gtk_combo_box_get_active(self->priv->bars_menu)!=index) {
-    gtk_combo_box_set_active(self->priv->bars_menu,index);
-  }
-  else {
-    sequence_model_recolorize(self);
-  }
+  //if(gtk_combo_box_get_active(self->priv->bars_menu)!=index) {
+  //  gtk_combo_box_set_active(self->priv->bars_menu,index);
+  //}
+  //else {
+  //  sequence_model_recolorize(self);
+  //}
   // update sequence view
   g_object_get(G_OBJECT(sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
   loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
@@ -1655,34 +1694,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(song);
 }
 
-//-- helper methods
-
-static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *self,gulong bars) {
-  GtkListStore *store;
-  GtkTreeIter iter;
-  gchar str[4];
-  gulong i;
-  /* @todo the useful stepping depends on the rythm
-     4/4 -> 1,4,8,16,32
-     3/4 -> 1,3,6,12,24
-  */
-  store=gtk_list_store_new(1,G_TYPE_STRING);
-  
-  gtk_list_store_append(store,&iter);
-  gtk_list_store_set(store,&iter,0,"1",-1);
-  gtk_list_store_append(store,&iter);
-  gtk_list_store_set(store,&iter,0,"2",-1);
-  for(i=4;i<=64;i+=4) {
-    sprintf(str,"%lu",i);
-    gtk_list_store_append(store,&iter);
-    gtk_list_store_set(store,&iter,0,str,-1);
-  }
-  gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->bars_menu,2);
-  g_object_unref(store); // drop with combobox
-  
-  return(TRUE);
-}
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   GtkWidget *toolbar;
@@ -1709,7 +1720,6 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // build the menu
   self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new());
-  bt_main_page_sequence_init_bars_menu(self,4);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
@@ -2146,7 +2156,8 @@ static void bt_main_page_sequence_init(GTypeInstance *instance, gpointer g_class
   self->priv->selection_start_row=-1;
   self->priv->selection_end_column=-1;
   self->priv->selection_end_row=-1;
-  self->priv->row_filter_pos=32;
+  self->priv->row_filter_pos=SEQUENCE_ROW_ADDITION_INTERVAL;
+  self->priv->list_length=SEQUENCE_ROW_ADDITION_INTERVAL;
 }
 
 static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
