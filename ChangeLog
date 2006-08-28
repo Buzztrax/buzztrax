@@ -1,5 +1,10 @@
 2006-08-28  Patric Schmitz  <berzerka@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c: (on_song_changed):
+	set dynamic list-length and step-filter to song-length at song change. 
+
+2006-08-28  Patric Schmitz  <berzerka@users.sf.net>
+
 	* src/ui/edit/main-page-sequence.c: (sequence_model_recolorize),
 	(sequence_table_refresh), (on_sequence_table_cursor_changed_idle),
 	(bt_main_page_sequence_init_bars_menu), (on_song_changed),

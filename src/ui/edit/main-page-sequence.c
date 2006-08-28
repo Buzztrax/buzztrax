@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.129 2006-08-28 14:28:10 berzerka Exp $
+// $Id: main-page-sequence.c,v 1.130 2006-08-28 17:18:47 berzerka Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1652,8 +1652,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
-
   g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&sequence,NULL);
+
+  // make list_length and step_filter_pos accord to song length
+  g_object_get(G_OBJECT(sequence), "length", &(self->priv->list_length), NULL);
+  g_object_get(G_OBJECT(sequence), "length", &(self->priv->row_filter_pos), NULL);
+
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
