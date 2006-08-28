@@ -1,5 +1,17 @@
 2006-08-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-info.c:
+          more docs
+
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_init_bars_menu), (on_song_changed):
+          more comments about rythm
+
+	* src/ui/edit/main-toolbar.c: (on_toolbar_play_clicked):
+          lower update interval for a smoother playbar
+
+2006-08-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c:
 	(bt_main_page_patterns_init_ui):
 	* src/ui/edit/main-page-sequence.c: (step_visible_filter),

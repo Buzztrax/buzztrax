@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.131 2006-08-28 18:42:08 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.132 2006-08-28 19:17:19 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -1621,7 +1621,7 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
   GtkListStore *store;
   GtkTreeIter iter;
   gchar str[5];
-  gulong i;
+  gulong i,j;
   /* @todo the useful stepping depends on the rythm
      beats=bars/tpb
      bars=16, beats=4, tpb=4 : 4/4 -> 1,8, 16,32,64
@@ -1632,18 +1632,18 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
   
   gtk_list_store_append(store,&iter);
   gtk_list_store_set(store,&iter,0,"1",-1);
-  for(i=bars;i<=bars*32;i*=2) {
+  // add multiple of rows
+  for(j=0,i=bars;j<4;i*=2,j++) {
     sprintf(str,"%lu",i);
     gtk_list_store_append(store,&iter);
     gtk_list_store_set(store,&iter,0,str,-1);
   }
   gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->bars_menu,0);
+  gtk_combo_box_set_active(self->priv->bars_menu,1);
   g_object_unref(store); // drop with combobox
   
   return(TRUE);
 }
-
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
@@ -1652,7 +1652,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSetup *setup;
   BtSequence *sequence;
   glong bars;
-  glong index;
   glong loop_start_pos,loop_end_pos;
   gulong sequence_length;
   gdouble loop_start,loop_end;
@@ -1679,10 +1678,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   bt_main_page_sequence_init_bars_menu(self,bars);
-  // find out to which entry it belongs and set the index
-  index=1;
-  // @todo: map bars to index
 #if 0
+  // @todo: map bars to index (why, we dont keep the filter selection persistent yet)
   //if(bars<4) {
   //  index=bars-1;
   //}
@@ -1690,16 +1687,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   //  index=1+(bars>>2);
   //}
 #endif
-
-  GST_INFO("  bars=%d, index=%d",bars,index);
-  if(gtk_combo_box_get_active(self->priv->bars_menu)!=index) {
-    gtk_combo_box_set_active(self->priv->bars_menu,index);
-  }
-  else {
-    sequence_calculate_visible_lines(self);
-    sequence_model_recolorize(self);
-  }
   // update sequence view
+  sequence_calculate_visible_lines(self);
+  sequence_model_recolorize(self);
   g_object_get(G_OBJECT(sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
   loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
   loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;

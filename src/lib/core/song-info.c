@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.55 2006-08-27 20:02:54 ensonic Exp $
+/* $Id: song-info.c,v 1.56 2006-08-28 19:17:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,7 +22,15 @@
  * SECTION:btsonginfo
  * @short_description: class that keeps the meta-data for a #BtSong instance
  *
- * Exposes the meta-data of a song as #GObject properties.
+ * Exposes the meta-data of a song as #GObject properties. These are for one
+ * pure data fields such as author and song name. These fields get used when
+ * recording a song to a file (rendering) in the form of meta-tags.
+ *
+ * Further there are fields that determine rythm and song-speed. The speed is
+ * determined by BtSongInfo::bpm. The rythm is determined by BtSongInfo::bars
+ * and BtSongInfo::tpb. If 'ticks per beat' is 4 than on can have quarter notes.
+ * And if 'bars' is 16 one will have 4 beats - a classic 4/4 meassure. For a
+ * 3/4 meassure, 'bars' would be 12.
  */ 
  
 #define BT_CORE
