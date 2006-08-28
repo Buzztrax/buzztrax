@@ -1,3 +1,9 @@
+2006-08-28  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_init_main_context_menu):
+	fixed typo in machine context menu
+
 2006-08-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-info.c:

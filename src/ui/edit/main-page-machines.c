@@ -1,4 +1,4 @@
-// $Id: main-page-machines.c,v 1.88 2006-08-17 17:46:38 ensonic Exp $
+// $Id: main-page-machines.c,v 1.89 2006-08-28 20:58:31 berzerka Exp $
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
@@ -728,7 +728,7 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
 
   //menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD,NULL);
-  menu_item=gtk_image_menu_item_new_with_label(_("Add nachine"));
+  menu_item=gtk_image_menu_item_new_with_label(_("Add machine"));
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
