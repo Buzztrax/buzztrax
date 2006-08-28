@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.93 2006-08-08 19:46:13 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.94 2006-08-28 18:42:07 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1380,6 +1380,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
+  //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->pattern_pos_table,self->priv->pattern_table);
 
   GST_DEBUG("  before context menu",self);
 

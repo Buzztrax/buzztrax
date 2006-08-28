@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.130 2006-08-28 17:18:47 berzerka Exp $
+// $Id: main-page-sequence.c,v 1.131 2006-08-28 18:42:08 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -126,14 +126,9 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 static gboolean step_visible_filter(GtkTreeModel *store,GtkTreeIter *iter,gpointer user_data) {
   //gboolean visible=TRUE;
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
-  BtSequence *sequence;
-  gulong pos,length;
+  gulong pos;
 
-  g_object_get( G_OBJECT(self->priv->app), "song", &song, NULL );
-  g_object_get( song, "sequence", &sequence, NULL );
-  g_object_get( sequence, "length", &length, NULL );
-
+  // determine row number and hide or show accordingly
   gtk_tree_model_get(store,iter,SEQUENCE_TABLE_POS,&pos,-1);  
   
   if( pos < self->priv->row_filter_pos && IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars))
@@ -321,7 +316,6 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
   GtkTreeModel *store;
   GtkTreeIter iter;
   gboolean odd_row=FALSE;
-  gulong rows=0;
   gulong filter_pos;
 
   GST_INFO("recolorize sequence tree view");
@@ -347,12 +341,9 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
               -1);
           }
           odd_row=!odd_row;
-          rows++;
         }
       } while(gtk_tree_model_iter_next(store,&iter));
       self->priv->row_filter_pos=filter_pos;
-//      g_object_set(self->priv->sequence_table,"visible-rows",rows,NULL);
-//      g_object_set(self->priv->sequence_pos_table,"visible-rows",rows,NULL);
     }
   }
   else {
@@ -360,6 +351,22 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
   }
 }
 
+static void sequence_calculate_visible_lines(BtMainPageSequence *self) {
+  BtSong *song;
+  BtSequence *sequence;
+  gulong visible_rows,sequence_length;
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_get(sequence,"length",&sequence_length,NULL);
+  
+  visible_rows=sequence_length/self->priv->bars;
+  g_object_set(self->priv->sequence_table,"visible-rows",visible_rows,NULL);
+  g_object_set(self->priv->sequence_pos_table,"visible-rows",visible_rows,NULL);
+  
+  g_object_unref(sequence);
+  g_object_unref(song);
+}
 
 //-- event handlers
 
@@ -1080,6 +1087,8 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     gtk_tree_model_get(store,&iter,0,&str,-1);
     self->priv->bars=atoi(str);
     g_free(str);
+    
+    sequence_calculate_visible_lines(self);
     sequence_model_recolorize(self);
     //GST_INFO("  bars = %d",self->priv->bars);
     if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
@@ -1132,9 +1141,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
       self->priv->row_filter_pos += self->priv->bars;
       if( self->priv->row_filter_pos > self->priv->list_length )
       {
-	 self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
-	 sequence_table_refresh(self,song);
-	 sequence_model_recolorize(self);
+        self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
       }
 
       filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
@@ -1611,11 +1620,13 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *self,gulong bars) {
   GtkListStore *store;
   GtkTreeIter iter;
-  gchar str[4];
+  gchar str[5];
   gulong i;
   /* @todo the useful stepping depends on the rythm
-     4/4 -> 1,4,8,16,32
-     3/4 -> 1,3,6,12,24
+     beats=bars/tpb
+     bars=16, beats=4, tpb=4 : 4/4 -> 1,8, 16,32,64
+     bars=12, beats=3, tpb=4 : 3/4 -> 1,6, 12,24,48
+     bars=18, beats=3, tpb=6 : 3/6 -> 1,9, 18,36,72
   */
   store=gtk_list_store_new(1,G_TYPE_STRING);
   
@@ -1641,7 +1652,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSetup *setup;
   BtSequence *sequence;
   glong bars;
-  //glong index;
+  glong index;
   glong loop_start_pos,loop_end_pos;
   gulong sequence_length;
   gdouble loop_start,loop_end;
@@ -1669,20 +1680,25 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   bt_main_page_sequence_init_bars_menu(self,bars);
   // find out to which entry it belongs and set the index
-  // 1 -> 0, 2 -> 1, 4 -> 2 , 8 -> 3
+  index=1;
+  // @todo: map bars to index
+#if 0
   //if(bars<4) {
   //  index=bars-1;
   //}
   //else {
   //  index=1+(bars>>2);
   //}
-  //GST_INFO("  bars=%d, index=%d",bars,index);
-  //if(gtk_combo_box_get_active(self->priv->bars_menu)!=index) {
-  //  gtk_combo_box_set_active(self->priv->bars_menu,index);
-  //}
-  //else {
-  //  sequence_model_recolorize(self);
-  //}
+#endif
+
+  GST_INFO("  bars=%d, index=%d",bars,index);
+  if(gtk_combo_box_get_active(self->priv->bars_menu)!=index) {
+    gtk_combo_box_set_active(self->priv->bars_menu,index);
+  }
+  else {
+    sequence_calculate_visible_lines(self);
+    sequence_model_recolorize(self);
+  }
   // update sequence view
   g_object_get(G_OBJECT(sequence),"length",&sequence_length,"loop-start",&loop_start_pos,"loop-end",&loop_end_pos,NULL);
   loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)sequence_length:0.0;
@@ -1813,6 +1829,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
+  //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->sequence_pos_table,self->priv->sequence_table);
 
   // add vertical separator
   gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
@@ -1962,7 +1979,16 @@ gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gu
         if(track) *track=col-1;
         res=TRUE;
       }
+      else {
+        GST_DEBUG("No focus row for cursor");
+      }
     }
+    else {
+      GST_DEBUG("No focus column for cursor");
+    }
+  }
+  else {
+    GST_DEBUG("No cursor pos, column=%p, path=%p",column,path);
   }
   if(path) gtk_tree_path_free(path);
   // release the references
