@@ -1,4 +1,4 @@
-// $Id: main-page-patterns.c,v 1.94 2006-08-28 18:42:07 ensonic Exp $
+// $Id: main-page-patterns.c,v 1.95 2006-08-30 19:48:49 ensonic Exp $
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
@@ -1091,10 +1091,12 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtSong *song;
+  BtSongInfo *song_info;
   BtMachine *machine;
   BtPattern *pattern;
   gchar *mid,*id,*name;
   GtkWidget *dialog;
+  gulong bars;
 
   g_assert(user_data);
 
@@ -1102,12 +1104,14 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   g_return_if_fail(machine);
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
 
   name=bt_machine_get_unique_pattern_name(machine);
   id=g_strdup_printf("%s %s",mid,name);
   // new_pattern
-  pattern=bt_pattern_new(song, id, name, /*length=*/16, machine);
+  pattern=bt_pattern_new(song, id, name, bars, machine);
 
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
@@ -1130,6 +1134,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   g_free(id);
   g_free(name);
   g_object_unref(pattern);
+  g_object_unref(song_info);
   g_object_unref(song);
   g_object_unref(machine);
   GST_DEBUG("new pattern done");

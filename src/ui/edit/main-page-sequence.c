@@ -1,4 +1,4 @@
-// $Id: main-page-sequence.c,v 1.132 2006-08-28 19:17:19 ensonic Exp $
+// $Id: main-page-sequence.c,v 1.133 2006-08-30 19:48:49 ensonic Exp $
 /**
  * SECTION:btmainpagesequence
  * @short_description: the editor main sequence page
@@ -102,7 +102,9 @@ enum {
   SEQUENCE_TABLE_PRE_CT
 };
 
-#define IS_SEQUENCE_POS_VISIBLE(pos,bars) ((pos&((bars)-1))==0)
+// this only works for 4/4 meassure
+//#define IS_SEQUENCE_POS_VISIBLE(pos,bars) ((pos&((bars)-1))==0)
+#define IS_SEQUENCE_POS_VISIBLE(pos,bars) ((pos%bars)==0)
 #define SEQUENCE_CELL_WIDTH 100
 #define SEQUENCE_CELL_HEIGHT 28
 #define SEQUENCE_CELL_XPAD 0
@@ -1617,7 +1619,7 @@ static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer us
 
 //-- helper methods
 
-static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *self,gulong bars) {
+static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
   GtkListStore *store;
   GtkTreeIter iter;
   gchar str[5];
@@ -1643,6 +1645,17 @@ static gboolean bt_main_page_sequence_init_bars_menu(const BtMainPageSequence *s
   g_object_unref(store); // drop with combobox
   
   return(TRUE);
+}
+
+static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  glong bars;
+  
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
+  update_bars_menu(self,bars);
+  // the sequence gets automatically recolored, as above touches the bars-menu
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -1677,7 +1690,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
   // update toolbar
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
-  bt_main_page_sequence_init_bars_menu(self,bars);
+  update_bars_menu(self,bars);
 #if 0
   // @todo: map bars to index (why, we dont keep the filter selection persistent yet)
   //if(bars<4) {
@@ -1697,6 +1710,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_set(self->priv->sequence_pos_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  // subscribe to changes in the rythm
+  g_signal_connect(G_OBJECT(song_info), "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
   //-- release the references
   g_object_try_unref(song_info);
   g_object_try_unref(setup);

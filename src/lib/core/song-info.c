@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.56 2006-08-28 19:17:18 ensonic Exp $
+/* $Id: song-info.c,v 1.57 2006-08-30 19:48:49 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,9 +28,9 @@
  *
  * Further there are fields that determine rythm and song-speed. The speed is
  * determined by BtSongInfo::bpm. The rythm is determined by BtSongInfo::bars
- * and BtSongInfo::tpb. If 'ticks per beat' is 4 than on can have quarter notes.
- * And if 'bars' is 16 one will have 4 beats - a classic 4/4 meassure. For a
- * 3/4 meassure, 'bars' would be 12.
+ * and BtSongInfo::tpb. If 'bars' is 16, than on can have 1/16 notes.
+ * And if 'ticks per beat' is 4 one will have 4 beats - a classic 4/4 meassure.
+ * For a 3/4 meassure, 'bars' would be 12. Thus bars = beats * tpb.
  */ 
  
 #define BT_CORE

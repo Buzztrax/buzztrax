@@ -1,3 +1,16 @@
+2006-08-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c:
+	* src/ui/edit/machine-menu.c: (on_source_machine_add_activated),
+	(on_processor_machine_add_activated):
+	* src/ui/edit/main-page-info.c: (on_tpb_changed),
+	(on_beats_changed), (on_song_changed), (bt_main_page_info_init_ui):
+	* src/ui/edit/main-page-patterns.c:
+	(on_context_menu_pattern_new_activate):
+	* src/ui/edit/main-page-sequence.c: (update_bars_menu),
+	(on_song_info_bars_changed), (on_song_changed):
+          Add settings for beat to song-info. Dynamically update bars menu.
+
 2006-08-28  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c:

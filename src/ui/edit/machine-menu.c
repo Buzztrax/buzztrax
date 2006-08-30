@@ -1,4 +1,4 @@
-// $Id: machine-menu.c,v 1.6 2006-08-26 15:03:22 ensonic Exp $
+// $Id: machine-menu.c,v 1.7 2006-08-30 19:48:49 ensonic Exp $
 /**
  * SECTION:btmachinemenu
  * @short_description: class for the machine selection sub-menu
@@ -47,8 +47,9 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   g_object_get(song,"setup",&setup,NULL);
   
   id=bt_setup_get_unique_machine_id(setup,name);
-  // @todo check voices
-  if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,1)))) {
+  // try with 1 voice, if monophonic, voices will be reset to 0 in
+  // bt_machine_init_voice_params()
+  if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1)))) {
     g_object_unref(machine);
   }
   g_free(id);
@@ -71,8 +72,9 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   g_object_get(song,"setup",&setup,NULL);
   
   id=bt_setup_get_unique_machine_id(setup,name);
-  // @todo check voices
-  if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,1)))) {
+  // try with 1 voice, if monophonic, voices will be reset to 0 in
+  // bt_machine_init_voice_params()
+  if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,/*voices=*/1)))) {
     g_object_unref(machine);
   }
   g_free(id);

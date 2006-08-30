@@ -1,4 +1,4 @@
-// $Id: main-page-info.c,v 1.40 2006-08-26 13:07:41 ensonic Exp $
+// $Id: main-page-info.c,v 1.41 2006-08-30 19:48:49 ensonic Exp $
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
@@ -8,8 +8,7 @@
  * - use this tab as the first one?
  * - add time-stamps
  *   song created, song last changed
- * - add choice for metre (in german -> takt)
- *   bars (or measures) per beat, e.g. 3/4 3 bars per beat using a quarter grid
+ * - add choice for metre (in german -> takt): beats (beats = bars / tpb)
  */
  
 #define BT_EDIT
@@ -35,8 +34,8 @@ struct _BtMainPageInfoPrivate {
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;
 
-  /* bpm,tpb of the song */
-  GtkSpinButton *bpm,*tpb;
+  /* bpm,tpb,beats of the song */
+  GtkSpinButton *bpm,*tpb,*beats;
 
   /* freeform info about the song */
   GtkTextView *info;
@@ -122,6 +121,7 @@ static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
   BtSong *song;
   BtSongInfo *song_info;
+  gulong tpb,beats,bars;
 
   g_assert(user_data);
 
@@ -130,7 +130,31 @@ static void on_tpb_changed(GtkSpinButton *spinbutton,gpointer user_data) {
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
-  g_object_set(G_OBJECT(song_info),"tpb",gtk_spin_button_get_value_as_int(spinbutton),NULL);
+  g_object_get(G_OBJECT(song_info),"bars",&bars,"tpb",&tpb,NULL);
+  beats = bars/tpb;
+  tpb = gtk_spin_button_get_value_as_int(spinbutton);
+  g_object_set(G_OBJECT(song_info),"tpb",tpb,"bars",beats*tpb,NULL);
+  // release the references
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+}
+
+static void on_beats_changed(GtkSpinButton *spinbutton,gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  BtSong *song;
+  BtSongInfo *song_info;
+  gulong tpb,beats;
+
+  g_assert(user_data);
+
+  GST_INFO("beats changed : self=%p -> %d",self,gtk_spin_button_get_value_as_int(spinbutton));
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  // update info fields
+  g_object_get(G_OBJECT(song_info),"tpb",&tpb,NULL);
+  beats = gtk_spin_button_get_value_as_int(spinbutton);
+  g_object_set(G_OBJECT(song_info),"bars",beats*tpb,NULL);
   // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);
@@ -165,7 +189,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSongInfo *song_info;
   GtkTextBuffer *buffer;
   gchar *name,*genre,*author;
-  gulong bpm,tpb;
+  gulong bpm,tpb,bars;
   gchar *info;
 
   g_assert(user_data);
@@ -179,7 +203,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // update info fields
   g_object_get(G_OBJECT(song_info),
     "name",&name,"genre",&genre,"author",&author,"info",&info,
-    "bpm",&bpm,"tpb",&tpb,
+    "bpm",&bpm,"tpb",&tpb,"bars",&bars,
     NULL);
   g_signal_handlers_block_matched(self->priv->name,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
   gtk_entry_set_text(self->priv->name,safe_string(name));g_free(name);
@@ -200,6 +224,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_handlers_block_matched(self->priv->tpb,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_tpb_changed,(gpointer)self);
   gtk_spin_button_set_value(self->priv->tpb,(gdouble)tpb);
   g_signal_handlers_unblock_matched(self->priv->tpb,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_tpb_changed,(gpointer)self);
+
+  g_signal_handlers_block_matched(self->priv->beats,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_beats_changed,(gpointer)self);
+  gtk_spin_button_set_value(self->priv->beats,(gdouble)(bars/tpb));
+  g_signal_handlers_unblock_matched(self->priv->beats,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_beats_changed,(gpointer)self);
 
   buffer=gtk_text_view_get_buffer(self->priv->info);
   g_signal_handlers_block_matched(G_OBJECT(buffer),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_name_changed,(gpointer)self);
@@ -279,14 +307,22 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->bpm), 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(self->priv->bpm), "value-changed", G_CALLBACK(on_bpm_changed), (gpointer)self);
 
-  label=gtk_label_new(_("ticks per beat"));
+  label=gtk_label_new(_("beats"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_FILL,GTK_SHRINK, 2,1);
+  spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 32.0, 1.0, 4.0, 4.0));
+  self->priv->beats=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->beats), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  g_signal_connect(G_OBJECT(self->priv->beats), "value-changed", G_CALLBACK(on_beats_changed), (gpointer)self);
+
+  label=gtk_label_new(_("ticks per beat"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
   spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new(8.0, 1.0, 64.0, 1.0, 4.0, 4.0));
   self->priv->tpb=GTK_SPIN_BUTTON(gtk_spin_button_new(spin_adjustment,1.0,0));
-  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->tpb), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(self->priv->tpb), "value-changed", G_CALLBACK(on_tpb_changed), (gpointer)self);
-  
+
   // @idea have another field with subticks (GstController parameter smoothing)
   // @idea show tick and subtick interval as time (s:ms)
   
