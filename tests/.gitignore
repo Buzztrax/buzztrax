@@ -9,3 +9,4 @@ Makefile.in
 bt_core
 bt_cmd
 bt_edit
+bt-cfg.sh

@@ -1,5 +1,14 @@
 2006-08-31  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/cpu/cpuload.c: (main):
+	* docs/help/bt-edit/C/version.entities:
+	* po/.cvsignore:
+	* tests/.cvsignore:
+          add test add and missing file for the docs,
+          cleanup cvsignore files
+
+2006-08-31  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/bt-edit.c:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/edit-application-methods.h:
