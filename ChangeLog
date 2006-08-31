@@ -1,3 +1,84 @@
+2006-08-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/bt-edit.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application-methods.h:
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/edit-application.h:
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/gtkvumeter.h:
+	* src/ui/edit/machine-canvas-item-methods.h:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-canvas-item.h:
+	* src/ui/edit/machine-menu-methods.h:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-menu.h:
+	* src/ui/edit/machine-preferences-dialog-methods.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preferences-dialog.h:
+	* src/ui/edit/machine-properties-dialog-methods.h:
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.h:
+	* src/ui/edit/main-menu-methods.h:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-menu.h:
+	* src/ui/edit/main-page-info-methods.h:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-info.h:
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-machines.h:
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-patterns.h:
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-sequence.h:
+	* src/ui/edit/main-page-waves-methods.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-page-waves.h:
+	* src/ui/edit/main-pages-methods.h:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-pages.h:
+	* src/ui/edit/main-statusbar-methods.h:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-statusbar.h:
+	* src/ui/edit/main-toolbar-methods.h:
+	* src/ui/edit/main-toolbar.c:
+	* src/ui/edit/main-toolbar.h:
+	* src/ui/edit/main-window-methods.h:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/main-window.h:
+	* src/ui/edit/pattern-properties-dialog-methods.h:
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/pattern-properties-dialog.h:
+	* src/ui/edit/pattern-view-methods.h:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/pattern-view.h:
+	* src/ui/edit/sequence-view-methods.h:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/sequence-view.h:
+	* src/ui/edit/settings-dialog-methods.h:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-dialog.h:
+	* src/ui/edit/settings-page-audiodevices-methods.h:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-audiodevices.h:
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	* src/ui/edit/ui-ressources-methods.h:
+	* src/ui/edit/ui-ressources.c:
+	* src/ui/edit/ui-ressources.h:
+	* src/ui/edit/volume-popup.c:
+	* src/ui/edit/volume-popup.h:
+	* src/ui/edit/wire-analysis-dialog-methods.h:
+	* src/ui/edit/wire-analysis-dialog.c:
+	* src/ui/edit/wire-analysis-dialog.h:
+	* src/ui/edit/wire-canvas-item-methods.h:
+	* src/ui/edit/wire-canvas-item.c:
+	* src/ui/edit/wire-canvas-item.h:
+          add copyright headers
+
 2006-08-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-info.c:

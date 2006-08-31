@@ -1,5 +1,6 @@
-// $Id: volume-popup.c,v 1.4 2006-05-26 22:35:57 ensonic Exp $
-/* GNOME Volume Applet
+/* $Id: volume-popup.c,v 1.5 2006-08-31 19:57:57 ensonic Exp $
+ *
+ * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *
  * popup.c: floating window containing volume widgets
