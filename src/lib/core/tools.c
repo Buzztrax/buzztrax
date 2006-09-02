@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.28 2006-08-27 20:31:30 ensonic Exp $
+/* $Id: tools.c,v 1.29 2006-09-02 22:15:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,14 +44,14 @@ static gboolean bt_gst_registry_class_filter(GstPluginFeature *feature, gpointer
  *
  * Returns: list of element names, g_list_free after use.
  */
-GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter) {
+GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter) {
   GList *list,*node;
   GList *res=NULL;
   GstPluginFeature *feature;
 
   g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
     
-  list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,class_filter);
+  list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)class_filter);
   for(node=list;node;node=g_list_next(node)) {
     feature=GST_PLUGIN_FEATURE(node->data);
     res=g_list_append(res,(gchar *)gst_plugin_feature_get_name(feature));

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.96 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.97 2006-09-02 22:15:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -38,6 +38,7 @@
  *   - Ctrl-S : Smooth
  *     - low pass median filter over changes
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
+ * - add parameter info when inside cell
  */
 
 #define BT_EDIT

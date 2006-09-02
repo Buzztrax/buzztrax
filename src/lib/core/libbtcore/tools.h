@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.14 2006-08-27 20:31:30 ensonic Exp $
+/* $Id: tools.h,v 1.15 2006-09-02 22:15:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,7 +23,7 @@
 #define BT_TOOLS_H
 
 #ifndef BT_TOOLS_C
-extern GList *bt_gst_registry_get_element_names_by_class(gchar *class_filter);
+extern GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter);
 
 extern void gst_element_dbg_pads(GstElement *elem);
 

@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.8 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: machine-menu.c,v 1.9 2006-09-02 22:15:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -103,13 +103,67 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 
 //-- helper methods
 
-static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
-  GtkWidget *menu_item,*submenu,*image;
+static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
+  return(g_utf8_collate(g_utf8_casefold(str1,-1),g_utf8_casefold(str2,-1)));
+}
+
+static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *submenu, const gchar *root, GCallback handler) {
+  GtkWidget *menu_item,*parentmenu;
   GList *node,*element_names;
   GstElementFactory *factory;
+  GHashTable *parent_menu_hash;
+  const gchar *klass_name,*menu_name;
+  
+  // scan registered sources
+  element_names=bt_gst_registry_get_element_names_by_class(root);
+  parent_menu_hash=g_hash_table_new(g_str_hash,g_str_equal);
+  // sort list by name
+  element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
+  for(node=element_names;node;node=g_list_next(node)) {
+    GST_DEBUG("found source element : '%s'",node->data);
+    factory=gst_element_factory_find(node->data);
+
+    // add sub-menus for BML, LADSPA & Co.
+    klass_name=gst_element_factory_get_klass(GST_ELEMENT_FACTORY(factory));
+    // remove prefix Source/Audio
+    klass_name=&klass_name[strlen(root)];
+    if(*klass_name) {
+      // skip '/'
+      klass_name=&klass_name[1];
+      GST_DEBUG("  subclass : '%s'",klass_name);
+      //check in parent_menu_hash if we have a parent for this klass
+      if(!(parentmenu=g_hash_table_lookup(parent_menu_hash,(gpointer)klass_name))) {
+        GST_DEBUG("    create new: '%s'",klass_name);
+        menu_item=gtk_image_menu_item_new_with_label(klass_name);
+        gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+        gtk_widget_show(menu_item);
+        parentmenu=gtk_menu_new();
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
+        g_hash_table_insert(parent_menu_hash, (gpointer)klass_name, (gpointer)parentmenu);
+      }
+    }
+    else parentmenu=submenu;
+    
+    menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
+    if(*klass_name) {
+      // remove prefix <klass-name>-
+      menu_name=&menu_name[strlen(klass_name)+1];
+    }
+    menu_item=gtk_menu_item_new_with_label(menu_name);
+    gtk_widget_set_name(menu_item,node->data);
+    gtk_menu_shell_append(GTK_MENU_SHELL(parentmenu),menu_item);
+    gtk_widget_show(menu_item);
+    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(handler),(gpointer)self);
+  }
+  g_hash_table_destroy(parent_menu_hash);  
+}
+
+static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
+  GtkWidget *menu_item,*submenu,*image;
   
   gtk_widget_set_name(GTK_WIDGET(self),_("add menu"));
 
+  // generators
   menu_item=gtk_image_menu_item_new_with_label(_("Generators")); // red machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
   image=bt_ui_ressources_get_image_by_machine_type(BT_TYPE_SOURCE_MACHINE);
@@ -120,22 +174,9 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   gtk_widget_set_name(submenu,_("generators menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
-  // scan registered sources
-  element_names=bt_gst_registry_get_element_names_by_class("Source/Audio");
-  // sort list by name
-  element_names=g_list_sort(element_names,(GCompareFunc)strcmp);
-  for(node=element_names;node;node=g_list_next(node)) {
-    GST_DEBUG("found source element : '%s'",node->data);
-    factory=gst_element_factory_find(node->data);
-
-    menu_item=gtk_menu_item_new_with_label(gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)));
-    gtk_widget_set_name(menu_item,node->data);
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-    gtk_widget_show(menu_item);
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_source_machine_add_activated),(gpointer)self);
-  }
-  g_list_free(element_names);  
-
+  bt_machine_menu_init_submenu(self,submenu,"Source/Audio",G_CALLBACK(on_source_machine_add_activated));
+  
+  // effects
   menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
   image=bt_ui_ressources_get_image_by_machine_type(BT_TYPE_PROCESSOR_MACHINE);
@@ -146,21 +187,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   gtk_widget_set_name(submenu,_("effects menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
-  // scan registered processors
-  element_names=bt_gst_registry_get_element_names_by_class("Filter/Effect/Audio");
-  // sort list by name
-  element_names=g_list_sort(element_names,(GCompareFunc)strcmp);
-  for(node=element_names;node;node=g_list_next(node)) {
-    GST_DEBUG("found processor element : '%s'",node->data);
-    factory=gst_element_factory_find(node->data);
-
-    menu_item=gtk_menu_item_new_with_label(gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory)));
-    gtk_widget_set_name(menu_item,node->data);
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
-    gtk_widget_show(menu_item);
-    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_processor_machine_add_activated),(gpointer)self);
-  }
-  g_list_free(element_names);
+  bt_machine_menu_init_submenu(self,submenu,"Filter/Effect/Audio",G_CALLBACK(on_processor_machine_add_activated));
 
   return(TRUE);
 }

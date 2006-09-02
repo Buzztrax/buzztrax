@@ -1,3 +1,15 @@
+2006-09-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/tools.c:
+	(bt_gst_registry_get_element_names_by_class):
+          make filter param const
+
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_compare),
+	(bt_machine_menu_init_submenu), (bt_machine_menu_init_ui):
+	* src/ui/edit/main-page-patterns.c:
+          make machine menu hierarchy and sort properly
+
 2006-09-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-info.c: (bt_song_info_init),
