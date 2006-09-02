@@ -1,11 +1,22 @@
 2006-09-02  Stefan Kost  <ensonic@users.sf.net>
 
-	reviewed by: <delete if not using a buddy>
+	* src/lib/core/song-info.c: (bt_song_info_init),
+	(bt_song_info_class_init):
+           fix default bars-value
+
+	* src/ui/edit/bt-edit.c: (main):
+          remove too early log statement
+
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+          add font-settings todo
+
+2006-09-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/songs/buzz2.xml:
 	* tests/songs/buzz3.xml:
 	* tests/songs/buzz5.xml:
 	* tests/songs/buzz8.xml:
+          use human readable note-names
 
 2006-08-31  Stefan Kost  <ensonic@users.sf.net>
 

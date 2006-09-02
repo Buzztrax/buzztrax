@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.28 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.29 2006-09-02 19:47:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -159,7 +159,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),1),
     gtk_label_new(_("Midi Devices")));
 
-// add notebook page #3
+  // add notebook page #3
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 3 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
@@ -176,8 +176,12 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
     gtk_label_new(_("Shortcuts")));
 	
 	/* @todo more settings
-	 * - initial song bpm (from, to)
-	 * - cpu monitor (view menu?)
+   * - fonts
+   *   - font + size for machine view canvas
+   *   - font sizes for table-headings (as pango markup sizes)
+   * - misc
+	 *   - initial song bpm (from, to)
+	 *   - cpu monitor (view menu?)
 	 */
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);

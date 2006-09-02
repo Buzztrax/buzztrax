@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.57 2006-08-30 19:48:49 ensonic Exp $
+/* $Id: song-info.c,v 1.58 2006-09-02 19:47:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -397,7 +397,7 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute=125;  // 1..1000
   self->priv->ticks_per_beat=4;      // 1..128
-  self->priv->bars=4;                // 1..16
+  self->priv->bars=16;               // 1..16
   // init dates 'YYYY-MM-DDThh:mm:ssZ'
   self->priv->create_dts=g_new(gchar,DTS_LEN+1);
   self->priv->change_dts=g_new(gchar,DTS_LEN+1);
@@ -498,10 +498,10 @@ static void bt_song_info_class_init(BtSongInfoClass *klass) {
   g_object_class_install_property(gobject_class,SONG_INFO_BARS,
                                   g_param_spec_ulong("bars",
                                      "bars prop",
-                                     "how many bars per beat",
+                                     "how many bars per meassure",
                                      1,
+                                     64,
                                      16,
-                                     4,
                                      G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,SONG_INFO_CREATE_DTS,

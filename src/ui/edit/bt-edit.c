@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.35 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: bt-edit.c,v 1.36 2006-09-02 19:47:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
   g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
   bt_init_add_option_groups(ctx);
   g_option_context_add_group(ctx, gtk_get_option_group(TRUE));
-  GST_DEBUG("before option parsing");
+
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     exit(1);
@@ -92,8 +92,6 @@ int main(int argc, char **argv) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
     exit(0);
   }
-  GST_DEBUG("options parsed");
-
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
