@@ -1,3 +1,12 @@
+2006-09-02  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz8.xml:
+
 2006-08-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/cpu/cpuload.c: (main):

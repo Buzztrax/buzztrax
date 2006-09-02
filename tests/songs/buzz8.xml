@@ -61,31 +61,31 @@
         <patterns>
           <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
             <tick time="0">
-              <globaldata name="Note" value="36"/>
+              <globaldata name="Note" value="c-3"/>
               <globaldata name="Length" value="40"/>
               <globaldata name="Hi-Volume" value="32766"/>
               <globaldata name="Flt-Decay" value="15"/>
             </tick>
             <tick time="2">
-              <globaldata name="Note" value="24"/>
+              <globaldata name="Note" value="c-2"/>
             </tick>
             <tick time="4">
-              <globaldata name="Note" value="40"/>
+              <globaldata name="Note" value="e-3"/>
             </tick>
             <tick time="6">
-              <globaldata name="Note" value="24"/>
+              <globaldata name="Note" value="c-2"/>
             </tick>
             <tick time="8">
-              <globaldata name="Note" value="43"/>
+              <globaldata name="Note" value="g-3"/>
             </tick>
             <tick time="10">
-              <globaldata name="Note" value="43"/>
+              <globaldata name="Note" value="g-3"/>
             </tick>
             <tick time="12">
-              <globaldata name="Note" value="24"/>
+              <globaldata name="Note" value="c-2"/>
             </tick>
             <tick time="14">
-              <globaldata name="Note" value="24"/>
+              <globaldata name="Note" value="c-2"/>
             </tick>
           </pattern>
         </patterns>
