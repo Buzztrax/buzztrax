@@ -1,5 +1,286 @@
 2006-09-03  Stefan Kost  <ensonic@users.sf.net>
 
+	patch by: Tommi Sakari Uimonen <tuimonen@cc.hut.fi>
+
+	* src/lib/core/application.c: (bus_handler), (bt_application_new),
+	(bt_application_add_bus_watch), (bt_application_remove_bus_watch),
+	(bt_application_get_property), (bt_application_set_property),
+	(bt_application_dispose), (bt_application_finalize),
+	(bt_application_init), (bt_application_class_init):
+	* src/lib/core/core.c: (bt_init_add_option_groups):
+	* src/lib/core/gconf-settings.c:
+	(bt_gconf_settings_notify_toolbar_style), (bt_gconf_settings_new),
+	(bt_gconf_settings_get_property), (bt_gconf_settings_set_property),
+	(bt_gconf_settings_dispose), (bt_gconf_settings_finalize),
+	(bt_gconf_settings_init), (bt_gconf_settings_class_init):
+	* src/lib/core/libbtcore/application-methods.h:
+	* src/lib/core/libbtcore/application-private.h:
+	* src/lib/core/libbtcore/application.h:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/gconf-settings.h:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/machine-private.h:
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/libbtcore/pattern.h:
+	* src/lib/core/libbtcore/persistence-location.h:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/libbtcore/persistence-selection.h:
+	* src/lib/core/libbtcore/persistence.h:
+	* src/lib/core/libbtcore/plainfile-settings-methods.h:
+	* src/lib/core/libbtcore/plainfile-settings.h:
+	* src/lib/core/libbtcore/processor-machine-methods.h:
+	* src/lib/core/libbtcore/processor-machine.h:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/libbtcore/sequence.h:
+	* src/lib/core/libbtcore/settings.h:
+	* src/lib/core/libbtcore/setup-methods.h:
+	* src/lib/core/libbtcore/setup.h:
+	* src/lib/core/libbtcore/sink-bin.h:
+	* src/lib/core/libbtcore/sink-machine-methods.h:
+	* src/lib/core/libbtcore/sink-machine.h:
+	* src/lib/core/libbtcore/song-info-methods.h:
+	* src/lib/core/libbtcore/song-info.h:
+	* src/lib/core/libbtcore/song-io-methods.h:
+	* src/lib/core/libbtcore/song-io-native-methods.h:
+	* src/lib/core/libbtcore/song-io-native.h:
+	* src/lib/core/libbtcore/song-io.h:
+	* src/lib/core/libbtcore/song-methods.h:
+	* src/lib/core/libbtcore/song.h:
+	* src/lib/core/libbtcore/source-machine-methods.h:
+	* src/lib/core/libbtcore/source-machine.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wave.h:
+	* src/lib/core/libbtcore/wavelevel-methods.h:
+	* src/lib/core/libbtcore/wavelevel.h:
+	* src/lib/core/libbtcore/wavetable-methods.h:
+	* src/lib/core/libbtcore/wavetable.h:
+	* src/lib/core/libbtcore/wire.h:
+	* src/lib/core/machine.c: (bt_machine_on_bpm_changed),
+	(bt_machine_on_tpb_changed), (bt_machine_get_peer),
+	(bt_machine_get_sink_peer), (bt_machine_get_source_peer),
+	(bt_machine_set_mute), (bt_machine_unset_mute),
+	(bt_machine_change_state), (bt_machine_insert_element),
+	(bt_machine_resize_pattern_voices), (bt_machine_resize_voices),
+	(bt_machine_get_property_meta_value),
+	(bt_machine_make_internal_element), (bt_machine_add_input_element),
+	(bt_machine_add_output_element), (bt_machine_init_core_machine),
+	(bt_machine_init_interfaces), (bt_machine_check_type),
+	(bt_machine_init_global_params), (bt_machine_init_voice_params),
+	(bt_machine_setup), (bt_machine_new),
+	(bt_machine_enable_input_level), (bt_machine_enable_input_gain),
+	(bt_machine_enable_output_gain), (bt_machine_activate_adder),
+	(bt_machine_has_active_adder), (bt_machine_activate_spreader),
+	(bt_machine_has_active_spreader), (bt_machine_add_pattern),
+	(bt_machine_remove_pattern), (bt_machine_get_pattern_by_id),
+	(bt_machine_get_pattern_by_index),
+	(bt_machine_get_unique_pattern_name), (bt_machine_is_polyphonic),
+	(bt_machine_get_global_param_index),
+	(bt_machine_get_voice_param_index),
+	(bt_machine_get_global_param_spec),
+	(bt_machine_get_voice_param_spec),
+	(bt_machine_get_global_param_type),
+	(bt_machine_get_voice_param_type),
+	(bt_machine_set_global_param_value),
+	(bt_machine_set_voice_param_value),
+	(bt_machine_set_global_param_no_value),
+	(bt_machine_set_voice_param_no_value),
+	(bt_machine_get_global_param_name),
+	(bt_machine_get_voice_param_name),
+	(bt_machine_get_param_min_value),
+	(bt_machine_get_global_param_min_value),
+	(bt_machine_get_voice_param_min_value),
+	(bt_machine_get_param_max_value),
+	(bt_machine_get_global_param_max_value),
+	(bt_machine_get_voice_param_max_value),
+	(bt_machine_is_global_param_trigger),
+	(bt_machine_is_voice_param_trigger),
+	(bt_machine_is_global_param_no_value),
+	(bt_machine_is_voice_param_no_value),
+	(bt_machine_describe_global_param_value),
+	(bt_machine_describe_voice_param_value),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value),
+	(bt_machine_get_element_list), (bt_machine_dbg_print_parts),
+	(bt_machine_dbg_dump_global_controller_queue),
+	(bt_machine_persistence_save), (bt_machine_persistence_load),
+	(bt_machine_persistence_interface_init), (bt_machine_get_property),
+	(bt_machine_set_property), (bt_machine_dispose),
+	(bt_machine_finalize), (bt_machine_init), (bt_machine_class_init):
+	* src/lib/core/pattern.c: (bt_pattern_init_data),
+	(bt_pattern_resize_data_length), (bt_pattern_resize_data_voices),
+	(bt_pattern_get_internal_event_data),
+	(bt_pattern_init_global_event), (bt_pattern_init_voice_event),
+	(bt_pattern_new), (bt_pattern_new_with_event), (bt_pattern_copy),
+	(bt_pattern_get_global_param_index),
+	(bt_pattern_get_voice_param_index),
+	(bt_pattern_get_global_event_data),
+	(bt_pattern_get_voice_event_data), (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event), (bt_pattern_get_global_event),
+	(bt_pattern_get_voice_event), (bt_pattern_test_global_event),
+	(bt_pattern_test_voice_event), (bt_pattern_get_cmd),
+	(bt_pattern_tick_has_data), (bt_pattern_play_tick),
+	(bt_pattern_persistence_save), (bt_pattern_persistence_load),
+	(bt_pattern_persistence_interface_init), (bt_pattern_get_property),
+	(bt_pattern_set_property), (bt_pattern_dispose),
+	(bt_pattern_finalize), (bt_pattern_init), (bt_pattern_class_init):
+	* src/lib/core/persistence.c: (bt_persistence_strfmt_uchar),
+	(bt_persistence_strfmt_long), (bt_persistence_strfmt_ulong),
+	(bt_persistence_strfmt_double), (bt_persistence_save_list),
+	(bt_persistence_save_hashtable_entries),
+	(bt_persistence_save_hashtable), (bt_persistence_set_value),
+	(bt_persistence_get_value), (bt_persistence_save),
+	(bt_persistence_load):
+	* src/lib/core/plainfile-settings.c: (bt_plainfile_settings_new),
+	(bt_plainfile_settings_get_property),
+	(bt_plainfile_settings_set_property),
+	(bt_plainfile_settings_dispose), (bt_plainfile_settings_finalize),
+	(bt_plainfile_settings_init), (bt_plainfile_settings_class_init):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_post_init), (bt_processor_machine_new),
+	(bt_processor_machine_persistence_save),
+	(bt_processor_machine_persistence_load),
+	(bt_processor_machine_persistence_interface_init),
+	(bt_processor_machine_check_type), (bt_processor_machine_setup),
+	(bt_processor_machine_get_property),
+	(bt_processor_machine_set_property),
+	(bt_processor_machine_dispose), (bt_processor_machine_finalize),
+	(bt_processor_machine_init), (bt_processor_machine_class_init):
+	* src/lib/core/sequence.c: (bt_sequence_init_data),
+	(bt_sequence_resize_data_length), (bt_sequence_resize_data_tracks),
+	(bt_sequence_get_track_by_machine),
+	(bt_sequence_limit_play_pos_internal),
+	(bt_sequence_get_number_of_pattern_uses),
+	(bt_sequence_test_pattern), (bt_sequence_invalidate_param),
+	(bt_sequence_invalidate_global_param),
+	(bt_sequence_invalidate_voice_param),
+	(bt_sequence_invalidate_pattern_region),
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_repair_voice_damage_entry),
+	(bt_sequence_repair_damage),
+	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_on_pattern_voice_param_changed),
+	(bt_sequence_on_pattern_removed), (bt_sequence_new),
+	(bt_sequence_get_machine), (bt_sequence_add_track),
+	(bt_sequence_remove_track_by_ix),
+	(bt_sequence_remove_track_by_machine), (bt_sequence_get_label),
+	(bt_sequence_set_label), (bt_sequence_get_pattern),
+	(bt_sequence_set_pattern), (bt_sequence_get_bar_time),
+	(bt_sequence_get_loop_time), (bt_sequence_limit_play_pos),
+	(bt_sequence_persistence_save), (bt_sequence_persistence_load),
+	(bt_sequence_persistence_interface_init),
+	(bt_sequence_get_property), (bt_sequence_set_property),
+	(bt_sequence_dispose), (bt_sequence_finalize), (bt_sequence_init),
+	(bt_sequence_class_init):
+	* src/lib/core/settings.c: (bt_settings_get_property),
+	(bt_settings_set_property), (bt_settings_dispose),
+	(bt_settings_finalize), (bt_settings_init),
+	(bt_settings_class_init):
+	* src/lib/core/setup.c: (bt_setup_new),
+	(bt_setup_get_wire_by_machine_type),
+	(bt_setup_get_wires_by_machine_type), (bt_setup_add_machine),
+	(bt_setup_add_wire), (bt_setup_remove_machine),
+	(bt_setup_remove_wire), (bt_setup_get_machine_by_id),
+	(bt_setup_get_machine_by_index), (bt_setup_get_machine_by_type),
+	(bt_setup_get_machines_by_type),
+	(bt_setup_get_wire_by_src_machine),
+	(bt_setup_get_wire_by_dst_machine),
+	(bt_setup_get_wire_by_machines),
+	(bt_setup_get_wires_by_src_machine),
+	(bt_setup_get_wires_by_dst_machine),
+	(bt_setup_get_unique_machine_id),
+	(bt_setup_remember_missing_machine), (bt_setup_persistence_save),
+	(bt_setup_persistence_load), (bt_setup_persistence_interface_init),
+	(bt_setup_get_property), (bt_setup_set_property),
+	(bt_setup_dispose), (bt_setup_finalize), (bt_setup_init),
+	(bt_setup_class_init):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_clear),
+	(bt_sink_bin_add_many), (bt_sink_bin_link_many),
+	(bt_sink_bin_determine_plugin_name),
+	(bt_sink_bin_get_player_elements),
+	(bt_sink_bin_get_recorder_elements), (bt_sink_bin_update),
+	(on_audio_sink_changed):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_post_init),
+	(bt_sink_machine_new), (bt_sink_machine_persistence_save),
+	(bt_sink_machine_persistence_load),
+	(bt_sink_machine_persistence_interface_init),
+	(bt_sink_machine_check_type), (bt_sink_machine_get_property),
+	(bt_sink_machine_set_property), (bt_sink_machine_dispose),
+	(bt_sink_machine_finalize), (bt_sink_machine_init),
+	(bt_sink_machine_class_init):
+	* src/lib/core/song-info.c: (bt_song_info_new),
+	(bt_song_info_persistence_save), (bt_song_info_persistence_load),
+	(bt_song_info_persistence_interface_init),
+	(bt_song_info_get_property), (bt_song_info_set_property),
+	(bt_song_info_dispose), (bt_song_info_finalize),
+	(bt_song_info_init), (bt_song_info_class_init):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect),
+	(bt_song_io_native_load), (bt_song_io_native_save),
+	(bt_song_io_native_get_property), (bt_song_io_native_set_property),
+	(bt_song_io_native_dispose), (bt_song_io_native_finalize),
+	(bt_song_io_native_init), (bt_song_io_native_class_init):
+	* src/lib/core/song-io.c: (bt_song_io_register_plugins),
+	(bt_song_io_detect), (bt_song_io_update_filename),
+	(bt_song_io_new), (bt_song_io_real_load), (bt_song_io_real_save),
+	(bt_song_io_load), (bt_song_io_save), (bt_song_io_get_property),
+	(bt_song_io_set_property), (bt_song_io_dispose),
+	(bt_song_io_finalize), (bt_song_io_init), (bt_song_io_class_init):
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (bt_song_bus_handler),
+	(on_song_segment_done), (on_song_eos), (bt_song_on_loop_changed),
+	(bt_song_on_loop_start_changed), (bt_song_on_loop_end_changed),
+	(bt_song_on_length_changed), (bt_song_new), (bt_song_set_unsaved),
+	(bt_song_idle_start), (bt_song_idle_stop), (bt_song_play),
+	(bt_song_stop), (bt_song_pause), (bt_song_continue),
+	(bt_song_update_playback_position), (bt_song_write_to_xml_file),
+	(bt_song_write_to_dot_file), (bt_song_persistence_save),
+	(bt_song_persistence_load), (bt_song_persistence_interface_init),
+	(bt_song_get_property), (bt_song_set_property), (bt_song_dispose),
+	(bt_song_finalize), (bt_song_init), (bt_song_class_init):
+	* src/lib/core/source-machine.c: (bt_source_machine_new),
+	(bt_source_machine_persistence_save),
+	(bt_source_machine_persistence_load),
+	(bt_source_machine_persistence_interface_init),
+	(bt_source_machine_check_type), (bt_source_machine_setup),
+	(bt_source_machine_get_property), (bt_source_machine_set_property),
+	(bt_source_machine_dispose), (bt_source_machine_finalize),
+	(bt_source_machine_init), (bt_source_machine_class_init):
+	* src/lib/core/tools.c: (bt_gst_registry_class_filter),
+	(bt_gst_registry_get_element_names_by_class),
+	(gst_element_dbg_pads), (g_try_malloc0):
+	* src/lib/core/wave.c: (bt_wave_new), (bt_wave_add_wavelevel),
+	(bt_wave_load_from_url), (bt_wave_persistence_save),
+	(bt_wave_persistence_load), (bt_wave_persistence_interface_init),
+	(bt_wave_get_property), (bt_wave_set_property), (bt_wave_dispose),
+	(bt_wave_finalize), (bt_wave_init), (bt_wave_class_init):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_new),
+	(bt_wavelevel_persistence_save), (bt_wavelevel_persistence_load),
+	(bt_wavelevel_persistence_interface_init),
+	(bt_wavelevel_get_property), (bt_wavelevel_set_property),
+	(bt_wavelevel_dispose), (bt_wavelevel_finalize),
+	(bt_wavelevel_init), (bt_wavelevel_class_init):
+	* src/lib/core/wavetable.c: (bt_wavetable_new),
+	(bt_wavetable_add_wave), (bt_wavetable_get_wave_by_index),
+	(bt_wavetable_remember_missing_wave),
+	(bt_wavetable_persistence_save), (bt_wavetable_persistence_load),
+	(bt_wavetable_persistence_interface_init),
+	(bt_wavetable_get_property), (bt_wavetable_set_property),
+	(bt_wavetable_dispose), (bt_wavetable_finalize),
+	(bt_wavetable_init), (bt_wavetable_class_init):
+	* src/lib/core/wire.c: (bt_wire_make_internal_element),
+	(bt_wire_activate_analyzers), (bt_wire_deactivate_analyzers),
+	(bt_wire_change_gain), (bt_wire_link_machines),
+	(bt_wire_unlink_machines), (bt_wire_connect), (bt_wire_new),
+	(bt_wire_reconnect), (bt_wire_get_element_list),
+	(bt_wire_dbg_print_parts), (bt_wire_persistence_save),
+	(bt_wire_persistence_load), (bt_wire_persistence_interface_init),
+	(bt_wire_get_property), (bt_wire_set_property), (bt_wire_dispose),
+	(bt_wire_finalize), (bt_wire_init), (bt_wire_class_init):
+          constify API
+
+2006-09-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/libbtcore/tools.h:
 	* src/lib/core/tools.c:
 	(bt_gst_registry_get_element_names_by_class):
