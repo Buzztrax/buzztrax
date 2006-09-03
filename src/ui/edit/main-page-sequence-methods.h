@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence-methods.h,v 1.7 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-sequence-methods.h,v 1.8 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,10 +22,11 @@
 #ifndef BT_MAIN_PAGE_SEQUENCE_METHODS_H
 #define BT_MAIN_PAGE_SEQUENCE_METHODS_H
 
+#include "main-pages.h"
 #include "main-page-sequence.h"
 #include "edit-application.h"
 
-extern BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app);
+extern BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const BtMainPages *pages);
 
 extern BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self);
 extern gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gulong *time,gulong *track);

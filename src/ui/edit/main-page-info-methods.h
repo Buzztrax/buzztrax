@@ -1,4 +1,4 @@
-/* $Id: main-page-info-methods.h,v 1.3 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-info-methods.h,v 1.4 2006-09-03 13:34:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,9 +22,10 @@
 #ifndef BT_MAIN_PAGE_INFO_METHODS_H
 #define BT_MAIN_PAGE_INFO_METHODS_H
 
+#include "main-pages.h"
 #include "main-page-info.h"
 #include "edit-application.h"
 
-extern BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app);
+extern BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_INFO_METHDOS_H

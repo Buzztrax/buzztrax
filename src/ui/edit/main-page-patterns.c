@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.97 2006-09-02 22:15:25 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.98 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -120,6 +120,12 @@ enum {
   PATTERN_TABLE_PRE_CT
 };
 
+typedef enum {
+  UPDATE_COLUMN_POP=1,
+  UPDATE_COLUMN_PUSH,
+  UPDATE_COLUMN_UPDATE
+} BtPatternViewUpdateColumn;
+
 #define PATTERN_CELL_WIDTH 70
 #define PATTERN_CELL_HEIGHT 28
 
@@ -213,8 +219,85 @@ static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *
   return(res);
 }
 
+//-- status bar helpers
+
+static void pattern_view_update_column_description(const BtMainPagePatterns *self, BtPatternViewUpdateColumn mode) {
+  BtMainWindow *main_window;
+  BtMainStatusbar *statusbar;
+   
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  // called too early
+  if(!main_window) return;
+  g_object_get(main_window,"statusbar",&statusbar,NULL);
+  
+  // pop previous test by passing str=NULL;
+  if(mode&UPDATE_COLUMN_POP)
+    g_object_set(statusbar,"status",NULL,NULL);
+
+  if(mode&UPDATE_COLUMN_PUSH) {
+    const gchar *str;
+
+    if(self->priv->pattern) {
+      BtMachine *machine;
+      GParamSpec *property;
+      gulong global_params,voice_params,col;
+
+      g_object_get(self->priv->pattern,"machine",&machine,NULL);
+      g_object_get(machine,
+        "global-params",&global_params,
+        "voice-params",&voice_params,
+        NULL);
+      col=self->priv->cursor_column;
+      
+      if(col<global_params)
+        property=bt_machine_get_global_param_spec(machine,col);
+      else
+        property=bt_machine_get_voice_param_spec(machine,(col-global_params)%voice_params);
+      str=g_param_spec_get_blurb(property);
+
+      g_object_unref(machine);
+    }
+    else {
+      str=BT_MAIN_STATUSBAR_DEFAULT;
+    }
+    g_object_set(statusbar,"status",str,NULL);
+
+  }
+
+  g_object_unref(statusbar);
+  g_object_unref(main_window);
+}
 
 //-- event handlers
+
+static gboolean on_page_switched_idle(gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  return(FALSE);
+}
+  
+static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  static gint prev_page_num=-1;
+
+  if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
+    GST_DEBUG("enter pattern page");
+    // only set new
+    pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
+    // delay the pattern-table grab
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+  }
+  else {
+    // only do this if the page was BT_MAIN_PAGES_PATTERNS_PAGE
+    if(prev_page_num == BT_MAIN_PAGES_PATTERNS_PAGE) {
+      // only reset old
+      GST_DEBUG("leave pattern page");
+      pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
+    }
+  }
+  prev_page_num = page_num;
+}
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -266,8 +349,12 @@ static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
   
   gtk_tree_view_get_cursor(self->priv->pattern_table,&path,&column);
   if(pattern_view_get_cursor_pos(self->priv->pattern_table,path,column,&cursor_column,&cursor_row)) {
+    if(self->priv->cursor_column!=cursor_column) {
+      // update statusbar
+      self->priv->cursor_column=cursor_column;
+      pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+    }
     self->priv->cursor_row=cursor_row;
-    self->priv->cursor_column=cursor_column;
     GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
   }
@@ -844,8 +931,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_voice_cell_edited),(gpointer)self);
         if((tree_col=gtk_tree_view_column_new_with_attributes(
           bt_machine_get_voice_param_name(machine,k),renderer,
-            "text",ix,
-            NULL))
+          "text",ix,
+          NULL))
         ) {
           g_object_set(tree_col,
             "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
@@ -965,6 +1052,8 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   
   GST_INFO("new pattern selected : %p",self->priv->pattern);
   pattern_table_refresh(self,self->priv->pattern);
+  pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
+  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   if(self->priv->pattern) {
     // watch the pattern
     self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
@@ -1254,7 +1343,7 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 
 //-- helper methods
 
-static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
+static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const BtMainPages *pages) {
   GtkWidget *toolbar;
   GtkWidget *box,*tool_item;
   GtkWidget *scrolled_window,*scrolled_sync_window;
@@ -1384,8 +1473,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
 
   /* @idea what about adding one control for global params and one for each voice,
-   * - then these controls can be folded
-   * - problem is scrolling them all with one scrollbar
+   * - then these controls can be folded (hidden)
    */
   // add pattern list-view
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
@@ -1463,8 +1551,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
   // --
   // @todo cut, copy, paste
 
+  // set default widget
+  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->pattern_table));
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  // listen to page changes
+  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
   return(TRUE);
@@ -1480,14 +1572,14 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app) {
+BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPagePatterns *self;
 
   if(!(self=BT_MAIN_PAGE_PATTERNS(g_object_new(BT_TYPE_MAIN_PAGE_PATTERNS,"app",app,NULL)))) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_patterns_init_ui(self)) {
+  if(!bt_main_page_patterns_init_ui(self,pages)) {
     goto Error;
   }
   return(self);

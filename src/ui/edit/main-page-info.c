@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.42 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-info.c,v 1.43 2006-09-03 13:34:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -63,6 +63,25 @@ struct _BtMainPageInfoPrivate {
 static GtkVBoxClass *parent_class=NULL;
 
 //-- event handler
+
+static gboolean on_page_switched_idle(gpointer user_data) {
+  BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  
+  gtk_widget_grab_focus(GTK_WIDGET(self->priv->info));
+  return(FALSE);
+}
+  
+static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+
+  if(page_num==BT_MAIN_PAGES_INFO_PAGE) {
+    GST_DEBUG("enter info page");
+    // delay the sequence_table grab
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+  }
+  else {
+    GST_DEBUG("leave info page");
+  }
+}
 
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
@@ -260,7 +279,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper methods
 
-static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
+static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMainPages *pages) {
   GtkWidget *label,*frame,*box;
   GtkWidget *table,*spacer;
   GtkWidget *scrolledwindow;
@@ -379,8 +398,12 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
   gtk_container_add(GTK_CONTAINER(scrolledwindow),GTK_WIDGET(self->priv->info));
   g_signal_connect(G_OBJECT(gtk_text_view_get_buffer(self->priv->info)), "changed", G_CALLBACK(on_info_changed), (gpointer)self);
 
+  // set default widget
+  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info));
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  // listen to page changes
+  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
   return(TRUE);
@@ -396,14 +419,14 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app) {
+BtMainPageInfo *bt_main_page_info_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageInfo *self;
 
   if(!(self=BT_MAIN_PAGE_INFO(g_object_new(BT_TYPE_MAIN_PAGE_INFO,"app",app,"spacing",6,NULL)))) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_info_init_ui(self)) {
+  if(!bt_main_page_info_init_ui(self,pages)) {
     goto Error;
   }
   return(self);

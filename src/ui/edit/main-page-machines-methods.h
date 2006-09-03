@@ -1,4 +1,4 @@
-/* $Id: main-page-machines-methods.h,v 1.7 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-machines-methods.h,v 1.8 2006-09-03 13:34:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,12 +22,13 @@
 #ifndef BT_MAIN_PAGE_MACHINES_METHODS_H
 #define BT_MAIN_PAGE_MACHINES_METHODS_H
 
+#include "main-pages.h"
 #include "main-page-machines.h"
 #include "edit-application.h"
 #include "machine-canvas-item.h"
 #include "wire-canvas-item.h"
 
-extern BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app);
+extern BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app,const BtMainPages *pages);
 
 extern void machine_view_get_machine_position(GHashTable *properties, gdouble *pos_x,gdouble *pos_y);
 

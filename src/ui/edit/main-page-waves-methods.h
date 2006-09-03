@@ -1,4 +1,4 @@
-/* $Id: main-page-waves-methods.h,v 1.2 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-waves-methods.h,v 1.3 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,9 +22,10 @@
 #ifndef BT_MAIN_PAGE_WAVES_METHODS_H
 #define BT_MAIN_PAGE_WAVES_METHODS_H
 
+#include "main-pages.h"
 #include "main-page-waves.h"
 #include "edit-application.h"
 
-extern BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app);
+extern BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMainPages *pages);
 
 #endif // BT_MAIN_PAGE_WAVES_METHDOS_H

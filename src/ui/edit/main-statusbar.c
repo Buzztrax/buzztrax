@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.48 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.49 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -348,7 +348,7 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
                                   g_param_spec_string("status",
                                      "status prop",
                                      "main status text",
-                                     _("Ready to rock!"), /* default value */
+                                     BT_MAIN_STATUSBAR_DEFAULT, /* default value */
                                      G_PARAM_WRITABLE));
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.90 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.91 2006-09-03 13:34:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -802,7 +802,7 @@ static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachine
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_toolbar_grid_density_high_activated),(gpointer)self);
 }
 
-static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
+static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,const BtMainPages *pages) {
   BtSettings *settings;
   GtkWidget *image,*scrolled_window;
   GtkWidget *tool_item;
@@ -923,14 +923,14 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app) {
+BtMainPageMachines *bt_main_page_machines_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageMachines *self;
 
   if(!(self=BT_MAIN_PAGE_MACHINES(g_object_new(BT_TYPE_MAIN_PAGE_MACHINES,"app",app,NULL)))) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_machines_init_ui(self)) {
+  if(!bt_main_page_machines_init_ui(self,pages)) {
     goto Error;
   }
   return(self);

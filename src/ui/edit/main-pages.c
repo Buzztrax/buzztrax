@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.33 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-pages.c,v 1.34 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -103,27 +103,27 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
   
   // add wigets for machine view
-  self->priv->machines_page=bt_main_page_machines_new(self->priv->app);
+  self->priv->machines_page=bt_main_page_machines_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINES_PAGE,_("machine view"),"tab_machines.png",_("machines used in the song and their wires"));
   
   // add wigets for pattern view
-  self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app);
+  self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERNS_PAGE,_("pattern view"),"tab_patterns.png",_("event pattern editor"));
   
   // add wigets for sequence view
-  self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app);
+  self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence view"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
-  self->priv->waves_page=bt_main_page_waves_new(self->priv->app);
+  self->priv->waves_page=bt_main_page_waves_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVES_PAGE,_("wave table view"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
-  self->priv->info_page=bt_main_page_info_new(self->priv->app);
+  self->priv->info_page=bt_main_page_info_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_PAGE,_("song information"),"tab_info.png",_("song meta data editor"));
 

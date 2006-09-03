@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.9 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-statusbar.h,v 1.10 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,6 +54,8 @@ struct _BtMainStatusbarClass {
   GtkHBoxClass parent;
   
 };
+
+#define BT_MAIN_STATUSBAR_DEFAULT _("Ready to rock!")
 
 /* used by MAIN_STATUSBAR_TYPE */
 GType bt_main_statusbar_get_type(void) G_GNUC_CONST;

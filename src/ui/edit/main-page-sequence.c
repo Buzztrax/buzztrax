@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.134 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.135 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,7 +26,6 @@
 
 /* @todo main-page-sequence tasks
  *  - cut/copy/paste
- *  - focus sequence_view after entering the page ?
  *  - sequence header
  *    - add table to separate scrollable window
  *      (no own adjustments, share x-adjustment with sequence-view, show full height)
@@ -391,6 +390,24 @@ static void sequence_calculate_visible_lines(BtMainPageSequence *self) {
 
 //-- event handlers
 
+static gboolean on_page_switched_idle(gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+
+  gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+  return(FALSE);
+}
+  
+static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  if(page_num==BT_MAIN_PAGES_SEQUENCE_PAGE) {
+    GST_DEBUG("enter sequence page");
+    // delay the sequence_table grab
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+  }
+  else {
+    GST_DEBUG("leave sequence page");
+  }
+}
+
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   GtkLabel *label=GTK_LABEL(user_data);
   gchar *str;
@@ -551,6 +568,8 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
   gint col_index=0;
 
   header=gtk_vbox_new(FALSE,0);
+  // seems to be already 0
+  //GST_INFO("header border width : %d",gtk_container_get_border_width(GTK_CONTAINER(header)));
 
   label=gtk_label_new(_("Labels"));
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
@@ -558,7 +577,7 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
   gtk_box_pack_start(GTK_BOX(header),label,TRUE,FALSE,0);
   
   combo=gtk_combo_box_new();
-  gtk_box_pack_start(GTK_BOX(header),combo,TRUE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(header),combo,TRUE,TRUE,0);
 
   gtk_widget_show_all(header);
 
@@ -757,7 +776,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
       //gtk_misc_set_padding(GTK_MISC(label),0,0);
       g_free(str);
-      gtk_box_pack_start(GTK_BOX(header),label,TRUE,TRUE,0);
+      gtk_box_pack_start(GTK_BOX(header),label,TRUE,FALSE,0);
       
       box=gtk_hbox_new(TRUE,0);
       // add M/S/B butons and connect signal handlers
@@ -1712,12 +1731,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   update_bars_menu(self,bars);
 #if 0
   // @todo: map bars to index (why, we dont keep the filter selection persistent yet)
-  //if(bars<4) {
-  //  index=bars-1;
-  //}
-  //else {
-  //  index=1+(bars>>2);
-  //}
+  if(bars<4) {
+    index=bars-1;
+  }
+  else {
+    index=1+(bars>>2);
+  }
 #endif
   // update sequence view
   sequence_calculate_visible_lines(self);
@@ -1738,8 +1757,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(song);
 }
 
-
-static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
+static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
   GtkWidget *toolbar;
   GtkWidget *split_box,*box,*tool_item;
   GtkWidget *scrolled_window,*scrolled_sync_window;
@@ -1891,8 +1909,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),FALSE,FALSE,0);
   //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
+  // set default widget
+  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_table));
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  // listen to page changes
+  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
   return(TRUE);
@@ -1908,14 +1930,14 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app) {
+BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageSequence *self;
 
   if(!(self=BT_MAIN_PAGE_SEQUENCE(g_object_new(BT_TYPE_MAIN_PAGE_SEQUENCE,"app",app,NULL)))) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_sequence_init_ui(self)) {
+  if(!bt_main_page_sequence_init_ui(self,pages)) {
     goto Error;
   }
   return(self);

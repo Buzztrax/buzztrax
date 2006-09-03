@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.35 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.36 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -216,7 +216,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 
 //-- helper methods
 
-static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
+static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
   BtSettings *settings;
   GtkWidget *vpaned,*hpaned,*box,*box2;
   GtkWidget *tool_item;
@@ -391,14 +391,14 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self) {
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app) {
+BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageWaves *self;
 
   if(!(self=BT_MAIN_PAGE_WAVES(g_object_new(BT_TYPE_MAIN_PAGE_WAVES,"app",app,NULL)))) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_page_waves_init_ui(self)) {
+  if(!bt_main_page_waves_init_ui(self,pages)) {
     goto Error;
   }
   return(self);

@@ -1,5 +1,37 @@
 2006-09-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-info-methods.h:
+	* src/ui/edit/main-page-info.c: (on_page_switched_idle),
+	(on_page_switched), (bt_main_page_info_init_ui),
+	(bt_main_page_info_new):
+	* src/ui/edit/main-page-machines-methods.h:
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_init_ui), (bt_main_page_machines_new):
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	(pattern_view_update_column_description), (on_page_switched_idle),
+	(on_page_switched), (on_pattern_table_cursor_changed_idle),
+	(pattern_table_refresh), (on_pattern_menu_changed),
+	(bt_main_page_patterns_init_ui), (bt_main_page_patterns_new):
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c: (on_page_switched_idle),
+	(on_page_switched), (sequence_table_init),
+	(sequence_table_refresh), (on_song_changed),
+	(bt_main_page_sequence_init_ui), (bt_main_page_sequence_new):
+	* src/ui/edit/main-page-waves-methods.h:
+	* src/ui/edit/main-page-waves.c: (bt_main_page_waves_init_ui),
+	(bt_main_page_waves_new):
+	* src/ui/edit/main-pages.c: (bt_main_pages_init_ui):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_class_init):
+	* src/ui/edit/main-statusbar.h:
+          Add machine quick-info to pattern editing. Add default focused widgets
+          to pattern, sequence and info page.
+
+	* tests/songs/buzz8.xml:
+          Fix machines positions.
+
+2006-09-03  Stefan Kost  <ensonic@users.sf.net>
+
 	patch by: Tommi Sakari Uimonen <tuimonen@cc.hut.fi>
 
 	* src/lib/core/application.c: (bus_handler), (bt_application_new),

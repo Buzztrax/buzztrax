@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns-methods.h,v 1.6 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-patterns-methods.h,v 1.7 2006-09-03 13:34:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,10 +22,11 @@
 #ifndef BT_MAIN_PAGE_PATTERNS_METHODS_H
 #define BT_MAIN_PAGE_PATTERNS_METHODS_H
 
+#include "main-pages.h"
 #include "main-page-patterns.h"
 #include "edit-application.h"
 
-extern BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app);
+extern BtMainPagePatterns *bt_main_page_patterns_new(const BtEditApplication *app,const BtMainPages *pages);
 
 extern BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *self);
 extern BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self);
