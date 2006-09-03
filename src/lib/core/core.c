@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.26 2006-08-27 20:31:30 ensonic Exp $
+/* $Id: core.c,v 1.27 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -151,7 +151,7 @@ GOptionGroup *bt_init_get_option_group(void) {
  *
  * Adds all option groups to the main context the core library will pull in.
  */
-void bt_init_add_option_groups(GOptionContext *ctx) {
+void bt_init_add_option_groups(GOptionContext * const ctx) {
   g_option_context_add_group(ctx, gst_init_get_option_group());
   g_option_context_add_group(ctx, bt_init_get_option_group());
 }

@@ -1,4 +1,4 @@
-/* $Id: song-info.h,v 1.15 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: song-info.h,v 1.16 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,14 +44,14 @@ typedef struct _BtSongInfoPrivate BtSongInfoPrivate;
  * holds song metadata
  */
 struct _BtSongInfo {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtSongInfoPrivate *priv;
 };
 /* structure of the SongInfo class */
 struct _BtSongInfoClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 /* used by SONG_INFO_TYPE */

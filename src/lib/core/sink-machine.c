@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.72 2006-08-26 12:13:27 ensonic Exp $
+/* $Id: sink-machine.c,v 1.73 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -43,9 +43,9 @@ static BtMachineClass *parent_class=NULL;
 
 //-- helper methods
 
-static void bt_sink_machine_post_init(BtSinkMachine *self) {
-  BtSong *song;
-  gchar *id;
+static void bt_sink_machine_post_init(const BtSinkMachine * const self) {
+  BtSong * const song;
+  gchar * const id;
   
   g_object_get(G_OBJECT(self),"song",&song,"id",&id,NULL);
   
@@ -71,13 +71,13 @@ static void bt_sink_machine_post_init(BtSinkMachine *self) {
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id) {
-  BtSinkMachine *self=NULL;
-
+BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id) {
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_STRING(id),NULL);
 
-  if(!(self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL)))) {
+  BtSinkMachine * const self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","bt-sink-bin",NULL));
+
+  if(!self) {
     goto Error;
   }
   GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self))->ref_count);
@@ -98,9 +98,9 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
+static xmlNodePtr bt_sink_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   //BtSinkMachine *self = BT_SINK_MACHINE(persistence);
-  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
 
   GST_DEBUG("PERSISTENCE::sink-machine");
@@ -113,9 +113,9 @@ static xmlNodePtr bt_sink_machine_persistence_save(BtPersistence *persistence, x
   return(node);
 }
 
-static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  BtSinkMachine *self = BT_SINK_MACHINE(persistence);
-  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+static gboolean bt_sink_machine_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+  BtSinkMachine * const self = BT_SINK_MACHINE(persistence);
+  BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   gboolean res;
   
   GST_DEBUG("PERSISTENCE::sink_machine");
@@ -131,8 +131,8 @@ static gboolean bt_sink_machine_persistence_load(BtPersistence *persistence, xml
   return(res);
 }
 
-static void bt_sink_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
-  BtPersistenceInterface *iface = g_iface;
+static void bt_sink_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_sink_machine_persistence_load;
   iface->save = bt_sink_machine_persistence_save;
@@ -142,9 +142,9 @@ static void bt_sink_machine_persistence_interface_init(gpointer g_iface, gpointe
 
 //-- bt_machine overrides
 
-static gboolean bt_sink_machine_check_type(const BtMachine *self,gulong pad_src_ct,gulong pad_sink_ct) {
+static gboolean bt_sink_machine_check_type(const BtMachine * const self, const gulong pad_src_ct, const gulong pad_sink_ct) {
   if(pad_src_ct>0 || pad_sink_ct==0) {
-    gchar *plugin_name;
+    gchar * const plugin_name;
     
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
     GST_ERROR("  plugin \"%s\" is has %d src pads instead of 0 and %d sink pads instead of >0",
@@ -158,12 +158,12 @@ static gboolean bt_sink_machine_check_type(const BtMachine *self,gulong pad_src_
 //-- g_object overrides
 
 /* returns a property for the given property_id for this object */
-static void bt_sink_machine_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_sink_machine_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtSinkMachine *self = BT_SINK_MACHINE(object);
+  const BtSinkMachine * const self = BT_SINK_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -173,12 +173,12 @@ static void bt_sink_machine_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_sink_machine_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_sink_machine_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtSinkMachine *self = BT_SINK_MACHINE(object);
+  const BtSinkMachine * const self = BT_SINK_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -187,8 +187,8 @@ static void bt_sink_machine_set_property(GObject      *object,
   }
 }
 
-static void bt_sink_machine_dispose(GObject *object) {
-  BtSinkMachine *self = BT_SINK_MACHINE(object);
+static void bt_sink_machine_dispose(GObject * const object) {
+  const BtSinkMachine * const self = BT_SINK_MACHINE(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -196,8 +196,8 @@ static void bt_sink_machine_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_sink_machine_finalize(GObject *object) {
-  BtSinkMachine *self = BT_SINK_MACHINE(object);
+static void bt_sink_machine_finalize(GObject * const object) {
+  const BtSinkMachine * const self = BT_SINK_MACHINE(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -206,15 +206,15 @@ static void bt_sink_machine_finalize(GObject *object) {
 
 //-- class internals
 
-static void bt_sink_machine_init(GTypeInstance *instance, gpointer g_class) {
+static void bt_sink_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSinkMachine *self = BT_SINK_MACHINE(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_MACHINE, BtSinkMachinePrivate);
 }
 
 static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  BtMachineClass *machine_class = BT_MACHINE_CLASS(klass);
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkMachinePrivate));

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.91 2006-08-26 12:13:27 ensonic Exp $
+/* $Id: wire.c,v 1.92 2006-09-03 13:18:37 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -77,7 +77,7 @@ struct _BtWirePrivate {
   /* the song the wire belongs to */
   union {
     BtSong *song;
-    gpointer song_ptr;
+    gconstpointer song_ptr;
   };
 
   /* the main gstreamer container element */
@@ -109,12 +109,11 @@ static GObjectClass *parent_class=NULL;
  *
  * This helper is used by the bt_wire_link() function.
  */
-static gboolean bt_wire_make_internal_element(const BtWire *self,const BtWirePart part,const gchar *factory_name,const gchar *element_name) {
+static gboolean bt_wire_make_internal_element(const BtWire * const self, const BtWirePart part, const gchar * const factory_name, const gchar * const element_name) {
   gboolean res=FALSE;
-  gchar *name;
   
   // add internal element
-  name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
+  gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
     GST_ERROR("failed to create %s",element_name);goto Error;
   }
@@ -130,9 +129,9 @@ Error:
  *
  * Add all analyzers to the bin and link them. 
  */
-static void bt_wire_activate_analyzers(BtWire *self) {
+static void bt_wire_activate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
-  GList* node;
+  const GList* node;
   GstElement *prev,*next;
   
   if(!self->priv->analyzers) return;
@@ -161,9 +160,9 @@ static void bt_wire_activate_analyzers(BtWire *self) {
  *
  * Remove all analyzers to the bin and unlink them. 
  */
-static void bt_wire_deactivate_analyzers(BtWire *self) {
+static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
-  GList* node;
+  const GList* node;
   GstElement *prev,*next;
   GstStateChangeReturn state_ret;
 
@@ -195,8 +194,8 @@ static void bt_wire_deactivate_analyzers(BtWire *self) {
  * Updates the wire gain control. Bypasses gain control, if gain is very close
  * to 100%.
  */
-static void bt_wire_change_gain(const BtWire *self) {
-  gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
+static void bt_wire_change_gain(const BtWire * const self) {
+  const gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
   
   g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
   gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
@@ -211,16 +210,14 @@ static void bt_wire_change_gain(const BtWire *self) {
  *
  * Returns: %TRUE for success
  */
-static gboolean bt_wire_link_machines(const BtWire *self) {
+static gboolean bt_wire_link_machines(const BtWire * const self) {
   gboolean res=TRUE;
-  BtMachine *src, *dst;
-  GstElement **machines=self->priv->machines;
+  const BtMachine * const src = self->priv->src;
+  const BtMachine * const dst = self->priv->dst;
+  GstElement ** const machines=self->priv->machines;
 
   g_assert(BT_IS_WIRE(self));
   
-  src=self->priv->src;
-  dst=self->priv->dst;
-
   g_assert(GST_IS_OBJECT(src->src_elem));
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
@@ -312,8 +309,8 @@ static gboolean bt_wire_link_machines(const BtWire *self) {
  * Unlinks gst-element of this wire and removes the conversion elements from the
  * song.
  */
-static void bt_wire_unlink_machines(const BtWire *self) {
-  GstElement **machines=self->priv->machines;
+static void bt_wire_unlink_machines(const BtWire * const self) {
+  GstElement ** const machines=self->priv->machines;
 
   g_assert(BT_IS_WIRE(self));
   
@@ -362,13 +359,14 @@ static void bt_wire_unlink_machines(const BtWire *self) {
  *
  * Returns: true for success
  */
-static gboolean bt_wire_connect(BtWire *self) {
+static gboolean bt_wire_connect(const BtWire * const self) {
   gboolean res=FALSE;
-  BtSong *song=self->priv->song;
-  BtSetup *setup=NULL;
+  const BtSong * const song=self->priv->song;
+  BtSetup * const setup;//=NULL;
   BtWire *other_wire;
-  BtMachine *src, *dst;
-  GstElement *old_peer;
+  BtMachine * const src=self->priv->src;
+  BtMachine * const dst=self->priv->dst;
+  const GstElement *old_peer;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -394,8 +392,6 @@ static gboolean bt_wire_connect(BtWire *self) {
   g_object_try_unref(other_wire);
 
 
-  src=self->priv->src;
-  dst=self->priv->dst;
   GST_DEBUG("bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
 
@@ -471,9 +467,7 @@ Error:
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine) {
-  BtWire *self=NULL;
-  
+BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machine, const BtMachine * const dst_machine) {
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(src_machine),NULL);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(src_machine),NULL);
@@ -483,14 +477,15 @@ BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMa
  
   GST_INFO("create wire between %p and %p",src_machine,dst_machine);
 
-  if(!(self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)))) {
+  BtWire * const self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
+  if(!self) {
     goto Error;
   }
   if(!bt_wire_connect(self)) {
     goto Error;
   }
   {
-    BtSetup *setup;
+    BtSetup * const setup;
     
     // add the wire to the setup of the song
     g_object_get(G_OBJECT(song),"setup",&setup,NULL);
@@ -515,7 +510,7 @@ Error:
  *
  * Returns: %TRUE for success and %FALSE otherwise
  */
-gboolean bt_wire_reconnect(BtWire *self) {
+gboolean bt_wire_reconnect(BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),FALSE);
   
   GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
@@ -525,7 +520,7 @@ gboolean bt_wire_reconnect(BtWire *self) {
 
 //-- debug helper
 
-GList *bt_wire_get_element_list(const BtWire *self) {
+GList *bt_wire_get_element_list(const BtWire * const self) {
   GList *list=NULL;
   gulong i;
   
@@ -538,8 +533,8 @@ GList *bt_wire_get_element_list(const BtWire *self) {
   return(list);
 }
 
-void bt_wire_dbg_print_parts(const BtWire *self) {
-  gchar *sid=NULL,*did=NULL;
+void bt_wire_dbg_print_parts(const BtWire * const self) {
+  gchar * const sid, * const did;
   
   if(self->priv->src) g_object_get(self->priv->src,"id",&sid,NULL);
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
@@ -559,9 +554,9 @@ void bt_wire_dbg_print_parts(const BtWire *self) {
 
 //-- io interface
 
-static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  BtWire *self = BT_WIRE(persistence);
-  gchar *id;
+static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+  const BtWire * const self = BT_WIRE(persistence);
+  gchar * const id;
   xmlNodePtr node=NULL;
 
   GST_DEBUG("PERSISTENCE::wire");
@@ -580,9 +575,9 @@ static xmlNodePtr bt_wire_persistence_save(BtPersistence *persistence, xmlNodePt
   return(node);
 }
 
-static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  BtWire *self = BT_WIRE(persistence);
-  BtSetup *setup;
+static gboolean bt_wire_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+  const BtWire * const self = BT_WIRE(persistence);
+  BtSetup * const setup;
   xmlChar *id, *gain;
   
   GST_DEBUG("PERSISTENCE::wire");
@@ -608,8 +603,8 @@ static gboolean bt_wire_persistence_load(BtPersistence *persistence, xmlNodePtr 
   return(bt_wire_connect(self));
 }
 
-static void bt_wire_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
-  BtPersistenceInterface *iface = g_iface;
+static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_wire_persistence_load;
   iface->save = bt_wire_persistence_save;
@@ -620,12 +615,12 @@ static void bt_wire_persistence_interface_init(gpointer g_iface, gpointer iface_
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_wire_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_wire_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtWire *self = BT_WIRE(object);
+  const BtWire *const self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
@@ -650,12 +645,12 @@ static void bt_wire_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_wire_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_wire_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtWire *self = BT_WIRE(object);
+  const BtWire *const self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
     case WIRE_SONG: {
@@ -691,8 +686,8 @@ static void bt_wire_set_property(GObject      *object,
   }
 }
 
-static void bt_wire_dispose(GObject *object) {
-  BtWire *self = BT_WIRE(object);
+static void bt_wire_dispose(GObject * const object) {
+  const BtWire *const self = BT_WIRE(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -722,23 +717,23 @@ static void bt_wire_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_wire_finalize(GObject *object) {
-  BtWire *self = BT_WIRE(object);
+static void bt_wire_finalize(GObject * const object) {
+  BtWire * const self = BT_WIRE(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-static void bt_wire_init(GTypeInstance *instance, gpointer g_class) {
-  BtWire *self = BT_WIRE(instance);
+static void bt_wire_init(GTypeInstance * const instance, gpointer const g_class) {
+  BtWire * const self = BT_WIRE(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->gain = 1.0;
 }
 
-static void bt_wire_class_init(BtWireClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_wire_class_init(BtWireClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));

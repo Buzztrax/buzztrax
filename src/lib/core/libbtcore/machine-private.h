@@ -1,4 +1,4 @@
-/* $Id: machine-private.h,v 1.2 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: machine-private.h,v 1.3 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "machine.h"
 
-extern gboolean bt_machine_new(BtMachine *self);
+extern gboolean bt_machine_new(const BtMachine * const self);
 
 #endif // BT_MACHINE_PRIVATE_H

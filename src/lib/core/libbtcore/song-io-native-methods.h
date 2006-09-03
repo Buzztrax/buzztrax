@@ -1,4 +1,4 @@
-/* $Id: song-io-native-methods.h,v 1.2 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: song-io-native-methods.h,v 1.3 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "song-io-native.h"
 
-extern GType bt_song_io_native_detect(const gchar *file_name);
+extern GType bt_song_io_native_detect(const gchar * const file_name);
 
 #endif // BT_SONG_IO_METHDOS_NATIVE_H

@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.11 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: application.h,v 1.12 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,14 +54,14 @@ typedef struct _BtApplicationPrivate BtApplicationPrivate;
  * base object for a buzztard based application
  */
 struct _BtApplication {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtApplicationPrivate *priv;
 };
 /* structure of the application class */
 struct _BtApplicationClass {
-  GObjectClass parent;
+  const GObjectClass parent;
   
 };
 

@@ -1,4 +1,4 @@
-/* $Id: persistence-methods.h,v 1.10 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: persistence-methods.h,v 1.11 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,24 +31,24 @@
  
 
 // string formatting helper
-extern const gchar *bt_persistence_strfmt_uchar(guchar val);
-extern const gchar *bt_persistence_strfmt_long(glong val);
-extern const gchar *bt_persistence_strfmt_ulong(gulong val);
-extern const gchar *bt_persistence_strfmt_double(gdouble val);
+extern const gchar *bt_persistence_strfmt_uchar(const guchar const val);
+extern const gchar *bt_persistence_strfmt_long(const glong val);
+extern const gchar *bt_persistence_strfmt_ulong(const gulong val);
+extern const gchar *bt_persistence_strfmt_double(const gdouble val);
 
 // list helper
-extern gboolean bt_persistence_save_list(const GList *list, xmlNodePtr node);
+extern gboolean bt_persistence_save_list(const GList *list, xmlNodePtr const node);
 
 // hashtable helper
-extern gboolean bt_persistence_save_hashtable(const GHashTable *hashtable, xmlNodePtr node);
+extern gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const node);
 extern gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node);
 
 // gvalue helper
-extern gboolean bt_persistence_set_value(GValue *gvalue, const gchar *svalue);
-extern gchar *bt_persistence_get_value(GValue *gvalue);
+extern gboolean bt_persistence_set_value(GValue* const gvalue, const gchar * const svalue);
+extern gchar *bt_persistence_get_value(GValue * const gvalue);
 
 // wrapper
-extern xmlNodePtr bt_persistence_save(BtPersistence *self, xmlNodePtr parent_node, BtPersistenceSelection *selection);
-extern gboolean bt_persistence_load(BtPersistence *self, xmlNodePtr node, BtPersistenceLocation *location);
+extern xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection);
+extern gboolean bt_persistence_load(const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location);
 
 #endif // BT_PERSISTENCE_METHDOS_H

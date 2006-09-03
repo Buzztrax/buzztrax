@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.16 2006-08-26 12:13:27 ensonic Exp $
+/* $Id: wavelevel.c,v 1.17 2006-09-03 13:18:37 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -49,11 +49,11 @@ struct _BtWavelevelPrivate {
   /* the song the wavelevel belongs to */
   union {
     BtSong *song;
-    gpointer song_ptr;
+    gconstpointer song_ptr;
   };
   
   /* the wave the wavelevel belongs to */
-  BtWave *wave;
+  const BtWave *wave;
 
   /* the keyboard note associated to this sample */
   guchar root_note;
@@ -66,7 +66,7 @@ struct _BtWavelevelPrivate {
   
   // data format
 
-  gpointer *sample;    // sample data
+  gconstpointer *sample;    // sample data
 };
 
 static GObjectClass *parent_class=NULL;
@@ -87,16 +87,15 @@ static GObjectClass *parent_class=NULL;
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtWavelevel *bt_wavelevel_new(const BtSong *song,const BtWave *wave,guchar root_note,gulong length,glong loop_start,glong loop_end,gulong rate) {
-  BtWavelevel *self;
-
+BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate) {
   g_assert(BT_IS_SONG(song));
   g_assert(BT_IS_WAVE(wave));
 
-  if(!(self=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,
-    "root-note",root_note,"length",length,"loop_start",loop_start,
-    "loop_end",loop_end,"rate",rate,NULL)))
-  ) {
+  BtWavelevel * const self=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,"song",song,
+						     "root-note",root_note,"length",length,"loop_start",loop_start,
+						     "loop_end",loop_end,"rate",rate,NULL));
+
+  if(!self) {
     goto Error;
   }
   // add the wavelevel to the wave
@@ -114,8 +113,8 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  BtWavelevel *self = BT_WAVELEVEL(persistence);
+static xmlNodePtr bt_wavelevel_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+  const BtWavelevel * const self = BT_WAVELEVEL(persistence);
   xmlNodePtr node=NULL;
   
   GST_DEBUG("PERSISTENCE::wavelevel");
@@ -130,8 +129,9 @@ static xmlNodePtr bt_wavelevel_persistence_save(BtPersistence *persistence, xmlN
   return(node);
 }
 
-static gboolean bt_wavelevel_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  BtWavelevel *self = BT_WAVELEVEL(persistence);
+
+static gboolean bt_wavelevel_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+  BtWavelevel * const self = BT_WAVELEVEL(persistence);
   gboolean res=FALSE;
   xmlChar *root_note_str,*length_str,*rate_str,*loop_start_str,*loop_end_str;
   glong loop_start,loop_end;
@@ -163,8 +163,8 @@ static gboolean bt_wavelevel_persistence_load(BtPersistence *persistence, xmlNod
   return(res);
 }
 
-static void bt_wavelevel_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
-  BtPersistenceInterface *iface = g_iface;
+static void bt_wavelevel_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_wavelevel_persistence_load;
   iface->save = bt_wavelevel_persistence_save;
@@ -175,12 +175,12 @@ static void bt_wavelevel_persistence_interface_init(gpointer g_iface, gpointer i
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_wavelevel_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_wavelevel_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtWavelevel *self = BT_WAVELEVEL(object);
+  const BtWavelevel * const self = BT_WAVELEVEL(object);
   return_if_disposed();
   switch (property_id) {
     case WAVELEVEL_SONG: {
@@ -208,12 +208,12 @@ static void bt_wavelevel_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_wavelevel_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_wavelevel_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtWavelevel *self = BT_WAVELEVEL(object);
+  const BtWavelevel * const self = BT_WAVELEVEL(object);
   return_if_disposed();
   switch (property_id) {
     case WAVELEVEL_SONG: {
@@ -248,8 +248,8 @@ static void bt_wavelevel_set_property(GObject      *object,
   }
 }
 
-static void bt_wavelevel_dispose(GObject *object) {
-  BtWavelevel *self = BT_WAVELEVEL(object);
+static void bt_wavelevel_dispose(GObject * const object) {
+  const BtWavelevel * const self = BT_WAVELEVEL(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -263,8 +263,8 @@ static void bt_wavelevel_dispose(GObject *object) {
   }
 }
 
-static void bt_wavelevel_finalize(GObject *object) {
-  BtWavelevel *self = BT_WAVELEVEL(object);
+static void bt_wavelevel_finalize(GObject * const object) {
+  const BtWavelevel * const self = BT_WAVELEVEL(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -275,14 +275,14 @@ static void bt_wavelevel_finalize(GObject *object) {
   }
 }
 
-static void bt_wavelevel_init(GTypeInstance *instance, gpointer g_class) {
-  BtWavelevel *self = BT_WAVELEVEL(instance);
+static void bt_wavelevel_init(GTypeInstance * const instance, gpointer const g_class) {
+  BtWavelevel * const self = BT_WAVELEVEL(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVELEVEL, BtWavelevelPrivate);
 }
 
-static void bt_wavelevel_class_init(BtWavelevelClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWavelevelPrivate));

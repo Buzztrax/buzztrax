@@ -1,4 +1,4 @@
-/* $Id: song.h,v 1.25 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: song.h,v 1.26 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,7 +45,7 @@ typedef struct _BtSongPrivate BtSongPrivate;
  * (contains #BtSongInfo, #BtSetup and #BtSequence)
  */
 struct _BtSong {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtSongPrivate *priv;
@@ -56,7 +56,7 @@ struct _BtSong {
  * class of a song project object
  */
 struct _BtSongClass {
-  GObjectClass parent;
+  const GObjectClass parent;
  
   /*< private >*/
 };

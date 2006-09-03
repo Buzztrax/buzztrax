@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.21 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: sink-bin.c,v 1.22 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -97,8 +97,8 @@ GType bt_sink_bin_record_format_get_type(void) {
 
 //-- helper methods
 
-static void bt_sink_bin_clear(const BtSinkBin *self) {
-  GstBin *bin=GST_BIN(self);
+static void bt_sink_bin_clear(const BtSinkBin * const self) {
+  GstBin * const bin=GST_BIN(self);
   GstElement *elem;
   
   GST_INFO("clearing sink-bin : %d",g_list_length(bin->children));
@@ -116,8 +116,8 @@ static void bt_sink_bin_clear(const BtSinkBin *self) {
   GST_DEBUG("done");
 }
 
-static gboolean bt_sink_bin_add_many(const BtSinkBin *self,GList *list) {
-  GList *node;
+static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const list) {
+  const GList *node;
   
   GST_DEBUG("add elements: list=%p",list);
   
@@ -127,15 +127,14 @@ static gboolean bt_sink_bin_add_many(const BtSinkBin *self,GList *list) {
   return(TRUE);
 }
 
-static void bt_sink_bin_link_many(const BtSinkBin *self,GstElement *last_elem,GList *list) {
-  GList *node;
-  GstElement *cur_elem;
+static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last_elem, GList * const list) {
+  const GList *node;
   
   GST_DEBUG("link elements: list=%p",list);
   if(!list) return;
  
   for(node=list;node;node=node->next) {
-    cur_elem=GST_ELEMENT(node->data);
+    GstElement * const cur_elem=GST_ELEMENT(node->data);
     gst_element_link(last_elem,cur_elem);
     last_elem=cur_elem;
   }
@@ -160,7 +159,7 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     system_audiosink_name=NULL;
   }
   if(plugin_name) {
-    gchar *sink_name,*eon,*temp;
+    gchar *sink_name,*eon;
     // this can be a whole pipeline like "audioconvert ! osssink sync=false"
     // seek for the last '!'
     if(!(sink_name=g_strrstr(plugin_name,"!"))) {
@@ -176,19 +175,19 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
       *eon='\0';
     }
     // no g_free() to partial memory later
-    temp=plugin_name;
+    gchar * const temp=plugin_name;
     plugin_name=g_strdup(sink_name);
     g_free(temp);
   }
   if (!BT_IS_STRING(plugin_name)) {
     GST_INFO("get audiosink from gst registry by rank");
     // iterate over gstreamer-audiosink list and choose element with highest rank
-    GList *node,*audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
-    GstElementFactory *factory;
+    const GList *node;
+    GList * const audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
     guint max_rank=0,cur_rank;
     
     for(node=audiosink_names;node;node=g_list_next(node)) {
-      factory=gst_element_factory_find(node->data);
+      GstElementFactory * const factory=gst_element_factory_find(node->data);
       cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
       //GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
       if((cur_rank>max_rank) || (!plugin_name)) {
@@ -207,13 +206,13 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
   return(plugin_name);
 }
 
-static GList *bt_sink_bin_get_player_elements(const BtSinkBin *self) {
+static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   gchar *plugin_name;
-  GstElement *element;
 
   plugin_name=bt_sink_bin_determine_plugin_name();
-  if(!(element=gst_element_factory_make(plugin_name,"player"))) {
+  GstElement * const element=gst_element_factory_make(plugin_name,"player");
+  if(!element) {
     GST_INFO("Can't instantiate '%d' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
@@ -230,9 +229,9 @@ Error:
   return(list);
 }
 
-static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
+static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   GList *list=NULL;
-  GstElement *element,*filesink;
+  GstElement *element;
 
   // @todo: check extension ?
   // generate recorder elements
@@ -286,7 +285,7 @@ static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin *self) {
       break;
   }
   // create filesink, set location property
-  filesink=gst_element_factory_make("filesink","filesink");
+  GstElement * const filesink=gst_element_factory_make("filesink","filesink");
   g_object_set(filesink,"location",self->priv->record_file_name,NULL);
   list=g_list_append(list,filesink);
   return(list);
@@ -307,11 +306,9 @@ Error:
  *
  * Returns: %TRUE for success
  */
-static gboolean bt_sink_bin_update(const BtSinkBin *self) {
-  GList *list;
+static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   GstElement *first_elem=NULL;
   GstPad *sink_pad;
-  gchar *name;
   
   GST_INFO("clearing sink-bin");
 
@@ -322,8 +319,9 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
   
   // add new children
   switch(self->priv->mode) {
-    case BT_SINK_BIN_MODE_PLAY:
-      if((list=bt_sink_bin_get_player_elements(self))) {
+    case BT_SINK_BIN_MODE_PLAY:{
+      GList * const list=bt_sink_bin_get_player_elements(self);
+      if(list) {
         bt_sink_bin_add_many(self,list);
         first_elem=GST_ELEMENT(list->data);
         bt_sink_bin_link_many(self,first_elem,list->next);
@@ -333,9 +331,10 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
         GST_WARNING("Can't get playback elemnt list");
         return(FALSE);
       }
-      break;
-    case BT_SINK_BIN_MODE_RECORD:
-      if((list=bt_sink_bin_get_recorder_elements(self))) {
+      break;}
+    case BT_SINK_BIN_MODE_RECORD:{
+      GList * const list=bt_sink_bin_get_recorder_elements(self);
+      if(list) {
         bt_sink_bin_add_many(self,list);
         first_elem=GST_ELEMENT(list->data);
         bt_sink_bin_link_many(self,first_elem,list->next);
@@ -345,34 +344,36 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
         GST_WARNING("Can't get record elemnt list");
         return(FALSE);
       }
-      break;
-    case BT_SINK_BIN_MODE_PLAY_AND_RECORD:
+      break;}
+    case BT_SINK_BIN_MODE_PLAY_AND_RECORD:{
       // add a tee element
-      name=g_strdup_printf("tee_%p",self);
+      gchar * const name=g_strdup_printf("tee_%p",self);
       first_elem=gst_element_factory_make("tee",name);
       g_free(name);
       gst_bin_add(GST_BIN(self),first_elem);
       // add player elems
-      if((list=bt_sink_bin_get_player_elements(self))) {
-        bt_sink_bin_add_many(self,list);
-        bt_sink_bin_link_many(self,first_elem,list);
-        g_list_free(list);
+      GList * const list1=bt_sink_bin_get_player_elements(self);
+      if(list1) {
+        bt_sink_bin_add_many(self,list1);
+        bt_sink_bin_link_many(self,first_elem,list1);
+        g_list_free(list1);
       }
       else {
         GST_WARNING("Can't get playback elemnt list");
         return(FALSE);
       }
       // add recorder elems
-      if((list=bt_sink_bin_get_recorder_elements(self))) {
-        bt_sink_bin_add_many(self,list);
-        bt_sink_bin_link_many(self,first_elem,list);
-        g_list_free(list);
+      GList * const list2=bt_sink_bin_get_recorder_elements(self);
+      if(list2) {
+        bt_sink_bin_add_many(self,list2);
+        bt_sink_bin_link_many(self,first_elem,list2);
+        g_list_free(list2);
       }
       else {
         GST_WARNING("Can't get record elemnt list");
         return(FALSE);
       }
-      break;
+      break;}
     default:
       g_assert_not_reached();
   }
@@ -406,16 +407,16 @@ static gboolean bt_sink_bin_update(const BtSinkBin *self) {
 //-- event handler
 
 #ifdef __NOT_IN_USE__
-static void on_audio_sink_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
-  gchar *plugin_name;
 
   g_assert(user_data);
   GST_INFO("audio-sink has changed");
-  plugin_name=bt_sink_machine_determine_plugin_name(settings);
+  gchar * const plugin_name=bt_sink_machine_determine_plugin_name(settings);
   GST_INFO("  -> '%s'",plugin_name);
   
-  /* @todo exchange the machine
+  /* @todo exchange the machine */
+#if 0
   //// version 1
     g_object_set(self,"plugin-name",plugin_name,NULL);
     plugin-name is construct only :(
@@ -430,17 +431,16 @@ static void on_audio_sink_changed(const BtSettings *settings,GParamSpec *arg,gpo
       g_object-set(wire,"dst",sink,NULL);
       bt_wire_reconnect(wire);
     }
-  */
+#endif
   g_free(plugin_name);
 }
 
-static void on_system_audio_sink_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+static void on_system_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
   //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
-  gchar *plugin_name;
 
   g_assert(user_data);
   GST_INFO("audio-sink has changed");
-  plugin_name=bt_sink_machine_determine_plugin_name(settings);
+  gchar * const plugin_name=bt_sink_machine_determine_plugin_name(settings);
   GST_INFO("  -> '%s'",plugin_name);
   
   // @todo exchange the machine (only if the system-audiosink is in use)
@@ -457,12 +457,12 @@ static void on_system_audio_sink_changed(const BtSettings *settings,GParamSpec *
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_sink_bin_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_sink_bin_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtSinkBin *self = BT_SINK_BIN(object);
+  const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
   switch (property_id) {
     case SINK_BIN_MODE: {
@@ -481,12 +481,12 @@ static void bt_sink_bin_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_sink_bin_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_sink_bin_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtSinkBin *self = BT_SINK_BIN(object);
+  const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
   
   // @todo avoid non-sense updates
@@ -525,8 +525,8 @@ static void bt_sink_bin_set_property(GObject      *object,
   }
 }
 
-static void bt_sink_bin_dispose(GObject *object) {
-  BtSinkBin *self = BT_SINK_BIN(object);
+static void bt_sink_bin_dispose(GObject * const object) {
+  const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -546,8 +546,8 @@ static void bt_sink_bin_dispose(GObject *object) {
   GST_INFO("done");
 }
 
-static void bt_sink_bin_finalize(GObject *object) {
-  BtSinkBin *self = BT_SINK_BIN(object);
+static void bt_sink_bin_finalize(GObject * const object) {
+  const BtSinkBin * const self = BT_SINK_BIN(object);
 
   GST_DEBUG("!!!! self=%p",self);
   
@@ -556,8 +556,8 @@ static void bt_sink_bin_finalize(GObject *object) {
   }
 }
 
-static void bt_sink_bin_init(GTypeInstance *instance, gpointer g_class) {
-  BtSinkBin *self = BT_SINK_BIN(instance);
+static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_class) {
+  BtSinkBin * const self = BT_SINK_BIN(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
   
@@ -566,8 +566,8 @@ static void bt_sink_bin_init(GTypeInstance *instance, gpointer g_class) {
   bt_sink_bin_update(self);
 }
 
-static void bt_sink_bin_class_init(BtSinkBinClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkBinPrivate));
@@ -623,7 +623,7 @@ GType bt_sink_bin_get_type(void) {
 
 //-- plugin handling
 
-static gboolean bt_sink_bin_plugin_init (GstPlugin * plugin) {
+static gboolean bt_sink_bin_plugin_init (GstPlugin * const plugin) {
   //GST_INFO("registering sink_bin plugin");
 
   gst_element_register(plugin,"bt-sink-bin",GST_RANK_NONE,BT_TYPE_SINK_BIN);

@@ -1,4 +1,4 @@
-/* $Id: application-private.h,v 1.2 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: application-private.h,v 1.3 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "application.h"
 
-extern gboolean bt_application_new(BtApplication *self);
+extern gboolean bt_application_new(BtApplication * const self);
 
 #endif // BT_APPLICATION_PRIVATE_H

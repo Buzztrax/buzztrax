@@ -1,4 +1,4 @@
-/* $Id: sink-bin.h,v 1.5 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: sink-bin.h,v 1.6 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtSinkBinPrivate BtSinkBinPrivate;
  * (a machine with inputs only).
  */
 struct _BtSinkBin {
-  GstBin parent;
+  const GstBin parent;
   
   /*< private >*/
   BtSinkBinPrivate *priv;
 };
 /* structure of the sink_bin class */
 struct _BtSinkBinClass {
-  GstBinClass parent;
+  const GstBinClass parent;
 };
 
 #define BT_TYPE_SINK_BIN_MODE       (bt_sink_bin_mode_get_type())

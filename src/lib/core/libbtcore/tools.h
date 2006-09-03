@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.15 2006-09-02 22:15:25 ensonic Exp $
+/* $Id: tools.h,v 1.16 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,10 +25,10 @@
 #ifndef BT_TOOLS_C
 extern GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter);
 
-extern void gst_element_dbg_pads(GstElement *elem);
+extern void gst_element_dbg_pads(GstElement * const elem);
 
 #ifndef HAVE_GLIB_2_8
-extern gpointer g_try_malloc0(gulong n_bytes);
+extern gpointer g_try_malloc0(const gulong n_bytes);
 
 #define g_try_new(struct_type, n_structs) \
   g_try_malloc(sizeof(struct_type)*n_structs)
@@ -37,7 +37,7 @@ extern gpointer g_try_malloc0(gulong n_bytes);
   g_try_malloc0(sizeof(struct_type)*n_structs)
 #endif // !HAVE_GLIB_2_8
 
-extern GType bt_g_type_get_base_type(GType type);
+extern GType bt_g_type_get_base_type(const GType type);
 
 extern guint bt_cpu_load_get_current(void);
 

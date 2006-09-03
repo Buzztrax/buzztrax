@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.26 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: settings.c,v 1.27 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -84,13 +84,13 @@ BtSettings *bt_settings_new(void) {
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_settings_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_settings_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtSettings *self = BT_SETTINGS(object);
-  GObjectClass *gobject_class = G_OBJECT_GET_CLASS(object);
+  const BtSettings * const self = BT_SETTINGS(object);
+  const GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
 
   // call implementation
@@ -98,21 +98,21 @@ static void bt_settings_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_settings_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_settings_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtSettings *self = BT_SETTINGS(object);
-  GObjectClass *gobject_class = G_OBJECT_GET_CLASS(object);
+  const BtSettings * const self = BT_SETTINGS(object);
+  GObjectClass * const gobject_class = G_OBJECT_GET_CLASS(object);
   return_if_disposed();
 
   // call implementation
   gobject_class->set_property(object,property_id,value,pspec);
 }
 
-static void bt_settings_dispose(GObject *object) {
-  BtSettings *self = BT_SETTINGS(object);
+static void bt_settings_dispose(GObject * const object) {
+  const BtSettings * const self = BT_SETTINGS(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -122,22 +122,22 @@ static void bt_settings_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_settings_finalize(GObject *object) {
-  BtSettings *self = BT_SETTINGS(object);
+static void bt_settings_finalize(GObject * const object) {
+  const BtSettings * const self = BT_SETTINGS(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-static void bt_settings_init(GTypeInstance *instance, gpointer g_class) {
-  BtSettings *self = BT_SETTINGS(instance);
+static void bt_settings_init(GTypeInstance * const instance, gpointer g_class) {
+  BtSettings * const self = BT_SETTINGS(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS, BtSettingsPrivate);
 }
 
-static void bt_settings_class_init(BtSettingsClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_settings_class_init(BtSettingsClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPrivate));

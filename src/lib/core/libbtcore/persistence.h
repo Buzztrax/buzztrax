@@ -1,4 +1,4 @@
-/* $Id: persistence.h,v 1.4 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: persistence.h,v 1.5 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -37,10 +37,10 @@ typedef struct _BtPersistence BtPersistence; /* dummy object */
 typedef struct _BtPersistenceInterface BtPersistenceInterface;
 
 struct _BtPersistenceInterface {
-  GTypeInterface parent;
+  const GTypeInterface parent;
 
-  xmlNodePtr (*save)(BtPersistence *self, xmlNodePtr node, BtPersistenceSelection *selection);
-  gboolean (*load)(BtPersistence *self, xmlNodePtr node, BtPersistenceLocation *location);
+  xmlNodePtr (*save)(const BtPersistence * const self, xmlNodePtr const node, const BtPersistenceSelection * const selection);
+  gboolean (*load)(const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location);
 };
 
 GType bt_persistence_get_type(void) G_GNUC_CONST;

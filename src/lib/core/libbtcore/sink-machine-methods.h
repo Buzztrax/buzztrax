@@ -1,4 +1,4 @@
-/* $Id: sink-machine-methods.h,v 1.3 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: sink-machine-methods.h,v 1.4 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "sink-machine.h"
 
-extern BtSinkMachine *bt_sink_machine_new(const BtSong *song, const gchar *id);
+extern BtSinkMachine *bt_sink_machine_new(const BtSong * const song, const gchar * const id);
 
 #endif // BT_SINK_MACHINE_METHDOS_H

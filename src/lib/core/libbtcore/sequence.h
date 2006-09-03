@@ -1,4 +1,4 @@
-/* $Id: sequence.h,v 1.17 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: sequence.h,v 1.18 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -46,14 +46,14 @@ typedef struct _BtSequencePrivate BtSequencePrivate;
  * sent to a #BtMachine at a time.
  */
 struct _BtSequence {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtSequencePrivate *priv;
 };
 /* structure of the sequence class */
 struct _BtSequenceClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 /* used by SEQUENCE_TYPE */

@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.19 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: pattern.h,v 1.20 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,17 +45,17 @@ typedef struct _BtPatternPrivate BtPatternPrivate;
  * A #BtTimeLineTrack denotes which pattern will be played at which time..
  */
 struct _BtPattern {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtPatternPrivate *priv;
 };
 /* structure of the pattern class */
 struct _BtPatternClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 
-  void (*global_param_changed_event)(const BtPattern *pattern, gulong tick, gulong param, gpointer user_data);
-  void (*voice_param_changed_event)(const BtPattern *pattern, gulong tick, gulong voice, gulong param, gpointer user_data);
+  void (*global_param_changed_event)(const BtPattern * const pattern, const gulong tick, const gulong param, gconstpointer const user_data);
+  void (*voice_param_changed_event)(const BtPattern * const pattern, const gulong tick, const gulong voice, const gulong param, gconstpointer const user_data);
 };
 
 #define BT_TYPE_PATTERN_CMD       (bt_pattern_cmd_get_type())

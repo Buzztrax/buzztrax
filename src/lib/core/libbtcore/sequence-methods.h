@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.20 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.21 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,20 +26,20 @@
 #include "pattern.h"
 #include "machine.h"
 
-extern BtSequence *bt_sequence_new(const BtSong *song);
+extern BtSequence *bt_sequence_new(const BtSong * const song);
 
-extern BtMachine *bt_sequence_get_machine(const BtSequence *self,const gulong track);
-extern gboolean bt_sequence_add_track(const BtSequence *self,const BtMachine *machine);
-extern gboolean bt_sequence_remove_track_by_ix(const BtSequence *self,gulong track);
-extern gboolean bt_sequence_remove_track_by_machine(const BtSequence *self,const BtMachine *machine);
+extern BtMachine *bt_sequence_get_machine(const BtSequence * const self,const gulong track);
+extern gboolean bt_sequence_add_track(const BtSequence * const self,const BtMachine * const machine);
+extern gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gulong track);
+extern gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const BtMachine * const machine);
 //extern void bt_sequence_set_machine(const BtSequence *self,const gulong track,const BtMachine *machine);
-extern gchar *bt_sequence_get_label(const BtSequence *self,const gulong time);
-extern void bt_sequence_set_label(const BtSequence *self,const gulong time, const gchar *label);
-extern BtPattern *bt_sequence_get_pattern(const BtSequence *self,const gulong time,const gulong track);
-extern void bt_sequence_set_pattern(const BtSequence *self,const gulong time,const gulong track,const BtPattern *pattern);
+extern gchar *bt_sequence_get_label(const BtSequence * const self, const gulong time);
+extern void bt_sequence_set_label(const BtSequence * const self, const gulong time, const gchar * const label);
+extern BtPattern *bt_sequence_get_pattern(const BtSequence * const self, const gulong time, const gulong track);
+extern void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, const gulong track, const BtPattern * const pattern);
 
-extern GstClockTime bt_sequence_get_bar_time(const BtSequence *self);
-extern GstClockTime bt_sequence_get_loop_time(const BtSequence *self);
-extern gulong bt_sequence_limit_play_pos(const BtSequence *self,gulong play_pos);
+extern GstClockTime bt_sequence_get_bar_time(const BtSequence * const self);
+extern GstClockTime bt_sequence_get_loop_time(const BtSequence * const self);
+extern gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gulong play_pos);
 
 #endif // BT_SEQUENCE_METHDOS_H

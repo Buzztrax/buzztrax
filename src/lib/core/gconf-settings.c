@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.30 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.31 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -49,7 +49,7 @@ static BtSettingsClass *parent_class=NULL;
 
 //-- event handler
 
-static void bt_gconf_settings_notify_toolbar_style(GConfClient *client, guint cnxn_id, GConfEntry  *entry, gpointer user_data) {
+static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, guint cnxn_id, GConfEntry  * const entry, gpointer const user_data) {
   BtGConfSettings *self=BT_GCONF_SETTINGS(user_data);
   
   GST_INFO("!!!  gconf notify for toolbar style");
@@ -67,8 +67,8 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient *client, guint cn
  * Returns: the new instance or %NULL in case of an error
  */
 BtGConfSettings *bt_gconf_settings_new(void) {
-  BtGConfSettings *self;
-  if(!(self=BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL)))) {
+  BtGConfSettings * const self = BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL));
+  if(!self) {
     goto Error;
   }
   GST_DEBUG("about to register gconf notify handler");
@@ -91,16 +91,16 @@ Error:
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_gconf_settings_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_gconf_settings_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+  const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",NULL);
       if(prop) {
         GST_DEBUG("application reads audiosink gconf_settings : '%s'",prop);
         g_value_set_string(value, prop);
@@ -136,7 +136,7 @@ static void bt_gconf_settings_get_property(GObject      *object,
 
     } break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
       if(prop) {
         GST_DEBUG("application reads grid-density gconf_settings : '%s'",prop);
         g_value_set_string(value, prop);
@@ -153,13 +153,13 @@ static void bt_gconf_settings_get_property(GObject      *object,
       g_value_set_uint(value, prop);
     } break;
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
       GST_DEBUG("application reads system audiosink gconf_settings : '%s'",prop);
       g_value_set_string(value, prop);
       g_free(prop);
     } break;
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
-      gchar *prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GNOME"/toolbar_style",NULL);
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GNOME"/toolbar_style",NULL);
       GST_DEBUG("application reads system toolbar style gconf_settings : '%s'",prop);
       g_value_set_string(value, prop);
       g_free(prop);
@@ -171,17 +171,17 @@ static void bt_gconf_settings_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_gconf_settings_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_gconf_settings_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+  const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
   return_if_disposed();
   switch (property_id) {
     case BT_SETTINGS_AUDIOSINK: {
       gboolean gconf_ret=FALSE;
-      gchar *prop=g_value_dup_string(value);
+      gchar * const prop=g_value_dup_string(value);
       GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",prop,NULL);
       g_free(prop);
@@ -222,8 +222,8 @@ static void bt_gconf_settings_set_property(GObject      *object,
   }
 }
 
-static void bt_gconf_settings_dispose(GObject *object) {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+static void bt_gconf_settings_dispose(GObject * const object) {
+  const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -240,16 +240,16 @@ static void bt_gconf_settings_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_gconf_settings_finalize(GObject *object) {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(object);
+static void bt_gconf_settings_finalize(GObject * const object) {
+  const BtGConfSettings * const self = BT_GCONF_SETTINGS(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
-  BtGConfSettings *self = BT_GCONF_SETTINGS(instance);
+static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer g_class) {
+  BtGConfSettings * const self = BT_GCONF_SETTINGS(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_GCONF_SETTINGS, BtGConfSettingsPrivate);
   
@@ -263,8 +263,8 @@ static void bt_gconf_settings_init(GTypeInstance *instance, gpointer g_class) {
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);
 }
 
-static void bt_gconf_settings_class_init(BtGConfSettingsClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_gconf_settings_class_init(BtGConfSettingsClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtGConfSettingsPrivate));

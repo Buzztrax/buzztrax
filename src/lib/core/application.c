@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.59 2006-08-24 20:00:51 ensonic Exp $
+/* $Id: application.c,v 1.60 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -64,7 +64,7 @@ static GObjectClass *parent_class=NULL;
 
 typedef struct {
   GstBusFunc handler;
-  gpointer user_data;
+  gconstpointer user_data;
 } BtBusWatchEntry;
 
 //-- helper
@@ -78,11 +78,11 @@ typedef struct {
  * distribute pipeline-bus message
  * walks the callback list and invoke the callbacks until one returns TRUE
  */
-static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
-  BtApplication *self = BT_APPLICATION(user_data);
-  BtBusWatchEntry *entry;
+static gboolean bus_handler(const GstBus * const bus, const GstMessage * const message, gconstpointer const user_data) {
+  const BtApplication * const self = BT_APPLICATION(user_data);
+  const BtBusWatchEntry *entry;
   gboolean handled=FALSE;
-  GList* node;
+  const GList* node;
   
   g_return_val_if_fail(GST_IS_BUS(bus),TRUE);
   
@@ -94,9 +94,9 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
     handled=entry->handler(bus,message,entry->user_data);
   }
   if(!handled) {
-    GError *err;
-    gchar *debug;
-    gchar *msg_type=NULL;
+    const GError *err;
+    const gchar *debug;
+    const gchar *msg_type=NULL;
     switch(GST_MESSAGE_TYPE(message)) {
       case GST_MESSAGE_WARNING:
         msg_type=_("Warning");
@@ -138,7 +138,7 @@ static gboolean bus_handler(GstBus *bus, GstMessage *message, gpointer user_data
  *
  * Returns: %TRUE for succes, %FALSE otherwise
  */
-gboolean bt_application_new(BtApplication *self) {
+gboolean bt_application_new(const BtApplication * const self) {
   gboolean res=FALSE;
 
   g_return_val_if_fail(BT_IS_APPLICATION(self),FALSE);
@@ -173,9 +173,9 @@ gboolean bt_application_new(BtApplication *self) {
  * The #BtApplication class manages communication with the #GstBus of the loaded
  * #BtSong. To process bus messages register a handler with this method.
  */
-void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,gpointer user_data) {
+void bt_application_add_bus_watch(const BtApplication * const self, const GstBusFunc handler, gconstpointer const user_data) {
   BtBusWatchEntry *entry;
-  GList* node;
+  const GList* node;
   
   g_return_if_fail(BT_IS_APPLICATION(self));
   g_return_if_fail(handler);
@@ -203,7 +203,7 @@ void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,g
  *
  * Unregister a handler previously registered using bt_application_add_bus_watch().
  */
-void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handler,gpointer user_data) {
+void bt_application_remove_bus_watch(const BtApplication * const self, const GstBusFunc handler, gconstpointer const user_data) {
   BtBusWatchEntry *entry;
   gboolean found=FALSE;
   GList* node;
@@ -231,12 +231,12 @@ void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handle
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_application_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_application_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtApplication *self = BT_APPLICATION(object);
+  const BtApplication * const self = BT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
     case APPLICATION_BIN: {
@@ -255,12 +255,12 @@ static void bt_application_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_application_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_application_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtApplication *self = BT_APPLICATION(object);
+  const BtApplication * const self = BT_APPLICATION(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -269,8 +269,8 @@ static void bt_application_set_property(GObject      *object,
   }
 }
 
-static void bt_application_dispose(GObject *object) {
-  BtApplication *self = BT_APPLICATION(object);
+static void bt_application_dispose(GObject * const object) {
+  const BtApplication * const self = BT_APPLICATION(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -288,8 +288,8 @@ static void bt_application_dispose(GObject *object) {
   GST_DEBUG("  done");
 }
 
-static void bt_application_finalize(GObject *object) {
-  BtApplication *self = BT_APPLICATION(object);
+static void bt_application_finalize(GObject * const object) {
+  const BtApplication * const self = BT_APPLICATION(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -310,8 +310,8 @@ static void bt_application_finalize(GObject *object) {
   GST_DEBUG("  done");
 }
 
-static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
-  BtApplication *self = BT_APPLICATION(instance);
+static void bt_application_init(const GTypeInstance * const instance, gconstpointer const g_class) {
+  BtApplication * const self = BT_APPLICATION(instance);
   GstBus *bus;
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
@@ -336,8 +336,8 @@ static void bt_application_init(GTypeInstance *instance, gpointer g_class) {
   g_assert(BT_IS_SETTINGS(self->priv->settings));
 }
 
-static void bt_application_class_init(BtApplicationClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_application_class_init(BtApplicationClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtApplicationPrivate));

@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.58 2006-09-02 19:47:22 ensonic Exp $
+/* $Id: song-info.c,v 1.59 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,12 +60,12 @@ struct _BtSongInfoPrivate {
   /* the song the song-info belongs to */
   union {
     BtSong *song;
-    gpointer song_ptr;
+    gconstpointer song_ptr;
   };
   
   /* the song-info as tag-data */
   GstTagList *taglist;
-	GDate *tag_date;
+  GDate *tag_date;
 
   /* the file name of the song */
   gchar *file_name;
@@ -103,12 +103,11 @@ static GObjectClass *parent_class=NULL;
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSongInfo *bt_song_info_new(const BtSong *song) {
-  BtSongInfo *self;
-
+BtSongInfo *bt_song_info_new(const BtSong * const song) {
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   
-  self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
+  BtSongInfo * const self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
+
   return(self);
 }
 
@@ -117,8 +116,8 @@ BtSongInfo *bt_song_info_new(const BtSong *song) {
 
 //-- io interface
 
-static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  BtSongInfo *self = BT_SONG_INFO(persistence);
+static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+  const BtSongInfo * const self = BT_SONG_INFO(persistence);
   xmlNodePtr node=NULL;
 
   GST_DEBUG("PERSISTENCE::song-info");
@@ -149,22 +148,20 @@ static xmlNodePtr bt_song_info_persistence_save(BtPersistence *persistence, xmlN
   return(node);
 }
 
-static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  BtSongInfo *self = BT_SONG_INFO(persistence);
+static gboolean bt_song_info_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+  const BtSongInfo * const self = BT_SONG_INFO(persistence);
   gboolean res=FALSE;
-  xmlNodePtr child_node;
-  xmlChar *elem;
-  const gchar *property_name;
   
   GST_DEBUG("PERSISTENCE::song-info");
   g_assert(node);
 
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
-      child_node=node->children;
+      xmlNodePtr const child_node=node->children;
       if(child_node && xmlNodeIsText(child_node) && !xmlIsBlankNode(child_node)) {
-        if((elem=xmlNodeGetContent(child_node))) {
-          property_name=(gchar *)node->name;
+	xmlChar * const elem=xmlNodeGetContent(child_node);
+        if(elem) {
+          const gchar * const property_name=(gchar *)node->name;
           GST_DEBUG("  \"%s\"=\"%s\"",property_name,elem);
           // depending on the name of the property, treat it's type
           if(!strncmp(property_name,"info",4) ||
@@ -190,8 +187,8 @@ static gboolean bt_song_info_persistence_load(BtPersistence *persistence, xmlNod
   return(res);
 }
 
-static void bt_song_info_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
-  BtPersistenceInterface *iface = g_iface;
+static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_song_info_persistence_load;
   iface->save = bt_song_info_persistence_save;
@@ -202,12 +199,12 @@ static void bt_song_info_persistence_interface_init(gpointer g_iface, gpointer i
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_song_info_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_song_info_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtSongInfo *self = BT_SONG_INFO(object);
+  const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {
@@ -253,12 +250,12 @@ static void bt_song_info_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_song_info_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_song_info_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtSongInfo *self = BT_SONG_INFO(object);
+  const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_INFO_SONG: {  
@@ -309,7 +306,7 @@ static void bt_song_info_set_property(GObject      *object,
       GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
     } break;
     case SONG_INFO_CREATE_DTS: {
-      const gchar *dts = g_value_get_string(value);
+      const gchar * const dts = g_value_get_string(value);
 
       if(dts) {
         if(strlen(dts)==DTS_LEN) {
@@ -322,7 +319,7 @@ static void bt_song_info_set_property(GObject      *object,
       }
     } break;
     case SONG_INFO_CHANGE_DTS: {
-      const gchar *dts = g_value_get_string(value);
+      const gchar * const dts = g_value_get_string(value);
 
       if(dts) {
         if(strlen(dts)==DTS_LEN) {
@@ -355,8 +352,8 @@ static void bt_song_info_set_property(GObject      *object,
   }
 }
 
-static void bt_song_info_dispose(GObject *object) {
-  BtSongInfo *self = BT_SONG_INFO(object);
+static void bt_song_info_dispose(GObject * const object) {
+  const BtSongInfo * const self = BT_SONG_INFO(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -367,8 +364,8 @@ static void bt_song_info_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_song_info_finalize(GObject *object) {
-  BtSongInfo *self = BT_SONG_INFO(object);
+static void bt_song_info_finalize(GObject * const object) {
+  const BtSongInfo * const self = BT_SONG_INFO(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -386,8 +383,8 @@ static void bt_song_info_finalize(GObject *object) {
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
-static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
-  BtSongInfo *self = BT_SONG_INFO(instance);
+static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_class) {
+  BtSongInfo * const self = BT_SONG_INFO(instance);
   time_t now=time(NULL);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
@@ -418,8 +415,8 @@ static void bt_song_info_init(GTypeInstance *instance, gpointer g_class) {
     NULL);
 }
 
-static void bt_song_info_class_init(BtSongInfoClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_song_info_class_init(BtSongInfoClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongInfoPrivate));

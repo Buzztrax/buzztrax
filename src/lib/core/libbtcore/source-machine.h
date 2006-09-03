@@ -1,4 +1,4 @@
-/* $Id: source-machine.h,v 1.16 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: source-machine.h,v 1.17 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtSourceMachinePrivate BtSourceMachinePrivate;
  * (a machine with outputs only).
  */
 struct _BtSourceMachine {
-  BtMachine parent;
+  const BtMachine parent;
   
   /*< private >*/
   BtSourceMachinePrivate *priv;
 };
 /* structure of the source_machine class */
 struct _BtSourceMachineClass {
-  BtMachineClass parent;
+  const BtMachineClass parent;
 };
 
 /* used by SOURCE_MACHINE_TYPE */

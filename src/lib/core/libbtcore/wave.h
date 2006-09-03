@@ -1,4 +1,4 @@
-/* $Id: wave.h,v 1.7 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: wave.h,v 1.8 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtWavePrivate BtWavePrivate;
  * (contains #BtMachine and #BtWire objects)
  */
 struct _BtWave {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtWavePrivate *priv;
 };
 
 struct _BtWaveClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 GType bt_wave_get_type(void) G_GNUC_CONST;

@@ -1,4 +1,4 @@
-/* $Id: wavelevel-methods.h,v 1.3 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: wavelevel-methods.h,v 1.4 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "wavelevel.h"
 
-extern BtWavelevel *bt_wavelevel_new(const BtSong *song,const BtWave *wave,guchar root_note,gulong length,glong loop_start,glong loop_end,gulong rate);
+extern BtWavelevel *bt_wavelevel_new(const BtSong * const song, const BtWave * const wave, const guchar root_note, const gulong length, const glong loop_start, const glong loop_end, const gulong rate);
 
 #endif // BT_WAVELEVEL_METHDOS_H

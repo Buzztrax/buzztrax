@@ -1,4 +1,4 @@
-/* $Id: processor-machine.h,v 1.16 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: processor-machine.h,v 1.17 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtProcessorMachinePrivate BtProcessorMachinePrivate;
  * (a machine with in and outputs).
  */
 struct _BtProcessorMachine {
-  BtMachine parent;
+  const BtMachine parent;
   
   /*< private >*/
   BtProcessorMachinePrivate *priv;
 };
 /* structure of the processor_machine class */
 struct _BtProcessorMachineClass {
-  BtMachineClass parent;
+  const BtMachineClass parent;
 };
 
 /* used by PROCESSOR_MACHINE_TYPE */

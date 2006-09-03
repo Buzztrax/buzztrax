@@ -1,4 +1,4 @@
-/* $Id: wire.h,v 1.15 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: wire.h,v 1.16 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,7 +44,7 @@ typedef struct _BtWirePrivate BtWirePrivate;
  * connects two #BtMachine instances
  */
 struct _BtWire {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtWirePrivate *priv;
@@ -52,7 +52,7 @@ struct _BtWire {
 
 /* structure of the wire class */
 struct _BtWireClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 /* used by WIRE_TYPE */

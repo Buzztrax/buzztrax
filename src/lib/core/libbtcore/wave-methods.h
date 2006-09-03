@@ -1,4 +1,4 @@
-/* $Id: wave-methods.h,v 1.6 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: wave-methods.h,v 1.7 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,10 +25,10 @@
 #include "wave.h"
 #include "wavelevel.h"
 
-extern BtWave *bt_wave_new(const BtSong *song,const gchar *name,const gchar *url,gulong index);
+extern BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const url, const gulong index);
 
-extern gboolean bt_wave_add_wavelevel(const BtWave *self, const BtWavelevel *wavelevel);
+extern gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * const wavelevel);
 
-extern gboolean bt_wave_load_from_url(const BtWave *self);
+extern gboolean bt_wave_load_from_url(const BtWave * const self);
 
 #endif // BT_WAVE_METHDOS_H

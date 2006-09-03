@@ -1,4 +1,4 @@
-/* $Id: wavetable-methods.h,v 1.5 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: wavetable-methods.h,v 1.6 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,11 +25,11 @@
 #include "wavetable.h"
 #include "wave.h"
 
-extern BtWavetable *bt_wavetable_new(const BtSong *song);
+extern BtWavetable *bt_wavetable_new(const BtSong * const song);
 
-extern gboolean bt_wavetable_add_wave(const BtWavetable *self, const BtWave *wave);
-extern BtWave *bt_wavetable_get_wave_by_index(const BtWavetable *self, gulong index);
+extern gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * const wave);
+extern BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gulong index);
 
-extern void bt_wavetable_remember_missing_wave(const BtWavetable *self,const gchar *str);
+extern void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gchar * const str);
 
 #endif // BT_WAVETABLE_METHDOS_H

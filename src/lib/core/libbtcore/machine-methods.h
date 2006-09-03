@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.42 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: machine-methods.h,v 1.43 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,71 +25,71 @@
 #include "machine.h"
 #include "pattern.h"
 
-extern gboolean bt_machine_enable_input_level(BtMachine *self);
-extern gboolean bt_machine_enable_input_gain(BtMachine *self);
-extern gboolean bt_machine_enable_output_gain(BtMachine *self);
+extern gboolean bt_machine_enable_input_level(BtMachine * const self);
+extern gboolean bt_machine_enable_input_gain(BtMachine * const self);
+extern gboolean bt_machine_enable_output_gain(BtMachine * const self);
 
-extern gboolean bt_machine_activate_adder(BtMachine *self);
-extern gboolean bt_machine_has_active_adder(BtMachine *self);
-extern gboolean bt_machine_activate_spreader(BtMachine *self);
-extern gboolean bt_machine_has_active_spreader(BtMachine *self);
+extern gboolean bt_machine_activate_adder(BtMachine * const self);
+extern gboolean bt_machine_has_active_adder(const BtMachine * const self);
+extern gboolean bt_machine_activate_spreader(BtMachine * const self);
+extern gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
 // pattern handling
 
 extern void bt_machine_add_pattern(const BtMachine *self, const BtPattern *pattern);
 extern void bt_machine_remove_pattern(const BtMachine *self, const BtPattern *pattern);
 
-extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine *self,const gchar *id);
-extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine *self,gulong index);
+extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, const gchar * const id);
+extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 
-extern gchar *bt_machine_get_unique_pattern_name(const BtMachine *self);
+extern gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
 
 // global and voice param handling
 
-extern gboolean bt_machine_is_polyphonic(const BtMachine *self);
+extern gboolean bt_machine_is_polyphonic(const BtMachine * const self);
 
-extern glong bt_machine_get_global_param_index(const BtMachine *self, const gchar *name, GError **error);
-extern glong bt_machine_get_voice_param_index(const BtMachine *self, const gchar *name, GError **error);
+extern glong bt_machine_get_global_param_index(const BtMachine * const self, const gchar * const name, GError **error);
+extern glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error);
 
-extern GParamSpec *bt_machine_get_global_param_spec(const BtMachine *self, gulong index);
-extern GParamSpec *bt_machine_get_voice_param_spec(const BtMachine *self, gulong index);
+extern GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const gulong index);
+extern GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const gulong index);
 
-extern GType bt_machine_get_global_param_type(const BtMachine *self, gulong index);
-extern GType bt_machine_get_voice_param_type(const BtMachine *self, gulong index);
+extern GType bt_machine_get_global_param_type(const BtMachine * const self, const gulong index);
+extern GType bt_machine_get_voice_param_type(const BtMachine * const self, const gulong index);
 
-extern void bt_machine_set_global_param_value(const BtMachine *self, gulong index, GValue *event);
-extern void bt_machine_set_voice_param_value(const BtMachine *self, gulong voice, gulong index, GValue *event);
+extern void bt_machine_set_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
+extern void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong voice, const gulong index, GValue * const event);
 
-extern void bt_machine_set_global_param_no_value(const BtMachine *self, gulong index);
-extern void bt_machine_set_voice_param_no_value(const BtMachine *self, gulong voice, gulong index);
+extern void bt_machine_set_global_param_no_value(const BtMachine * const self, const gulong index);
+extern void bt_machine_set_voice_param_no_value(const BtMachine * const self, const gulong voice, const gulong index);
 
-extern const gchar *bt_machine_get_global_param_name(const BtMachine *self, gulong index);
-extern const gchar *bt_machine_get_voice_param_name(const BtMachine *self, gulong index);
+extern const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index);
+extern const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index);
 
-extern GValue *bt_machine_get_global_param_min_value(const BtMachine *self, gulong index);
-extern GValue *bt_machine_get_voice_param_min_value(const BtMachine *self, gulong index);
+extern GValue *bt_machine_get_global_param_min_value(const BtMachine * const self, const gulong index);
+extern GValue *bt_machine_get_voice_param_min_value(const BtMachine * const self, const gulong index);
 
-extern GValue *bt_machine_get_global_param_max_value(const BtMachine *self, gulong index);
-extern GValue *bt_machine_get_voice_param_max_value(const BtMachine *self, gulong index);
+extern GValue *bt_machine_get_global_param_max_value(const BtMachine * const self, const gulong index);
+extern GValue *bt_machine_get_voice_param_max_value(const BtMachine * const self, const gulong index);
 
-extern gboolean bt_machine_is_global_param_trigger(const BtMachine *self, gulong index);
-extern gboolean bt_machine_is_voice_param_trigger(const BtMachine *self, gulong index);
+extern gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const gulong index);
+extern gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const gulong index);
 
-extern gboolean bt_machine_is_global_param_no_value(const BtMachine *self, gulong index, GValue *value);
-extern gboolean bt_machine_is_voice_param_no_value(const BtMachine *self, gulong index, GValue *value);
+extern gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const gulong index, GValue * const value);
+extern gboolean bt_machine_is_voice_param_no_value(const BtMachine *const self, const gulong index, GValue * const value);
 
-extern gchar *bt_machine_describe_global_param_value(const BtMachine *self, gulong index, GValue *event);
-extern gchar *bt_machine_describe_voice_param_value(const BtMachine *self, gulong index, GValue *event);
+extern gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
+extern gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 
 // controller handling
 
-extern void bt_machine_global_controller_change_value(const BtMachine *self, gulong param, GstClockTime timestamp, GValue *value);
-extern void bt_machine_voice_controller_change_value(const BtMachine *self, gulong param, gulong voice, GstClockTime timestamp, GValue *value);
+extern void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
+extern void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice,  const GstClockTime timestamp, GValue * const value);
 
 // debug helper
 
-extern GList *bt_machine_get_element_list(const BtMachine *self);
-extern void bt_machine_dbg_print_parts(const BtMachine *self);
-extern void bt_machine_dbg_dump_global_controller_queue(const BtMachine *self);
+extern GList *bt_machine_get_element_list(const BtMachine * const self);
+extern void bt_machine_dbg_print_parts(const BtMachine * const self);
+extern void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self);
 
 #endif // BT_MACHINE_METHDOS_H

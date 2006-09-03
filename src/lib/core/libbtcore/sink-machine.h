@@ -1,4 +1,4 @@
-/* $Id: sink-machine.h,v 1.17 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: sink-machine.h,v 1.18 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtSinkMachinePrivate BtSinkMachinePrivate;
  * (a machine with inputs only).
  */
 struct _BtSinkMachine {
-  BtMachine parent;
+  const BtMachine parent;
   
   /*< private >*/
   BtSinkMachinePrivate *priv;
 };
 /* structure of the sink_machine class */
 struct _BtSinkMachineClass {
-  BtMachineClass parent;
+  const BtMachineClass parent;
 };
 
 /* used by SINK_MACHINE_TYPE */

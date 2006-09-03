@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.41 2006-08-26 12:13:27 ensonic Exp $
+/* $Id: source-machine.c,v 1.42 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,14 +55,14 @@ static BtMachineClass *parent_class=NULL;
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices) {
-  BtSourceMachine *self;
-  
+BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices) {
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
   g_return_val_if_fail(BT_IS_STRING(id),NULL);
   g_return_val_if_fail(BT_IS_STRING(plugin_name),NULL);
   
-  if(!(self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL)))) {
+  BtSourceMachine * const self=BT_SOURCE_MACHINE(g_object_new(BT_TYPE_SOURCE_MACHINE,"song",song,"id",id,"plugin-name",plugin_name,"voices",voices,NULL));
+  
+  if(!self) {
     goto Error;
   }
   if(!bt_machine_new(BT_MACHINE(self))) {
@@ -78,11 +78,11 @@ Error:
 
 //-- io interface
 
-static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
-  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+  const BtSourceMachine * const self = BT_SOURCE_MACHINE(persistence);
+  const BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
   xmlNodePtr node=NULL;
-  gchar *plugin_name;
+  gchar * const plugin_name;
   gulong voices;
 
   GST_DEBUG("PERSISTENCE::source-machine");
@@ -99,27 +99,23 @@ static xmlNodePtr bt_source_machine_persistence_save(BtPersistence *persistence,
   return(node);
 }
 
-static gboolean bt_source_machine_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(persistence);
-  BtPersistenceInterface *parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
-  xmlChar *plugin_name,*voices_str;
-  gulong voices;
+static gboolean bt_source_machine_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+  const BtSourceMachine * const self = BT_SOURCE_MACHINE(persistence);
+  const BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
 
-  GST_DEBUG("PERSISTENCE::source_machine");
-  g_assert(node);
-  
-  plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
-  voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
-  voices=voices_str?atol((char *)voices_str):0;
+  xmlChar * const plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
+  xmlChar * const voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
+  const gulong voices=voices_str?atol((char *)voices_str):0;
   g_object_set(G_OBJECT(self),"plugin-name",plugin_name,"voices",voices,NULL);
-  xmlFree(plugin_name);xmlFree(voices_str);
+  xmlFree(plugin_name);
+  xmlFree(voices_str);
   
   // load parent class stuff
   return(parent_iface->load(persistence,node,location));
 }
 
-static void bt_source_machine_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
-  BtPersistenceInterface *iface = g_iface;
+static void bt_source_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_source_machine_persistence_load;
   iface->save = bt_source_machine_persistence_save;
@@ -129,9 +125,9 @@ static void bt_source_machine_persistence_interface_init(gpointer g_iface, gpoin
 
 //-- bt_machine overrides
 
-static gboolean bt_source_machine_check_type(const BtMachine *self,gulong pad_src_ct,gulong pad_sink_ct) {
+static gboolean bt_source_machine_check_type(const BtMachine * const self, const gulong pad_src_ct, const gulong pad_sink_ct) {
   if(pad_src_ct==0 || pad_sink_ct>0) {
-    gchar *plugin_name;
+    gchar * const plugin_name;
     
     g_object_get(G_OBJECT(self),"plugin-name",&plugin_name,NULL);
     GST_ERROR("  plugin \"%s\" is has %d src pads instead of >0 and %d sink pads instead of 0",
@@ -142,12 +138,12 @@ static gboolean bt_source_machine_check_type(const BtMachine *self,gulong pad_sr
   return(TRUE);
 }
 
-static void bt_source_machine_setup(const BtMachine *self) {
-  BtPattern *pattern;
-  BtSong *song;
+static void bt_source_machine_setup(const BtMachine * const self) {
+  BtSong * const song;
   
   g_object_get(G_OBJECT(self),"song",&song,NULL);
-  if((pattern=bt_pattern_new_with_event(song,self,BT_PATTERN_CMD_SOLO))) {
+  BtPattern * const pattern=bt_pattern_new_with_event(song,self,BT_PATTERN_CMD_SOLO);
+  if(pattern) {
     g_object_unref(pattern);
   }
   g_object_unref(song);
@@ -157,12 +153,12 @@ static void bt_source_machine_setup(const BtMachine *self) {
 //-- g_object overrides
 
 /* returns a property for the given property_id for this object */
-static void bt_source_machine_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_source_machine_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(object);
+  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -172,12 +168,12 @@ static void bt_source_machine_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_source_machine_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_source_machine_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(object);
+  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
   return_if_disposed();
   switch (property_id) {
     default: {
@@ -186,8 +182,8 @@ static void bt_source_machine_set_property(GObject      *object,
   }
 }
 
-static void bt_source_machine_dispose(GObject *object) {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(object);
+static void bt_source_machine_dispose(GObject * const object) {
+  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -196,8 +192,8 @@ static void bt_source_machine_dispose(GObject *object) {
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
-static void bt_source_machine_finalize(GObject *object) {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(object);
+static void bt_source_machine_finalize(GObject * const object) {
+  const BtSourceMachine * const self = BT_SOURCE_MACHINE(object);
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -206,15 +202,15 @@ static void bt_source_machine_finalize(GObject *object) {
 
 //-- class internals
 
-static void bt_source_machine_init(GTypeInstance *instance, gpointer g_class) {
-  BtSourceMachine *self = BT_SOURCE_MACHINE(instance);
+static void bt_source_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
+  BtSourceMachine * const self = BT_SOURCE_MACHINE(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SOURCE_MACHINE, BtSourceMachinePrivate);
 }
 
-static void bt_source_machine_class_init(BtSourceMachineClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
-  BtMachineClass *machine_class = BT_MACHINE_CLASS(klass);
+static void bt_source_machine_class_init(BtSourceMachineClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  BtMachineClass * const machine_class = BT_MACHINE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSourceMachinePrivate));

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.29 2006-09-02 22:15:25 ensonic Exp $
+/* $Id: tools.c,v 1.30 2006-09-03 13:18:37 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,9 +23,9 @@
 #define BT_TOOLS_C
 #include <libbtcore/core.h>
 
-static gboolean bt_gst_registry_class_filter(GstPluginFeature *feature, gpointer user_data) {
-  gchar *class_filter=(gchar *)user_data;
-  gsize sl=(gsize)(strlen(class_filter));
+static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, gpointer user_data) {
+  const gchar * const class_filter=(gchar *)user_data;
+  const gsize sl=(gsize)(strlen(class_filter));
   
   if(GST_IS_ELEMENT_FACTORY(feature)) {
     if(!g_ascii_strncasecmp(gst_element_factory_get_klass(GST_ELEMENT_FACTORY(feature)),class_filter,sl)) {
@@ -45,15 +45,13 @@ static gboolean bt_gst_registry_class_filter(GstPluginFeature *feature, gpointer
  * Returns: list of element names, g_list_free after use.
  */
 GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter) {
-  GList *list,*node;
+  const GList *node;
   GList *res=NULL;
-  GstPluginFeature *feature;
-
   g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
-    
-  list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)class_filter);
+ 
+  GList * const list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)class_filter);
   for(node=list;node;node=g_list_next(node)) {
-    feature=GST_PLUGIN_FEATURE(node->data);
+    GstPluginFeature * const feature=GST_PLUGIN_FEATURE(node->data);
     res=g_list_append(res,(gchar *)gst_plugin_feature_get_name(feature));
   }
   g_list_free(list);
@@ -67,16 +65,13 @@ GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter) {
  * Write out a list of pads for the given element
  *
  */
-void gst_element_dbg_pads(GstElement *elem) {
+void gst_element_dbg_pads(GstElement * const elem) {
   GstIterator *it;
-  GstPad *pad;
-  GstCaps *caps;
-  GstStructure *structure;
+  GstPad * const pad;
   GstPadDirection dir;
-  gchar *dirs[]={"unkonow","src","sink",NULL};
-  gchar *str;
+  const gchar *dirs[]={"unknown","src","sink",NULL};
   gboolean done;
-  guint i,size;
+  guint i;
 
   GST_DEBUG("machine: %s",GST_ELEMENT_NAME(elem));
   it=gst_element_iterate_pads(elem);
@@ -85,13 +80,13 @@ void gst_element_dbg_pads(GstElement *elem) {
     switch (gst_iterator_next (it, (gpointer)&pad)) {
       case GST_ITERATOR_OK:
         dir=gst_pad_get_direction(pad);
-        caps=gst_pad_get_caps(pad);
-        size=gst_caps_get_size(caps);
+        GstCaps * const caps=gst_pad_get_caps(pad);
+        const guint size=gst_caps_get_size(caps);
         GST_DEBUG("  pad: %s:%s, dir: %s, nr-caps: %d",GST_DEBUG_PAD_NAME(pad),dirs[dir],size);
         // iterate over structures and print
         for(i=0;i<size;i++) {
-          structure=gst_caps_get_structure(caps,i);
-          str=gst_structure_to_string(structure);
+          const GstStructure * const structure=gst_caps_get_structure(caps,i);
+          gchar * const str=gst_structure_to_string(structure);
           GST_DEBUG("    caps[%2d]: %s : %s",i,GST_STR_NULL(gst_structure_get_name(structure)),str);
           g_free(str);
           //gst_object_unref(structure);
@@ -112,10 +107,10 @@ void gst_element_dbg_pads(GstElement *elem) {
 }
 
 #ifndef HAVE_GLIB_2_8
-gpointer g_try_malloc0(gulong n_bytes) {
-  gpointer mem;
+gpointer g_try_malloc0( const gulong n_bytes ) {
+  gpointer const mem=g_try_malloc(n_bytes);
 
-  if((mem=g_try_malloc(n_bytes))) {
+  if(mem) {
     memset(mem,0,n_bytes);
   }
   return(mem);
@@ -186,7 +181,7 @@ guint bt_cpu_load_get_current(void) {
   //times(&tms);
   // percentage
   cpuload=(guint)gst_util_uint64_scale(tuser+tsys,G_GINT64_CONSTANT(100),treal);
-  GST_DEBUG("real %"GST_TIME_FORMAT", user %"GST_TIME_FORMAT", sys %"GST_TIME_FORMAT" => cpuload %d",GST_TIME_ARGS(treal),GST_TIME_ARGS(tuser),GST_TIME_ARGS(tsys),cpuload);
+  GST_LOG("real %"GST_TIME_FORMAT", user %"GST_TIME_FORMAT", sys %"GST_TIME_FORMAT" => cpuload %d",GST_TIME_ARGS(treal),GST_TIME_ARGS(tuser),GST_TIME_ARGS(tsys),cpuload);
   //printf("user %6.4lf, sys %6.4lf\n",(double)tms.tms_utime/(double)clk,(double)tms.tms_stime/(double)clk);
 
   return(cpuload);

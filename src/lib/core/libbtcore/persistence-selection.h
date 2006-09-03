@@ -1,4 +1,4 @@
-/* $Id: persistence-selection.h,v 1.2 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: persistence-selection.h,v 1.3 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,11 +41,11 @@ typedef struct _BtPersistenceSelectionClass BtPersistenceSelectionClass;
  * BtPersistenceSelection:
  */
 struct _BtPersistenceSelection {
-  GObject parent;
+  const GObject parent;
 };
 
 struct _BtPersistenceSelectionClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 GType bt_persistence_selection_get_type(void) G_GNUC_CONST;

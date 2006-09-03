@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings-methods.h,v 1.3 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: plainfile-settings-methods.h,v 1.4 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "plainfile-settings.h"
 
-extern BtPlainfileSettings *bt_plainfile_settings_new(void);
+extern const BtPlainfileSettings *bt_plainfile_settings_new(void);
 
 #endif // BT_PLAINFILE_SETTINGS_METHDOS_H

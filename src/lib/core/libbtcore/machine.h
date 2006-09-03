@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.25 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: machine.h,v 1.26 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,7 +45,7 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
  * base object for a virtual piece of hardware
  */
 struct _BtMachine {
-  GObject parent;
+  const GObject parent;
 
   /* convinience pointers (accessed alot by the wire object) */
   GstElement *dst_elem;
@@ -57,17 +57,17 @@ struct _BtMachine {
 
 /* structure of the machine class */
 struct _BtMachineClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 
   /*< private >*/
   /* signal callbacks */
-  void (*pattern_added_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
-  void (*pattern_removed_event)(const BtMachine *machine, const BtPattern *pattern, gpointer user_data);
+  void (*pattern_added_event)(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer const user_data);
+  void (*pattern_removed_event)(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer const user_data);
   
   /*< public >*/
   /* virtual methods for subclasses */
-  gboolean (*check_type)(const BtMachine *machine,gulong pad_src_ct,gulong pad_sink_ct);
-  void (*setup)(const BtMachine *machine);
+  gboolean (*check_type)(const BtMachine * const machine, const gulong pad_src_ct, const gulong pad_sink_ct);
+  void (*setup)(const BtMachine * const machine);
 
 };
 

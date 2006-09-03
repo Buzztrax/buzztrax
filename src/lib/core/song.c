@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.140 2006-08-27 20:02:54 ensonic Exp $
+/* $Id: song.c,v 1.141 2006-09-03 13:18:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -75,14 +75,14 @@ struct _BtSongPrivate {
   /* the application that currently uses the song */
   union {
     BtApplication *app;
-    gpointer app_ptr;
+    gconstpointer app_ptr;
   };
   /* the main gstreamer container element */
   GstBin *bin;
   /* the element that has the clock */
   union {
     BtSinkMachine *master;
-    gpointer master_ptr;
+    gconstpointer master_ptr;
   };
   
   /* the query is used in update_playback_position */
@@ -105,16 +105,15 @@ static GObjectClass *parent_class=NULL;
  * Send a new playback segment, that goes from the current playback position to
  * the new end position (loop or song end).
  */
-static void bt_song_seek_to_play_pos(BtSong *self) {
+static void bt_song_seek_to_play_pos(const BtSong * const self) {
 	GstEvent *event;
 	gboolean loop;
 	glong loop_end,length;
-	GstClockTime bar_time;
 
 	if(!self->priv->is_playing) return;
 	
 	g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
-	bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+	const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   
   GST_DEBUG("loop %d? %ld, length %ld, bar_time %"G_GINT64_FORMAT,loop,loop_end,length,bar_time);
   
@@ -144,19 +143,17 @@ static void bt_song_seek_to_play_pos(BtSong *self) {
  * or song start) to the new end position (loop or song end).
  * Also calls bt_song_seek_to_play_pos() to update the current playback segment.
  */
-static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
+static void bt_song_update_play_seek_event(const BtSong * const self, const gboolean first) {
   gboolean loop;
   glong loop_start,loop_end,length;
-  GstClockTime bar_time;
-  GstSeekFlags flags;
 
   g_object_get(self->priv->sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,"length",&length,NULL);
-  bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+  const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   
   GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"G_GINT64_FORMAT,loop,loop_start,loop_end,length,bar_time);
   
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-  flags=first?0L:GST_SEEK_FLAG_FLUSH;
+  const GstSeekFlags flags=first?0L:GST_SEEK_FLAG_FLUSH;
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         flags | GST_SEEK_FLAG_SEGMENT,
@@ -176,9 +173,9 @@ static void bt_song_update_play_seek_event(BtSong *self,gboolean first) {
 //-- handler
 
 #if 0
-static gboolean bt_song_bus_handler(GstBus *bus, GstMessage *message, gpointer user_data) {
+static gboolean bt_song_bus_handler(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   gboolean res=FALSE;
-  BtSong *self = BT_SONG(user_data);
+  const BtSong * const self = BT_SONG(user_data);
   
   switch(GST_MESSAGE_TYPE(message)) {
     case GST_MESSAGE_EOS:
@@ -214,8 +211,8 @@ static gboolean bt_song_bus_handler(GstBus *bus, GstMessage *message, gpointer u
 }
 #endif
 
-static void on_song_segment_done(GstBus * bus, GstMessage * message, gpointer user_data) {
-  BtSong *self = BT_SONG(user_data);
+static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
 
   GST_INFO("received SEGMENT_DONE bus message");
   if(self->priv->is_playing) {
@@ -237,27 +234,27 @@ static void on_song_segment_done(GstBus * bus, GstMessage * message, gpointer us
   }
 }
 
-static void on_song_eos(GstBus * bus, GstMessage * message, gpointer user_data) {
-  BtSong *self = BT_SONG(user_data);
+static void on_song_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
 
   GST_INFO("received EOS bus message");
   bt_song_stop(self);
 }
 
 
-static void bt_song_on_loop_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
-static void bt_song_on_loop_start_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+static void bt_song_on_loop_start_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
-static void bt_song_on_loop_end_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+static void bt_song_on_loop_end_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
-static void bt_song_on_length_changed(BtSequence *sequence, GParamSpec *arg, gpointer user_data) {
+static void bt_song_on_length_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
 }
 
@@ -281,10 +278,9 @@ static void bt_song_on_length_changed(BtSequence *sequence, GParamSpec *arg, gpo
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtSong *bt_song_new(const BtApplication *app) {
+BtSong *bt_song_new(const BtApplication * const app) {
   BtSong *self=NULL;
-  GstBin *bin;
-  GstBus *bus;
+  GstBin * const bin;
   
   g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
@@ -294,7 +290,7 @@ BtSong *bt_song_new(const BtApplication *app) {
   }
   // @todo: remove?
   //bt_application_add_bus_watch(app,GST_DEBUG_FUNCPTR(bt_song_bus_handler),(gpointer)self);
-  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
   g_signal_connect(bus, "message::eos", (GCallback)on_song_eos, (gpointer)self);
   gst_object_unref(bus);
@@ -323,7 +319,7 @@ Error:
  * Use this method instead of directly setting the state via g_object_set() to
  * avoid double notifies, if the state is unchanged.
  */
-void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
+void bt_song_set_unsaved(const BtSong * const self, const gboolean unsaved) {
   g_return_if_fail(BT_IS_SONG(self));
   
   if(self->priv->unsaved!=unsaved) {
@@ -349,7 +345,7 @@ void bt_song_set_unsaved(const BtSong *self,gboolean unsaved) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_song_idle_start(const BtSong *self) {
+gboolean bt_song_idle_start(const BtSong * const self) {
 #ifdef __ENABLE_IDLE_LOOP_
   GstStateChangeReturn res;
  
@@ -389,7 +385,7 @@ gboolean bt_song_idle_start(const BtSong *self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_song_idle_stop(const BtSong *self) {
+gboolean bt_song_idle_stop(const BtSong * const self) {
 #ifdef __ENABLE_IDLE_LOOP_
   GstStateChangeReturn res;
   
@@ -417,9 +413,9 @@ gboolean bt_song_idle_stop(const BtSong *self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_song_play(const BtSong *self) {
+gboolean bt_song_play(const BtSong * const self) {
   GstStateChangeReturn res;
-  GstTagList *taglist;
+  GstTagList * const taglist;
   GstIterator *it;
   gboolean done;
   gpointer item;
@@ -538,7 +534,7 @@ gboolean bt_song_play(const BtSong *self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_song_stop(const BtSong *self) {
+gboolean bt_song_stop(const BtSong * const self) {
   GstStateChangeReturn res;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
@@ -570,7 +566,7 @@ gboolean bt_song_stop(const BtSong *self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_song_pause(const BtSong *self) {
+gboolean bt_song_pause(const BtSong * const self) {
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED)!=GST_STATE_CHANGE_FAILURE);
 }
@@ -583,7 +579,7 @@ gboolean bt_song_pause(const BtSong *self) {
  *
  * Returns: %TRUE for success
  */
-gboolean bt_song_continue(const BtSong *self) {
+gboolean bt_song_continue(const BtSong * const self) {
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
   return(gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING)!=GST_STATE_CHANGE_FAILURE);
 }
@@ -597,7 +593,7 @@ gboolean bt_song_continue(const BtSong *self) {
  *
  * Returns: %FALSE if the song is not playing
  */
-gboolean bt_song_update_playback_position(const BtSong *self) {
+gboolean bt_song_update_playback_position(const BtSong * const self) {
   gint64 pos_cur;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
@@ -628,16 +624,16 @@ gboolean bt_song_update_playback_position(const BtSong *self) {
  * property of the #BtSongInfo.
  * This XML file can be loaded into gst-editor.
  */
-void bt_song_write_to_xml_file(const BtSong *self) {
+void bt_song_write_to_xml_file(const BtSong * const self) {
   FILE *out;
-  BtSongInfo *song_info;
-  gchar *song_name, *file_name;
+  BtSongInfo * const song_info;
+  gchar * const song_name;
   
   g_return_if_fail(BT_IS_SONG(self));
   
   g_object_get(G_OBJECT(self),"song-info",&song_info,NULL);
   g_object_get(song_info,"name",&song_name,NULL);
-  file_name=g_alloca(strlen(song_name)+10);
+  gchar * const file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s.xml",song_name);
   
   // @todo find a way to not overwrite files during a run (set unique song-name)
@@ -662,14 +658,14 @@ void bt_song_write_to_xml_file(const BtSong *self) {
  *  dot -Tpng -oimage.png graph.dot
  * </programlisting></informalexample>
  */
-void bt_song_write_to_dot_file(const BtSong *self) {
+void bt_song_write_to_dot_file(const BtSong * const self) {
   FILE *out;
-  gchar *song_name, *file_name;
+  gchar * const song_name;
   
   g_return_if_fail(BT_IS_SONG(self));
   
   g_object_get(self->priv->song_info,"name",&song_name,NULL);
-  file_name=g_alloca(strlen(song_name)+10);
+  gchar * const file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s.dot",song_name);
 
   /* @idea: improve dot output
@@ -680,12 +676,11 @@ void bt_song_write_to_dot_file(const BtSong *self) {
    */
   
   if((out=fopen(file_name,"wb"))) {
-    GList *list,*node,*sublist,*subnode;
-    BtMachine *machine,*src,*dst;
-    BtWire *wire;
+    GList * const list,*node,*sublist,*subnode;
+    BtMachine * const src,* const dst;
     GstElement *elem;
     GstElementFactory *factory;
-    gchar *id,*label;
+    gchar * const id,*label;
     gchar *this_name=NULL,*last_name,*src_name,*dst_name;
     gulong index,count;
     
@@ -700,7 +695,7 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     // iterate over machines list
     g_object_get(self->priv->setup,"machines",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
-      machine=BT_MACHINE(node->data);
+      BtMachine * const machine=BT_MACHINE(node->data);
       g_object_get(machine,"id",&id,NULL);
       fprintf(out,
         "  subgraph cluster_%s {\n"
@@ -733,7 +728,7 @@ void bt_song_write_to_dot_file(const BtSong *self) {
     // iterate over wire list
     g_object_get(self->priv->setup,"wires",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
+      BtWire * const wire=BT_WIRE(node->data);
       g_object_get(wire,"src",&src,"dst",&dst,NULL);
 
       // get last_name of src
@@ -796,8 +791,8 @@ void bt_song_write_to_dot_file(const BtSong *self) {
 
 //-- io interface
 
-static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlNodePtr parent_node, BtPersistenceSelection *selection) {
-  BtSong *self = BT_SONG(persistence);
+static xmlNodePtr bt_song_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
+  const BtSong * const self = BT_SONG(persistence);
   xmlNodePtr node=NULL;
   
   GST_DEBUG("PERSISTENCE::song");
@@ -815,8 +810,8 @@ static xmlNodePtr bt_song_persistence_save(BtPersistence *persistence, xmlNodePt
   return(node);
 }
 
-static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlNodePtr node, BtPersistenceLocation *location) {
-  BtSong *self = BT_SONG(persistence);
+static gboolean bt_song_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
+  const BtSong * const self = BT_SONG(persistence);
   gboolean res=TRUE;
 
   GST_DEBUG("PERSISTENCE::song");
@@ -842,8 +837,8 @@ static gboolean bt_song_persistence_load(BtPersistence *persistence, xmlNodePtr 
   return(res);
 }
 
-static void bt_song_persistence_interface_init(gpointer g_iface, gpointer iface_data) {
-  BtPersistenceInterface *iface = g_iface;
+static void bt_song_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
+  BtPersistenceInterface * const iface = g_iface;
   
   iface->load = bt_song_persistence_load;
   iface->save = bt_song_persistence_save;
@@ -854,12 +849,12 @@ static void bt_song_persistence_interface_init(gpointer g_iface, gpointer iface_
 //-- class internals
 
 /* returns a property for the given property_id for this object */
-static void bt_song_get_property(GObject      *object,
-                               guint         property_id,
-                               GValue       *value,
-                               GParamSpec   *pspec)
+static void bt_song_get_property(GObject      * const object,
+                               const guint         property_id,
+                               GValue       * const value,
+                               GParamSpec   * const pspec)
 {
-  BtSong *self = BT_SONG(object);
+  const BtSong * const self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_APP: {
@@ -902,12 +897,12 @@ static void bt_song_get_property(GObject      *object,
 }
 
 /* sets the given properties for this object */
-static void bt_song_set_property(GObject      *object,
-                              guint         property_id,
-                              const GValue *value,
-                              GParamSpec   *pspec)
+static void bt_song_set_property(GObject      * const object,
+                              const guint         property_id,
+                              const GValue * const value,
+                              GParamSpec   * const pspec)
 {
-  BtSong *self = BT_SONG(object);
+  const BtSong * const self = BT_SONG(object);
   return_if_disposed();
   switch (property_id) {
     case SONG_APP: {
@@ -946,10 +941,9 @@ static void bt_song_set_property(GObject      *object,
   }
 }
 
-static void bt_song_dispose(GObject *object) {
-  BtSong *self = BT_SONG(object);
+static void bt_song_dispose(GObject * const object) {
+  const BtSong * const self = BT_SONG(object);
   GstStateChangeReturn res;
-  GstBus *bus;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -975,7 +969,7 @@ static void bt_song_dispose(GObject *object) {
   
   // @todo: remove
   //bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
-  bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+  GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_segment_done,NULL);
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_eos,NULL);
   gst_object_unref(bus);
@@ -1003,8 +997,8 @@ static void bt_song_dispose(GObject *object) {
   GST_DEBUG("  done");
 }
 
-static void bt_song_finalize(GObject *object) {
-  BtSong *self = BT_SONG(object);
+static void bt_song_finalize(GObject * const object) {
+  const BtSong * const self = BT_SONG(object);
   
   GST_DEBUG("!!!! self=%p",self);
   
@@ -1013,8 +1007,8 @@ static void bt_song_finalize(GObject *object) {
   GST_DEBUG("  done");
 }
 
-static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
-  BtSong *self = BT_SONG(instance);
+static void bt_song_init(const GTypeInstance * const instance, gconstpointer const g_class) {
+  BtSong * const self = BT_SONG(instance);
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG, BtSongPrivate);
 
@@ -1032,8 +1026,8 @@ static void bt_song_init(GTypeInstance *instance, gpointer g_class) {
   GST_DEBUG("  done");
 }
 
-static void bt_song_class_init(BtSongClass *klass) {
-  GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+static void bt_song_class_init(BtSongClass * const klass) {
+  GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
  
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongPrivate));

@@ -1,4 +1,4 @@
-/* $Id: pattern-methods.h,v 1.17 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: pattern-methods.h,v 1.18 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,29 +24,29 @@
 
 #include "pattern.h"
 
-extern BtPattern *bt_pattern_new(const BtSong *song, const gchar *id, const gchar *name, gulong length, const BtMachine *machine);
-extern BtPattern *bt_pattern_new_with_event(const BtSong *song, const BtMachine *machine, BtPatternCmd cmd);
+extern BtPattern *bt_pattern_new(const BtSong * const song, const gchar * const id, const gchar * const name, const gulong length, const BtMachine * const machine);
+extern BtPattern *bt_pattern_new_with_event(const BtSong * const song, const BtMachine * const machine, const BtPatternCmd cmd);
 
-extern BtPattern *bt_pattern_copy(const BtPattern *self);
+extern BtPattern *bt_pattern_copy(const BtPattern * const self);
 
-extern gulong bt_pattern_get_global_param_index(const BtPattern *self, const gchar *name, GError **error);
-extern gulong bt_pattern_get_voice_param_index(const BtPattern *self, const gchar *name, GError **error);
+extern gulong bt_pattern_get_global_param_index(const BtPattern * const self, const gchar * const name, GError **error);
+extern gulong bt_pattern_get_voice_param_index(const BtPattern * const self, const gchar * const name, GError **error);
 
-extern GValue *bt_pattern_get_global_event_data(const BtPattern *self, gulong tick, gulong param);
-extern GValue *bt_pattern_get_voice_event_data(const BtPattern *self, gulong tick, gulong voice, gulong param);
+extern GValue *bt_pattern_get_global_event_data(const BtPattern * const self, const gulong tick, const gulong param);
+extern GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 
-extern gboolean bt_pattern_set_global_event(const BtPattern *self, gulong tick, gulong param, const gchar *value);
-extern gboolean bt_pattern_set_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param, const gchar *value);
-extern gchar *bt_pattern_get_global_event(const BtPattern *self, gulong tick, gulong param);
-extern gboolean bt_pattern_test_global_event(const BtPattern *self, gulong tick, gulong param);
-extern gboolean bt_pattern_test_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param);
+extern gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong tick, const gulong param, const gchar * const value);
+extern gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param, const gchar * const value);
+extern gchar *bt_pattern_get_global_event(const BtPattern * const self, const gulong tick, const gulong param);
+extern gboolean bt_pattern_test_global_event(const BtPattern * const self, const gulong tick, const gulong param);
+extern gboolean bt_pattern_test_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 
-extern gchar *bt_pattern_get_voice_event(const BtPattern *self, gulong tick, gulong voice, gulong param);
+extern gchar *bt_pattern_get_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param);
 
-extern BtPatternCmd bt_pattern_get_cmd(const BtPattern *self,gulong tick);
+extern BtPatternCmd bt_pattern_get_cmd(const BtPattern * const self, const gulong tick);
 
-extern gboolean bt_pattern_tick_has_data(const BtPattern *self, gulong tick);
+extern gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tick);
 
-extern void bt_pattern_play_tick(const BtPattern *self, gulong tick);
+extern void bt_pattern_play_tick(const BtPattern * const self, const gulong tick);
 
 #endif // BT_PATTERN_METHDOS_H

@@ -1,4 +1,4 @@
-/* $Id: song-info-methods.h,v 1.7 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: song-info-methods.h,v 1.8 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "song-info.h"
 
-extern BtSongInfo *bt_song_info_new(const BtSong *song);
+extern BtSongInfo *bt_song_info_new(const BtSong * const song);
 
 #endif // BT_SONG_INFO_METHDOS_H

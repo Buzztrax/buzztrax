@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.22 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: song-io.h,v 1.23 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,7 +44,7 @@ typedef struct _BtSongIOPrivate BtSongIOPrivate;
  * base object for song input and output plugins
  */
 struct _BtSongIO {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtSongIOPrivate *priv;
@@ -59,7 +59,7 @@ struct _BtSongIO {
  *
  * Returns: %TRUE for success
  */
-typedef gboolean (*bt_song_io_virtual_load)(const gpointer self, const BtSong *song);
+typedef gboolean (*bt_song_io_virtual_load)(gconstpointer self, const BtSong * const song);
 /**
  * bt_song_io_virtual_save:
  * @self: song-io instance
@@ -69,7 +69,7 @@ typedef gboolean (*bt_song_io_virtual_load)(const gpointer self, const BtSong *s
  *
  * Returns: %TRUE for success
  */
-typedef gboolean (*bt_song_io_virtual_save)(const gpointer self, const BtSong *song);
+typedef gboolean (*bt_song_io_virtual_save)(gconstpointer const self, const BtSong * const song);
 
 /**
  * BtSongIOClass:
@@ -79,7 +79,7 @@ typedef gboolean (*bt_song_io_virtual_save)(const gpointer self, const BtSong *s
  * base class for song input and output plugins
  */
 struct _BtSongIOClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 
   /* class methods */
   bt_song_io_virtual_load load;
@@ -98,6 +98,6 @@ GType bt_song_io_get_type(void) G_GNUC_CONST;
  *
  * Returns: the #GType of the song-io class on succes or %NULL otherwise
  */
-typedef GType (*BtSongIODetect)(const gchar *file_name);
+typedef GType (*BtSongIODetect)(const gchar * const file_name);
 
 #endif // BT_SONG_IO_H

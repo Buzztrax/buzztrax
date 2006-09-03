@@ -1,4 +1,4 @@
-/* $Id: wavetable.h,v 1.7 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: wavetable.h,v 1.8 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtWavetablePrivate BtWavetablePrivate;
  * (contains #BtMachine and #BtWire objects)
  */
 struct _BtWavetable {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtWavetablePrivate *priv;
 };
 /* structure of the setup class */
 struct _BtWavetableClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 /* used by WAVETABLE_TYPE */

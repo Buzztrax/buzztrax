@@ -1,4 +1,4 @@
-/* $Id: wavelevel.h,v 1.6 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: wavelevel.h,v 1.7 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,14 +45,14 @@ typedef struct _BtWavelevelPrivate BtWavelevelPrivate;
  * (contains #BtMachine and #BtWire objects)
  */
 struct _BtWavelevel {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtWavelevelPrivate *priv;
 };
 /* structure of the setup class */
 struct _BtWavelevelClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 };
 
 /* used by WAVELEVEL_TYPE */

@@ -1,4 +1,4 @@
-/* $Id: setup.h,v 1.14 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: setup.h,v 1.15 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,19 +47,19 @@ typedef struct _BtSetupPrivate BtSetupPrivate;
  * (contains #BtMachine and #BtWire objects)
  */
 struct _BtSetup {
-  GObject parent;
+  const GObject parent;
   
   /*< private >*/
   BtSetupPrivate *priv;
 };
 /* structure of the setup class */
 struct _BtSetupClass {
-  GObjectClass parent;
+  const GObjectClass parent;
 
-  void (*machine_added_event)(const BtSetup *setup, const BtMachine *machine, gpointer user_data);
-  void (*wire_added_event)(const BtSetup *setup, const BtWire *wire, gpointer user_data);
-  void (*machine_removed_event)(const BtSetup *setup, const BtMachine *machine, gpointer user_data);
-  void (*wire_removed_event)(const BtSetup *setup, const BtWire *wire, gpointer user_data);
+  void (*machine_added_event)(const BtSetup * const setup, const BtMachine * const machine, gconstpointer const user_data);
+  void (*wire_added_event)(const BtSetup * const setup, const BtWire * const wire, gconstpointer const user_data);
+  void (*machine_removed_event)(const BtSetup * const setup, const BtMachine * const machine, gconstpointer const user_data);
+  void (*wire_removed_event)(const BtSetup * const setup, const BtWire * const wire, gconstpointer const user_data);
 };
 
 /* used by SETUP_TYPE */

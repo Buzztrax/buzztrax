@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.81 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: core.h,v 1.82 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -306,7 +306,7 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 
 #ifndef BT_CORE_C
   extern GOptionGroup *bt_init_get_option_group(void);
-  extern void bt_init_add_option_groups(GOptionContext *ctx);
+  extern void bt_init_add_option_groups(GOptionContext * const ctx);
   extern gboolean bt_init_check(int *argc, char **argv[], GError **err);
   extern void bt_init(int *argc, char **argv[]);
 #endif

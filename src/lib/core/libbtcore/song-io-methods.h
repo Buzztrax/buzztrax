@@ -1,4 +1,4 @@
-/* $Id: song-io-methods.h,v 1.9 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: song-io-methods.h,v 1.10 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,9 +25,9 @@
 #include "song.h"
 #include "song-io.h"
 
-extern BtSongIO *bt_song_io_new(const gchar *file_name);
+extern BtSongIO *bt_song_io_new(const gchar * const file_name);
 
-extern gboolean bt_song_io_load(const gpointer self, const BtSong *song);
-extern gboolean bt_song_io_save(const gpointer self, const BtSong *song);
+extern gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song);
+extern gboolean bt_song_io_save(gconstpointer const self, const BtSong * const song);
 
 #endif // BT_SONG_IO_METHDOS_H

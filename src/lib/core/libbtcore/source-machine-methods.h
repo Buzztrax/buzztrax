@@ -1,4 +1,4 @@
-/* $Id: source-machine-methods.h,v 1.2 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: source-machine-methods.h,v 1.3 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,6 @@
 
 #include "source-machine.h"
 
-extern BtSourceMachine *bt_source_machine_new(const BtSong *song, const gchar *id, const gchar *plugin_name, glong voices);
+extern BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * const id, const gchar * const plugin_name, const glong voices);
 
 #endif // BT_SOURCE_MACHINE_METHDOS_H

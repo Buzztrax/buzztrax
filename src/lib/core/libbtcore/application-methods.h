@@ -1,4 +1,4 @@
-/* $Id: application-methods.h,v 1.7 2006-08-24 20:00:52 ensonic Exp $
+/* $Id: application-methods.h,v 1.8 2006-09-03 13:21:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
 
 #include "application.h"
 
-extern void bt_application_add_bus_watch(const BtApplication *self,GstBusFunc handler,gpointer user_data);
-extern void bt_application_remove_bus_watch(const BtApplication *self,GstBusFunc handler,gpointer user_data);
+extern void bt_application_add_bus_watch(const BtApplication * const self, const GstBusFunc handler, gconstpointer const user_data);
+extern void bt_application_remove_bus_watch(const BtApplication * const self, const GstBusFunc handler, gconstpointer const user_data);
 
 #endif // BT_APPLICATION_METHDOS_H
