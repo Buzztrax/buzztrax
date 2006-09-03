@@ -1,5 +1,10 @@
 2006-09-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-patterns.c: (pattern_table_refresh):
+           Use smaller font for pattern table headings
+
+2006-09-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-info-methods.h:
 	* src/ui/edit/main-page-info.c: (on_page_switched_idle),
 	(on_page_switched), (bt_main_page_info_init_ui),

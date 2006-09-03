@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.98 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.99 2006-09-03 14:24:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -810,6 +810,7 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
  */
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
   BtMachine *machine;
+  GtkWidget *header;
   gulong i,j,k,number_of_ticks,pos=0,ix;
   gulong col_ct,voices,global_params,voice_params;
   gint col_index;
@@ -896,12 +897,19 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       g_object_set_qdata(G_OBJECT(renderer),column_index_quark,GUINT_TO_POINTER(j));
       gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
       g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_global_cell_edited),(gpointer)self);
-      if((tree_col=gtk_tree_view_column_new_with_attributes(
-        bt_machine_get_global_param_name(machine,j),renderer,
+      if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
           "text",ix,
           NULL))
       ) {
+        // use smaller font for the headers
+        str=g_strdup_printf("<span size=\"small\">%s</span>",bt_machine_get_global_param_name(machine,j));
+        header=gtk_label_new(NULL);
+        gtk_label_set_markup(GTK_LABEL(header),str);
+        gtk_widget_show(header);
+        g_free(str);
+        
         g_object_set(tree_col,
+          "widget",header,
           "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
           "fixed-width",PATTERN_CELL_WIDTH,
           NULL);
@@ -929,12 +937,19 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         g_object_set_qdata(G_OBJECT(renderer),column_index_quark,GUINT_TO_POINTER(k));
         gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
         g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_pattern_voice_cell_edited),(gpointer)self);
-        if((tree_col=gtk_tree_view_column_new_with_attributes(
-          bt_machine_get_voice_param_name(machine,k),renderer,
+        if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
           "text",ix,
           NULL))
         ) {
+          // use smaller font for the headers
+          str=g_strdup_printf("<span size=\"small\">%s</span>",bt_machine_get_voice_param_name(machine,k));
+          header=gtk_label_new(NULL);
+          gtk_label_set_markup(GTK_LABEL(header),str);
+          gtk_widget_show(header);
+          g_free(str);
+
           g_object_set(tree_col,
+            "widget",header,
             "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
             "fixed-width",PATTERN_CELL_WIDTH,
             NULL);
