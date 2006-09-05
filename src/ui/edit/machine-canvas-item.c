@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.70 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.71 2006-09-05 21:41:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -458,7 +458,7 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
 }
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
-  GtkWidget *menu_item,*image,*label;
+  GtkWidget *menu_item,*label;
 
   self->priv->menu_item_mute=menu_item=gtk_check_menu_item_new_with_label(_("Mute"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -517,11 +517,9 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
 
-  menu_item=gtk_image_menu_item_new_with_label(_("About"));
+  menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  image=gtk_image_new_from_filename("stock_about.png");
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
-  gtk_widget_show(menu_item);gtk_widget_show(image);
+  gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_about_activate),(gpointer)self);
 
   return(TRUE);

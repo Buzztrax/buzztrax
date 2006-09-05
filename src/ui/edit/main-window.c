@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.82 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-window.c,v 1.83 2006-09-05 21:41:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -190,13 +190,18 @@ static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer us
 static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
+  GError *error = NULL;
   
   gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
   
   self->priv->accel_group=gtk_accel_group_new();
   
   // create and set window icon
-  if((window_icon=gdk_pixbuf_new_from_filename("buzztard.png"))) {
+  if(!(window_icon=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",16,0,&error))) {
+    GST_WARNING("Couldn't load buzztard 16x16 icon: %s", error->message);
+    g_error_free(error);
+  }
+  else {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   // this enforces a minimum size

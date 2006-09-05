@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.135 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.136 2006-09-05 21:41:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,18 +25,18 @@
  */ 
 
 /* @todo main-page-sequence tasks
- *  - cut/copy/paste
- *  - sequence header
- *    - add table to separate scrollable window
- *      (no own adjustments, share x-adjustment with sequence-view, show full height)
- *      - add level meters
- *      - add the same context menu as the machines have in machine view
- *    - sequence view will have no visible column headers
- *  - support different rhythms
- *    - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
- *    - use different highlighing (strong bar every start of a beat)
- *  - insert/remove rows
- *
+ * - cut/copy/paste
+ * - add third view for eating remaining space
+ * - sequence header
+ *   - add table to separate scrollable window
+ *     (no own adjustments, share x-adjustment with sequence-view, show full height)
+ *     - add level meters
+ *     - add the same context menu as the machines have in machine view
+ *   - sequence view will have no visible column headers
+ * - support different rhythms
+ *   - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
+ *   - use different highlighing (strong bar every start of a beat)
+ * - insert/remove rows
  */
 
 #define BT_EDIT
@@ -96,6 +96,9 @@ struct _BtMainPageSequencePrivate {
   glong selection_column;
   glong selection_row;
   BtMachine *machine;
+
+  /* shortcut table */
+  const char *pattern_keys;
   
   /* step filtering */
   gulong list_length;     /* number of [dummy] rows contained in the model */
@@ -131,10 +134,9 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
-static gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static gchar *pattern_keys;
+static const gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static const gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 static GQuark column_index_quark=0;
 
@@ -880,10 +882,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   BtMachine *machine;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  GList *node,*list;
-  gchar *str,key[2]={0,};
-  gulong index=0;
-  gboolean is_internal;
+  gulong index;
 
   GST_INFO("refresh pattern list");
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
@@ -907,7 +906,8 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   }
 
   //-- append default rows
-  pattern_keys=sink_pattern_keys;
+  self->priv->pattern_keys=sink_pattern_keys;
+  index=2;
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
   gtk_list_store_append(store, &tree_iter);
@@ -917,24 +917,30 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   if(BT_IS_PROCESSOR_MACHINE(machine)) {
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thru"),-1);
-    pattern_keys=processor_pattern_keys;
+    self->priv->pattern_keys=processor_pattern_keys;
+    index++;
   }
   if(BT_IS_SOURCE_MACHINE(machine)) {
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,0,"_",1,_("  solo"),-1);
-    pattern_keys=source_pattern_keys;
+    self->priv->pattern_keys=source_pattern_keys;
+    index++;
   }
   
   if(machine) {
+    GList *node,*list;
+    gboolean is_internal;
+    gchar *str,key[2]={0,};
+    
     //-- append pattern rows
     g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
       g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
       if(!is_internal) {
-        //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,pattern_keys[index]);
-        key[0]=(index<64)?pattern_keys[index]:' ';
-        //if(index<64) key[0]=pattern_keys[index];
+        //GST_DEBUG("  adding \"%s\" at index %d -> '%c'",str,index,self->priv->pattern_keys[index]);
+        key[0]=(index<64)?self->priv->pattern_keys[index]:' ';
+        //if(index<64) key[0]=self->priv->pattern_keys[index];
         //else key[0]=' ';
         //GST_DEBUG("  with shortcut \"%s\"",key);
         gtk_list_store_append(store, &tree_iter);
@@ -1381,7 +1387,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       }
     }
     else if(event->keyval<0x100) {
-      gchar *pos=strchr(pattern_keys,(gchar)(event->keyval&0xff));
+      gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
       
       // reset selection
       self->priv->selection_start_column=-1;
@@ -1396,7 +1402,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 
         if((machine=bt_sequence_get_machine(sequence,track))) {
           BtPattern *pattern;
-          gulong index=(gulong)pos-(gulong)pattern_keys;
+          gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
         
           if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
             bt_sequence_set_pattern(sequence,row,track,pattern);

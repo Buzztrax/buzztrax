@@ -1,3 +1,17 @@
+2006-09-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_init_context_menu):
+	* src/ui/edit/main-page-patterns.c:
+	(pattern_view_update_column_description), (context_menu_refresh):
+	* src/ui/edit/main-page-sequence.c: (pattern_list_refresh),
+	(on_sequence_table_key_release_event):
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+          Fix use of two removed icons. Dynamically disabled items for pattern,
+          menu base on the existence of patterns. Fix crash when displaying
+          parameter tip in status bar in pattern view and going beyond the
+          parameters to the right. Fix pattern list short-cuts in sequence view.
+
 2006-09-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c: (pattern_table_refresh):

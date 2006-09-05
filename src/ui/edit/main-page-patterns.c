@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.99 2006-09-03 14:24:44 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.100 2006-09-05 21:41:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,10 +25,12 @@
  */
  
 /* @todo: main-page-patterns tasks
- * - focus pattern_view after switching patterns, entering the page ?
+ * - add third view for eating remaining space
  * - test wheter we can use pango-markup for tree-view labels to make font
  *   smaller
- * - need dividers for global and voice data (2 pixel wide column?)
+ * - need dividers for global and voice data (take care of cursor navi)
+ *   - 2 pixel wide column?
+ *   - extra views (needs dynamic number of view
  * - shortcuts
  *   - Ctrl-I : Interpolate
  *     - from min/max of parameter or content of start/end cell (also multi-column)
@@ -230,38 +232,42 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
   if(!main_window) return;
   g_object_get(main_window,"statusbar",&statusbar,NULL);
   
-  // pop previous test by passing str=NULL;
+  // pop previous text by passing str=NULL;
   if(mode&UPDATE_COLUMN_POP)
     g_object_set(statusbar,"status",NULL,NULL);
 
   if(mode&UPDATE_COLUMN_PUSH) {
-    const gchar *str;
+    const gchar *str=BT_MAIN_STATUSBAR_DEFAULT;
 
     if(self->priv->pattern) {
       BtMachine *machine;
-      GParamSpec *property;
-      gulong global_params,voice_params,col;
+      GParamSpec *property=NULL;
+      gulong global_params,voice_params,voices,col;
 
       g_object_get(self->priv->pattern,"machine",&machine,NULL);
       g_object_get(machine,
         "global-params",&global_params,
         "voice-params",&voice_params,
+        "voices",&voices,
         NULL);
       col=self->priv->cursor_column;
       
+      // get ParamSpec for global or voice param
       if(col<global_params)
         property=bt_machine_get_global_param_spec(machine,col);
-      else
-        property=bt_machine_get_voice_param_spec(machine,(col-global_params)%voice_params);
-      str=g_param_spec_get_blurb(property);
+      else {
+        col-=global_params;
+        if(col<voices*voice_params)
+          property=bt_machine_get_voice_param_spec(machine,col%voice_params);
+      }
+
+      // get parameter description
+      if(property)
+        str=g_param_spec_get_blurb(property);
 
       g_object_unref(machine);
     }
-    else {
-      str=BT_MAIN_STATUSBAR_DEFAULT;
-    }
     g_object_set(statusbar,"status",str,NULL);
-
   }
 
   g_object_unref(statusbar);
@@ -1009,7 +1015,17 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   GList *list;
 
   if(machine) {
+    gboolean has_patterns=FALSE;
     g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
+    
+    // @todo: move that to bt-machine.c (vmethod)
+    if(!BT_IS_SINK_MACHINE(machine)) {
+      if(g_list_length(list)>2) has_patterns=TRUE;
+    }
+    else {
+      if(g_list_length(list)>3) has_patterns=TRUE;
+    }
+    g_list_free(list);
     
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),TRUE);
     if(bt_machine_is_polyphonic(machine)) {
@@ -1020,14 +1036,13 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
     }
-    if(list) {
+    if(has_patterns) {
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),TRUE);
-      g_list_free(list);
     }
     else {
-      GST_WARNING("machine has no patterns");
+      GST_INFO("machine has no patterns");
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),FALSE);
