@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.92 2006-09-03 13:18:37 ensonic Exp $
+/* $Id: wire.c,v 1.93 2006-09-06 17:16:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -362,7 +362,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
 static gboolean bt_wire_connect(const BtWire * const self) {
   gboolean res=FALSE;
   const BtSong * const song=self->priv->song;
-  BtSetup * const setup;//=NULL;
+  BtSetup * const setup=NULL;
   BtWire *other_wire;
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;

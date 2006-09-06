@@ -1,5 +1,12 @@
 2006-09-06  Stefan Kost  <ensonic@users.sf.net>
 
+	patch by: Samuel Cormier-Iijima <sciyoshi@users.sourceforge.net>
+
+	* src/lib/core/wire.c: (bt_wire_connect):
+          Fix segfault when hooking wires to nonexistant endpoints (#1553321).
+
+2006-09-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c:
 	(bt_machine_canvas_item_init_context_menu):
 	* src/ui/edit/main-page-patterns.c:
