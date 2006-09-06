@@ -1,3 +1,15 @@
+2006-09-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_init_context_menu),
+	(bt_machine_canvas_item_set_property),
+	(bt_machine_canvas_item_realize):
+	* src/ui/edit/main-page-machines.c: (on_canvas_event):
+	* src/ui/edit/main-page-machines.h:
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_init_colors):
+	* src/ui/edit/ui-ressources.h:
+          bettern machine drawing, fix layout a bit more
+
 2006-09-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

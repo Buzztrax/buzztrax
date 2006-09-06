@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.h,v 1.12 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-machines.h,v 1.13 2006-09-06 21:54:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,6 +68,8 @@ GType bt_main_page_machines_get_type(void) G_GNUC_CONST;
 
 #define MACHINE_VIEW_MACHINE_SIZE_X 35.0
 #define MACHINE_VIEW_MACHINE_SIZE_Y 23.0
+
+#define MACHINE_VIEW_FONT_SIZE 7.0
 
 #define MACHINE_VIEW_WIRE_PAD_SIZE 6.0
 

@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.h,v 1.7 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: ui-ressources.h,v 1.8 2006-09-06 21:54:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -73,7 +73,7 @@ typedef enum {
   BT_UI_RES_COLOR_SINK_MACHINE_BASE,         /* machine view normal */
   BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1,      /* list view odd */
   BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2,      /* list view even */
-  BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* machine title */
+  BT_UI_RES_COLOR_SINK_MACHINE_DARK1,        /* --- */
   BT_UI_RES_COLOR_SINK_MACHINE_DARK2,        /* --- */
   BT_UI_RES_COLOR_ANALYZER_PEAK,             /* analyzer widnow peak marks */
   BT_UI_RES_COLOR_COUNT
@@ -83,7 +83,7 @@ typedef enum {
   BT_UI_RES_COLOR_MACHINE_BASE=0,     /* machine view normal */
   BT_UI_RES_COLOR_MACHINE_BRIGHT1,    /* list view odd */
   BT_UI_RES_COLOR_MACHINE_BRIGHT2,    /* list view even */
-  BT_UI_RES_COLOR_MACHINE_DARK1,      /* machine title */
+  BT_UI_RES_COLOR_MACHINE_DARK1,      /* --- */
   BT_UI_RES_COLOR_MACHINE_DARK2       /* --- */  
 } BtUIRessourcesMachineColors;
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.91 2006-09-03 13:34:33 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.92 2006-09-06 21:54:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -672,6 +672,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&mouse_x,&mouse_y);
         self->priv->new_wire_points->coords[2]=mouse_x;
         self->priv->new_wire_points->coords[3]=mouse_y;
+        // @idea: the green is a bit bright, use ui_ressources?, also what about having both colors in self->priv (should save the canvas the color parsing)
         color="red";
         if((self->priv->new_wire_dst=bt_main_page_machines_get_machine_canvas_item_at(self,mouse_x,mouse_y))) {
           if(bt_main_page_machines_check_wire(self)) {

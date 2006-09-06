@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.71 2006-09-05 21:41:42 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.72 2006-09-06 21:54:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,8 +40,6 @@
 #define BT_MACHINE_CANVAS_ITEM_C
 
 #include "bt-edit.h"
-
-#define BASE_FONT_SIZE 8.0
 
 //-- signal ids
 
@@ -507,10 +505,12 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_rename_activate),(gpointer)self);
-  menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,NULL);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
-  gtk_widget_show(menu_item);
-  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_delete_activate),(gpointer)self);
+  if(!BT_IS_SINK_MACHINE(self->priv->machine)) {
+    menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_DELETE,NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+    gtk_widget_show(menu_item);
+    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_delete_activate),(gpointer)self);
+  }
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -631,7 +631,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       self->priv->zoom=g_value_get_double(value);
       //GST_DEBUG("set the zoom for machine_canvas_item: %f",self->priv->zoom);
       if(self->priv->label) {
-        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",BASE_FONT_SIZE*self->priv->zoom,NULL);
+        gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"size-points",MACHINE_VIEW_FONT_SIZE*self->priv->zoom,NULL);
       }
     } break;
     default: {
@@ -692,6 +692,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble mx1,mx2,my1,my2,mw,mh;
   guint32 bg_color,bg_color2;
+  gdouble fh=MACHINE_VIEW_FONT_SIZE*self->priv->zoom;
   gchar *id;
   GnomeCanvasPoints *points;
   
@@ -701,7 +702,8 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   //GST_DEBUG("realize for machine occured, machine=%p",self->priv->machine);
 
   bg_color=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BASE);
-  bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
+  //bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
+  bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BRIGHT2);
 
   g_object_get(self->priv->machine,"id",&id,NULL);
 
@@ -724,18 +726,18 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "x1", -w+1,
                            "y1", -h+2,
                            "x2", +w-1,
-                           "y2", -h+4+BASE_FONT_SIZE,
+                           "y2", -h+5+fh,
                            "fill-color-rgba", bg_color2,
                            "width-pixels", 0,
                            NULL);
   // the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
-                           "x", +0.0,
-                           "y", -MACHINE_VIEW_MACHINE_SIZE_X+2+(2*BASE_FONT_SIZE),  /* was -3.0 */
+                           "x", +(MACHINE_VIEW_MACHINE_SIZE_X/10.0),
+                           "y", -MACHINE_VIEW_MACHINE_SIZE_Y-1+fh,
                            "justification", GTK_JUSTIFY_CENTER,
                            "font", "helvetica",  /* test if this ensures equal sizes among systems */
-                           "size-points", BASE_FONT_SIZE*self->priv->zoom,
+                           "size-points", fh,
                            "size-set", TRUE,
                            "text", id,
                            "fill-color", "black",
