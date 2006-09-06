@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.14 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: tools.c,v 1.15 2006-09-06 20:17:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -147,7 +147,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   box=gtk_hbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
-  // when to use GTK_STOCK_DIALOG_WARNING
+  // @todo: when to use GTK_STOCK_DIALOG_WARNING ?
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
   

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.141 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: song.c,v 1.142 2006-09-06 20:17:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -172,45 +172,6 @@ static void bt_song_update_play_seek_event(const BtSong * const self, const gboo
 
 //-- handler
 
-#if 0
-static gboolean bt_song_bus_handler(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
-  gboolean res=FALSE;
-  const BtSong * const self = BT_SONG(user_data);
-  
-  switch(GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_EOS:
-      GST_INFO("received EOS bus message");
-      bt_song_stop(self);
-      res=TRUE;
-      break;
-    case GST_MESSAGE_SEGMENT_START:
-      GST_INFO("received SEGMENT_START bus message");
-      res=TRUE;
-      break;
-    case GST_MESSAGE_SEGMENT_DONE:
-      GST_INFO("received SEGMENT_DONE bus message");
-      if(self->priv->is_playing) {
-				if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
-					GST_WARNING("element failed to handle continuing play seek event");
-				}
-      }
-			else {
-				/*
-        if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->idle_seek_event)))) {
-          GST_WARNING("element failed to handle continuing idle seek event");
-        }
-				*/				
-			}
-      res=TRUE;
-      break;
-    default:
-      //GST_INFO("unhandled bus message: %p",message);
-      break;
-  }
-  return(res);
-}
-#endif
-
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
@@ -240,7 +201,6 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
   GST_INFO("received EOS bus message");
   bt_song_stop(self);
 }
-
 
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
@@ -288,8 +248,6 @@ BtSong *bt_song_new(const BtApplication * const app) {
   if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
     goto Error;
   }
-  // @todo: remove?
-  //bt_application_add_bus_watch(app,GST_DEBUG_FUNCPTR(bt_song_bus_handler),(gpointer)self);
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
   g_signal_connect(bus, "message::eos", (GCallback)on_song_eos, (gpointer)self);
@@ -456,9 +414,10 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
-    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
     GST_INFO("->PAUSED state change after async-wait returned %d",res);
+    if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
   }
   
   // seek to start time
@@ -516,9 +475,10 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PLAYING needs async wait");
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
-    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
     GST_INFO("->PLAYING state change after async-wait returned %d",res);
+    if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
   }
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
@@ -967,8 +927,6 @@ static void bt_song_dispose(GObject * const object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
   
-  // @todo: remove
-  //bt_application_remove_bus_watch(self->priv->app,bt_song_bus_handler,(gpointer)self);
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_segment_done,NULL);
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_eos,NULL);

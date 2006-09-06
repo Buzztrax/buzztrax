@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.73 2006-08-27 20:31:29 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.74 2006-09-06 20:17:39 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -16,8 +16,6 @@
 <TITLE>BtApplication</TITLE>
 BtApplication
 bt_application_new
-bt_application_add_bus_watch
-bt_application_remove_bus_watch
 <SUBSECTION Standard>
 BtApplicationClass
 BT_APPLICATION

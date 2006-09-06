@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.91 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.92 2006-09-06 20:17:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -192,8 +192,10 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
     }
     else {
-      // re-enable play button
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
+      // switch off play button
+      gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(button),FALSE);
+      // re enable play button
+      gtk_widget_set_sensitive(GTK_WIDGET(button),TRUE);
     }
     
     // release the reference
@@ -235,61 +237,28 @@ static void on_toolbar_loop_toggled(GtkButton *button, gpointer user_data) {
   g_object_try_unref(song);
 }
 
-#if 0
-static gboolean on_song_level_change(GstBus *bus, GstMessage *message, gpointer user_data) {
-  gboolean res=FALSE;
-  g_assert(user_data);
-  
-  switch(GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_ELEMENT: {
-      BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-      const GstStructure *structure=gst_message_get_structure(message);
-      const gchar *name = gst_structure_get_name(structure);
-      
-      if(!strcmp(name,"level")) {
-        const GValue *l_rms,*l_peak;
-        gdouble rms, peak;
-        guint i;
-  
-        l_rms=(GValue *)gst_structure_get_value(structure, "rms");
-        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-        //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-        for(i=0;i<gst_value_list_get_size(l_rms);i++) {
-          rms=g_value_get_double(gst_value_list_get_value(l_rms,i));
-          peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
-          //GST_INFO("level.%d  %.3f %.3f", i, rms,peak);
-          gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms*10.0), (gint)(peak*10.0));
-        }
-        res=TRUE;
-      }
-    } break;
-    case GST_MESSAGE_APPLICATION: {
-      BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
-      const GstStructure *structure=gst_message_get_structure(message);
-      const gchar *name = gst_structure_get_name(structure);
-      
-      if(!strcmp(name,"level-caps-changed")) {
-        gint i,channels;
-        
-        gst_structure_get_int(structure,"channels",&channels);
-        GST_INFO("received application bus message: channel=%d",channels);
-        
-        for(i=0;i<channels;i++) {
-          gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
-        }
-        for(i=channels;i<MAX_VUMETER;i++) {
-          gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
-        }        
-        res=TRUE;
-      }      
-    } break;
-    default:
-      //GST_INFO("received bus message: type=%s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
-      break;
-  }
-  return(res);
+static void on_song_error(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtMainToolbar * const self=BT_MAIN_TOOLBAR(user_data);
+  BtSong *song;
+  BtMainWindow *main_window;
+  GError *err = NULL;
+  gchar *dbg = NULL;
+
+  GST_INFO("received Error bus message");
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+  bt_song_stop(song);
+
+  gst_message_parse_error (message, &err, &dbg);
+  GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  bt_dialog_message(main_window,_("Error"),_("An error occurred"),err->message);
+  g_error_free (err);
+  g_free (dbg);
+
+  // release the reference
+  g_object_try_unref(song);
+  g_object_try_unref(main_window);
 }
-#endif
 
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
@@ -419,9 +388,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
 
     g_assert(GST_IS_ELEMENT(level));
-    // @todo: remove
-    //bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),GST_DEBUG_FUNCPTR(on_song_level_change),(gpointer)self);
     bus=gst_element_get_bus(GST_ELEMENT(bin));
+    g_signal_connect(bus, "message::error", (GCallback)on_song_error, (gpointer)self);
     g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
     g_signal_connect(bus, "message::application", (GCallback)on_song_level_negotiated, (gpointer)self);
     gst_object_unref(bus);

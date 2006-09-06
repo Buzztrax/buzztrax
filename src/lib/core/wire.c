@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.93 2006-09-06 17:16:40 ensonic Exp $
+/* $Id: wire.c,v 1.94 2006-09-06 20:17:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -362,7 +362,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
 static gboolean bt_wire_connect(const BtWire * const self) {
   gboolean res=FALSE;
   const BtSong * const song=self->priv->song;
-  BtSetup * const setup=NULL;
+  BtSetup * const setup;
   BtWire *other_wire;
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
@@ -373,7 +373,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   // move this to connect?
   if((!self->priv->src) || (!self->priv->dst)) {
     GST_WARNING("trying to add create wire with NULL endpoint, src=%p and dst=%p",self->priv->src,self->priv->dst);
-    goto Error;
+    return(res);
   }
 
   g_object_get(G_OBJECT(song),"bin",&self->priv->bin,"setup",&setup,NULL);
@@ -448,6 +448,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   }
   res=TRUE;
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+  
 Error:
   g_object_try_unref(setup);
   return(res);

@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.60 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: application.c,v 1.61 2006-09-06 20:17:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,77 +55,13 @@ struct _BtApplicationPrivate {
   GstElement *bin;
   /* a reference to the buzztard settings object */
   BtSettings *settings;
-  
-  /* application bus-handlers */
-  GList *bus_handlers;
 };
 
 static GObjectClass *parent_class=NULL;
 
-typedef struct {
-  GstBusFunc handler;
-  gconstpointer user_data;
-} BtBusWatchEntry;
-
 //-- helper
 
 //-- handler
-
-#if 0
-/*
- * bus_handler:
- *
- * distribute pipeline-bus message
- * walks the callback list and invoke the callbacks until one returns TRUE
- */
-static gboolean bus_handler(const GstBus * const bus, const GstMessage * const message, gconstpointer const user_data) {
-  const BtApplication * const self = BT_APPLICATION(user_data);
-  const BtBusWatchEntry *entry;
-  gboolean handled=FALSE;
-  const GList* node;
-  
-  g_return_val_if_fail(GST_IS_BUS(bus),TRUE);
-  
-  GST_LOG("received bus messgage: '%s', forwarding to %d handlers",gst_message_type_get_name(GST_MESSAGE_TYPE(message)),g_list_length(self->priv->bus_handlers));
-  
-  for(node=self->priv->bus_handlers;(node && !handled);node=g_list_next(node)) {
-    entry=(BtBusWatchEntry *)node->data;
-    GST_LOG("Calling %s(%p) ",GST_DEBUG_FUNCPTR_NAME(entry->handler),entry->user_data);
-    handled=entry->handler(bus,message,entry->user_data);
-  }
-  if(!handled) {
-    const GError *err;
-    const gchar *debug;
-    const gchar *msg_type=NULL;
-    switch(GST_MESSAGE_TYPE(message)) {
-      case GST_MESSAGE_WARNING:
-        msg_type=_("Warning");
-        gst_message_parse_warning (message, &err, &debug);
-        break;
-      case GST_MESSAGE_ERROR:
-        msg_type=_("Error");
-        gst_message_parse_error (message, &err, &debug);
-        break;
-      /* its unlikely that we don't listen to them */
-      case GST_MESSAGE_EOS:
-      case GST_MESSAGE_SEGMENT_DONE:
-        GST_WARNING("unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
-        break;
-      default:
-        //GST_DEBUG("  unhandled bus message : %s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
-        break;
-    }
-    if(msg_type) {
-      //gst_object_default_error (GST_MESSAGE_SRC (message), err, debug);
-      g_print("%s: %s\n%s\n",msg_type,safe_string(err->message),debug);
-      g_error_free (err);
-      g_free (debug);
-    }
-  }
-  // pop off *all* messages
-  return(TRUE);
-}
-#endif
 
 //-- constructor methods
 
@@ -163,68 +99,6 @@ gboolean bt_application_new(const BtApplication * const self) {
 }
 
 //-- methods
-
-/**
- * bt_application_add_bus_watch:
- * @self: the application instance
- * @handler : function to call when a message is received.
- * @user_data : user data passed to handler
- *
- * The #BtApplication class manages communication with the #GstBus of the loaded
- * #BtSong. To process bus messages register a handler with this method.
- */
-void bt_application_add_bus_watch(const BtApplication * const self, const GstBusFunc handler, gconstpointer const user_data) {
-  BtBusWatchEntry *entry;
-  const GList* node;
-  
-  g_return_if_fail(BT_IS_APPLICATION(self));
-  g_return_if_fail(handler);
-  
-  // check if handler is already connected
-  for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
-    entry=(BtBusWatchEntry *)node->data;
-    if((entry->handler==handler) && (entry->user_data==user_data)) {
-      GST_WARNING("trying to register bus_watch \"%s\" again",GST_DEBUG_FUNCPTR_NAME(handler));
-      return;
-    }
-  }
-  entry=g_new(BtBusWatchEntry,1);
-  entry->handler=handler;
-  entry->user_data=user_data;
-  self->priv->bus_handlers=g_list_prepend(self->priv->bus_handlers,entry);
-  GST_INFO("bus_watch \"%s\" added",GST_DEBUG_FUNCPTR_NAME(handler));
-}
-
-/**
- * bt_application_remove_bus_watch:
- * @self: the application instance
- * @handler : function to remove from the handler list.
- * @user_data : user data passed to handler
- *
- * Unregister a handler previously registered using bt_application_add_bus_watch().
- */
-void bt_application_remove_bus_watch(const BtApplication * const self, const GstBusFunc handler, gconstpointer const user_data) {
-  BtBusWatchEntry *entry;
-  gboolean found=FALSE;
-  GList* node;
-  
-  g_return_if_fail(BT_IS_APPLICATION(self));
-  g_return_if_fail(handler);
-  
-  for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
-    entry=(BtBusWatchEntry *)node->data;
-    if((entry->handler==handler) && (entry->user_data==user_data)) {
-      self->priv->bus_handlers=g_list_remove(self->priv->bus_handlers,entry);
-      g_free(entry);
-      found=TRUE;
-      GST_INFO("bus_watch \"%s\" removed",GST_DEBUG_FUNCPTR_NAME(handler));
-      break;
-    }
-  }
-  if(!found) {
-    GST_WARNING("failed to remove bus_watch \"%s\"",GST_DEBUG_FUNCPTR_NAME(handler));
-  }
-}
 
 //-- wrapper
 
@@ -293,18 +167,6 @@ static void bt_application_finalize(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  // free list of bus-handlers
-  if(self->priv->bus_handlers) {
-    GList* node;
-    for(node=self->priv->bus_handlers;node;node=g_list_next(node)) {
-      g_free(node->data);
-      node->data=NULL;
-    }
-    g_list_free(self->priv->bus_handlers);
-    self->priv->bus_handlers=NULL;
-  }
-  // @todo: g_source_remove(id);
-
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
@@ -312,23 +174,13 @@ static void bt_application_finalize(GObject * const object) {
 
 static void bt_application_init(const GTypeInstance * const instance, gconstpointer const g_class) {
   BtApplication * const self = BT_APPLICATION(instance);
-  GstBus *bus;
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
   
-  bus=gst_element_get_bus(self->priv->bin);
-  g_assert(GST_IS_BUS(bus));
-  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  /*
-  // this was too low as we lost SEGMENT_DONE bus messages
-  //gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT_IDLE,bus_handler,(gpointer)self,NULL);
-  gst_bus_add_watch_full(bus,G_PRIORITY_DEFAULT-10,bus_handler,(gpointer)self,NULL);
-  */
-  gst_object_unref(bus);
-  
+ 
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
   

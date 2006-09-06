@@ -1,5 +1,22 @@
 2006-09-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/application.c: (bt_application_finalize),
+	(bt_application_init):
+	* src/lib/core/libbtcore/application-methods.h:
+	* src/lib/core/song.c: (bt_song_new), (bt_song_play),
+	(bt_song_dispose):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_play_clicked),
+	(on_song_error), (on_song_changed):
+	* src/ui/edit/tools.c: (bt_dialog_message):
+          Remove obsolete bus api. Listen to bus error messages. Handle async
+          state-changes with timeouts (fixes #1551578).
+
+	* src/lib/core/wire.c: (bt_wire_connect):
+          Reflow that code a little (return immediately).
+
+2006-09-06  Stefan Kost  <ensonic@users.sf.net>
+
 	patch by: Samuel Cormier-Iijima <sciyoshi@users.sourceforge.net>
 
 	* src/lib/core/wire.c: (bt_wire_connect):
