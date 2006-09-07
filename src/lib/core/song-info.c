@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.59 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: song-info.c,v 1.60 2006-09-07 21:19:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -237,14 +237,14 @@ static void bt_song_info_get_property(GObject      * const object,
     case SONG_INFO_BARS: {
       g_value_set_ulong(value, self->priv->bars);
     } break;
-    default: {
-      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
-    } break;
     case SONG_INFO_CREATE_DTS: {
       g_value_set_string(value, self->priv->create_dts);
     } break;
     case SONG_INFO_CHANGE_DTS: {
       g_value_set_string(value, self->priv->change_dts);
+    } break;
+    default: {
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }

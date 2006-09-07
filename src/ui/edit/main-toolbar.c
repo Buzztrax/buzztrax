@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.92 2006-09-06 20:17:40 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.93 2006-09-07 21:19:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -386,10 +386,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     // get the input_level property from audio_sink
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
-
     g_assert(GST_IS_ELEMENT(level));
+
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_connect(bus, "message::error", (GCallback)on_song_error, (gpointer)self);
+    g_signal_connect(bus, "message::warning", (GCallback)on_song_error, (gpointer)self);
     g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
     g_signal_connect(bus, "message::application", (GCallback)on_song_level_negotiated, (gpointer)self);
     gst_object_unref(bus);

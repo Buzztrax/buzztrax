@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.142 2006-09-06 20:17:39 ensonic Exp $
+/* $Id: song.c,v 1.143 2006-09-07 21:19:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -153,7 +153,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self, const gboo
   GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"G_GINT64_FORMAT,loop,loop_start,loop_end,length,bar_time);
   
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-  const GstSeekFlags flags=first?0L:GST_SEEK_FLAG_FLUSH;
+  const GstSeekFlags flags=first?GST_SEEK_FLAG_NONE:GST_SEEK_FLAG_FLUSH;
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         flags | GST_SEEK_FLAG_SEGMENT,
@@ -170,6 +170,54 @@ static void bt_song_update_play_seek_event(const BtSong * const self, const gboo
   bt_song_seek_to_play_pos(self);
 }
 
+static void bt_song_send_tags(const BtSong * const self) {
+  GstTagList * const taglist;
+  GstIterator *it;
+  gboolean done;
+  gpointer item;
+
+  // send tags
+  GST_DEBUG("about to send metadata");
+  g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
+  it=gst_bin_iterate_all_by_interface(self->priv->bin,GST_TYPE_TAG_SETTER);
+  done=FALSE;
+  while(!done) {
+    switch(gst_iterator_next(it, &item)) {
+      case GST_ITERATOR_OK:
+        GST_INFO("sending tags to '%s' element",gst_element_get_name(GST_ELEMENT(item)));
+        gst_tag_setter_merge_tags(GST_TAG_SETTER(item),taglist,GST_TAG_MERGE_REPLACE);
+        gst_object_unref(item);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync(it);
+        break;
+      case GST_ITERATOR_ERROR:
+        GST_WARNING("wrong parameter for iterator");
+        done=TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done=TRUE;
+        break;
+    }
+  }
+  gst_iterator_free (it);
+
+  /* @todo has no effect if not send to a source
+  gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
+  */
+  /* @todo also fails
+   * GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
+   * GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
+  tag_event=gst_event_new_tag(taglist);
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
+    GST_WARNING("element failed to handle tag event");
+  }
+  */
+  
+  gst_tag_list_free(taglist);
+}
+
+
 //-- handler
 
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
@@ -180,13 +228,15 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
+    /*
     else {
       gst_pipeline_set_new_stream_time (GST_PIPELINE (self->priv->bin), 0);
       gst_element_get_state (GST_ELEMENT (self->priv->bin), NULL, NULL, 40 * GST_MSECOND);
     }
+    */
   }
   else {
-    GST_INFO("song isn't playing ?!?");
+    GST_WARNING("song isn't playing ?!?");
     /*
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->idle_seek_event)))) {
       GST_WARNING("element failed to handle continuing idle seek event");
@@ -201,6 +251,39 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
   GST_INFO("received EOS bus message");
   bt_song_stop(self);
 }
+
+/* this is not called (we had forgotten to add teh bus watch, lets try again later) ?
+#if 0
+static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
+  
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+    GstState oldstate,newstate,pending;
+    
+    gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
+    GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
+    switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+      case GST_STATE_CHANGE_READY_TO_PAUSED:
+        // seek to start time
+        self->priv->play_pos=0;
+        GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
+        if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+          GST_WARNING("element failed to handle seek event");
+        }
+        // send tags
+        bt_song_send_tags(self);
+        // start playback
+        gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+        break;
+      case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+        GST_INFO("playback started");
+        self->priv->is_playing=TRUE;
+        g_object_notify(G_OBJECT(self),"is-playing");
+        break;
+    }
+  }
+}
+*/
 
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
@@ -249,8 +332,10 @@ BtSong *bt_song_new(const BtApplication * const app) {
     goto Error;
   }
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(bin));
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
   g_signal_connect(bus, "message::eos", (GCallback)on_song_eos, (gpointer)self);
+  //g_signal_connect(bus, "message::state-changed", (GCallback)on_song_state_changed, (gpointer)self);
   gst_object_unref(bus);
   gst_object_unref(bin);
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
@@ -373,10 +458,6 @@ gboolean bt_song_idle_stop(const BtSong * const self) {
  */
 gboolean bt_song_play(const BtSong * const self) {
   GstStateChangeReturn res;
-  GstTagList * const taglist;
-  GstIterator *it;
-  gboolean done;
-  gpointer item;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
@@ -414,56 +495,20 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
-    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND);
     GST_INFO("->PAUSED state change after async-wait returned %d",res);
     if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
   }
-  
+
   // seek to start time
   self->priv->play_pos=0;
   GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
   if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
     GST_WARNING("element failed to handle seek event");
-  }
-  
+  } 
   // send tags
-  GST_DEBUG("about to send metadata");
-  g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
-  it=gst_bin_iterate_all_by_interface(self->priv->bin,GST_TYPE_TAG_SETTER);
-  done=FALSE;
-  while(!done) {
-    switch(gst_iterator_next(it, &item)) {
-      case GST_ITERATOR_OK:
-        GST_INFO("sending tags to '%s' element",gst_element_get_name(GST_ELEMENT(item)));
-        gst_tag_setter_merge_tags(GST_TAG_SETTER(item),taglist,GST_TAG_MERGE_REPLACE);
-        gst_object_unref(item);
-        break;
-      case GST_ITERATOR_RESYNC:
-        gst_iterator_resync(it);
-        break;
-      case GST_ITERATOR_ERROR:
-        GST_WARNING("wrong parameter for iterator");
-        done=TRUE;
-        break;
-      case GST_ITERATOR_DONE:
-        done=TRUE;
-        break;
-    }
-  }
-  gst_iterator_free (it);
-
-  /* @todo has no effect if not send to a source
-  gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
-  */
-  /* @todo also fails
-   * GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
-   * GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
-  tag_event=gst_event_new_tag(taglist);
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
-    GST_WARNING("element failed to handle tag event");
-  }
-  */
+  bt_song_send_tags(self);
 
   // start playback
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
@@ -475,14 +520,13 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PLAYING needs async wait");
-    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND/2);
+    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND);
     GST_INFO("->PLAYING state change after async-wait returned %d",res);
     if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
   }
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
-
   return(TRUE);
 }
 

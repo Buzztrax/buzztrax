@@ -1,3 +1,13 @@
+2006-09-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c: (bt_song_info_get_property):
+	* src/lib/core/song.c: (bt_song_update_play_seek_event),
+	(bt_song_send_tags), (on_song_segment_done), (bt_song_new),
+	(bt_song_play):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+          Cleanup of song-play. Backout change for #1551578 partially, as it
+          broke normal playback
+
 2006-09-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-canvas-item.c:
@@ -991,7 +1001,7 @@
           added idea about machine-load error tracking
 
 	* tests/m-bt-edit.c:
-          add idea abou xerrro trapping
+          add idea abou xerror trapping
 
 2006-08-11  Thomas Wabner  <waffel@users.sf.net>
 
