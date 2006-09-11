@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.136 2006-09-05 21:41:43 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.137 2006-09-11 13:59:20 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -373,7 +373,7 @@ static void sequence_model_recolorize(BtMainPageSequence *self) {
   }
 }
 
-static void sequence_calculate_visible_lines(BtMainPageSequence *self) {
+static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
   BtSong *song;
   BtSequence *sequence;
   gulong visible_rows,sequence_length;
@@ -995,35 +995,67 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
   g_list_free(list);
 }
 
-static void sequence_view_set_pos(const BtMainPageSequence *self,gulong modifier,glong row) {
+static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glong row) {
   // set play or loop bars
   BtSong *song;
   BtSequence *sequence;
   gulong sequence_length;
-  gdouble loop_pos;
+  gdouble pos;
+  gulong play_pos,loop_start,loop_end;
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_get(song,"sequence",&sequence,"play-pos",&play_pos,NULL);
   g_object_get(sequence,"length",&sequence_length,NULL);
   if(row==-1) row=sequence_length;
   // use a keyboard qualifier to set loop_start and end
   /* @todo should the sequence-view listen to notify::xxx ? */
-  switch(modifier) {
-    case 0:
-      g_object_set(song,"play-pos",row,NULL);
-      break;
-    case GDK_CONTROL_MASK:
-      g_object_set(sequence,"loop-start",row,NULL);
-      loop_pos=(gdouble)row/(gdouble)sequence_length;
-      g_object_set(self->priv->sequence_table,"loop-start",loop_pos,NULL);
-      g_object_set(self->priv->sequence_pos_table,"loop-start",loop_pos,NULL);
-      break;
-    case GDK_MOD4_MASK:
-      g_object_set(sequence,"loop-end",row,NULL);
-      loop_pos=(gdouble)row/(gdouble)sequence_length;
-      g_object_set(self->priv->sequence_table,"loop-end",loop_pos,NULL);
-      g_object_set(self->priv->sequence_pos_table,"loop-start",loop_pos,NULL);
-      break;
+  switch(type) {
+  case 0:
+    g_object_set(song,"play-pos",row,NULL);
+    break;
+  case 1: // loop start
+    g_object_set(sequence,"loop-start",row,NULL);
+    pos=(gdouble)row/(gdouble)sequence_length;
+    g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
+    g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
+    
+    g_object_get(sequence,"loop-end",&loop_end,NULL);
+    if(loop_end<=row) {
+      loop_end=row+self->priv->bars;
+      g_object_set(sequence,"loop-end",loop_end,NULL);
+      pos=(gdouble)loop_end/(gdouble)sequence_length;
+      g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
+      g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
+    }
+    break;
+
+  case 2: // loop end
+    g_object_set(sequence,"loop-end",row,NULL);
+    if(row>=sequence_length) {
+      sequence_length=row+1;
+      g_object_set(sequence,"length",sequence_length,NULL);
+      sequence_calculate_visible_lines(self);
+    }
+      
+    pos=(gdouble)row/(gdouble)sequence_length;
+    g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
+    g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
+     
+ 
+    g_object_get(sequence,"loop-start",&loop_start,NULL);
+    if(loop_start>=row) {
+      loop_start=row-self->priv->bars;
+      g_object_set(sequence,"loop-start",loop_start,NULL);
+    }
+    pos=(gdouble)loop_start/(gdouble)sequence_length;
+    g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
+    g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
+    pos=(gdouble)play_pos/(gdouble)sequence_length;
+    if(pos<=1.0) {
+      g_object_set(self->priv->sequence_table,"play-position",pos,NULL);
+      g_object_set(self->priv->sequence_pos_table,"play-position",pos,NULL);
+    }
+    break;
   }
   g_object_unref(sequence);
   g_object_unref(song);
@@ -1228,12 +1260,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   gchar *str=NULL;
   gboolean free_str=FALSE;
   gboolean change=FALSE;
-  gulong row,track;
+  gulong row,track,length;
 
   g_assert(user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+  g_object_get(G_OBJECT(sequence),"length",&length,NULL);
   
   GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
 
@@ -1386,33 +1419,71 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         }
       }
     }
-    else if(event->keyval<0x100) {
-      gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
-      
-      // reset selection
-      self->priv->selection_start_column=-1;
-      self->priv->selection_start_row=-1;
-      self->priv->selection_end_column=-1;
-      self->priv->selection_end_row=-1;
-      
-      GST_INFO("pattern key pressed: '%c'",*pos);
-      
-      if(pos) {
-        BtMachine *machine;
-
-        if((machine=bt_sequence_get_machine(sequence,track))) {
-          BtPattern *pattern;
-          gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
+    else if(event->keyval == GDK_b || event->keyval == GDK_e) {
+      if(modifier==GDK_CONTROL_MASK) {
+        gulong loop_start_pos,loop_end_pos;
+//        gdouble loop_start,loop_end;
         
-          if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
-            bt_sequence_set_pattern(sequence,row,track,pattern);
-            g_object_get(G_OBJECT(pattern),"name",&str,NULL);
-            g_object_unref(pattern);
-            free_str=TRUE;
-            change=TRUE;
-            res=TRUE;
+        g_object_get( G_OBJECT(sequence), 
+                      "loop-start", &loop_start_pos,
+                      "loop-end", &loop_end_pos,
+                      NULL );
+        
+        GST_INFO("ctrl-e/ctrl-b pressed, row %ul",row);
+        
+        if(event->keyval == GDK_b) {
+/*          if(loop_end_pos < (row+1))
+            loop_end_pos = (row+1);
+            loop_start_pos = row;*/
+          sequence_view_set_pos(self,1,(glong)row);          
+        }
+        if(event->keyval == GDK_e) {
+/*          if( loop_start_pos > (row-1) )
+            loop_start_pos = (row-1);
+            loop_end_pos = row;*/
+          sequence_view_set_pos(self,2,(glong)row);
+        }
+        change=TRUE;
+/*        g_object_set( G_OBJECT(sequence), 
+                      "loop-start", loop_start_pos,
+                      "loop-end", loop_end_pos,
+                      NULL );*/
+
+/*        loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)length:0.0;
+        loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)length:1.0;
+        g_object_set(self->priv->sequence_table,"loop-start",loop_start,"loop-end",loop_end,NULL);
+        g_object_set(self->priv->sequence_pos_table,"loop-start",loop_start,"loop-end",loop_end,NULL);*/
+      }
+    }
+    else if(event->keyval<0x100) {
+      if(row<length) {
+        gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
+      
+        // reset selection
+        self->priv->selection_start_column=-1;
+        self->priv->selection_start_row=-1;
+        self->priv->selection_end_column=-1;
+        self->priv->selection_end_row=-1;
+      
+        GST_INFO("pattern key pressed: '%c'",*pos);
+      
+        if(pos) {
+          BtMachine *machine;
+          
+          if((machine=bt_sequence_get_machine(sequence,track))) {
+            BtPattern *pattern;
+            gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
+        
+            if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
+              bt_sequence_set_pattern(sequence,row,track,pattern);
+              g_object_get(G_OBJECT(pattern),"name",&str,NULL);
+              g_object_unref(pattern);
+              free_str=TRUE;
+              change=TRUE;
+              res=TRUE;
+            }
+            g_object_unref(machine);
           }
-          g_object_unref(machine);
         }
       }
     }
@@ -1491,7 +1562,17 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
         if(sequence_view_get_cursor_pos(GTK_TREE_VIEW(widget),path,column,&track,&row)) {
           GST_INFO("  left click to column %d, row %d",track,row);
           if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
-            sequence_view_set_pos(self,modifier,(glong)row);
+            switch(modifier) {
+            case 0:
+              sequence_view_set_pos(self,0,(glong)row);
+              break;
+            case GDK_CONTROL_MASK:
+              sequence_view_set_pos(self,1,(glong)row);
+              break;
+            case GDK_MOD4_MASK:
+              sequence_view_set_pos(self,2,(glong)row);
+              break;
+            }
           }
           else {
             // set cell focus
@@ -1505,7 +1586,17 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
       }
       else {
         GST_INFO("clicked outside data area - #1");
-        sequence_view_set_pos(self,modifier,-1);
+        switch(modifier) {
+        case 0:
+          sequence_view_set_pos(self,0,-1);
+          break;
+        case GDK_CONTROL_MASK:
+          sequence_view_set_pos(self,1,-1);
+          break;
+        case GDK_MOD4_MASK:
+          sequence_view_set_pos(self,2,-1);
+          break;
+        }
       }
       if(path) gtk_tree_path_free(path);
     }

@@ -1,3 +1,12 @@
+2006-09-11  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	(sequence_calculate_visible_lines), (sequence_view_set_pos),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_button_press_event):
+	added ctrl-b/ctrl-e hotkeys which set loop begin/end position, and enhance sequence-length if needed
+	made sequence_view_set_pos take mode (0=pos,1=loop_begin,2=loop_end) instead of modifier key, switch has to be done by caller now
+
 2006-09-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
