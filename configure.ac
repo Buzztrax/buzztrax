@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.80 2006-08-27 20:02:53 ensonic Exp $
+# $Id: configure.ac,v 1.81 2006-09-11 12:40:29 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -149,9 +149,11 @@ if test "$enable_coverage" = "yes"; then
   #AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
   AM_CONDITIONAL(USE_COVERAGE, true)
   COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
+  COVERAGE_LIBS="-lgcov"
 else
   AM_CONDITIONAL(USE_COVERAGE, false)
   COVERAGE_CFLAGS=""
+  COVERAGE_LIBS=""
 fi
 
 # valgrind integration for tests
@@ -330,7 +332,7 @@ BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
 # -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
-BT_LIBS='-lbtcore -lm'
+BT_LIBS='-lbtcore -lm $COVERAGE_LIBS'
 
 # check for mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
