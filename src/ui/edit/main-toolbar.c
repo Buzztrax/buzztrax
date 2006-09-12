@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.93 2006-09-07 21:19:30 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.94 2006-09-12 20:41:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -107,13 +107,13 @@ static gboolean on_song_playback_update(gpointer user_data) {
 }
 
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gboolean is_playing;
 
   g_assert(user_data);
   
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   if(!is_playing) {
-    BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     gint i;
   
     GST_INFO("song stop event occured: %p",g_thread_self());
@@ -130,6 +130,10 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     }
 
     GST_INFO("song stop event handled");
+  }
+  else {
+    // update 10 times a second
+    self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,(gpointer)song);
   }
 }
 
@@ -185,9 +189,6 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     if(bt_song_play(song)) {
-      // update 10 times a second
-      self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,song);
-
       // enable stop button
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
     }
@@ -250,6 +251,7 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   bt_song_stop(song);
 
   gst_message_parse_error (message, &err, &dbg);
+  // @todo: check domain and code
   GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
   bt_dialog_message(main_window,_("Error"),_("An error occurred"),err->message);
   g_error_free (err);
@@ -393,6 +395,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(bus, "message::warning", (GCallback)on_song_error, (gpointer)self);
     g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
     g_signal_connect(bus, "message::application", (GCallback)on_song_level_negotiated, (gpointer)self);
+    //g_signal_connect(bus, "message::state-changed", (GCallback)on_song_state_changed, (gpointer)self);
     gst_object_unref(bus);
 
     // get the pad from the input-level and listen there for channel negotiation

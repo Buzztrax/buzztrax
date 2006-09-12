@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.143 2006-09-07 21:19:29 ensonic Exp $
+/* $Id: song.c,v 1.144 2006-09-12 20:41:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -252,8 +252,7 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
   bt_song_stop(self);
 }
 
-/* this is not called (we had forgotten to add teh bus watch, lets try again later) ?
-#if 0
+/* this is not called (we had forgotten to add the bus watch, lets try again later) ? */
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   
@@ -283,7 +282,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     }
   }
 }
-*/
 
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
   bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
@@ -335,7 +333,7 @@ BtSong *bt_song_new(const BtApplication * const app) {
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
   g_signal_connect(bus, "message::eos", (GCallback)on_song_eos, (gpointer)self);
-  //g_signal_connect(bus, "message::state-changed", (GCallback)on_song_state_changed, (gpointer)self);
+  g_signal_connect(bus, "message::state-changed", (GCallback)on_song_state_changed, (gpointer)self);
   gst_object_unref(bus);
   gst_object_unref(bin);
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);
@@ -458,11 +456,25 @@ gboolean bt_song_idle_stop(const BtSong * const self) {
  */
 gboolean bt_song_play(const BtSong * const self) {
   GstStateChangeReturn res;
+  GList *wires;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // do not play an empty song
   if(!GST_BIN_NUMCHILDREN(self->priv->bin)) return(FALSE);
+  // do not play a song with no wires linked to sink
+  wires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
+  if(!wires) return(FALSE);
+  else {
+    GList *node;
+
+    for(node=wires;node;node=g_list_next(node)) {
+      g_object_try_unref(node->data);
+    }
+    g_list_free(wires);
+  }
+  // @todo: do not play a song with no wires linked to effects that are linked to the sink
+  // unconnected sources will throw an bus-error-message  
   
   // do not play again
   if(self->priv->is_playing) return(TRUE);
@@ -495,12 +507,13 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
-    res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
+    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
     //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND);
-    GST_INFO("->PAUSED state change after async-wait returned %d",res);
-    if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
+    //GST_INFO("->PAUSED state change after async-wait returned %d",res);
+    //if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
   }
 
+#if 0
   // seek to start time
   self->priv->play_pos=0;
   GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
@@ -527,6 +540,7 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   self->priv->is_playing=TRUE;
   g_object_notify(G_OBJECT(self),"is-playing");
+#endif
   return(TRUE);
 }
 

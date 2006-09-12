@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.117 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: sequence.c,v 1.118 2006-09-12 20:41:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1095,17 +1095,17 @@ static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persi
         g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
         xmlNewProp(child_node2,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(j)));
         xmlNewProp(child_node2,XML_CHAR_PTR("machine"),XML_CHAR_PTR(machine_id));
-	g_free(machine_id);
+        g_free(machine_id);
         // iterate over timelines
         for(i=0;i<self->priv->length;i++) {
           // get pattern
-	  const BtPattern * const pattern=self->priv->patterns[i*self->priv->tracks+j];
+          const BtPattern * const pattern=self->priv->patterns[i*self->priv->tracks+j];
           if(pattern) {
             g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
             child_node3=xmlNewChild(child_node2,NULL,XML_CHAR_PTR("position"),NULL);
             xmlNewProp(child_node3,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
             xmlNewProp(child_node3,XML_CHAR_PTR("pattern"),XML_CHAR_PTR(pattern_id));
-	    g_free(pattern_id);
+            g_free(pattern_id);
           }
         }
       }
