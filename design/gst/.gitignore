@@ -1,7 +1,9 @@
 test
 mv
-net
-gst
+net*
+gst*
 gui
 browser
-link
+connection*
+link*
+state*

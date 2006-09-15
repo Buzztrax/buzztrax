@@ -1,3 +1,11 @@
+2006-09-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/.cvsignore:
+	* design/gst/connection1.c: (message_received), (test_timeout),
+	(main):
+	* design/gst/states3.c: (main):
+          new test app and cleanup
+
 2006-09-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c: (bt_sequence_persistence_save):

@@ -1,4 +1,4 @@
-/** $Id: states3.c,v 1.8 2006-02-02 20:03:44 ensonic Exp $
+/** $Id: states3.c,v 1.9 2006-09-15 20:51:36 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  * - swaps two sources
  *
@@ -103,7 +103,6 @@ int main(int argc, char **argv) {
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect (bus, "message::error", (GCallback) message_received, bin);
   g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
-  
  
   /* prepare playing */
   if(!gst_element_set_locked_state (src2, TRUE)) {
