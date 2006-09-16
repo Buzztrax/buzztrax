@@ -1,4 +1,4 @@
-/** $Id: tags1.c,v 1.2 2006-01-27 07:07:51 ensonic Exp $
+/** $Id: tags1.c,v 1.3 2006-09-16 16:28:13 ensonic Exp $
  * test tag writing in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` tags1.c -o tags1
@@ -104,8 +104,8 @@ int main(int argc, char **argv) {
   gst_element_set_state (bin, GST_STATE_NULL);
   
   /* we don't need a reference to these objects anymore */
-  gst_object_unref (G_OBJECT (clock));
-  gst_object_unref (G_OBJECT (bin));
+  gst_object_unref (GST_OBJECT (clock));
+  gst_object_unref (GST_OBJECT (bin));
 
   if(argc>1) {
     puts("FAILS");

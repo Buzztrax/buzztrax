@@ -1,4 +1,4 @@
-/* $Id: settings-private.h,v 1.9 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: settings-private.h,v 1.10 2006-09-16 16:28:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,8 +35,12 @@ enum {
   BT_SETTINGS_SYSTEM_AUDIOSINK,
   BT_SETTINGS_SYSTEM_TOOLBAR_STYLE
   /* @todo additional system settings
-  BT_SETTINGS_SYSTEM_TOOLBAR_SIZE  gconf:gnome/interface/toolbar_size
-    */
+  BT_SETTINGS_SYSTEM_TOOLBAR_DETACHABLE <gboolean> gconf:gnome/interface/toolbar_detachable
+  BT_SETTINGS_SYSTEM_TOOLBAR_ICON_SIZE  <guint>    gconf:gnome/interface/toolbar_icon_size
+  BT_SETTINGS_SYSTEM_MENUBAR_DETACHABLE <gboolean> gconf:gnome/interface/menubar_detachable
+  BT_SETTINGS_SYSTEM_MENU_HAVE_ICONS    <gboolean> gconf:gnome/interface/menus_have_icons
+  BT_SETTINGS_SYSTEM_MENU_HAVE_TEAROFF  <gboolean> gconf:gnome/interface/menus_have_tearoff
+  */
 };
 
 #endif // BT_SETTINGS_PRIVATE_H

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.94 2006-09-12 20:41:24 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.95 2006-09-16 16:28:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -117,7 +117,10 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     gint i;
   
     GST_INFO("song stop event occured: %p",g_thread_self());
-    g_source_remove(self->priv->playback_update_id);
+    if(self->priv->playback_update_id) {
+      g_source_remove(self->priv->playback_update_id);
+      self->priv->playback_update_id=0;
+    }
     // disable stop button
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),FALSE);
     // switch off play button

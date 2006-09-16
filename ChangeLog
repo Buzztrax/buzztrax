@@ -1,3 +1,29 @@
+2006-09-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/link.c: (main):
+	* design/gst/link2.c: (main):
+	* design/gst/seek1.c: (main):
+	* design/gst/states.c: (main):
+	* design/gst/states1.c: (main):
+	* design/gst/states1a.c: (main):
+	* design/gst/states1b.c: (main):
+	* design/gst/states1c.c: (main):
+	* design/gst/states2.c: (main):
+	* design/gst/states3.c: (main):
+	* design/gst/states3a.c: (main):
+	* design/gst/tags1.c: (main):
+	* design/gst/test.c: (main):
+          Cleanup examples
+
+	* src/lib/core/libbtcore/settings-private.h:
+          Add GUI config ideas
+
+	* src/lib/core/song.c: (bt_song_is_playable),
+	(on_song_paused_timeout), (on_song_playback_timeout),
+	(on_song_state_changed), (bt_song_play), (bt_song_stop):
+	* src/ui/edit/main-toolbar.c: (on_song_is_playing_notify):
+          Better error handling for playback of partialy connected songs
+
 2006-09-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/.cvsignore:

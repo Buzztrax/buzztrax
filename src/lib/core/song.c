@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.144 2006-09-12 20:41:24 ensonic Exp $
+/* $Id: song.c,v 1.145 2006-09-16 16:28:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -70,7 +70,7 @@ struct _BtSongPrivate {
   /* the playback position of the song */
   gulong play_pos;
   /* flag to signal playing and idle states */
-  gboolean is_playing,is_idle;
+  gboolean is_playing,is_idle,is_preparing;
 
   /* the application that currently uses the song */
   union {
@@ -170,6 +170,40 @@ static void bt_song_update_play_seek_event(const BtSong * const self, const gboo
   bt_song_seek_to_play_pos(self);
 }
 
+/*
+ * bt_song_is_playable:
+ * @song: the song to check
+ *
+ * Do some sanify check if a song an be played. GStreamer is a bit picky about
+ * partially connected pipelines (see design/gst/connection1.c)
+ *
+ * Returns: %TRUE if the song seems to be playable
+ */
+static gboolean bt_song_is_playable(const BtSong * const self) {
+  GList *wires;
+
+  // do not play an empty song
+  if(!GST_BIN_NUMCHILDREN(self->priv->bin)) return(FALSE);
+
+  // do not play a song with no wires linked to sink
+  wires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
+  if(!wires) return(FALSE);
+  else {
+    GList *node;
+
+    for(node=wires;node;node=g_list_next(node)) {
+      g_object_try_unref(node->data);
+    }
+    g_list_free(wires);
+  }
+  // @todo: do not play a song with no wires linked to effects that are linked to the sink
+
+  // unconnected sources will throw an bus-error-message
+  // unconnected effects don't harm
+  
+  return(TRUE);
+}
+
 static void bt_song_send_tags(const BtSong * const self) {
   GstTagList * const taglist;
   GstIterator *it;
@@ -252,17 +286,40 @@ static void on_song_eos(const GstBus * const bus, const GstMessage * const messa
   bt_song_stop(self);
 }
 
-/* this is not called (we had forgotten to add the bus watch, lets try again later) ? */
+static gboolean on_song_paused_timeout(gpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
+
+  if(self->priv->is_preparing) {
+    GST_INFO("->PAUSED timeout occured");
+    bt_song_stop(self);
+  }
+  return(FALSE);
+}
+
+static gboolean on_song_playback_timeout(gpointer user_data) {
+  const BtSong * const self = BT_SONG(user_data);
+
+  if(!self->priv->is_playing) {
+    GST_INFO("->PLAYING timeout occured");
+    bt_song_stop(self);
+  }
+  return(FALSE);
+}
+
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
   
+  g_assert(user_data);
+  
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
+    GstStateChangeReturn res;
     GstState oldstate,newstate,pending;
     
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
+        self->priv->is_preparing=FALSE;
         // seek to start time
         self->priv->play_pos=0;
         GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
@@ -272,7 +329,16 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // send tags
         bt_song_send_tags(self);
         // start playback
-        gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+        res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+        if(res==GST_STATE_CHANGE_FAILURE) {
+          GST_WARNING("can't go to playing state");
+          bt_song_stop(self);
+        }
+        else if(res==GST_STATE_CHANGE_ASYNC) {
+          GST_INFO("->PLAYING needs async wait");
+          // start a 2 second timeout that aborts playback if if get not started
+          g_timeout_add(2*1000, on_song_playback_timeout, (gpointer)self);
+        }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
         GST_INFO("playback started");
@@ -456,48 +522,19 @@ gboolean bt_song_idle_stop(const BtSong * const self) {
  */
 gboolean bt_song_play(const BtSong * const self) {
   GstStateChangeReturn res;
-  GList *wires;
   
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
-  // do not play an empty song
-  if(!GST_BIN_NUMCHILDREN(self->priv->bin)) return(FALSE);
-  // do not play a song with no wires linked to sink
-  wires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
-  if(!wires) return(FALSE);
-  else {
-    GList *node;
-
-    for(node=wires;node;node=g_list_next(node)) {
-      g_object_try_unref(node->data);
-    }
-    g_list_free(wires);
-  }
-  // @todo: do not play a song with no wires linked to effects that are linked to the sink
-  // unconnected sources will throw an bus-error-message  
+  if(!bt_song_is_playable(self)) return(FALSE);
   
   // do not play again
   if(self->priv->is_playing) return(TRUE);
   bt_song_idle_stop(self);
   
   GST_INFO("prepare playback");
-  // DEBUG
-  /* {
-    GList *list,*node;
-    BtWire *wire;
-
-    bt_machine_dbg_print_parts(BT_MACHINE(self->priv->master));
-    list=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
-    for(node=list;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      bt_wire_dbg_print_parts(wire);
-      g_object_unref(wire);
-    }
-    g_list_free(list);
-  } */
-  // DEBUG  
   
   // prepare playback
+  self->priv->is_preparing=TRUE;
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
   GST_INFO("->PAUSED state change returned %d",res);
   if(res==GST_STATE_CHANGE_FAILURE) {
@@ -507,10 +544,8 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
-    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_CLOCK_TIME_NONE);
-    //res=gst_element_get_state(GST_ELEMENT(self->priv->bin),NULL,NULL,GST_SECOND);
-    //GST_INFO("->PAUSED state change after async-wait returned %d",res);
-    //if(res!=GST_STATE_CHANGE_SUCCESS) return(FALSE);
+    // start a 2 second timeout that aborts playback if if get not started
+    g_timeout_add(2*1000, on_song_paused_timeout, (gpointer)self);
   }
 
 #if 0
@@ -558,7 +593,7 @@ gboolean bt_song_stop(const BtSong * const self) {
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
   // do not stop if not playing
-  if(!self->priv->is_playing) return(TRUE);
+  if(!self->priv->is_playing && !self->priv->is_preparing) return(TRUE);
 
   GST_INFO("stopping playback");
   
@@ -569,6 +604,7 @@ gboolean bt_song_stop(const BtSong * const self) {
   GST_DEBUG("->READY state change returned %d",res);
   
   self->priv->is_playing=FALSE;
+  self->priv->is_preparing=FALSE;
   g_object_notify(G_OBJECT(self),"is-playing");
   
   bt_song_idle_start(self);

@@ -1,4 +1,4 @@
-/** $Id: link2.c,v 1.2 2006-01-26 17:04:50 ensonic Exp $
+/** $Id: link2.c,v 1.3 2006-09-16 16:28:13 ensonic Exp $
  * test linking in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.9 --cflags --libs` link2.c -o link2
@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
   }
 	
   /* we don't need a reference to these objects anymore */
-  gst_object_unref (G_OBJECT (bin));
+  gst_object_unref (GST_OBJECT (bin));
 
   exit (0);
 }

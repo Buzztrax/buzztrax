@@ -1,4 +1,4 @@
-/** $Id: states1.c,v 1.8 2006-02-02 20:03:44 ensonic Exp $
+/** $Id: states1.c,v 1.9 2006-09-16 16:28:13 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  * - alternatively use a silence for src1 and src2
  *
@@ -238,9 +238,9 @@ int main(int argc, char **argv) {
   
   /* we don't need a reference to these objects anymore */
   gst_query_unref(query);
-  gst_object_unref (G_OBJECT (bus));
-  gst_object_unref (G_OBJECT (clock));
-  gst_object_unref (G_OBJECT (bin));
+  gst_object_unref (GST_OBJECT (bus));
+  gst_object_unref (GST_OBJECT (clock));
+  gst_object_unref (GST_OBJECT (bin));
 
   exit (0);
 }
