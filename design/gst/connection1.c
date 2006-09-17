@@ -1,4 +1,4 @@
-/** $Id: connection1.c,v 1.1 2006-09-15 20:51:36 ensonic Exp $
+/** $Id: connection1.c,v 1.2 2006-09-17 15:50:48 ensonic Exp $
  * test handling disconnected elements in gstreamer
  *
  * gcc -g `pkg-config gstreamer-0.10 --cflags --libs` connection1.c -o connection1
@@ -29,7 +29,7 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
     gchar *sstr;
 
     sstr = gst_structure_to_string (s);
-    printf ("%s\n", sstr);
+    puts (sstr);
     g_free (sstr);
   }
   else {

@@ -1,3 +1,20 @@
+2006-09-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/.cvsignore:
+	* design/gst/connection1.c: (message_received):
+	* design/gst/loop1.c: (message_received), (state_changed),
+	(segment_done), (main):
+	  add looper example
+
+	* src/lib/core/machine.c:
+	  infos about dynamic element reconnection
+
+	* src/lib/core/song.c: (bt_song_update_play_seek_event),
+	(bt_song_on_loop_changed), (bt_song_on_loop_start_changed),
+	(bt_song_on_loop_end_changed), (bt_song_on_length_changed),
+	(bt_song_new):
+	  always flush when looping   
+
 2006-09-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/link.c: (main):

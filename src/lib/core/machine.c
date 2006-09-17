@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.219 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: machine.c,v 1.220 2006-09-17 15:50:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -73,6 +73,10 @@
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
  *
  * @todo: when using the tee, we need queue elements after
+ */
+/* some info about dynamic linking
+ * block, flush (peer-pad), unlink, unblock
+ * remove request pad on adder (gst_element_remove_pad)
  */
  
 #define BT_CORE

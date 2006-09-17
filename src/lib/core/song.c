@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.145 2006-09-16 16:28:13 ensonic Exp $
+/* $Id: song.c,v 1.146 2006-09-17 15:50:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -135,15 +135,14 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
 }
 
 /*
- * bt_song_seek_to_play_pos:
+ * bt_song_update_play_seek_event:
  * @self: #BtSong to seek
- * @first: first time invocations (do not need to flush)
  * 
  * Prepares a new playback segment, that goes from the new start position (loop
  * or song start) to the new end position (loop or song end).
  * Also calls bt_song_seek_to_play_pos() to update the current playback segment.
  */
-static void bt_song_update_play_seek_event(const BtSong * const self, const gboolean first) {
+static void bt_song_update_play_seek_event(const BtSong * const self) {
   gboolean loop;
   glong loop_start,loop_end,length;
 
@@ -153,16 +152,17 @@ static void bt_song_update_play_seek_event(const BtSong * const self, const gboo
   GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"G_GINT64_FORMAT,loop,loop_start,loop_end,length,bar_time);
   
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-  const GstSeekFlags flags=first?GST_SEEK_FLAG_NONE:GST_SEEK_FLAG_FLUSH;
+  // we seem to always need to use FLUSH, as due to prerolling we also need to flush
+  //const GstSeekFlags flags=first?GST_SEEK_FLAG_NONE:GST_SEEK_FLAG_FLUSH;
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        flags | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-        flags,
+        GST_SEEK_FLAG_FLUSH,
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
@@ -350,19 +350,19 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
 }
 
 static void bt_song_on_loop_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
+  bt_song_update_play_seek_event(BT_SONG(user_data));
 }
 
 static void bt_song_on_loop_start_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
+  bt_song_update_play_seek_event(BT_SONG(user_data));
 }
 
 static void bt_song_on_loop_end_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
+  bt_song_update_play_seek_event(BT_SONG(user_data));
 }
 
 static void bt_song_on_length_changed(BtSequence * const sequence, GParamSpec * const arg, gconstpointer user_data) {
-  bt_song_update_play_seek_event(BT_SONG(user_data),FALSE);
+  bt_song_update_play_seek_event(BT_SONG(user_data));
 }
 
 //-- constructor methods
@@ -407,7 +407,7 @@ BtSong *bt_song_new(const BtApplication * const app) {
   g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
   GST_INFO("  new song created: %p",self);
-  bt_song_update_play_seek_event(BT_SONG(self),TRUE);
+  bt_song_update_play_seek_event(BT_SONG(self));
   bt_song_idle_start(self);
   return(self);
 Error:
