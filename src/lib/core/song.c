@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.146 2006-09-17 15:50:48 ensonic Exp $
+/* $Id: song.c,v 1.147 2006-09-18 22:23:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,6 +33,9 @@
 #define BT_SONG_C
 
 #include <libbtcore/core.h>
+
+// if a state change not happens within this time, cancel playback
+#define BT_SONG_STATE_CHANGE_TIMEOUT (3*1000)
 
 //-- signal ids
 
@@ -158,7 +161,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
-        GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
@@ -336,8 +339,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         }
         else if(res==GST_STATE_CHANGE_ASYNC) {
           GST_INFO("->PLAYING needs async wait");
-          // start a 2 second timeout that aborts playback if if get not started
-          g_timeout_add(2*1000, on_song_playback_timeout, (gpointer)self);
+          // start a short timeout that aborts playback if if get not started
+          g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_playback_timeout, (gpointer)self);
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
@@ -544,8 +547,8 @@ gboolean bt_song_play(const BtSong * const self) {
   }
   else if(res==GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
-    // start a 2 second timeout that aborts playback if if get not started
-    g_timeout_add(2*1000, on_song_paused_timeout, (gpointer)self);
+    // start a short timeout that aborts playback if if get not started
+    g_timeout_add(BT_SONG_STATE_CHANGE_TIMEOUT, on_song_paused_timeout, (gpointer)self);
   }
 
 #if 0
@@ -651,10 +654,11 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
   gint64 pos_cur;
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
-  g_return_val_if_fail(self->priv->is_playing,FALSE);
   g_assert(GST_IS_BIN(self->priv->bin));
   g_assert(GST_IS_QUERY(self->priv->position_query));
   //GST_INFO("query playback-pos");
+  
+  if(!self->priv->is_playing) return(FALSE);
   
   // query playback position and update self->priv->play-pos;
   gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
@@ -682,15 +686,19 @@ void bt_song_write_to_xml_file(const BtSong * const self) {
   FILE *out;
   BtSongInfo * const song_info;
   gchar * const song_name;
+  char ts[10];
+  time_t t;
   
   g_return_if_fail(BT_IS_SONG(self));
   
   g_object_get(G_OBJECT(self),"song-info",&song_info,NULL);
   g_object_get(song_info,"name",&song_name,NULL);
-  gchar * const file_name=g_alloca(strlen(song_name)+10);
-  g_sprintf(file_name,"/tmp/%s.xml",song_name);
+  gchar * const file_name=g_alloca(strlen(song_name)+20);
+  // not overwrite files during a run by adding current time
+  t = time(NULL);
+  strftime(ts, sizeof(ts), "%T", localtime(&t));
+  g_sprintf(file_name,"/tmp/%s_%s.xml",song_name,ts);
   
-  // @todo find a way to not overwrite files during a run (set unique song-name)
   if((out=fopen(file_name,"wb"))) {
     gst_xml_write_file(GST_ELEMENT(self->priv->bin),out);
     fclose(out);

@@ -1,3 +1,11 @@
+2006-09-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (bt_song_update_play_seek_event),
+	(on_song_state_changed), (bt_song_play),
+	(bt_song_update_playback_position), (bt_song_write_to_xml_file):
+	  raise timeout to 3 seconds (for debugging), fix loop-length, make song
+	  dump-names unique
+
 2006-09-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/.cvsignore:
