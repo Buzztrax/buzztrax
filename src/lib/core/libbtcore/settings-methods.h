@@ -1,4 +1,4 @@
-/* $Id: settings-methods.h,v 1.3 2006-08-24 20:00:53 ensonic Exp $
+/* $Id: settings-methods.h,v 1.4 2006-09-26 21:20:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,5 +25,7 @@
 #include "settings.h"
 
 extern BtSettings *bt_settings_new(void);
+
+extern void bt_settings_set_factory(BtSettingsFactory factory);
 
 #endif // BT_SETTINGS_METHDOS_H

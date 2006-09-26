@@ -1,4 +1,4 @@
-/* $Id: settings.h,v 1.10 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: settings.h,v 1.11 2006-09-26 21:20:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,6 +31,13 @@
 #define BT_IS_SETTINGS(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SETTINGS))
 #define BT_IS_SETTINGS_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SETTINGS))
 #define BT_SETTINGS_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SETTINGS, BtSettingsClass))
+
+/**
+ * BtSettingsFactory:
+ *
+ * Factory method that creates a new settings instance.
+ */
+typedef gpointer (*BtSettingsFactory)(void);
 
 /* type macros */
 

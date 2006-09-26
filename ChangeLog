@@ -1,3 +1,12 @@
+2006-09-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/settings-methods.h:
+	* src/lib/core/libbtcore/settings.h:
+	* src/lib/core/settings.c: (bt_settings_new),
+	(bt_settings_set_factory):
+          prepare addition of test-setting class (add BtSettingFactory)
+
 2006-09-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (bt_song_update_play_seek_event),

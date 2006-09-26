@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.27 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: settings.c,v 1.28 2006-09-26 21:20:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -43,6 +43,7 @@ struct _BtSettingsPrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+static BtSettingsFactory bt_settings_factory=NULL;
 static gpointer singleton=NULL;
 
 //-- constructor methods
@@ -60,13 +61,18 @@ static gpointer singleton=NULL;
  */
 BtSettings *bt_settings_new(void) {
 
-  if(!singleton) {
+  if(G_UNLIKELY(!singleton)) {
     GST_INFO("create a new settings object for thread %p",g_thread_self());
+    if(G_LIKELY(!bt_settings_factory)) {
 #ifdef USE_GCONF
-    singleton=(gpointer)bt_gconf_settings_new();
+      singleton=(gpointer)bt_gconf_settings_new();
 #else
-    singleton=(gpointer)bt_plainfile_settings_new();
+      singleton=(gpointer)bt_plainfile_settings_new();
 #endif
+    }
+    else {
+      singleton=bt_settings_factory();
+    }
     g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
   else {
@@ -78,6 +84,23 @@ BtSettings *bt_settings_new(void) {
 }
 
 //-- methods
+
+/**
+ * bt_settings_set_factory:
+ * @facotry: factory mathod
+ *
+ * Set a factory method that creates a new settings instance. This is currently
+ * only used by the unit tests to exercise the applications under various
+ * conditions. Normal applications should NOT use it.
+ */
+void bt_settings_set_factory(BtSettingsFactory factory) {
+  if(!singleton) {
+    bt_settings_factory=factory;
+  }
+  else {
+    GST_INFO("can't change factory while having %d living instances",G_OBJECT(singleton)->ref_count);
+  }
+}
 
 //-- wrapper
 

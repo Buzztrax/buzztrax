@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.74 2006-09-06 20:17:39 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.75 2006-09-26 21:20:30 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -271,7 +271,9 @@ BtSequencePrivate
 <FILE>btsettings</FILE>
 <TITLE>BtSettings</TITLE>
 BtSettings
+BtSettingsFactory
 bt_settings_new
+bt_settings_set_factory
 <SUBSECTION Standard>
 BtSettingsClass
 BT_SETTINGS
