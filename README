@@ -1,4 +1,4 @@
-$Id: README,v 1.22 2006-08-27 20:02:53 ensonic Exp $
+$Id: README,v 1.23 2006-09-27 21:26:59 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -14,7 +14,8 @@ glib2
 gtk+2
 gstreamer(head cvs)
 gst-plugins-base (head gstreamer cvs)
-gst-plugins-good (head gstreamer cvs
+gst-plugins-good (head gstreamer cvs)
+gst-plugins-bad (head gstreamer cvs)
 gnome-canvas
 
 = supported packages =

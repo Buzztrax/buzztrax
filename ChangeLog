@@ -1,3 +1,8 @@
+2006-09-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* README:
+          add gst-plugins-bad to the requirements (spectrum)
+
 2006-09-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:
