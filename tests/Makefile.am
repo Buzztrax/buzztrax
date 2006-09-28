@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.38 2006-08-27 20:02:54 ensonic Exp $
+## $Id: Makefile.am,v 1.39 2006-09-28 21:07:22 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -26,7 +26,8 @@ noinst_LTLIBRARIES = libbt-check.la
 libbt_check_la_LIBADD = -lm -lcheck $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
-	bt-test-plugin.c bt-test-plugin.h
+	bt-test-plugin.c bt-test-plugin.h \
+  bt-test-settings.c bt-test-settings.h
 
 bt_core_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \

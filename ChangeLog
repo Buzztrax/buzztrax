@@ -1,3 +1,15 @@
+2006-09-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/settings-private.h:
+	* tests/Makefile.am:
+	* tests/bt-test-settings.c: (bt_test_settings_new),
+	(bt_test_settings_get_property), (bt_test_settings_set_property),
+	(bt_test_settings_dispose), (bt_test_settings_finalize),
+	(bt_test_settings_init), (bt_test_settings_class_init),
+	(bt_test_settings_get_type):
+	* tests/bt-test-settings.h:
+	  add test-settings class implementation
+
 2006-09-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* README:
