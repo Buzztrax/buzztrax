@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.60 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: song-io.c,v 1.61 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -193,6 +193,9 @@ BtSongIO *bt_song_io_new(const gchar * const file_name) {
     if(self) {
       self->priv->file_name=(gchar *)file_name;
     }
+  }
+  else {
+    GST_WARNING("failed to detect type for filename %s",file_name);
   }
   return(self);
 }

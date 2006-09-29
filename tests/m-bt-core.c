@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.23 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.24 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -61,6 +61,9 @@ void bt_core_setup(void) {
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
+  
+  // use our dummy settings
+  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
 }
 
 void bt_core_teardown(void) {

@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.28 2006-09-26 21:20:30 ensonic Exp $
+/* $Id: settings.c,v 1.29 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,6 +72,7 @@ BtSettings *bt_settings_new(void) {
     }
     else {
       singleton=bt_settings_factory();
+      GST_INFO("created new settings object from factory %p",singleton);
     }
     g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
@@ -179,7 +180,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                   g_param_spec_string("audiosink",
                                      "audiosink prop",
                                      "audio output gstreamer element",
-                                     "esdsink", /* default value */
+                                     "autoaudiosink", /* default value */
                                      G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TOOLBAR_HIDE,
@@ -218,7 +219,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                   g_param_spec_string("system-audiosink",
                                      "system-audiosink prop",
                                      "system audio output gstreamer element",
-                                     "esdsink", /* default value */
+                                     "autoaudiosink", /* default value */
                                      G_PARAM_READABLE));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,

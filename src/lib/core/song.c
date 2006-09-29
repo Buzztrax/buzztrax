@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.147 2006-09-18 22:23:32 ensonic Exp $
+/* $Id: song.c,v 1.148 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -895,6 +895,9 @@ static gboolean bt_song_persistence_load(const BtPersistence * const persistence
         res&=bt_persistence_load(BT_PERSISTENCE(self->priv->wavetable),node,NULL);
       }
     }
+  }
+  if(!res && node) {
+    GST_INFO("failed to load %s",(gchar *)node->name);
   }
   return(res);
 }

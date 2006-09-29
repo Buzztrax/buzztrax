@@ -1,4 +1,4 @@
-/* $Id: bt-test-settings.c,v 1.1 2006-09-28 21:07:22 ensonic Exp $
+/* $Id: bt-test-settings.c,v 1.2 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,6 +55,7 @@ const BtTestSettings *bt_test_settings_new(void) {
   const BtTestSettings *self;
   self=BT_TEST_SETTINGS(g_object_new(BT_TYPE_TEST_SETTINGS,NULL));
   
+  GST_INFO("created new settings object from factory %p",self);
   return(self);  
 }
 

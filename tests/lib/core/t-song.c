@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.26 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-song.c,v 1.27 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,7 +23,9 @@
 
 //-- globals
 
+#if 0
 static gboolean play_signal_invoked=FALSE;
+#endif
 
 //-- fixtures
 
@@ -40,9 +42,11 @@ static void test_teardown(void) {
 //-- tests
 
 // helper method to test the play signal
+#if 0
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   play_signal_invoked=TRUE;
 }
+#endif
 
 BT_START_TEST(test_btsong_properties) {
   BtApplication *app=NULL;
@@ -74,11 +78,11 @@ BT_START_TEST(test_btsong_obj1) {
 }
 BT_END_TEST
 
-// play without loading a song
+// play without loading a song (means don't play)
 BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
-  //gulong i;
+  gboolean res;
   
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -86,22 +90,12 @@ BT_START_TEST(test_btsong_play1) {
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
 
-  play_signal_invoked=FALSE;
-  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
+  //play_signal_invoked=FALSE;
+  //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
   
-  // @todo: returns FALSE as the song is empty
-  if(bt_song_play(song)) {   
-    // idle loop a little (otherwise the bus hhandler does not work
-    //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
-    g_usleep(100);
-    //for(i=0;(i<50 && g_main_context_pending(NULL));i++) {
-    //  g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
-    //  g_usleep(100);
-    //}
-    
-    fail_unless(play_signal_invoked, NULL);
-    bt_song_stop(song);
-  }
+  // returns FALSE as the song is empty!
+  res=bt_song_play(song);
+  fail_unless(!res, NULL);
 
   g_object_checked_unref(song);
   g_object_checked_unref(app);

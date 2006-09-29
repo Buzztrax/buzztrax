@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.15 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: bt-check.h,v 1.16 2006-09-29 22:01:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,6 +40,7 @@
 //-- buzztard
 #include <libbtcore/core.h>
 #include "bt-test-plugin.h"
+#include "bt-test-settings.h"
 
 extern gint test_argc;
 extern gchar **test_argvptr;

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.118 2006-09-12 20:41:24 ensonic Exp $
+/* $Id: sequence.c,v 1.119 2006-09-29 22:01:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -999,8 +999,6 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
 
   g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
   
-  GST_DEBUG("getting songs bar-time");
-
   g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"tpb",&ticks_per_beat,"bpm",&beats_per_minute,NULL);
   /* the number of pattern-events for one playline-step,
@@ -1011,10 +1009,13 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
 
   const gulong ticks_per_minute=(gdouble)(beats_per_minute*ticks_per_beat);
   const GstClockTime wait_per_position=((GST_SECOND*60)/(GstClockTime)ticks_per_minute);
-
   //res=(gulong)(wait_per_position/G_USEC_PER_SEC);
+
   // release the references
   g_object_try_unref(song_info);
+
+  GST_DEBUG("getting songs bar-time %"G_GUINT64_FORMAT,wait_per_position);
+
   return(wait_per_position);
 }
 
@@ -1153,7 +1154,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
             xmlChar * const name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
             bt_sequence_set_label(self,atol((const char *)time_str),(const gchar *)name);
             xmlFree(time_str);
-	    xmlFree(name);
+	          xmlFree(name);
           }
         }
       }
@@ -1167,7 +1168,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
             xmlChar * const machine_id=xmlGetProp(child_node,XML_CHAR_PTR("machine"));
             xmlChar * const index_str=xmlGetProp(child_node,XML_CHAR_PTR("index"));
             const gulong index=index_str?atol((char *)index_str):0;
-	    BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
+	          BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
             if(machine) {
               self->priv->machines[index]=machine;
               GST_DEBUG("loading track with index=%s for machine=\"%s\"",index_str,machine_id);
@@ -1178,7 +1179,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
                   GST_DEBUG("  at %s, machinepattern \"%s\"",time_str,safe_string(pattern_id));
                   if(pattern_id) {
                     // get pattern by name from machine
-		    BtPattern * const pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id);
+		                BtPattern * const pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id);
                     if(pattern) {
                       bt_sequence_set_pattern(self,atol((char *)time_str),index,pattern);
                       g_object_unref(pattern);
@@ -1196,7 +1197,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
               GST_INFO("invalid or missing machine %s referenced at track %d",(gchar *)machine_id,index);
             }
             xmlFree(index_str);
-	    xmlFree(machine_id);
+	          xmlFree(machine_id);
           }
         }
         g_object_try_unref(setup);

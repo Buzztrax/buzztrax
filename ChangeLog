@@ -1,3 +1,25 @@
+2006-09-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c: (bt_sequence_get_bar_time),
+	(bt_sequence_persistence_load):
+          report bar-time in debuglog
+
+	* src/lib/core/settings.c: (bt_settings_new),
+	(bt_settings_class_init):
+	* src/lib/core/song-io.c: (bt_song_io_new):
+	* src/lib/core/song.c: (bt_song_persistence_load):
+          add more debug logging, change default audiosink to be 'autoaudiosink'
+
+	* tests/bt-check.h:
+	* tests/bt-test-settings.c: (bt_test_settings_new):
+	* tests/lib/core/e-song.c: (BT_START_TEST):
+	* tests/lib/core/t-song.c: (BT_START_TEST):
+	* tests/m-bt-core.c: (bt_core_setup):
+          make use of test settings, fix remaining last failing test for now
+
+	* tests/songs/test-simple1.xml:
+          reformat
+
 2006-09-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/settings-private.h:
