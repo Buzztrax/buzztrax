@@ -1,5 +1,11 @@
 2006-09-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/t-sink-machine.c: (BT_START_TEST),
+	(bt_sink_machine_test_case):
+          4 more test cases.
+
+2006-09-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c: (bt_sequence_get_bar_time),
 	(bt_sequence_persistence_load):
           report bar-time in debuglog
