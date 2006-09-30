@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.137 2006-09-11 13:59:20 berzerka Exp $
+/* $Id: main-page-sequence.c,v 1.138 2006-09-30 20:42:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -995,13 +995,17 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
   g_list_free(list);
 }
 
+/*
+ * sequence_view_set_pos:
+ *
+ * set play, loop-start/end or length bars
+ */
 static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glong row) {
-  // set play or loop bars
   BtSong *song;
   BtSequence *sequence;
   gulong sequence_length;
   gdouble pos;
-  gulong play_pos,loop_start,loop_end;
+  glong play_pos,loop_start,loop_end;
   
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(song,"sequence",&sequence,"play-pos",&play_pos,NULL);
@@ -1010,52 +1014,61 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
   // use a keyboard qualifier to set loop_start and end
   /* @todo should the sequence-view listen to notify::xxx ? */
   switch(type) {
-  case 0:
-    g_object_set(song,"play-pos",row,NULL);
-    break;
-  case 1: // loop start
-    g_object_set(sequence,"loop-start",row,NULL);
-    pos=(gdouble)row/(gdouble)sequence_length;
-    g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
-    g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
+    case 0:
+      g_object_set(song,"play-pos",row,NULL);
+      break;
+    case 1: // loop start
+      g_object_set(sequence,"loop-start",row,NULL);
+      pos=(gdouble)row/(gdouble)sequence_length;
+      g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
+      g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
     
-    g_object_get(sequence,"loop-end",&loop_end,NULL);
-    if(loop_end<=row) {
-      loop_end=row+self->priv->bars;
-      g_object_set(sequence,"loop-end",loop_end,NULL);
-      pos=(gdouble)loop_end/(gdouble)sequence_length;
+      GST_INFO("adjusted loop-start = %ld",row);
+      
+      g_object_get(sequence,"loop-end",&loop_end,NULL);
+      if((loop_end!=-1) && (loop_end<=row)) {
+        loop_end=row+self->priv->bars;
+        g_object_set(sequence,"loop-end",loop_end,NULL);
+        pos=(gdouble)loop_end/(gdouble)sequence_length;
+        g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
+        g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
+      }
+      break;
+    case 2: // loop end
+      // pos is beyond length adjust length
+      if(row>=sequence_length) {
+        GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
+        sequence_length=row;
+        g_object_set(sequence,"length",sequence_length,NULL);
+        // this triggers redraw
+        sequence_calculate_visible_lines(self);
+        g_object_get(sequence,"loop-end",&loop_end,"loop-start",&loop_start,NULL);
+      }
+      else {
+        g_object_set(sequence,"loop-end",row,NULL);
+        loop_end=row;
+
+        g_object_get(sequence,"loop-start",&loop_start,NULL);
+        if((loop_start!=-1) && (loop_start>=row)) {
+          loop_start=row-self->priv->bars;
+          g_object_set(sequence,"loop-start",loop_start,NULL);
+        }
+        GST_INFO("adjusted loop-end = %ld",row);
+      }
+      pos=(loop_end>-1)?(gdouble)loop_end/(gdouble)sequence_length:1.0;
       g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
       g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
-    }
-    break;
 
-  case 2: // loop end
-    g_object_set(sequence,"loop-end",row,NULL);
-    if(row>=sequence_length) {
-      sequence_length=row+1;
-      g_object_set(sequence,"length",sequence_length,NULL);
-      sequence_calculate_visible_lines(self);
-    }
+      pos=(loop_start>-1)?(gdouble)loop_start/(gdouble)sequence_length:0.0;
+      g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
+      g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
       
-    pos=(gdouble)row/(gdouble)sequence_length;
-    g_object_set(self->priv->sequence_table,"loop-end",pos,NULL);
-    g_object_set(self->priv->sequence_pos_table,"loop-end",pos,NULL);
-     
- 
-    g_object_get(sequence,"loop-start",&loop_start,NULL);
-    if(loop_start>=row) {
-      loop_start=row-self->priv->bars;
-      g_object_set(sequence,"loop-start",loop_start,NULL);
-    }
-    pos=(gdouble)loop_start/(gdouble)sequence_length;
-    g_object_set(self->priv->sequence_table,"loop-start",pos,NULL);
-    g_object_set(self->priv->sequence_pos_table,"loop-start",pos,NULL);
-    pos=(gdouble)play_pos/(gdouble)sequence_length;
-    if(pos<=1.0) {
-      g_object_set(self->priv->sequence_table,"play-position",pos,NULL);
-      g_object_set(self->priv->sequence_pos_table,"play-position",pos,NULL);
-    }
-    break;
+      pos=(gdouble)play_pos/(gdouble)sequence_length;
+      if(pos<=1.0) {
+        g_object_set(self->priv->sequence_table,"play-position",pos,NULL);
+        g_object_set(self->priv->sequence_pos_table,"play-position",pos,NULL);
+      }
+      break;
   }
   g_object_unref(sequence);
   g_object_unref(song);
@@ -1429,18 +1442,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
                       "loop-end", &loop_end_pos,
                       NULL );
         
-        GST_INFO("ctrl-e/ctrl-b pressed, row %ul",row);
+        GST_INFO("ctrl-e/ctrl-b pressed, row %lu",row);
         
         if(event->keyval == GDK_b) {
-/*          if(loop_end_pos < (row+1))
-            loop_end_pos = (row+1);
-            loop_start_pos = row;*/
           sequence_view_set_pos(self,1,(glong)row);          
         }
-        if(event->keyval == GDK_e) {
-/*          if( loop_start_pos > (row-1) )
-            loop_start_pos = (row-1);
-            loop_end_pos = row;*/
+        else if(event->keyval == GDK_e) {
           sequence_view_set_pos(self,2,(glong)row);
         }
         change=TRUE;
@@ -1767,16 +1774,22 @@ static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
   */
   store=gtk_list_store_new(1,G_TYPE_STRING);
   
+  // single steps
   gtk_list_store_append(store,&iter);
   gtk_list_store_set(store,&iter,0,"1",-1);
-  // add multiple of rows
+  // half bars
+  sprintf(str,"%lu",bars/2);
+  gtk_list_store_append(store,&iter);
+  gtk_list_store_set(store,&iter,0,str,-1);
+  // add multiple of bars
   for(j=0,i=bars;j<4;i*=2,j++) {
     sprintf(str,"%lu",i);
     gtk_list_store_append(store,&iter);
     gtk_list_store_set(store,&iter,0,str,-1);
   }
   gtk_combo_box_set_model(self->priv->bars_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->bars_menu,1);
+  // @todo: we should remember the bars-filter with the song
+  gtk_combo_box_set_active(self->priv->bars_menu,2);
   g_object_unref(store); // drop with combobox
   
   return(TRUE);
@@ -1789,8 +1802,8 @@ static void on_song_info_bars_changed(const BtSongInfo *song_info,GParamSpec *ar
   g_assert(user_data);
 
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
+  // this also recolors the sequence
   update_bars_menu(self,bars);
-  // the sequence gets automatically recolored, as above touches the bars-menu
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -1828,12 +1841,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   update_bars_menu(self,bars);
 #if 0
   // @todo: map bars to index (why, we dont keep the filter selection persistent yet)
-  if(bars<4) {
-    index=bars-1;
-  }
-  else {
-    index=1+(bars>>2);
-  }
+  //        this is broken math anyway
+  index = (bars<4) ?(bars-1) : (1+(bars>>2));
 #endif
   // update sequence view
   sequence_calculate_visible_lines(self);

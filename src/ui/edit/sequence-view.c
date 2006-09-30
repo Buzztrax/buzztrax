@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.26 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: sequence-view.c,v 1.27 2006-09-30 20:42:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -62,7 +62,7 @@ struct _BtSequenceViewPrivate {
   
   /* cache some ressources */
   GdkWindow *window;
-  GdkGC *play_pos_gc,*loop_pos_gc;
+  GdkGC *play_pos_gc,*loop_pos_gc,*end_pos_gc;
 };
 
 static GtkTreeViewClass *parent_class=NULL;
@@ -132,6 +132,10 @@ static void bt_sequence_view_realize(GtkWidget *widget) {
   gdk_gc_set_rgb_fg_color(self->priv->loop_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_LOOPLINE));
   gdk_gc_set_line_attributes(self->priv->loop_pos_gc,2,GDK_LINE_ON_OFF_DASH,GDK_CAP_BUTT,GDK_JOIN_MITER);
   gdk_gc_set_dashes(self->priv->loop_pos_gc,0,loop_pos_dash_list,1);
+
+  self->priv->end_pos_gc=gdk_gc_new(self->priv->window);
+  gdk_gc_set_rgb_fg_color(self->priv->end_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_ENDLINE));
+  gdk_gc_set_line_attributes(self->priv->end_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 }
 
 static void bt_sequence_view_unrealize(GtkWidget *widget) {
@@ -189,16 +193,24 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     w=widget->allocation.width;
     h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
 
+    // draw play-pos
     y=(gint)(self->priv->play_pos*h);
     if((y>=vr.y) && (y<(vr.y+vr.height))) {
       gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
     }
 
+    // draw song-end
+    y=(gint)(h)-1;
+    if((y>=vr.y) && (y<(vr.y+vr.height))) {
+      gdk_draw_line(self->priv->window,self->priv->end_pos_gc,0,y,w,y);
+    }
+
+    // draw loop-start/-end
     y=(gint)(self->priv->loop_start*h);
     if((y>=vr.y) && (y<(vr.y+vr.height))) {
       gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
     }
-    y=(gint)(self->priv->loop_end*h)-2;
+    y=(gint)(self->priv->loop_end*h)-1;
     if((y>=vr.y) && (y<(vr.y+vr.height))) {
       gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
     }
@@ -267,6 +279,7 @@ static void bt_sequence_view_set_property(GObject      *object,
     } break;
     case SEQUENCE_VIEW_VISIBLE_ROWS: {
       self->priv->visible_rows = g_value_get_ulong(value);
+      GST_INFO("visible-rows = %lu",self->priv->visible_rows);
       if(GTK_WIDGET_REALIZED(GTK_WIDGET(self))) {
 	      gtk_widget_queue_draw(GTK_WIDGET(self));
       }
@@ -287,6 +300,7 @@ static void bt_sequence_view_dispose(GObject *object) {
   
   g_object_try_unref(self->priv->play_pos_gc);
   g_object_try_unref(self->priv->loop_pos_gc);
+  g_object_try_unref(self->priv->end_pos_gc);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

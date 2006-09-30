@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.148 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: song.c,v 1.149 2006-09-30 20:42:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -161,7 +161,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
-        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,

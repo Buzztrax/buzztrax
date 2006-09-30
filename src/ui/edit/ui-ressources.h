@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.h,v 1.8 2006-09-06 21:54:27 ensonic Exp $
+/* $Id: ui-ressources.h,v 1.9 2006-09-30 20:42:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,6 +60,7 @@ typedef enum {
   BT_UI_RES_COLOR_SELECTION2,
   BT_UI_RES_COLOR_PLAYLINE,
   BT_UI_RES_COLOR_LOOPLINE,
+  BT_UI_RES_COLOR_ENDLINE,
   BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       /* machine view normal */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT1,    /* list view odd */
   BT_UI_RES_COLOR_SOURCE_MACHINE_BRIGHT2,    /* list view even */

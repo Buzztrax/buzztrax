@@ -1,5 +1,19 @@
 2006-09-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c: (bt_song_update_play_seek_event):
+	* src/ui/edit/main-page-sequence.c: (sequence_view_set_pos),
+	(on_sequence_table_key_release_event), (update_bars_menu),
+	(on_song_info_bars_changed), (on_song_changed):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_realize),
+	(bt_sequence_view_expose_event), (bt_sequence_view_set_property),
+	(bt_sequence_view_dispose):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_init_colors):
+	* src/ui/edit/ui-ressources.h:
+	  add song-end bar to sequence view. fix settings loops start/end via
+	  keyboard shortcut.
+
+2006-09-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/t-sink-machine.c: (BT_START_TEST),
 	(bt_sink_machine_test_case):
           4 more test cases.

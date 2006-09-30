@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.c,v 1.11 2006-09-06 21:54:27 ensonic Exp $
+/* $Id: ui-ressources.c,v 1.12 2006-09-30 20:42:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -83,6 +83,7 @@ static gboolean bt_ui_ressources_init_colors(BtUIRessources *self) {
   // tree view lines
   MAKE_COLOR(BT_UI_RES_COLOR_PLAYLINE,                  0.00,0.00,1.00);
   MAKE_COLOR(BT_UI_RES_COLOR_LOOPLINE,                  1.00,0.75,0.00);
+  MAKE_COLOR(BT_UI_RES_COLOR_ENDLINE,                   1.00,0.30,0.20);
   
   // source machine
   MAKE_COLOR(BT_UI_RES_COLOR_SOURCE_MACHINE_BASE,       1.00,0.60,0.60);
