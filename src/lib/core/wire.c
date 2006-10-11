@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.94 2006-09-06 20:17:39 ensonic Exp $
+/* $Id: wire.c,v 1.95 2006-10-11 10:48:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -588,16 +588,19 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
 
   id=xmlGetProp(node,XML_CHAR_PTR("src"));
   self->priv->src=bt_setup_get_machine_by_id(setup,(gchar *)id);
+  GST_DEBUG("src %s -> %p",id,self->priv->src);
   xmlFree(id);
   
   id=xmlGetProp(node,XML_CHAR_PTR("dst"));
   self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
+  GST_DEBUG("dst %s -> %p",id,self->priv->dst);
   xmlFree(id);
 
   if((gain=xmlGetProp(node,XML_CHAR_PTR("gain")))) {
     self->priv->gain=g_ascii_strtod((gchar *)gain,NULL);
     xmlFree(gain);
   }
+  // @todo: handle pan
   
   g_object_unref(setup);
 

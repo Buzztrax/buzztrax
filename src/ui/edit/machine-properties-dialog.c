@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.49 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.50 2006-10-11 10:48:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,10 +72,17 @@ static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
   glong index=bt_machine_get_global_param_index(machine,name,NULL);
   GValue int_value={0,};
+  gchar *str=NULL;
   
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
-  return(bt_machine_describe_global_param_value(machine,index,&int_value));
+  if(!(str=bt_machine_describe_global_param_value(machine,index,&int_value))) {
+    static gchar _str[10];
+    
+    g_sprintf(_str,"%d",(gint)value);
+    str=_str;
+  }
+  return(str);
 }
 
 static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
@@ -83,10 +90,17 @@ static gchar* on_int_range_voice_property_format_value(GtkScale *scale, gdouble 
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
   glong index=bt_machine_get_voice_param_index(machine,name,NULL);
   GValue int_value={0,};
+  gchar *str=NULL;
   
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
-  return(bt_machine_describe_voice_param_value(machine,index,&int_value));
+  if(!(str=bt_machine_describe_voice_param_value(machine,index,&int_value))) {
+    static gchar _str[10];
+    
+    g_sprintf(_str,"%d",(gint)value);
+    str=_str;
+  }
+  return(str);
 }
 
 static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
@@ -94,10 +108,17 @@ static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdoubl
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
   glong index=bt_machine_get_global_param_index(machine,name,NULL);
   GValue uint_value={0,};
+  gchar *str=NULL;
   
   g_value_init(&uint_value,G_TYPE_UINT);
   g_value_set_uint(&uint_value,(guint)value);
-  return(bt_machine_describe_global_param_value(machine,index,&uint_value));
+  if(!(str=bt_machine_describe_global_param_value(machine,index,&uint_value))) {
+    static gchar _str[10];
+    
+    g_sprintf(_str,"%u",(guint)value);
+    str=_str;
+  }
+  return(str);
 }
 
 static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble value, gpointer user_data) {
@@ -105,10 +126,17 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(scale));
   glong index=bt_machine_get_voice_param_index(machine,name,NULL);
   GValue uint_value={0,};
+  gchar *str=NULL;
   
   g_value_init(&uint_value,G_TYPE_UINT);
   g_value_set_uint(&uint_value,(guint)value);
-  return(bt_machine_describe_voice_param_value(machine,index,&uint_value));
+  if(!(str=bt_machine_describe_voice_param_value(machine,index,&uint_value))) {
+    static gchar _str[10];
+    
+    g_sprintf(_str,"%u",(guint)value);
+    str=_str;
+  }
+  return(str);
 }
 
 
@@ -133,7 +161,7 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   gchar str[30];
   
   g_assert(user_data);
-  GST_INFO("property value change received");
+  GST_INFO("property value change received : %lf",value);
 
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
@@ -496,7 +524,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 
           param_type=bt_machine_get_global_param_type(self->priv->machine,i);
           while((base_type=g_type_parent(param_type))) param_type=base_type;
-          GST_INFO("... base typoe is : %s",g_type_name(param_type));
+          GST_INFO("... base type is : %s",g_type_name(param_type));
 
           range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
           range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.81 2006-09-11 12:40:29 ensonic Exp $
+# $Id: configure.ac,v 1.82 2006-10-11 10:48:50 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -82,14 +82,18 @@ if test "x$xvfb_path" != "xno" ; then
 fi
 
 # Initialise gettext
-AM_GNU_GETTEXT([external],[need-ngettext])
 AM_GNU_GETTEXT_VERSION(0.12.1)
+AM_GNU_GETTEXT([external])
 
 # i18n -- ALL_LINGUAS seems to be not neccesary anymore
 # ALL_LINGUAS="de"
 # ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
 localedir='${datadir}/locale'
 AC_SUBST(localedir)
+GETTEXT_PACKAGE="buzztard-$BT_MAJORMINOR"
+AC_SUBST(GETTEXT_PACKAGE)
+DATADIRNAME="share"
+AC_SUBST(DATADIRNAME)
 
 # this macro comes from gnome.m4, which we do not want to require
 # AM_ACLOCAL_INCLUDE(./m4)

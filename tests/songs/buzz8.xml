@@ -23,8 +23,6 @@
           <property key="xpos" value="0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
-        <globaldata name="volume" value="20"/>
-        <globaldata name="bpm" value="145"/>
       </machine>
 
       <machine type="processor" id="chorus" plugin-name="bml-Jeskola-Chorus" voices="0">

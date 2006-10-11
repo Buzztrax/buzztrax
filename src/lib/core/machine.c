@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.220 2006-09-17 15:50:48 ensonic Exp $
+/* $Id: machine.c,v 1.221 2006-10-11 10:48:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2093,63 +2093,61 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
   id=xmlGetProp(node,XML_CHAR_PTR("id"));
   g_object_set(G_OBJECT(self),"id",id,NULL);
   xmlFree(id);
-  
+
   if(!bt_machine_setup(self)) {
     GST_WARNING("Can't init machine");
     goto Error;
   }
-  
+
   machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
+  g_assert(machine);
 
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       // @todo: load prefsdata
       if(!strncmp((gchar *)node->name,"globaldata\0",11)) {
-        for(child_node=node->children;child_node;child_node=child_node->next) {
-          if(!xmlNodeIsText(child_node)) {
-            name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
-            value_str=xmlGetProp(child_node,XML_CHAR_PTR("value"));
-            param=bt_machine_get_global_param_index(self,(gchar *)name,&error);
-            if(!error) {
-              g_value_init(&value,self->priv->global_types[param]);
-              bt_persistence_set_value(&value,(gchar *)value_str);
-              g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
-            }
-            else {
-              GST_WARNING("error while loading global machine data for param %d: %s",param,error->message);
-              g_error_free(error);
-              goto Error;
-            }
-            xmlFree(name);xmlFree(value_str);
-          }
+        name=xmlGetProp(node,XML_CHAR_PTR("name"));
+        value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
+        param=bt_machine_get_global_param_index(self,(gchar *)name,&error);
+        if(!error) {
+          g_value_init(&value,self->priv->global_types[param]);
+          bt_persistence_set_value(&value,(gchar *)value_str);
+          g_object_set_property(G_OBJECT(machine),(gchar *)name,&value);
+          g_value_unset(&value);
+          GST_INFO("initialized global machine data for param %d: %s",param, name);
         }
+        else {
+          GST_WARNING("error while loading global machine data for param %d: %s",param,error->message);
+          g_error_free(error);
+          xmlFree(name);xmlFree(value_str);
+          goto Error;
+        }
+        xmlFree(name);xmlFree(value_str);
       }
       else if(!strncmp((gchar *)node->name,"voicedata\0",10)) {
-        for(child_node=node->children;child_node;child_node=child_node->next) {
-          if(!xmlNodeIsText(child_node)) {
-            voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice"));
-            voice=atol((char *)voice_str);
-            name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
-            value_str=xmlGetProp(child_node,XML_CHAR_PTR("value"));
-            param=bt_machine_get_voice_param_index(self,(gchar *)name,&error);
-            if(!error) {
-              machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
-        
-              g_value_init(&value,self->priv->voice_types[param]);
-              bt_persistence_set_value(&value,(gchar *)value_str);
-              g_object_set_property(G_OBJECT(machine_voice),(gchar *)name,&value);
+        voice_str=xmlGetProp(node,XML_CHAR_PTR("voice"));
+        voice=atol((char *)voice_str);
+        name=xmlGetProp(node,XML_CHAR_PTR("name"));
+        value_str=xmlGetProp(node,XML_CHAR_PTR("value"));
+        param=bt_machine_get_voice_param_index(self,(gchar *)name,&error);
+        if(!error) {
+          machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
 
-              g_object_unref(machine_voice);
-            }
-            else {
-              GST_WARNING("error while loading voice machine data for param %d, voice %d: %s",param,voice,error->message);
-              g_error_free(error);
-              goto Error;
-            }            
-              
-            xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
-          }
+          g_value_init(&value,self->priv->voice_types[param]);
+          bt_persistence_set_value(&value,(gchar *)value_str);
+          g_object_set_property(G_OBJECT(machine_voice),(gchar *)name,&value);
+          g_value_unset(&value);
+          GST_INFO("initialized voice machine data for param %d: %s",param, name);
+
+          g_object_unref(machine_voice);
         }
+        else {
+          GST_WARNING("error while loading voice machine data for param %d, voice %d: %s",param,voice,error->message);
+          g_error_free(error);
+          xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
+          goto Error;
+        }
+        xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
       }
       else if(!strncmp((gchar *)node->name,"properties\0",11)) {
         bt_persistence_load_hashtable(self->priv->properties,node);

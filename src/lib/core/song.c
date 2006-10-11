@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.149 2006-09-30 20:42:55 ensonic Exp $
+/* $Id: song.c,v 1.150 2006-10-11 10:48:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -109,32 +109,32 @@ static GObjectClass *parent_class=NULL;
  * the new end position (loop or song end).
  */
 static void bt_song_seek_to_play_pos(const BtSong * const self) {
-	GstEvent *event;
-	gboolean loop;
-	glong loop_end,length;
+  GstEvent *event;
+  gboolean loop;
+  glong loop_end,length;
 
-	if(!self->priv->is_playing) return;
-	
-	g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
-	const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+  if(!self->priv->is_playing) return;
+  
+  g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
+  const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   
   GST_DEBUG("loop %d? %ld, length %ld, bar_time %"G_GINT64_FORMAT,loop,loop_end,length,bar_time);
   
-	if (loop) {
-		event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-				GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-				GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
-				GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
-	}
-	else {
-		event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-				GST_SEEK_FLAG_FLUSH,
-				GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
-				GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
-	}
-	if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),event))) {
-		GST_WARNING("element failed to seek to play_pos event");
-	}
+  if (loop) {
+    event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
+  }
+  else {
+    event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
+        GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
+  }
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),event))) {
+      GST_WARNING("element failed to seek to play_pos event");
+  }
 }
 
 /*
@@ -161,7 +161,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
-        GST_SEEK_TYPE_SET, (GstClockTime)loop_end*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,

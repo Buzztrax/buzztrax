@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.22 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: sink-bin.c,v 1.23 2006-10-11 10:48:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,13 +25,17 @@
  * The sink-bin provides switchable play and record facillities.
  */ 
  
-/* @todo detect supported encoders
+ /* @todo: detect supported encoders
  * get gst mimetype from the extension
  * and then look at all encoders which supply that mimetype
  * check elements in "codec/encoder/audio", "codec/muxer/audio"
  * build caps using this mimetype
  * gst_element_factory_can_src_caps()
  * problem here is that we need extra option for each encoder (e.g. quality)
+ *
+ * @todo: listen to settings changes
+ *
+ * @todo: add properties for bpm and master volume
  */
  
 #define BT_CORE
@@ -415,12 +419,12 @@ static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec 
   gchar * const plugin_name=bt_sink_machine_determine_plugin_name(settings);
   GST_INFO("  -> '%s'",plugin_name);
   
-  /* @todo exchange the machine */
+  // @todo exchange the machine
 #if 0
   //// version 1
     g_object_set(self,"plugin-name",plugin_name,NULL);
-    plugin-name is construct only :(
-    if sink has input-gain or input-level, we do not need to relink all wires.
+    //plugin-name is construct only :(
+    //if sink has input-gain or input-level, we do not need to relink all wires.
   
   //// version 2
     g_object_get(self,"id",&id,NULL)
@@ -439,13 +443,11 @@ static void on_system_audio_sink_changed(const BtSettings * const settings, GPar
   //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
 
   g_assert(user_data);
-  GST_INFO("audio-sink has changed");
+  GST_INFO("system audio-sink has changed");
   gchar * const plugin_name=bt_sink_machine_determine_plugin_name(settings);
   GST_INFO("  -> '%s'",plugin_name);
   
   // @todo exchange the machine (only if the system-audiosink is in use)
-  // g_object_set(self,"plugin-name",plugin_name,NULL);
-  // plugin-name is construct only :(
   g_free(plugin_name);
 }
 #endif

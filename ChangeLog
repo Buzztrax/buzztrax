@@ -1,3 +1,54 @@
+2006-10-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* configure.ac:
+	  fix undefined variables in po/Makefile
+
+	* src/lib/core/sink-bin.c: (on_audio_sink_changed),
+	(on_system_audio_sink_changed):
+	  todo comments
+
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event):
+	  change loop-end pos again to +1
+
+	* src/lib/core/machine.c: (bt_machine_persistence_load):
+	* src/lib/core/wire.c: (bt_wire_persistence_load):
+	  fix global param handling, add more logging
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_int_range_global_property_format_value),
+	(on_int_range_voice_property_format_value),
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(on_double_range_property_changed),
+	(bt_machine_properties_dialog_init_ui):
+	  handle range-params without value descriptions
+
+	* tests/songs/broken2.xml:
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz2.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/buzz9.xml:
+	* tests/songs/combi1.xml:
+	* tests/songs/melo1.xml:
+	* tests/songs/melo2.xml:
+	* tests/songs/melo3.xml:
+	* tests/songs/melo4.xml:
+	* tests/songs/melo5.xml:
+	* tests/songs/simple1.xml:
+	* tests/songs/simple2.xml:
+	* tests/songs/simple3.xml:
+	* tests/songs/simple4.xml:
+	* tests/songs/simple5.xml:
+	* tests/songs/test-simple1.xml:
+	  remove global settings for bpm/volume until it is supported
+
 2006-09-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (bt_song_update_play_seek_event):
