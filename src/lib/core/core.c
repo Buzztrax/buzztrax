@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.27 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: core.c,v 1.28 2006-10-14 16:07:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -75,8 +75,6 @@ static gboolean bt_init_pre (void) {
 static gboolean bt_init_post (void) {
   gboolean res=FALSE;
   
-  GST_DEBUG("beg");
-  
   //-- initialize gstreamer
   //gst_init(argc,argv);
   //-- initialize dynamic parameter control module
@@ -107,7 +105,6 @@ static gboolean bt_init_post (void) {
   res=TRUE;
   
 Error:
-  GST_DEBUG("end");
   return(res);
 }
   
@@ -132,8 +129,6 @@ GOptionGroup *bt_init_get_option_group(void) {
     {"bt-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE, &arg_version, N_("Print the buzztard core version"), NULL},
     {NULL}
   };
-  
-  GST_DEBUG("beg");
   
   group = g_option_group_new("bt-core", _("Buzztard core options"),_("Show buzztard core options"), NULL, NULL);
   g_option_group_set_parse_hooks(group, (GOptionParseFunc)bt_init_pre, (GOptionParseFunc)bt_init_post);
@@ -175,8 +170,6 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
   GOptionContext *ctx;
   gboolean res;
 
-  GST_DEBUG("beg");
-
   if(bt_initialized) {
     //g_print("already initialized Buzztard core");
     return(TRUE);
@@ -191,8 +184,6 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
     bt_initialized=TRUE;
   }
 
-  GST_DEBUG("end");
-  
   return(res);
 }
 

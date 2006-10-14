@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.27 2006-09-30 20:42:55 ensonic Exp $
+/* $Id: sequence-view.c,v 1.28 2006-10-14 16:07:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -181,10 +181,11 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
       gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
       self->priv->row_height=br.height;
       gtk_tree_path_free(path);
-      GST_INFO("view=%p, cell background visible rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height); 
+      GST_INFO("view=%p, cell background rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height); 
     }
 
     gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
+    //GST_INFO("view=%p, visible rect: %d x %d, %d x %d",widget,vr.x,vr.y,vr.width,vr.height); 
 
     //h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
     //w=vr.width;
@@ -194,24 +195,24 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
 
     // draw play-pos
-    y=(gint)(self->priv->play_pos*h);
-    if((y>=vr.y) && (y<(vr.y+vr.height))) {
+    y=(gint)(self->priv->play_pos*h)-vr.y;
+    if((y>=0) && (y<vr.height)) {
       gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
     }
 
     // draw song-end
-    y=(gint)(h)-1;
-    if((y>=vr.y) && (y<(vr.y+vr.height))) {
+    y=(gint)(h)-(1+vr.y);
+    if((y>=0) && (y<vr.height)) {
       gdk_draw_line(self->priv->window,self->priv->end_pos_gc,0,y,w,y);
     }
 
     // draw loop-start/-end
-    y=(gint)(self->priv->loop_start*h);
-    if((y>=vr.y) && (y<(vr.y+vr.height))) {
+    y=(gint)(self->priv->loop_start*h)-vr.y;
+    if((y>=0) && (y<vr.height)) {
       gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
     }
-    y=(gint)(self->priv->loop_end*h)-1;
-    if((y>=vr.y) && (y<(vr.y+vr.height))) {
+    y=(gint)(self->priv->loop_end*h)-(1+vr.y);
+    if((y>=0) && (y<vr.height)) {
       gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
     }
   }

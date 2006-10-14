@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.138 2006-09-30 20:42:55 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.139 2006-10-14 16:07:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -134,6 +134,12 @@ enum {
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
 
+// keyboard shortcuts for sequence-table
+// CLEAR  '.'
+// MUTE   '-'
+// BREAK  ','
+// SOLO   '_'
+// BYPASS '_'
 static const gchar sink_pattern_keys[]     = "-,0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar source_pattern_keys[]   ="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 static const gchar processor_pattern_keys[]="-,_0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -1148,12 +1154,17 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   //GST_DEBUG("sequence tick received : %d",pos);
   
   // do nothing for invisible rows
-  if(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars) || GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+  if(IS_SEQUENCE_POS_VISIBLE(pos,self->priv->bars)) {
     // scroll  to make play pos visible
-    if((path=gtk_tree_path_new_from_indices(pos,-1))) {
+    if((path=gtk_tree_path_new_from_indices((pos/self->priv->bars),-1))) {
       // that would try to keep the cursor in the middle (means it will scroll more)
-      gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
-      //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+      if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+        gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
+        //gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,FALSE,0.0,0.0);
+      }
+      if(GTK_WIDGET_REALIZED(self->priv->sequence_pos_table)) {
+        gtk_tree_view_scroll_to_cell(self->priv->sequence_pos_table,path,NULL,TRUE,0.5,0.5);
+      }
       gtk_tree_path_free(path);
     }
   }
@@ -1288,11 +1299,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
     //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
     // look up pattern for key
-    if(event->keyval==' ') {
-      bt_sequence_set_pattern(sequence,row,track,NULL);
-      str=" ";
-      change=TRUE;
-      res=TRUE;
+    if(event->keyval==GDK_space || event->keyval == GDK_period) {
+      if(row<length) {
+        bt_sequence_set_pattern(sequence,row,track,NULL);
+        str=" ";
+        change=TRUE;
+        res=TRUE;
+      }
     }
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
       if(modifier==GDK_CONTROL_MASK) {
@@ -1432,54 +1445,39 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         }
       }
     }
-    else if(event->keyval == GDK_b || event->keyval == GDK_e) {
+    else if(event->keyval == GDK_b) {
       if(modifier==GDK_CONTROL_MASK) {
-        gulong loop_start_pos,loop_end_pos;
-//        gdouble loop_start,loop_end;
-        
-        g_object_get( G_OBJECT(sequence), 
-                      "loop-start", &loop_start_pos,
-                      "loop-end", &loop_end_pos,
-                      NULL );
-        
-        GST_INFO("ctrl-e/ctrl-b pressed, row %lu",row);
-        
-        if(event->keyval == GDK_b) {
-          sequence_view_set_pos(self,1,(glong)row);          
-        }
-        else if(event->keyval == GDK_e) {
-          sequence_view_set_pos(self,2,(glong)row);
-        }
+        GST_INFO("ctrl-b pressed, row %lu",row);
+        sequence_view_set_pos(self,1,(glong)row);          
         change=TRUE;
-/*        g_object_set( G_OBJECT(sequence), 
-                      "loop-start", loop_start_pos,
-                      "loop-end", loop_end_pos,
-                      NULL );*/
-
-/*        loop_start=(loop_start_pos>-1)?(gdouble)loop_start_pos/(gdouble)length:0.0;
-        loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)length:1.0;
-        g_object_set(self->priv->sequence_table,"loop-start",loop_start,"loop-end",loop_end,NULL);
-        g_object_set(self->priv->sequence_pos_table,"loop-start",loop_start,"loop-end",loop_end,NULL);*/
+      }
+    }
+    else if(event->keyval == GDK_e) {
+      if(modifier==GDK_CONTROL_MASK) {
+        GST_INFO("ctrl-e pressed, row %lu",row);
+        sequence_view_set_pos(self,2,(glong)row);
+        change=TRUE;
       }
     }
     else if(event->keyval<0x100) {
+      // are we inside the song?
       if(row<length) {
-        gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
-      
-        // reset selection
-        self->priv->selection_start_column=-1;
-        self->priv->selection_start_row=-1;
-        self->priv->selection_end_column=-1;
-        self->priv->selection_end_row=-1;
-      
-        GST_INFO("pattern key pressed: '%c'",*pos);
-      
-        if(pos) {
-          BtMachine *machine;
-          
-          if((machine=bt_sequence_get_machine(sequence,track))) {
+        BtMachine *machine;
+
+        if((machine=bt_sequence_get_machine(sequence,track))) {
+          gchar *pos=strchr(self->priv->pattern_keys,(gchar)(event->keyval&0xff));
+        
+          // reset selection
+          self->priv->selection_start_column=-1;
+          self->priv->selection_start_row=-1;
+          self->priv->selection_end_column=-1;
+          self->priv->selection_end_row=-1;
+             
+          if(pos) {
             BtPattern *pattern;
             gulong index=(gulong)pos-(gulong)self->priv->pattern_keys;
+            
+            GST_INFO("pattern key pressed: '%c' > index: %d",*pos,index);
         
             if((pattern=bt_machine_get_pattern_by_index(machine,index))) {
               bt_sequence_set_pattern(sequence,row,track,pattern);
@@ -1489,8 +1487,11 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
               change=TRUE;
               res=TRUE;
             }
-            g_object_unref(machine);
           }
+          else {
+            GST_WARNING("keyval %c not used by machine",(gchar)(event->keyval&0xff));
+          }
+          g_object_unref(machine);
         }
       }
     }

@@ -1,3 +1,23 @@
+2006-10-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_post), (bt_init_get_option_group),
+	(bt_init_check):
+	  removed logging before its initialized (fixes gui test)
+
+	* src/lib/core/sink-bin.c:
+	  more todos
+
+	* src/ui/edit/main-page-sequence.c: (on_sequence_tick),
+	(on_sequence_table_key_release_event):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_expose_event):
+          fix scrolling and '.' command to clear sequence cells
+
+	* tests/Makefile.am:
+	  add 'make help' and test specific subtargets
+
+	* tests/bt-check.h:
+	  fix tests for check-0.9.4
+
 2006-10-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

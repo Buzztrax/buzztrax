@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.23 2006-10-11 10:48:50 ensonic Exp $
+/* $Id: sink-bin.c,v 1.24 2006-10-14 16:07:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,9 +33,14 @@
  * gst_element_factory_can_src_caps()
  * problem here is that we need extra option for each encoder (e.g. quality)
  *
- * @todo: listen to settings changes
+ * @todo: listen to settings changes to switch audio-sink
  *
- * @todo: add properties for bpm and master volume
+ * @todo: add properties for bpm and master volume,
+ * - implementing the tempo iface here wont help
+ * - we could make it a dummy property and from the song listen to property
+ *   notify
+ * - we could implement the child-bin iface and add song-info as a child, in
+ *   song-info we make tempo controlable
  */
  
 #define BT_CORE
@@ -49,7 +54,8 @@
 enum {
   SINK_BIN_MODE=1,
   SINK_BIN_RECORD_FORMAT,
-  SINK_BIN_RECORD_FILE_NAME
+  SINK_BIN_RECORD_FILE_NAME,
+  SINK_BIN_TEMPO_BPM
 };
 
 struct _BtSinkBinPrivate {

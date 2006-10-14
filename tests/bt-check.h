@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.16 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: bt-check.h,v 1.17 2006-10-14 16:07:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,7 +55,7 @@ extern gchar **test_argvptr;
 //-- wrappers for START_TEST and END_TEST
 
 #define BT_START_TEST(__testname) \
-static void __testname (void)\
+static void __testname (int i __attribute__((unused)))\
 {\
   GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
   tcase_fn_start (""# __testname, __FILE__, __LINE__);
