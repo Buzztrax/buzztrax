@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.49 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.50 2006-10-15 18:38:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,11 @@
  */ 
 
 /* @todo main-statusbar tasks
- * - listen to play_pos,end changes in the sequence and update status
+ * - implement elapsed time
+ *
+ */
+/* buzz uses 3 time counters 
+ * file:///windows/C/Programme/Jeskola/Buzz%20(work)/Help/Files/Time%20Window.htm
  */
 
 #define BT_EDIT
@@ -52,13 +56,13 @@ struct _BtMainStatusbarPrivate {
   GtkStatusbar *status;
   /* identifier of the status message group */
   gint status_context_id;
-
-  /* time-elapsed status bar */
+  
+  /* time-elapsed (total) status bar */
   GtkStatusbar *elapsed;
   /* identifier of the elapsed message group */
   gint elapsed_context_id;
 
-  /* time-current status bar */
+  /* time-current (current play pos) status bar */
   GtkStatusbar *current;
   /* identifier of the current message group */
   gint current_context_id;
@@ -68,43 +72,67 @@ struct _BtMainStatusbarPrivate {
   /* identifier of the loop message group */
   gint loop_context_id;
   
+  /* cpu load */
   GtkProgressBar *cpu_load;
   guint cpu_load_handler_id;
+  
+  /* total playtime */
+  GstClockTime total_time;
+  gulong last_pos, play_start;
 };
 
 static GtkHBoxClass *parent_class=NULL;
 
-//-- event handler
+//-- helper
 
-static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  gboolean is_playing;
+static void bt_main_statusbar_update_length(const BtMainStatusbar *self, const BtSong *song,const BtSequence *sequence) {
+  gchar str[2+2+3+3];
+  gulong msec,sec,min;
 
-  g_assert(user_data);
-
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  if(!is_playing) {
-    BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
-    gchar str[]="00:00.000";
-
-    // update statusbar fields
-    gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id); 
-    gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
-  }
+  // get new song length
+  msec=(gulong)(bt_sequence_get_loop_time(sequence)/G_USEC_PER_SEC);
+  GST_INFO("  new msec : %lu",msec);
+  min=(gulong)(msec/60000);msec-=(min*60000);
+  sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+  g_sprintf(str,"%02lu:%02lu.%03lu",min,sec,msec);
+  // update statusbar fields
+  gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id); 
+  gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
 }
 
-static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+//-- event handler
+
+static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   BtSequence *sequence;
   gchar str[2+2+3+3];
   gulong msec,sec,min,pos;
+  GstClockTime bar_time;
   
   g_assert(user_data);
   GST_DEBUG("tick update");
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
+  bar_time=bt_sequence_get_bar_time(sequence);
+  
+  // update current statusbar
+  msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+  min=(gulong)(msec/60000);msec-=(min*60000);
+  sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+  // format
+  g_sprintf(str,"%02lu:%02lu.%03lu",min,sec,msec);
+  // update statusbar fields
+  gtk_statusbar_pop(self->priv->current,self->priv->current_context_id);
+  gtk_statusbar_push(self->priv->current,self->priv->current_context_id,str);
+
   // update elapsed statusbar
-  msec=(gulong)((pos*bt_sequence_get_bar_time(sequence))/G_USEC_PER_SEC);
+  if(pos<self->priv->last_pos) {
+    self->priv->total_time+=bt_sequence_get_loop_time(sequence);
+    GST_INFO("wrapped around total_time=%"G_GUINT64_FORMAT,self->priv->total_time);
+  }
+  pos-=self->priv->play_start;
+  msec=(gulong)(((pos*bar_time)+self->priv->total_time)/G_USEC_PER_SEC);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
   // format
@@ -113,15 +141,68 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   gtk_statusbar_pop(self->priv->elapsed,self->priv->elapsed_context_id);
   gtk_statusbar_push(self->priv->elapsed,self->priv->elapsed_context_id,str);
 
+  self->priv->last_pos=pos;
   g_object_unref(sequence);
+}
+
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  gboolean is_playing;
+  gulong play_start;
+
+  g_assert(user_data);
+
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,"play-pos",&play_start,NULL);
+  self->priv->total_time=G_GINT64_CONSTANT(0);
+  if(!is_playing) {
+    GST_INFO("play_start=%d",play_start);
+    // update statusbar fields
+    self->priv->last_pos=play_start;
+    self->priv->play_start=play_start;
+    on_song_play_pos_notify(song,NULL,user_data);
+  }
+  else {
+    self->priv->last_pos=0;
+    self->priv->play_start=0;
+  }
+}
+
+static void on_song_info_rhythm_notify(const BtSongInfo *song_info,GParamSpec *arg,gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  BtSong *song;
+  BtSequence *sequence;
+
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_return_if_fail(song);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+
+  bt_main_statusbar_update_length(self,song,sequence);
+
+  // release the references
+  g_object_unref(sequence);
+  g_object_unref(song);
+}
+
+static void on_sequence_loop_time_notify(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
+  BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
+  BtSong *song;
+
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_return_if_fail(song);
+
+  bt_main_statusbar_update_length(self,song,sequence);
+
+  // release the references
+  g_object_unref(song);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   BtSong *song;
+  BtSongInfo *song_info;
   BtSequence *sequence;
-  gchar *str;
-  gulong msec,sec,min;
 
   g_assert(user_data);
 
@@ -130,23 +211,23 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
 
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-  // get new song length
-  msec=(gulong)(bt_sequence_get_loop_time(sequence)/G_USEC_PER_SEC);
-  GST_INFO("  new msec : %lu",msec);
-  min=(gulong)(msec/60000);msec-=(min*60000);
-  sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-  str=g_strdup_printf("%02lu:%02lu.%03lu",min,sec,msec);
-  // update statusbar fields
-  gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id); 
-  gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
-   g_free(str);
-  // subscribe to play-pos changes of song->sequence
-  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
+  bt_main_statusbar_update_length(self,song,sequence);
+  // subscribe to property changes in song
+  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
   g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
+  // subscribe to property changes in song_info
+  g_signal_connect(G_OBJECT(song_info), "notify::bpm", G_CALLBACK(on_song_info_rhythm_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(song_info), "notify::tpb", G_CALLBACK(on_song_info_rhythm_notify), (gpointer)self);
+  // subscribe to property changes in sequence
+  g_signal_connect(G_OBJECT(sequence), "notify::length", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "notify::loop", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "notify::loop_start", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(sequence), "notify::loop_end", G_CALLBACK(on_sequence_loop_time_notify), (gpointer)self);
   // release the references
-  g_object_try_unref(sequence);
-  g_object_try_unref(song);
+  g_object_unref(song_info);
+  g_object_unref(sequence);
+  g_object_unref(song);
 }
 
 static gboolean on_cpu_load_update(gpointer user_data) {
@@ -164,10 +245,14 @@ static gboolean on_cpu_load_update(gpointer user_data) {
 //-- helper methods
 
 static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtEditApplication *app) {
+  GtkTooltips *tips;
+  GtkWidget *ev_box;
   gchar str[]="00:00.000";
   
   gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
   //gtk_box_set_spacing(GTK_BOX(self),1);
+  
+  tips=gtk_tooltips_new();
 
   self->priv->status=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->status),_("default"));
@@ -175,28 +260,38 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->status),self->priv->status_context_id,_("Ready to rock!"));
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->status),TRUE,TRUE,1);
 
+  ev_box=gtk_event_box_new();
+  gtk_tooltips_set_tip(tips,ev_box,_("Playback time"),NULL);
   self->priv->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->elapsed_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->elapsed),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->elapsed,FALSE);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->elapsed),100,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->elapsed),self->priv->elapsed_context_id,str);
-  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->elapsed),FALSE,FALSE,1);
+  gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->elapsed));
+  gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
+  ev_box=gtk_event_box_new();
+  gtk_tooltips_set_tip(tips,ev_box,_("Playback position"),NULL);
   self->priv->current=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->current_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->current),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->current,FALSE);
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->current),100,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->current),self->priv->current_context_id,str);
-  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->current),FALSE,FALSE,1);
+  gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->current));
+  gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
 
+  ev_box=gtk_event_box_new();
+  gtk_tooltips_set_tip(tips,ev_box,_("Playback length"),NULL);
   self->priv->loop=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->loop_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->loop),_("default"));
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->loop),100,-1);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->loop),self->priv->loop_context_id,str);
-  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->loop),FALSE,FALSE,1);
+  gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->loop));
+  gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
   
   // @todo: make this dependend on settings (view menu?)
   self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
+  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->cpu_load),_("CPU load"),NULL);
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
   self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
 
@@ -298,11 +393,18 @@ static void bt_main_statusbar_dispose(GObject *object) {
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
-    
+    BtSongInfo *song_info;
+    BtSequence *sequence;
+
     GST_DEBUG("disconnect handlers from song=%p",song);
+    g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
     
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
-    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_sequence_tick,NULL);
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
+    g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_info_rhythm_notify,NULL);
+    g_signal_handlers_disconnect_matched(sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_sequence_loop_time_notify,NULL);
+    g_object_unref(song_info);
+    g_object_unref(sequence);
     g_object_unref(song);
   }
   g_source_remove(self->priv->cpu_load_handler_id);

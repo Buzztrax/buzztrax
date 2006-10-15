@@ -126,6 +126,7 @@
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
         <listitem><para>generates cleaner machine UIs (hiding, more widgets)</para></listitem>
         <listitem><para>has a zoomable machine view</para></listitem>
+        <listitem><para>can use beats other that 4/4</para></listitem>
       </itemizedlist>
     </para>
   </sect2>
@@ -172,6 +173,11 @@
     And below again are tabs to switch between various views. Each view is for 
     editing certain aspects of the song.
     On the bottom is a status bar.
+  </para>
+  
+  <para>
+    Many parts in the UI show tooltips with explanations. Hover the mouse pointer
+    over the region and wait a moment.
   </para>
 
   <sect2 id="bt-edit-main-menu">
@@ -294,20 +300,28 @@
       <para>
         Patterns can be entered into tracks by pressing the associated key.
 	      To switch to the pattern editor with the pattern the cursor is over selected,
-	      press 'Enter'.
+	      press <keycap>Enter</keycap>.
       </para>
       <para>
         To set play position click with left-mouse button in 'pos' column at the
 	      desired time location. To modify the loop start/end instead hold down
-	      the Ctrl or Win (Mod) key while clicking.
+	      the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
+        key while clicking.
       </para>
-      <note><title>Limmitations</title>
-        <para>
-          One can't yet expand or shorten the sequence.
-        </para>
-      </note>
       <para>
-        (FIXME: special-patterns = {mute, solo, bypass, stop}) 
+        To expand the sequence, scroll down with the cursor and press
+        <keycombo><keycap>Ctrl</keycap><keycap>E</keycap></keycombo> to
+        set the end-line. If the cursor is above the end-line, pressing
+        <keycombo><keycap>Ctrl</keycap><keycap>E</keycap></keycombo>
+        will set the loop-end marker. To set the loop-begin marker press
+        <keycombo><keycap>Ctrl</keycap><keycap>B</keycap></keycombo>.
+      </para>
+      <!--note><title>Limmitations</title>
+        <para>
+        </para>
+      </note-->
+      <para>
+        (FIXME: special-patterns = {mute, break, solo, bypass}) 
       </para>
     </sect3>
 

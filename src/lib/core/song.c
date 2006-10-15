@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.150 2006-10-11 10:48:50 ensonic Exp $
+/* $Id: song.c,v 1.151 2006-10-15 18:38:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -323,8 +323,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         self->priv->is_preparing=FALSE;
-        // seek to start time
+        // this should be sequence->play_start
         self->priv->play_pos=0;
+        // seek to start time
         GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("element failed to handle seek event");
@@ -344,9 +345,14 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         }
         break;
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        GST_INFO("playback started");
-        self->priv->is_playing=TRUE;
-        g_object_notify(G_OBJECT(self),"is-playing");
+        if(!self->priv->is_playing) {
+          GST_INFO("playback started");
+          self->priv->is_playing=TRUE;
+          g_object_notify(G_OBJECT(self),"is-playing");
+        }
+        else {
+          GST_INFO("looping");
+        }
         break;
     }
   }

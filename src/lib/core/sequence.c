@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.119 2006-09-29 22:01:19 ensonic Exp $
+/* $Id: sequence.c,v 1.120 2006-10-15 18:38:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -283,7 +283,6 @@ static glong bt_sequence_get_track_by_machine(const BtSequence * const self,cons
   }
   return(-1);
 }
-
 
 /*
  * bt_sequence_limit_play_pos_internal:
@@ -1077,7 +1076,7 @@ static xmlNodePtr bt_sequence_persistence_save(const BtPersistence * const persi
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("labels"),NULL))) {
       // iterate over timelines
       for(i=0;i<self->priv->length;i++) {
-	const gchar * const label=self->priv->labels[i];
+	      const gchar * const label=self->priv->labels[i];
         if(label) {
           child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("label"),NULL);
           xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(label));
@@ -1318,6 +1317,11 @@ static void bt_sequence_set_property(GObject      * const object,
           g_object_notify(G_OBJECT(self), "loop-end");
         }
         self->priv->play_end=self->priv->loop_end;
+        bt_sequence_limit_play_pos_internal(self);
+      }
+      else {
+        self->priv->play_start=0;
+        self->priv->play_end=self->priv->length;
         bt_sequence_limit_play_pos_internal(self);
       }
       bt_song_set_unsaved(self->priv->song,TRUE);

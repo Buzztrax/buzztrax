@@ -1,3 +1,46 @@
+2006-10-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  draft
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  describe sequence-length editing, mention tooltips
+
+	* pixmaps/grid.png:
+	* pixmaps/menu_processor_machine.png:
+	* pixmaps/menu_sink_machine.png:
+	* pixmaps/menu_source_machine.png:
+	* pixmaps/tab_info.png:
+	* pixmaps/tab_patterns.png:
+	* pixmaps/tab_sequence.png:
+	* pixmaps/tab_waves.png:
+	  slight overhaul
+
+	* po/de.po:
+	  translated tooltip texts
+
+	* src/lib/core/sequence.c: (bt_sequence_persistence_save),
+	(bt_sequence_set_property):
+	  adjust play_start/stop also when turning loop off
+
+	* src/lib/core/song.c: (on_song_state_changed):
+	  don't notify is_playing on loop wrap around
+
+	* src/ui/edit/main-page-sequence.c: (update_labels_menu),
+	(sequence_table_init), (on_song_play_pos_notify),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_scroll_event), (update_bars_menu),
+	(on_song_changed), (bt_main_page_sequence_init_ui),
+	(bt_main_page_sequence_dispose):
+	  don't clear cells when pressing Ctrl-B/E, create dummy labels menu
+
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_update_length),
+	(on_song_play_pos_notify), (on_song_is_playing_notify),
+	(on_song_info_rhythm_notify), (on_sequence_loop_time_notify),
+	(on_song_changed), (bt_main_statusbar_init_ui),
+	(bt_main_statusbar_dispose):
+	  update time displays, show total playtime
+
 2006-10-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/core.c: (bt_init_post), (bt_init_get_option_group),
@@ -10,7 +53,7 @@
 	* src/ui/edit/main-page-sequence.c: (on_sequence_tick),
 	(on_sequence_table_key_release_event):
 	* src/ui/edit/sequence-view.c: (bt_sequence_view_expose_event):
-          fix scrolling and '.' command to clear sequence cells
+	  fix scrolling and '.' command to clear sequence cells
 
 	* tests/Makefile.am:
 	  add 'make help' and test specific subtargets
@@ -87,7 +130,7 @@
 
 	* tests/lib/core/t-sink-machine.c: (BT_START_TEST),
 	(bt_sink_machine_test_case):
-          4 more test cases.
+	  4 more test cases.
 
 2006-09-30  Stefan Kost  <ensonic@users.sf.net>
 

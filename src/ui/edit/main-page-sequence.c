@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.139 2006-10-14 16:07:21 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.140 2006-10-15 18:38:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,9 +33,7 @@
  *     - add level meters
  *     - add the same context menu as the machines have in machine view
  *   - sequence view will have no visible column headers
- * - support different rhythms
- *   - use different steps in the bars menu (e.g. 1,2,3,6,9,12,...)
- *   - use different highlighing (strong bar every start of a beat)
+ * - fill and update label menu
  * - insert/remove rows
  */
 
@@ -61,6 +59,9 @@ struct _BtMainPageSequencePrivate {
   /* bars selection menu */
   GtkComboBox *bars_menu;
   gulong bars;
+
+  /* label selection menu */
+  GtkComboBox *label_menu;
   
   /* the sequence table */
   GtkTreeView *sequence_pos_table;
@@ -504,6 +505,24 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
 
 //-- event handler helper
 
+static gboolean update_labels_menu(const BtMainPageSequence *self) {
+  GtkListStore *store;
+  GtkTreeIter iter;
+
+  /* menu will have 'position : label' pairs */
+  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
+  
+  /* @todo: scan sequence for labels and build a menu */
+  gtk_list_store_append(store,&iter);
+  gtk_list_store_set(store,&iter,0,"0",1,"start",-1);
+
+  gtk_combo_box_set_model(self->priv->label_menu,GTK_TREE_MODEL(store));
+  gtk_combo_box_set_active(self->priv->label_menu,0);
+  g_object_unref(store); // drop with combobox
+  
+  return(TRUE);
+}
+
 /*
  * sequence_pos_table_init:
  * @self: the sequence page
@@ -571,7 +590,7 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
 static void sequence_table_init(const BtMainPageSequence *self, gboolean connect_header) {
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
-  GtkWidget *label,*combo;
+  GtkWidget *label;
   GtkWidget *header;
   gint col_index=0;
 
@@ -584,8 +603,15 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
   //gtk_misc_set_padding(GTK_MISC(label),0,0);  
   gtk_box_pack_start(GTK_BOX(header),label,TRUE,FALSE,0);
   
-  combo=gtk_combo_box_new();
-  gtk_box_pack_start(GTK_BOX(header),combo,TRUE,TRUE,0);
+  self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+  update_labels_menu(self);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text", 0,NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text", 1,NULL);
+  gtk_box_pack_start(GTK_BOX(header),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
 
   gtk_widget_show_all(header);
 
@@ -1133,7 +1159,7 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   g_object_unref(song);
 }
 
-static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSequence *sequence;
   gdouble play_pos;
@@ -1449,14 +1475,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-b pressed, row %lu",row);
         sequence_view_set_pos(self,1,(glong)row);          
-        change=TRUE;
       }
     }
     else if(event->keyval == GDK_e) {
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-e pressed, row %lu",row);
         sequence_view_set_pos(self,2,(glong)row);
-        change=TRUE;
       }
     }
     else if(event->keyval<0x100) {
@@ -1676,10 +1700,7 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
   return(res);
 }
 
-static gboolean on_sequence_table_scroll_event( GtkWidget      *widget,
-						GdkEventScroll *event,
-						gpointer        user_data )
-{
+static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScroll *event, gpointer user_data ) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   GdkEventKey keyevent;
 
@@ -1767,7 +1788,7 @@ static gboolean update_bars_menu(const BtMainPageSequence *self,gulong bars) {
   GtkTreeIter iter;
   gchar str[5];
   gulong i,j;
-  /* @todo the useful stepping depends on the rythm
+  /* the useful stepping depends on the rythm
      beats=bars/tpb
      bars=16, beats=4, tpb=4 : 4/4 -> 1,8, 16,32,64
      bars=12, beats=3, tpb=4 : 3/4 -> 1,6, 12,24,48
@@ -1854,7 +1875,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
   g_object_set(self->priv->sequence_pos_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
   // subscribe to play-pos changes of song->sequence
-  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
+  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
   // subscribe to changes in the rythm
   g_signal_connect(G_OBJECT(song_info), "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
   //-- release the references
@@ -1865,6 +1886,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 }
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
+  GtkTooltips *tips;
   GtkWidget *toolbar;
   GtkWidget *split_box,*box,*tool_item;
   GtkWidget *scrolled_window,*scrolled_sync_window;
@@ -1878,6 +1900,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   
   gtk_widget_set_name(GTK_WIDGET(self),_("sequence view"));
   
+  tips=gtk_tooltips_new();
+  
   // add toolbar
   toolbar=gtk_toolbar_new();
   gtk_widget_set_name(toolbar,_("sequence view tool bar"));
@@ -1889,6 +1913,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   // build the menu
   self->priv->bars_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->bars_menu),_("Show every n-th line"),NULL);
   renderer=gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->bars_menu),renderer,"text", 0,NULL);
@@ -2301,10 +2326,26 @@ static void bt_main_page_sequence_set_property(GObject      *object,
 
 static void bt_main_page_sequence_dispose(GObject *object) {
   BtMainPageSequence *self = BT_MAIN_PAGE_SEQUENCE(object);
+  BtSong *song;
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);  
+
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(song) {
+    BtSongInfo *song_info;
+
+    GST_DEBUG("disconnect handlers from song=%p",song);
+    g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+    
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
+    g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_info_bars_changed,NULL);
+    g_object_unref(song_info);
+    g_object_unref(song);
+  }
+
   g_object_try_weak_unref(self->priv->app);
   if(self->priv->machine) {
     GST_INFO("unref old cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);

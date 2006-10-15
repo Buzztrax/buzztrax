@@ -1,0 +1,51 @@
+2006/10 ========================================================================
+
+Finally I found some time to work one one thing that was getting on my nerves.
+For the unit tests we now have a BtTestSettings class. This allows us to
+simulate all sort of settings. The other benefit is that we don't need to make
+sure that we don't modify user settings during test runs. And we get not hit by
+my favourite GConf nastyness anymore [1].
+
+Next I did a lot more bugfixing in the UI - or lets call it implementing
+previously unimplemented stuff. Added some more tooltips here and there, syncing
+data displays and so on.
+
+The rest of the team was quite busy with real live. Damn.
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=316331
+
+2006/09 ========================================================================
+
+Lots of news this time. Also this time I welcome another team member on board -
+Tommi 'nbd' Sakari Uimonen. His first action was a code review of the core lib
+and a big patch that const'ified it more. By giving him a quick demo of the
+application we also uncovered a lot of bugs. Next nbd will work on a pattern
+editor widget.
+
+Berzerka implemented song-length changing. The list will be dynamically expanded
+as one scrolls down. Also keyboard shortcuts are coming to set length and move
+the loop area.
+
+While we were working on the sequence display, we fixed the step filtering for
+different rhythms and also implemented many details for rhythm support (other
+than 4/4). Speaking of the GUI - lots of changes there. The machine view looks a
+bit nicer and has some zoom and layout fixes. Zoom fit was a bit harder than
+expected and seems to be still not always be correct. The context menu to add
+machines is now hierarchical. In the status bar we now show CPU usage. At least
+during development this is quite useful.
+
+Lots of code has been added to handle error situations better. If you load songs
+with missing machines or samples, these components will be tracked. After
+loading we present a report of missing elements. Later we can add machine
+download or to specify a new location if the sample has been moved or renamed.
+
+Many task were done to prepare a first release. We now have a nice about dialog.
+It also shows the latest release notes. This dialog will always be shown once
+after updating. The user guide is more complete. German language catalogues are
+complete. Finally a lot of cruft code has been removed.
+
+I also worked a bit on the buzz machine emulation. It now also support stereo
+machines (need more work on the application side). The example buzz songs have
+been fixed. The now all play again. The gstreamer buzzmachine plugin generates
+better parameter names. It also maps some parameters to enums. Instead with a
+slider, they are presented as a dropdown then.
