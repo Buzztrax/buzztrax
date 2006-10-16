@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.17 2006-10-14 16:07:22 ensonic Exp $
+/* $Id: bt-check.h,v 1.18 2006-10-16 12:47:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,11 +54,20 @@ extern gchar **test_argvptr;
 
 //-- wrappers for START_TEST and END_TEST
 
+#define CHECK_VERSION (CHECK_MAJOR_VERSION * 10000 + CHECK_MINOR_VERSION * 100 + CHECK_MICRO_VERSION)
+#if CHECK_VERSION <= 903
+#define BT_START_TEST(__testname) \
+static void __testname (void)\
+{\
+  GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
+  tcase_fn_start (""# __testname, __FILE__, __LINE__);
+#else
 #define BT_START_TEST(__testname) \
 static void __testname (int i __attribute__((unused)))\
 {\
   GST_DEBUG ("test beg ----------------------------------------------------------------------"); \
   tcase_fn_start (""# __testname, __FILE__, __LINE__);
+#endif
 
 #define BT_END_TEST \
   GST_DEBUG ("test end ----------------------------------------------------------------------\n"); \

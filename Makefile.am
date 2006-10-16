@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.61 2006-10-11 10:48:50 ensonic Exp $
+## $Id: Makefile.am,v 1.62 2006-10-16 12:47:27 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -60,8 +60,6 @@ icon48_DATA = pixmaps/48x48/buzztard.png
 svgicondir = $(datadir)/icons/hicolor/scalable/apps
 svgicon_DATA = pixmaps/buzztard.svg
 
-gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
-
 schemasdir = $(GCONF_SCHEMA_FILE_DIR)
 schemas_in_files = buzztard.schemas.in
 schemas_DATA = $(schemas_in_files:.schemas.in=.schemas)
@@ -89,7 +87,10 @@ DISTCLEANFILES = \
 clean-local:
 	rm -f po/.intltool-merge-cache
   
-install-data-hook:
+gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
+install-data-hook: update-icon-cache
+uninstall-hook: update-icon-cache
+update-icon-cache:
 	@-if test -z "$(DESTDIR)"; then \
 		echo "Updating Gtk icon cache."; \
 		$(gtk_update_icon_cache); \
@@ -97,7 +98,6 @@ install-data-hook:
 		echo "*** Icon cache not updated.  After install, run this:"; \
 		echo "***   $(gtk_update_icon_cache)"; \
 	fi
-
 
 ##if GCONF_SCHEMAS_INSTALL (this should be conditional)
 install-data-local:

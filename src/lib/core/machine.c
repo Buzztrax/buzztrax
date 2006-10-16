@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.221 2006-10-11 10:48:50 ensonic Exp $
+/* $Id: machine.c,v 1.222 2006-10-16 12:47:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -618,7 +618,7 @@ static gboolean bt_machine_make_internal_element(const BtMachine * const self,co
   // add internal element
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
-    GST_ERROR("failed to create %s",element_name);goto Error;
+    GST_WARNING("failed to create %s",element_name);goto Error;
   }
   gst_bin_add(self->priv->bin,self->priv->machines[part]);
   res=TRUE;
@@ -937,8 +937,10 @@ static gboolean bt_machine_setup(BtMachine * const self) {
   BtMachineClass *klass=BT_MACHINE_GET_CLASS(self);
   BtPattern *pattern;
 
+  g_assert(self->priv->song);
   // get the bin from the song, we are in
   g_object_get(G_OBJECT(self->priv->song),"bin",&self->priv->bin,NULL);
+  g_assert(self->priv->bin);
 
   // name the machine and try to instantiate it
   if(!bt_machine_init_core_machine(self)) return(FALSE);
@@ -2329,7 +2331,7 @@ static void bt_machine_dispose(GObject * const object) {
     BtSongInfo *song_info;
     g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
     if(song_info) {
-      GST_DEBUG("  diconnecting song-info handlers");
+      GST_DEBUG("  disconnecting song-info handlers");
       g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_bpm_changed,NULL);
       g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_machine_on_tpb_changed,NULL);
       g_object_unref(song_info);

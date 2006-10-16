@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.115 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: song-io-native.c,v 1.116 2006-10-16 12:47:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,7 +72,6 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   }
   // check if the given uri exists
   if (!gnome_vfs_uri_exists(input_uri)) {
-    
     GST_WARNING("given input uri doe's not exists ... abort loading\n");
 
     gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
@@ -90,9 +89,11 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
       if(file_info) gnome_vfs_file_info_unref(file_info);
       goto Error;
     }
+    if(file_info) gnome_vfs_file_info_unref(file_info);
     // @todo: check mime-type ?
     type=BT_TYPE_SONG_IO_NATIVE;
   }
+  gnome_vfs_uri_unref(input_uri);
 Error:
   if(absolute_uri_string) g_free(absolute_uri_string);
   return(type);

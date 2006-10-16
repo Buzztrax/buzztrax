@@ -1,3 +1,17 @@
+2006-10-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  no stalled icons, if uninstalling and re-installing
+
+	* src/lib/core/machine.c: (bt_machine_make_internal_element),
+	(bt_machine_setup), (bt_machine_dispose):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	* src/lib/core/song.c: (bt_song_write_to_dot_file):
+	  fixing leaks
+
+	* tests/bt-check.h:
+	  conditionally define BT_TEST_START
+
 2006-10-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

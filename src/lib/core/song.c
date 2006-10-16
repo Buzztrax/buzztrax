@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.151 2006-10-15 18:38:21 ensonic Exp $
+/* $Id: song.c,v 1.152 2006-10-16 12:47:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -784,11 +784,13 @@ void bt_song_write_to_dot_file(const BtSong * const self) {
         fprintf(out,"    %s [color=black, fillcolor=white, label=\"%s\"];\n",this_name,label);
         if(last_name) {
           fprintf(out,"    %s -> %s\n",last_name,this_name);
+          g_free(last_name);
         }
         last_name=this_name;
       }
       g_list_free(sublist);
       g_free(id);
+      if(last_name) g_free(last_name);
       fprintf(out,"  }\n\n");
     }
     g_list_free(list);
