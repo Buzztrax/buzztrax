@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.73 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: sink-machine.c,v 1.74 2006-10-16 13:07:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -124,10 +124,9 @@ static gboolean bt_sink_machine_persistence_load(const BtPersistence * const per
   g_object_set(G_OBJECT(self),"plugin-name","bt-sink-bin",NULL);
   
   // load parent class stuff
-  res=parent_iface->load(persistence,node,location);
-  
-  bt_sink_machine_post_init(self);
-  
+  if((res=parent_iface->load(persistence,node,location))) {
+    bt_sink_machine_post_init(self);
+  }
   return(res);
 }
 

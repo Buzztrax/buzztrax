@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.45 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: processor-machine.c,v 1.46 2006-10-16 13:07:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -128,9 +128,9 @@ static gboolean bt_processor_machine_persistence_load(const BtPersistence * cons
   xmlFree(voices_str);
   
   // load parent class stuff
-  res=parent_iface->load(persistence,node,location);
-  
-  bt_processor_machine_post_init(self);
+  if((res=parent_iface->load(persistence,node,location))) {
+    bt_processor_machine_post_init(self);
+  }
   
   return(res);
 }
