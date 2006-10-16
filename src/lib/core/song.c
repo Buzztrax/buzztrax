@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.152 2006-10-16 12:47:27 ensonic Exp $
+/* $Id: song.c,v 1.153 2006-10-16 20:35:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -415,9 +415,10 @@ BtSong *bt_song_new(const BtApplication * const app) {
   g_signal_connect(self->priv->sequence,"notify::loop-start",G_CALLBACK(bt_song_on_loop_start_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::loop-end",G_CALLBACK(bt_song_on_loop_end_changed),(gpointer)self);
   g_signal_connect(self->priv->sequence,"notify::length",G_CALLBACK(bt_song_on_length_changed),(gpointer)self);
-  GST_INFO("  new song created: %p",self);
+  GST_INFO("  lopp-signals connected");
   bt_song_update_play_seek_event(BT_SONG(self));
   bt_song_idle_start(self);
+  GST_INFO("  new song created: %p",self);
   return(self);
 Error:
   g_object_try_unref(self);

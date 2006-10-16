@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.102 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: setup.c,v 1.103 2006-10-16 20:35:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -729,8 +729,10 @@ static void bt_setup_dispose(GObject * const object) {
   // unref list of wires
   if(self->priv->wires) {
     for(node=self->priv->wires;node;node=g_list_next(node)) {
-      const GObject * const obj=node->data;
-      GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
+      if(node->data) {
+        const GObject * const obj=node->data;
+        GST_DEBUG("  free wire : %p (%d)",obj,obj->ref_count);
+      }
       g_object_try_unref(node->data);
       node->data=NULL;
     }
@@ -738,8 +740,10 @@ static void bt_setup_dispose(GObject * const object) {
   // unref list of machines
   if(self->priv->machines) {
     for(node=self->priv->machines;node;node=g_list_next(node)) {
-      const GObject * const obj=node->data;
-      GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
+      if(node->data) {
+        const GObject * const obj=node->data;
+        GST_DEBUG("  free machine : %p (%d)",obj,obj->ref_count);
+      }
       g_object_try_unref(node->data);
       node->data=NULL;
     }

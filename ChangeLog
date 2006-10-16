@@ -1,5 +1,11 @@
 2006-10-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/setup.c: (bt_setup_dispose):
+	* src/lib/core/song.c: (bt_song_new):
+          don't acces NULL point, not even from LOG statements :)
+
+2006-10-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/processor-machine.c:
 	(bt_processor_machine_persistence_load):
 	* src/lib/core/sink-machine.c: (bt_sink_machine_persistence_load):
