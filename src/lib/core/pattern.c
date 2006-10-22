@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.90 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: pattern.c,v 1.91 2006-10-22 16:35:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1038,11 +1038,15 @@ static void bt_pattern_set_property(GObject      * const object,
     } break;
     case PATTERN_MACHINE: {
       g_object_try_weak_unref(self->priv->machine);
-      self->priv->machine = BT_MACHINE(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->machine);
-      // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
-      g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
-      GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+      if((self->priv->machine = BT_MACHINE(g_value_get_object(value)))) {
+        g_object_try_weak_ref(self->priv->machine);
+        // @todo shouldn't we just listen to notify::voices too and resize patterns automatically
+        g_object_get(G_OBJECT(self->priv->machine),"global-params",&self->priv->global_params,"voice-params",&self->priv->voice_params,NULL);
+        GST_DEBUG("set the machine for pattern: %p (machine-refs: %d)",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
+      }
+      else {
+        GST_DEBUG("unset the machine for pattern");
+      }
     } break;
     case PATTERN_IS_INTERNAL: {
       self->priv->is_internal = g_value_get_boolean(value);

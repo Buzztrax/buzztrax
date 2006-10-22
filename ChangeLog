@@ -1,5 +1,10 @@
 2006-10-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c: (bt_pattern_set_property):
+          don't access self->priv->machine if it was set to NULL
+
+2006-10-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
           report about buildbot news and patternwidget progress
 	* src/lib/core/song.c: (bt_song_is_playable),
