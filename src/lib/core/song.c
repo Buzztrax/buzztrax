@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.153 2006-10-16 20:35:02 ensonic Exp $
+/* $Id: song.c,v 1.154 2006-10-22 15:20:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -184,13 +184,21 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
  */
 static gboolean bt_song_is_playable(const BtSong * const self) {
   GList *wires;
+  
+  GST_INFO("check playability");
 
   // do not play an empty song
-  if(!GST_BIN_NUMCHILDREN(self->priv->bin)) return(FALSE);
+  if(!GST_BIN_NUMCHILDREN(self->priv->bin)) {
+    GST_INFO("bin has no children");
+    return(FALSE);
+  }
 
   // do not play a song with no wires linked to sink
   wires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(self->priv->master));
-  if(!wires) return(FALSE);
+  if(!wires) {
+    GST_INFO("song has no wires");
+    return(FALSE);
+  }
   else {
     GList *node;
 
@@ -353,6 +361,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         else {
           GST_INFO("looping");
         }
+        break;
+      default:
         break;
     }
   }

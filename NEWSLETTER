@@ -10,7 +10,14 @@ Next I did a lot more bugfixing in the UI - or lets call it implementing
 previously unimplemented stuff. Added some more tooltips here and there, syncing
 data displays and so on.
 
-The rest of the team was quite busy with real live. Damn.
+Waffel spend some time so set up a buildmaster and a buildslave. This way our
+code gets rebuild every 6 hours. The 6 hours cycle has two reasons - our
+cvshook-script (from fdo) does not run on sf.net and the sf.net anon-cvs has a
+big delay. Anyway even the current setup revealed some bugs, where some of them
+are already fixed.
+
+Tommi fights with cairo to build a real pattern editor widget for us. Hope we
+can post some screenshots from it soon.
 
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=316331
 

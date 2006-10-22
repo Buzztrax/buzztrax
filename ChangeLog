@@ -1,3 +1,11 @@
+2006-10-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+          report about buildbot news and patternwidget progress
+	* src/lib/core/song.c: (bt_song_is_playable),
+	(on_song_state_changed):
+	  more logging to debug build-slave failure
+
 2006-10-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c: (bt_setup_dispose):
