@@ -1,3 +1,15 @@
+2006-11-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  release announcement
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_table_size_request), (bt_machine_preferences_dialog_init_ui):
+	  hide gst_object.name from machine preferences, set a dynamic default
+	  height
+
+=== release 0.1.0 ===
+
 2006-10-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c: (bt_pattern_set_property):

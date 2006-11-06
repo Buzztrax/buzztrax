@@ -1,3 +1,20 @@
+2006/11 ========================================================================
+
+Finally! We did release 0.1 "genesis". In June 2002 we registered the project
+and started thinking. For more than year nothing big happened. In February 2004
+the first GStreamer example code landed in CVS. That was using GStreamer 0.8.
+Then the metamorphosis began: using GObject, adding unit tests, API docs, user
+docs and so on. In August 2005 came the switch to GStreamer 0.10. In summer 2006
+our team grew from 2 to 4 developers. The whole project already contains 139000
+lines of code.
+
+Even though the current code is maybe a bit rough and the applications are not
+that usable yet, we're confident that new releases will follow quickly and bring
+the missing pieces. If you want it happen faster, join the project. We have lots
+of tasks, some with a fleshed out concept, some merely ideas, some suitable for
+not so experienced developers, so quite tricky. Give us a visit on
+irc://irc.quakenet.org/buzztard.
+
 2006/10 ========================================================================
 
 Finally I found some time to work one one thing that was getting on my nerves.
