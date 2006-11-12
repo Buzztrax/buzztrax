@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.82 2006-10-11 10:48:50 ensonic Exp $
+# $Id: configure.ac,v 1.83 2006-11-12 13:56:07 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -107,14 +107,16 @@ AC_ARG_ENABLE(
   [enable_debug="no"])
 AC_MSG_RESULT($enable_debug)
 if test "$enable_debug" = "yes"; then
-  AC_DEFINE(APP_DEBUG, [1], [enable runtime debugging code])
+  AC_DEFINE(USE_DEBUG, [1], [enable runtime debugging code])
   DEBUG_CFLAGS="-O0 -Wall -Werror -g"
   # DEBUG_CFLAGS="-O0 -Wall -Werror -Wno-strict-aliasing -g"
+  AM_CONDITIONAL(USE_DEBUG, true)
 else
   AC_DEFINE(G_DISABLE_ASSERT, [1], [if no runtime debugging, do not enable g_asserts])
   AC_DEFINE(G_DISABLE_CHECKS, [1], [if no runtime debugging, do not enable g_return_if_fail variants])
   AC_DEFINE(G_DISABLE_CAST_CHECKS, [1], [if no runtime debugging, do not enable dynamic type checks])
   DEBUG_CFLAGS=""
+  AM_CONDITIONAL(USE_DEBUG, false)
 fi
 
 
@@ -204,7 +206,8 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gobject-2.0  >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 gstreamer-base-0.10 >= 0.10.0 \
+  gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
+  gstreamer-base-0.10 >= 0.10.0
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \

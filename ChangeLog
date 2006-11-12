@@ -1,3 +1,8 @@
+2006-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  APP_DEBUG -> USE_DEBUG
+
 2006-11-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
