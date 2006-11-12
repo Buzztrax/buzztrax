@@ -1,6 +1,15 @@
 2006-11-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_help_activate),
+	(bt_machine_canvas_item_init_context_menu):
+	  added help to machine context menu
+
+2006-11-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
 	  APP_DEBUG -> USE_DEBUG
 
 2006-11-06  Stefan Kost  <ensonic@users.sf.net>

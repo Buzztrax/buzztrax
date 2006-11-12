@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.83 2006-11-12 13:56:07 ensonic Exp $
+# $Id: configure.ac,v 1.84 2006-11-12 18:51:31 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -227,7 +227,7 @@ PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
   ]
 )
 
-PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.0.1, [
+PKG_CHECK_MODULES(GSTBT_DEPS, libgstbuzztard >= 0.1, [
     AC_DEFINE(USE_GSTBT, [1], [Define to 1 if we can use gst-buzztard])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GSTBT_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GSTBT_DEPS_LIBS"
@@ -240,16 +240,6 @@ PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOME_DEPS_LIBS"
   ]
 )
-
-#PKG_CHECK_MODULES(GTKGRID_DEPS, gtkgrid, [
-#  AM_CONDITIONAL(USE_GTKGRID, true)
-#    AC_DEFINE(USE_GTKGRID, [1], [Define to 1 if we can use GtkGrid])
-#    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GTKGRID_DEPS_CFLAGS"
-#    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GTKGRID_DEPS_LIBS"
-# ],[
-#    AM_CONDITIONAL(USE_GTKGRID,false)
-# ]
-#)
 
 glib_prefix="`pkg-config --variable=prefix glib-2.0`"
 gtk_prefix="`pkg-config --variable=prefix gtk+-2.0`"

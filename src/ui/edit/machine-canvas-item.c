@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.72 2006-09-06 21:54:27 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.73 2006-11-12 18:51:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -392,6 +392,33 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   g_free(msg);
 }
 
+static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
+#ifdef USE_GNOME
+  BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  GstElement *machine;
+  GError *error=NULL;
+  gchar *uri;
+#endif
+
+  g_assert(user_data);
+
+  // show help for machine
+#ifdef USE_GNOME
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
+  g_object_get(machine,"documentation-uri",&uri,NULL);
+  gst_object_unref(machine);
+  
+  GST_INFO("context_menu help event occurred : %s",uri);
+
+  if(!gnome_url_show(uri, &error)) {
+    GST_WARNING("Failed to display help: %s\n",error->message);
+    g_error_free(error);
+  }
+#else
+    GST_INFO("context_menu help event occurred");
+#endif
+}
+
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   GstElement *machine;
@@ -457,6 +484,7 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
 
 static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasItem *self) {
   GtkWidget *menu_item,*label;
+  GstElement *machine;
 
   self->priv->menu_item_mute=menu_item=gtk_check_menu_item_new_with_label(_("Mute"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -516,6 +544,16 @@ static gboolean bt_machine_canvas_item_init_context_menu(const BtMachineCanvasIt
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_set_sensitive(menu_item,FALSE);
   gtk_widget_show(menu_item);
+
+  menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
+  if(!GST_IS_HELP(machine)) {
+    gtk_widget_set_sensitive(menu_item,FALSE);
+  }
+  gst_object_unref(machine);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_help_activate),(gpointer)self);
 
   menu_item=gtk_image_menu_item_new_from_stock(GTK_STOCK_ABOUT,NULL);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);

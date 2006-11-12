@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.37 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: bt-edit.h,v 1.38 2006-11-12 18:51:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -27,6 +27,8 @@
 
 //-- libbtcore
 #include <libbtcore/core.h>
+//-- gstreamer
+#include <gst/help/help.h>
 //-- gtk+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
@@ -36,6 +38,7 @@
 #ifdef USE_GNOME
 #include <libgnome/gnome-init.h>
 #include <libgnome/gnome-help.h>
+#include <libgnome/gnome-url.h>
 #endif
 
 #include "edit-application-methods.h"
