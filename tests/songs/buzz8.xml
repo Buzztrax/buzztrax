@@ -37,7 +37,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="kick_beats" machine="kick" name="beats" length="16">
             <tick time="0">
@@ -55,7 +54,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="guru2_beeps" machine="guru2" name="beeps" length="16">
             <tick time="0">

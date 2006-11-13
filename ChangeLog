@@ -1,3 +1,15 @@
+2006-11-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/songs/buzz1.xml:
+	* tests/songs/buzz3.xml:
+	* tests/songs/buzz4.xml:
+	* tests/songs/buzz5.xml:
+	* tests/songs/buzz6.xml:
+	* tests/songs/buzz7.xml:
+	* tests/songs/buzz8.xml:
+	* tests/songs/buzz9.xml:
+	  remove global params that aren't there
+
 2006-11-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

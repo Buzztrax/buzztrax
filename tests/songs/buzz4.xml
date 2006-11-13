@@ -30,7 +30,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="gen_beats" machine="gen" name="beats" length="16">
             <tick time="0">

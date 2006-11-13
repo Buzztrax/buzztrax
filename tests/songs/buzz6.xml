@@ -30,7 +30,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="bd_beats" machine="bd" name="beats" length="16">
             <tick time= "0"><voicedata name="Trig" voice="0" value="1"/></tick>
@@ -46,7 +45,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.0"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="snr_beats" machine="snr" name="beats" length="16">
             <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
@@ -60,7 +58,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="hh_beats" machine="hh" name="beats" length="16">
             <tick time= "2"><voicedata name="OhTrig" voice="0" value="1"/></tick>

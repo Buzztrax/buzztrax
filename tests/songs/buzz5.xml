@@ -30,7 +30,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="-0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="bass2_beeps" machine="bass2" name="beeps" length="16">
             <tick time="0"><voicedata name="Note" voice="0" value="c-2"/></tick>
