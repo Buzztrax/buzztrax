@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.103 2006-10-16 20:35:02 ensonic Exp $
+/* $Id: setup.c,v 1.104 2006-11-25 14:08:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -620,7 +620,7 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
                   const gchar * const str=g_strdup_printf("%s: %s",id, plugin_name);  // str is freed elsewhere
                   bt_setup_remember_missing_machine(self,str);
                   g_free(id);
-		  g_free(plugin_name);
+		              g_free(plugin_name);
                 }
                 g_object_unref(machine);
               }

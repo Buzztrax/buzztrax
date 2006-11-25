@@ -1,3 +1,9 @@
+2006-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/setup.c: (bt_setup_persistence_load):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	  fix detect function for native io, fixes #1595887
+
 2006-11-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/songs/buzz1.xml:

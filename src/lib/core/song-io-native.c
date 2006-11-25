@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.116 2006-10-16 12:47:27 ensonic Exp $
+/* $Id: song-io-native.c,v 1.117 2006-11-25 14:08:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -62,7 +62,7 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   // creating a absolute uri string from the given input string.
   // works also if the given string was a absolute uri.
   char * const absolute_uri_string = gnome_vfs_make_uri_from_input_with_dirs (file_name, GNOME_VFS_MAKE_URI_DIR_CURRENT);
-  GST_INFO("creating absolute file uri string: %s\n",absolute_uri_string);
+  GST_INFO("creating absolute file uri string: %s",absolute_uri_string);
   // creating the gnome-vfs uri from the absolute path string
   GnomeVFSURI * const input_uri = gnome_vfs_uri_new(absolute_uri_string);
   // check if the input uri is ok
@@ -73,12 +73,6 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   // check if the given uri exists
   if (!gnome_vfs_uri_exists(input_uri)) {
     GST_WARNING("given input uri doe's not exists ... abort loading\n");
-
-    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
-    if(g_str_has_suffix(lc_file_name,".xml")) {
-      type=BT_TYPE_SONG_IO_NATIVE;
-    }
-    g_free(lc_file_name);
   }
   else {
     // create new file info pointer.
@@ -91,7 +85,11 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
     }
     if(file_info) gnome_vfs_file_info_unref(file_info);
     // @todo: check mime-type ?
-    type=BT_TYPE_SONG_IO_NATIVE;
+    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
+    if(g_str_has_suffix(lc_file_name,".xml")) {
+      type=BT_TYPE_SONG_IO_NATIVE;
+    }
+    g_free(lc_file_name);
   }
   gnome_vfs_uri_unref(input_uri);
 Error:
