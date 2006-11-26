@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.26 2006-11-06 21:08:56 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.27 2006-11-26 17:44:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -148,12 +148,22 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
  * we adjust the scrollable-window size to contain the whole area
  */
 static void on_table_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
-  GtkWidget *scrolled_window=GTK_WIDGET(user_data);
+  GtkWidget *parent=GTK_WIDGET(user_data);
+  gint height=requisition->height,width=-1;
+  gint max_height=gdk_screen_get_height(gdk_screen_get_default());
 
-  GST_INFO("#### table  size req %d x %d", requisition->width,requisition->height);
-  // @todo: constrain the height by some max value (screen or window height)
+  GST_INFO("#### table  size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
+  // have a minimum width
+  if(requisition->width<250) {
+    width=250;
+  }
+  // constrain the height by screen height
+  if(height>max_height) {
+    // lets hope that 32 gives enough space for window-decoration + panels
+    height=max_height-32;
+  }
   // @todo: is the '2' some border or padding
-  gtk_widget_set_size_request(GTK_WIDGET(scrolled_window),-1,requisition->height + 2);
+  gtk_widget_set_size_request(parent,width,height + 2);
 }
 
 //-- helper methods
@@ -213,7 +223,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
       // add machine preferences into the table
       table=gtk_table_new(/*rows=*/props/*+1 (space eater)*/,/*columns=*/3,/*homogenous=*/FALSE);
       gtk_container_set_border_width(GTK_CONTAINER(table),6);
-      g_signal_connect(G_OBJECT(table),"size-request",G_CALLBACK(on_table_size_request),(gpointer)scrolled_window);     
+      g_signal_connect(G_OBJECT(table),"size-request",G_CALLBACK(on_table_size_request),(gpointer)scrolled_window);
       
       for(i=0,k=0;i<number_of_properties;i++) {
         property=properties[i];

@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.16 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: tools.h,v 1.17 2006-11-26 17:44:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,10 +23,17 @@
 #define BT_TOOLS_H
 
 #ifndef BT_TOOLS_C
-extern GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter);
 
+//-- registry
+
+extern GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter);
+extern GList *bt_gst_check_elements(GList *list);
+extern GList *bt_gst_check_core_elements(void);
+
+//-- debugging
 extern void gst_element_dbg_pads(GstElement * const elem);
 
+//-- glib compat & helper
 #ifndef HAVE_GLIB_2_8
 extern gpointer g_try_malloc0(const gulong n_bytes);
 
@@ -38,6 +45,8 @@ extern gpointer g_try_malloc0(const gulong n_bytes);
 #endif // !HAVE_GLIB_2_8
 
 extern GType bt_g_type_get_base_type(const GType type);
+
+//-- cpu load monitoring
 
 extern guint bt_cpu_load_get_current(void);
 

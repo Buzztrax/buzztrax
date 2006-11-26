@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.30 2006-09-03 13:18:37 ensonic Exp $
+/* $Id: tools.c,v 1.31 2006-11-26 17:44:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,6 +22,8 @@
 #define BT_CORE
 #define BT_TOOLS_C
 #include <libbtcore/core.h>
+
+//-- registry
 
 static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, gpointer user_data) {
   const gchar * const class_filter=(gchar *)user_data;
@@ -52,14 +54,62 @@ GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter) {
   GList * const list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)class_filter);
   for(node=list;node;node=g_list_next(node)) {
     GstPluginFeature * const feature=GST_PLUGIN_FEATURE(node->data);
-    res=g_list_append(res,(gchar *)gst_plugin_feature_get_name(feature));
+    res=g_list_prepend(res,(gchar *)gst_plugin_feature_get_name(feature));
   }
   g_list_free(list);
   return(res);
 }
 
 /**
- * gst_element_dbg_caps:
+ * bt_gst_check_elements:
+ * @list: a #GList with element names
+ *
+ * Check if the given elements exist.
+ *
+ * Returns: a list of elements that does not exist, %NULL if all elements exist
+ */
+GList *bt_gst_check_elements(GList *list) {
+  GList *res=NULL,*node;
+  GstRegistry *registry;
+  GstPluginFeature*feature;
+  
+  registry=gst_registry_get_default();
+  
+  for(node=list;node;node=g_list_next(node)) {
+    if((feature=gst_registry_lookup_feature(registry,(const gchar *)node->data))) {
+      gst_object_unref(feature);
+    }
+    else {
+      res=g_list_prepend(res,node->data);
+    }
+  }
+  
+  return(res);
+}
+
+/**
+ * bt_gst_check_core_elements:
+ *
+ * Check if all core elements exist.
+ *
+ * Returns: a list of elements that does not exist, %NULL if all elements exist
+ */
+GList *bt_gst_check_core_elements(void) {
+  static GList *core_elements=NULL;
+  
+  if(!core_elements) {
+    core_elements=g_list_prepend(core_elements,"volume");
+    core_elements=g_list_prepend(core_elements,"tee");
+    core_elements=g_list_prepend(core_elements,"audioconvert");
+    core_elements=g_list_prepend(core_elements,"adder");
+  }
+  return bt_gst_check_elements(core_elements);
+}
+
+//-- debugging
+
+/**
+ * gst_element_dbg_pads:
  * @elem: a #GstElement
  *
  * Write out a list of pads for the given element
@@ -106,6 +156,8 @@ void gst_element_dbg_pads(GstElement * const elem) {
   gst_iterator_free(it);
 }
 
+//-- glib compat & helper
+
 #ifndef HAVE_GLIB_2_8
 gpointer g_try_malloc0( const gulong n_bytes ) {
   gpointer const mem=g_try_malloc(n_bytes);
@@ -132,7 +184,7 @@ GType bt_g_type_get_base_type(GType type) {
   return(type);
 }
 
-/* cpu load monitoring */
+//-- cpu load monitoring
 
 static GstClockTime treal_last=G_GINT64_CONSTANT(0),tuser_last=G_GINT64_CONSTANT(0),tsys_last=G_GINT64_CONSTANT(0);
 //long clk=1;

@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.84 2006-11-12 18:51:31 ensonic Exp $
+# $Id: configure.ac,v 1.85 2006-11-26 17:44:41 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -73,6 +73,7 @@ AC_ISC_POSIX
 AC_PROG_LIBTOOL
 AC_PROG_INTLTOOL
 AM_PROG_CC_STDC
+AM_PROG_MKDIR_P
 
 AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then

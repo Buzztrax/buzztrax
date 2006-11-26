@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.50 2006-10-11 10:48:50 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.51 2006-11-26 17:44:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,6 +52,9 @@ struct _BtMachinePropertiesDialogPrivate {
   /* widgets and their handlers */
   //GtkWidget *widgets;
   //gulong *notify_id,*change_id;
+  
+  //GtkWidget *vbox,*scrolled_window;
+  //GHashTable *expanders;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -437,6 +440,30 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   return(widget);
 }
 
+/*
+ * on_box_size_request:
+ *
+ * we adjust the scrollable-window size to contain the whole area
+ */
+static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
+  GtkWidget *parent=GTK_WIDGET(user_data);
+  gint height=requisition->height,width=-1;
+  gint max_height=gdk_screen_get_height(gdk_screen_get_default());
+
+  GST_INFO("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
+  // have a minimum width
+  if(requisition->width<250) {
+    width=250;
+  }
+  // constrain the height by screen height
+  if(height>max_height) {
+    // lets hope that 32 gives enough space for window-decoration + panels
+    height=max_height-32;
+  }
+  // @todo: is the '2' some border or padding
+  gtk_widget_set_size_request(parent,width,height + 2);
+}
+
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
   GtkWidget *box,*vbox,*expander,*label,*table,*scrolled_window;
@@ -460,7 +487,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   
   // leave the choice of width to gtk
   //gtk_window_set_default_size(GTK_WINDOW(self),-1,200);
-  gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
+  ////gtk_widget_set_size_request(GTK_WIDGET(self),300,200);
   //gtk_window_set_default_size(GTK_WINDOW(self),300,-1);
 
   // set a title
@@ -495,6 +522,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     vbox=gtk_vbox_new(FALSE,0);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),vbox);
     gtk_box_pack_start(GTK_BOX(box),scrolled_window,TRUE,TRUE,0);
+    g_signal_connect(G_OBJECT(vbox),"size-request",G_CALLBACK(on_box_size_request),(gpointer)scrolled_window);
 
     if(global_params) {
       // determine params to be skipped
@@ -512,6 +540,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         
         // add global machine controls into the table
         table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
+
         for(i=0,k=0;i<global_params;i++) {
           if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
           if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
@@ -580,11 +609,16 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           else {
             gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
             gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+            /* @todo how can we avoid the wobble here?
+             * hack would be to set some 'good' default size
+             * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+             */           
+            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL|GTK_EXPAND|GTK_SHRINK,GTK_SHRINK, 2,1);
           }
           k++;
         }
-        gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        // eat remaning space
+        //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         gtk_container_add(GTK_CONTAINER(expander),table);
       }
       else {
@@ -611,6 +645,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         
         // add voice machine controls into the table
         table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
+
         for(i=0,k=0;i<voice_params;i++) {
           if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) continue;
 
@@ -683,7 +718,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           }
           k++;
         }
-        gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        // eat remaning space
+        //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         gtk_container_add(GTK_CONTAINER(expander),table);
       }
     }

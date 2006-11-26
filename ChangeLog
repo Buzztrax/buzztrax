@@ -1,3 +1,18 @@
+2006-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/tools.c:
+	(bt_gst_registry_get_element_names_by_class),
+	(bt_gst_check_elements), (bt_gst_check_core_elements):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_table_size_request), (bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c: (on_box_size_request),
+	(bt_machine_properties_dialog_init_ui):
+	  set sensible size on machine preferences and parameter window,
+	  add tool function to check for gst elements
+
 2006-11-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c: (bt_setup_persistence_load):
