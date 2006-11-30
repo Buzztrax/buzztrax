@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.154 2006-10-22 15:20:42 ensonic Exp $
+/* $Id: song.c,v 1.155 2006-11-30 16:07:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -321,6 +321,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   const BtSong * const self = BT_SONG(user_data);
   
   g_assert(user_data);
+  GST_INFO("user_data=%p, user_data.type=%s",user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)));
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GstStateChangeReturn res;
@@ -411,9 +412,12 @@ BtSong *bt_song_new(const BtApplication * const app) {
   g_return_val_if_fail(BT_IS_APPLICATION(app),NULL);
   
   g_object_get(G_OBJECT(app),"bin",&bin,NULL);
+  g_assert(bin);
+
   if(!(self=BT_SONG(g_object_new(BT_TYPE_SONG,"app",app,"bin",bin,NULL)))) {
     goto Error;
   }
+  
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
   g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
@@ -1052,6 +1056,7 @@ static void bt_song_dispose(GObject * const object) {
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
   
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_state_changed,NULL);
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_segment_done,NULL);
   g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_eos,NULL);
   gst_object_unref(bus);

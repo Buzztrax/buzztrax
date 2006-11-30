@@ -1,3 +1,14 @@
+2006-11-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_state_changed), (bt_song_new),
+	(bt_song_dispose):
+	* src/ui/edit/machine-properties-dialog.c:
+	* src/ui/edit/main-toolbar.c: (on_song_volume_slider_change),
+	(on_song_volume_changed), (on_channels_negotiated),
+	(on_song_changed), (bt_main_toolbar_dispose):
+	  disconnect from all handlers when destroying the song, fixes #1606098,
+	  listen to volume changes and update the main-slider
+
 2006-11-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

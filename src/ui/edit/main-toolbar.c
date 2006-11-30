@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.95 2006-09-16 16:28:13 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.96 2006-11-30 16:07:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -71,6 +71,8 @@ struct _BtMainToolbarPrivate {
 };
 
 static GtkHandleBoxClass *parent_class=NULL;
+
+static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data);
 
 //-- helper
 
@@ -308,20 +310,44 @@ static void on_song_level_negotiated(GstBus * bus, GstMessage * message, gpointe
   }      
 }
 
-static void on_song_volume_change(GtkRange *range,gpointer user_data) {
+static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  gdouble value;
   
   g_assert(user_data);
   g_assert(self->priv->gain);
+  g_assert(self->priv->volume);
+
   // get value from HScale and change volume
-  GST_INFO("volume has changed : %f",gtk_range_get_value(GTK_RANGE(self->priv->volume)));
-  g_object_set(self->priv->gain,"volume",gtk_range_get_value(GTK_RANGE(self->priv->volume)),NULL);
+  value=gtk_range_get_value(GTK_RANGE(self->priv->volume));
+  GST_INFO("volume-slider has changed : %f",value);
+  g_signal_handlers_block_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
+  g_object_set(self->priv->gain,"volume",value,NULL);
+  g_signal_handlers_unblock_matched(self->priv->volume,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_changed,(gpointer)self);
 }
+
+static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  gdouble value;
+  
+  g_assert(user_data);
+  g_assert(self->priv->gain);
+  g_assert(self->priv->volume);
+
+  // get value from Element and change HScale
+  g_object_get(self->priv->gain,"volume",&value,NULL);
+  GST_INFO("volume has changed : %f",value);
+  g_signal_handlers_block_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
+  gtk_range_set_value(GTK_RANGE(self->priv->volume),value);
+  g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
+}
+
 
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
   GstCaps *caps;
   
   g_assert(user_data);
+
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     gint channels;
@@ -393,12 +419,12 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
     g_assert(GST_IS_ELEMENT(level));
 
+    // connect bus signals
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_connect(bus, "message::error", (GCallback)on_song_error, (gpointer)self);
     g_signal_connect(bus, "message::warning", (GCallback)on_song_error, (gpointer)self);
     g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
     g_signal_connect(bus, "message::application", (GCallback)on_song_level_negotiated, (gpointer)self);
-    //g_signal_connect(bus, "message::state-changed", (GCallback)on_song_state_changed, (gpointer)self);
     gst_object_unref(bus);
 
     // get the pad from the input-level and listen there for channel negotiation
@@ -412,8 +438,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // get the current input_gain and adjust volume widget
     g_object_get(self->priv->gain,"volume",&volume,NULL);
     gtk_range_set_value(GTK_RANGE(self->priv->volume),volume);
-    // connect volume event
-    g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_change),self);
+    // connect slider changed and volume changed events
+    g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
+    g_signal_connect(G_OBJECT(self->priv->gain) ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
     g_object_unref(master);
   }
@@ -643,6 +670,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
     
     g_object_get(G_OBJECT(song),"bin", &bin, NULL);
     bus=gst_element_get_bus(GST_ELEMENT(bin));
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_change,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_negotiated,NULL);
     gst_object_unref(bus);

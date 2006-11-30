@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.51 2006-11-26 17:44:41 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.52 2006-11-30 16:07:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -141,7 +141,6 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   }
   return(str);
 }
-
 
 static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   GtkWidget *widget=GTK_WIDGET(user_data);
