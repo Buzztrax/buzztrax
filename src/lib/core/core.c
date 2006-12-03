@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.28 2006-10-14 16:07:21 ensonic Exp $
+/* $Id: core.c,v 1.29 2006-12-03 13:28:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -181,6 +181,15 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
   g_option_context_free(ctx);
 
   if(res) {
+    // check for missing core elements (borked gstreamer install)
+    GList *missing;
+
+    if((missing=bt_gst_check_core_elements())) {
+      for(;missing;missing=g_list_next(missing)) {
+        GST_WARNING("missing core element '%s'",(gchar *)missing->data);
+      }
+    }
+    
     bt_initialized=TRUE;
   }
 

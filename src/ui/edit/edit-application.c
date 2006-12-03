@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.81 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: edit-application.c,v 1.82 2006-12-03 13:28:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -106,6 +106,11 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
     g_object_set(G_OBJECT(settings),"news-seen",version,NULL);
   }  
   g_object_unref(settings);
+  
+  /* @todo: check for missing elements -> move to extra module
+  if((core_element=bt_gst_check_core_elements(void))) {
+  }
+  */
   
   res=bt_main_window_run(self->priv->main_window);
 

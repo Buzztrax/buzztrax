@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.31 2006-11-26 17:44:41 ensonic Exp $
+/* $Id: tools.c,v 1.32 2006-12-03 13:28:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -87,6 +87,7 @@ GList *bt_gst_check_elements(GList *list) {
   return(res);
 }
 
+static gboolean core_elements_checked=FALSE;
 /**
  * bt_gst_check_core_elements:
  *
@@ -96,14 +97,22 @@ GList *bt_gst_check_elements(GList *list) {
  */
 GList *bt_gst_check_core_elements(void) {
   static GList *core_elements=NULL;
+  static GList *res=NULL;
   
   if(!core_elements) {
     core_elements=g_list_prepend(core_elements,"volume");
     core_elements=g_list_prepend(core_elements,"tee");
     core_elements=g_list_prepend(core_elements,"audioconvert");
     core_elements=g_list_prepend(core_elements,"adder");
+    /* if registry ever gets a 'changed' signal, we need to connect to that and
+     * reset core_elements_checked to FALSE
+     */
   }
-  return bt_gst_check_elements(core_elements);
+  if(!core_elements_checked) {
+    core_elements_checked=TRUE;
+    res=bt_gst_check_elements(core_elements);
+  }
+  return(res);
 }
 
 //-- debugging

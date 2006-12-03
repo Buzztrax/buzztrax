@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.29 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: settings.c,v 1.30 2006-12-03 13:28:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -88,7 +88,7 @@ BtSettings *bt_settings_new(void) {
 
 /**
  * bt_settings_set_factory:
- * @facotry: factory mathod
+ * @factory: factory method
  *
  * Set a factory method that creates a new settings instance. This is currently
  * only used by the unit tests to exercise the applications under various

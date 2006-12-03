@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.52 2006-11-30 16:07:58 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.53 2006-12-03 13:28:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -576,17 +576,14 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           }
           else if(param_type==G_TYPE_INT) {
             widget2=gtk_label_new(NULL);
-            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
             widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_UINT ) {
             widget2=gtk_label_new(NULL);
-            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
             widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_DOUBLE) {
             widget2=gtk_label_new(NULL);
-            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
             widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_ENUM) {
@@ -611,8 +608,13 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
             /* @todo how can we avoid the wobble here?
              * hack would be to set some 'good' default size
              * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
-             */           
-            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL|GTK_EXPAND|GTK_SHRINK,GTK_SHRINK, 2,1);
+             */
+            gtk_widget_set_size_request(widget2,50,-1);
+            if(GTK_IS_LABEL(widget2)) {
+              gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+              gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            }
+            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
           }
           k++;
         }
@@ -681,17 +683,14 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           }
           else if(param_type==G_TYPE_INT ) {
             widget2=gtk_label_new(NULL);
-            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
             widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_UINT ) {
             widget2=gtk_label_new(NULL);
-            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
             widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_DOUBLE) {
             widget2=gtk_label_new(NULL);
-            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
             widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           }
           else if(param_type==G_TYPE_ENUM) {
@@ -713,6 +712,15 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           else {
             gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
             gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+            /* @todo how can we avoid the wobble here?
+             * hack would be to set some 'good' default size
+             * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+             */
+            gtk_widget_set_size_request(widget2,50,-1);
+            if(GTK_IS_LABEL(widget2)) {
+              gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+              gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+            }
             gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
           }
           k++;

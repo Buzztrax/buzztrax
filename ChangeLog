@@ -1,3 +1,18 @@
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_check):
+	* src/lib/core/settings.c:
+	* src/lib/core/tools.c: (bt_gst_check_core_elements):
+	  add core element check to core with waning logging
+
+	* src/ui/edit/edit-application.c: (bt_edit_application_run_ui):
+	  notes about element check
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+	  workaround for slider value -> dialog size wobble
+	
+
 2006-11-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (on_song_state_changed), (bt_song_new),
