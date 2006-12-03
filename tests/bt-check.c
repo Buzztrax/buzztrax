@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.27 2006-08-27 20:02:55 ensonic Exp $
+/* $Id: bt-check.c,v 1.28 2006-12-03 14:03:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -671,7 +671,9 @@ void check_setup_test_server(void) {
     "-ac",
     "-nolisten","tcp",
     // @todo: xset q | grep fonts
+#ifdef XFONT_PATH
     "-fp", XFONT_PATH, /*"/usr/X11R6/lib/X11/fonts/misc"*/
+#endif
 		/*"-fp","/usr/share/fonts/misc",*/
     /*"-reset",
     "-terminate",*/
