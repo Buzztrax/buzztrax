@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.21 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.22 2006-12-03 15:26:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -99,15 +99,14 @@ int main(int argc, char **argv) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
-
   /*
   if(!g_thread_supported()) {  // are g_threads() already initialized
     g_thread_init(NULL);
   }
   gdk_threads_init();
   */
-  gtk_init(&test_argc,&test_argvptr);
   check_setup_test_server();
+  gtk_init(&test_argc,&test_argvptr);
   
   sr=srunner_create(bt_edit_application_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());

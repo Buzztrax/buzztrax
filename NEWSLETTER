@@ -1,3 +1,38 @@
+2006/12 ========================================================================
+
+This month we fleshed out the planning for 0.2. From now on we like to release
+often and regularily. We defined a lot of small gtk ui tasks. If you like to
+help, we welcome you with open arms on irc://irc.quakenet.org/#buzztard.
+
+First changes after the release are already in CVS. I worked on the buzzmachine
+emulation. I can now handle some more plugins. We need to update and re-run the
+coverage tests to get a clear picture. Regarding wrapper gst-elements we have a
+bug in gstreamer bugzilla that needs some work [1].
+
+I also worked on the UI a bit more. The machine preferences and properties now
+have some reasonable size. Its not easy to get a default size for generated UIs.
+Right now I clamp the height to the screen-height minus some extra. Would be
+nice to have some way to figure how much space one should leave for upper/lower
+panels. I also needed to add a workaround for the window-width wobble. If you
+had sliders with labels in the UI, the width was dependent on the label with.I
+can't really know the maximum width beforehand easily, so I had to set a default
+width. Good enough for now.
+
+I also started two new inerfaces for gstreamer elements. First one is about the
+help documentation of the element. Buzztard can show the docs of buzzmachines or
+the gtk-doc of native element already. The second iface is about the preset
+handling. Implementing that for the buzzmachines is next on the todo list.
+
+Finally I also started to put some gstreamer element check into the core lib.
+During configure we can check for installed elements and it would't make sense
+anyway. So we are going to check for mandatory and optional elements at
+application start. Checking works fine already. Now I need to add the UI dialog
+for the missing elements report.
+
+Have a nice christmas month - we'll get back to you next year.
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=350477
+
 2006/11 ========================================================================
 
 Finally! We did release 0.1 "genesis". In June 2002 we registered the project

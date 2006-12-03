@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.28 2006-12-03 14:03:10 ensonic Exp $
+/* $Id: bt-check.c,v 1.29 2006-12-03 15:26:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -670,7 +670,6 @@ void check_setup_test_server(void) {
     ":9",
     "-ac",
     "-nolisten","tcp",
-    // @todo: xset q | grep fonts
 #ifdef XFONT_PATH
     "-fp", XFONT_PATH, /*"/usr/X11R6/lib/X11/fonts/misc"*/
 #endif
@@ -681,9 +680,6 @@ void check_setup_test_server(void) {
     NULL
   };
   gboolean found=FALSE,trying=TRUE;
-	/* @todo on suse fonts are under : /usr/X11R6/lib/X11/fonts/misc
-   * from configure we now get XVFB_PATH=/usr/X11R6/bin/Xvfb
-   */
 
   server_pid=0;
   display_number=0;

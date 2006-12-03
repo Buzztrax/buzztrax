@@ -1,5 +1,14 @@
 2006-12-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  new news
+
+	* tests/bt-check.c: (check_setup_test_server):
+	* tests/m-bt-edit.c: (main):
+	  first launch xvfb and then init gtk
+
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* tests/bt-check.c: (check_setup_test_server):
 	  handle xfont-path better (needs xset, but only works if x runs)
