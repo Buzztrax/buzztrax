@@ -1,5 +1,18 @@
 2006-12-03  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/core.c: (bt_init_check):
+	  fix mem-leak
+
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing), (bt_edit_application_run_ui),
+	(bt_edit_application_load_song):
+	  add element check and warning dialog
+
+	* tests/bt-check.c: (check_setup_test_server):
+	  add more logging
+
+2006-12-03  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  new news
 

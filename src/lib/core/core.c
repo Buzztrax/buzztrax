@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.29 2006-12-03 13:28:29 ensonic Exp $
+/* $Id: core.c,v 1.30 2006-12-03 19:14:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -185,9 +185,11 @@ gboolean bt_init_check(int *argc, char **argv[], GError **err) {
     GList *missing;
 
     if((missing=bt_gst_check_core_elements())) {
-      for(;missing;missing=g_list_next(missing)) {
-        GST_WARNING("missing core element '%s'",(gchar *)missing->data);
+      GList *node;
+      for(node=missing;node;node=g_list_next(node)) {
+        GST_WARNING("missing core element '%s'",(gchar *)node->data);
       }
+      g_list_free(missing);
     }
     
     bt_initialized=TRUE;

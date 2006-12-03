@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.82 2006-12-03 13:28:29 ensonic Exp $
+/* $Id: edit-application.c,v 1.83 2006-12-03 19:14:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -85,6 +85,175 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
 
 //-- helper methods
 
+/*
+ * bt_edit_application_check_missing:
+ * @self: the edit application
+ *
+ * Run gstreamer element checks. If elements are missing, if shows a dialog with
+ * element-names and brief description what will not work.
+ *
+ * Returns: %TRUE is no critical elements are missing
+ */
+static gboolean bt_edit_application_check_missing(const BtEditApplication *self) {
+  GList *missing_core_elements,*missing_edit_elements=NULL,*missing_elements;
+  GList *edit_elements=NULL;
+  gboolean res=TRUE,missing=FALSE;
+
+  if((missing_core_elements=bt_gst_check_core_elements())) {
+    missing=TRUE;res=FALSE;
+  }
+  // @todo check 'formats' -> rendering (core?)
+  edit_elements=g_list_prepend(NULL,"level");
+  if((missing_elements=bt_gst_check_elements(edit_elements))) {
+    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
+    missing_edit_elements=g_list_append(missing_edit_elements,_("-> You will not see any level-meters."));
+    missing=TRUE;
+  }
+  g_list_free(edit_elements);
+  edit_elements=g_list_prepend(NULL,"spectrum");
+  if((missing_elements=bt_gst_check_elements(edit_elements))) {
+    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
+    missing_edit_elements=g_list_append(missing_edit_elements,_("-> You will not see the frequency spectrum in the analyzer window."));
+    missing=TRUE;
+  }
+  g_list_free(edit_elements);
+  // DEBUG test if it works
+#if 0
+  edit_elements=g_list_prepend(NULL,"ploink");
+  if((missing_elements=bt_gst_check_elements(edit_elements))) {
+    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
+    missing_edit_elements=g_list_append(missing_edit_elements,"-> You will not be able to ploink.");
+    missing=TRUE;
+  }
+  g_list_free(edit_elements);  
+  edit_elements=g_list_prepend(NULL,"grummel");
+  edit_elements=g_list_prepend(edit_elements,"groll");
+  if((missing_elements=bt_gst_check_elements(edit_elements))) {
+    missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
+    missing_edit_elements=g_list_append(missing_edit_elements,"-> You will not be able to grummel and groll.");
+    missing=TRUE;
+  }
+  g_list_free(edit_elements);
+#endif
+  // DEBUG
+  // show missing dialog
+  if(missing) {
+    /* @todo add checkbox 'don't show again'
+     * if only non-critical elements are missing
+     */
+    GtkWidget *label,*icon,*hbox,*vbox;
+    gchar *str; 
+    GtkWidget *dialog;
+
+    dialog = gtk_dialog_new_with_buttons(_("Missing GStreamer elements"),
+                                          GTK_WINDOW(self->priv->main_window),
+                                          GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                          NULL);
+  
+    hbox=gtk_hbox_new(FALSE,12);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
+  
+    icon=gtk_image_new_from_stock(res?GTK_STOCK_DIALOG_WARNING:GTK_STOCK_DIALOG_ERROR,GTK_ICON_SIZE_DIALOG);
+    gtk_container_add(GTK_CONTAINER(hbox),icon);
+    
+    vbox=gtk_vbox_new(FALSE,6);
+    label=gtk_label_new(NULL);
+    str=g_strdup_printf("<big><b>%s</b></big>",_("Missing GStreamer elemnts"));
+    gtk_label_set_markup(GTK_LABEL(label),str);
+    gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
+    g_free(str);
+    gtk_container_add(GTK_CONTAINER(vbox),label);
+    if(missing_core_elements) {
+      GList *node;
+      GtkWidget *missing_list, *missing_list_view;
+      gchar *missing_text,*ptr;
+      gint length=0;
+      
+      label=gtk_label_new(_("The elements listed below are missing from you installation, but are required."));
+      gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
+      gtk_container_add(GTK_CONTAINER(vbox),label);
+      
+      for(node=missing_core_elements;node;node=g_list_next(node)) {
+        length+=2+strlen((gchar *)(node->data));
+      }
+      ptr=missing_text=g_malloc(length);
+      for(node=missing_core_elements;node;node=g_list_next(node)) {
+        length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
+        ptr=&ptr[length];
+      }
+      
+      missing_list = gtk_text_view_new();
+      gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
+      gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(missing_list), GTK_WRAP_WORD);
+      gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
+      gtk_widget_show(missing_list);
+      g_free(missing_text);
+    
+      missing_list_view = gtk_scrolled_window_new(NULL, NULL);
+      gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+      gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
+      gtk_widget_show(missing_list_view);
+      gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
+    }
+    if(missing_edit_elements) {
+      GList *node;
+      GtkWidget *missing_list, *missing_list_view;
+      gchar *missing_text,*ptr;
+      gint length=0;
+      
+      label=gtk_label_new(_("The elements listed below are missing from you installation, but are recommended for full functionality."));
+      gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
+      gtk_container_add(GTK_CONTAINER(vbox),label);
+
+      for(node=missing_edit_elements;node;node=g_list_next(node)) {
+        length+=2+strlen((gchar *)(node->data));
+      }
+      ptr=missing_text=g_malloc(length);
+      for(node=missing_edit_elements;node;node=g_list_next(node)) {
+        length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
+        ptr=&ptr[length];
+      }
+      
+      missing_list = gtk_text_view_new();
+      gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
+      gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
+      gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(missing_list), GTK_WRAP_WORD);
+      gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
+      gtk_widget_show(missing_list);
+      g_free(missing_text);
+    
+      missing_list_view = gtk_scrolled_window_new(NULL, NULL);
+      gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
+      gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+      gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
+      gtk_widget_show(missing_list_view);
+      gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);        
+    }
+    gtk_container_add(GTK_CONTAINER(hbox),vbox);
+    gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
+    gtk_widget_show_all(dialog);
+                                                    
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+  }
+  g_list_free(missing_core_elements);
+  g_list_free(missing_edit_elements);
+  return(res);
+}
+
+/*
+ * bt_edit_application_run_ui:
+ * @self: the edit application
+ *
+ * Run the user interface. This checks if the users runs a new version for the
+ * first time. In this case it show the about dialog. It also runs the gstreamer
+ * element checks.
+ *
+ * Returns: %TRUE for success
+ */
 static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   BtSettings *settings;
   guint version;
@@ -107,14 +276,12 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   }  
   g_object_unref(settings);
   
-  /* @todo: check for missing elements -> move to extra module
-  if((core_element=bt_gst_check_core_elements(void))) {
+  // check for missing elements
+  if((res=bt_edit_application_check_missing(self))) {
+    res=bt_main_window_run(self->priv->main_window);
   }
-  */
-  
-  res=bt_main_window_run(self->priv->main_window);
 
-  GST_INFO("application.run_ui finished");
+  GST_INFO("application.run_ui finished : %d",res);
   return(res);
 }
 
@@ -345,7 +512,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                 label=gtk_label_new(_("The waves listed below are missing or failed to load."));
                 gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
                 gtk_container_add(GTK_CONTAINER(vbox),label);
-      
+
                 for(node=missing_waves;node;node=g_list_next(node)) {
                   length+=2+strlen((gchar *)(node->data));
                 }
