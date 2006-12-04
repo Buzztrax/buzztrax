@@ -1,3 +1,11 @@
+2006-12-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/settings.c:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+	  check if machine implements preset iface
+
 2006-12-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/core.c: (bt_init_check):

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.53 2006-12-03 13:28:29 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.54 2006-12-04 21:18:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -505,11 +505,13 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   box=gtk_vbox_new(FALSE,12);
   //gtk_container_set_border_width(GTK_CONTAINER(box),6);
   
-  // @todo add preset controls (combobox, edit button, copy, random, help)
-  gtk_box_pack_start(GTK_BOX(box),gtk_label_new("no preset selection here yet"),FALSE,FALSE,0);
+  if(GST_IS_PRESET(machine)) {
+    // @todo add preset controls (combobox, edit button, copy, random, help)
+    gtk_box_pack_start(GTK_BOX(box),gtk_label_new("no preset selection yet"),FALSE,FALSE,0);
 
-  // add separator
-  gtk_box_pack_start(GTK_BOX(box),gtk_hseparator_new(),FALSE,FALSE,0);
+    // add separator
+    gtk_box_pack_start(GTK_BOX(box),gtk_hseparator_new(),FALSE,FALSE,0);
+  }
 
   GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,voices);
 

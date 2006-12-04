@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.30 2006-12-03 13:28:29 ensonic Exp $
+/* $Id: settings.c,v 1.31 2006-12-04 21:18:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,7 +30,9 @@
  *
  * In any case it is always sufficient to talk to this class instance.
  * Single settings are accessed via normat g_object_get() and g_object_set() calls.
- */ 
+ */
+/* @todo: how can we decouple application specific settings?
+ */
 #define BT_CORE
 #define BT_SETTINGS_C
 
