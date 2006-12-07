@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.54 2006-12-04 21:18:19 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.55 2006-12-07 21:28:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,6 +48,8 @@ struct _BtMachinePropertiesDialogPrivate {
 
   /* the underlying machine */
   BtMachine *machine;
+  
+  GtkWidget *main_toolbar,*preset_toolbar;
   
   /* widgets and their handlers */
   //GtkWidget *widgets;
@@ -294,6 +296,33 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
 }
 
+static void on_toolbar_help_clicked(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GstElement *machine;
+
+  g_assert(user_data);
+
+  // show help for machine
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
+  bt_machine_action_help(machine);
+  gst_object_unref(machine);
+}
+
+static void on_toolbar_about_clicked(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  BtMainWindow *main_window;
+  GstElement *machine;
+  
+  g_assert(user_data);
+
+  GST_INFO("context_menu about event occurred");
+  // show info about machine
+  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  bt_machine_action_about(machine,main_window);
+  g_object_unref(main_window);
+  gst_object_unref(machine);
+}
 
 //-- helper methods
 
@@ -465,8 +494,10 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
-  GtkWidget *box,*vbox,*expander,*label,*table,*scrolled_window;
+  GtkWidget *param_box,*vbox,*hbox;
+  GtkWidget *expander,*label,*table,*scrolled_window;
   GtkWidget *widget1,*widget2;
+  GtkWidget *tool_item;
   GtkTooltips *tips=gtk_tooltips_new();
   gchar *id,*title;
   GdkPixbuf *window_icon=NULL;
@@ -502,16 +533,61 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   g_free(id);g_free(title);
     
   // add widgets to the dialog content area
-  box=gtk_vbox_new(FALSE,12);
-  //gtk_container_set_border_width(GTK_CONTAINER(box),6);
-  
+  // should we use a hpaned or hbox for the presets?
+  hbox=gtk_hbox_new(FALSE,12);
+  param_box=gtk_vbox_new(FALSE,12);
+  //gtk_container_set_border_width(GTK_CONTAINER(param_box),6);
+  gtk_box_pack_start(GTK_BOX(hbox),param_box,TRUE,TRUE,0);
+   
+  // create preset pane
   if(GST_IS_PRESET(machine)) {
-    // @todo add preset controls (combobox, edit button, copy, random, help)
-    gtk_box_pack_start(GTK_BOX(box),gtk_label_new("no preset selection yet"),FALSE,FALSE,0);
+    GtkWidget *preset_box=NULL;
+    // DEBUG trigger preset loading
+    GList *presets=gst_preset_get_preset_names(GST_PRESET(machine));
+    
+    // @todo: add preset controls toolbar (+,-,...)
 
-    // add separator
-    gtk_box_pack_start(GTK_BOX(box),gtk_hseparator_new(),FALSE,FALSE,0);
+    // @todo: add preset list
+    
+    gtk_box_pack_start(GTK_BOX(hbox),preset_box,TRUE,TRUE,0);
+    g_list_free(presets);
   }
+
+  // create toolbar
+  self->priv->main_toolbar=gtk_toolbar_new();
+  /* @todo: let settings control toolbar style
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  on_toolbar_style_changed(settings,NULL,(gpointer)self);
+  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+  g_object_unref(settings);
+  */
+
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ABOUT));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Info about this machine"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_about_clicked),(gpointer)self);
+
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_HELP));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Help for this machine"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  if(!GST_IS_HELP(machine)) {
+    gtk_widget_set_sensitive(tool_item,FALSE);
+  }
+  else {
+    g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_help_clicked),(gpointer)self);
+  }
+
+  tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_INDEX));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Show/Hide preset pane"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  if(!GST_IS_PRESET(machine)) {
+    gtk_widget_set_sensitive(tool_item,FALSE);
+  }
+  else {
+    //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
+  }
+
+  gtk_box_pack_start(GTK_BOX(param_box),self->priv->main_toolbar,FALSE,FALSE,0);
 
   GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,voices);
 
@@ -522,7 +598,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
     vbox=gtk_vbox_new(FALSE,0);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),vbox);
-    gtk_box_pack_start(GTK_BOX(box),scrolled_window,TRUE,TRUE,0);
+    gtk_box_pack_start(GTK_BOX(param_box),scrolled_window,TRUE,TRUE,0);
     g_signal_connect(G_OBJECT(vbox),"size-request",G_CALLBACK(on_box_size_request),(gpointer)scrolled_window);
 
     if(global_params) {
@@ -734,9 +810,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     }
   }
   else {
-    gtk_container_add(GTK_CONTAINER(box),gtk_label_new(_("machine has no params")));
+    gtk_container_add(GTK_CONTAINER(param_box),gtk_label_new(_("machine has no params")));
   }
-  gtk_container_add(GTK_CONTAINER(self),box);
+  gtk_container_add(GTK_CONTAINER(self),hbox);
   
   g_object_try_unref(machine);
   g_object_try_unref(main_window);

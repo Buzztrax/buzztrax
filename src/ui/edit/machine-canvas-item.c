@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.73 2006-11-12 18:51:31 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.74 2006-12-07 21:28:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -393,69 +393,30 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 }
 
 static void on_context_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
-#ifdef USE_GNOME
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   GstElement *machine;
-  GError *error=NULL;
-  gchar *uri;
-#endif
 
   g_assert(user_data);
 
   // show help for machine
-#ifdef USE_GNOME
   g_object_get(self->priv->machine,"machine",&machine,NULL);
-  g_object_get(machine,"documentation-uri",&uri,NULL);
+  bt_machine_action_help(machine);
   gst_object_unref(machine);
-  
-  GST_INFO("context_menu help event occurred : %s",uri);
-
-  if(!gnome_url_show(uri, &error)) {
-    GST_WARNING("Failed to display help: %s\n",error->message);
-    g_error_free(error);
-  }
-#else
-    GST_INFO("context_menu help event occurred");
-#endif
 }
 
 static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
+  BtMainWindow *main_window;
   GstElement *machine;
-  GstElementFactory *element_factory;
   
   g_assert(user_data);
 
   GST_INFO("context_menu about event occurred");
   // show info about machine
-  g_object_get(self->priv->machine,"machine",&machine,NULL);
-  
-  if((element_factory=gst_element_get_factory(machine))) {
-    const gchar *element_longname=gst_element_factory_get_longname(element_factory);
-    const gchar *element_author=gst_element_factory_get_author(element_factory);
-    const gchar *element_description=gst_element_factory_get_description(element_factory);
-    BtMainWindow *main_window;
-    gchar *str,*str_author;
-
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    
-    str_author=g_markup_escape_text(element_author,strlen(element_author));
-    // add a '\n' after each ',' to nicely format the message_box
-    str=str_author;
-    while((str=strchr(str,','))) {
-      str++;
-      if(*str==' ') *str='\n';
-    }
-    
-    str=g_strdup_printf(
-      _("by %s\n\n%s"),
-      str_author,element_description
-    );
-    bt_dialog_message(main_window,_("About ..."),element_longname,str);
-    
-    g_free(str);g_free(str_author);
-    g_object_try_unref(main_window);
-  }
+  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  bt_machine_action_about(machine,main_window);
+  g_object_unref(main_window);
   gst_object_unref(machine);
 }
 
