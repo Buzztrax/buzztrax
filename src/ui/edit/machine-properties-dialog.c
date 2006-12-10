@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.55 2006-12-07 21:28:22 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.56 2006-12-10 16:18:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -50,6 +50,8 @@ struct _BtMachinePropertiesDialogPrivate {
   BtMachine *machine;
   
   GtkWidget *main_toolbar,*preset_toolbar;
+  GtkWidget *preset_box;
+  GtkWidget *preset_list;
   
   /* widgets and their handlers */
   //GtkWidget *widgets;
@@ -63,6 +65,89 @@ static GtkDialogClass *parent_class=NULL;
 
 static GQuark range_label_quark=0;
 static GQuark range_parent_quark=0;
+
+//-- event handler helper
+
+static void on_text_changed(GtkEditable *editable,gpointer user_data) {
+  GST_INFO("preset text changed");
+  if(user_data) {
+    gchar **target=(gchar **)user_data;
+
+    if(*target) g_free(*target);
+    *target=g_strdup(gtk_entry_get_text(GTK_ENTRY(editable)));
+    GST_INFO("  -> '%s'",*target);
+  }
+}
+
+static gboolean preset_list_edit_preset_meta(BtMainWindow *main_window,gchar **name,gchar **comment) {
+  gboolean result=FALSE;
+  gint answer;
+  GtkWidget *label,*widget,*table;
+  GtkWidget *dialog;
+
+  dialog = gtk_dialog_new_with_buttons(_("Preset name and comment"),
+                                        GTK_WINDOW(main_window),
+                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
+                                        GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
+                                        NULL);
+
+  table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
+
+  // GtkEntry : preset name
+  label=gtk_label_new(_("name"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
+  widget=gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY(widget),*name);
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_text_changed), (gpointer)name);
+  
+  // GtkEntry : preset comment
+  label=gtk_label_new(_("comment"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  widget=gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY(widget),*comment);
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_text_changed), (gpointer)comment);
+  
+  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),table);
+  gtk_widget_show_all(dialog);
+                                                  
+  answer=gtk_dialog_run(GTK_DIALOG(dialog));
+  switch(answer) {
+    case GTK_RESPONSE_ACCEPT:
+      result=TRUE;
+      break;
+    case GTK_RESPONSE_REJECT:
+      result=FALSE;
+      break;
+    default:
+      GST_WARNING("unhandled response code = %d",answer);
+  }
+  gtk_widget_destroy(dialog);
+  return(result);
+}
+
+static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
+  GstElement *machine;
+  GtkListStore *store;
+  GtkTreeIter tree_iter;
+  GList *presets,*node;
+
+  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  presets=gst_preset_get_preset_names(GST_PRESET(machine));
+  
+  store=gtk_list_store_new(1,G_TYPE_STRING);
+  for(node=presets;node;node=g_list_next(node)) {
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,node->data,-1);
+  }
+  gtk_tree_view_set_model(GTK_TREE_VIEW(self->priv->preset_list),GTK_TREE_MODEL(store));
+  g_object_unref(store); // drop with treeview
+  gst_object_unref(machine);
+}
 
 //-- event handler
 
@@ -296,7 +381,7 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
 }
 
-static void on_toolbar_help_clicked(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_toolbar_help_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GstElement *machine;
 
@@ -308,7 +393,7 @@ static void on_toolbar_help_clicked(GtkMenuItem *menuitem,gpointer user_data) {
   gst_object_unref(machine);
 }
 
-static void on_toolbar_about_clicked(GtkMenuItem *menuitem,gpointer user_data) {
+static void on_toolbar_about_clicked(GtkButton *button,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   BtMainWindow *main_window;
   GstElement *machine;
@@ -322,6 +407,132 @@ static void on_toolbar_about_clicked(GtkMenuItem *menuitem,gpointer user_data) {
   bt_machine_action_about(machine,main_window);
   g_object_unref(main_window);
   gst_object_unref(machine);
+}
+
+static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+
+  g_assert(user_data);
+
+  if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
+    gtk_widget_show(self->priv->preset_box);
+  }
+  else {
+    gtk_widget_hide(self->priv->preset_box);
+  }
+}
+
+static void on_toolbar_preset_add_clicked(GtkButton *button,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  BtMainWindow *main_window;
+  GstElement *machine;
+  gchar *name=NULL,*comment=NULL;
+  
+  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  
+  GST_INFO("about to add a new preset : '%s'",name);
+  
+  // ask for name & comment
+  if(preset_list_edit_preset_meta(main_window,&name,&comment)) {  
+    //gst_preset_save_preset(GST_PRESET(machine),name,comment);
+    preset_list_refresh(self);
+  }
+  g_object_unref(main_window);
+  gst_object_unref(machine);
+}
+
+static void on_toolbar_preset_remove_clicked(GtkButton *button,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkTreeSelection *selection;
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  
+  // get current preset from list
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    gchar *name;
+    GstElement *machine;
+
+    gtk_tree_model_get(model,&iter,0,&name,-1);
+    g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+  
+    GST_INFO("about to delete preset : '%s'",name);
+    //gst_preset_delete_preset(GST_PRESET(machine),name);
+    preset_list_refresh(self);
+    gst_object_unref(machine);
+  }
+}
+
+static void on_toolbar_preset_edit_clicked(GtkButton *button,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkTreeSelection *selection;
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  
+  // get current preset from list
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    gchar *old_name,*new_name,*comment;
+    BtMainWindow *main_window;
+    GstElement *machine;
+
+    gtk_tree_model_get(model,&iter,0,&old_name,-1);
+
+    g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    
+    GST_INFO("about to edit preset : '%s'",old_name);
+    
+    new_name=g_strdup(old_name);
+    // change for name & comment
+    if(preset_list_edit_preset_meta(main_window,&new_name,&comment)) {  
+      //gst_preset_rename_preset(GST_PRESET(machine),old_name,new_name,comment);
+      //gst_preset_set_meta(GST_PRESET(machine),new_name,"comment",comment);
+      preset_list_refresh(self);
+    }
+    g_free(old_name);
+    g_object_unref(main_window);
+    gst_object_unref(machine);
+  }
+}
+
+static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  gchar *toolbar_style;
+  
+  g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
+  
+  GST_INFO("!!!  toolbar style has changed '%s'",toolbar_style);
+  gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->main_toolbar),gtk_toolbar_get_style_from_string(toolbar_style));
+  if(self->priv->preset_toolbar) {
+    gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->preset_toolbar),gtk_toolbar_get_style_from_string(toolbar_style));
+  }
+  g_free(toolbar_style);
+}
+
+/*
+ * on_box_size_request:
+ *
+ * we adjust the scrollable-window size to contain the whole area
+ */
+static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
+  GtkWidget *parent=GTK_WIDGET(user_data);
+  gint height=requisition->height,width=-1;
+  gint max_height=gdk_screen_get_height(gdk_screen_get_default());
+
+  GST_INFO("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
+  // have a minimum width
+  if(requisition->width<250) {
+    width=250;
+  }
+  // constrain the height by screen height
+  if(height>max_height) {
+    // lets hope that 32 gives enough space for window-decoration + panels
+    height=max_height-32;
+  }
+  // @todo: is the '2' some border or padding
+  gtk_widget_set_size_request(parent,width,height + 2);
 }
 
 //-- helper methods
@@ -468,28 +679,66 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   return(widget);
 }
 
-/*
- * on_box_size_request:
- *
- * we adjust the scrollable-window size to contain the whole area
- */
-static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
-  GtkWidget *parent=GTK_WIDGET(user_data);
-  gint height=requisition->height,width=-1;
-  gint max_height=gdk_screen_get_height(gdk_screen_get_default());
 
-  GST_INFO("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
-  // have a minimum width
-  if(requisition->width<250) {
-    width=250;
+static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachinePropertiesDialog *self) {
+  GtkTooltips *tips=gtk_tooltips_new();
+  GtkWidget *scrolled_window;
+  GtkWidget *tool_item;
+  GtkTreeSelection *tree_sel;
+  GtkCellRenderer *renderer;
+  GtkTreeViewColumn *tree_col;
+
+  self->priv->preset_box=gtk_vbox_new(FALSE,0);
+
+  // add more preset controls toolbar
+  self->priv->preset_toolbar=gtk_toolbar_new();
+
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ADD));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Add new preset"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_add_clicked),(gpointer)self);
+
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_REMOVE));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Remove preset"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_remove_clicked),(gpointer)self);
+  
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_EDIT));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Edit preset name and comment"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
+  
+  gtk_box_pack_start(GTK_BOX(self->priv->preset_box),self->priv->preset_toolbar,FALSE,FALSE,0);
+
+  // add preset list
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_IN);
+  self->priv->preset_list=gtk_tree_view_new();
+  g_object_set(self->priv->preset_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
+  tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
+  gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
+  //we need to check for double-clicks to load presets
+  //g_signal_connect(G_OBJECT(self->priv->preset_list), "button-press-event", G_CALLBACK(on_preset_list_button_press_event), (gpointer)self);
+
+  // add cell renderers
+  renderer=gtk_cell_renderer_text_new();
+  g_object_set(G_OBJECT(renderer),"xalign",0.0,NULL);
+  if((tree_col=gtk_tree_view_column_new_with_attributes(_("Preset"),renderer,"text",0,NULL))) {
+    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",100,NULL);
+    gtk_tree_view_insert_column(GTK_TREE_VIEW(self->priv->preset_list),tree_col,-1);
   }
-  // constrain the height by screen height
-  if(height>max_height) {
-    // lets hope that 32 gives enough space for window-decoration + panels
-    height=max_height-32;
-  }
-  // @todo: is the '2' some border or padding
-  gtk_widget_set_size_request(parent,width,height + 2);
+  else GST_WARNING("can't create treeview column");
+  
+  // add list data
+  preset_list_refresh(self);
+
+  gtk_container_add(GTK_CONTAINER(scrolled_window),self->priv->preset_list);
+  gtk_box_pack_start(GTK_BOX(self->priv->preset_box),GTK_WIDGET(scrolled_window),TRUE,TRUE,0);
+  
+  // the list is static, don't free
+  //g_list_free(presets);
+  return(TRUE);
 }
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
@@ -506,8 +755,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GValue *range_min,*range_max;
   GType param_type,base_type;
   GstElement *machine;
+  BtSettings *settings;
   
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
 
   // create and set window icon
@@ -535,32 +785,19 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   // add widgets to the dialog content area
   // should we use a hpaned or hbox for the presets?
   hbox=gtk_hbox_new(FALSE,12);
-  param_box=gtk_vbox_new(FALSE,12);
+  param_box=gtk_vbox_new(FALSE,0);
   //gtk_container_set_border_width(GTK_CONTAINER(param_box),6);
   gtk_box_pack_start(GTK_BOX(hbox),param_box,TRUE,TRUE,0);
    
   // create preset pane
   if(GST_IS_PRESET(machine)) {
-    GtkWidget *preset_box=NULL;
-    // DEBUG trigger preset loading
-    GList *presets=gst_preset_get_preset_names(GST_PRESET(machine));
-    
-    // @todo: add preset controls toolbar (+,-,...)
-
-    // @todo: add preset list
-    
-    gtk_box_pack_start(GTK_BOX(hbox),preset_box,TRUE,TRUE,0);
-    g_list_free(presets);
+    if(bt_machine_properties_dialog_init_preset_box(self)) {
+      gtk_box_pack_end(GTK_BOX(hbox),self->priv->preset_box,TRUE,TRUE,0);
+    }
   }
 
   // create toolbar
   self->priv->main_toolbar=gtk_toolbar_new();
-  /* @todo: let settings control toolbar style
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  on_toolbar_style_changed(settings,NULL,(gpointer)self);
-  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
-  g_object_unref(settings);
-  */
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ABOUT));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Info about this machine"),NULL);
@@ -577,6 +814,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_help_clicked),(gpointer)self);
   }
 
+  // @todo: add copy/paste buttons
+  
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_INDEX));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Show/Hide preset pane"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
@@ -584,8 +823,13 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     gtk_widget_set_sensitive(tool_item,FALSE);
   }
   else {
-    //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
+    gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool_item),TRUE);
+    g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
   }
+
+  // let settings control toolbar style
+  on_toolbar_style_changed(settings,NULL,(gpointer)self);
+  g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(param_box),self->priv->main_toolbar,FALSE,FALSE,0);
 
@@ -816,6 +1060,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   
   g_object_try_unref(machine);
   g_object_try_unref(main_window);
+  g_object_try_unref(settings);
   return(TRUE);
 }
 
