@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.74 2006-12-07 21:28:22 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.75 2006-12-14 05:32:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -732,16 +732,20 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   // the name label
   self->priv->label=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_TEXT,
-                           "x", +(MACHINE_VIEW_MACHINE_SIZE_X/10.0),
-                           "y", -MACHINE_VIEW_MACHINE_SIZE_Y-1+fh,
-                           "justification", GTK_JUSTIFY_CENTER,
-                           "font", "helvetica",  /* test if this ensures equal sizes among systems */
+                           /* can we use the x-anchor to position left ? */
+                           "x", +(w*0.2),
+                           /*"x-offset",-(w*0.1),*/
+                           "y", -h-1+fh,
+                           "justification", GTK_JUSTIFY_LEFT,
+                           /* test if this ensures equal sizes among systems,
+                            * maybe we should leave it blank */
+                           "font", "helvetica",
                            "size-points", fh,
                            "size-set", TRUE,
                            "text", id,
                            "fill-color", "black",
                            "clip", TRUE,
-                           "clip-width",w+w,
+                           "clip-width",(w+w)*0.80,
                            "clip-height",h+h,
                            NULL);
   g_free(id);

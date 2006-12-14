@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.222 2006-10-16 12:47:27 ensonic Exp $
+/* $Id: machine.c,v 1.223 2006-12-14 05:32:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -578,11 +578,16 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
 static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamSpec * const property, const GQuark key) {
   gboolean res=TRUE;
   gconstpointer const qdata=g_param_spec_get_qdata(property,key);
+  GType param_type,base_type;
 
   if(!qdata) return(FALSE);
 
   g_value_init(value,property->value_type);
-  switch(property->value_type) {
+
+  param_type=property->value_type;
+  while((base_type=g_type_parent(param_type))) param_type=base_type;
+
+  switch(param_type) {
     case G_TYPE_BOOLEAN:
       g_value_set_boolean(value,GPOINTER_TO_INT(qdata));
       break;
@@ -591,6 +596,9 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
       break;
     case G_TYPE_UINT:
       g_value_set_uint(value,GPOINTER_TO_UINT(qdata));
+      break;
+    case G_TYPE_ENUM:
+      g_value_set_enum(value,GPOINTER_TO_INT(qdata));
       break;
     case G_TYPE_STRING:
       g_value_set_string(value,qdata);

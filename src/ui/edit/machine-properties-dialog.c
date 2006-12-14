@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.56 2006-12-10 16:18:35 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.57 2006-12-14 05:32:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -163,7 +163,7 @@ static gchar* on_int_range_global_property_format_value(GtkScale *scale, gdouble
   glong index=bt_machine_get_global_param_index(machine,name,NULL);
   GValue int_value={0,};
   gchar *str=NULL;
-  
+
   g_value_init(&int_value,G_TYPE_INT);
   g_value_set_int(&int_value,(gint)value);
   if(!(str=bt_machine_describe_global_param_value(machine,index,&int_value))) {
@@ -231,7 +231,9 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
 
 static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   GtkWidget *widget=GTK_WIDGET(user_data);
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
   gdouble value;
+  gchar str[30];
   
   g_assert(user_data);
   //GST_INFO("property value notify received : %s ",property->name);
@@ -240,6 +242,8 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
   gtk_range_set_value(GTK_RANGE(widget),value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
+  g_sprintf(str,"%lf",value);
+  gtk_label_set_text(label,str);
 }
 
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -261,15 +265,24 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
 
 static void on_int_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   GtkWidget *widget=GTK_WIDGET(user_data);
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),range_parent_quark));
   gint value;
-  
+
   g_assert(user_data);
-  //GST_INFO("property value notify received : %s ",property->name);
 
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  //GST_INFO("property value notify received : %s => : %d",property->name,value);
+
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
   gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_int_range_property_changed,(gpointer)machine);
+  if(GST_IS_ELEMENT(machine)) {
+    gtk_label_set_text(label,on_int_range_global_property_format_value(GTK_SCALE(widget),(gdouble)value,(gpointer)self->priv->machine));
+  }
+  else {
+    gtk_label_set_text(label,on_int_range_voice_property_format_value(GTK_SCALE(widget),(gdouble)value,(gpointer)self->priv->machine));
+  }
 }
 
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -295,6 +308,8 @@ static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
 
 static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   GtkWidget *widget=GTK_WIDGET(user_data);
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),range_parent_quark));
   guint value;
   
   g_assert(user_data);
@@ -304,6 +319,12 @@ static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
   gtk_range_set_value(GTK_RANGE(widget),(gdouble)value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_changed,(gpointer)machine);
+  if(GST_IS_ELEMENT(machine)) {
+    gtk_label_set_text(label,on_uint_range_global_property_format_value(GTK_SCALE(widget),value,(gpointer)self->priv->machine));
+  }
+  else {
+    gtk_label_set_text(label,on_uint_range_voice_property_format_value(GTK_SCALE(widget),value,(gpointer)self->priv->machine));
+  }
 }
 
 static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
@@ -492,6 +513,39 @@ static void on_toolbar_preset_edit_clicked(GtkButton *button,gpointer user_data)
       preset_list_refresh(self);
     }
     g_free(old_name);
+    g_object_unref(main_window);
+    gst_object_unref(machine);
+  }
+}
+
+static void on_toolbar_preset_random_clicked(GtkButton *button,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GstElement *machine;
+
+  g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL); 
+  gst_preset_create_preset(GST_PRESET(machine));
+  gst_object_unref(machine);
+}
+
+static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GtkTreeModel *model;
+  GtkTreeIter iter;
+  
+  // get current preset from list
+  model=gtk_tree_view_get_model(tree_view);
+  if(gtk_tree_model_get_iter(model,&iter,path)) {
+    gchar *name;
+    BtMainWindow *main_window;
+    GstElement *machine;
+
+    gtk_tree_model_get(model,&iter,0,&name,-1);
+
+    g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    
+    GST_INFO("about to load preset : '%s'",name);
+    gst_preset_load_preset(GST_PRESET(machine),name);
     g_object_unref(main_window);
     gst_object_unref(machine);
   }
@@ -690,7 +744,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
 
   self->priv->preset_box=gtk_vbox_new(FALSE,0);
 
-  // add more preset controls toolbar
+  // add preset controls toolbar
   self->priv->preset_toolbar=gtk_toolbar_new();
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ADD));
@@ -708,6 +762,11 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
   
+  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Generate and load random preset"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_random_clicked),(gpointer)self);  
+  
   gtk_box_pack_start(GTK_BOX(self->priv->preset_box),self->priv->preset_toolbar,FALSE,FALSE,0);
 
   // add preset list
@@ -718,14 +777,13 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   g_object_set(self->priv->preset_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
-  //we need to check for double-clicks to load presets
-  //g_signal_connect(G_OBJECT(self->priv->preset_list), "button-press-event", G_CALLBACK(on_preset_list_button_press_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->preset_list), "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
 
   // add cell renderers
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"xalign",0.0,NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Preset"),renderer,"text",0,NULL))) {
-    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",100,NULL);
+    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",120,NULL);
     gtk_tree_view_insert_column(GTK_TREE_VIEW(self->priv->preset_list),tree_col,-1);
   }
   else GST_WARNING("can't create treeview column");
@@ -888,6 +946,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           // DEBUG
     
           // @todo implement more widget types
+          // @todo why is this no switch/case ?
           if(param_type==G_TYPE_STRING) {
             widget1=gtk_label_new("string");
             widget2=NULL;
@@ -995,6 +1054,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           // DEBUG
 
           // @todo implement more widget types
+          // @todo why is this no switch/case ?
           if(param_type==G_TYPE_STRING) {
             widget1=gtk_label_new("string");
             widget2=NULL;

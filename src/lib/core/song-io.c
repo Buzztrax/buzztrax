@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.61 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: song-io.c,v 1.62 2006-12-14 05:32:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -203,12 +203,12 @@ BtSongIO *bt_song_io_new(const gchar * const file_name) {
 
 //-- methods
 
-static gboolean bt_song_io_real_load(gconstpointer const _self, const BtSong * const song) {
+static gboolean bt_song_io_default_load(gconstpointer const _self, const BtSong * const song) {
   GST_ERROR("virtual method bt_song_io_real_load(self,song) called");
   return(FALSE);  // this is a base class that can't load anything
 }
 
-static gboolean bt_song_io_real_save(gconstpointer const _self, const BtSong * const song) {
+static gboolean bt_song_io_default_save(gconstpointer const _self, const BtSong * const song) {
   GST_ERROR("virtual method bt_song_io_real_save(self,song) called");
   return(FALSE);  // this is a base class that can't save anything
 }
@@ -364,8 +364,8 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
   gobject_class->dispose      = bt_song_io_dispose;
   gobject_class->finalize     = bt_song_io_finalize;
   
-  klass->load           = bt_song_io_real_load;
-  klass->save           = bt_song_io_real_save;
+  klass->load           = bt_song_io_default_load;
+  klass->save           = bt_song_io_default_save;
   
   g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",
