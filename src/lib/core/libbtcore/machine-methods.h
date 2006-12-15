@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.43 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: machine-methods.h,v 1.44 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -43,6 +43,7 @@ extern BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self, con
 extern BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index);
 
 extern gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self);
+extern gboolean bt_machine_has_patterns(const BtMachine * const self);
 
 // global and voice param handling
 

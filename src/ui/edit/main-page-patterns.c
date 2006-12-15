@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.100 2006-09-05 21:41:43 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.101 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -681,6 +681,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   BtMachine *machine=NULL;
   GtkListStore *store;
   GList *node,*list;
+  gint index=-1;
 
   // update machine menu
   store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
@@ -688,11 +689,12 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
   for(node=list;node;node=g_list_next(node)) {
     machine=BT_MACHINE(node->data);
     machine_menu_add(self,machine,store);
+    index++;  // count so that we can activate the last one
   }
   g_list_free(list);
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(machine!=NULL));
   gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->machine_menu,((machine!=NULL)?0:-1));
+  gtk_combo_box_set_active(self->priv->machine_menu,((machine!=NULL)?index:-1));
   g_object_unref(store); // drop with comboxbox
 }
 
@@ -1012,37 +1014,30 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
  * enable/disable context menu items
  */
 static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machine) {
-  GList *list;
-
   if(machine) {
-    gboolean has_patterns=FALSE;
-    g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
-    
-    // @todo: move that to bt-machine.c (vmethod)
-    if(!BT_IS_SINK_MACHINE(machine)) {
-      if(g_list_length(list)>2) has_patterns=TRUE;
-    }
-    else {
-      if(g_list_length(list)>3) has_patterns=TRUE;
-    }
-    g_list_free(list);
+    gboolean has_patterns=bt_machine_has_patterns(machine);
     
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),TRUE);
-    if(bt_machine_is_polyphonic(machine)) {
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),TRUE);
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),TRUE);
-    }
-    else {
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
-    }
     if(has_patterns) {
+      if(bt_machine_is_polyphonic(machine)) {
+        gint voices;
+        
+        g_object_get(machine,"voices",&voices,NULL);
+        gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),TRUE);
+        gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),(voices>0));
+      }
+      else {
+        gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
+        gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
+      }
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),TRUE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),TRUE);
     }
     else {
       GST_INFO("machine has no patterns");
+      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
+      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
       gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),FALSE);
@@ -1051,6 +1046,8 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   else {
     GST_WARNING("no machine, huh?");
     //gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_add),FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_track_remove),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_properties),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_remove),FALSE);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->context_menu_pattern_copy),FALSE);
@@ -1094,6 +1091,7 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
+  gint index;
   
   g_assert(user_data);
   
@@ -1101,16 +1099,18 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   machine_menu_add(self,machine,GTK_LIST_STORE(store));
 
-  if(gtk_tree_model_iter_n_children(store,NULL)==1) {
+  index=gtk_tree_model_iter_n_children(store,NULL);
+  if(index==1) {
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),TRUE);
-    gtk_combo_box_set_active(self->priv->machine_menu,0);
   }
+  gtk_combo_box_set_active(self->priv->machine_menu,index-1);
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
   GtkTreeIter iter;
+  gint index;
   
   g_assert(user_data);
   
@@ -1119,9 +1119,11 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   // get the row where row.machine==machine
   machine_model_get_iter_by_machine(store,&iter,machine);
   gtk_list_store_remove(GTK_LIST_STORE(store),&iter);
-  if(gtk_tree_model_iter_n_children(store,NULL)==0) {
+  index=gtk_tree_model_iter_n_children(store,NULL);
+  if(index==0) {
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),FALSE);
   }
+  gtk_combo_box_set_active(self->priv->machine_menu,index-1);
 }
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
@@ -1214,16 +1216,42 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 }
 
 static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMachine *machine;
+  gint voices;
 
-  // @todo implement track_add
+  g_assert(user_data);
+
+  machine=bt_main_page_patterns_get_current_machine(self);
+  g_return_if_fail(machine);
+  g_object_get(machine,"voices",&voices,NULL);
+  voices++;
+  g_object_set(machine,"voices",voices,NULL);
+
+  pattern_menu_refresh(self,machine);
+  context_menu_refresh(self,machine);
+
+  g_object_unref(machine);
   g_assert(user_data);
 }
 
 static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer user_data) {
-  //BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMachine *machine;
+  gint voices;
 
-  // @todo implement track_remove
+  g_assert(user_data);
+
+  machine=bt_main_page_patterns_get_current_machine(self);
+  g_return_if_fail(machine);
+  g_object_get(machine,"voices",&voices,NULL);
+  voices--;
+  g_object_set(machine,"voices",voices,NULL);
+
+  pattern_menu_refresh(self,machine);
+  context_menu_refresh(self,machine);
+
+  g_object_unref(machine);
   g_assert(user_data);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.30 2006-12-03 19:14:19 ensonic Exp $
+/* $Id: core.c,v 1.31 2006-12-15 06:46:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,6 +30,13 @@
 #define BT_CORE
 #define BT_CORE_C
 #include <libbtcore/core.h>
+
+#ifdef HAVE_SCHED_SETSCHEDULER
+#include <sched.h>
+#if HAVE_MLOCKALL
+#include <sys/mman.h>
+#endif
+#endif
 
 /**
  * bt_major_version:
@@ -101,6 +108,24 @@ static gboolean bt_init_post (void) {
     GST_WARNING("gnome vfs failed to initialize");
     goto Error;
   }
+  
+#ifdef HAVE_SCHED_SETSCHEDULER
+  //http://www.gnu.org/software/libc/manual/html_node/Basic-Scheduling-Functions.html
+  {
+    struct sched_param p={0,};
+
+    p.sched_priority=sched_get_priority_min(SCHED_RR);
+    //p.sched_priority=sched_get_priority_max(SCHED_RR);
+    if(sched_setscheduler(0,SCHED_RR,&p)<0)
+      GST_WARNING("switching scheduler failed: %s",g_strerror(errno));
+    else
+      GST_INFO("switched scheduler");
+#if HAVE_MLOCKALL
+    if(mlockall(MCL_CURRENT)<0)
+      GST_WARNING("locking memory pages failed: %s",g_strerror(errno));
+#endif
+  }
+#endif
   
   res=TRUE;
   

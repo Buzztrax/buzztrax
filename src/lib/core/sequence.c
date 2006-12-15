@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.120 2006-10-15 18:38:21 ensonic Exp $
+/* $Id: sequence.c,v 1.121 2006-12-15 06:46:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -27,7 +27,9 @@
  * sequence (see #BtSequence:loop, #BtSequence:loop-start, #BtSequence:loop-end).
  *
  * The #BtSequence manages the #GstController event queues for the #BtMachines.
- */ 
+ * It uses a damage-repair bases two phase mechanism to update the controller
+ * queues whenever patterns or the sequence changes.
+ */
  
 #define BT_CORE
 #define BT_SEQUENCE_C

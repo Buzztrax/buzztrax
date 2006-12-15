@@ -1,4 +1,4 @@
-/* $Id: e-machine.c,v 1.8 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: e-machine.c,v 1.9 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,6 +35,30 @@ static void test_teardown(void) {
 }
 
 //-- tests
+
+BT_START_TEST(test_btmachine_obj1) {
+  BtApplication *app=NULL;
+  BtSong *song=NULL;
+  BtMachine *machine;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  /* create a new song */
+  song=bt_song_new(app);
+  
+  /* create a machine */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
+  fail_unless(machine != NULL, NULL);
+
+  /* should have no patterns */
+  fail_unless(!bt_machine_has_patterns(machine),NULL);
+
+  g_object_checked_unref(song);
+  g_object_checked_unref(machine);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
 
 /*
  * activate the input level meter in an unconnected machine
@@ -160,6 +184,7 @@ BT_END_TEST
 TCase *bt_machine_example_case(void) {
   TCase *tc = tcase_create("BtMachineExamples");
 
+  tcase_add_test(tc,test_btmachine_obj1);
   tcase_add_test(tc,test_btmachine_enable_input_level1);
   tcase_add_test(tc,test_btmachine_enable_input_level2);
   tcase_add_test(tc,test_btmachine_enable_input_gain1);

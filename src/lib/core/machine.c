@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.223 2006-12-14 05:32:30 ensonic Exp $
+/* $Id: machine.c,v 1.224 2006-12-15 06:46:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -171,6 +171,7 @@ struct _BtMachinePrivate {
   GValue *global_no_val,*voice_no_val;
 
   GList *patterns;  // each entry points to BtPattern
+  guint private_patterns;
   
   /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
@@ -987,6 +988,8 @@ static gboolean bt_machine_setup(BtMachine * const self) {
   // prepare additional internal patterns for the machine and setup elements
   if(klass->setup) {
     (klass->setup)(self);
+    // store number of patterns
+    self->priv->private_patterns=g_list_length(self->priv->patterns);
   }
 
   
@@ -1340,6 +1343,19 @@ gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self) {
   i--;
   
   return(g_strdup_printf("%02u",i));
+}
+
+/**
+ * bt_machine_has_patterns:
+ * @self: the machine for which to check the patterns
+ *
+ * Check if the machine has #BtPattern entries appart from the standart private
+ * ones.
+ *
+ * Returns: %TRUE if it has patterns
+ */
+gboolean bt_machine_has_patterns(const BtMachine * const self) {
+  return(g_list_length(self->priv->patterns)>self->priv->private_patterns);
 }
 
 // global and voice param handling

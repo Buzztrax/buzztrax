@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.50 2006-10-15 18:38:22 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.51 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,11 +21,6 @@
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
- */ 
-
-/* @todo main-statusbar tasks
- * - implement elapsed time
- *
  */
 /* buzz uses 3 time counters 
  * file:///windows/C/Programme/Jeskola/Buzz%20(work)/Help/Files/Time%20Window.htm

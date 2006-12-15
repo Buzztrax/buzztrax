@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.57 2006-12-14 05:32:30 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.58 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,10 +22,6 @@
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
  */ 
-
-/* @todo: try to line-up GtkHScales
- * this need another table column and labels for the scales
- */
 
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
@@ -616,8 +612,6 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   gint value;
   
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  // @todo make it a check box when range ist 0...1 ?
-  // @todo how to detect option menus
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_int(range_min),g_value_get_int(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
@@ -650,8 +644,6 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   gint value;
   
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  // @todo make it a check box when range ist 0...1 ?
-  // @todo how to detect option menus
   //step=(int_property->maximum-int_property->minimum)/1024.0;
   widget=gtk_hscale_new_with_range(g_value_get_uint(range_min),g_value_get_uint(range_max),1.0);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
@@ -944,37 +936,38 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
             g_free(str_min);g_free(str_max);
           }
           // DEBUG
-    
-          // @todo implement more widget types
-          // @todo why is this no switch/case ?
-          if(param_type==G_TYPE_STRING) {
-            widget1=gtk_label_new("string");
-            widget2=NULL;
-          }
-          else if(param_type==G_TYPE_BOOLEAN) {
-            widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
-            widget2=NULL;
-          }
-          else if(param_type==G_TYPE_INT) {
-            widget2=gtk_label_new(NULL);
-            widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-          }
-          else if(param_type==G_TYPE_UINT ) {
-            widget2=gtk_label_new(NULL);
-            widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-          }
-          else if(param_type==G_TYPE_DOUBLE) {
-            widget2=gtk_label_new(NULL);
-            widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-          }
-          else if(param_type==G_TYPE_ENUM) {
-            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
-            widget2=NULL;
-          }
-          else {
-            gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-            widget1=gtk_label_new(str);g_free(str);
-            widget2=NULL;
+
+          // implement widget types
+          switch(param_type) {
+            case G_TYPE_STRING:
+              widget1=gtk_label_new("string");
+              widget2=NULL;
+              break;
+            case G_TYPE_BOOLEAN:
+              widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
+              widget2=NULL;
+              break;
+            case G_TYPE_INT:
+              widget2=gtk_label_new(NULL);
+              widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+             break;
+            case G_TYPE_UINT:
+              widget2=gtk_label_new(NULL);
+              widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+              break;
+            case G_TYPE_DOUBLE:
+              widget2=gtk_label_new(NULL);
+              widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+              break;
+            case G_TYPE_ENUM:
+              widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+              widget2=NULL;
+              break;
+            default: { 
+              gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+              widget1=gtk_label_new(str);g_free(str);
+              widget2=NULL;
+            }
           }
           if(range_min) { g_free(range_min);range_min=NULL; }
           if(range_max) { g_free(range_max);range_max=NULL; }
@@ -1053,36 +1046,37 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
           }
           // DEBUG
 
-          // @todo implement more widget types
-          // @todo why is this no switch/case ?
-          if(param_type==G_TYPE_STRING) {
-            widget1=gtk_label_new("string");
-            widget2=NULL;
-          }
-          else if(param_type==G_TYPE_BOOLEAN) {
-            widget1=make_checkbox_widget(self,machine_voice,property);
-            widget2=NULL;
-          }
-          else if(param_type==G_TYPE_INT ) {
-            widget2=gtk_label_new(NULL);
-            widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          }
-          else if(param_type==G_TYPE_UINT ) {
-            widget2=gtk_label_new(NULL);
-            widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          }
-          else if(param_type==G_TYPE_DOUBLE) {
-            widget2=gtk_label_new(NULL);
-            widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-          }
-          else if(param_type==G_TYPE_ENUM) {
-            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
-            widget2=NULL;
-          }
-          else {
-            gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-            widget1=gtk_label_new(str);g_free(str);
-            widget2=NULL;
+          // implement widget types
+          switch(param_type) {
+            case G_TYPE_STRING:
+              widget1=gtk_label_new("string");
+              widget2=NULL;
+              break;
+            case G_TYPE_BOOLEAN:
+              widget1=make_checkbox_widget(self,machine_voice,property);
+              widget2=NULL;
+              break;
+            case G_TYPE_INT:
+              widget2=gtk_label_new(NULL);
+              widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+              break;
+            case G_TYPE_UINT:
+              widget2=gtk_label_new(NULL);
+              widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+              break;
+            case G_TYPE_DOUBLE:
+              widget2=gtk_label_new(NULL);
+              widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+              break;
+            case G_TYPE_ENUM:
+              widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+              widget2=NULL;
+              break;
+            default: {
+              gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+              widget1=gtk_label_new(str);g_free(str);
+              widget2=NULL;
+            }
           }
           if(range_min) { g_free(range_min);range_min=NULL; }
           if(range_max) { g_free(range_max);range_max=NULL; }

@@ -1,3 +1,49 @@
+2006-12-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/core.c: (bt_init_post):
+	  set scheduler to use soft-realtime scheduling
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/machine.h:
+	* src/lib/core/machine.c: (bt_machine_setup),
+	(bt_machine_has_patterns):
+	  add _has_patterns method
+	
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	  fix detect for saving
+	
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (bt_song_send_tags):
+	  add note about loop playback
+	
+	* src/ui/cmd/cmd-application.c:
+	(bt_cmd_application_prepare_encoding):
+	  set extension to ogg in the default case
+	
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c: (make_int_range_widget),
+	(make_uint_range_widget), (bt_machine_properties_dialog_init_ui):
+	  use switch..case instead of lots of elseif's
+
+	* src/ui/edit/main-page-patterns.c: (machine_menu_refresh),
+	(context_menu_refresh), (on_machine_added), (on_machine_removed),
+	(on_context_menu_track_add_activate),
+	(on_context_menu_track_remove_activate):
+	  implement add/remove of tracks
+
+	* src/ui/edit/main-page-sequence.c: (on_track_add_activated):
+	  update pattern list when adding a machine
+
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-statusbar.c:
+	* tests/lib/core/e-machine.c: (BT_START_TEST),
+	(bt_machine_example_case):
+	* tests/lib/core/e-pattern.c: (BT_START_TEST):
+	  remove some obsolete todo's
+
 2006-12-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_get_property_meta_value):

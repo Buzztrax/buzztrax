@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.140 2006-10-15 18:38:22 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.141 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1128,6 +1128,7 @@ static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
+    pattern_list_refresh(self);
     g_object_unref(machine);
   }
   

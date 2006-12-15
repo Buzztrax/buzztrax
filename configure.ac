@@ -1,4 +1,4 @@
-# $Id: configure.ac,v 1.86 2006-12-03 14:03:10 ensonic Exp $
+# $Id: configure.ac,v 1.87 2006-12-15 06:46:33 ensonic Exp $
 
 #
 # current  : the interface         : MAJOR + MINOR
@@ -327,6 +327,9 @@ AC_C_CONST
 # Checks for library functions.
 # glib-2 functions
 # AC_CHECK_LIB( glib-2.0, g_log_set_default_handler)
+# libc functions
+AC_CHECK_FUNCS( sched_setscheduler)
+AC_CHECK_FUNCS( mlockall)
 
 # Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'

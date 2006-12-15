@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.84 2006-08-27 20:02:54 ensonic Exp $
+/* $Id: cmd-application.c,v 1.85 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -134,7 +134,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   BtMachine *machine;
   BtSinkBin *sink_bin;
   BtSinkBinRecordFormat format;
-  gchar *lc_file_name;
+  gchar *lc_file_name,*file_name=NULL;
   
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   
@@ -157,7 +157,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   else {
     GST_WARNING("unknown file-format extension, using ogg vorbis");
     format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
-    // @todo append .ogg to the file-name
+    file_name=g_strdup_printf("%s.ogg",output_file_name);
   }
   g_free(lc_file_name);
   
@@ -169,10 +169,11 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     g_object_set(sink_bin,
       "mode",BT_SINK_BIN_MODE_RECORD,
       "record-format",format,
-      "record-file-name",output_file_name,
+      "record-file-name",(file_name?file_name:output_file_name),
       NULL);
-    ret=TRUE;      
-      
+    ret=TRUE;
+    
+    g_free(file_name);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }

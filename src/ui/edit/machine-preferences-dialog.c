@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.27 2006-11-26 17:44:41 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.28 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -201,7 +201,7 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   // get machine properties
   if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(machine)),&number_of_properties))) {
     gchar *signal_name;
-    GType param_type;
+    GType param_type,base_type;
     
     GST_INFO("machine has %d properties",number_of_properties);
     
@@ -238,170 +238,174 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
         label=gtk_label_new(property->name);
         gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
         gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-        param_type=G_PARAM_SPEC_TYPE(property);
-  
-        if(param_type==G_TYPE_PARAM_STRING) {
-          //GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
-          gchar *value;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          widget1=gtk_entry_new();
-          gtk_entry_set_text(GTK_ENTRY(widget1),safe_string(value));g_free(value);
-          widget2=NULL;
-        }
-        else if(param_type==G_TYPE_PARAM_BOOLEAN) {
-          gboolean value;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          widget1=gtk_check_button_new();
-          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget1),value);
-          widget2=NULL;
-        }
-        else if(param_type==G_TYPE_PARAM_INT) {
-          GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-          gint value;
-          gdouble step;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
-          GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
-          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
-          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-          widget2=NULL;
-          // connect handlers
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-        }
-        else if(param_type==G_TYPE_PARAM_UINT) {
-          GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-          guint value;
-          gdouble step;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          step=(gdouble)(uint_property->maximum-uint_property->minimum)/1024.0;
-          GST_INFO("  uint : %u...%u, step=%f",uint_property->minimum,uint_property->maximum,step);
-          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint_property->minimum, (gdouble)uint_property->maximum,1.0,step,step));
-          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-          widget2=NULL;
-          // connect handlers
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-        }
-        else if(param_type==G_TYPE_PARAM_LONG) {
-          GParamSpecLong *long_property=G_PARAM_SPEC_LONG(property);
-          glong value;
-          gdouble step;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          step=(gdouble)(long_property->maximum-long_property->minimum)/1024.0;
-          GST_INFO("  long : %ld...%ld, step=%f",long_property->minimum,long_property->maximum,step);
-          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)long_property->minimum, (gdouble)long_property->maximum,1.0,step,step));
-          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-          widget2=NULL;
-          // connect handlers
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-        }
-        else if(param_type==G_TYPE_PARAM_ULONG) {
-          GParamSpecULong *ulong_property=G_PARAM_SPEC_ULONG(property);
-          gulong value;
-          gdouble step;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          step=(gdouble)(ulong_property->maximum-ulong_property->minimum)/1024.0;
-          GST_INFO("  ulong : %lu...%lu, step=%f",ulong_property->minimum,ulong_property->maximum,step);
-          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)ulong_property->minimum, (gdouble)ulong_property->maximum,1.0,step,step));
-          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-          widget2=NULL;
-          // connect handlers
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-        }
-        else if(param_type==G_TYPE_PARAM_INT64) {
-          GParamSpecInt64 *int64_property=G_PARAM_SPEC_INT64(property);
-          gint64 value;
-          gdouble step;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          step=(gdouble)(int64_property->maximum-int64_property->minimum)/1024.0;
-          GST_INFO("  int : %"G_GINT64_FORMAT"...%"G_GINT64_FORMAT", step=%f",int64_property->minimum,int64_property->maximum,step);
-          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int64_property->minimum, (gdouble)int64_property->maximum,1.0,step,step));
-          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-          widget2=NULL;
-          // connect handlers
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-        }
-        else if(param_type==G_TYPE_PARAM_UINT64) {
-          GParamSpecUInt64 *uint64_property=G_PARAM_SPEC_UINT64(property);
-          guint64 value;
-          gdouble step;
-          
-          g_object_get(machine,property->name,&value,NULL);
-          step=(gdouble)(uint64_property->maximum-uint64_property->minimum)/1024.0;
-          GST_INFO("  uint : %"G_GUINT64_FORMAT"...%"G_GUINT64_FORMAT", step=%f",uint64_property->minimum,uint64_property->maximum,step);
-          spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint64_property->minimum, (gdouble)uint64_property->maximum,1.0,step,step));
-          widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
-          widget2=NULL;
-          // connect handlers
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
-        }
-        else if(param_type==G_TYPE_PARAM_DOUBLE) {
-          GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-          gdouble step,value;
-          gchar *str_value;
-  
-          g_object_get(machine,property->name,&value,NULL);
-          // get max(max,-min), count digits -> to determine needed length of field
-          str_value=g_strdup_printf("%7.2f",value);
-          step=(double_property->maximum-double_property->minimum)/1024.0;
-          widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
-          gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
-          gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
-          gtk_range_set_value(GTK_RANGE(widget1),value);
-          widget2=gtk_entry_new();
-          gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
-          gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
-          g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
-          g_free(str_value);
-          signal_name=g_strdup_printf("notify::%s",property->name);
-          g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget1);
-          g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_entry_property_notify, (gpointer)widget2);
-          g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
-          g_signal_connect(G_OBJECT(widget2), "changed", (GCallback)on_double_entry_property_changed, (gpointer)machine);
-          g_free(signal_name);
-        }
-        else if(param_type==G_TYPE_PARAM_ENUM) {
-          GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-          GEnumClass *enum_class=enum_property->enum_class;
-          GEnumValue *enum_value;
-          gint value;
-          
-          widget1=gtk_combo_box_new_text();        
-          for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
-            enum_value=g_enum_get_value(enum_class, value);
-            gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+
+        param_type=property->value_type;
+        while((base_type=g_type_parent(param_type))) param_type=base_type;
+        GST_INFO("... base type is : %s",g_type_name(param_type));
+
+        switch(param_type) {
+          case G_TYPE_STRING: {
+            //GParamSpecString *string_property=G_PARAM_SPEC_STRING(property);
+            gchar *value;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            widget1=gtk_entry_new();
+            gtk_entry_set_text(GTK_ENTRY(widget1),safe_string(value));g_free(value);
+            widget2=NULL;
+          } break;
+          case G_TYPE_BOOLEAN: {
+            gboolean value;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            widget1=gtk_check_button_new();
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget1),value);
+            widget2=NULL;
+          } break;
+          case G_TYPE_INT: {
+            GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+            gint value;
+            gdouble step;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            step=(gdouble)(int_property->maximum-int_property->minimum)/1024.0;
+            GST_INFO("  int : %d...%d, step=%f",int_property->minimum,int_property->maximum,step);
+            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int_property->minimum, (gdouble)int_property->maximum,1.0,step,step));
+            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+            widget2=NULL;
+            // connect handlers
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+          } break;
+          case G_TYPE_UINT: {
+            GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+            guint value;
+            gdouble step;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            step=(gdouble)(uint_property->maximum-uint_property->minimum)/1024.0;
+            GST_INFO("  uint : %u...%u, step=%f",uint_property->minimum,uint_property->maximum,step);
+            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint_property->minimum, (gdouble)uint_property->maximum,1.0,step,step));
+            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+            widget2=NULL;
+            // connect handlers
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+          } break;
+          case G_TYPE_LONG: {
+            GParamSpecLong *long_property=G_PARAM_SPEC_LONG(property);
+            glong value;
+            gdouble step;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            step=(gdouble)(long_property->maximum-long_property->minimum)/1024.0;
+            GST_INFO("  long : %ld...%ld, step=%f",long_property->minimum,long_property->maximum,step);
+            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)long_property->minimum, (gdouble)long_property->maximum,1.0,step,step));
+            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+            widget2=NULL;
+            // connect handlers
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+          } break;
+          case G_TYPE_ULONG: {
+            GParamSpecULong *ulong_property=G_PARAM_SPEC_ULONG(property);
+            gulong value;
+            gdouble step;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            step=(gdouble)(ulong_property->maximum-ulong_property->minimum)/1024.0;
+            GST_INFO("  ulong : %lu...%lu, step=%f",ulong_property->minimum,ulong_property->maximum,step);
+            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)ulong_property->minimum, (gdouble)ulong_property->maximum,1.0,step,step));
+            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+            widget2=NULL;
+            // connect handlers
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+          } break;
+          case G_TYPE_INT64: {
+            GParamSpecInt64 *int64_property=G_PARAM_SPEC_INT64(property);
+            gint64 value;
+            gdouble step;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            step=(gdouble)(int64_property->maximum-int64_property->minimum)/1024.0;
+            GST_INFO("  int : %"G_GINT64_FORMAT"...%"G_GINT64_FORMAT", step=%f",int64_property->minimum,int64_property->maximum,step);
+            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)int64_property->minimum, (gdouble)int64_property->maximum,1.0,step,step));
+            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+            widget2=NULL;
+            // connect handlers
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+          } break;
+          case G_TYPE_UINT64: {
+            GParamSpecUInt64 *uint64_property=G_PARAM_SPEC_UINT64(property);
+            guint64 value;
+            gdouble step;
+            
+            g_object_get(machine,property->name,&value,NULL);
+            step=(gdouble)(uint64_property->maximum-uint64_property->minimum)/1024.0;
+            GST_INFO("  uint : %"G_GUINT64_FORMAT"...%"G_GUINT64_FORMAT", step=%f",uint64_property->minimum,uint64_property->maximum,step);
+            spin_adjustment=GTK_ADJUSTMENT(gtk_adjustment_new((gdouble)value,(gdouble)uint64_property->minimum, (gdouble)uint64_property->maximum,1.0,step,step));
+            widget1=gtk_spin_button_new(spin_adjustment,1.0,0);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_spin_button_set_value(GTK_SPIN_BUTTON(widget1),(gdouble)value);
+            widget2=NULL;
+            // connect handlers
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_spinbutton_property_changed, (gpointer)machine);
+          } break;
+          case G_TYPE_DOUBLE: {
+            GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+            gdouble step,value;
+            gchar *str_value;
+    
+            g_object_get(machine,property->name,&value,NULL);
+            // get max(max,-min), count digits -> to determine needed length of field
+            str_value=g_strdup_printf("%7.2f",value);
+            step=(double_property->maximum-double_property->minimum)/1024.0;
+            widget1=gtk_hscale_new_with_range(double_property->minimum,double_property->maximum,step);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            gtk_scale_set_draw_value(GTK_SCALE(widget1),FALSE);
+            gtk_range_set_value(GTK_RANGE(widget1),value);
+            widget2=gtk_entry_new();
+            gtk_widget_set_name(GTK_WIDGET(widget2),property->name);
+            gtk_entry_set_text(GTK_ENTRY(widget2),str_value);
+            g_object_set(widget2,"max-length",9,"width-chars",9,NULL);
+            g_free(str_value);
+            signal_name=g_strdup_printf("notify::%s",property->name);
+            g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_range_property_notify, (gpointer)widget1);
+            g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_double_entry_property_notify, (gpointer)widget2);
+            g_signal_connect(G_OBJECT(widget1), "value-changed", (GCallback)on_range_property_changed, (gpointer)machine);
+            g_signal_connect(G_OBJECT(widget2), "changed", (GCallback)on_double_entry_property_changed, (gpointer)machine);
+            g_free(signal_name);
+          } break;
+          case G_TYPE_ENUM: {
+            GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+            GEnumClass *enum_class=enum_property->enum_class;
+            GEnumValue *enum_value;
+            gint value;
+            
+            widget1=gtk_combo_box_new_text();        
+            for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
+              enum_value=g_enum_get_value(enum_class, value);
+              gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+            }
+            g_object_get(machine,property->name,&value,NULL);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
+            signal_name=g_strdup_printf("notify::%s",property->name);
+            g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_combobox_property_notify, (gpointer)widget1);
+            g_signal_connect(G_OBJECT(widget1), "changed", (GCallback)on_combobox_property_changed, (gpointer)machine);
+            g_free(signal_name);
+            widget2=NULL;
+          } break;
+          default: {
+            gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+            widget1=gtk_label_new(str);g_free(str);
+            widget2=NULL;
           }
-          g_object_get(machine,property->name,&value,NULL);
-          gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
-          signal_name=g_strdup_printf("notify::%s",property->name);
-          g_signal_connect(G_OBJECT(machine), signal_name, (GCallback)on_combobox_property_notify, (gpointer)widget1);
-          g_signal_connect(G_OBJECT(widget1), "changed", (GCallback)on_combobox_property_changed, (gpointer)machine);
-          g_free(signal_name);
-          widget2=NULL;
-        }
-        else {
-          // @todo choose proper widgets
-          gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-          widget1=gtk_label_new(str);g_free(str);
-          widget2=NULL;
         }
         gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
         if(!widget2) {

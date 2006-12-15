@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.26 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: machine.h,v 1.27 2006-12-15 06:46:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,7 +68,6 @@ struct _BtMachineClass {
   /* virtual methods for subclasses */
   gboolean (*check_type)(const BtMachine * const machine, const gulong pad_src_ct, const gulong pad_sink_ct);
   void (*setup)(const BtMachine * const machine);
-
 };
 
 #define BT_TYPE_MACHINE_STATE       (bt_machine_state_get_type())

@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.117 2006-11-25 14:08:00 ensonic Exp $
+/* $Id: song-io-native.c,v 1.118 2006-12-15 06:46:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,7 +72,13 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   }
   // check if the given uri exists
   if (!gnome_vfs_uri_exists(input_uri)) {
-    GST_WARNING("given input uri doe's not exists ... abort loading\n");
+    GST_INFO("given uri does not exists ... checking extension\n");
+
+    gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
+    if(g_str_has_suffix(lc_file_name,".xml")) {
+      type=BT_TYPE_SONG_IO_NATIVE;
+    }
+    g_free(lc_file_name);
   }
   else {
     // create new file info pointer.
@@ -83,8 +89,10 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
       if(file_info) gnome_vfs_file_info_unref(file_info);
       goto Error;
     }
+    // @todo: check mime-type ?    
     if(file_info) gnome_vfs_file_info_unref(file_info);
-    // @todo: check mime-type ?
+
+    // check extension
     gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
     if(g_str_has_suffix(lc_file_name,".xml")) {
       type=BT_TYPE_SONG_IO_NATIVE;

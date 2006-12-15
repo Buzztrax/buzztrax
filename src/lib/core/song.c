@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.155 2006-11-30 16:07:58 ensonic Exp $
+/* $Id: song.c,v 1.156 2006-12-15 06:46:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -124,6 +124,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
+        // +1 does not fully work, something between 4 and 5 seems to
         GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
   }
   else {
@@ -161,6 +162,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
+        // +1 does not fully work, something between 4 and 5 seems to
         GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
   }
   else {
@@ -247,10 +249,10 @@ static void bt_song_send_tags(const BtSong * const self) {
   }
   gst_iterator_free (it);
 
-  /* @todo has no effect if not send to a source
+  /* has no effect if not send to a source
   gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
   */
-  /* @todo also fails
+  /* also fails
    * GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
    * GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
   tag_event=gst_event_new_tag(taglist);
