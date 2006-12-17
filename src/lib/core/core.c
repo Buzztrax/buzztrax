@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.31 2006-12-15 06:46:33 ensonic Exp $
+/* $Id: core.c,v 1.32 2006-12-17 13:43:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -110,6 +110,7 @@ static gboolean bt_init_post (void) {
   }
   
 #ifdef HAVE_SCHED_SETSCHEDULER
+  // @idea; only do this in non-debug builds
   //http://www.gnu.org/software/libc/manual/html_node/Basic-Scheduling-Functions.html
   {
     struct sched_param p={0,};

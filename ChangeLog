@@ -1,3 +1,16 @@
+2006-12-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_post):
+	  we should only switch the scheduler in the non debug version
+
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed_idle):
+	  fix cursor focus when expanding the sequence
+
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	  attempt to make okay button default
+
 2006-12-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

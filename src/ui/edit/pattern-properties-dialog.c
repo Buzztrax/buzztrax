@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.14 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.15 2006-12-17 13:43:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -132,6 +132,9 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
+  
+  // this does not help as the pattern name has focus :(
+  gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   buttons=gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(self)->action_area));
   GST_INFO("dialog buttons: %d",g_list_length(buttons));

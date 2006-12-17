@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.141 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.142 2006-12-17 13:43:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1228,12 +1228,6 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
 
 static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
-  BtSequence *sequence;
-  gulong length;
-  gulong lastbar;
-
-  GtkTreeModelFilter *filtered_store;
   GtkTreePath *path;
   GtkTreeViewColumn *column;
   gulong cursor_column,cursor_row;
@@ -1241,10 +1235,11 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   g_return_val_if_fail(user_data,FALSE);
 
   //GST_INFO("sequence_table cursor has changed : self=%p",user_data);
-  //cursor_column=sequence_view_get_cursor_column(treeview);
   
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
+    gulong lastbar;
+  
     //GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
     self->priv->cursor_row=cursor_row;
     //GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
@@ -1254,46 +1249,39 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
     }
     GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
 
-    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-    g_object_get(G_OBJECT(sequence),"length",&length,NULL);
-    
-    gtk_tree_view_get_cursor(self->priv->sequence_table,
-			     &path,
-			     &column);
-
     // calculate the last visible row from step-filter and scroll-filter
     lastbar=self->priv->row_filter_pos-1-((self->priv->row_filter_pos-1)%self->priv->bars);
 
-    if( cursor_row >= lastbar )
-    {
+    // do we need to extend sequence?
+    if( cursor_row >= lastbar ) {
+      GtkTreeModelFilter *filtered_store;
+      
       self->priv->row_filter_pos += self->priv->bars;
-      if( self->priv->row_filter_pos > self->priv->list_length )
-      {
+      if( self->priv->row_filter_pos > self->priv->list_length ) {
+        BtSong *song;
+        
+        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+
         self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
+        // this got invalidated by _refresh()
+        column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
+
+        g_object_unref(song);
       }
 
-      filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table));
-      gtk_tree_model_filter_refilter(filtered_store);
+      if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
+        gtk_tree_model_filter_refilter(filtered_store);
+      }
 
-      gtk_tree_view_set_cursor(self->priv->sequence_table,
-			       path,
-			       NULL,
-			       FALSE );
-
+      gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
       gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
     }
-    gtk_tree_view_scroll_to_cell(self->priv->sequence_table,
-				 path,
-				 NULL,
-				 FALSE,
-				 1.0,
-				 0.0);
-    
+    gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,column,FALSE,1.0,0.0);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
   }
+  gtk_tree_path_free(path);
   
   return(FALSE);
 }
