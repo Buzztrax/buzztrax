@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.75 2006-12-14 05:32:30 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.76 2006-12-22 20:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -315,12 +315,15 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   g_object_get(self->priv->machine,"id",&id,NULL);
   
+  // @todo: move to new class
   dialog = gtk_dialog_new_with_buttons(_("Rename ..."),
                                         GTK_WINDOW(main_window),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                         GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                                         GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                                         NULL);
+  
+  gtk_dialog_set_default_response(GTK_DIALOG(dialog),GTK_RESPONSE_ACCEPT);
 
   hbox=gtk_hbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
@@ -338,6 +341,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
   gtk_container_add(GTK_CONTAINER(vbox),label);
   entry=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(entry),id);g_free(id);
+  gtk_entry_set_activates_default(GTK_ENTRY(entry),TRUE);
   gtk_container_add(GTK_CONTAINER(vbox),entry);
   gtk_container_add(GTK_CONTAINER(hbox),vbox);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);

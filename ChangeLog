@@ -1,3 +1,24 @@
+2006-12-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing),
+	(bt_edit_application_load_song):
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_rename_activate):
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta):
+	* src/ui/edit/main-page-sequence.c: (on_track_add_activated),
+	(on_track_remove_activated),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_motion_notify_event),
+	(bt_main_page_sequence_get_current_pos):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	  update patterns and focus column when adding/removing tracks, add
+	  todo comments for moving dialogs to separate classes, working default
+	  okay button in dialogs
+
 2006-12-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/core.c: (bt_init_post):

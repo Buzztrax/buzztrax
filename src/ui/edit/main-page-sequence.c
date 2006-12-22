@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.142 2006-12-17 13:43:10 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.143 2006-12-22 20:05:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,6 +35,9 @@
  *   - sequence view will have no visible column headers
  * - fill and update label menu
  * - insert/remove rows
+ *
+ * @bugs
+ * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
  */
 
 #define BT_EDIT
@@ -1124,11 +1127,35 @@ static void on_track_add_activated(GtkMenuItem *menuitem, gpointer user_data) {
   id=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   GST_INFO("adding track for machine \"%s\"",id);
   if((machine=bt_setup_get_machine_by_id(setup,id))) {
+    GtkTreePath *path;
+    GtkTreeViewColumn *column;
+    GList *columns;
+    
     bt_sequence_add_track(sequence,machine);
+
+    // reset selection
+    self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
+    
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
+
+    // update cursor_column and focus cell
+    columns=gtk_tree_view_get_columns(self->priv->sequence_table);
+    gtk_tree_view_get_cursor(self->priv->sequence_table,&path,NULL);
+    if(!path) {
+      path=gtk_tree_path_new_from_indices(0,-1);
+      self->priv->cursor_row=0;
+    }
+    self->priv->cursor_column=g_list_length(columns)-1;
+    column=GTK_TREE_VIEW_COLUMN(g_list_previous(g_list_last(columns))->data);
+    gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+
     pattern_list_refresh(self);
+    
+    g_list_free(columns);
+    gtk_tree_path_free(path);
     g_object_unref(machine);
   }
   
@@ -1150,10 +1177,35 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   // change number of tracks
   g_object_get(sequence,"tracks",&number_of_tracks,NULL);
   if(number_of_tracks>0) {
+    GtkTreePath *path;
+    GtkTreeViewColumn *column;
+    GList *columns;
+
     bt_sequence_remove_track_by_ix(sequence,number_of_tracks-1);
+
+    // reset selection
+    self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
+
     // reinit the view
     sequence_table_refresh(self,song);
     sequence_model_recolorize(self);
+
+    // update cursor_column and focus cell
+    columns=gtk_tree_view_get_columns(self->priv->sequence_table);
+    gtk_tree_view_get_cursor(self->priv->sequence_table,&path,NULL);
+    if(!path) {
+      path=gtk_tree_path_new_from_indices(0,-1);
+      self->priv->cursor_row=0;
+    }
+    self->priv->cursor_column=g_list_length(columns)-1;
+    column=GTK_TREE_VIEW_COLUMN(g_list_previous(g_list_last(columns))->data);
+    gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+
+    pattern_list_refresh(self);
+
+    g_list_free(columns);
+    gtk_tree_path_free(path);
   }
   
   g_object_unref(sequence);
@@ -1240,9 +1292,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
     gulong lastbar;
   
-    //GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
+    GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
     self->priv->cursor_row=cursor_row;
-    //GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
+    GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
     if(cursor_column!=self->priv->cursor_column) {
       self->priv->cursor_column=cursor_column;
       pattern_list_refresh(self);
@@ -1454,6 +1506,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         }
       }
       else {
+        // remove selection
         if(self->priv->selection_start_column!=-1) {
           self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
           gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
@@ -1645,6 +1698,7 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
         // handle selection
         glong cursor_column=self->priv->cursor_column;
         glong cursor_row=self->priv->cursor_row;
+
         if(self->priv->selection_start_column==-1) {
           self->priv->selection_column=self->priv->cursor_column;
           self->priv->selection_row=self->priv->cursor_row;
@@ -2155,7 +2209,7 @@ gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gu
     }
   }
   else {
-    GST_DEBUG("No cursor pos, column=%p, path=%p",column,path);
+    GST_INFO("No cursor pos, column=%p, path=%p",column,path);
   }
   if(path) gtk_tree_path_free(path);
   // release the references

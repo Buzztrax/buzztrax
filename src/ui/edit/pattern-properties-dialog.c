@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.15 2006-12-17 13:43:10 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.16 2006-12-22 20:05:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -133,7 +133,6 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
   
-  // this does not help as the pattern name has focus :(
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   buttons=gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(self)->action_area));
@@ -158,6 +157,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
+  gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
 

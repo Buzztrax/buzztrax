@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.83 2006-12-03 19:14:19 ensonic Exp $
+/* $Id: edit-application.c,v 1.84 2006-12-22 20:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -145,6 +145,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
     gchar *str; 
     GtkWidget *dialog;
 
+    // @todo: move to new class
     dialog = gtk_dialog_new_with_buttons(_("Missing GStreamer elements"),
                                           GTK_WINDOW(self->priv->main_window),
                                           GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -450,6 +451,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
               gchar *str; 
               GtkWidget *dialog;
       
+              // @todo: move to new class
               dialog = gtk_dialog_new_with_buttons(_("Missing elements in song"),
                                                     GTK_WINDOW(self->priv->main_window),
                                                     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,

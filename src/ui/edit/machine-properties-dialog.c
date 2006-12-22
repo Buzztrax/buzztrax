@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.58 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.59 2006-12-22 20:05:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -81,12 +81,15 @@ static gboolean preset_list_edit_preset_meta(BtMainWindow *main_window,gchar **n
   GtkWidget *label,*widget,*table;
   GtkWidget *dialog;
 
+  // @todo: move to new class
   dialog = gtk_dialog_new_with_buttons(_("Preset name and comment"),
                                         GTK_WINDOW(main_window),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                         GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                                         GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                                         NULL);
+  
+  gtk_dialog_set_default_response(GTK_DIALOG(dialog),GTK_RESPONSE_ACCEPT);
 
   table=gtk_table_new(/*rows=*/2,/*columns=*/2,/*homogenous=*/FALSE);
 
@@ -96,6 +99,7 @@ static gboolean preset_list_edit_preset_meta(BtMainWindow *main_window,gchar **n
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),*name);
+  gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_text_changed), (gpointer)name);
   
@@ -105,6 +109,7 @@ static gboolean preset_list_edit_preset_meta(BtMainWindow *main_window,gchar **n
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
   gtk_entry_set_text(GTK_ENTRY(widget),*comment);
+  gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_text_changed), (gpointer)comment);
   
