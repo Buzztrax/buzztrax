@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.43 2006-09-03 13:34:33 ensonic Exp $
+/* $Id: main-page-info.c,v 1.44 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -414,6 +414,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
 /**
  * bt_main_page_info_new:
  * @app: the application the window belongs to
+ * @pages: the page collection
  *
  * Create a new instance
  *

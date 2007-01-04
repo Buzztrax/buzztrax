@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.h,v 1.10 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-page-sequence.h,v 1.11 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -32,6 +32,11 @@
 #define BT_IS_MAIN_PAGE_SEQUENCE_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_PAGE_SEQUENCE))
 #define BT_MAIN_PAGE_SEQUENCE_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_PAGE_SEQUENCE, BtMainPageSequenceClass))
 
+/*
+ * SEQUENCE_ROW_ADDITION_INTERVAL:
+ *
+ * Number of lines to add when scrolling down beyond the end of the sequence.
+ */
 #define SEQUENCE_ROW_ADDITION_INTERVAL 64
 
 /* type macros */

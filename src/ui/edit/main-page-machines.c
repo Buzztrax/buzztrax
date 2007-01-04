@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.92 2006-09-06 21:54:27 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.93 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -919,6 +919,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
 /**
  * bt_main_page_machines_new:
  * @app: the application the window belongs to
+ * @pages: the page collection
  *
  * Create a new instance
  *

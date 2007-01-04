@@ -5,6 +5,7 @@
 %version-entities;
 <!ENTITY btedit SYSTEM "xml/btedit.xml">
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
+<!ENTITY BtMachineActions SYSTEM "xml/btmachineactions.xml">
 <!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
 <!ENTITY BtMachineMenu SYSTEM "xml/btmachinemenu.xml">
 <!ENTITY BtMachinePreferencesDialog SYSTEM "xml/btmachinepreferencesdialog.xml">
@@ -60,6 +61,7 @@
     </para>
     &btedit;
     &BtEditApplication;
+    &BtMachineActions;
     &BtMachineCanvasItem;
     &BtMachineMenu;
 		&BtMachinePreferencesDialog;

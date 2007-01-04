@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.h,v 1.10 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-statusbar.h,v 1.11 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,6 +55,11 @@ struct _BtMainStatusbarClass {
   
 };
 
+/**
+ * BT_MAIN_STATUSBAR_DEFAULT:
+ *
+ * Default text to display when idle.
+ */
 #define BT_MAIN_STATUSBAR_DEFAULT _("Ready to rock!")
 
 /* used by MAIN_STATUSBAR_TYPE */

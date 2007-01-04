@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.36 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.37 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -386,6 +386,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 /**
  * bt_main_page_waves_new:
  * @app: the application the window belongs to
+ * @pages: the page collection
  *
  * Create a new instance
  *

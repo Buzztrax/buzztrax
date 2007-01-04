@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.28 2006-08-27 20:31:29 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.29 2007-01-04 18:13:56 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -33,6 +33,15 @@ BT_TYPE_EDIT_APPLICATION
 <SUBSECTION Private>
 bt_edit_application_get_type
 BtEditApplicationPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmachineactions</FILE>
+<TITLE>BtMachineActions</TITLE>
+bt_machine_action_about
+bt_machine_action_help
+<SUBSECTION Standard>
+<SUBSECTION Private>
 </SECTION>
 
 <SECTION>
@@ -180,13 +189,14 @@ BT_TYPE_MAIN_PAGE_MACHINES
 <SUBSECTION Private>
 bt_main_page_machines_get_type
 BtMainPageMachinesPrivate
-MACHINE_VIEW_ZOOM_Y
-MACHINE_VIEW_ZOOM_FC
+MACHINE_VIEW_FONT_SIZE
+MACHINE_VIEW_GRID_FC
 MACHINE_VIEW_MACHINE_SIZE_X
 MACHINE_VIEW_MACHINE_SIZE_Y
-MACHINE_VIEW_GRID_FC
 MACHINE_VIEW_WIRE_PAD_SIZE
+MACHINE_VIEW_ZOOM_FC
 MACHINE_VIEW_ZOOM_X
+MACHINE_VIEW_ZOOM_Y
 machine_view_get_machine_position
 </SECTION>
 
@@ -222,7 +232,6 @@ bt_main_page_sequence_delete_selection
 bt_main_page_sequence_paste_selection
 bt_main_page_sequence_get_current_machine
 bt_main_page_sequence_get_current_pos
-SEQUENCE_ROW_ADDITION_INTERVAL
 <SUBSECTION Standard>
 BtMainPageSequenceClass
 BT_MAIN_PAGE_SEQUENCE
@@ -234,6 +243,7 @@ BT_TYPE_MAIN_PAGE_SEQUENCE
 <SUBSECTION Private>
 bt_main_page_sequence_get_type
 BtMainPageSequencePrivate
+SEQUENCE_ROW_ADDITION_INTERVAL
 </SECTION>
 
 <SECTION>
@@ -258,6 +268,7 @@ BtMainPageWavesPrivate
 <FILE>btmainstatusbar</FILE>
 <TITLE>BtMainStatusbar</TITLE>
 BtMainStatusbar
+BT_MAIN_STATUSBAR_DEFAULT
 bt_main_statusbar_new
 <SUBSECTION Standard>
 BtMainStatusbarClass

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.143 2006-12-22 20:05:32 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.144 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2100,6 +2100,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
 /**
  * bt_main_page_sequence_new:
  * @app: the application the window belongs to
+ * @pages: the page collection
  *
  * Create a new instance
  *

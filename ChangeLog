@@ -1,3 +1,19 @@
+2007-01-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  fix tests
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-sequence.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-statusbar.h:
+	  some doc maintainance
+
 2006-12-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/edit-application.c:

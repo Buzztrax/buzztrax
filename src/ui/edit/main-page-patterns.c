@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.101 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.102 2007-01-04 18:13:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1625,6 +1625,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
 /**
  * bt_main_page_patterns_new:
  * @app: the application the window belongs to
+ * @pages: the page collection
  *
  * Create a new instance
  *
