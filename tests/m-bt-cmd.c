@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.13 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.14 2007-01-05 19:31:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,6 +60,10 @@ int main(int argc, char **argv) {
   int nf; 
   SRunner *sr;
 
+  // initialize as soon as possible
+  if(!g_thread_supported()) {
+    g_thread_init(NULL);
+  }
   g_type_init();
   setup_log(argc,argv);
   setup_log_capture();

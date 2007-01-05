@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.24 2006-09-03 13:18:37 ensonic Exp $
+/* $Id: wavetable.c,v 1.25 2007-01-05 19:31:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -195,7 +195,7 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
         gchar * const str=g_strdup_printf("%s: %s",name, url);
         bt_wavetable_remember_missing_wave(self,str);
         g_free(name);
-	g_free(url);
+	      g_free(url);
       }
       g_object_unref(wave);
     }

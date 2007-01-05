@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.24 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.25 2007-01-05 19:31:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -76,6 +76,10 @@ int main(int argc, char **argv) {
 
   //g_mem_set_vtable(glib_mem_profiler_table);
 
+  // initialize as soon as possible
+  if(!g_thread_supported()) {
+    g_thread_init(NULL);
+  }
   g_type_init();
   setup_log(argc,argv);
   setup_log_capture();

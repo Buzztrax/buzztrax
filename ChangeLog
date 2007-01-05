@@ -1,3 +1,16 @@
+2007-01-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wave.c:
+	* src/lib/core/wavetable.c: (bt_wavetable_persistence_load):
+	  add TODO about storing sample length
+
+	* src/ui/cmd/bt-cmd.c: (main):
+	* src/ui/edit/bt-edit.c: (main):
+	* tests/m-bt-cmd.c: (main):
+	* tests/m-bt-core.c: (main):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	  do g_thread_init() as early as possible
+
 2007-01-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/POTFILES.in:

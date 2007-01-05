@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.35 2006-08-26 11:42:32 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.36 2007-01-05 19:31:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,6 +68,11 @@ int main(int argc, char **argv) {
     {"output-file", '\0', 0,                    G_OPTION_ARG_FILENAME, &output_file_name, N_("Output file name"), N_("<songfile>") },
     {NULL}
   };
+
+  // initialize as soon as possible
+  if(!g_thread_supported()) {
+    g_thread_init(NULL);
+  }
 
   // init libraries
   ctx = g_option_context_new(NULL);

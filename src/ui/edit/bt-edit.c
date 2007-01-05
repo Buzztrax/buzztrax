@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.36 2006-09-02 19:47:22 ensonic Exp $
+/* $Id: bt-edit.c,v 1.37 2007-01-05 19:31:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -70,13 +70,10 @@ int main(int argc, char **argv) {
   // in case we ever want to use a custom theme for buzztard:
   // gtk_rc_parse(DATADIR""G_DIR_SEPARATOR_S"themes"G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"gtk-2.0"G_DIR_SEPARATOR_S"gtkrc");
   
-  /*
-  if(!g_thread_supported()) {  // are g_threads() already initialized
+  // initialize as soon as possible
+  if(!g_thread_supported()) {
     g_thread_init(NULL);
   }
-  gdk_threads_init();
-  bt_threads_init();
-  */
 
   // init libraries
   ctx = g_option_context_new(NULL);

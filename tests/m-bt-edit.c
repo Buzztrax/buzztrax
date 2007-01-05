@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.22 2006-12-03 15:26:06 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.23 2007-01-05 19:31:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,15 +45,7 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_edit_setup(void) {
-  g_type_init();
-  /*
-  if(!g_thread_supported()) {  // are g_threads() already initialized
-    g_thread_init(NULL);
-  }
-  gdk_threads_init();
-  bt_threads_init();
-  */
-
+  //g_type_init();
   bt_init(&test_argc,&test_argvptr);
   gtk_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
@@ -88,6 +80,10 @@ int main(int argc, char **argv) {
   int nf; 
   SRunner *sr;
 
+  // initialize as soon as possible
+  if(!g_thread_supported()) {
+    g_thread_init(NULL);
+  }
   g_type_init();
   setup_log(argc,argv);
   setup_log_capture();
