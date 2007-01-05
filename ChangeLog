@@ -1,5 +1,11 @@
 2007-01-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  also log test runs
+
+2007-01-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/wave.c:
 	* src/lib/core/wavetable.c: (bt_wavetable_persistence_load):
 	  add TODO about storing sample length
