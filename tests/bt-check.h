@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.18 2006-10-16 12:47:27 ensonic Exp $
+/* $Id: bt-check.h,v 1.19 2007-01-06 16:01:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -32,6 +32,7 @@
 //-- glib/gobject
 #include <glib.h>
 #include <glib-object.h>
+#include <glib/gstdio.h>
 //-- gtk/gdk
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.40 2006-10-14 16:07:22 ensonic Exp $
+## $Id: Makefile.am,v 1.41 2007-01-06 16:01:33 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -68,11 +68,11 @@ EXTRA_DIST = gtkdoccomplete.sh povalid.sh xmlvalid.sh \
 clean-local:
 	rm -f $(top_builddir)/tests/songs/*.txt $(top_builddir)/tests/songs/*.ogg
 
-# run any given test by running make test.check
+# run any given test by running make <test>.check
 %.check: %
 	@$(TESTS_ENVIRONMENT) ./$*
 
-# gdb any given test by running make test.gdb
+# gdb any given test by running make <test>.gdb
 %.gdb: %
 	$(TESTS_ENVIRONMENT)		\
 	CK_FORK=no						  \
@@ -106,6 +106,7 @@ valgrind:: $(TESTS_BIN)
 	  $(VALCMD) --log-file=/tmp/$$i.valgrind ./$$i; \
 	done
 
+# valgrind any given test by running make <test>.valgrind
 %.valgrind: %
 	rm -rf /tmp/$$i.valgrind.pid*; \
 	$(VALCMD) --log-file=/tmp/$*.valgrind ./$*;

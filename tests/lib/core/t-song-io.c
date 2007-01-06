@@ -1,4 +1,4 @@
-/* $Id: t-song-io.c,v 1.16 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-song-io.c,v 1.17 2007-01-06 16:01:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,6 +68,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_io_obj4) {
   BtSongIO *song_io;
 
+  /* for some reasons gnomevfs creates the uri "http://test.unk" */
   song_io=bt_song_io_new("test.unk");
   fail_unless(song_io==NULL, NULL);
 }

@@ -1,3 +1,27 @@
+2007-01-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	  some more logs
+
+	* tests/Makefile.am:
+	  more doc comments
+
+	* tests/bt-check.c: (check_setup_test_server),
+	(check_setup_test_display):
+	* tests/bt-check.h:
+	  check if we can reuses state lock file (#1629058)
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  remove log before testrun
+	
+	* tests/lib/core/t-song-io.c: (BT_START_TEST):
+	  comment a failing test
+
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	  unify logging
+
 2007-01-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/bt-cmd-encode.sh:

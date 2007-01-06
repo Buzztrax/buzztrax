@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.118 2006-12-15 06:46:33 ensonic Exp $
+/* $Id: song-io-native.c,v 1.119 2007-01-06 16:01:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -67,15 +67,16 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   GnomeVFSURI * const input_uri = gnome_vfs_uri_new(absolute_uri_string);
   // check if the input uri is ok
   if (input_uri == NULL) {
-    GST_WARNING("cannot create input uri for gnome vfs\n");
+    GST_WARNING("cannot create input uri for gnome vfs");
     goto Error;
   }
   // check if the given uri exists
   if (!gnome_vfs_uri_exists(input_uri)) {
-    GST_INFO("given uri does not exists ... checking extension\n");
+    GST_INFO("given uri does not exists ... checking extension");
 
     gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
     if(g_str_has_suffix(lc_file_name,".xml")) {
+      GST_INFO(".xml extension -> accept");
       type=BT_TYPE_SONG_IO_NATIVE;
     }
     g_free(lc_file_name);

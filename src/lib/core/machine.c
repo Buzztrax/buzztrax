@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.224 2006-12-15 06:46:33 ensonic Exp $
+/* $Id: machine.c,v 1.225 2007-01-06 16:01:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2364,7 +2364,8 @@ static void bt_machine_dispose(GObject * const object) {
   
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  if(self->priv->bin) {   
+  if(self->priv->bin) {
+    GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     for(i=0;i<PART_COUNT;i++) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));

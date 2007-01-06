@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.23 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.24 2007-01-06 16:01:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -53,12 +53,14 @@ void bt_edit_setup(void) {
   setup_log_capture();
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
   g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
-  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
 
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
+  // no ansi color codes in logfiles please
+  gst_debug_set_colored(FALSE);
 
   check_setup_test_display();
 
@@ -93,14 +95,8 @@ int main(int argc, char **argv) {
  
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
-  /*
-  if(!g_thread_supported()) {  // are g_threads() already initialized
-    g_thread_init(NULL);
-  }
-  gdk_threads_init();
-  */
   check_setup_test_server();
   gtk_init(&test_argc,&test_argvptr);
   

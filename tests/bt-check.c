@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.30 2006-12-03 19:14:19 ensonic Exp $
+/* $Id: bt-check.c,v 1.31 2007-01-06 16:01:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -665,6 +665,7 @@ void check_setup_test_server(void) {
   gulong flags=G_SPAWN_SEARCH_PATH;
   GError *error=NULL;
   gchar display_file[18];
+  gchar lock_file[14];
   gchar *argv[]={
     "Xvfb",
     ":9",
@@ -679,7 +680,7 @@ void check_setup_test_server(void) {
     "-screen","0","1024x786x16",
     NULL
   };
-  gboolean found=FALSE,trying=TRUE;
+  gboolean found=FALSE,launched=FALSE,trying=TRUE;
 
   server_pid=0;
   display_number=0;
@@ -689,6 +690,34 @@ void check_setup_test_server(void) {
     wait_for_server=TRUE;
     g_sprintf(display_name,":%1d",display_number);
     g_sprintf(display_file,"/tmp/.X11-unix/X%1d",display_number);
+    g_sprintf(lock_file,"/tmp/.X%1d-lock",display_number);
+
+    // if we have a lock file, check if there is an alive process
+    if(g_file_test(lock_file, G_FILE_TEST_EXISTS)) {
+      FILE *pid_file;
+      gchar pid_str[20];
+      guint pid;
+      gchar proc_file[15];
+      
+      // read pid
+      if((pid_file=fopen(lock_file,"rt"))) {
+        fgets(pid_str,20,pid_file);
+        fclose(pid_file);
+        
+        pid=atol(pid_str);
+        g_sprintf(proc_file,"/proc/%d",pid);
+        // check proc entry
+        if(!g_file_test(proc_file, G_FILE_TEST_EXISTS)) {
+          // try to remove file and reuse display number
+          if(!g_unlink(lock_file) && !g_unlink(display_file)) {
+            found=TRUE;
+          }
+        }
+      }
+    }
+    else {
+      found=TRUE;
+    }
     
     // this display is not yet in use
     if(!g_file_test(display_file, G_FILE_TEST_EXISTS)) {
@@ -705,7 +734,7 @@ void check_setup_test_server(void) {
           // try also waiting for /tmp/X%1d-lock" files
           if(g_file_test(display_file, G_FILE_TEST_EXISTS)) {
             wait_for_server=trying=FALSE;
-            found=TRUE;
+            launched=TRUE;
           }
           else {
             sleep(1);
@@ -714,13 +743,13 @@ void check_setup_test_server(void) {
         //sleep(2);
       }
     }
-    if(!found) {
+    if(!launched) {
       display_number++;
       // stop after trying the first ten displays
       if(display_number==10) trying=FALSE;
     }
   }
-  if(!found) {
+  if(!launched) {
     display_number=-1;
     GST_WARNING("no free display number found");
   }
@@ -759,7 +788,6 @@ void check_setup_test_display(void) {
         GdkScreen *test_screen;
         GtkSettings *test_settings;
 
-        /* this causes gtk to freak out :( */
         if((test_screen = gdk_display_get_default_screen(test_display))) {
           //gdk_threads_enter();
           if((test_settings = gtk_settings_get_for_screen(test_screen))) {
