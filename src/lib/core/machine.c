@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.225 2007-01-06 16:01:33 ensonic Exp $
+/* $Id: machine.c,v 1.226 2007-01-07 12:10:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2372,11 +2372,11 @@ static void bt_machine_dispose(GObject * const object) {
         g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
         GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
         gst_bin_remove(self->priv->bin,self->priv->machines[i]);
-        GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+        GST_DEBUG("  bin->ref_count=%d",(self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1));
       }
     }
-    // release the bin (that is ref'ed in bt_machine_new() )
-    GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    // release the bin (that is ref'ed in bt_machine_setup() )
+    GST_DEBUG("  releasing the bin, bin->ref_count=%d",(self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1));
     gst_object_unref(self->priv->bin);
   }
 

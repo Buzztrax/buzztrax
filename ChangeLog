@@ -1,3 +1,8 @@
+2007-01-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	  make one debug log statement a bit more relaxed
+
 2007-01-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_dispose):
