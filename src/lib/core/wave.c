@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.22 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: wave.c,v 1.23 2007-01-13 19:47:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,9 +24,9 @@
  *
  * Represents one instrument. Contains one or more #BtWavelevels.
  */ 
-/* @todo: save sample file length in file:
- * - if we miss files, we can do a file-system search and use the size to verify
- * - when loading, we might also use the size as a sanity check
+/* @todo: save sample file length and/or md5sum in file:
+ * - if we miss files, we can do a file-system search and use the details to verify
+ * - when loading, we might also use the details as a sanity check
  */
 #define BT_CORE
 #define BT_WAVE_C

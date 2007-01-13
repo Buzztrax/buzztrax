@@ -1,3 +1,59 @@
+2007-01-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  january news
+	
+	* po/POTFILES.in:
+	* src/lib/core/machine.c: (bt_machine_get_param_min_value),
+	(bt_machine_get_param_max_value):
+	  add float support
+
+	* src/lib/core/wave.c:
+	  more ideas
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preset-properties-dialog-methods.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(on_name_changed), (on_comment_changed),
+	(bt_machine_preset_properties_dialog_init_ui),
+	(bt_machine_preset_properties_dialog_new),
+	(bt_machine_preset_properties_dialog_apply),
+	(bt_machine_preset_properties_dialog_get_property),
+	(bt_machine_preset_properties_dialog_set_property),
+	(bt_machine_preset_properties_dialog_dispose),
+	(bt_machine_preset_properties_dialog_finalize),
+	(bt_machine_preset_properties_dialog_init),
+	(bt_machine_preset_properties_dialog_class_init),
+	(bt_machine_preset_properties_dialog_get_type):
+	* src/ui/edit/machine-preset-properties-dialog.h:
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_float_range_property_notify),
+	(on_float_range_property_changed), (on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked), (on_preset_list_row_activated),
+	(make_float_range_widget),
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_init_ui):
+	  factor out preset property dialog, add float support
+	
+	* src/ui/edit/main-page-patterns.c:
+	(on_context_menu_pattern_new_activate),
+	(on_context_menu_pattern_remove_activate):
+	  set transient window
+	
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(test_setup), (test_teardown), (BT_START_TEST),
+	(bt_machine_preset_properties_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-preset-properties-dialog.c:
+	(bt_machine_preset_properties_dialog_suite):
+	  add test for new preset property dialog
+
 2007-01-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_dispose):

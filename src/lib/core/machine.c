@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.226 2007-01-07 12:10:13 ensonic Exp $
+/* $Id: machine.c,v 1.227 2007-01-13 19:47:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1659,6 +1659,10 @@ static GValue *bt_machine_get_param_min_value(const BtMachine * const self, GPar
         const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         g_value_set_uint(value,uint_property->minimum);
       }  break;
+      case G_TYPE_FLOAT: {
+        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+        g_value_set_float(value,float_property->minimum);
+      } break;
       case G_TYPE_DOUBLE: {
         const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
         g_value_set_double(value,double_property->minimum);
@@ -1727,6 +1731,10 @@ static GValue *bt_machine_get_param_max_value(const BtMachine * const self, GPar
       case G_TYPE_UINT: {
         const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
         g_value_set_uint(value,uint_property->maximum);
+      } break;
+      case G_TYPE_FLOAT: {
+        const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+        g_value_set_float(value,float_property->maximum);
       } break;
       case G_TYPE_DOUBLE: {
         const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);

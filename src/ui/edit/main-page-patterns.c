@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.102 2007-01-04 18:13:56 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.103 2007-01-13 19:47:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1257,6 +1257,7 @@ static void on_context_menu_track_remove_activate(GtkMenuItem *menuitem,gpointer
 
 static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMainWindow *main_window;
   BtSong *song;
   BtSongInfo *song_info;
   BtMachine *machine;
@@ -1270,7 +1271,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   machine=bt_main_page_patterns_get_current_machine(self);
   g_return_if_fail(machine);
   
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   g_object_get(G_OBJECT(machine),"id",&mid,NULL);
@@ -1282,6 +1283,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 
   // pattern_properties
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
+  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
   gtk_widget_show_all(dialog);
 
   if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
@@ -1304,6 +1306,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   g_object_unref(song_info);
   g_object_unref(song);
   g_object_unref(machine);
+  g_object_unref(main_window);
   GST_DEBUG("new pattern done");
 }
 
@@ -1354,7 +1357,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
     g_object_unref(machine);
   }
-  g_object_try_unref(main_window);
+  g_object_unref(main_window);
   g_object_unref(pattern);  // should finalize the pattern
   g_free(msg);
 }

@@ -14,6 +14,7 @@ src/ui/edit/edit-application.c
 src/ui/edit/machine-actions.c
 src/ui/edit/machine-canvas-item.c
 src/ui/edit/machine-menu.c
+src/ui/edit/machine-preset-properties-dialog.c
 src/ui/edit/machine-preferences-dialog.c
 src/ui/edit/machine-properties-dialog.c
 src/ui/edit/main-menu.c

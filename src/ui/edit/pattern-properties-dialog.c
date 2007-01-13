@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.16 2006-12-22 20:05:32 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.17 2007-01-13 19:47:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -135,6 +135,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
+  // grab okay button, so that we can block if input is not valid
   buttons=gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(self)->action_area));
   GST_INFO("dialog buttons: %d",g_list_length(buttons));
   self->priv->okay_button=GTK_WIDGET(g_list_nth_data(buttons,1));

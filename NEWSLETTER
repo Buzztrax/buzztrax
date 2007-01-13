@@ -1,7 +1,45 @@
+2007/01 ========================================================================
+
+In last month news I wrote about the gst element check. Now we also have the
+respective UI parts. The apps check if the have mandatory and optional elements
+available. If elements are missing the user will see an explanation which are
+missing and what for they are needed. For optional elements its up to the user
+to decide if that is okay or if they should be installed. In the future we can
+make use of the new gstreamer libgimmicodec mechanism, to download and install
+missing elements on the fly.
+
+I also continued working on the preset support. The interface got some default
+implementation, e.g. to generate a randomized preset. The buzzmachine wrapper
+implements most of the interface. We can load presets, rename and remove them.
+The later two actions are not yet persistent - I need to implement saving still.
+On the UI side I implemented the preset pane for the machine settings window. I
+decided not to copy the buzz UI here. I should post a screenshot soon.
+
+I also went over the todo: comments in the source once again and implemented
+things here and there. Now one can add/removed tracks for polyphonic machines.
+Also adding/removing tracks in the sequence is now working fine and updates all
+UI items properly.
+
+Right now I am also giving the dialogs an overhaul. All got a default action
+(e.g. press enter to dismiss). They also get moved into a separate object each.
+This helps to test them standalone and to auto-screen-shot them during the test
+runs.
+
+Finally I spend some time configuring our buildbot [1]. For the first time all
+steps are green. The machine the test run on does not have X11 running. Still we
+can run UI tests and do screenshots of all windows. The magic can be found in a
+few helper methods that pick a free display number, spawn a Xvfb server and
+setup a GdkDisplay for gtk+. The buildbot stuff definitely rocks! I hope we can
+extend this in the future - anyone found a way to trigger builds from
+sourceforge.net cvs commits (via commit hook)? Make me happy and mailto:
+ensonic (at) users (dot) sf (dot) net.
+
+[1] http://141.57.8.70:8010/
+
 2006/12 ========================================================================
 
 This month we fleshed out the planning for 0.2. From now on we like to release
-often and regularily. We defined a lot of small gtk ui tasks. If you like to
+often and regularly. We defined a lot of small gtk UI tasks. If you like to
 help, we welcome you with open arms on irc://irc.quakenet.org/#buzztard.
 
 First changes after the release are already in CVS. I worked on the buzzmachine
@@ -18,14 +56,14 @@ had sliders with labels in the UI, the width was dependent on the label with.I
 can't really know the maximum width beforehand easily, so I had to set a default
 width. Good enough for now.
 
-I also started two new inerfaces for gstreamer elements. First one is about the
+I also started two new interfaces for gstreamer elements. First one is about the
 help documentation of the element. Buzztard can show the docs of buzzmachines or
 the gtk-doc of native element already. The second iface is about the preset
 handling. Implementing that for the buzzmachines is next on the todo list.
 
 Finally I also started to put some gstreamer element check into the core lib.
-During configure we can check for installed elements and it would't make sense
-anyway. So we are going to check for mandatory and optional elements at
+During configure we can't check for installed elements and it wouldn't make
+sense anyway. So we are going to check for mandatory and optional elements at
 application start. Checking works fine already. Now I need to add the UI dialog
 for the missing elements report.
 
