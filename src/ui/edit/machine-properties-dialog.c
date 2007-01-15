@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.60 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.61 2007-01-15 21:43:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -62,13 +62,21 @@ static GtkDialogClass *parent_class=NULL;
 static GQuark range_label_quark=0;
 static GQuark range_parent_quark=0;
 
+enum {
+  PRESET_LIST_LABEL=0
+};
+
 //-- event handler helper
 
-static gboolean preset_list_edit_preset_meta(const BtMachinePropertiesDialog *self,gchar **name,gchar **comment) {
+static gboolean preset_list_edit_preset_meta(const BtMachinePropertiesDialog *self,GstElement *machine,gchar **name,gchar **comment) {
   gboolean result=FALSE;
   GtkWidget *dialog;
   
-  dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(self->priv->app,name,comment));
+  GST_INFO("create preset edit dialog");
+  
+  dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(self->priv->app,machine,name,comment));
+  
+  GST_INFO("run preset edit dialog");
   gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self));
   gtk_widget_show_all(dialog);
 
@@ -94,11 +102,11 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   
   // we store the string twice, as we use the pointer as the key in the hashmap
   // and the string gets copied
-  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
+  store=gtk_list_store_new(1,G_TYPE_STRING);
   for(node=presets;node;node=g_list_next(node)) {
     //GST_INFO(" adding item : '%s'",node->data);
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,node->data,1,node->data,-1);
+    gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,node->data,-1);
   }
   gtk_tree_view_set_model(GTK_TREE_VIEW(self->priv->preset_list),GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
@@ -446,7 +454,7 @@ static void on_toolbar_preset_add_clicked(GtkButton *button,gpointer user_data) 
   GST_INFO("about to add a new preset : '%s'",name);
   
   // ask for name & comment
-  if(preset_list_edit_preset_meta(self,&name,&comment)) {
+  if(preset_list_edit_preset_meta(self,machine,&name,&comment)) {
     gst_preset_save_preset(GST_PRESET(machine),name);
     //gst_preset_set_meta(GST_PRESET(machine),new_name,"comment",comment);
     preset_list_refresh(self);
@@ -466,7 +474,7 @@ static void on_toolbar_preset_remove_clicked(GtkButton *button,gpointer user_dat
     gchar *name;
     GstElement *machine;
 
-    gtk_tree_model_get(model,&iter,1,&name,-1);
+    gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&name,-1);
     g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
   
     GST_INFO("about to delete preset : '%s'",name);
@@ -488,15 +496,14 @@ static void on_toolbar_preset_edit_clicked(GtkButton *button,gpointer user_data)
     gchar *old_name,*new_name,*comment=NULL;
     GstElement *machine;
 
-    gtk_tree_model_get(model,&iter,1,&old_name,-1);
-
+    gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&old_name,-1);
     g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
     
     GST_INFO("about to edit preset : '%s'",old_name);
-    
+    //gst_preset_get_meta(GST_PRESET(machine),old_name,"comment",&comment);
     new_name=g_strdup(old_name);
     // change for name & comment
-    if(preset_list_edit_preset_meta(self,&new_name,&comment)) {
+    if(preset_list_edit_preset_meta(self,machine,&new_name,&comment)) {
       gst_preset_rename_preset(GST_PRESET(machine),old_name,new_name);
       //gst_preset_set_meta(GST_PRESET(machine),new_name,"comment",comment);
       preset_list_refresh(self);
@@ -524,17 +531,14 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
   model=gtk_tree_view_get_model(tree_view);
   if(gtk_tree_model_get_iter(model,&iter,path)) {
     gchar *name;
-    BtMainWindow *main_window;
     GstElement *machine;
 
-    gtk_tree_model_get(model,&iter,1,&name,-1);
+    gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&name,-1);
 
     g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
     
     GST_INFO("about to load preset : '%s'",name);
     gst_preset_load_preset(GST_PRESET(machine),name);
-    g_object_unref(main_window);
     gst_object_unref(machine);
   }
 }

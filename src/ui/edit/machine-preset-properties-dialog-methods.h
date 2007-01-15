@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog-methods.h,v 1.1 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: machine-preset-properties-dialog-methods.h,v 1.2 2007-01-15 21:43:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,7 +25,7 @@
 #include "machine-preset-properties-dialog.h"
 #include "edit-application.h"
 
-extern BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,gchar **name,gchar **comment);
+extern BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,GstElement *machine,gchar **name,gchar **comment);
 extern void bt_machine_preset_properties_dialog_apply(const BtMachinePresetPropertiesDialog *self);
 
 #endif // BT_MACHINE_PRESET_PROPERTIES_DIALOG_METHDOS_H

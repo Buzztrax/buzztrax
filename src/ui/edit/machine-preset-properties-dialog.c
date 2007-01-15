@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.1 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.2 2007-01-15 21:43:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -32,6 +32,7 @@
 
 enum {
   MACHINE_PRESET_PROPERTIES_DIALOG_APP=1,
+  MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE,
   MACHINE_PRESET_PROPERTIES_DIALOG_NAME,
   MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT
 };
@@ -42,6 +43,10 @@ struct _BtMachinePresetPropertiesDialogPrivate {
   
   /* the application */
   BtEditApplication *app;
+  
+  /* the element that has the presets */
+  GstElement *machine;
+  GList *presets;
 
   /* dialog data */
   gchar *name,*comment;
@@ -58,17 +63,23 @@ static GtkDialogClass *parent_class=NULL;
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtMachinePresetPropertiesDialog *self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(user_data);
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
+  gboolean valid=TRUE;
 
-  GST_INFO("preset text changed");
+  GST_INFO("preset text changed: '%s'",name);
 
   g_assert(user_data);
-  // assure validity of the entered data
-  if(!(*name)) {
-    gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
-  }
-  else {
-    gtk_widget_set_sensitive(self->priv->okay_button,TRUE);
-  }
+  // assure validity & uniquness of the entered data
+  if(!(*name)) 
+    // empty box
+    valid=FALSE;
+  else if(*self->priv->name_ptr && strcmp(name,*self->priv->name_ptr) && g_list_find_custom(self->priv->presets,name,(GCompareFunc)strcmp))
+    // non empty old name && name has changed && name already exists
+    valid=FALSE;
+  else if(!(*self->priv->name_ptr) && g_list_find_custom(self->priv->presets,name,(GCompareFunc)strcmp))
+    // name already exists
+    valid=FALSE;
+  
+  gtk_widget_set_sensitive(self->priv->okay_button,valid);
   g_free(self->priv->name);
   self->priv->name=g_strdup(name);
 }
@@ -124,7 +135,10 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
   widget=gtk_entry_new();
-  if(self->priv->name) gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
+  if(self->priv->name)
+    gtk_entry_set_text(GTK_ENTRY(widget),self->priv->name);
+  else
+    gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
@@ -155,10 +169,10 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
  *
  * Returns: the new instance or NULL in case of an error
  */
-BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,gchar **name,gchar **comment) {
+BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const BtEditApplication *app,GstElement *machine,gchar **name,gchar **comment) {
   BtMachinePresetPropertiesDialog *self;
 
-  if(!(self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,"app",app,"name",name,"comment",comment,NULL)))) {
+  if(!(self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(g_object_new(BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG,"app",app,"machine",machine,"name",name,"comment",comment,NULL)))) {
     goto Error;
   }
   // generate UI
@@ -205,6 +219,9 @@ static void bt_machine_preset_properties_dialog_get_property(GObject      *objec
     case MACHINE_PRESET_PROPERTIES_DIALOG_APP: {
       g_value_set_object(value, self->priv->app);
     } break;
+    case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE: {
+      g_value_set_object(value, self->priv->machine);
+    } break;
     case MACHINE_PRESET_PROPERTIES_DIALOG_NAME: {
       g_value_set_pointer(value, self->priv->name_ptr);
     } break;
@@ -229,7 +246,13 @@ static void bt_machine_preset_properties_dialog_set_property(GObject      *objec
     case MACHINE_PRESET_PROPERTIES_DIALOG_APP: {
       g_object_try_unref(self->priv->app);
       self->priv->app = g_object_try_ref(g_value_get_object(value));
-      //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
+      //GST_DEBUG("set the app for preset_dialog: %p",self->priv->app);
+    } break;
+    case MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE: {
+      g_object_try_unref(self->priv->machine);
+      self->priv->machine = g_object_try_ref(g_value_get_object(value));
+      GST_DEBUG("set the machine for preset_dialog: %p",self->priv->machine);
+      self->priv->presets=self->priv->machine?gst_preset_get_preset_names(GST_PRESET(self->priv->machine)):NULL;
     } break;
     case MACHINE_PRESET_PROPERTIES_DIALOG_NAME: {
       self->priv->name_ptr = g_value_get_pointer(value);
@@ -258,6 +281,7 @@ static void bt_machine_preset_properties_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_object_try_unref(self->priv->app);
+  g_object_try_unref(self->priv->machine);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -299,6 +323,13 @@ static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetProper
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
+                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE,
+                                  g_param_spec_object("machine",
+                                     "machine construct prop",
+                                     "Set machine object, the dialog handles",
+                                     GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_NAME,

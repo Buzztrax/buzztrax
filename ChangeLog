@@ -1,3 +1,23 @@
+2007-01-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preset-properties-dialog-methods.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(on_name_changed), (bt_machine_preset_properties_dialog_init_ui),
+	(bt_machine_preset_properties_dialog_new),
+	(bt_machine_preset_properties_dialog_get_property),
+	(bt_machine_preset_properties_dialog_set_property),
+	(bt_machine_preset_properties_dialog_dispose),
+	(bt_machine_preset_properties_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked), (on_preset_list_row_activated):
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(BT_START_TEST):
+	  make sure preset names are unique, preset iface correctly resolves
+	  names (we don't need to keep pointers)
+
 2007-01-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
