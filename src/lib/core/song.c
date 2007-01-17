@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.156 2006-12-15 06:46:33 ensonic Exp $
+/* $Id: song.c,v 1.157 2007-01-17 21:51:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -224,8 +224,8 @@ static void bt_song_send_tags(const BtSong * const self) {
   gpointer item;
 
   // send tags
-  GST_DEBUG("about to send metadata");
   g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
+  GST_DEBUG("about to send metadata, taglist=%p",taglist);
   it=gst_bin_iterate_all_by_interface(self->priv->bin,GST_TYPE_TAG_SETTER);
   done=FALSE;
   while(!done) {

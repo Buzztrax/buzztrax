@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.62 2006-12-14 05:32:30 ensonic Exp $
+/* $Id: song-io.c,v 1.63 2007-01-17 21:51:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -230,7 +230,7 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
   bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
-    g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
+    bt_song_set_unsaved(song,FALSE);
     //DEBUG
     //bt_song_write_to_dot_file(song);
     //bt_song_write_to_xml_file(song);
@@ -279,7 +279,7 @@ gboolean bt_song_io_save(gconstpointer const self, const BtSong * const song) {
   bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
-    g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
+    bt_song_set_unsaved(song,FALSE);
   }
   bt_song_idle_start(self);
   return(result);

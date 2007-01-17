@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.84 2006-12-22 20:05:31 ensonic Exp $
+/* $Id: edit-application.c,v 1.85 2007-01-17 21:51:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -368,7 +368,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
       ) {
         GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(machine))->ref_count);
         // set new song in application
-        g_object_set(G_OBJECT(song),"unsaved",FALSE,NULL);
+        bt_song_set_unsaved(song,FALSE);
         g_object_set(G_OBJECT(self),"song",song,NULL);
         res=TRUE;
       }

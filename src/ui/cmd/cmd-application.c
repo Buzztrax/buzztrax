@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.85 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: cmd-application.c,v 1.86 2007-01-17 21:51:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -89,7 +89,12 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
   if(bt_song_play(song)) {
     GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
-    GST_INFO("playing started");
+    GST_INFO("playing is starting, is_playing=%d",is_playing);
+    while(!is_playing) {
+      while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
+      g_usleep(1000);
+    }
+    GST_INFO("playing has started, is_playing=%d",is_playing);
     while(is_playing && (pos<length)) {
       bt_song_update_playback_position(song);
       g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);

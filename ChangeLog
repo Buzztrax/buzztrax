@@ -1,3 +1,22 @@
+2007-01-17  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c: (bt_init_post):
+	  disabled the scheduler change again
+
+	* src/lib/core/song-info.c: (bt_song_info_persistence_load),
+	(bt_song_info_set_property):
+	  add BPM to the supported tags
+
+	* src/lib/core/song-io.c: (bt_song_io_load), (bt_song_io_save):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song):
+	  fix warnings
+
+	* src/lib/core/song.c: (bt_song_send_tags):
+	  more logging
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song):
+	  fix async handing in playback/encoding
+
 2007-01-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preset-properties-dialog-methods.h:

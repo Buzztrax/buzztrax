@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.32 2006-12-17 13:43:10 ensonic Exp $
+/* $Id: core.c,v 1.33 2007-01-17 21:51:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -108,7 +108,10 @@ static gboolean bt_init_post (void) {
     GST_WARNING("gnome vfs failed to initialize");
     goto Error;
   }
-  
+
+#if 0
+// I just got
+// switching scheduler failed: Die Operation ist nicht erlaubt
 #ifdef HAVE_SCHED_SETSCHEDULER
   // @idea; only do this in non-debug builds
   //http://www.gnu.org/software/libc/manual/html_node/Basic-Scheduling-Functions.html
@@ -117,15 +120,18 @@ static gboolean bt_init_post (void) {
 
     p.sched_priority=sched_get_priority_min(SCHED_RR);
     //p.sched_priority=sched_get_priority_max(SCHED_RR);
-    if(sched_setscheduler(0,SCHED_RR,&p)<0)
+    if(sched_setscheduler(0,SCHED_RR,&p)<0) {
       GST_WARNING("switching scheduler failed: %s",g_strerror(errno));
-    else
+    }
+    else {
       GST_INFO("switched scheduler");
 #if HAVE_MLOCKALL
-    if(mlockall(MCL_CURRENT)<0)
-      GST_WARNING("locking memory pages failed: %s",g_strerror(errno));
+      if(mlockall(MCL_CURRENT)<0)
+        GST_WARNING("locking memory pages failed: %s",g_strerror(errno));
 #endif
+    }
   }
+#endif
 #endif
   
   res=TRUE;
