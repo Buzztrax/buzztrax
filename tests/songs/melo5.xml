@@ -82,7 +82,7 @@
               <globaldata name="wave" value="2"/>
               <globaldata name="filter" value="1"/>
               <globaldata name="cut-off" value="0.05"/>
-              <globaldata name="resonance" value="0.1"/>
+              <globaldata name="resonance" value="1.5"/>
             </tick>
             <tick time="2">
               <globaldata name="note" value="c-3"/>
@@ -92,7 +92,7 @@
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="0.7"/>
               <globaldata name="cut-off" value="0.15"/>
-              <globaldata name="resonance" value="0.2"/>
+              <globaldata name="resonance" value="1.0"/>
             </tick>
             <tick time="6">
               <globaldata name="note" value="c-3"/>
@@ -102,7 +102,7 @@
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="1.0"/>
               <globaldata name="cut-off" value="0.25"/>
-              <globaldata name="resonance" value="0.3"/>
+              <globaldata name="resonance" value="0.7"/>
             </tick>
             <tick time="10">
               <globaldata name="note" value="c-3"/>
@@ -112,7 +112,7 @@
               <globaldata name="note" value="c-2"/>
               <globaldata name="volume" value="0.7"/>
               <globaldata name="cut-off" value="0.35"/>
-              <globaldata name="resonance" value="0.4"/>
+              <globaldata name="resonance" value="0.7"/>
             </tick>
             <tick time="14">
               <globaldata name="note" value="c-3"/>
@@ -121,7 +121,7 @@
             <tick time="15">
               <globaldata name="note" value="c-4"/>
               <globaldata name="cut-off" value="0.45"/>
-              <globaldata name="resonance" value="0.5"/>
+              <globaldata name="resonance" value="0.85"/>
             </tick>
           </pattern>
         </patterns>
