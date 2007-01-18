@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.61 2007-01-17 21:51:51 ensonic Exp $
+/* $Id: song-info.c,v 1.62 2007-01-18 09:42:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -295,7 +295,7 @@ static void bt_song_info_set_property(GObject      * const object,
     } break;
     case SONG_INFO_BPM: {
       self->priv->beats_per_minute = g_value_get_ulong(value);
-#if GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=12
+#if (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=12) || (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=11 && GST_VERSION_NANO>0 )
       gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
 #endif
       GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);

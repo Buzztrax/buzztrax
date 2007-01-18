@@ -1,5 +1,13 @@
 2007-01-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-info.c: (bt_song_info_set_property):
+	  fix conditional to allow cvs version
+
+	* src/lib/core/song.c: (on_song_state_changed), (bt_song_play):
+	  do the tag writing earlier (needs to be before going to paused)
+
+2007-01-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/bt-cmd-encode.sh:
 	* tests/bt-cmd-info.sh:
 	  use relative path

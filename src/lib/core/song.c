@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.157 2007-01-17 21:51:51 ensonic Exp $
+/* $Id: song.c,v 1.158 2007-01-18 09:42:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -341,8 +341,6 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("element failed to handle seek event");
         }
-        // send tags
-        bt_song_send_tags(self);
         // start playback
         res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
         if(res==GST_STATE_CHANGE_FAILURE) {
@@ -559,6 +557,9 @@ gboolean bt_song_play(const BtSong * const self) {
   
   GST_INFO("prepare playback");
   
+  // send tags
+  bt_song_send_tags(self);
+
   // prepare playback
   self->priv->is_preparing=TRUE;
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
