@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.36 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.37 2007-01-19 18:34:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
     exit(0);
   }
   if(!command) usage(argc, argv, ctx);
-  GST_DEBUG("command=\"%s\" input=\"%s\" output=\"%s\"\n",command, input_file_name, output_file_name);
+  GST_DEBUG("command=\"%s\" input=\"%s\" output=\"%s\"",command, input_file_name, output_file_name);
 
   app=bt_cmd_application_new(arg_quiet);
   // depending on the popt options call the correct method

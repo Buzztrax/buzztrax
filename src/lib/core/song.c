@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.158 2007-01-18 09:42:06 ensonic Exp $
+/* $Id: song.c,v 1.159 2007-01-19 18:34:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -323,7 +323,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   const BtSong * const self = BT_SONG(user_data);
   
   g_assert(user_data);
-  GST_INFO("user_data=%p, user_data.type=%s",user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)));
+  //GST_INFO("user_data=%p, user_data.type=%s",user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)));
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GstStateChangeReturn res;

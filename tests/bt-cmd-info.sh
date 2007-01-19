@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bt-cmd-info.sh,v 1.8 2007-01-18 08:21:35 ensonic Exp $
+# $Id: bt-cmd-info.sh,v 1.9 2007-01-19 18:34:54 ensonic Exp $
 # run bt-cmd --command=info on all example and test for crashes
 
 . ./bt-cfg.sh
@@ -14,6 +14,7 @@ for song in $E_SONGS; do
   echo "testing $song"
   info=`basename $song .xml`
   info="$TESTRESULTDIR/$info.txt"
+  echo >>/tmp/bt_cmd_info.log "== $song =="
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute ../src/ui/cmd/bt-cmd >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
   if [ $? -ne 0 ]; then exit 1; fi
 done

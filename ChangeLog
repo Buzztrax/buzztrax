@@ -1,3 +1,18 @@
+2007-01-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_state_changed):
+	  less log spam
+
+	* src/ui/cmd/bt-cmd.c: (main):
+	  remove \n from log statement
+
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  add dividers per test
+
+	* tests/songs/buzz2.xml:
+	  fix broken song
+
 2007-01-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song-info.c: (bt_song_info_set_property):
