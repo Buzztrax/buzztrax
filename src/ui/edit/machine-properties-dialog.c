@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.61 2007-01-15 21:43:50 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.62 2007-01-20 19:43:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,13 +48,7 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *main_toolbar,*preset_toolbar;
   GtkWidget *preset_box;
   GtkWidget *preset_list;
-  
-  /* widgets and their handlers */
-  //GtkWidget *widgets;
-  //gulong *notify_id,*change_id;
-  
-  //GtkWidget *vbox,*scrolled_window;
-  //GHashTable *expanders;
+  GtkTooltips *preset_tips;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -63,7 +57,8 @@ static GQuark range_label_quark=0;
 static GQuark range_parent_quark=0;
 
 enum {
-  PRESET_LIST_LABEL=0
+  PRESET_LIST_LABEL=0,
+  PRESET_LIST_COMMENT
 };
 
 //-- event handler helper
@@ -94,6 +89,7 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   GtkListStore *store;
   GtkTreeIter tree_iter;
   GList *presets,*node;
+  gchar *comment;
 
   GST_INFO("rebuilding preset list");
   
@@ -102,11 +98,14 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   
   // we store the string twice, as we use the pointer as the key in the hashmap
   // and the string gets copied
-  store=gtk_list_store_new(1,G_TYPE_STRING);
+  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
   for(node=presets;node;node=g_list_next(node)) {
-    //GST_INFO(" adding item : '%s'",node->data);
+    gst_preset_get_meta(GST_PRESET(machine),node->data,"comment",&comment);
+    GST_INFO(" adding item : '%s', '%s'",node->data,comment);
+
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,node->data,-1);
+    gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,node->data,PRESET_LIST_COMMENT,comment,-1);
+    g_free(comment);
   }
   gtk_tree_view_set_model(GTK_TREE_VIEW(self->priv->preset_list),GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
@@ -456,7 +455,7 @@ static void on_toolbar_preset_add_clicked(GtkButton *button,gpointer user_data) 
   // ask for name & comment
   if(preset_list_edit_preset_meta(self,machine,&name,&comment)) {
     gst_preset_save_preset(GST_PRESET(machine),name);
-    //gst_preset_set_meta(GST_PRESET(machine),new_name,"comment",comment);
+    gst_preset_set_meta(GST_PRESET(machine),name,"comment",comment);
     preset_list_refresh(self);
   }
   gst_object_unref(machine);
@@ -493,22 +492,23 @@ static void on_toolbar_preset_edit_clicked(GtkButton *button,gpointer user_data)
   // get current preset from list
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
-    gchar *old_name,*new_name,*comment=NULL;
+    gchar *old_name,*new_name,*comment;
     GstElement *machine;
 
     gtk_tree_model_get(model,&iter,PRESET_LIST_LABEL,&old_name,-1);
     g_object_get(G_OBJECT(self->priv->machine),"machine",&machine,NULL);
     
     GST_INFO("about to edit preset : '%s'",old_name);
-    //gst_preset_get_meta(GST_PRESET(machine),old_name,"comment",&comment);
+    gst_preset_get_meta(GST_PRESET(machine),old_name,"comment",&comment);
     new_name=g_strdup(old_name);
     // change for name & comment
     if(preset_list_edit_preset_meta(self,machine,&new_name,&comment)) {
       gst_preset_rename_preset(GST_PRESET(machine),old_name,new_name);
-      //gst_preset_set_meta(GST_PRESET(machine),new_name,"comment",comment);
+      gst_preset_set_meta(GST_PRESET(machine),new_name,"comment",comment);
       preset_list_refresh(self);
     }
     g_free(old_name);
+    g_free(comment);
     gst_object_unref(machine);
   }
 }
@@ -541,6 +541,57 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
     gst_preset_load_preset(GST_PRESET(machine),name);
     gst_object_unref(machine);
   }
+}
+
+static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *event,gpointer user_data) {
+  const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GdkWindow *bin_window;
+  GtkTreePath *path;
+  GtkTreeViewColumn *column;
+
+  bin_window=gtk_tree_view_get_bin_window(tree_view);
+  if(event->window!=bin_window) return;
+
+  if(gtk_tree_view_get_path_at_pos(tree_view,(gint)event->x,(gint)event->y,&path,&column,NULL,NULL)) {
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+   
+    model=gtk_tree_view_get_model(tree_view);
+    if(gtk_tree_model_get_iter(model,&iter,path)) {
+      static gchar *old_comment=NULL;
+      gchar *comment;
+      GtkWindow *tip_window=GTK_WINDOW(self->priv->preset_tips->tip_window);
+      
+      gtk_tree_model_get(model,&iter,PRESET_LIST_COMMENT,&comment,-1);
+      if(!comment || !old_comment || (comment && old_comment && strcmp(comment,old_comment))) {
+        GST_INFO("tip is '%s'",comment);
+        //gtk_tooltips_set_tip(self->priv->preset_tips,GTK_WIDGET(tree_view),(comment?comment:""),NULL);
+        gtk_tooltips_set_tip(self->priv->preset_tips,GTK_WIDGET(tree_view),comment,NULL);
+        if(tip_window && GTK_WIDGET_VISIBLE(tip_window)) {
+          GdkRectangle vr,cr;
+          gint ox,oy,tx,ty;
+                   
+          gtk_tree_view_get_visible_rect(tree_view,&vr);
+          gtk_tree_view_get_background_area(tree_view,path,column,&cr);
+          gdk_window_get_origin(bin_window,&tx,&ty);
+          gtk_tree_view_tree_to_widget_coords(tree_view,vr.x+cr.x,vr.y+cr.y,&ox,&oy);
+          GST_INFO("tx=%4d,ty=%4d  ox=%4d,oy=%4d",tx,ty,ox,oy);
+          //tx += GTK_WIDGET(tree_view)->allocation.x + ox + cr.width / 2 - (GTK_WIDGET(tip_window)->allocation.width / 2 + 4);
+          //ty += GTK_WIDGET(tree_view)->allocation.y + oy + cr.height;
+          tx += ox + cr.width / 2 - (GTK_WIDGET(tip_window)->allocation.width / 2 + 4);
+          ty += oy + cr.height;
+          GST_INFO("tx=%4d,ty=%4d",tx,ty);
+          gtk_window_move(tip_window,tx,ty);
+        }
+        old_comment=comment;
+      }
+    }
+    gtk_tree_path_free(path);
+  }
+}
+
+static void on_preset_list_selection_changed(GtkTreeSelection *treeselection,gpointer user_data) {
+  gtk_widget_set_sensitive(GTK_WIDGET(user_data),(gtk_tree_selection_count_selected_rows(treeselection)!=0));
 }
 
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
@@ -755,7 +806,7 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
 static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachinePropertiesDialog *self) {
   GtkTooltips *tips=gtk_tooltips_new();
   GtkWidget *scrolled_window;
-  GtkWidget *tool_item;
+  GtkWidget *tool_item,*remove_tool_button,*edit_tool_button;
   GtkTreeSelection *tree_sel;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
@@ -770,15 +821,15 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_add_clicked),(gpointer)self);
 
-  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_REMOVE));
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Remove preset"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_remove_clicked),(gpointer)self);
+  remove_tool_button=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_REMOVE));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(remove_tool_button),GTK_TOOLTIPS(tips),_("Remove preset"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(remove_tool_button),-1);
+  g_signal_connect(G_OBJECT(remove_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_remove_clicked),(gpointer)self);
   
-  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_EDIT));
-  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Edit preset name and comment"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
+  edit_tool_button=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_EDIT));
+  gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(edit_tool_button),GTK_TOOLTIPS(tips),_("Edit preset name and comment"),NULL);
+  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(edit_tool_button),-1);
+  g_signal_connect(G_OBJECT(edit_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
   
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Generate and load random preset"),NULL);
@@ -793,9 +844,15 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_IN);
   self->priv->preset_list=gtk_tree_view_new();
   g_object_set(self->priv->preset_list,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
+  gtk_widget_set_events(self->priv->preset_list,gtk_widget_get_events(self->priv->preset_list)|GDK_POINTER_MOTION_MASK);
   tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
+  self->priv->preset_tips=gtk_tooltips_new();
+  gtk_tooltips_set_tip(self->priv->preset_tips,self->priv->preset_list,"",NULL);
   g_signal_connect(G_OBJECT(self->priv->preset_list), "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->preset_list), "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(tree_sel), "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)remove_tool_button);
+  g_signal_connect(G_OBJECT(tree_sel), "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)edit_tool_button);
 
   // add cell renderers
   renderer=gtk_cell_renderer_text_new();

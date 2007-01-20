@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.34 2006-03-08 21:37:54 ensonic Exp $
+## $Id: Makefile.am,v 1.35 2007-01-20 19:43:34 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -76,7 +76,20 @@ marshal.c: marshal.list
 	glib-genmarshal --body --prefix=bt_marshal $(srcdir)/marshal.list >> marshal.c.tmp
 	mv marshal.c.tmp marshal.c
 
-.PHONY: splint
+
+.PHONY: help todo stats splint
+
+todo::
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
+
+stats::
+	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -n
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_la_SOURCES)
+
+help::
+	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
+	@echo "make stats                   -- run source code stats"
+	@echo "make splint                  -- run splint source code checks"

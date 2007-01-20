@@ -62,7 +62,19 @@ EXTRA_DIST = $(desktop_DATA)
 clean-local:
 	rm -f bt-edit.desktop
 
-.PHONY: splint
+.PHONY: help todo stats splint
+
+todo::
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
+
+stats::
+	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -n
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtedit_la_SOURCES)
+
+help::
+	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
+	@echo "make stats                   -- run source code stats"
+	@echo "make splint                  -- run splint source code checks"

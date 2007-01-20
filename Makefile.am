@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.62 2006-10-16 12:47:27 ensonic Exp $
+## $Id: Makefile.am,v 1.63 2007-01-20 19:43:34 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -120,7 +120,7 @@ install-data-local:
 distuninstallcheck_listfiles = find . -type f -print | grep -v '^\./var/scrollkeeper' | grep -v '^\./share/mime'
 
 
-.PHONY: coverage splint todo valgrind dict
+.PHONY: help coverage valgrind dict todo stats splint
 
 if USE_COVERAGE
 coverage::
@@ -131,13 +131,6 @@ coverage::
 	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
 endif
 
-splint::
-	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
-
-todo::
-	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
-	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
-
 if USE_VALGRIND
 valgrind::
 	$(MAKE) -C tests valgrind
@@ -146,3 +139,24 @@ endif
 dict:: tags
 	echo "personal_ws" >$(PACKAGE).aspell_dict
 	@find . -name tags -exec grep -v "$\!" {} \; | cut -f1 | sort | uniq >>$(PACKAGE).aspell_dict
+
+todo::
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
+
+stats::
+	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -n
+
+splint::
+	for dir in $(SRCDIRS); do $(MAKE) -C $$dir splint ; done
+
+help::
+	@echo "make coverage                -- run all checks and generate html coverage report"
+	@echo "                                only availble when built using --enable-coverage"
+	@echo "make valgrind                -- run all checks under valgrind"
+	@echo
+	@echo "make dict                    -- create an aspell dictionary from tags"
+	@echo
+	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
+	@echo "make stats                   -- run source code stats"
+	@echo "make splint                  -- run splint source code checks"

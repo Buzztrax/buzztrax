@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.31 2007-01-06 16:01:33 ensonic Exp $
+/* $Id: bt-check.c,v 1.32 2007-01-20 19:43:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -890,6 +890,10 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   g_return_if_fail(GTK_IS_WIDGET(widget));
 
   // make sure the window gets drawn  
+  if(!GTK_WIDGET_VISIBLE(widget)) {
+    gtk_widget_show_all(widget);
+  }
+  gtk_widget_queue_draw(widget);
   while(gtk_events_pending()) gtk_main_iteration();
   
   if(!name) {

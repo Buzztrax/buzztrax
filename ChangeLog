@@ -1,3 +1,23 @@
+2007-01-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* src/Makefile.am:
+	* src/lib/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/ui/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  added make help and make stats targets
+
+	* src/ui/edit/machine-properties-dialog.c: (preset_list_refresh),
+	(on_toolbar_preset_add_clicked), (on_toolbar_preset_edit_clicked),
+	(on_preset_list_motion_notify), (on_preset_list_selection_changed),
+	(bt_machine_properties_dialog_init_preset_box):
+	  added comment metadata stuff and treeview tooltips (not perfect yet)
+	  
+	* tests/bt-check.c: (check_make_widget_screenshot):
+	  make sure it draws before capturing
+
 2007-01-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (on_song_state_changed):

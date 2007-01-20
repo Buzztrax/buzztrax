@@ -21,7 +21,19 @@ INCLUDES = \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
-.PHONY: splint
+.PHONY: help todo stats splint
+
+todo::
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
+	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
+
+stats::
+	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -n
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcmd_la_SOURCES)
+
+help::
+	@echo "make todo                    -- generate a list of TODO items in the form of gcc error/warnings"
+	@echo "make stats                   -- run source code stats"
+	@echo "make splint                  -- run splint source code checks"
