@@ -1,4 +1,4 @@
-/* $Id: persistence.c,v 1.14 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: persistence.c,v 1.15 2007-01-22 21:00:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -342,7 +342,7 @@ GType bt_persistence_get_type (void) {
   static GType type = 0;
   
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtPersistenceInterface),
       bt_persistence_base_init,   /* base_init */
       NULL,   /* base_finalize */

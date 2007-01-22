@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.34 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-pages.c,v 1.35 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -303,7 +303,7 @@ static void bt_main_pages_class_init(BtMainPagesClass *klass) {
 GType bt_main_pages_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPagesClass),
       NULL, // base_init
       NULL, // base_finalize

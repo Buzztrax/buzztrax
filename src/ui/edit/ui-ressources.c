@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.c,v 1.12 2006-09-30 20:42:55 ensonic Exp $
+/* $Id: ui-ressources.c,v 1.13 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -362,7 +362,7 @@ static void bt_ui_ressources_class_init(BtUIRessourcesClass *klass) {
 GType bt_ui_ressources_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtUIRessourcesClass),
       NULL, // base_init
       NULL, // base_finalize

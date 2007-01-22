@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.17 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.18 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -347,7 +347,7 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
 GType bt_pattern_properties_dialog_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtPatternPropertiesDialogClass),
       NULL, // base_init
       NULL, // base_finalize

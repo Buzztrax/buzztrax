@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.83 2006-09-05 21:41:43 ensonic Exp $
+/* $Id: main-window.c,v 1.84 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -662,7 +662,7 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
 GType bt_main_window_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainWindowClass),
       NULL, // base_init
       NULL, // base_finalize

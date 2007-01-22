@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.91 2006-10-22 16:35:24 ensonic Exp $
+/* $Id: pattern.c,v 1.92 2007-01-22 21:00:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1204,7 +1204,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
 GType bt_pattern_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtPatternClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -1216,7 +1216,7 @@ GType bt_pattern_get_type(void) {
       (GInstanceInitFunc)bt_pattern_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_pattern_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

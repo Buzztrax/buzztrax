@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.21 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.22 2007-01-22 21:00:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -162,7 +162,7 @@ static void bt_plainfile_settings_class_init(BtPlainfileSettingsClass * const kl
 GType bt_plainfile_settings_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtPlainfileSettingsClass),
       NULL, // base_init
       NULL, // base_finalize

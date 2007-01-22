@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.22 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.23 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -249,7 +249,7 @@ static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesC
 GType bt_settings_page_audiodevices_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSettingsPageAudiodevicesClass),
       NULL, // base_init
       NULL, // base_finalize

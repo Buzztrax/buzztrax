@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.17 2006-09-03 13:18:37 ensonic Exp $
+/* $Id: wavelevel.c,v 1.18 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -349,7 +349,7 @@ static void bt_wavelevel_class_init(BtWavelevelClass * const klass) {
 GType bt_wavelevel_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtWavelevelClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -361,7 +361,7 @@ GType bt_wavelevel_get_type(void) {
       (GInstanceInitFunc)bt_wavelevel_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_wavelevel_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

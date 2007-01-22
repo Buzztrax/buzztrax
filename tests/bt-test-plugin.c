@@ -1,4 +1,4 @@
-/* $Id: bt-test-plugin.c,v 1.16 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: bt-test-plugin.c,v 1.17 2007-01-22 21:01:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -182,7 +182,7 @@ static void bt_test_mono_source_base_init(BtTestMonoSourceClass *klass) {
 GType bt_test_mono_source_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtTestMonoSourceClass),
       (GBaseInitFunc)bt_test_mono_source_base_init,   // base_init
       NULL, // base_finalize
@@ -194,7 +194,7 @@ GType bt_test_mono_source_get_type(void) {
       (GInstanceInitFunc)bt_test_mono_source_init, // instance_init
       NULL  // value_table
     };
-    static const GInterfaceInfo tempo_interface_info = {
+    const GInterfaceInfo tempo_interface_info = {
       (GInterfaceInitFunc) bt_test_tempo_interface_init,          /* interface_init */
       NULL,               /* interface_finalize */
       NULL                /* interface_data */
@@ -317,7 +317,7 @@ static void bt_test_poly_source_base_init(BtTestPolySourceClass *klass) {
 GType bt_test_poly_source_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtTestPolySourceClass),
       (GBaseInitFunc)bt_test_poly_source_base_init,   // base_init
       NULL, // base_finalize
@@ -329,17 +329,17 @@ GType bt_test_poly_source_get_type(void) {
       (GInstanceInitFunc)bt_test_poly_source_init, // instance_init
       NULL  // value_table
     };
-    static const GInterfaceInfo tempo_interface_info = {
+    const GInterfaceInfo tempo_interface_info = {
       (GInterfaceInitFunc) bt_test_tempo_interface_init,          /* interface_init */
       NULL,               /* interface_finalize */
       NULL                /* interface_data */
     };
-    static const GInterfaceInfo child_proxy_interface_info = {
+    const GInterfaceInfo child_proxy_interface_info = {
       (GInterfaceInitFunc) bt_test_child_proxy_interface_init,    /* interface_init */
       NULL,               /* interface_finalize */
       NULL                /* interface_data */
     };
-    static const GInterfaceInfo child_bin_interface_info = {
+    const GInterfaceInfo child_bin_interface_info = {
       NULL,               /* interface_init */
       NULL,               /* interface_finalize */
       NULL                /* interface_data */

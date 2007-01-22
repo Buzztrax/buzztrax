@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.23 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: wave.c,v 1.24 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -401,7 +401,7 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
 GType bt_wave_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtWaveClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -413,7 +413,7 @@ GType bt_wave_get_type(void) {
       (GInstanceInitFunc)bt_wave_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_wave_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

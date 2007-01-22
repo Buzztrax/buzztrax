@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.74 2006-10-16 13:07:03 ensonic Exp $
+/* $Id: sink-machine.c,v 1.75 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -230,7 +230,7 @@ static void bt_sink_machine_class_init(BtSinkMachineClass *klass) {
 GType bt_sink_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSinkMachineClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -242,7 +242,7 @@ GType bt_sink_machine_get_type(void) {
       (GInstanceInitFunc)bt_sink_machine_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_sink_machine_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.28 2006-10-14 16:07:21 ensonic Exp $
+/* $Id: sequence-view.c,v 1.29 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -384,7 +384,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
 GType bt_sequence_view_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSequenceViewClass),
       NULL, // base_init
       NULL, // base_finalize

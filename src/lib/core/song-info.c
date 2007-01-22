@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.62 2007-01-18 09:42:06 ensonic Exp $
+/* $Id: song-info.c,v 1.63 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -522,7 +522,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
 GType bt_song_info_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSongInfoClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -534,7 +534,7 @@ GType bt_song_info_get_type(void) {
       (GInstanceInitFunc)bt_song_info_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_song_info_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

@@ -1,3 +1,78 @@
+2007-01-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gobject/song.c: (bt_song_get_type):
+	* src/lib/core/application.c: (bt_application_get_type):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_type):
+	* src/lib/core/machine.c: (bt_machine_get_type):
+	* src/lib/core/pattern.c: (bt_pattern_get_type):
+	* src/lib/core/persistence-location.c:
+	(bt_persistence_location_get_type):
+	* src/lib/core/persistence-selection.c:
+	(bt_persistence_selection_get_type):
+	* src/lib/core/persistence.c: (bt_persistence_get_type):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_get_type):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_get_type):
+	* src/lib/core/sequence.c: (bt_sequence_get_type):
+	* src/lib/core/settings.c: (bt_settings_get_type):
+	* src/lib/core/setup.c: (bt_setup_get_type):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_get_type):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_get_type):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_get_type):
+	* src/lib/core/song.c: (bt_song_update_playback_position),
+	(bt_song_get_type):
+	* src/lib/core/source-machine.c: (bt_source_machine_get_type):
+	* src/lib/core/wave.c: (bt_wave_get_type):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_get_type):
+	* src/lib/core/wavetable.c: (bt_wavetable_get_type):
+	* src/lib/core/wire.c: (bt_wire_get_type):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song),
+	(bt_cmd_application_get_type):
+	* src/ui/edit/edit-application.c: (bt_edit_application_get_type):
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_get_type):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_get_type):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_get_type):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_get_type):
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(bt_machine_preset_properties_dialog_get_type):
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_get_type):
+	* src/ui/edit/main-menu.c: (bt_main_menu_get_type):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_get_type):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_get_type):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_type):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_get_type):
+	* src/ui/edit/main-page-waves.c: (bt_main_page_waves_get_type):
+	* src/ui/edit/main-pages.c: (bt_main_pages_get_type):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_get_type):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_get_type):
+	* src/ui/edit/main-window.c: (bt_main_window_get_type):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_get_type):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_get_type):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_get_type):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_get_type):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_get_type):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_get_type):
+	* src/ui/edit/volume-popup.c: (bt_volume_popup_get_type):
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_get_type):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_get_type):
+	* tests/bt-test-plugin.c: (bt_test_mono_source_get_type),
+	(bt_test_poly_source_get_type):
+	* tests/bt-test-settings.c: (bt_test_settings_get_type):
+	  don't use static for local data that gets copied anyway
+
 2007-01-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.62 2007-01-20 19:43:34 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.63 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -864,6 +864,12 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   else GST_WARNING("can't create treeview column");
   
   // add list data
+  /* @todo: need a presets-changed signal refresh the list
+   * - then we can also remove the preset_list_refresh() calls in the callback
+   *   that change the presets
+   * @todo: need a presets-changed signal on the class level
+   * - if we have two instances running, the other wants to reload the list
+   */
   preset_list_refresh(self);
 
   gtk_container_add(GTK_CONTAINER(scrolled_window),self->priv->preset_list);
@@ -1374,7 +1380,7 @@ static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogCla
 GType bt_machine_properties_dialog_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtMachinePropertiesDialogClass),
       NULL, // base_init
       NULL, // base_finalize

@@ -1,4 +1,4 @@
-/* $Id: bt-test-settings.c,v 1.2 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: bt-test-settings.c,v 1.3 2007-01-22 21:01:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -188,7 +188,7 @@ static void bt_test_settings_class_init(BtTestSettingsClass * const klass) {
 GType bt_test_settings_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtTestSettingsClass),
       NULL, // base_init
       NULL, // base_finalize

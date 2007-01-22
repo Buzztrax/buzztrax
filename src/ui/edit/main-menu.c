@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.62 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-menu.c,v 1.63 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -715,7 +715,7 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
 GType bt_main_menu_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainMenuClass),
       NULL, // base_init
       NULL, // base_finalize

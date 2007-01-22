@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.2 2007-01-15 21:43:50 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.3 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -348,7 +348,7 @@ static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetProper
 GType bt_machine_preset_properties_dialog_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtMachinePresetPropertiesDialogClass),
       NULL, // base_init
       NULL, // base_finalize

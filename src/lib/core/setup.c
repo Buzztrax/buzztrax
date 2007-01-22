@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.104 2006-11-25 14:08:00 ensonic Exp $
+/* $Id: setup.c,v 1.105 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -917,7 +917,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
 GType bt_setup_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSetupClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -929,7 +929,7 @@ GType bt_setup_get_type(void) {
       (GInstanceInitFunc)bt_setup_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_setup_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

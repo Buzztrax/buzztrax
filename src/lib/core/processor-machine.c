@@ -1,4 +1,4 @@
-/* $Id: processor-machine.c,v 1.46 2006-10-16 13:07:03 ensonic Exp $
+/* $Id: processor-machine.c,v 1.47 2007-01-22 21:00:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -250,7 +250,7 @@ static void bt_processor_machine_class_init(BtProcessorMachineClass * const klas
 GType bt_processor_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtProcessorMachineClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -262,7 +262,7 @@ GType bt_processor_machine_get_type(void) {
       (GInstanceInitFunc)bt_processor_machine_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_processor_machine_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

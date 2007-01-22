@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.29 2006-09-02 19:47:22 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.30 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -308,7 +308,7 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
 GType bt_settings_dialog_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSettingsDialogClass),
       NULL, // base_init
       NULL, // base_finalize

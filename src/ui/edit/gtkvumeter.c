@@ -1,4 +1,4 @@
-/* $Id: gtkvumeter.c,v 1.11 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: gtkvumeter.c,v 1.12 2007-01-22 21:00:58 ensonic Exp $
  *
  * GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
@@ -42,7 +42,7 @@ GtkType gtk_vumeter_get_type (void)
     static GType vumeter_type = 0;
     
     if (G_UNLIKELY(!vumeter_type)) {
-        static const GTypeInfo vumeter_info = {
+        const GTypeInfo vumeter_info = {
             sizeof (GtkVUMeterClass),
             NULL, NULL,
             (GClassInitFunc) gtk_vumeter_class_init,

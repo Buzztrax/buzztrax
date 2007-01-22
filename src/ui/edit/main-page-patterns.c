@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.103 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.104 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1852,7 +1852,7 @@ static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
 GType bt_main_page_patterns_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPagePatternsClass),
       NULL, // base_init
       NULL, // base_finalize

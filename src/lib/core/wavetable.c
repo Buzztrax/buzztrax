@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.25 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: wavetable.c,v 1.26 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -354,7 +354,7 @@ static void bt_wavetable_class_init(BtWavetableClass * const klass) {
 GType bt_wavetable_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtWavetableClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -366,7 +366,7 @@ GType bt_wavetable_get_type(void) {
       (GInstanceInitFunc)bt_wavetable_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_wavetable_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

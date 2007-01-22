@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.42 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: source-machine.c,v 1.43 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -227,7 +227,7 @@ static void bt_source_machine_class_init(BtSourceMachineClass * const klass) {
 GType bt_source_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSourceMachineClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -239,7 +239,7 @@ GType bt_source_machine_get_type(void) {
       (GInstanceInitFunc)bt_source_machine_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_source_machine_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

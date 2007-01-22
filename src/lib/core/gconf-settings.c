@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.31 2006-09-03 13:18:36 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.32 2007-01-22 21:00:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -278,7 +278,7 @@ static void bt_gconf_settings_class_init(BtGConfSettingsClass * const klass) {
 GType bt_gconf_settings_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       (guint16)(sizeof(BtGConfSettingsClass)),
       NULL, // base_init
       NULL, // base_finalize

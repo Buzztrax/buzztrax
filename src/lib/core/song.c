@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.159 2007-01-19 18:34:54 ensonic Exp $
+/* $Id: song.c,v 1.160 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -687,10 +687,10 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
   // query playback position and update self->priv->play-pos;
   gst_element_query(GST_ELEMENT(self->priv->bin),self->priv->position_query);
   gst_query_parse_position(self->priv->position_query,NULL,&pos_cur);
-  GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT,pos_cur);
   if(pos_cur!=-1) {
     // update self->priv->play-pos (in ticks)
-    self->priv->play_pos=pos_cur/bt_sequence_get_bar_time(self->priv->sequence);
+    self->priv->play_pos=(gulong)(pos_cur/bt_sequence_get_bar_time(self->priv->sequence));
+    GST_DEBUG("query playback-pos: cur=%"G_GINT64_FORMAT", %ul",pos_cur,self->priv->play_pos);
     g_object_notify(G_OBJECT(self),"play-pos");
   }
   return(TRUE);
@@ -1208,7 +1208,7 @@ static void bt_song_class_init(BtSongClass * const klass) {
 GType bt_song_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSongClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -1220,7 +1220,7 @@ GType bt_song_get_type(void) {
       (GInstanceInitFunc)bt_song_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_song_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

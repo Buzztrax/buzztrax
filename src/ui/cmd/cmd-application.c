@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.86 2007-01-17 21:51:51 ensonic Exp $
+/* $Id: cmd-application.c,v 1.87 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,6 +25,11 @@
  * This class implements the body of the buzztard commandline tool.
  * It provides application level function like play, convert and encode songs.
  */ 
+/* @todo: shouldn't we start a mainloop, then launch
+ * bt_cmd_application_play_song() in an idle callback, hookup the state-change
+ * and the eos to quit the mainloop and run a timer for the play position prints
+ * (if not in quite mode)
+ */
 #define BT_CMD
 #define BT_CMD_APPLICATION_C
 
@@ -92,7 +97,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
     GST_INFO("playing is starting, is_playing=%d",is_playing);
     while(!is_playing) {
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
-      g_usleep(1000);
+      g_usleep(100);
     }
     GST_INFO("playing has started, is_playing=%d",is_playing);
     while(is_playing && (pos<length)) {
@@ -107,7 +112,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
         printf("\r%02lu:%02lu.%03lu",min,sec,msec);fflush(stdout);
       }
       while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
-      g_usleep(1000);
+      g_usleep(100);
     }
     GST_INFO("finished playing: is_playing=%d, pos=%ld < length=%d",is_playing,pos,length);
     if(!self->priv->quiet) puts("");
@@ -123,6 +128,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
     GST_ERROR("could not play song");
     goto Error;
   }
+  is_playing=FALSE;
 Error:
   g_object_unref(sequence);
   return(res);
@@ -605,7 +611,7 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
 GType bt_cmd_application_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtCmdApplicationClass),
       NULL, // base_init
       NULL, // base_finalize

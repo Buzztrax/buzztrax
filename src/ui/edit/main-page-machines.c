@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.93 2007-01-04 18:13:56 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.94 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1135,7 +1135,7 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
 GType bt_main_page_machines_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPageMachinesClass),
       NULL, // base_init
       NULL, // base_finalize

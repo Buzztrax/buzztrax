@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.28 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.29 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -586,7 +586,7 @@ static void bt_machine_preferences_dialog_class_init(BtMachinePreferencesDialogC
 GType bt_machine_preferences_dialog_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtMachinePreferencesDialogClass),
       NULL, // base_init
       NULL, // base_finalize

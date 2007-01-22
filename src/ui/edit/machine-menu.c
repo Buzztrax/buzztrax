@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.9 2006-09-02 22:15:25 ensonic Exp $
+/* $Id: machine-menu.c,v 1.10 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -313,7 +313,7 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
 GType bt_machine_menu_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMachineMenuClass),
       NULL, // base_init
       NULL, // base_finalize

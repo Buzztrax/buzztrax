@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.227 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: machine.c,v 1.228 2007-01-22 21:00:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2605,7 +2605,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
 GType bt_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMachineClass),
       NULL, // base_init
       NULL, // base_finalize
@@ -2617,7 +2617,7 @@ GType bt_machine_get_type(void) {
       (GInstanceInitFunc)bt_machine_init, // instance_init
       NULL // value_table
     };
-    static const GInterfaceInfo persistence_interface_info = {
+    const GInterfaceInfo persistence_interface_info = {
       (GInterfaceInitFunc) bt_machine_persistence_interface_init,  // interface_init
       NULL, // interface_finalize
       NULL  // interface_data

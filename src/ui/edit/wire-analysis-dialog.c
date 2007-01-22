@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.12 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.13 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -617,7 +617,7 @@ static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass)
 GType bt_wire_analysis_dialog_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtWireAnalysisDialogClass),
       NULL, // base_init
       NULL, // base_finalize

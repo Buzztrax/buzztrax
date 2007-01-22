@@ -1,4 +1,4 @@
-/* $Id: pattern-view.c,v 1.5 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: pattern-view.c,v 1.6 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -306,7 +306,7 @@ static void bt_pattern_view_class_init(BtPatternViewClass *klass) {
 GType bt_pattern_view_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtPatternViewClass),
       NULL, // base_init
       NULL, // base_finalize

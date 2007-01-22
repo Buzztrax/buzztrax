@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.61 2006-09-06 20:17:39 ensonic Exp $
+/* $Id: application.c,v 1.62 2007-01-22 21:00:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -217,7 +217,7 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
 GType bt_application_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       (guint16)(sizeof(BtApplicationClass)),
       NULL, // base_init
       NULL, // base_finalize

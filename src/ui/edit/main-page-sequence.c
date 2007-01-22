@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.144 2007-01-04 18:13:56 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.145 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2452,7 +2452,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
 GType bt_main_page_sequence_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainPageSequenceClass),
       NULL, // base_init
       NULL, // base_finalize

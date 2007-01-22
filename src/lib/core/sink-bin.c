@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.24 2006-10-14 16:07:21 ensonic Exp $
+/* $Id: sink-bin.c,v 1.25 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -612,7 +612,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
 GType bt_sink_bin_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSinkBinClass),
       NULL, // base_init
       NULL, // base_finalize

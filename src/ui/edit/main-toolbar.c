@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.96 2006-11-30 16:07:58 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.97 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -721,7 +721,7 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
 GType bt_main_toolbar_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainToolbarClass),
       NULL, // base_init
       NULL, // base_finalize

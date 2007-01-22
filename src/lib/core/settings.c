@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.31 2006-12-04 21:18:19 ensonic Exp $
+/* $Id: settings.c,v 1.32 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -235,7 +235,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
 GType bt_settings_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSettingsClass),
       NULL, // base_init
       NULL, // base_finalize

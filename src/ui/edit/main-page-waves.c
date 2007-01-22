@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.37 2007-01-04 18:13:56 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.38 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -501,7 +501,7 @@ static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
 GType bt_main_page_waves_get_type(void) {
   static GType type = 0;
   if (type == 0) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtMainPageWavesClass),
       NULL, // base_init
       NULL, // base_finalize

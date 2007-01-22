@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.63 2007-01-17 21:51:51 ensonic Exp $
+/* $Id: song-io.c,v 1.64 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -385,7 +385,7 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
 GType bt_song_io_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtSongIOClass),
       NULL, // base_init
       NULL, // base_finalize

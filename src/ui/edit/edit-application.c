@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.85 2007-01-17 21:51:51 ensonic Exp $
+/* $Id: edit-application.c,v 1.86 2007-01-22 21:00:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -882,7 +882,7 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
 GType bt_edit_application_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtEditApplicationClass),
       NULL, // base_init
       NULL, // base_finalize

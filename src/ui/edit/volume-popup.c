@@ -1,4 +1,4 @@
-/* $Id: volume-popup.c,v 1.5 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: volume-popup.c,v 1.6 2007-01-22 21:00:59 ensonic Exp $
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
@@ -279,7 +279,7 @@ bt_volume_popup_get_type(void)
   static GType type = 0;
 
   if (!type) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       sizeof (BtVolumePopupClass),
       NULL,
       NULL,

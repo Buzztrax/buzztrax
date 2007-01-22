@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.51 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.52 2007-01-22 21:00:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -452,7 +452,7 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
 GType bt_main_statusbar_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
-    static const GTypeInfo info = {
+    const GTypeInfo info = {
       G_STRUCT_SIZE(BtMainStatusbarClass),
       NULL, // base_init
       NULL, // base_finalize
