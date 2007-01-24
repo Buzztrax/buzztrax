@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.87 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: cmd-application.c,v 1.88 2007-01-24 09:27:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -448,13 +448,13 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   GST_INFO("objects initialized");
   
   if(bt_song_io_load(loader,song)) {
-     if(bt_song_io_save(saver,song)) {
+    if(bt_song_io_save(saver,song)) {
       res=TRUE;
     }
     else {
       GST_ERROR("could not save song \"%s\"",output_file_name);
     }
-   }
+  }
   else {
     GST_ERROR("could not load song \"%s\"",input_file_name);
   }

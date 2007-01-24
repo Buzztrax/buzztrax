@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.160 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: song.c,v 1.161 2007-01-24 09:27:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1077,8 +1077,10 @@ static void bt_song_dispose(GObject * const object) {
   g_object_try_unref(self->priv->setup);
   g_object_try_unref(self->priv->wavetable);
   gst_query_unref(self->priv->position_query);
-  if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-	if(self->priv->idle_seek_event) gst_event_unref(self->priv->idle_seek_event);
+  if(self->priv->play_seek_event)
+    gst_event_unref(self->priv->play_seek_event);
+  if(self->priv->idle_seek_event)
+    gst_event_unref(self->priv->idle_seek_event);
   gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 

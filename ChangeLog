@@ -1,3 +1,10 @@
+2007-01-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/cpu/cpuload.c: (main):
+	* src/lib/core/song.c: (bt_song_dispose):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_convert):
+	  antic cleanups
+
 2007-01-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gobject/song.c: (bt_song_get_type):
