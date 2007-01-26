@@ -1,16 +1,16 @@
-# $Id: configure.ac,v 1.87 2006-12-15 06:46:33 ensonic Exp $
+dnl $Id: configure.ac,v 1.88 2007-01-26 15:53:56 ensonic Exp $
 
-#
-# current  : the interface         : MAJOR + MINOR
-# revision : of the same interface : MICRO
-# age      : MINOR
-#
-# 1: when releasing a changed version : MICRO++
-# 2: when the interface has changed (adding functions) : MINOR++, MICRO=0
-# 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, MICRO=0
-#
+dnl
+dnl current  : the interface         : MAJOR + MINOR
+dnl revision : of the same interface : MICRO
+dnl age      : MINOR
+dnl
+dnl 1: when releasing a changed version : MICRO++
+dnl 2: when the interface has changed (adding functions) : MINOR++, MICRO=0
+dnl 3: when the interface has changed (removing functions) : MAJOR++, MINOR=0, MICRO=0
+dnl
 
-# Initialise the autoconf/automake tool
+dnl Initialise the autoconf/automake tool
 AC_INIT([buzztard], [0.1.0], [buzztard-devel@lists.sourceforge.net])
 AC_CONFIG_SRCDIR([ChangeLog])
 AC_CONFIG_HEADERS(config.h)
@@ -26,7 +26,7 @@ BT_VERSION_NUMBER=`expr $BT_MAJOR_VERSION \* 10000 + $BT_MINOR_VERSION \* 100 + 
 dnl our libraries and install dirs use major.minor as a version
 BT_MAJORMINOR=$BT_MAJOR_VERSION.$BT_MINOR_VERSION
 dnl we override it here for release candidates
-#BT_MAJORMINOR=0.1
+dnl BT_MAJORMINOR=0.1
 
 dnl update this for each release (year-month-day)
 BT_RELEASE_YEAR=2005
@@ -46,10 +46,10 @@ AC_DEFINE_UNQUOTED(PACKAGE_VERSION_NUMBER, ${BT_VERSION_NUMBER}, [version as a n
 
 VERSION=${BT_VERSION}
 
-# Initialise the automake tool
+dnl Initialise the automake tool
 AM_INIT_AUTOMAKE([check-news std-options ])
 
-# m4 - everyone who develops should have aclocal installed
+dnl m4 - everyone who develops should have aclocal installed
 AC_PATH_PROG(PROG_ACLOCAL, aclocal, no)
 AC_MSG_CHECKING(where to install .m4 files to)
 if test "$PROG_ACLOCAL" = "no" ; then
@@ -63,7 +63,7 @@ fi
 AC_MSG_RESULT($acdir)
 AC_SUBST(acdir)
 
-# Checks for programs.
+dnl Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
@@ -74,6 +74,7 @@ AC_PROG_LIBTOOL
 AC_PROG_INTLTOOL
 AM_PROG_CC_STDC
 AM_PROG_MKDIR_P
+PKG_PROG_PKG_CONFIG
 
 AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then
@@ -85,13 +86,13 @@ if test "x$xvfb_path" != "xno" ; then
   fi
 fi
 
-# Initialise gettext
+dnl Initialise gettext
 AM_GNU_GETTEXT_VERSION(0.12.1)
 AM_GNU_GETTEXT([external])
 
-# i18n -- ALL_LINGUAS seems to be not neccesary anymore
-# ALL_LINGUAS="de"
-# ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
+dnl i18n -- ALL_LINGUAS seems to be not neccesary anymore
+dnl ALL_LINGUAS="de"
+dnl ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
 localedir='${datadir}/locale'
 AC_SUBST(localedir)
 GETTEXT_PACKAGE="buzztard-$BT_MAJORMINOR"
@@ -99,10 +100,10 @@ AC_SUBST(GETTEXT_PACKAGE)
 DATADIRNAME="share"
 AC_SUBST(DATADIRNAME)
 
-# this macro comes from gnome.m4, which we do not want to require
-# AM_ACLOCAL_INCLUDE(./m4)
+dnl this macro comes from gnome.m4, which we do not want to require
+dnl AM_ACLOCAL_INCLUDE(./m4)
 
-# enable runtime debugging code
+dnl enable runtime debugging code
 AC_MSG_CHECKING(whether to enable runtime debugging code)
 AC_ARG_ENABLE(
   debug,
@@ -124,7 +125,7 @@ else
 fi
 
 
-# compile with disable-deprecated switches
+dnl compile with disable-deprecated switches
 AC_MSG_CHECKING([whether to disable deprecated glib/gtk+/gst/etc. features])
 AC_ARG_ENABLE(deprecated,
 	AC_HELP_STRING([--disable-deprecated],[disable deprecated glib/gtk+/gst/etc. features]),
@@ -147,7 +148,7 @@ fi
 AC_SUBST(BT_DISABLE_DEPRECATED)
 
 
-# enable coverage analysis
+dnl enable coverage analysis
 AC_MSG_CHECKING(whether to enable coverage analysis)
 AC_ARG_ENABLE(
   coverage,
@@ -166,7 +167,7 @@ else
   COVERAGE_LIBS=""
 fi
 
-# valgrind integration for tests
+dnl valgrind integration for tests
 AC_MSG_CHECKING(where Valgrind is installed on your system)
 AC_ARG_WITH([valgrind],
         AC_HELP_STRING([--with-valgrind],
@@ -194,7 +195,7 @@ if test $ac_cv_use_valgrind != no; then
 fi
 AC_SUBST(VALGRIND_CFLAGS)dnl
 
-# define custom path for desktop files
+dnl define custom path for desktop files
 AC_MSG_CHECKING(where to install desktop files)
 AC_ARG_WITH(
   desktop_dir,
@@ -205,7 +206,7 @@ AC_MSG_RESULT($with_desktop_dir)
 AC_SUBST(with_desktop_dir)
 
 
-# Checks for libraries.
+dnl Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.6.0 gobject-2.0  >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
@@ -242,6 +243,8 @@ PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
     AC_DEFINE(USE_GNOME, [1], [Define to 1 if we can use gnome libraries])
     BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $GNOME_DEPS_CFLAGS"
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOME_DEPS_LIBS"
+  ],[
+    use_gnome=no
   ]
 )
 
@@ -276,17 +279,17 @@ else
   AC_MSG_RESULT(no)
 fi
 
-# check for pending gtk+ addditions
+dnl check for pending gtk+ addditions
 AC_CHECK_LIB( gtk-x11-2.0, gtk_tree_view_column_set_wrap_header_widget, \
   AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have the pending gtk+ patch applied]) \
 )
 
 
-# Add additional libraries
+dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 
-# test for availability of check unittest package (with a relative new function)
-# @todo: if we configure without --enable-debug most tests wont work
+dnl test for availability of check unittest package (with a relative new function)
+dnl @todo: if we configure without --enable-debug most tests wont work
 AC_CHECK_HEADER( check.h, \
   AC_CHECK_LIB( check, tcase_set_timeout, \
     AM_CONDITIONAL(BUILD_CHECK_TESTS, true), \
@@ -295,53 +298,53 @@ AC_CHECK_HEADER( check.h, \
   AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
 )
 
-# Check for gtk-doc.
-GTK_DOC_CHECK(1.4)
+dnl Check for gtk-doc.
+GTK_DOC_CHECK([1.4])
 
-# Check for xsltproc
-#AC_PATH_PROG(xsltproc, xsltproc, no)
-#AM_CONDITIONAL(ENABLE_XSLTPROC, test ! x$xsltproc = xno)
+dnl Check for xsltproc
+dnl AC_PATH_PROG(xsltproc, xsltproc, no)
+dnl AM_CONDITIONAL(ENABLE_XSLTPROC, test ! x$xsltproc = xno)
 
-# Check for scrollkeeper
+dnl Check for scrollkeeper
 AC_PATH_PROG(scrollkeeper_config, scrollkeeper-config, no)
 if test x$scrollkeeper_config = xno; then
   AC_MSG_WARN([Couldn't find scrollkeeper-config, please install the scrollkeeper package])
-#  if test x$xsltproc = xno; then
-#    AC_MSG_WARN([Couldn't find xsltproc, please install the libxml/libxslt package])
-#  fi
+dnl  if test x$xsltproc = xno; then
+dnl    AC_MSG_WARN([Couldn't find xsltproc, please install the libxml/libxslt package])
+dnl  fi
 fi
 AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
 AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
 
-# Checks for header files.
+dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(X11/Xlocale.h)
 AC_CHECK_HEADERS(popt.h)
 
-# Checks for typedefs, structures, and compiler characteristics.
+dnl Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES
 test "x$U" != "x" && AC_MSG_ERROR(Compiler not ANSI compliant)
 AC_C_CONST
 
-# Checks for library functions.
-# glib-2 functions
-# AC_CHECK_LIB( glib-2.0, g_log_set_default_handler)
-# libc functions
+dnl Checks for library functions.
+dnl glib-2 functions
+dnl AC_CHECK_LIB( glib-2.0, g_log_set_default_handler)
+dnl libc functions
 AC_CHECK_FUNCS( sched_setscheduler)
 AC_CHECK_FUNCS( mlockall)
 
-# Extra vars
+dnl Extra vars
 BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
-# -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
+dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS='-lbtcore -lm $COVERAGE_LIBS'
 
-# check for mimetype utilities
+dnl check for mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
 
-# Substitutes
+dnl Substitutes
 
 AC_SUBST(BT_INCLUDEDIR)
 AC_SUBST(BT_CFLAGS)

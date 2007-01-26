@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.161 2007-01-24 09:27:33 ensonic Exp $
+/* $Id: song.c,v 1.162 2007-01-26 15:53:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -707,6 +707,7 @@ gboolean bt_song_update_playback_position(const BtSong * const self) {
  * This XML file can be loaded into gst-editor.
  */
 void bt_song_write_to_xml_file(const BtSong * const self) {
+#ifndef GST_DISABLE_LOADSAVE
   FILE *out;
   BtSongInfo * const song_info;
   gchar * const song_name;
@@ -729,6 +730,7 @@ void bt_song_write_to_xml_file(const BtSong * const self) {
   }
   g_free(song_name);
   g_object_unref(song_info);
+#endif
 }
 
 /**

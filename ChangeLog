@@ -1,3 +1,19 @@
+2007-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	* configure.ac:
+	  configure cleanups
+
+	* src/lib/core/song.c: (bt_song_write_to_xml_file):
+	  build fix for not having libgnome
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_style_changed):
+	* src/ui/edit/main-page-machines.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-page-waves.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
+	  attempt to fix crasher
+
 2007-01-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/cpu/cpuload.c: (main):
