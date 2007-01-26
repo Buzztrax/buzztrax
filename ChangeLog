@@ -1,6 +1,5 @@
 2007-01-26  Stefan Kost  <ensonic@users.sf.net>
 
-	* autogen.sh:
 	* configure.ac:
 	  configure cleanups
 
@@ -13,6 +12,11 @@
 	* src/ui/edit/main-page-waves.c: (on_toolbar_style_changed):
 	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
 	  attempt to fix crasher
+
+2007-01-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* autogen.sh:
+	  configure cleanups
 
 2007-01-24  Stefan Kost  <ensonic@users.sf.net>
 
