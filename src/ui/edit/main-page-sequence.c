@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.145 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.146 2007-01-28 17:30:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -449,6 +449,33 @@ static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
 #endif
 }
 
+static gboolean on_header_parent_event(GtkWidget *widget,GdkEvent  *event,gpointer   user_data) {
+  GST_INFO("#### header widget parent event");
+  /* @todo: forward event (gtk_widget_event?) to children using gtk_container_forall()
+  */
+  return(FALSE); 
+}
+
+static void on_header_parent_set(GtkWidget *widget,GtkObject *old_parent,gpointer user_data) {
+  GtkWidget *new_parent;
+  
+  GST_INFO("#### header widget parent_set");
+  // traverse parent axis, until we have a GtkButton
+  if((new_parent=gtk_widget_get_parent(widget))) { // GtkAlignment
+    GST_INFO("#### parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
+    if((new_parent=gtk_widget_get_parent(new_parent))) { // GtkHBox
+      GST_INFO("     parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
+      if((new_parent=gtk_widget_get_parent(new_parent))) {
+        GST_INFO("     parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
+        // and connect to event() signal
+        g_signal_connect(G_OBJECT(new_parent),"event",G_CALLBACK(on_header_parent_event),(gpointer)user_data);
+      }
+      else GST_INFO("     parent: NULL");
+    }
+    else GST_INFO("     parent: NULL");
+  }
+}
+
 static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
   BtMachine *machine=BT_MACHINE(user_data);
 
@@ -721,47 +748,47 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     if( i < timeline_ct ) {
       // set label
       if((str=bt_sequence_get_label(sequence,i))) {
-	gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
-	g_free(str);
+	      gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
+	      g_free(str);
       }
       // set patterns
       for(j=0;j<track_ct;j++) {
-	free_str=FALSE;
-	if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
-	  g_object_get(pattern,"is-internal",&is_internal,NULL);
-	  if(!is_internal) {
-	    g_object_get(pattern,"name",&str,NULL);
-	    free_str=TRUE;
-	  }
-	  else {
-	    BtPatternCmd cmd=bt_pattern_get_cmd(pattern,0);
-	    switch(cmd) {
-            case BT_PATTERN_CMD_BREAK:
-              str="---";
-              break;
-            case BT_PATTERN_CMD_MUTE:
-              str="===";
-              break;
-            case BT_PATTERN_CMD_SOLO:
-              str="***";
-              break;
-            case BT_PATTERN_CMD_BYPASS:
-              str="###";
-              break;
-            default:
-              str="???";
-              GST_ERROR("implement me");
-	    }
-	  }
-	  g_object_try_unref(pattern);        
-	}
-	else {
-	  str=" ";
-	}
-	//GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
-	gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
-	if(free_str) 
-	  g_free(str);
+        free_str=FALSE;
+        if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
+          g_object_get(pattern,"is-internal",&is_internal,NULL);
+          if(!is_internal) {
+            g_object_get(pattern,"name",&str,NULL);
+            free_str=TRUE;
+          }
+          else {
+            BtPatternCmd cmd=bt_pattern_get_cmd(pattern,0);
+            switch(cmd) {
+                  case BT_PATTERN_CMD_BREAK:
+                    str="---";
+                    break;
+                  case BT_PATTERN_CMD_MUTE:
+                    str="===";
+                    break;
+                  case BT_PATTERN_CMD_SOLO:
+                    str="***";
+                    break;
+                  case BT_PATTERN_CMD_BYPASS:
+                    str="###";
+                    break;
+                  default:
+                    str="???";
+                    GST_ERROR("implement me");
+            }
+          }
+          g_object_try_unref(pattern);        
+        }
+        else {
+          str=" ";
+        }
+        //GST_DEBUG("  %2d,%2d : adding \"%s\"",i,j,str);
+        gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_PRE_CT+j,str,-1);
+        if(free_str) 
+          g_free(str);
       }
     }
   }
@@ -846,6 +873,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         // connect to the size-allocate signal to adjust the height of the other treeview header
         g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
       }
+      g_signal_connect(G_OBJECT(header),"parent-set",G_CALLBACK(on_header_parent_set),(gpointer)self);
     }
     else {
       header=gtk_label_new("???");
@@ -2013,7 +2041,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
   self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
-  g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
+  g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,"headers-clickable",TRUE,NULL);
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,40);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
@@ -2031,7 +2059,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
-  g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
+  g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,"headers-clickable",TRUE,NULL);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_table_init(self,FALSE);

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.95 2007-01-26 15:53:56 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.96 2007-01-28 17:30:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -716,7 +716,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   gchar *toolbar_style;
   
   g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
-  if(BT_IS_STRING(toolbar_style)) return;
+  if(!BT_IS_STRING(toolbar_style)) return;
 
   GST_INFO("!!!  toolbar style has changed '%s'",toolbar_style);
   gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),gtk_toolbar_get_style_from_string(toolbar_style));

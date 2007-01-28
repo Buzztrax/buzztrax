@@ -1,3 +1,29 @@
+2007-01-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_new):
+	  handle error when listening to gconf path
+
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song.c: (bt_song_stop):
+	* src/lib/core/wire.c: (bt_wire_unlink_machines),
+	(bt_wire_dispose):
+	  set elements to NULL before removing
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_style_changed):
+	* src/ui/edit/main-page-machines.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-page-sequence.c: (on_header_parent_event),
+	(on_header_parent_set), (sequence_table_refresh),
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-page-waves.c: (on_toolbar_style_changed):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
+	  fix null string usage in style_change(), try to find parent in
+	  treeview header widgets to forward events
+
+	* tests/bt-cmd-info.sh:
+	  remove a trailing ^
+	
+
 2007-01-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

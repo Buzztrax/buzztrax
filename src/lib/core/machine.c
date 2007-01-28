@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.228 2007-01-22 21:00:55 ensonic Exp $
+/* $Id: machine.c,v 1.229 2007-01-28 17:30:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2373,12 +2373,18 @@ static void bt_machine_dispose(GObject * const object) {
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
   if(self->priv->bin) {
+    GstStateChangeReturn res;
+    
     GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     for(i=0;i<PART_COUNT;i++) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));
         g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
         GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
+        if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+          GST_WARNING("can't go to null state");
+        else
+          GST_DEBUG("->NULL state change returned %d",res);
         gst_bin_remove(self->priv->bin,self->priv->machines[i]);
         GST_DEBUG("  bin->ref_count=%d",(self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1));
       }

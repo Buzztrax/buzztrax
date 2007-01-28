@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.162 2007-01-26 15:53:56 ensonic Exp $
+/* $Id: song.c,v 1.163 2007-01-28 17:30:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -619,10 +619,10 @@ gboolean bt_song_stop(const BtSong * const self) {
 
   g_return_val_if_fail(BT_IS_SONG(self),FALSE);
 
-  // do not stop if not playing
+  GST_INFO("stopping playback, is_playing: %d, is_preparing: %d",self->priv->is_playing,self->priv->is_preparing);
+  
+  // do not stop if not playing or not preparing
   if(!self->priv->is_playing && !self->priv->is_preparing) return(TRUE);
-
-  GST_INFO("stopping playback");
   
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to ready state");

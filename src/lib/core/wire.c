@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.96 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: wire.c,v 1.97 2007-01-28 17:30:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -311,6 +311,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
  */
 static void bt_wire_unlink_machines(const BtWire * const self) {
   GstElement ** const machines=self->priv->machines;
+  GstStateChangeReturn res;
 
   g_assert(BT_IS_WIRE(self));
   
@@ -335,11 +336,19 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
   }
   if(machines[PART_CONVERT]) {
     GST_DEBUG("  removing convert from bin, obj->ref_count=%d",G_OBJECT(machines[PART_CONVERT])->ref_count);
+    if((res=gst_element_set_state(self->priv->machines[PART_CONVERT],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+      GST_WARNING("can't go to null state");
+    else
+      GST_DEBUG("->NULL state change returned %d",res);
     gst_bin_remove(self->priv->bin, machines[PART_CONVERT]);
     machines[PART_CONVERT]=NULL;
   }
   if(self->priv->machines[PART_SCALE]) {
     GST_DEBUG("  removing scale from bin, obj->ref_count=%d",G_OBJECT(machines[PART_SCALE])->ref_count);
+    if((res=gst_element_set_state(self->priv->machines[PART_SCALE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+      GST_WARNING("can't go to null state");
+    else
+      GST_DEBUG("->NULL state change returned %d",res);
     gst_bin_remove(self->priv->bin, machines[PART_SCALE]);
     machines[PART_SCALE]=NULL;
   }
@@ -700,11 +709,23 @@ static void bt_wire_dispose(GObject * const object) {
   
   // remove the GstElements from the bin
   if(self->priv->bin) {
-    bt_wire_unlink_machines(self); // removes convert and scale if in use
+    GstStateChangeReturn res;
+    
+    bt_wire_unlink_machines(self); // removes helper elements if in use
     if(self->priv->machines[PART_TEE]) {
+      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_TEE]),(G_OBJECT(self->priv->machines[PART_TEE]))->ref_count);
+      if((res=gst_element_set_state(self->priv->machines[PART_TEE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+        GST_WARNING("can't go to null state");
+      else
+        GST_DEBUG("->NULL state change returned %d",res);
       gst_bin_remove(self->priv->bin, self->priv->machines[PART_TEE]);
     }
     if(self->priv->machines[PART_GAIN]) {
+      GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_GAIN]),(G_OBJECT(self->priv->machines[PART_GAIN]))->ref_count);
+      if((res=gst_element_set_state(self->priv->machines[PART_GAIN],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+        GST_WARNING("can't go to null state");
+      else
+        GST_DEBUG("->NULL state change returned %d",res);
       gst_bin_remove(self->priv->bin, self->priv->machines[PART_GAIN]);
     }
     bt_wire_deactivate_analyzers(self);

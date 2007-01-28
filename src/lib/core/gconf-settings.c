@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.32 2007-01-22 21:00:54 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.33 2007-01-28 17:30:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,15 +68,23 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, g
  */
 BtGConfSettings *bt_gconf_settings_new(void) {
   BtGConfSettings * const self = BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL));
+  GError *error=NULL;
+  
   if(!self) {
     goto Error;
   }
+
   GST_DEBUG("about to register gconf notify handler");
   // register notify handlers for some properties
   gconf_client_notify_add(self->priv->client,
          BT_GCONF_PATH_GNOME"/toolbar_style",
          bt_gconf_settings_notify_toolbar_style,
-         (gpointer)self, NULL, NULL);
+         (gpointer)self, NULL, &error);
+  if(error) {
+    GST_WARNING("can't listen to notifies on %s: %s",BT_GCONF_PATH_GNOME"/toolbar_style",error->message);
+    g_error_free(error);
+  }
+  /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
   
   return(self);
 Error:
