@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.146 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.147 2007-01-29 20:17:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -465,12 +465,16 @@ static void on_header_parent_set(GtkWidget *widget,GtkObject *old_parent,gpointe
     GST_INFO("#### parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
     if((new_parent=gtk_widget_get_parent(new_parent))) { // GtkHBox
       GST_INFO("     parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
+      
       if((new_parent=gtk_widget_get_parent(new_parent))) {
         GST_INFO("     parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
         // and connect to event() signal
         g_signal_connect(G_OBJECT(new_parent),"event",G_CALLBACK(on_header_parent_event),(gpointer)user_data);
       }
-      else GST_INFO("     parent: NULL");
+      else {
+        GST_INFO("     parent: NULL");
+        //g_signal_connect(G_OBJECT(new_parent),"parent-set",G_CALLBACK(on_header_parent_set),(gpointer)self);
+      }
     }
     else GST_INFO("     parent: NULL");
   }

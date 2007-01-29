@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.82 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: core.h,v 1.83 2007-01-29 20:17:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,14 +52,15 @@
 #include <glib/gprintf.h>
 //-- gstreamer
 #include <gst/gst.h>
+#include <gst/audio/audio.h>
+#include <gst/base/gstbasesink.h>
+#include <gst/base/gstbasetransform.h>
 #include <gst/controller/gstcontroller.h>
 
 #include <gst/childbin/childbin.h>
 #include <gst/propertymeta/propertymeta.h>
 #include <gst/tempo/tempo.h>
 
-#include <gst/base/gstbasesink.h>
-#include <gst/base/gstbasetransform.h>
 //-- libxml2
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>

@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.26 2007-01-29 16:11:38 ensonic Exp $
+/* $Id: sink-bin.c,v 1.27 2007-01-29 20:17:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -195,8 +195,8 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     const GList *node;
     GList * const audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
     guint max_rank=0,cur_rank;
-    //GstCaps *caps1=gst_caps_from_string("audio/x-raw-int");
-    //GstCaps *caps2=gst_caps_from_string("audio/x-raw-float");
+    GstCaps *caps1=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
+    GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
 
     GST_INFO("get audiosink from gst registry by rank");
     
@@ -204,21 +204,22 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
       GstElementFactory * const factory=gst_element_factory_find(node->data);
       
       // can the sink accept raw audio?
-      //if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
+      if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
+        // get element max(rank)
         cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
         GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
-        if((cur_rank>max_rank) || (!plugin_name)) {
+        if((cur_rank>=max_rank) || (!plugin_name)) {
           plugin_name=g_strdup(node->data);
           max_rank=cur_rank;
         }
-      //}
-      //else {
-      //  GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",node->data);
-      //}
+      }
+      else {
+        GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",node->data);
+      }
     }
     g_list_free(audiosink_names);
-    //gst_caps_unref(caps1);
-    //gst_caps_unref(caps2);
+    gst_caps_unref(caps1);
+    gst_caps_unref(caps2);
   }
   GST_INFO("using audio sink : \"%s\"",plugin_name);
 
@@ -239,7 +240,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
     GST_INFO("Can't instantiate '%d' element",plugin_name);goto Error;
   }
   if(GST_IS_BASE_SINK(element)) {
-    // @todo: what is the *real* difference between TRUE and FALSE here
+    // enable syncing to timestamps
     gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
   }
   //else {

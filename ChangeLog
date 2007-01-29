@@ -1,5 +1,18 @@
 2007-01-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name),
+	(bt_sink_bin_get_player_elements):
+	* src/lib/core/tools.c:
+	(bt_gst_element_factory_can_sink_media_type):
+	* src/ui/edit/main-page-sequence.c: (on_header_parent_set):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	  a bit better working registry trimming code
+
+2007-01-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name):
 	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
 	* src/ui/edit/settings-page-audiodevices.c:

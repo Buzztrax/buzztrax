@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.32 2006-12-03 13:28:29 ensonic Exp $
+/* $Id: tools.c,v 1.33 2007-01-29 20:17:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -58,6 +58,47 @@ GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter) {
   }
   g_list_free(list);
   return(res);
+}
+
+/**
+ * bt_gst_element_factory_can_sink_media_type:
+ * @factory: element factory to check
+ * @name: caps type name
+ *
+ * Check if a factories sink pads are compatible with the given @name. The @name
+ * can e.g. be "audio/x-raw-int".
+ *
+ * Returns: %TRUE if the pads are compatible.
+ */
+gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name) {
+  GList *node;
+  GstStaticPadTemplate *tmpl;
+  GstCaps *caps;
+  guint i,size;
+  const GstStructure *s;
+  
+  g_assert(GST_IS_ELEMENT_FACTORY(factory));
+  
+  for(node=(GList *)gst_element_factory_get_static_pad_templates(factory);node;node=g_list_next(node)) {
+    tmpl=node->data;
+    if(tmpl->direction==GST_PAD_SINK) {
+      caps=gst_static_caps_get(&tmpl->static_caps);
+      size=gst_caps_get_size(caps);
+      GST_INFO("  testing caps: %" GST_PTR_FORMAT, caps);
+      for(i=0;i<size;i++) {
+        s=gst_caps_get_structure(caps,i);
+        if(gst_structure_has_name(s,name)) {
+          gst_caps_unref(caps);
+          return(TRUE);
+        }
+      }
+      gst_caps_unref(caps);
+    }
+    else {
+      GST_INFO("  skipping template, wrong dir: %d", tmpl->direction);
+    }
+  }
+  return(FALSE);
 }
 
 /**

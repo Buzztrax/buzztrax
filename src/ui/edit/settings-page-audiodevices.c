@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.24 2007-01-29 16:11:38 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.25 2007-01-29 20:17:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -79,9 +79,9 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   GList *node,*audiosink_names;
   gulong audiosink_index=0,ct;
   gboolean use_system_audiosink=TRUE;
-  //gboolean can_int_caps,can_float_caps;
-  //GstCaps *int_caps=gst_caps_from_string("audio/x-raw-int");
-  //GstCaps *float_caps=gst_caps_from_string("audio/x-raw-float");
+  gboolean can_int_caps,can_float_caps;
+  //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
+  //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
@@ -111,12 +111,14 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
 
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node),ct++) {
-    //GstElementFactory * const factory=gst_element_factory_find(node->data);
+    GstElementFactory * const factory=gst_element_factory_find(node->data);
 
     // can the sink accept raw audio?
+    can_int_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-int");
+    can_float_caps=bt_gst_element_factory_can_sink_media_type(factory,"audio/x-raw-float");
     //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
     //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
-    //if(can_int_caps || can_float_caps) {
+    if(can_int_caps || can_float_caps) {
       if(!use_system_audiosink) {
         // compare with audiosink_name and set audiosink_index if equal
         if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
@@ -124,17 +126,17 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
       gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
       self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,node->data);
       GST_INFO("  adding audio sink: \"%s\"",node->data);
-    //}
-    //else {
-    //  GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",node->data,can_int_caps,can_float_caps);
-    //}
+    }
+    else {
+      GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",node->data,can_int_caps,can_float_caps);
+    }
   }
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
 
-  /* @todo add pages/subdialogs for each audiosink with its settings
-   * e.g. which device
+  /* @todo: add audiosink parameters
+   * e.g. device-name, max-lateness, buffer-time, latency-time
    */
   
   g_free(audiosink_name);
