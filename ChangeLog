@@ -1,3 +1,11 @@
+2007-01-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	  commented out some not yet working code
+
 2007-01-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/gconf-settings.c: (bt_gconf_settings_new):

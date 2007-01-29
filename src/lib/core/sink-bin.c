@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.25 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: sink-bin.c,v 1.26 2007-01-29 16:11:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -190,22 +190,35 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     g_free(temp);
   }
   if (!BT_IS_STRING(plugin_name)) {
-    GST_INFO("get audiosink from gst registry by rank");
+    // @todo: try autoaudiosink (if it exists)
     // iterate over gstreamer-audiosink list and choose element with highest rank
     const GList *node;
     GList * const audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
     guint max_rank=0,cur_rank;
+    //GstCaps *caps1=gst_caps_from_string("audio/x-raw-int");
+    //GstCaps *caps2=gst_caps_from_string("audio/x-raw-float");
+
+    GST_INFO("get audiosink from gst registry by rank");
     
     for(node=audiosink_names;node;node=g_list_next(node)) {
       GstElementFactory * const factory=gst_element_factory_find(node->data);
-      cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
-      //GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
-      if((cur_rank>max_rank) || (!plugin_name)) {
-        plugin_name=g_strdup(node->data);
-        max_rank=cur_rank;
-      }
+      
+      // can the sink accept raw audio?
+      //if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
+        cur_rank=gst_plugin_feature_get_rank(GST_PLUGIN_FEATURE(factory));
+        GST_INFO("  trying audio sink: \"%s\" with rank: %d",node->data,cur_rank);
+        if((cur_rank>max_rank) || (!plugin_name)) {
+          plugin_name=g_strdup(node->data);
+          max_rank=cur_rank;
+        }
+      //}
+      //else {
+      //  GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps",node->data);
+      //}
     }
     g_list_free(audiosink_names);
+    //gst_caps_unref(caps1);
+    //gst_caps_unref(caps2);
   }
   GST_INFO("using audio sink : \"%s\"",plugin_name);
 
