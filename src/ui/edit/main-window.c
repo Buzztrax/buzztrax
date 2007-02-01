@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.85 2007-02-01 16:05:31 ensonic Exp $
+/* $Id: main-window.c,v 1.86 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -237,13 +237,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
 #ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
 #else
-  {
-    GtkToolbar *toolbar;
-    
-    g_object_get(self->priv->toolbar,"toolbar",&toolbar,NULL);
-    hildon_window_add_toolbar(HILDON_WINDOW(self), toolbar);
-    g_object_unref(toolbar);
-  }
+  hildon_window_add_toolbar(HILDON_WINDOW(self), GTK_TOOL_BAR(self->priv->toolbar));
 #endif
   // add the window content pages
   self->priv->pages=bt_main_pages_new(self->priv->app);

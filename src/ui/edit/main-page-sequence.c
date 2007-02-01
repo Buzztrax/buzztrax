@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.147 2007-01-29 20:17:03 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.148 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -449,34 +449,57 @@ static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,
 #endif
 }
 
-static gboolean on_header_parent_event(GtkWidget *widget,GdkEvent  *event,gpointer   user_data) {
-  GST_INFO("#### header widget parent event");
-  /* @todo: forward event (gtk_widget_event?) to children using gtk_container_forall()
-  */
+static gboolean on_header_parent_event(GtkWidget *widget,GdkEvent *event,gpointer user_data) {
+  GtkWidget *child=GTK_WIDGET(user_data);
+  GST_INFO("#### header widget parent event: type=0x%x",event->type);
+
+  /* forward some events to child */
+  switch(event->type) {
+    case GDK_MOTION_NOTIFY:
+    case GDK_BUTTON_PRESS:
+    case GDK_BUTTON_RELEASE:
+      // this still does not cause the button clicks to work
+      //gtk_widget_event(gtk_bin_get_child(GTK_BIN(widget)),event);
+      gtk_widget_event(child,event);
+      return(TRUE);
+    default:
+      break;
+  }
   return(FALSE); 
 }
 
-static void on_header_parent_set(GtkWidget *widget,GtkObject *old_parent,gpointer user_data) {
-  GtkWidget *new_parent;
+static void on_header_realize(GtkWidget *widget,gpointer user_data) {
+  GtkTreeViewColumn *tree_col=GTK_TREE_VIEW_COLUMN(user_data);
+  GtkWidget *parent=widget;
+  GST_INFO("#### header %p widget realize",widget);
   
-  GST_INFO("#### header widget parent_set");
-  // traverse parent axis, until we have a GtkButton
-  if((new_parent=gtk_widget_get_parent(widget))) { // GtkAlignment
-    GST_INFO("#### parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
-    if((new_parent=gtk_widget_get_parent(new_parent))) { // GtkHBox
-      GST_INFO("     parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
+  while((parent=gtk_widget_get_parent(parent))) {
+    GST_INFO("#### parent: %s::%s",G_OBJECT_TYPE_NAME(parent),gtk_widget_get_name(parent));
+    if(G_OBJECT_TYPE(parent)==GTK_TYPE_BUTTON) {
+      /*
+      GtkWidget *header;
       
-      if((new_parent=gtk_widget_get_parent(new_parent))) {
-        GST_INFO("     parent: %s::%s",G_OBJECT_TYPE_NAME(new_parent),gtk_widget_get_name(new_parent));
-        // and connect to event() signal
-        g_signal_connect(G_OBJECT(new_parent),"event",G_CALLBACK(on_header_parent_event),(gpointer)user_data);
+      header = gtk_frame_new (NULL);
+      gtk_frame_set_shadow_type (GTK_FRAME (header), GTK_SHADOW_OUT);
+      gtk_widget_add_events (header, GDK_POINTER_MOTION_MASK);
+      gtk_widget_reparent(gtk_bin_get_child(GTK_BIN(parent)),frame);
+      */
+      
+      g_signal_handlers_disconnect_matched(parent,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,tree_col);
+      
+      //gtk_widget_set_events(parent,GDK_ALL_EVENTS_MASK);
+      //GTK_WIDGET_SET_FLAGS (parent, GTK_CAN_FOCUS);
+      //gtk_widget_add_events(parent,GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
+      /*
+      {
+        GdkColor color;
+        color.red=65535;color.green=(guint16)(0.8*65535.0);color.blue=(guint16)(0.8*65535.0);
+        gtk_widget_modify_bg(parent,GTK_STATE_NORMAL,&color);
       }
-      else {
-        GST_INFO("     parent: NULL");
-        //g_signal_connect(G_OBJECT(new_parent),"parent-set",G_CALLBACK(on_header_parent_set),(gpointer)self);
-      }
+      */
+      g_signal_connect(G_OBJECT(parent),"event",G_CALLBACK(on_header_parent_event),(gpointer)widget);
+      break;
     }
-    else GST_INFO("     parent: NULL");
   }
 }
 
@@ -646,7 +669,6 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text", 1,NULL);
   gtk_box_pack_start(GTK_BOX(header),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
-
   gtk_widget_show_all(header);
 
   // re-add static columns    
@@ -670,6 +692,7 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
     NULL))
   ) {
     g_object_set(tree_col,
+      "widget",header,
       "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
       "fixed-width",80,
       NULL);
@@ -678,7 +701,8 @@ static void sequence_table_init(const BtMainPageSequence *self, gboolean connect
     if(connect_header)
       g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
 
-    gtk_tree_view_column_set_widget(tree_col,header);
+    //gtk_tree_view_column_set_widget(tree_col,header);
+    g_signal_connect(G_OBJECT(header),"realize",G_CALLBACK(on_header_realize),(gpointer)tree_col);
   }
   else GST_WARNING("can't create treeview column");
   
@@ -877,7 +901,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         // connect to the size-allocate signal to adjust the height of the other treeview header
         g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
       }
-      g_signal_connect(G_OBJECT(header),"parent-set",G_CALLBACK(on_header_parent_set),(gpointer)self);
     }
     else {
       header=gtk_label_new("???");
@@ -899,6 +922,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         NULL);
       g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(j));
       gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
+      //gtk_tree_view_column_set_widget(tree_col,header);
+      g_signal_connect(G_OBJECT(header),"realize",G_CALLBACK(on_header_realize),(gpointer)tree_col);
     
       // color code columns
       if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -1703,6 +1728,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
           sequence_view_set_pos(self,2,-1);
           break;
         }
+        res=TRUE;
       }
       if(path) gtk_tree_path_free(path);
     }
@@ -1777,26 +1803,24 @@ static gboolean on_sequence_table_motion_notify_event(GtkWidget *widget,GdkEvent
 
 static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScroll *event, gpointer user_data ) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  GdkEventKey keyevent;
 
-  keyevent.type = GDK_KEY_PRESS;
-  keyevent.window = event->window;
-  keyevent.state = 0;
-  keyevent.send_event = 0;
-  keyevent.time = GDK_CURRENT_TIME;
-  keyevent.length = 0;
-  keyevent.string = 0;
-  keyevent.group =  0;
+  if(event) {
+    GdkEventKey keyevent;
+  
+    keyevent.type = GDK_KEY_PRESS;
+    keyevent.window = event->window;
+    keyevent.state = 0;
+    keyevent.send_event = 0;
+    keyevent.time = GDK_CURRENT_TIME;
+    keyevent.length = 0;
+    keyevent.string = 0;
+    keyevent.group =  0;
 
-  if( event )
-  {
-    if( event->direction == GDK_SCROLL_UP )
-    {
+    if( event->direction == GDK_SCROLL_UP ) {
       keyevent.keyval = GDK_Up;   
       keyevent.hardware_keycode = 98;
     }
-    else if( event->direction == GDK_SCROLL_DOWN )
-    {
+    else if( event->direction == GDK_SCROLL_DOWN ) {
       keyevent.keyval = GDK_Down;
       keyevent.hardware_keycode = 104;
     }
@@ -2045,7 +2069,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
   self->priv->sequence_pos_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
-  g_object_set(self->priv->sequence_pos_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,"headers-clickable",TRUE,NULL);
+  g_object_set(self->priv->sequence_pos_table,
+    "enable-search",FALSE,
+    "rules-hint",TRUE,
+    "fixed-height-mode",TRUE,
+    //"headers-clickable",TRUE,
+    NULL);
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,40);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_pos_table);
@@ -2063,7 +2092,12 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
   self->priv->sequence_table=GTK_TREE_VIEW(bt_sequence_view_new(self->priv->app));
-  g_object_set(self->priv->sequence_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,"headers-clickable",TRUE,NULL);
+  g_object_set(self->priv->sequence_table,
+    "enable-search",FALSE,
+    "rules-hint",TRUE,
+    "fixed-height-mode",TRUE,
+    //"headers-clickable",TRUE,
+    NULL);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_table_init(self,FALSE);

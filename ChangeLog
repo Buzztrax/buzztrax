@@ -1,5 +1,29 @@
 2007-02-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_determine_plugin_name):
+	* src/lib/core/tools.c: (bt_gst_registry_class_filter),
+	(bt_gst_registry_get_element_names_matching_all_categories):
+	  fix filter to treat klass as a list of categories
+	
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_submenu):
+	* src/ui/edit/main-page-sequence.c: (on_header_parent_event),
+	(on_header_realize), (sequence_table_init),
+	(sequence_table_refresh), (on_sequence_table_button_press_event),
+	(on_sequence_table_scroll_event), (bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-toolbar.c: (on_toolbar_style_changed),
+	(bt_main_toolbar_init_ui), (bt_main_toolbar_get_property),
+	(bt_main_toolbar_dispose), (bt_main_toolbar_class_init),
+	(bt_main_toolbar_get_type):
+	* src/ui/edit/main-toolbar.h:
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	  use new registry filter, try harder to tweak treeview headers
+
+2007-02-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  add hildon libs checks
 

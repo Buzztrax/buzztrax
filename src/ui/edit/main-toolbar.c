@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.101 2007-02-01 16:05:31 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.102 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,9 @@
 /**
  * SECTION:btmaintoolbar
  * @short_description: class for the editor main toolbar
+ *
+ * Contains typical applications buttons for file i/o and playback, plus volume
+ * meters and volume control.
  */ 
 
 /* @todo should we separate the toolbars?
@@ -36,7 +39,6 @@
 
 enum {
   MAIN_TOOLBAR_APP=1,
-  MAIN_TOOLBAR
 };
 
 #define MAX_VUMETER 4
@@ -50,9 +52,6 @@ struct _BtMainToolbarPrivate {
     BtEditApplication *app;
     gpointer app_ptr;
   };
-  
-  /* the toolbar widget */
-  GtkWidget *toolbar;
   
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
@@ -464,7 +463,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   if(!BT_IS_STRING(toolbar_style)) return;
   
   GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
-  gtk_toolbar_set_style(GTK_TOOLBAR(self->priv->toolbar),gtk_toolbar_get_style_from_string(toolbar_style));
+  gtk_toolbar_set_style(GTK_TOOLBAR(self),gtk_toolbar_get_style_from_string(toolbar_style));
   g_free(toolbar_style);
 }
 
@@ -478,48 +477,44 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gulong i;
    
   tips=gtk_tooltips_new();
-
-  gtk_widget_set_name(GTK_WIDGET(self),_("handlebox for toolbar"));
-  
-  self->priv->toolbar=gtk_toolbar_new();
-  gtk_widget_set_name(self->priv->toolbar,_("tool bar"));
+  gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
   
   //-- file controls
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
   gtk_widget_set_name(tool_item,_("New"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Prepare a new empty song"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_new_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
   gtk_widget_set_name(tool_item,_("Open"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Load a new song"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_SAVE));
   gtk_widget_set_name(tool_item,_("Save"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Save this song"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_save_clicked),(gpointer)self);
   self->priv->save_button=tool_item;
 
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
 
   //-- media controls
   
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play this song"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
   self->priv->play_button=tool_item;
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,_("Stop"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of this song"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
   self->priv->stop_button=tool_item;
@@ -529,11 +524,11 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tool_button_set_label(GTK_TOOL_BUTTON(tool_item),_("Loop"));
   gtk_widget_set_name(tool_item,_("Loop"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Toggle looping of playback"),NULL);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"toggled",G_CALLBACK(on_toolbar_loop_toggled),(gpointer)self);
   self->priv->loop_button=tool_item;
 
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
   
   //-- volume level and control
 
@@ -557,17 +552,14 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->volume),TRUE,TRUE,0);
   gtk_scale_set_draw_value(self->priv->volume,FALSE);
   gtk_range_set_update_policy(GTK_RANGE(self->priv->volume),GTK_UPDATE_DELAYED);
+  gtk_widget_show_all(GTK_WIDGET(box));
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
   gtk_widget_set_name(tool_item,_("Volume"));
   gtk_container_add(GTK_CONTAINER(tool_item),box);
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),GTK_TOOL_ITEM(tool_item),-1);
+  gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
 
-  gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
-
-#ifndef USE_HILDON
-  gtk_container_add(GTK_CONTAINER(self),self->priv->toolbar);
-#endif
+  gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -624,9 +616,6 @@ static void bt_main_toolbar_get_property(GObject      *object,
     case MAIN_TOOLBAR_APP: {
       g_value_set_object(value, self->priv->app);
     } break;
-    case MAIN_TOOLBAR: {
-      g_value_set_object(value, self->priv->toolbar);
-    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -663,9 +652,6 @@ static void bt_main_toolbar_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-  // @todo: remove?
-  //bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_song_level_change,(gpointer)self);
-	
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
     GstBin *bin;
@@ -724,12 +710,6 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
 
-  g_object_class_install_property(gobject_class,MAIN_TOOLBAR,
-                                  g_param_spec_object("toolbar",
-                                     "toolbar prop",
-                                     "Get toolbar object",
-                                     GTK_TYPE_TOOLBAR, /* object type */
-                                     G_PARAM_READABLE));
 }
 
 GType bt_main_toolbar_get_type(void) {
@@ -747,7 +727,7 @@ GType bt_main_toolbar_get_type(void) {
       (GInstanceInitFunc)bt_main_toolbar_init, // instance_init
       NULL // value_table
     };
-    type = g_type_register_static(GTK_TYPE_HANDLE_BOX,"BtMainToolbar",&info,0);
+    type = g_type_register_static(GTK_TYPE_TOOLBAR,"BtMainToolbar",&info,0);
   }
   return type;
 }

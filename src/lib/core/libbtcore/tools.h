@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.18 2007-01-29 20:17:03 ensonic Exp $
+/* $Id: tools.h,v 1.19 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,7 +26,7 @@
 
 //-- registry
 
-extern GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter);
+extern GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter);
 extern gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,const gchar *name);
 
 extern GList *bt_gst_check_elements(GList *list);

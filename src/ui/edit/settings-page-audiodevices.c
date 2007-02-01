@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.25 2007-01-29 20:17:03 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.26 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -107,7 +107,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   g_free(str);
 
   // @todo: sort list ?
-  audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
+  audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
 
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node),ct++) {

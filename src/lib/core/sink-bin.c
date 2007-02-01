@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.27 2007-01-29 20:17:03 ensonic Exp $
+/* $Id: sink-bin.c,v 1.28 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -193,7 +193,7 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     // @todo: try autoaudiosink (if it exists)
     // iterate over gstreamer-audiosink list and choose element with highest rank
     const GList *node;
-    GList * const audiosink_names=bt_gst_registry_get_element_names_by_class("Sink/Audio");
+    GList * const audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
     guint max_rank=0,cur_rank;
     GstCaps *caps1=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
     GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);

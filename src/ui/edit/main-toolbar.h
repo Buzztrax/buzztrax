@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.h,v 1.8 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-toolbar.h,v 1.9 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,7 +28,7 @@
 #define BT_TYPE_MAIN_TOOLBAR            (bt_main_toolbar_get_type ())
 #define BT_MAIN_TOOLBAR(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_MAIN_TOOLBAR, BtMainToolbar))
 #define BT_MAIN_TOOLBAR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_MAIN_TOOLBAR, BtMainToolbarClass))
-#define BT_IS_MAIN_TOOLBAR(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_TOOLBAR))
+#define BT_IS_MAIN_TOOLBAR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_MAIN_TOOLBAR))
 #define BT_IS_MAIN_TOOLBAR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_MAIN_TOOLBAR))
 #define BT_MAIN_TOOLBAR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_MAIN_TOOLBAR, BtMainToolbarClass))
 
@@ -41,17 +41,17 @@ typedef struct _BtMainToolbarPrivate BtMainToolbarPrivate;
 /**
  * BtMainToolbar:
  *
- * the root window for the editor application
+ * the main toolbar for the editor application
  */
 struct _BtMainToolbar {
-  GtkHandleBox parent;
+  GtkToolbar parent;
   
   /*< private >*/
   BtMainToolbarPrivate *priv;
 };
 /* structure of the main-menu class */
 struct _BtMainToolbarClass {
-  GtkHandleBoxClass parent;
+  GtkToolbarClass parent;
   
 };
 

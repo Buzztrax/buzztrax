@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.33 2007-01-29 20:17:03 ensonic Exp $
+/* $Id: tools.c,v 1.34 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,37 +26,49 @@
 //-- registry
 
 static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, gpointer user_data) {
-  const gchar * const class_filter=(gchar *)user_data;
-  const gsize sl=(gsize)(strlen(class_filter));
+  const gchar ** categories=(const gchar **)user_data;
+  gboolean res=FALSE;
   
   if(GST_IS_ELEMENT_FACTORY(feature)) {
-    if(!g_ascii_strncasecmp(gst_element_factory_get_klass(GST_ELEMENT_FACTORY(feature)),class_filter,sl)) {
-      return(TRUE);
+    const gchar *klass=gst_element_factory_get_klass(GST_ELEMENT_FACTORY(feature));
+    res=TRUE;
+    while(res && *categories) {
+      GST_LOG("  %s",*categories);
+      // there is also strcasestr()
+      res=(strstr(klass,*categories++)!=NULL);
     }
   }
-  return(FALSE);
+  return(res);
 }
 
 /**
- * bt_gst_registry_get_element_names_by_class:
+ * bt_gst_registry_get_element_names_matching_all_categories:
  * @class_filter: path for filtering (e.g. "Sink/Audio")
  *
- * Iterates over all available plugins and filters by class-name.
- * The matching uses right-truncation, e.g. "Sink/" matches all sorts of sinks.
+ * Iterates over all available plugins and filters by categories given in
+ * @class_filter.
  *
  * Returns: list of element names, g_list_free after use.
  */
-GList *bt_gst_registry_get_element_names_by_class(const gchar *class_filter) {
+GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter) {
   const GList *node;
   GList *res=NULL;
+  
   g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
- 
-  GList * const list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)class_filter);
+
+  GST_DEBUG("run filter for categories: %s",class_filter);
+  
+  gchar **categories=g_strsplit(class_filter,"/",0);
+  GList * const list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)categories);
+  
+  GST_DEBUG("filtering done");
+
   for(node=list;node;node=g_list_next(node)) {
     GstPluginFeature * const feature=GST_PLUGIN_FEATURE(node->data);
     res=g_list_prepend(res,(gchar *)gst_plugin_feature_get_name(feature));
   }
   g_list_free(list);
+  g_strfreev(categories);
   return(res);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.10 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: machine-menu.c,v 1.11 2007-02-01 20:44:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -115,7 +115,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   const gchar *klass_name,*menu_name;
   
   // scan registered sources
-  element_names=bt_gst_registry_get_element_names_by_class(root);
+  element_names=bt_gst_registry_get_element_names_matching_all_categories(root);
   parent_menu_hash=g_hash_table_new(g_str_hash,g_str_equal);
   // sort list by name
   element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
@@ -125,7 +125,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
 
     // add sub-menus for BML, LADSPA & Co.
     klass_name=gst_element_factory_get_klass(GST_ELEMENT_FACTORY(factory));
-    // remove prefix Source/Audio
+    // remove prefix, e.g. 'Source/Audio'
     klass_name=&klass_name[strlen(root)];
     if(*klass_name) {
       // skip '/'
