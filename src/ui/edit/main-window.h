@@ -1,4 +1,4 @@
-/* $Id: main-window.h,v 1.9 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-window.h,v 1.10 2007-02-01 16:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,14 +44,22 @@ typedef struct _BtMainWindowPrivate BtMainWindowPrivate;
  * the root window for the editor application
  */
 struct _BtMainWindow {
+#ifndef USE_HILDON
   GtkWindow parent;
+#else
+  HildonWindow parent;
+#endif
   
   /*< private >*/
   BtMainWindowPrivate *priv;
 };
 /* structure of the main-window class */
 struct _BtMainWindowClass {
+#ifndef USE_HILDON
   GtkWindowClass parent;
+#else
+  HildonWindowClass parent;
+#endif
   
 };
 

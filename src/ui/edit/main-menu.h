@@ -1,4 +1,4 @@
-/* $Id: main-menu.h,v 1.9 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-menu.h,v 1.10 2007-02-01 16:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,15 +44,23 @@ typedef struct _BtMainMenuPrivate BtMainMenuPrivate;
  * the main menu inside the #BtMainWindow
  */
 struct _BtMainMenu {
+#ifndef USE_HILDON
   GtkMenuBar parent;
+#else
+  GtkMenu parent;
+#endif
   
   /*< private >*/
   BtMainMenuPrivate *priv;
 };
 /* structure of the main-menu class */
 struct _BtMainMenuClass {
+#ifndef USE_HILDON
   GtkMenuBarClass parent;
-  
+#else
+  GtkMenuClass parent;
+#endif
+
 };
 
 /* used by MAIN_MENU_TYPE */

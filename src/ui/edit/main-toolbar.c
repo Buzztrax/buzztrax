@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.100 2007-01-29 16:11:38 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.101 2007-02-01 16:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -36,6 +36,7 @@
 
 enum {
   MAIN_TOOLBAR_APP=1,
+  MAIN_TOOLBAR
 };
 
 #define MAX_VUMETER 4
@@ -564,7 +565,9 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
 
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->toolbar),gtk_separator_tool_item_new(),-1);
 
+#ifndef USE_HILDON
   gtk_container_add(GTK_CONTAINER(self),self->priv->toolbar);
+#endif
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -620,6 +623,9 @@ static void bt_main_toolbar_get_property(GObject      *object,
   switch (property_id) {
     case MAIN_TOOLBAR_APP: {
       g_value_set_object(value, self->priv->app);
+    } break;
+    case MAIN_TOOLBAR: {
+      g_value_set_object(value, self->priv->toolbar);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -713,10 +719,17 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
 
   g_object_class_install_property(gobject_class,MAIN_TOOLBAR_APP,
                                   g_param_spec_object("app",
-                                     "app contruct prop",
+                                     "app construct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,MAIN_TOOLBAR,
+                                  g_param_spec_object("toolbar",
+                                     "toolbar prop",
+                                     "Get toolbar object",
+                                     GTK_TYPE_TOOLBAR, /* object type */
+                                     G_PARAM_READABLE));
 }
 
 GType bt_main_toolbar_get_type(void) {

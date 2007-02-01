@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.88 2007-01-26 15:53:56 ensonic Exp $
+dnl $Id: configure.ac,v 1.89 2007-02-01 16:05:30 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -245,6 +245,15 @@ PKG_CHECK_MODULES(GNOME_DEPS, libgnome-2.0 >= 2.6.0, [
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $GNOME_DEPS_LIBS"
   ],[
     use_gnome=no
+  ]
+)
+
+PKG_CHECK_MODULES(HILDON_DEPS, hildon-libs libosso, [
+  AC_DEFINE(USE_HILDON, [1], [Define to 1 if we can use hildon libraries])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HILDON_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HILDON_DEPS_LIBS"
+  ],[
+    use_hildon=no
   ]
 )
 

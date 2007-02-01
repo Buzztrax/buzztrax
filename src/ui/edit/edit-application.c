@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.86 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: edit-application.c,v 1.87 2007-02-01 16:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -316,6 +316,10 @@ BtEditApplication *bt_edit_application_new(void) {
   if(!(self->priv->main_window=bt_main_window_new(self))) {
     goto Error;
   }
+#ifdef USE_HILDON
+  hildon_program_add_window(HILDON_PROGRAM(hildon_program_get_instance()),
+    HILDON_WINDOW(self->priv->main_window));
+#endif
   GST_INFO("new edit app window created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
   return(self);
 Error:

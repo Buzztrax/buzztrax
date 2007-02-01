@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.41 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: bt-edit.h,v 1.42 2007-02-01 16:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,6 +40,10 @@
 #include <libgnome/gnome-init.h>
 #include <libgnome/gnome-help.h>
 #include <libgnome/gnome-url.h>
+#endif
+//-- hildon
+#ifdef USE_HILDON
+#include <hildon-widgets/hildon-program.h>
 #endif
 
 #include "edit-application-methods.h"

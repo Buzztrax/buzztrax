@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.84 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: main-window.c,v 1.85 2007-02-01 16:05:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -227,10 +227,24 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   
   // add the menu-bar
   self->priv->menu=bt_main_menu_new(self->priv->app,self->priv->accel_group);
+#ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->menu),FALSE,FALSE,0);
+#else
+  hildon_window_set_menu(HILDON_WINDOW(self), GTK_MENU(self->priv->menu));
+#endif
   // add the tool-bar
   self->priv->toolbar=bt_main_toolbar_new(self->priv->app);
+#ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->toolbar),FALSE,FALSE,0);
+#else
+  {
+    GtkToolbar *toolbar;
+    
+    g_object_get(self->priv->toolbar,"toolbar",&toolbar,NULL);
+    hildon_window_add_toolbar(HILDON_WINDOW(self), toolbar);
+    g_object_unref(toolbar);
+  }
+#endif
   // add the window content pages
   self->priv->pages=bt_main_pages_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pages),TRUE,TRUE,0);
@@ -674,7 +688,11 @@ GType bt_main_window_get_type(void) {
       (GInstanceInitFunc)bt_main_window_init, // instance_init
       NULL // value_table
     };
+#ifndef USE_HILDON
     type = g_type_register_static(GTK_TYPE_WINDOW,"BtMainWindow",&info,0);
+#else
+    type = g_type_register_static(HILDON_TYPE_WINDOW,"BtMainWindow",&info,0);
+#endif
   }
   return type;
 }

@@ -1,3 +1,32 @@
+2007-02-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	  add hildon libs checks
+
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_new):
+	* src/ui/edit/main-menu.c: (on_menu_copy_activate),
+	(on_menu_delete_activate), (on_menu_settings_activate),
+	(on_menu_view_toolbar_toggled), (on_menu_view_tabs_toggled),
+	(on_menu_goto_machine_view_activate),
+	(on_menu_goto_pattern_view_activate),
+	(on_menu_goto_sequence_view_activate),
+	(on_menu_goto_waves_view_activate),
+	(on_menu_goto_info_view_activate), (on_menu_help_activate),
+	(on_menu_about_activate), (on_song_unsaved_changed),
+	(on_song_changed), (bt_main_menu_init_ui), (bt_main_menu_dispose),
+	(bt_main_menu_finalize), (bt_main_menu_init),
+	(bt_main_menu_class_init), (bt_main_menu_get_type):
+	* src/ui/edit/main-menu.h:
+	* src/ui/edit/main-pages.c: (bt_main_pages_init_tab),
+	(bt_main_pages_init_ui):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_init_ui),
+	(bt_main_toolbar_get_property), (bt_main_toolbar_class_init):
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui),
+	(bt_main_window_get_type):
+	* src/ui/edit/main-window.h:
+	  do initial hildon ui porting
+
 2007-01-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/core.h:
