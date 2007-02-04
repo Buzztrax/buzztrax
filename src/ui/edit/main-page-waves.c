@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.40 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.41 2007-02-04 21:11:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,9 +22,11 @@
  * SECTION:btmainpagewaves
  * @short_description: the editor wavetable page
  *
- * This isn't very functional yet.
+ * Manage a list of wave files. Browsing and playing stuff in the browser works.
+ *
+ * <note>This isn't very functional yet.</note>
  */
-/* @todo: use playbin to preview samples.
+/* @todo: listen to playbin messages and update play/stop buttons
  */
 
 #define BT_EDIT
@@ -50,6 +52,9 @@ struct _BtMainPageWavesPrivate {
   /* the toolbar widgets */
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;
   
+  /* browser toolbar widgets */
+  GtkWidget *browser_stop;
+  
   /* the list of wavetable entries */
   GtkTreeView *waves_list;
   
@@ -58,6 +63,9 @@ struct _BtMainPageWavesPrivate {
   
   /* the sample chooser */
   GtkWidget *file_chooser;
+  
+  /* playbin for preview */
+  GstElement *playbin;
 };
 
 static GtkVBoxClass *parent_class=NULL;
@@ -215,6 +223,51 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   g_free(toolbar_style);
 }
 
+static void on_browser_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  gchar *uri;
+  
+  // stop previous play
+  gst_element_set_state(self->priv->playbin,GST_STATE_READY);
+  
+  // get current entry and play
+  uri=gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(self->priv->file_chooser));
+  GST_INFO("current uri : %s",uri);
+  
+  // ... and play
+  g_object_set(self->priv->playbin,"uri",uri,NULL);
+  gst_element_set_state(self->priv->playbin,GST_STATE_PLAYING);
+  
+  g_free(uri);
+}
+
+static void on_browser_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+
+  gst_element_set_state(self->priv->playbin,GST_STATE_READY);
+}
+
+static void on_playbin_state_changed(GstBus * bus, GstMessage * message, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->playbin)) {
+    GstState oldstate,newstate,pending;
+    
+    gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
+    GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
+    switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+      case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+        gtk_widget_set_sensitive(self->priv->browser_stop,TRUE);
+        break;
+      case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+        gtk_widget_set_sensitive(self->priv->browser_stop,FALSE);
+        break;
+      default:
+        break;
+    }
+  }
+}
+
 //-- helper methods
 
 static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtMainPages *pages) {
@@ -251,20 +304,20 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play current wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,_("Stop"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of current wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR));
   gtk_widget_set_name(tool_item,_("Clear"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Clear current wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_clear_clicked),(gpointer)self);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
   
   gtk_box_pack_start(GTK_BOX(box),self->priv->list_toolbar,FALSE,FALSE,0);
 
@@ -295,20 +348,20 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play current sample"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_play_clicked),(gpointer)self);
 
-  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
+  self->priv->browser_stop=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,_("Stop"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of current sample"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_OPEN));
   gtk_widget_set_name(tool_item,_("Open"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Load current sample into selected wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->browser_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_open_clicked),(gpointer)self);
+  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_browser_toolbar_open_clicked),(gpointer)self);
 
   gtk_box_pack_start(GTK_BOX(box),self->priv->browser_toolbar,FALSE,FALSE,0);
 
@@ -395,6 +448,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
  */
 BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMainPages *pages) {
   BtMainPageWaves *self;
+  GstBus *bus;
 
   if(!(self=BT_MAIN_PAGE_WAVES(g_object_new(BT_TYPE_MAIN_PAGE_WAVES,"app",app,NULL)))) {
     goto Error;
@@ -403,6 +457,12 @@ BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMai
   if(!bt_main_page_waves_init_ui(self,pages)) {
     goto Error;
   }
+  // create playbin
+  self->priv->playbin=gst_element_factory_make("playbin",NULL);
+  bus=gst_element_get_bus(self->priv->playbin);
+  gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
+  g_signal_connect(bus, "message::state-changed", (GCallback)on_playbin_state_changed, (gpointer)self);
+  gst_object_unref(bus);
   return(self);
 Error:
   g_object_try_unref(self);
@@ -460,6 +520,9 @@ static void bt_main_page_waves_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   g_object_try_weak_unref(self->priv->app);
+  
+  gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
+  gst_object_unref(self->priv->playbin);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

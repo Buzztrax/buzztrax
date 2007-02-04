@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.89 2007-02-01 16:05:30 ensonic Exp $
+dnl $Id: configure.ac,v 1.90 2007-02-04 21:11:55 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -289,10 +289,9 @@ else
 fi
 
 dnl check for pending gtk+ addditions
-AC_CHECK_LIB( gtk-x11-2.0, gtk_tree_view_column_set_wrap_header_widget, \
-  AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have the pending gtk+ patch applied]) \
-)
-
+dnl AC_CHECK_LIB( gtk-x11-2.0, gtk_tree_view_column_set_wrap_header_widget, \
+dnl   AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have the pending gtk+ patch applied]) \
+dnl )
 
 dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"

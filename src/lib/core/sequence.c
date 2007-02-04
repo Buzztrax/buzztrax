@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.122 2007-01-22 21:00:57 ensonic Exp $
+/* $Id: sequence.c,v 1.123 2007-02-04 21:11:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -812,6 +812,8 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   }
   memcpy(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
   g_object_set(G_OBJECT(self),"tracks",(gulong)(self->priv->tracks-1),NULL);
+  
+  bt_song_set_unsaved(self->priv->song,TRUE);
   return(TRUE); 
 }
 
@@ -900,6 +902,8 @@ void bt_sequence_set_label(const BtSequence * const self, const gulong time, con
   
   g_free(self->priv->labels[time]);
   self->priv->labels[time]=g_strdup(label);
+  
+  bt_song_set_unsaved(self->priv->song,TRUE);
 }
 
 /**
@@ -981,6 +985,8 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     GST_DEBUG("set empty pattern");
     self->priv->patterns[index]=NULL;
   }
+  
+  bt_song_set_unsaved(self->priv->song,TRUE);
   GST_DEBUG("done");
 }
 

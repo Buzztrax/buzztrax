@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.102 2007-02-01 20:44:50 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.103 2007-02-04 21:11:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -404,7 +404,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
 
-  g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,"bin", &bin, NULL);
+  g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,"bin", &bin,NULL);
   g_object_get(sequence,"loop",&loop,NULL);
   gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->loop_button),loop);
   
@@ -450,6 +450,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
+  //-- release the references
   gst_object_unref(bin);
   g_object_unref(sequence);
   g_object_unref(song);

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.148 2007-02-01 20:44:50 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.149 2007-02-04 21:11:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,11 +30,12 @@
  * - sequence header
  *   - add table to separate scrollable window
  *     (no own adjustments, share x-adjustment with sequence-view, show full height)
- *     - add level meters
  *     - add the same context menu as the machines have in machine view
- *   - sequence view will have no visible column headers
- * - fill and update label menu
- * - insert/remove rows
+ * - label menu
+ *   - update menu on sequence edits
+ *   - add navigation action
+ * - re-arrange rows
+ * - format positions in pos-column and label menu
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756
@@ -44,6 +45,7 @@
 #define BT_MAIN_PAGE_SEQUENCE_C
 
 #include "bt-edit.h"
+#include "gtkvumeter.h"
 
 enum {
   MAIN_PAGE_SEQUENCE_APP=1,
@@ -65,9 +67,14 @@ struct _BtMainPageSequencePrivate {
 
   /* label selection menu */
   GtkComboBox *label_menu;
+
+  /* pos unit selection menu */
+  GtkComboBox *pos_menu;
   
   /* the sequence table */
+  GtkHBox *sequence_pos_table_header;
   GtkTreeView *sequence_pos_table;
+  GtkHBox *sequence_table_header;
   GtkTreeView *sequence_table;
   /* the pattern list */
   GtkTreeView *pattern_list;
@@ -123,8 +130,14 @@ enum {
   SEQUENCE_TABLE_SELECTION_BG,
   SEQUENCE_TABLE_TICK_FG_SET,
   SEQUENCE_TABLE_POS,
+  SEQUENCE_TABLE_POSSTR,
   SEQUENCE_TABLE_LABEL,
   SEQUENCE_TABLE_PRE_CT
+};
+enum {
+  POSITION_MENU_POS=0,
+  POSITION_MENU_POSSTR,
+  POSITION_MENU_LABEL
 };
 
 // this only works for 4/4 meassure
@@ -134,6 +147,8 @@ enum {
 #define SEQUENCE_CELL_HEIGHT 28
 #define SEQUENCE_CELL_XPAD 0
 #define SEQUENCE_CELL_YPAD 0
+#define POSITION_CELL_WIDTH 50
+#define HEADER_SPACING 2
 
 // when setting the HEIGHT for one column, then the focus rect is visible for
 // the other (smaller) columns
@@ -439,68 +454,9 @@ static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer us
 static void on_header_size_allocate(GtkWidget *widget,GtkAllocation *allocation,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  GST_INFO("#### header label size %d x %d",
-    allocation->width,allocation->height);
+  GST_INFO("#### header label size %d x %d",allocation->width,allocation->height);
   
-#ifdef HAVE_GTK_TREE_VIEW_COLUMN_PATCH
-  gtk_widget_set_size_request(self->priv->pos_header,-1,(allocation->height-8));
-#else
   gtk_widget_set_size_request(self->priv->pos_header,-1,allocation->height);
-#endif
-}
-
-static gboolean on_header_parent_event(GtkWidget *widget,GdkEvent *event,gpointer user_data) {
-  GtkWidget *child=GTK_WIDGET(user_data);
-  GST_INFO("#### header widget parent event: type=0x%x",event->type);
-
-  /* forward some events to child */
-  switch(event->type) {
-    case GDK_MOTION_NOTIFY:
-    case GDK_BUTTON_PRESS:
-    case GDK_BUTTON_RELEASE:
-      // this still does not cause the button clicks to work
-      //gtk_widget_event(gtk_bin_get_child(GTK_BIN(widget)),event);
-      gtk_widget_event(child,event);
-      return(TRUE);
-    default:
-      break;
-  }
-  return(FALSE); 
-}
-
-static void on_header_realize(GtkWidget *widget,gpointer user_data) {
-  GtkTreeViewColumn *tree_col=GTK_TREE_VIEW_COLUMN(user_data);
-  GtkWidget *parent=widget;
-  GST_INFO("#### header %p widget realize",widget);
-  
-  while((parent=gtk_widget_get_parent(parent))) {
-    GST_INFO("#### parent: %s::%s",G_OBJECT_TYPE_NAME(parent),gtk_widget_get_name(parent));
-    if(G_OBJECT_TYPE(parent)==GTK_TYPE_BUTTON) {
-      /*
-      GtkWidget *header;
-      
-      header = gtk_frame_new (NULL);
-      gtk_frame_set_shadow_type (GTK_FRAME (header), GTK_SHADOW_OUT);
-      gtk_widget_add_events (header, GDK_POINTER_MOTION_MASK);
-      gtk_widget_reparent(gtk_bin_get_child(GTK_BIN(parent)),frame);
-      */
-      
-      g_signal_handlers_disconnect_matched(parent,G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,tree_col);
-      
-      //gtk_widget_set_events(parent,GDK_ALL_EVENTS_MASK);
-      //GTK_WIDGET_SET_FLAGS (parent, GTK_CAN_FOCUS);
-      //gtk_widget_add_events(parent,GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK);
-      /*
-      {
-        GdkColor color;
-        color.red=65535;color.green=(guint16)(0.8*65535.0);color.blue=(guint16)(0.8*65535.0);
-        gtk_widget_modify_bg(parent,GTK_STATE_NORMAL,&color);
-      }
-      */
-      g_signal_connect(G_OBJECT(parent),"event",G_CALLBACK(on_header_parent_event),(gpointer)widget);
-      break;
-    }
-  }
 }
 
 static void on_mute_toggled(GtkToggleButton *togglebutton,gpointer user_data) {
@@ -560,25 +516,82 @@ static void on_machine_state_changed_bypass(BtMachine *machine,GParamSpec *arg,g
   gtk_toggle_button_set_active(button,(state==BT_MACHINE_STATE_BYPASS));
 }
 
-//-- event handler helper
-
-static gboolean update_labels_menu(const BtMainPageSequence *self) {
-  GtkListStore *store;
-  GtkTreeIter iter;
-
-  /* menu will have 'position : label' pairs */
-  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
+static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
+  const GstStructure *structure=gst_message_get_structure(message);
+  const gchar *name = gst_structure_get_name(structure);
   
-  /* @todo: scan sequence for labels and build a menu */
-  gtk_list_store_append(store,&iter);
-  gtk_list_store_set(store,&iter,0,"0",1,"start",-1);
+  if(!strcmp(name,"level")) {
+    //BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+    const GValue *l_rms,*l_peak;
+    gdouble rms=0.0, peak=0.0;
+    guint i,size;
 
-  gtk_combo_box_set_model(self->priv->label_menu,GTK_TREE_MODEL(store));
-  gtk_combo_box_set_active(self->priv->label_menu,0);
-  g_object_unref(store); // drop with combobox
-  
-  return(TRUE);
+    l_rms=(GValue *)gst_structure_get_value(structure, "rms");
+    l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+    //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+    size=gst_value_list_get_size(l_rms);
+    for(i=0;i<size;i++) {
+      rms+=g_value_get_double(gst_value_list_get_value(l_rms,i));
+      peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    }
+    // @todo: GST_MESSAGE_SRC(message) -> vumeter via GHashTable in self->priv->
+    //gtk_vumeter_set_levels(vumeter, (gint)((rms*10.0)/size), (gint)((peak*10.0)/size));
+  }
 }
+
+static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar *path_string,gchar *new_text,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  GtkTreeModelFilter *filtered_store;
+  GtkTreeModel *store;
+  gulong pos;
+  gchar *old_text;
+  
+  GST_INFO("label edited: '%s': '%s'",path_string,new_text);
+
+  if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table))) &&
+    (store=gtk_tree_model_filter_get_model(filtered_store))
+  ) {
+    GtkTreeIter iter,filter_iter;
+    
+    if(gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(filtered_store),&filter_iter,path_string)) {
+      gboolean changed=FALSE;
+      
+      gtk_tree_model_filter_convert_iter_to_child_iter(filtered_store,&iter,&filter_iter);
+      
+      gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&pos,SEQUENCE_TABLE_LABEL,&old_text,-1);
+      GST_INFO("old_text '%s'",old_text);
+    
+      if(!(old_text && new_text )) {
+        changed=TRUE;
+        if(old_text && !*old_text) changed=FALSE;
+        if(new_text && !*new_text) changed=FALSE;
+      }
+      else if(old_text && new_text && !strcmp(old_text,new_text)) changed=TRUE;
+      if(changed) {
+        BtSong *song;
+        BtSequence *sequence;
+
+        GST_INFO("changed");
+        
+        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+        g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+
+        // need to change it in the model
+        gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,new_text,-1);
+        // update the sequence
+        bt_sequence_set_label(sequence,pos,new_text);
+        // @todo: update label_menu
+
+        // release the references
+        g_object_try_unref(sequence);
+        g_object_try_unref(song);
+      }
+      g_free(old_text);
+    }
+  }
+}
+
+//-- event handler helper
 
 /*
  * sequence_pos_table_init:
@@ -588,13 +601,31 @@ static gboolean update_labels_menu(const BtMainPageSequence *self) {
  */
 static void sequence_pos_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
+  GtkWidget *label;
   GtkTreeViewColumn *tree_col;
   gint col_index=0;
   
-  // add static column
-  self->priv->pos_header=gtk_label_new(_("Pos."));
+  // empty header widget
+  gtk_container_forall(GTK_CONTAINER(self->priv->sequence_pos_table_header),(GtkCallback)gtk_widget_destroy,NULL);
+  
+  // create header widget
+  self->priv->pos_header=gtk_vbox_new(FALSE,HEADER_SPACING);
+  label=gtk_label_new(_("Pos."));
+  gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
+  gtk_box_pack_start(GTK_BOX(self->priv->pos_header),label,TRUE,FALSE,0);
+  
+  self->priv->pos_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
+  gtk_combo_box_append_text(self->priv->pos_menu,_("Ticks"));
+  gtk_combo_box_append_text(self->priv->pos_menu,_("Time"));
+  gtk_combo_box_set_active(self->priv->pos_menu,0);
+  gtk_box_pack_start(GTK_BOX(self->priv->pos_header),GTK_WIDGET(self->priv->pos_menu),TRUE,TRUE,0);
+  //gtk_widget_set_size_request(self->priv->pos_header,POSITION_CELL_WIDTH,-1);
   gtk_widget_show_all(self->priv->pos_header);
   
+  gtk_box_pack_start(GTK_BOX(self->priv->sequence_pos_table_header),self->priv->pos_header,TRUE,TRUE,0);
+  gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table_header),POSITION_CELL_WIDTH,-1);
+
+  // add static column 
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
     "mode",GTK_CELL_RENDERER_MODE_INERT,
@@ -604,14 +635,13 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
     NULL);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
   if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
-    "text",SEQUENCE_TABLE_POS,
+    "text",SEQUENCE_TABLE_POSSTR,
     "foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
   ) {
     g_object_set(tree_col,
-      "widget",self->priv->pos_header,
       "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-      "fixed-width",40,
+      "fixed-width",POSITION_CELL_WIDTH,
       NULL);
     col_index=gtk_tree_view_append_column(self->priv->sequence_pos_table,tree_col);
   }
@@ -638,71 +668,78 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
   }
 }
 
+static void remove_container_widget(GtkWidget *widget,gpointer user_data) {
+  GST_LOG("removing: %d, %s",G_OBJECT(widget)->ref_count,gtk_widget_get_name(widget));
+  gtk_container_remove(GTK_CONTAINER(user_data),widget);
+}
+
 /*
  * sequence_table_init:
  * @self: the sequence page
  *
  * inserts the Label columns.
  */
-static void sequence_table_init(const BtMainPageSequence *self, gboolean connect_header) {
+static void sequence_table_init(const BtMainPageSequence *self) {
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
   GtkWidget *label;
-  GtkWidget *header;
+  GtkWidget *header,*vbox;
   gint col_index=0;
+  
+  GST_INFO("preparing sequence table");
 
-  header=gtk_vbox_new(FALSE,0);
-  // seems to be already 0
-  //GST_INFO("header border width : %d",gtk_container_get_border_width(GTK_CONTAINER(header)));
-
+  // do not destroy when flushing the header
+  if((vbox=gtk_widget_get_parent(GTK_WIDGET(self->priv->label_menu)))) {
+    GST_INFO("holding label widget: %d",G_OBJECT(self->priv->label_menu)->ref_count);
+    gtk_container_remove(GTK_CONTAINER(vbox),GTK_WIDGET(g_object_ref(self->priv->label_menu)));
+    //gtk_widget_unparent(GTK_WIDGET(g_object_ref(self->priv->label_menu)));
+    GST_INFO("                    : %d",G_OBJECT(self->priv->label_menu)->ref_count);
+  }
+  // empty header widget
+  gtk_container_forall(GTK_CONTAINER(self->priv->sequence_table_header),(GtkCallback)remove_container_widget,GTK_CONTAINER(self->priv->sequence_table_header));
+  
+  // create header widget
+  header=gtk_hbox_new(FALSE,HEADER_SPACING);
+  vbox=gtk_vbox_new(FALSE,0);
+  gtk_box_pack_start(GTK_BOX(header),vbox,TRUE,TRUE,0);
+  gtk_box_pack_start(GTK_BOX(header),gtk_vseparator_new(),FALSE,FALSE,0);
   label=gtk_label_new(_("Labels"));
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
-  //gtk_misc_set_padding(GTK_MISC(label),0,0);  
-  gtk_box_pack_start(GTK_BOX(header),label,TRUE,FALSE,0);
-  
-  self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
-  update_labels_menu(self);
-  renderer=gtk_cell_renderer_text_new();
-  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
-  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text", 0,NULL);
-  renderer=gtk_cell_renderer_text_new();
-  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
-  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text", 1,NULL);
-  gtk_box_pack_start(GTK_BOX(header),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
+  gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
+  gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(self->priv->label_menu),TRUE,TRUE,0);
+  gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
   gtk_widget_show_all(header);
+  
+  gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,FALSE,FALSE,0);
+  g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
 
   // re-add static columns    
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
-    "mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
+    "mode",GTK_CELL_RENDERER_MODE_EDITABLE,
     "xalign",1.0,
     "yalign",0.5,
     "foreground","blue",
+    "editable",TRUE,
     /*
-    "width",80-4,
+    "width",SEQUENCE_CELL_WIDTH-4,
     "height",SEQUENCE_CELL_HEIGHT-4,
     "xpad",SEQUENCE_CELL_XPAD,
     "ypad",SEQUENCE_CELL_YPAD,
     */
     NULL);
   gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer),1);
+  g_signal_connect(G_OBJECT(renderer),"edited",G_CALLBACK(on_sequence_label_edited),(gpointer)self);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Labels"),renderer,
     "text",SEQUENCE_TABLE_LABEL,
     "foreground-set",SEQUENCE_TABLE_TICK_FG_SET,
     NULL))
   ) {
     g_object_set(tree_col,
-      "widget",header,
       "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
-      "fixed-width",80,
+      "fixed-width",SEQUENCE_CELL_WIDTH,
       NULL);
     col_index=gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
-
-    if(connect_header)
-      g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
-
-    //gtk_tree_view_column_set_widget(tree_col,header);
-    g_signal_connect(G_OBJECT(header),"realize",G_CALLBACK(on_header_realize),(gpointer)tree_col);
   }
   else GST_WARNING("can't create treeview column");
   
@@ -722,18 +759,17 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   BtMachine *machine;
   BtPattern *pattern;
   GtkWidget *header;
-  gchar *str;
+  gchar *str,pos_str[10];
   gulong i,j,col_ct,timeline_ct,track_ct,pos=0;
   gint col_index;
   GtkCellRenderer *renderer;
-  GtkListStore *store;
+  GtkListStore *store,*label_menu_store;
   GtkTreeModel *filtered_store;
   GType *store_types;
-  GtkTreeIter tree_iter;
+  GtkTreeIter tree_iter,label_menu_iter;
   GtkTreeViewColumn *tree_col;
   gboolean free_str;
   gboolean is_internal;
-  gboolean connect_handler;
 
   GST_INFO("refresh sequence table");
   
@@ -757,28 +793,48 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   store_types[SEQUENCE_TABLE_TICK_FG_SET ]=G_TYPE_BOOLEAN;
   // for static display columns
   store_types[SEQUENCE_TABLE_POS         ]=G_TYPE_LONG;
+  store_types[SEQUENCE_TABLE_POSSTR      ]=G_TYPE_STRING;
   // for track display columns
   for(i=SEQUENCE_TABLE_LABEL;i<col_ct;i++) {
     store_types[i]=G_TYPE_STRING;
   }
   store=gtk_list_store_newv(col_ct,store_types);
   g_free(store_types);
+  
+  // label menu will have 'position : label'
+  label_menu_store=gtk_list_store_new(3,G_TYPE_ULONG,G_TYPE_STRING,G_TYPE_STRING);
+  
   // add patterns
   //for(i=0;i<timeline_ct;i++) {
   for(i=0;i<self->priv->list_length;i++) {
     gtk_list_store_append(store, &tree_iter);
+
+    // @todo: support the other formattings
+    snprintf(pos_str,5,"%lu",i);
     // set position, highlight-color
     gtk_list_store_set(store,&tree_iter,
       SEQUENCE_TABLE_POS,pos,
+      SEQUENCE_TABLE_POSSTR,pos_str,
       SEQUENCE_TABLE_TICK_FG_SET,FALSE,
       -1);
     pos++;
     if( i < timeline_ct ) {
       // set label
-      if((str=bt_sequence_get_label(sequence,i))) {
+      str=bt_sequence_get_label(sequence,i);
+      if(str) {
 	      gtk_list_store_set(store,&tree_iter,SEQUENCE_TABLE_LABEL,str,-1);
+        if(*str) {
+          gtk_list_store_append(label_menu_store,&label_menu_iter);
+          gtk_list_store_set(label_menu_store,&label_menu_iter,
+            POSITION_MENU_POS,i,
+            POSITION_MENU_POSSTR,pos_str,
+            POSITION_MENU_LABEL,str,
+            -1);
+          GST_INFO("adding : %s : %s",pos_str,str);
+        }
 	      g_free(str);
       }
+      
       // set patterns
       for(j=0;j<track_ct;j++) {
         free_str=FALSE;
@@ -823,28 +879,30 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   // create a filterd model to realize step filtering
   filtered_store=gtk_tree_model_filter_new(GTK_TREE_MODEL(store),NULL);
   gtk_tree_model_filter_set_visible_func(GTK_TREE_MODEL_FILTER(filtered_store),step_visible_filter,(gpointer)self,NULL);
-  // active model
+  // active models
   gtk_tree_view_set_model(self->priv->sequence_table,filtered_store);
   gtk_tree_view_set_model(self->priv->sequence_pos_table,filtered_store);
+  g_object_unref(filtered_store); // drop with widget
+  gtk_combo_box_set_model(self->priv->label_menu,GTK_TREE_MODEL(label_menu_store));
+  gtk_combo_box_set_active(self->priv->label_menu,0);
+  g_object_unref(label_menu_store); // drop with widget
 
   // build dynamic sequence view
   GST_DEBUG("  build view");
 
   // add initial columns
-  // if no machines present, connect header size change handler to Labels column
-  connect_handler=(track_ct==0)?TRUE:FALSE;
-  sequence_table_init(self,connect_handler);
+  sequence_table_init(self);
 
   // add column for each machine
   for(j=0;j<track_ct;j++) {
     machine=bt_sequence_get_machine(sequence,j);
     renderer=gtk_cell_renderer_text_new();
-    //g_object_set(G_OBJECT(renderer),"editable",TRUE,NULL);
     g_object_set(G_OBJECT(renderer),
       "mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
       "xalign",0.0,
       "yalign",0.5,
       /*
+      "editable",TRUE,
       "width",SEQUENCE_CELL_WIDTH-4,
       "height",SEQUENCE_CELL_HEIGHT-4,
       "xpad",SEQUENCE_CELL_XPAD,
@@ -855,22 +913,25 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
     // setup column header
     if(machine) {
-      GtkWidget *label,*button,*box;
+      GtkWidget *label,*button,*vbox,*box;
+      GtkVUMeter *vumeter;
       // add hbox that contains the machine-name + Mute, Solo and Bypass buttons
       // @todo: add context menu like that in the machine_view
-      // @todo: this is still to spacy (to much padding)
-      // @todo: buttons don't work
       
-      header=gtk_vbox_new(TRUE,0);
+      // create header widget
+      header=gtk_hbox_new(FALSE,HEADER_SPACING);
+      vbox=gtk_vbox_new(FALSE,0);
+      gtk_box_pack_start(GTK_BOX(header),vbox,TRUE,TRUE,0);
+      gtk_box_pack_start(GTK_BOX(header),gtk_vseparator_new(),FALSE,FALSE,0);
       
       g_object_get(G_OBJECT(machine),"id",&str,NULL);
       label=gtk_label_new(str);
       gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
-      //gtk_misc_set_padding(GTK_MISC(label),0,0);
       g_free(str);
-      gtk_box_pack_start(GTK_BOX(header),label,TRUE,FALSE,0);
+      gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
       
-      box=gtk_hbox_new(TRUE,0);
+      box=gtk_hbox_new(FALSE,0);
+      gtk_box_pack_start(GTK_BOX(vbox),GTK_WIDGET(box),TRUE,TRUE,0);
       // add M/S/B butons and connect signal handlers
       button=gtk_toggle_button_new_with_label("M");
       gtk_container_set_border_width(GTK_CONTAINER(button),0);
@@ -891,10 +952,11 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
         g_signal_connect(G_OBJECT(button),"toggled",G_CALLBACK(on_bypass_toggled),(gpointer)machine);
         g_signal_connect(G_OBJECT(machine),"notify::state", G_CALLBACK(on_machine_state_changed_bypass), (gpointer)button);
       }
-      // @todo: add level-meter instead and connect
-      gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(gtk_label_new(" ")),TRUE,TRUE,0);
-      
-      gtk_box_pack_start(GTK_BOX(header),GTK_WIDGET(box),TRUE,TRUE,0);
+      vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
+      gtk_vumeter_set_min_max(vumeter, -900, 0);
+      gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LOG);
+      gtk_vumeter_set_levels(vumeter, -900, -900);
+      gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
 
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
       if(j==0) {
@@ -906,24 +968,17 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       header=gtk_label_new("???");
       GST_WARNING("can't get machine for column %d",j);
     }
+    gtk_widget_set_size_request(header,SEQUENCE_CELL_WIDTH,-1);
     gtk_widget_show_all(header);
-    if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer,
-    /*  "text",SEQUENCE_TABLE_PRE_CT+j,*/
-      NULL))
-    ) {
+    gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,FALSE,TRUE,0);
+
+    if((tree_col=gtk_tree_view_column_new_with_attributes(NULL,renderer, NULL))) {
       g_object_set(tree_col,
-        "widget",header,
-#ifdef HAVE_GTK_TREE_VIEW_COLUMN_PATCH
-        /* @todo: this requires patch in gtk+ */
-        "wrap-header-widget",FALSE,
-#endif
         "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
         "fixed-width",SEQUENCE_CELL_WIDTH,
         NULL);
       g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(j));
       gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
-      //gtk_tree_view_column_set_widget(tree_col,header);
-      g_signal_connect(G_OBJECT(header),"realize",G_CALLBACK(on_header_realize),(gpointer)tree_col);
     
       // color code columns
       if(BT_IS_SOURCE_MACHINE(machine)) {
@@ -939,11 +994,16 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     else GST_WARNING("can't create treeview column");
     g_object_try_unref(machine);
   }
+  
   // add a final column that eats remaining space
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     NULL);
+
+  header=gtk_label_new("");
+  gtk_widget_show_all(header);
+  gtk_box_pack_start(GTK_BOX(self->priv->sequence_table_header),header,TRUE,TRUE,0);
   if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
     g_object_set(tree_col,
       "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
@@ -955,9 +1015,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
 
   // release the references
   g_object_try_unref(sequence);
-  g_object_try_unref(setup);    
-  //g_object_unref(store); // drop with treeview
-  g_object_unref(filtered_store); // drop with treeview
+  g_object_try_unref(setup);
 }
 
 
@@ -996,33 +1054,32 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     }
     self->priv->machine=machine;
   }
-
-  //-- append default rows
-  self->priv->pattern_keys=sink_pattern_keys;
-  index=2;
-  gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
-  gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
-  gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
-  if(BT_IS_PROCESSOR_MACHINE(machine)) {
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thru"),-1);
-    self->priv->pattern_keys=processor_pattern_keys;
-    index++;
-  }
-  if(BT_IS_SOURCE_MACHINE(machine)) {
-    gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,0,"_",1,_("  solo"),-1);
-    self->priv->pattern_keys=source_pattern_keys;
-    index++;
-  }
-  
   if(machine) {
     GList *node,*list;
     gboolean is_internal;
     gchar *str,key[2]={0,};
+
+    //-- append default rows
+    self->priv->pattern_keys=sink_pattern_keys;
+    index=2;
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,".",1,_("  clear"),-1);
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,"-",1,_("  mute"),-1);
+    gtk_list_store_append(store, &tree_iter);
+    gtk_list_store_set(store,&tree_iter,0,",",1,_("  break"),-1);
+    if(BT_IS_PROCESSOR_MACHINE(machine)) {
+      gtk_list_store_append(store, &tree_iter);
+      gtk_list_store_set(store,&tree_iter,0,"_",1,_("  thru"),-1);
+      self->priv->pattern_keys=processor_pattern_keys;
+      index++;
+    }
+    if(BT_IS_SOURCE_MACHINE(machine)) {
+      gtk_list_store_append(store, &tree_iter);
+      gtk_list_store_set(store,&tree_iter,0,"_",1,_("  solo"),-1);
+      self->priv->pattern_keys=source_pattern_keys;
+      index++;
+    }
     
     //-- append pattern rows
     g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
@@ -1335,6 +1392,33 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
   }
 }
 
+static void on_label_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  GtkTreeModel *store;
+  GtkTreeIter iter;
+
+  g_assert(user_data);
+
+  GST_INFO("bars_menu has changed : page=%p",user_data);
+  
+  if((store=gtk_combo_box_get_model(self->priv->label_menu))
+    && gtk_combo_box_get_active_iter(self->priv->label_menu,&iter))
+  {
+    GtkTreePath *path;
+    gulong pos;
+    
+    gtk_tree_model_get(store,&iter,POSITION_MENU_POS,&pos,-1);
+    GST_INFO("  move to = %d",pos);
+    if((path=gtk_tree_path_new_from_indices((pos/self->priv->bars),-1))) {
+      // that would try to keep the cursor in the middle (means it will scroll more)
+      if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+        gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,NULL,TRUE,0.5,0.5);
+      }
+      gtk_tree_path_free(path);
+    }
+  }
+}
+
 static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   GtkTreePath *path;
@@ -1402,26 +1486,28 @@ static void on_sequence_table_cursor_changed(GtkTreeView *treeview, gpointer use
 
 static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKey *event,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-  BtSong *song;
-  BtSequence *sequence;
   gboolean res=FALSE;
-  gchar *str=NULL;
-  gboolean free_str=FALSE;
-  gboolean change=FALSE;
-  gulong row,track,length;
+  gulong row,track;
 
   g_assert(user_data);
-
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
-  g_object_get(G_OBJECT(sequence),"length",&length,NULL);
   
-  GST_INFO("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+  GST_DEBUG("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
 
   // determine timeline and timelinetrack from cursor pos
   if(bt_main_page_sequence_get_current_pos(self,&row,&track)) {
+    BtSong *song;
+    BtSequence *sequence;
+    gulong length;
+    gchar *str=NULL;
+    gboolean free_str=FALSE;
+    gboolean change=FALSE;
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
     //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+    g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+
     // look up pattern for key
     if(event->keyval==GDK_space || event->keyval == GDK_period) {
       if(row<length) {
@@ -1664,14 +1750,11 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     //else if(!select) GST_INFO("  nothing assgned to this key");
 
+    // release the references
+    g_object_try_unref(sequence);
+    g_object_try_unref(song);
     if(free_str) g_free(str);
   }
-  else {
-    GST_WARNING("  can't locate timelinetrack related to curos pos");
-  }
-  // release the references
-  g_object_try_unref(sequence);
-  g_object_try_unref(song);
   return(res);
 }
 
@@ -1805,16 +1888,18 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
   if(event) {
-    GdkEventKey keyevent;
+    GdkEventKey keyevent={0,};
   
     keyevent.type = GDK_KEY_PRESS;
     keyevent.window = event->window;
+    keyevent.time = GDK_CURRENT_TIME;
+    /*
     keyevent.state = 0;
     keyevent.send_event = 0;
-    keyevent.time = GDK_CURRENT_TIME;
     keyevent.length = 0;
     keyevent.string = 0;
     keyevent.group =  0;
+    */
 
     if( event->direction == GDK_SCROLL_UP ) {
       keyevent.keyval = GDK_Up;   
@@ -1933,6 +2018,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSongInfo *song_info;
   BtSetup *setup;
   BtSequence *sequence;
+  GstBin *bin;
+  GstBus *bus;
   glong bars;
   glong loop_start_pos,loop_end_pos;
   gulong sequence_length;
@@ -1944,7 +2031,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
-  g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&sequence,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&sequence,"bin", &bin,NULL);
 
   // make list_length and step_filter_pos accord to song length
   g_object_get(G_OBJECT(sequence), "length", &(self->priv->list_length), NULL);
@@ -1961,7 +2048,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song_info),"bars",&bars,NULL);
   update_bars_menu(self,bars);
 #if 0
-  // @todo: map bars to index (why, we dont keep the filter selection persistent yet)
+  // @todo: map bars to index (why -> we dont keep the filter selection persistent yet)
   //        this is broken math anyway
   index = (bars<4) ?(bars-1) : (1+(bars>>2));
 #endif
@@ -1973,11 +2060,17 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   loop_end  =(loop_end_pos  >-1)?(gdouble)loop_end_pos  /(gdouble)sequence_length:1.0;
   g_object_set(self->priv->sequence_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
   g_object_set(self->priv->sequence_pos_table,"play-position",0.0,"loop-start",loop_start,"loop-end",loop_end,NULL);
+  // connect vumeters
+  bus=gst_element_get_bus(GST_ELEMENT(bin));
+  g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
+  gst_object_unref(bus);
+  
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
   // subscribe to changes in the rythm
   g_signal_connect(G_OBJECT(song_info), "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
   //-- release the references
+  gst_object_unref(bin);
   g_object_try_unref(song_info);
   g_object_try_unref(setup);
   g_object_try_unref(sequence);
@@ -1987,7 +2080,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {
   GtkTooltips *tips;
   GtkWidget *toolbar;
-  GtkWidget *split_box,*box,*tool_item;
+  GtkWidget *split_box,*box,*vbox,*tool_item;
   GtkWidget *scrolled_window,*scrolled_sync_window;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
@@ -2065,6 +2158,11 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_paned_pack1(GTK_PANED(split_box),box,TRUE,TRUE);
   
   // add sequence-pos list-view
+  vbox=gtk_vbox_new(FALSE,0);
+  gtk_box_pack_start(GTK_BOX(box), vbox, FALSE, FALSE, 0);
+  self->priv->sequence_pos_table_header=GTK_HBOX(gtk_hbox_new(FALSE,0));
+  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(self->priv->sequence_pos_table_header), FALSE, FALSE, 0);
+  
   scrolled_sync_window=gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_POLICY_NEVER,GTK_POLICY_NEVER);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_sync_window),GTK_SHADOW_NONE);
@@ -2073,7 +2171,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
     "enable-search",FALSE,
     "rules-hint",TRUE,
     "fixed-height-mode",TRUE,
-    //"headers-clickable",TRUE,
+    "headers-visible", FALSE,
     NULL);
   // set a minimum size, otherwise the window can't be shrinked (we need this because of GTK_POLICY_NEVER)
   gtk_widget_set_size_request(GTK_WIDGET(self->priv->sequence_pos_table),40,40);
@@ -2081,13 +2179,29 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   sequence_pos_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_sync_window),GTK_WIDGET(self->priv->sequence_pos_table));
-  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_sync_window), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_sync_window), TRUE, TRUE, 0);
   g_signal_connect(G_OBJECT(self->priv->sequence_pos_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
   
   // add vertical separator
   gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
 
+  // build label menu
+  self->priv->label_menu=GTK_COMBO_BOX(gtk_combo_box_new());
+  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->label_menu),_("Browse to labels in the sequence"),NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,FALSE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_POSSTR,NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,TRUE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->label_menu),renderer,"text",POSITION_MENU_LABEL,NULL);
+  g_signal_connect(G_OBJECT(self->priv->label_menu),"changed",G_CALLBACK(on_label_menu_changed), (gpointer)self);
+
   // add sequence list-view
+  vbox=gtk_vbox_new(FALSE,0);
+  gtk_box_pack_start(GTK_BOX(box), vbox, TRUE, TRUE, 0);
+  self->priv->sequence_table_header=GTK_HBOX(gtk_hbox_new(FALSE,0));
+  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(self->priv->sequence_table_header), FALSE, FALSE, 0);
+  
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
@@ -2096,13 +2210,13 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
     "enable-search",FALSE,
     "rules-hint",TRUE,
     "fixed-height-mode",TRUE,
-    //"headers-clickable",TRUE,
+    "headers-visible", FALSE,
     NULL);
   tree_sel=gtk_tree_view_get_selection(self->priv->sequence_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
-  sequence_table_init(self,FALSE);
+  sequence_table_init(self);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->sequence_table));
-  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
   g_signal_connect_after(G_OBJECT(self->priv->sequence_table), "cursor-changed", G_CALLBACK(on_sequence_table_cursor_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "key-release-event", G_CALLBACK(on_sequence_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->sequence_table), "button-press-event", G_CALLBACK(on_sequence_table_button_press_event), (gpointer)self);
@@ -2253,7 +2367,7 @@ gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gu
     glong col=g_list_index(columns,(gpointer)column);
 
     g_list_free(columns);
-    if(col>0) { // first two tracks are pos and label
+    if(col>0) { // first track is label
       GtkTreeModel *store;
       GtkTreeIter iter;
       // get iter from path
@@ -2268,11 +2382,11 @@ gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gu
         res=TRUE;
       }
       else {
-        GST_DEBUG("No focus row for cursor");
+        GST_INFO("No focus row for cursor on col=%d",col);
       }
     }
     else {
-      GST_DEBUG("No focus column for cursor");
+      GST_INFO("No focus column for cursor");
     }
   }
   else {
@@ -2466,6 +2580,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->bars_menu));
+  gtk_object_destroy(GTK_OBJECT(self->priv->label_menu));
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

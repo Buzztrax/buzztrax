@@ -1,3 +1,32 @@
+2007/02 ========================================================================
+
+Last month I started to offer extensions from the buzztard project for gstreamer
+inclusion [1][2][3][4]. I belive that the idea behind is generic enough to
+support them. The discussion and interest has been relative low so far :( I'll
+probably interpret this then as agreement and commit the changes. The preset
+handling has been improved. The buzz presets can be saved now too and meta data
+(comments) can be edited as well. The generic implementation also shapes up.
+
+As my solution for [5] seems to be disliked I went for a hack :( I now hide the
+treeview headers and simulate my own. Now the header widgets work. While working
+on this I also made the label-brower function. It allows to jump to labels in
+the timeline.
+
+initial sample playback in wavetable
+
+better buzz song compatibillity + test cases
+
+maemo porting
+
+--
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=396774
+[2] http://bugzilla.gnome.org/show_bug.cgi?id=396779
+[3] http://sourceforge.net/mailarchive/forum.php?thread_id=31560403&forum_id=5947
+[4] http://sourceforge.net/mailarchive/forum.php?thread_id=31471237&forum_id=5947
+
+[5] http://bugzilla.gnome.org/show_bug.cgi?id=338271
+
 2007/01 ========================================================================
 
 In last month news I wrote about the gst element check. Now we also have the

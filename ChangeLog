@@ -1,3 +1,40 @@
+2007-02-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  prepare next newsletter
+
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_ix),
+	(bt_sequence_set_label), (bt_sequence_set_pattern):
+	  more song change notifies
+
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_current_pattern):
+	  plug ref-leak
+
+	* configure.ac:
+	* src/ui/edit/main-page-sequence.c: (on_header_size_allocate),
+	(on_song_level_change), (on_sequence_label_edited),
+	(sequence_pos_table_init), (remove_container_widget),
+	(sequence_table_init), (sequence_table_refresh),
+	(pattern_list_refresh), (on_label_menu_changed),
+	(on_sequence_table_key_release_event),
+	(on_sequence_table_scroll_event), (on_song_changed),
+	(bt_main_page_sequence_init_ui),
+	(bt_main_page_sequence_get_current_pos),
+	(bt_main_page_sequence_dispose):
+	  implement fake treeview header to make embedded widgets work, fill
+	  label-menu and make it work, add editing of labels, remove previous
+	  treeview widget hacks and checks for patch
+	  
+	* src/ui/edit/main-page-waves.c: (on_browser_toolbar_play_clicked),
+	(on_browser_toolbar_stop_clicked), (on_playbin_state_changed),
+	(bt_main_page_waves_init_ui), (bt_main_page_waves_new),
+	(bt_main_page_waves_dispose):
+	  initial sample playback in wavetable
+
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	  formatting
+
 2007-02-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

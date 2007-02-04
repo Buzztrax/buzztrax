@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.104 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.105 2007-02-04 21:11:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1708,6 +1708,7 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
         store=gtk_combo_box_get_model(self->priv->pattern_menu);
         gtk_tree_model_get(store,&iter,PATTERN_MENU_PATTERN,&pattern,-1);
         if(pattern) {
+          g_object_unref(machine);
           // gtk_tree_model_get already refs()
           return(pattern);
           //return(g_object_ref(pattern));
