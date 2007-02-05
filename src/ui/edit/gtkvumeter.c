@@ -1,4 +1,4 @@
-/* $Id: gtkvumeter.c,v 1.12 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: gtkvumeter.c,v 1.13 2007-02-05 22:31:18 ensonic Exp $
  *
  * GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
@@ -124,7 +124,7 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
-
+  
     GTK_WIDGET_SET_FLAGS (widget, GTK_REALIZED);
     vumeter = GTK_VUMETER (widget);
 
@@ -175,17 +175,23 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     g_return_if_fail (widget != NULL);
     g_return_if_fail (GTK_IS_VUMETER (widget));
     g_return_if_fail (allocation != NULL);
+  
+    GTK_WIDGET_CLASS (parent_class)->size_allocate (widget, allocation);
 
     widget->allocation = *allocation;
     vumeter = GTK_VUMETER (widget);
 
     if (GTK_WIDGET_REALIZED (widget)) {
-        if (vumeter->vertical == TRUE) { /* veritcal */
+        if (vumeter->vertical == TRUE) {
+            /* veritcal */
             gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-                MIN(allocation->width,VERTICAL_VUMETER_WIDTH), MAX(allocation->height, MIN_VERTICAL_VUMETER_HEIGHT));
-        } else { /* horizontal */
+                MAX(allocation->width,VERTICAL_VUMETER_WIDTH),
+                MIN(allocation->height, MIN_VERTICAL_VUMETER_HEIGHT));
+        } else {
+            /* horizontal */
             gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-                MAX(allocation->width, MIN_HORIZONTAL_VUMETER_WIDTH), MIN(allocation->height,HORIZONTAL_VUMETER_HEIGHT));
+                MIN(allocation->width, MIN_HORIZONTAL_VUMETER_WIDTH),
+                MAX(allocation->height,HORIZONTAL_VUMETER_HEIGHT));
         }
         /* Fix the colours */
         gtk_vumeter_setup_colors (vumeter);
@@ -197,6 +203,9 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     GtkVUMeter *vumeter;
     gint index, rms_level, peak_level;
     gint width, height;
+    /* detail for part of progressbar
+    const gchar detail[]="trough";
+    */
     
     g_return_val_if_fail (widget != NULL, FALSE);
     g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
@@ -216,7 +225,7 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
         /* draw border */
         gtk_paint_box (widget->style, widget->window, GTK_STATE_NORMAL, GTK_SHADOW_IN, 
-            NULL, widget, "trough", 0, 0, widget->allocation.width, height);
+            NULL, widget, NULL/*detail*/, 0, 0, widget->allocation.width, height);
         /* draw background gradient */
         for (index = rms_level; index < peak_level; index++) {
             gdk_draw_line (widget->window, vumeter->f_gc[index], 1, index + 1, width, index + 1);   
@@ -231,7 +240,7 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
 
         /* draw border */
         gtk_paint_box (widget->style, widget->window, GTK_STATE_NORMAL, GTK_SHADOW_IN, 
-            NULL, widget, "trough", 0, 0, width, widget->allocation.height);
+            NULL, widget, NULL/*detail*/, 0, 0, width, widget->allocation.height);
         /* draw background gradient */
         for (index = rms_level; index < peak_level; index++) {
             gdk_draw_line (widget->window, vumeter->b_gc[index], width - index - 1, 1, width - index - 1, height);   
@@ -241,7 +250,10 @@ static gint gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
             gdk_draw_line (widget->window, vumeter->f_gc[index], width - index - 1, 1, width - index - 1, height);            
         }        
     }
-    return(TRUE);
+    
+    //GTK_WIDGET_CLASS (parent_class)->expose_event (widget, event);
+    //return(TRUE);
+    return(FALSE);
 }
 
 static void gtk_vumeter_free_colors (GtkVUMeter *vumeter)

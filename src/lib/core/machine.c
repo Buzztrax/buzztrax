@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.229 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: machine.c,v 1.230 2007-02-05 22:31:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -224,18 +224,37 @@ void bt_machine_on_tpb_changed(BtSongInfo * const song_info, const GParamSpec * 
 
 //-- helper methods
 
-static GstElement *bt_machine_get_peer(GstElement * const elem, const gchar * const pad_name) {
+static GstElement *bt_machine_get_peer(GstElement * const elem, GstIterator *it) {
   GstElement *peer=NULL;
+  gboolean done=FALSE;
+  gpointer item;
   GstPad *pad,*peer_pad;
-    
-  // add before machine (sink peer of machine)
-  if((pad=gst_element_get_pad(elem,pad_name))) {
-    if((peer_pad=gst_pad_get_peer(pad))) {
-      peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
-      gst_object_unref(peer_pad);
+
+  if(!it) return(NULL);
+
+  while (!done) {
+    switch (gst_iterator_next (it, &item)) {
+      case GST_ITERATOR_OK:
+        pad=GST_PAD(item);
+        if((peer_pad=gst_pad_get_peer(pad))) {
+          peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
+          gst_object_unref(peer_pad);
+          done = TRUE;
+        }
+        gst_object_unref (pad);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync (it);
+        break;
+      case GST_ITERATOR_ERROR:
+        done = TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done = TRUE;
+        break;
     }
-    gst_object_unref(pad);
   }
+  gst_iterator_free (it);
   return(peer);
 }
 
@@ -248,8 +267,8 @@ static GstElement *bt_machine_get_peer(GstElement * const elem, const gchar * co
  *
  * Returns: the sink peer #GstElement or NULL
  */
-static GstElement *bt_machine_get_sink_peer(GstElement * const elem) {
-  return(bt_machine_get_peer(elem,"sink"));
+static GstElement *bt_machine_get_sink_peer(GstElement *elem) {
+  return(bt_machine_get_peer(elem,gst_element_iterate_sink_pads(elem)));
 }
 
 /*
@@ -262,7 +281,7 @@ static GstElement *bt_machine_get_sink_peer(GstElement * const elem) {
  * Returns: the source peer #GstElement or NULL
  */
 static GstElement *bt_machine_get_source_peer(GstElement * const elem) {
-  return(bt_machine_get_peer(elem,"source"));
+  return(bt_machine_get_peer(elem,gst_element_iterate_src_pads(elem)));
 }
 
 /*
@@ -690,9 +709,9 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
     GST_DEBUG("machine '%s' is not yet connected on the output side",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
     if(!gst_element_link(self->priv->machines[PART_MACHINE],self->priv->machines[part])) {
       // DEBUG
-      // bt_machine_dbg_print_parts(self);
-      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
-      // gst_element_dbg_pads(self->priv->machines[ part]);
+      //bt_machine_dbg_print_parts(self);
+      //gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
+      //gst_element_dbg_pads(self->priv->machines[ part]);
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
@@ -1055,10 +1074,40 @@ gboolean bt_machine_enable_input_level(BtMachine * const self) {
     // add input-level analyser
     if(!bt_machine_make_internal_element(self,PART_INPUT_LEVEL,"level","input_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
-      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 20.0,
+      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
+      "peak-ttl",(GstClockTime)(0.50*GST_SECOND),"peak-falloff", 20.0,
       NULL);
     if(!bt_machine_add_input_element(self,PART_INPUT_LEVEL)) goto Error;
+  }
+  res=TRUE;
+Error:
+  return(res);
+}
+
+/**
+ * bt_machine_enable_output_level:
+ * @self: the machine to enable the output-level analyser in
+ *
+ * Creates the output-level analyser of the machine and activates it.
+ *
+ * Returns: %TRUE for success, %FALSE otherwise
+ */
+gboolean bt_machine_enable_output_level(BtMachine * const self) {
+  gboolean res=FALSE;
+  
+  g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
+  g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
+  
+  if(!self->priv->machines[PART_OUTPUT_LEVEL]) {
+    GST_INFO(" for machine '%s'",self->priv->id);
+    
+    // add output-level analyser
+    if(!bt_machine_make_internal_element(self,PART_OUTPUT_LEVEL,"level","output_level")) goto Error;
+    g_object_set(G_OBJECT(self->priv->machines[PART_OUTPUT_LEVEL]),
+      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
+      "peak-ttl",(GstClockTime)(0.50*GST_SECOND),"peak-falloff", 20.0,
+      NULL);
+    if(!bt_machine_add_output_element(self,PART_OUTPUT_LEVEL)) goto Error;
   }
   res=TRUE;
 Error:

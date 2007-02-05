@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.149 2007-02-04 21:11:55 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.150 2007-02-05 22:31:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,7 +30,7 @@
  * - sequence header
  *   - add table to separate scrollable window
  *     (no own adjustments, share x-adjustment with sequence-view, show full height)
- *     - add the same context menu as the machines have in machine view
+ *   - add the same context menu as the machines have in machine view + remove track?
  * - label menu
  *   - update menu on sequence edits
  *   - add navigation action
@@ -110,6 +110,8 @@ struct _BtMainPageSequencePrivate {
 
   /* shortcut table */
   const char *pattern_keys;
+  
+  GHashTable *level_to_vumeter;
   
   /* step filtering */
   gulong list_length;     /* number of [dummy] rows contained in the model */
@@ -521,21 +523,24 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
   const gchar *name = gst_structure_get_name(structure);
   
   if(!strcmp(name,"level")) {
-    //BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
-    const GValue *l_rms,*l_peak;
-    gdouble rms=0.0, peak=0.0;
-    guint i,size;
+    BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+    GtkVUMeter *vumeter;
 
-    l_rms=(GValue *)gst_structure_get_value(structure, "rms");
-    l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-    //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-    size=gst_value_list_get_size(l_rms);
-    for(i=0;i<size;i++) {
-      rms+=g_value_get_double(gst_value_list_get_value(l_rms,i));
-      peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+    if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
+      const GValue *l_rms,*l_peak;
+      gdouble rms=0.0, peak=0.0;
+      guint i,size;
+
+      l_rms=(GValue *)gst_structure_get_value(structure, "rms");
+      l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+      //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
+      size=gst_value_list_get_size(l_rms);
+      for(i=0;i<size;i++) {
+        rms+=g_value_get_double(gst_value_list_get_value(l_rms,i));
+        peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
+      }
+      gtk_vumeter_set_levels(vumeter, (gint)((rms*10.0)/size), (gint)((peak*10.0)/size));
     }
-    // @todo: GST_MESSAGE_SRC(message) -> vumeter via GHashTable in self->priv->
-    //gtk_vumeter_set_levels(vumeter, (gint)((rms*10.0)/size), (gint)((peak*10.0)/size));
   }
 }
 
@@ -915,16 +920,29 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
     if(machine) {
       GtkWidget *label,*button,*vbox,*box;
       GtkVUMeter *vumeter;
-      // add hbox that contains the machine-name + Mute, Solo and Bypass buttons
-      // @todo: add context menu like that in the machine_view
+      GstElement *level;
+      gchar *level_name="output-level";
+
+      // enable level meters
+      if(!BT_IS_SINK_MACHINE(machine)) {
+        if(!bt_machine_enable_output_level(machine)) {
+          GST_INFO("enabling output level for machine failed");
+        }
+      }
+      else {
+        // its the sink, which already has it enabled
+        level_name="input-level";
+      }
+      g_object_get(G_OBJECT(machine),"id",&str,level_name,&level,NULL);
+      
+      // @todo: add context menu like that in the machine_view to the header
       
       // create header widget
       header=gtk_hbox_new(FALSE,HEADER_SPACING);
       vbox=gtk_vbox_new(FALSE,0);
       gtk_box_pack_start(GTK_BOX(header),vbox,TRUE,TRUE,0);
       gtk_box_pack_start(GTK_BOX(header),gtk_vseparator_new(),FALSE,FALSE,0);
-      
-      g_object_get(G_OBJECT(machine),"id",&str,NULL);
+            
       label=gtk_label_new(str);
       gtk_misc_set_alignment(GTK_MISC(label),0.0,0.0);
       g_free(str);
@@ -958,11 +976,16 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       gtk_vumeter_set_levels(vumeter, -900, -900);
       gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
 
+      // add level meters to hashtable
+      if(level) {
+        g_hash_table_insert(self->priv->level_to_vumeter,level,vumeter);
+      }
+
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
       if(j==0) {
         // connect to the size-allocate signal to adjust the height of the other treeview header
         g_signal_connect(G_OBJECT(header),"size-allocate",G_CALLBACK(on_header_size_allocate),(gpointer)self);
-      }
+      }     
     }
     else {
       header=gtk_label_new("???");
@@ -1362,6 +1385,22 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
     }
   }
   g_object_unref(sequence);
+}
+
+static void reset_level_meter(gpointer key, gpointer value, gpointer user_data) {
+  gtk_vumeter_set_levels(GTK_VUMETER(value), -900, -900);
+}
+
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  gboolean is_playing;
+
+  g_assert(user_data);
+  
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  if(!is_playing) {
+    g_hash_table_foreach(self->priv->level_to_vumeter,reset_level_meter,NULL);
+  }
 }
 
 static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
@@ -2037,6 +2076,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(sequence), "length", &(self->priv->list_length), NULL);
   g_object_get(G_OBJECT(sequence), "length", &(self->priv->row_filter_pos), NULL);
 
+  if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
+  self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
+  //self->priv->level_to_vumeter=g_hash_table_new(NULL,NULL);
+
   // update page
   // update sequence and pattern list
   sequence_table_refresh(self,song);
@@ -2067,6 +2110,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
   // subscribe to changes in the rythm
   g_signal_connect(G_OBJECT(song_info), "notify::bars", G_CALLBACK(on_song_info_bars_changed), (gpointer)self);
   //-- release the references
@@ -2560,12 +2604,21 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
     BtSongInfo *song_info;
+    GstBin *bin;
+    GstBus *bus;
 
     GST_DEBUG("disconnect handlers from song=%p",song);
-    g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+    g_object_get(G_OBJECT(song),"song-info",&song_info,"bin", &bin,NULL);
     
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
     g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_info_bars_changed,NULL);
+    
+    bus=gst_element_get_bus(GST_ELEMENT(bin));
+    g_signal_handlers_disconnect_matched(bus, G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_change,NULL);
+    gst_object_unref(bus);
+    
+    gst_object_unref(bin);
     g_object_unref(song_info);
     g_object_unref(song);
   }
@@ -2581,6 +2634,8 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->bars_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->label_menu));
+  
+  g_hash_table_destroy(self->priv->level_to_vumeter);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

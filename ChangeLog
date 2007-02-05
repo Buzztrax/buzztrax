@@ -1,3 +1,26 @@
+2007-02-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  finished monthly project news
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_get_peer),
+	(bt_machine_get_sink_peer), (bt_machine_get_source_peer),
+	(bt_machine_add_output_element), (bt_machine_enable_input_level),
+	(bt_machine_enable_output_level):
+	  properway to get src/sink pads, add output level element helper
+
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_realize),
+	(gtk_vumeter_size_allocate), (gtk_vumeter_expose):
+	  improved the vumeter widget a bit, fix size allocation
+
+	* src/ui/edit/main-page-sequence.c: (on_song_level_change),
+	(sequence_table_refresh), (reset_level_meter),
+	(on_song_is_playing_notify), (on_song_changed),
+	(bt_main_page_sequence_dispose):
+	  added working level meters to sequence view
+
 2007-02-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

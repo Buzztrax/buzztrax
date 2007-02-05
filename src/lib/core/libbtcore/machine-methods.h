@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.44 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: machine-methods.h,v 1.45 2007-02-05 22:31:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,6 +26,7 @@
 #include "pattern.h"
 
 extern gboolean bt_machine_enable_input_level(BtMachine * const self);
+extern gboolean bt_machine_enable_output_level(BtMachine * const self);
 extern gboolean bt_machine_enable_input_gain(BtMachine * const self);
 extern gboolean bt_machine_enable_output_gain(BtMachine * const self);
 

@@ -1,30 +1,40 @@
+2007/03 ========================================================================
+
+
 2007/02 ========================================================================
 
 Last month I started to offer extensions from the buzztard project for gstreamer
-inclusion [1][2][3][4]. I belive that the idea behind is generic enough to
+inclusion [1][2][3][4]. I believe that the idea behind is generic enough to
 support them. The discussion and interest has been relative low so far :( I'll
 probably interpret this then as agreement and commit the changes. The preset
 handling has been improved. The buzz presets can be saved now too and meta data
 (comments) can be edited as well. The generic implementation also shapes up.
 
 As my solution for [5] seems to be disliked I went for a hack :( I now hide the
-treeview headers and simulate my own. Now the header widgets work. While working
-on this I also made the label-brower function. It allows to jump to labels in
-the timeline.
+treeview headers and simulate my own. Now the header widgets work. As some extra
+sweetness the header have per track volume meters. While working on this I also
+made the label-browser function. It allows to jump to labels in the timeline.
+Wanna see how it looks?
+<a href="http://www.buzztard.org/index.php/Image:Bt-edit-0.1.0-01.png"><img src="http://www.buzztard.org/images/thumb/2/2a/180px-Bt-edit-0.1.0-01.png"></a>
 
-initial sample playback in wavetable
+I also started to add some functionality to the wavetable page. Its now possible
+to browse the files and preview the selected entry.
 
-better buzz song compatibillity + test cases
+I was curious how well the buzz song import now works. Especially with the
+better handling of missing machines. So I added a test script, similar to the
+unit test in core, that runs over all your buzz songs, imports them and dumps
+basic info into text files. Then it greps the text files to generate most wanted
+machine top 10 :).
 
-maemo porting
-
---
+Last weekend I did a first rough port of buzztard for the N800. I have some of
+the UI changes in place already. The GStreamer side was pleasant - no changes
+needed. Unfortunately the gstreamer on the device is not the most up to date and
+thus the app does not work too well.
 
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=396774
 [2] http://bugzilla.gnome.org/show_bug.cgi?id=396779
 [3] http://sourceforge.net/mailarchive/forum.php?thread_id=31560403&forum_id=5947
 [4] http://sourceforge.net/mailarchive/forum.php?thread_id=31471237&forum_id=5947
-
 [5] http://bugzilla.gnome.org/show_bug.cgi?id=338271
 
 2007/01 ========================================================================
