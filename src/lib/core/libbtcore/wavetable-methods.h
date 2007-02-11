@@ -1,4 +1,4 @@
-/* $Id: wavetable-methods.h,v 1.6 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: wavetable-methods.h,v 1.7 2007-02-11 17:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,6 +28,8 @@
 extern BtWavetable *bt_wavetable_new(const BtSong * const song);
 
 extern gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * const wave);
+extern gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave * const wave);
+
 extern BtWave *bt_wavetable_get_wave_by_index(const BtWavetable * const self, const gulong index);
 
 extern void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gchar * const str);

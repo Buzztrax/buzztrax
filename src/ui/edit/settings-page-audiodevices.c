@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.26 2007-02-01 20:44:50 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.27 2007-02-11 17:02:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -108,6 +108,8 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
 
   // @todo: sort list ?
   audiosink_names=bt_gst_registry_get_element_names_matching_all_categories("Sink/Audio");
+  // this will also contain stuff like: "Sink/Analyzer/Audio"
+  // solution would be to give all real AudioSinks a "Device" category
 
   // add audio sinks gstreamer provides
   for(node=audiosink_names,ct=1;node;node=g_list_next(node),ct++) {
@@ -119,6 +121,8 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
     //can_int_caps=gst_element_factory_can_sink_caps(factory,int_caps);
     //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
     if(can_int_caps || can_float_caps) {
+      // @ todo: try to open the element and skip those that we can't open
+      
       if(!use_system_audiosink) {
         // compare with audiosink_name and set audiosink_index if equal
         if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
@@ -136,7 +140,10 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
 
   /* @todo: add audiosink parameters
-   * e.g. device-name, max-lateness, buffer-time, latency-time
+   * e.g. device-name
+   * GstBaseSink: preroll-queue-len (buffers), max-lateness (ns)
+   * GstBaseAudioSink: buffer-time (ms), latency-time (ms)
+   * GstAudioSink: (no-properties)
    */
   
   g_free(audiosink_name);

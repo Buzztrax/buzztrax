@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.26 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: wavetable.c,v 1.27 2007-02-11 17:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -109,12 +109,41 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
   g_assert(BT_IS_WAVE(wave));
 
   if(!g_list_find(self->priv->waves,wave)) {
-    ret=TRUE;
     self->priv->waves=g_list_append(self->priv->waves,g_object_ref(G_OBJECT(wave)));
     //g_signal_emit(G_OBJECT(self),signals[WAVE_ADDED_EVENT], 0, wave);
+    bt_song_set_unsaved(self->priv->song,TRUE);
+    ret=TRUE;
   }
   else {
     GST_WARNING("trying to add wave again"); 
+  }
+  return ret;
+}
+
+/**
+ * bt_wavetable_remove_wave:
+ * @self: the wavetable to remove the wave from
+ * @wave: the wave instance
+ *
+ * Remove the supplied wave from the wavetable.
+ *
+ * Returns: %TRUE for success, %FALSE otheriwse
+ */
+gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave * const wave) {
+  gboolean ret=FALSE;
+  
+  g_assert(BT_IS_WAVETABLE(self));
+  g_assert(BT_IS_WAVE(wave));
+
+  if(g_list_find(self->priv->waves,wave)) {
+    self->priv->waves=g_list_remove(self->priv->waves,wave);
+    //g_signal_emit(G_OBJECT(self),signals[WAVE_REMOVED_EVENT], 0, wave);
+    g_object_unref(G_OBJECT(wave));
+    bt_song_set_unsaved(self->priv->song,TRUE);
+    ret=TRUE;
+  }
+  else {
+    GST_WARNING("trying to remove wave that is not in the list"); 
   }
   return ret;
 }
@@ -189,13 +218,13 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
       }
       else {
         // collect failed waves
-        gchar * const name, * const url;
+        gchar * const name, * const uri;
         
-        g_object_get(wave,"name",&name,"url",&url,NULL);        
-        gchar * const str=g_strdup_printf("%s: %s",name, url);
+        g_object_get(wave,"name",&name,"uri",&uri,NULL);        
+        gchar * const str=g_strdup_printf("%s: %s",name, uri);
         bt_wavetable_remember_missing_wave(self,str);
         g_free(name);
-	      g_free(url);
+	      g_free(uri);
       }
       g_object_unref(wave);
     }

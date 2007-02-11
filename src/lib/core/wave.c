@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.24 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: wave.c,v 1.25 2007-02-11 17:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,7 +47,7 @@ enum {
   WAVE_WAVELEVELS,
   WAVE_INDEX,
   WAVE_NAME,
-  WAVE_URL
+  WAVE_URI
 };
 
 struct _BtWavePrivate {
@@ -64,7 +64,7 @@ struct _BtWavePrivate {
   gulong index;  
   /* the name of the wave and the the sample file */
   gchar *name;
-  gchar *url;
+  gchar *uri;
   
   GList *wavelevels;    // each entry points to a BtWavelevel
 };
@@ -88,12 +88,12 @@ static GObjectClass *parent_class=NULL;
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const url, const gulong index) {
+BtWave *bt_wave_new(const BtSong * const song, const gchar * const name, const gchar * const uri, const gulong index) {
   BtWavetable *wavetable;
 
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
 
-  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"url",url,"index",index,NULL));
+  BtWave * const self=BT_WAVE(g_object_new(BT_TYPE_WAVE,"song",song,"name",name,"uri",uri,"index",index,NULL));
   if(!self) {
     goto Error;
   }
@@ -133,6 +133,7 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
     ret=TRUE;
     self->priv->wavelevels=g_list_append(self->priv->wavelevels,g_object_ref(G_OBJECT(wavelevel)));
     //g_signal_emit(G_OBJECT(self),signals[WAVELEVEL_ADDED_EVENT], 0, wavelevel);
+    bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
     GST_WARNING("trying to add wavelevel again"); 
@@ -141,17 +142,17 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
 }
 
 /**
- * bt_wave_load_from_url:
+ * bt_wave_load_from_uri:
  * @self: the wave to load
  *
  * Will check the URI and if valid load the wavedata.
  *
  * Returns: %TRUE if the wavedata could be loaded 
  */
-gboolean bt_wave_load_from_url(const BtWave * const self) {
+gboolean bt_wave_load_from_uri(const BtWave * const self) {
   gboolean res=TRUE;
 
-  GnomeVFSURI * const uri=gnome_vfs_uri_new(self->priv->url);
+  GnomeVFSURI * const uri=gnome_vfs_uri_new(self->priv->uri);
   // check if the url is valid
   if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
     
@@ -179,7 +180,7 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wave"),NULL))) {
     xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
-    xmlNewProp(node,XML_CHAR_PTR("url"),XML_CHAR_PTR(self->priv->url));
+    xmlNewProp(node,XML_CHAR_PTR("uri"),XML_CHAR_PTR(self->priv->uri));
     
     // save wavelevels
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wavelevels"),NULL))) {
@@ -200,11 +201,11 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   xmlChar * const index_str=xmlGetProp(node,XML_CHAR_PTR("index"));
   const gulong index=index_str?atol((char *)index_str):0;
   xmlChar * const name=xmlGetProp(node,XML_CHAR_PTR("name"));
-  xmlChar * const url=xmlGetProp(node,XML_CHAR_PTR("url"));
-  g_object_set(G_OBJECT(self),"index",index,"name",name,"url",url,NULL);
+  xmlChar * const uri=xmlGetProp(node,XML_CHAR_PTR("uri"));
+  g_object_set(G_OBJECT(self),"index",index,"name",name,"uri",uri,NULL);
   xmlFree(index_str);
   xmlFree(name);
-  xmlFree(url);
+  xmlFree(uri);
   
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
@@ -216,7 +217,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
     }
   }
   // try to load wavedata
-  res=bt_wave_load_from_url(self);
+  res=bt_wave_load_from_uri(self);
   
   return(res);
 }
@@ -253,8 +254,8 @@ static void bt_wave_get_property(GObject      * const object,
     case WAVE_NAME: {
       g_value_set_string(value, self->priv->name);
     } break;
-    case WAVE_URL: {
-      g_value_set_string(value, self->priv->url);
+    case WAVE_URI: {
+      g_value_set_string(value, self->priv->uri);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -286,10 +287,10 @@ static void bt_wave_set_property(GObject      * const object,
       self->priv->name = g_value_dup_string(value);
       GST_DEBUG("set the name for wave: %s",self->priv->name);
     } break;
-    case WAVE_URL: {
-      g_free(self->priv->url);
-      self->priv->url = g_value_dup_string(value);
-      GST_DEBUG("set the url for wave: %s",self->priv->url);
+    case WAVE_URI: {
+      g_free(self->priv->uri);
+      self->priv->uri = g_value_dup_string(value);
+      GST_DEBUG("set the uri for wave: %s",self->priv->uri);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -337,7 +338,7 @@ static void bt_wave_finalize(GObject * const object) {
     self->priv->wavelevels=NULL;
   }
   g_free(self->priv->name);
-  g_free(self->priv->url);
+  g_free(self->priv->uri);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -390,10 +391,10 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      "unamed wave", /* default value */
                                      G_PARAM_READWRITE));
 
-  g_object_class_install_property(gobject_class,WAVE_URL,
-                                  g_param_spec_string("url",
-                                     "url prop",
-                                     "The url of the wave",
+  g_object_class_install_property(gobject_class,WAVE_URI,
+                                  g_param_spec_string("uri",
+                                     "uri prop",
+                                     "The uri of the wave",
                                      NULL, /* default value */
                                      G_PARAM_READWRITE));
 }

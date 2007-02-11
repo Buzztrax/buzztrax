@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.41 2007-02-04 21:11:55 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.42 2007-02-11 17:02:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -51,9 +51,8 @@ struct _BtMainPageWavesPrivate {
 
   /* the toolbar widgets */
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;
-  
-  /* browser toolbar widgets */
-  GtkWidget *browser_stop;
+  GtkWidget *browser_stop,*wavetable_stop,*stop;
+  GtkWidget *wavetable_play,*wavetable_clear;
   
   /* the list of wavetable entries */
   GtkTreeView *waves_list;
@@ -181,10 +180,26 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
     g_object_get(wavetable,"waves",&waves,NULL);
     wave=BT_WAVE(g_list_nth_data(waves,id));
     g_list_free(waves);
-    if(wave) wavelevels_list_refresh(self,wave);
+    if(wave) {
+      // enable toolbar buttons
+      gtk_widget_set_sensitive(self->priv->wavetable_play,TRUE);
+      gtk_widget_set_sensitive(self->priv->wavetable_clear,TRUE);
+      wavelevels_list_refresh(self,wave);
+    }
+    else {
+      goto disable_toolitems;
+    }
     g_object_try_unref(wavetable);
     g_object_try_unref(song);
   }
+  else {
+    goto disable_toolitems;
+  }
+  return;
+disable_toolitems:
+  // disable toolbar buttons
+  gtk_widget_set_sensitive(self->priv->wavetable_play,FALSE);
+  gtk_widget_set_sensitive(self->priv->wavetable_clear,FALSE);
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
@@ -226,22 +241,71 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static void on_browser_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   gchar *uri;
-  
-  // stop previous play
-  gst_element_set_state(self->priv->playbin,GST_STATE_READY);
-  
+    
   // get current entry and play
   uri=gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(self->priv->file_chooser));
   GST_INFO("current uri : %s",uri);
+  if(uri) {
+    // stop previous play
+    gst_element_set_state(self->priv->playbin,GST_STATE_READY);
+
+    // ... and play
+    g_object_set(self->priv->playbin,"uri",uri,NULL);
+    self->priv->stop=self->priv->browser_stop;
+    gst_element_set_state(self->priv->playbin,GST_STATE_PLAYING);
   
-  // ... and play
-  g_object_set(self->priv->playbin,"uri",uri,NULL);
-  gst_element_set_state(self->priv->playbin,GST_STATE_PLAYING);
-  
-  g_free(uri);
+    g_free(uri);
+  }
 }
 
 static void on_browser_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+
+  gst_element_set_state(self->priv->playbin,GST_STATE_READY);
+}
+
+static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GtkTreeSelection *selection;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    BtSong *song;
+    BtWavetable *wavetable;
+    BtWave *wave;
+    gchar *uri;
+    gulong id;
+
+    gtk_tree_model_get(model,&iter,0,&id,-1);
+    GST_INFO("selected entry id %d",id);
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_return_if_fail(song);
+    g_object_get(song,"wavetable",&wavetable,NULL);
+    
+    wave=bt_wavetable_get_wave_by_index(wavetable,id);
+    g_object_get(wave,"uri",&uri,NULL);
+
+    if(uri) {
+      // stop previous play
+      gst_element_set_state(self->priv->playbin,GST_STATE_READY);
+    
+      // ... and play
+      g_object_set(self->priv->playbin,"uri",uri,NULL);
+      self->priv->stop=self->priv->wavetable_stop;
+      gst_element_set_state(self->priv->playbin,GST_STATE_PLAYING);
+    
+      g_free(uri);
+    }
+    // release the references
+    g_object_try_unref(wavetable);
+    g_object_try_unref(song);
+  }
+}
+
+static void on_wavetable_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
 
   gst_element_set_state(self->priv->playbin,GST_STATE_READY);
@@ -257,14 +321,82 @@ static void on_playbin_state_changed(GstBus * bus, GstMessage * message, gpointe
     GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
-        gtk_widget_set_sensitive(self->priv->browser_stop,TRUE);
+        gtk_widget_set_sensitive(self->priv->stop,TRUE);
         break;
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
-        gtk_widget_set_sensitive(self->priv->browser_stop,FALSE);
+        gtk_widget_set_sensitive(self->priv->stop,FALSE);
         break;
       default:
         break;
     }
+  }
+}
+
+static void on_wavetable_toolbar_clear_clicked(GtkButton *button, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GtkTreeSelection *selection;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    BtSong *song;
+    BtWavetable *wavetable;
+    BtWave *wave;
+    gulong id;
+
+    gtk_tree_model_get(model,&iter,0,&id,-1);
+    GST_INFO("selected entry id %d",id);
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_return_if_fail(song);
+    g_object_get(song,"wavetable",&wavetable,NULL);
+    wave=bt_wavetable_get_wave_by_index(wavetable,id);
+    bt_wavetable_remove_wave(wavetable,wave);
+    // update page
+    waves_list_refresh(self,wavetable);    
+    // release the references
+    g_object_try_unref(wave);
+    g_object_try_unref(wavetable);
+    g_object_try_unref(song);
+  }
+}
+
+static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  GtkTreeSelection *selection;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+
+  selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
+  if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
+    BtSong *song;
+    BtWavetable *wavetable;
+    BtWave *wave;
+    gchar *uri,*name,*tmp_name,*ext;
+    gulong id;
+
+    gtk_tree_model_get(model,&iter,0,&id,-1);
+    GST_INFO("selected entry id %d",id);
+
+    // get current entry and load
+    uri=gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(self->priv->file_chooser));
+    
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_return_if_fail(song);
+    g_object_get(song,"wavetable",&wavetable,NULL);
+  
+    // trim off protocol, path and extension
+    tmp_name=g_filename_from_uri(uri,NULL,NULL);
+    name=g_path_get_basename(tmp_name);
+    if((ext=strrchr(name,'.'))) *ext='\0';
+    g_free(tmp_name);
+    wave=bt_wave_new(song,name,uri,id);
+    // update page
+    waves_list_refresh(self,wavetable);
+    // release the references
+    g_object_try_unref(wavetable);
+    g_object_try_unref(song);
   }
 }
 
@@ -300,24 +432,26 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_widget_set_name(self->priv->list_toolbar,_("sample list tool bar"));
   
   // add buttons (play,stop,clear)
-  tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
+  self->priv->wavetable_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play current wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_play_clicked),(gpointer)self);
+  gtk_widget_set_sensitive(tool_item,FALSE);
 
-  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
+  self->priv->wavetable_stop=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,_("Stop"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of current wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_stop_clicked),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
 
-  tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR));
+  self->priv->wavetable_clear=tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_CLEAR));
   gtk_widget_set_name(tool_item,_("Clear"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Clear current wave table entry"),NULL);
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
-  //g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
+  g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
+  gtk_widget_set_sensitive(tool_item,FALSE);
   
   gtk_box_pack_start(GTK_BOX(box),self->priv->list_toolbar,FALSE,FALSE,0);
 
@@ -380,6 +514,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
     g_free(current_dir_uri);
   }
   */
+  g_signal_connect(G_OBJECT(self->priv->file_chooser),"file-activated",G_CALLBACK(on_file_chooser_load_sample),(gpointer)self);
+  //g_signal_connect(G_OBJECT(self->priv->file_chooser),"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
   gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
 
   //   vbox (sample view)

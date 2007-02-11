@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.120 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: song-io-native.c,v 1.121 2007-02-11 17:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,8 +72,9 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   }
   // check if the given uri exists
   if (!gnome_vfs_uri_exists(input_uri)) {
-    GST_INFO("given uri does not exists ... checking extension");
+    GST_INFO("given uri does not exists (saving?)");
 
+    // check extension
     gchar * const lc_file_name=g_ascii_strdown(file_name,-1);
     if(g_str_has_suffix(lc_file_name,".xml")) {
       GST_INFO(".xml extension -> accept");
@@ -84,6 +85,9 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
   else {
     // create new file info pointer.
     GnomeVFSFileInfo * const file_info = gnome_vfs_file_info_new ();
+    
+    GST_INFO("given uri exists");
+    
     // now we check the mime type
     if((result=gnome_vfs_get_file_info_uri(input_uri,file_info,GNOME_VFS_FILE_INFO_GET_MIME_TYPE))!=GNOME_VFS_OK) {
       GST_WARNING("Cannot determine mime type. Error: %s\n", gnome_vfs_result_to_string (result));

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.65 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.66 2007-02-11 17:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -101,7 +101,7 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
   for(node=presets;node;node=g_list_next(node)) {
     gst_preset_get_meta(GST_PRESET(machine),node->data,"comment",&comment);
-    GST_INFO(" adding item : '%s', '%s'",node->data,comment);
+    GST_INFO(" adding item : '%s', '%s'",node->data,safe_string(comment));
 
     gtk_list_store_append(store, &tree_iter);
     gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,node->data,PRESET_LIST_COMMENT,comment,-1);
@@ -219,7 +219,7 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   gchar str[30];
   
   g_assert(user_data);
-  GST_INFO("property value change received : %lf",value);
+  //GST_INFO("property value change received : %lf",value);
 
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
@@ -253,7 +253,7 @@ static void on_float_range_property_changed(GtkRange *range,gpointer user_data) 
   gchar str[30];
   
   g_assert(user_data);
-  GST_INFO("property value change received : %f",value);
+  //GST_INFO("property value change received : %f",value);
 
   g_signal_handlers_block_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_notify,(gpointer)range);
   g_object_set(machine,name,value,NULL);
@@ -564,7 +564,7 @@ static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *
       
       gtk_tree_model_get(model,&iter,PRESET_LIST_COMMENT,&comment,-1);
       if(!comment || !old_comment || (comment && old_comment && strcmp(comment,old_comment))) {
-        GST_INFO("tip is '%s'",comment);
+        GST_LOG("tip is '%s'",comment);
         //gtk_tooltips_set_tip(self->priv->preset_tips,GTK_WIDGET(tree_view),(comment?comment:""),NULL);
         gtk_tooltips_set_tip(self->priv->preset_tips,GTK_WIDGET(tree_view),comment,NULL);
         if(tip_window && GTK_WIDGET_VISIBLE(tip_window)) {
@@ -619,7 +619,7 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   gint height=requisition->height,width=-1;
   gint max_height=gdk_screen_get_height(gdk_screen_get_default());
 
-  GST_INFO("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
+  GST_LOG("#### box size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
   // have a minimum width
   if(requisition->width<250) {
     width=250;
@@ -859,7 +859,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"xalign",0.0,NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Preset"),renderer,"text",0,NULL))) {
-    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",125,NULL);
+    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",130,NULL);
     gtk_tree_view_insert_column(GTK_TREE_VIEW(self->priv->preset_list),tree_col,-1);
   }
   else GST_WARNING("can't create treeview column");

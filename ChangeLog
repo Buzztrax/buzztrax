@@ -1,3 +1,34 @@
+2007-02-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/wave-methods.h:
+	* src/lib/core/libbtcore/wavetable-methods.h:
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	* src/lib/core/wave.c: (bt_wave_new), (bt_wave_add_wavelevel),
+	(bt_wave_load_from_uri), (bt_wave_persistence_save),
+	(bt_wave_persistence_load), (bt_wave_get_property),
+	(bt_wave_set_property), (bt_wave_finalize), (bt_wave_class_init):
+	* src/lib/core/wavetable.c: (bt_wavetable_add_wave),
+	(bt_wavetable_remove_wave), (bt_wavetable_persistence_load):
+	* src/ui/edit/machine-properties-dialog.c: (preset_list_refresh),
+	(on_double_range_property_changed),
+	(on_float_range_property_changed), (on_preset_list_motion_notify),
+	(on_box_size_request),
+	(bt_machine_properties_dialog_init_preset_box):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-page-waves.c: (on_waves_list_cursor_changed),
+	(on_browser_toolbar_play_clicked),
+	(on_wavetable_toolbar_play_clicked),
+	(on_wavetable_toolbar_stop_clicked), (on_playbin_state_changed),
+	(on_wavetable_toolbar_clear_clicked),
+	(on_file_chooser_load_sample), (bt_main_page_waves_init_ui):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* tests/songs/broken2.xml:
+	* tests/songs/simple1.xml:
+	  wavetable (and its ui) is now a bit more functional
+
 2007-02-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

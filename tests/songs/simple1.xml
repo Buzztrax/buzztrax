@@ -74,9 +74,9 @@
   
   <wavetable>
     <!-- loading file from harddisk -->
-    <wave index="0" name="909base" url="file:///data/samples/basedrums/909base.wav"/>
+    <wave index="0" name="909base" uri="file:///data/samples/basedrums/909base.wav"/>
     <!-- loading file from song archive -->
-    <wave index="2" name="dreampad" url="file://!/wavetable/dreampad.wav"/>
+    <wave index="2" name="dreampad" uri="file://!/wavetable/dreampad.wav"/>
   </wavetable>
 
 </buzztard>

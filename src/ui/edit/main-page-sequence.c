@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.150 2007-02-05 22:31:18 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.151 2007-02-11 17:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2305,7 +2305,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   else GST_WARNING("can't create treeview column");
   
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_list));
-  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(scrolled_window),TRUE,TRUE,0);
   //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
   // set default widget
