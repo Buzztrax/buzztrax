@@ -1,3 +1,21 @@
+2007-02-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	  cleanup crossrefs of the docs.
+
+	* src/lib/core/machine.c: (bt_machine_set_property):
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_ix):
+	* src/lib/core/song-info.c: (bt_song_info_set_property),
+	(bt_song_info_init):
+	* src/lib/core/song-io.c: (bt_song_io_load):
+	* src/lib/core/song.c: (bt_song_set_unsaved):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_init_ui):
+	  add default author (fixes #1658187), better handling of song change
+	  notification (fixes #1658192).
+
 2007-02-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.230 2007-02-05 22:31:18 ensonic Exp $
+/* $Id: machine.c,v 1.231 2007-02-12 21:47:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2388,9 +2388,10 @@ static void bt_machine_set_property(GObject * const object,
       self->priv->voice_params = g_value_get_ulong(value);
     } break;
     case MACHINE_STATE: {
-      bt_machine_change_state(self,g_value_get_enum(value));
-      GST_DEBUG("set the state for machine: %d",self->priv->state);
-      bt_song_set_unsaved(self->priv->song,TRUE);
+      if(bt_machine_change_state(self,g_value_get_enum(value))) {
+        GST_DEBUG("set the state for machine: %d",self->priv->state);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+      }
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

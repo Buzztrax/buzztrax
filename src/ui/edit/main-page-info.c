@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.45 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: main-page-info.c,v 1.46 2007-02-12 21:47:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -331,7 +331,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_FILL,GTK_SHRINK, 2,1);
   self->priv->author=GTK_ENTRY(gtk_entry_new());
   gtk_table_attach(GTK_TABLE(table),GTK_WIDGET(self->priv->author), 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  g_signal_connect(G_OBJECT(self->priv->genre), "changed", G_CALLBACK(on_author_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->author), "changed", G_CALLBACK(on_author_changed), (gpointer)self);
 
   // second column
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);

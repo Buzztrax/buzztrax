@@ -28,12 +28,12 @@ MKDB_OPTIONS=--sgml-mode --output-format=xml
 MKTMPL_OPTIONS=
 
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
-FIXXREF_OPTIONS=--extra-dir=$(glib_prefix)/share/gtk-doc/html/gobject \
-	--extra-dir=$(glib_prefix)/share/gtk-doc/html/glib \
-	--extra-dir=$(gtk_prefix)/share/gtk-doc/html/gtk \
-	--extra-dir=$(gcanvas_prefix)/share/gtk-doc/html/libgnomecanvas \
-	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer \
-	--extra-dir=$(gst_prefix)/share/gtk-doc/html/gstreamer-libs \
+FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gobject \
+	--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/glib \
+	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/gtk \
+	--extra-dir=$(GCANVAS_PREFIX)/share/gtk-doc/html/libgnomecanvas \
+	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer \
+	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer-libs \
 	--extra-dir=../bt-core
 
 # Used for dependencies.

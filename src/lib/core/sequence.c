@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.123 2007-02-04 21:11:55 ensonic Exp $
+/* $Id: sequence.c,v 1.124 2007-02-12 21:47:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -812,8 +812,6 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   }
   memcpy(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
   g_object_set(G_OBJECT(self),"tracks",(gulong)(self->priv->tracks-1),NULL);
-  
-  bt_song_set_unsaved(self->priv->song,TRUE);
   return(TRUE); 
 }
 

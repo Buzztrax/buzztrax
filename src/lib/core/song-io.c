@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.64 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: song-io.c,v 1.65 2007-02-12 21:47:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -230,6 +230,7 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
   bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
+    GST_INFO("loading done");
     bt_song_set_unsaved(song,FALSE);
     //DEBUG
     //bt_song_write_to_dot_file(song);

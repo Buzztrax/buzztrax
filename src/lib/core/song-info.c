@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.63 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: song-info.c,v 1.64 2007-02-12 21:47:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -270,43 +270,67 @@ static void bt_song_info_set_property(GObject      * const object,
       GST_DEBUG("set the file-name for song_info: %s",self->priv->file_name);
     } break;
     case SONG_INFO_INFO: {
-      g_free(self->priv->info);
-      self->priv->info = g_value_dup_string(value);
-      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DESCRIPTION, self->priv->info,NULL);
-      GST_DEBUG("set the info for song_info: %s",self->priv->info);
+      if(!self->priv->info || strcmp(self->priv->info,g_value_get_string(value))) {
+        g_free(self->priv->info);
+        self->priv->info = g_value_dup_string(value);
+        gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DESCRIPTION, self->priv->info,NULL);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the info for song_info: %s",self->priv->info);
+      }
     } break;
     case SONG_INFO_NAME: {
-      g_free(self->priv->name);
-      self->priv->name = g_value_dup_string(value);
-      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_TITLE, self->priv->name,NULL);
-      GST_DEBUG("set the name for song_info: %s",self->priv->name);
+      if(!self->priv->name || strcmp(self->priv->name,g_value_get_string(value))) {
+        g_free(self->priv->name);
+        self->priv->name = g_value_dup_string(value);
+        gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_TITLE, self->priv->name,NULL);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the name for song_info: %s",self->priv->name);
+      }
     } break;
     case SONG_INFO_GENRE: {
-      g_free(self->priv->genre);
-      self->priv->genre = g_value_dup_string(value);
-      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_GENRE, self->priv->genre,NULL);
-      GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
+      if(!self->priv->genre || strcmp(self->priv->genre,g_value_get_string(value))) {
+        g_free(self->priv->genre);
+        self->priv->genre = g_value_dup_string(value);
+        gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_GENRE, self->priv->genre,NULL);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the genre for song_info: %s",self->priv->genre);
+      }
     } break;
     case SONG_INFO_AUTHOR: {
-      g_free(self->priv->author);
-      self->priv->author = g_value_dup_string(value);
-      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_ARTIST, self->priv->author,NULL);
-      GST_DEBUG("set the author for song_info: %s",self->priv->author);
+      if(!self->priv->author || strcmp(self->priv->author,g_value_get_string(value))) {
+        g_free(self->priv->author);
+        self->priv->author = g_value_dup_string(value);
+        gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_ARTIST, self->priv->author,NULL);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the author for song_info: %s",self->priv->author);
+      }
     } break;
     case SONG_INFO_BPM: {
-      self->priv->beats_per_minute = g_value_get_ulong(value);
+      gulong val=g_value_get_ulong(value);
+      if(self->priv->beats_per_minute!=val) {
+        self->priv->beats_per_minute = g_value_get_ulong(value);
 #if (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=12) || (GST_VERSION_MAJOR>=0 && GST_VERSION_MINOR>=10 && GST_VERSION_MICRO>=11 && GST_VERSION_NANO>0 )
-      gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
+        gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_BEATS_PER_MINUTE, (gdouble)self->priv->beats_per_minute,NULL);
 #endif
-      GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the bpm for song_info: %d",self->priv->beats_per_minute);
+      }
     } break;
     case SONG_INFO_TPB: {
-      self->priv->ticks_per_beat = g_value_get_ulong(value);
-      GST_DEBUG("set the tpb for song_info: %d",self->priv->ticks_per_beat);
+      gulong val=g_value_get_ulong(value);
+      if(self->priv->ticks_per_beat!=val) {
+        self->priv->ticks_per_beat = g_value_get_ulong(value);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the tpb for song_info: %d",self->priv->ticks_per_beat);
+      }
     } break;
     case SONG_INFO_BARS: {
-      self->priv->bars = g_value_get_ulong(value);
-      GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
+      gulong val=g_value_get_ulong(value);
+      if(self->priv->bars!=val) {
+        self->priv->bars = g_value_get_ulong(value);
+        bt_song_set_unsaved(self->priv->song,TRUE);
+        GST_DEBUG("set the bars for song_info: %d",self->priv->bars);
+      }
     } break;
     case SONG_INFO_CREATE_DTS: {
       const gchar * const dts = g_value_get_string(value);
@@ -394,6 +418,7 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
   self->priv->taglist=gst_tag_list_new();
 
   self->priv->name=g_strdup(_("untitled song"));
+  self->priv->author=g_strdup(g_get_real_name());
   // @idea alternate bpm's a little at new_song (user defined range?)
   self->priv->beats_per_minute=125;  // 1..1000
   self->priv->ticks_per_beat=4;      // 1..128

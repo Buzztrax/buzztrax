@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.90 2007-02-04 21:11:55 ensonic Exp $
+dnl $Id: configure.ac,v 1.91 2007-02-12 21:47:11 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -257,14 +257,14 @@ PKG_CHECK_MODULES(HILDON_DEPS, hildon-libs libosso, [
   ]
 )
 
-glib_prefix="`pkg-config --variable=prefix glib-2.0`"
-gtk_prefix="`pkg-config --variable=prefix gtk+-2.0`"
-gst_prefix="`pkg-config --variable=prefix gstreamer-0.10`"
-gcanvas_prefix="`pkg-config --variable=prefix libgnomecanvas-2.0`"
-AC_SUBST(glib_prefix)
-AC_SUBST(gtk_prefix)
-AC_SUBST(gst_prefix)
-AC_SUBST(gcanvas_prefix)
+GLIB_PREFIX="`$PKG_CONFIG --variable=prefix glib-2.0`"
+GTK_PREFIX="`$PKG_CONFIG --variable=prefix gtk+-2.0`"
+GST_PREFIX="`$PKG_CONFIG --variable=prefix gstreamer-0.10`"
+GCANVAS_PREFIX="`pkg-config --variable=prefix libgnomecanvas-2.0`"
+AC_SUBST(GLIB_PREFIX)
+AC_SUBST(GTK_PREFIX)
+AC_SUBST(GST_PREFIX)
+AC_SUBST(GCANVAS_PREFIX)
 
 AC_MSG_CHECKING([glib version >= 2.6])
 if pkg-config --atleast-version=2.6 glib-2.0; then

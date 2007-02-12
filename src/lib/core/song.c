@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.163 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: song.c,v 1.164 2007-02-12 21:47:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -455,6 +455,7 @@ void bt_song_set_unsaved(const BtSong * const self, const gboolean unsaved) {
   
   if(self->priv->unsaved!=unsaved) {
     self->priv->unsaved=unsaved;
+    GST_INFO("unsaved = %d",unsaved);
     g_object_notify(G_OBJECT(self),"unsaved");
   }
 }
