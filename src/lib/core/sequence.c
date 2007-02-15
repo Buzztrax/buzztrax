@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.124 2007-02-12 21:47:12 ensonic Exp $
+/* $Id: sequence.c,v 1.125 2007-02-15 21:46:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1019,7 +1019,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
   // release the references
   g_object_try_unref(song_info);
 
-  GST_DEBUG("getting songs bar-time %"G_GUINT64_FORMAT,wait_per_position);
+  GST_LOG("getting songs bar-time %"G_GUINT64_FORMAT,wait_per_position);
 
   return(wait_per_position);
 }

@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.30 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.31 2007-02-15 21:46:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -34,14 +34,17 @@ enum {
 
 enum {
   SETTINGS_PAGE_AUDIO_DEVICES=0,
-  SETTINGS_PAGE_MIDI_DEVICES,
+  SETTINGS_PAGE_CONTROL_DEVICES,
   SETTINGS_PAGE_COLORS,
-  SETTINGS_PAGE_SHORTCUTS
+  SETTINGS_PAGE_SHORTCUTS,
+  SETTINGS_PAGE_DIRECTORIES
 };
 
 enum {
   COL_LABEL=0,
-  COL_ID
+  COL_ID,
+  COL_ICON_PIXBUF,
+  COL_ICON_STOCK_ID
 };
 
 struct _BtSettingsDialogPrivate {
@@ -62,6 +65,7 @@ struct _BtSettingsDialogPrivate {
   
   /* the audiodevices settings */
   BtSettingsPageAudiodevices *audiodevices_page;
+  BtSettingsPageControldevices *controldevices_page;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -85,6 +89,26 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
     GST_INFO("selected entry id %d",id);
     gtk_notebook_set_current_page(self->priv->settings_pages,id);
   }
+}
+
+/*
+ * on_box_size_request:
+ *
+ * we adjust the scrollable-window size to contain the whole area
+ */
+static void on_settings_list_size_request(GtkWidget *widget,GtkRequisition *requisition,gpointer user_data) {
+  GtkWidget *parent=GTK_WIDGET(user_data);
+  gint height=requisition->height;
+  gint max_height=gdk_screen_get_height(gdk_screen_get_default());
+
+  GST_LOG("#### list size req %d x %d (max-height=%d)", requisition->width,requisition->height,max_height);
+  // constrain the height by screen height
+  if(height>max_height) {
+    // lets hope that 32 gives enough space for window-decoration + panels
+    height=max_height-32;
+  }
+  // @todo: is the '2' some border or padding
+  gtk_widget_set_size_request(parent,-1,height + 2);
 }
 
 //-- helper methods
@@ -115,25 +139,64 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
   self->priv->settings_list=GTK_TREE_VIEW(gtk_tree_view_new());
-  renderer=gtk_cell_renderer_text_new();
   gtk_tree_view_set_headers_visible(self->priv->settings_list,FALSE);
+  renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_insert_column_with_attributes(self->priv->settings_list,-1,NULL,renderer,"pixbuf",COL_ICON_PIXBUF,"stock-id",COL_ICON_STOCK_ID,NULL);
+  renderer=gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes(self->priv->settings_list,-1,NULL,renderer,"text",COL_LABEL,NULL);
   gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->settings_list),GTK_SELECTION_BROWSE);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->settings_list));
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(scrolled_window));
-  
+
+  g_signal_connect(G_OBJECT(self->priv->settings_list),"size-request",G_CALLBACK(on_settings_list_size_request),(gpointer)scrolled_window);
   g_signal_connect(G_OBJECT(self->priv->settings_list),"cursor-changed",G_CALLBACK(on_settings_list_cursor_changed),(gpointer)self);
 
-  store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_LONG);
+  store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_LONG,GDK_TYPE_PIXBUF,G_TYPE_STRING);
+  /* @todo: add icons
+   * Audio Devices: tango-audio-card
+   * Control Devices: joystick?, buzztard.png, 'locate midi | grep png'
+   * Colors: GTK_STOCK_SELECT_COLOR
+   * Shortcuts: tango-input-keyboard
+   * Directories: GTK_STOCK_DIRECTORY
+   * Fonts: GTK_STOCK_SELECT_FONT
+   * Misc: GTK_STOCK_PREFERENCES
+   */
   //-- append entries for settings pages
   gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Audio Devices"),COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,-1);
+  gtk_list_store_set(store,&tree_iter,
+    COL_LABEL,_("Audio Devices"),
+    COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,
+    COL_ICON_PIXBUF,NULL,
+    COL_ICON_STOCK_ID,NULL,
+    -1);
   gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Midi Devices"),COL_ID,SETTINGS_PAGE_MIDI_DEVICES,-1);
+  gtk_list_store_set(store,&tree_iter,
+    COL_LABEL,_("Control Devices"),
+    COL_ID,SETTINGS_PAGE_CONTROL_DEVICES,
+    COL_ICON_PIXBUF,NULL,
+    COL_ICON_STOCK_ID,NULL,
+    -1);
   gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Colors"),COL_ID,SETTINGS_PAGE_COLORS,-1);
+  gtk_list_store_set(store,&tree_iter,
+    COL_LABEL,_("Colors"),
+    COL_ID,SETTINGS_PAGE_COLORS,
+    COL_ICON_PIXBUF,NULL,
+    COL_ICON_STOCK_ID,GTK_STOCK_SELECT_COLOR,
+    -1);
   gtk_list_store_append(store, &tree_iter);
-  gtk_list_store_set(store,&tree_iter,COL_LABEL,_("Shortcuts"),COL_ID,SETTINGS_PAGE_SHORTCUTS,-1);
+  gtk_list_store_set(store,&tree_iter,
+    COL_LABEL,_("Shortcuts"),
+    COL_ID,SETTINGS_PAGE_SHORTCUTS,
+    COL_ICON_PIXBUF,NULL,
+    COL_ICON_STOCK_ID,NULL,
+    -1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,
+    COL_LABEL,_("Directories"),
+    COL_ID,SETTINGS_PAGE_DIRECTORIES,
+    COL_ICON_PIXBUF,NULL
+    ,COL_ICON_STOCK_ID,GTK_STOCK_DIRECTORY,
+    -1);
   gtk_tree_view_set_model(self->priv->settings_list,GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
 
@@ -144,27 +207,26 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_notebook_set_show_border(self->priv->settings_pages,FALSE);
   gtk_container_add(GTK_CONTAINER(box),GTK_WIDGET(self->priv->settings_pages));
 
-  // intantiate page classes (settings-page-audiodevices, settings-page-colors, settings-page-shortcuts, ...)
+  // add audio device page
   self->priv->audiodevices_page=bt_settings_page_audiodevices_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),0),
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_AUDIO_DEVICES),
     gtk_label_new(_("Audio Devices")));
 
-  // add notebook page #2
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 2 yet"));
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  // add control device page
+  self->priv->controldevices_page=bt_settings_page_controldevices_new(self->priv->app);
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->controldevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),1),
-    gtk_label_new(_("Midi Devices")));
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_CONTROL_DEVICES),
+    gtk_label_new(_("Control Devices")));
 
   // add notebook page #3
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 3 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),2),
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_COLORS),
     gtk_label_new(_("Colors")));
 
   // add notebook page #4
@@ -172,9 +234,17 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),3),
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_SHORTCUTS),
     gtk_label_new(_("Shortcuts")));
-	
+
+  // add notebook page #5
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 5 yet"));
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
+    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_DIRECTORIES),
+    gtk_label_new(_("Directories")));
+
 	/* @todo more settings
    * - fonts
    *   - font + size for machine view canvas

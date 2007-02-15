@@ -1,3 +1,32 @@
+2007-02-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c: (bt_sequence_get_bar_time):
+	  lower log
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_preset_box):
+	  fix width to avoid toolbar item as menu
+
+	* src/ui/edit/settings-dialog.c: (on_settings_list_size_request),
+	(bt_settings_dialog_init_ui):
+	  enhance layout (min height) and add icons
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/settings-page-controldevices-methods.h:
+	* src/ui/edit/settings-page-controldevices.c:
+	(on_device_menu_changed),
+	(bt_settings_page_controldevices_init_ui),
+	(bt_settings_page_controldevices_new),
+	(bt_settings_page_controldevices_get_property),
+	(bt_settings_page_controldevices_set_property),
+	(bt_settings_page_controldevices_dispose),
+	(bt_settings_page_controldevices_finalize),
+	(bt_settings_page_controldevices_init),
+	(bt_settings_page_controldevices_class_init),
+	(bt_settings_page_controldevices_get_type):
+	* src/ui/edit/settings-page-controldevices.h:
+	  start with controller configuration page
+
 2007-02-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

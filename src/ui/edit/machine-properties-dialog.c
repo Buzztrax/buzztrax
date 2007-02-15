@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.66 2007-02-11 17:02:35 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.67 2007-02-15 21:46:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -859,7 +859,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   renderer=gtk_cell_renderer_text_new();
   g_object_set(G_OBJECT(renderer),"xalign",0.0,NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(_("Preset"),renderer,"text",0,NULL))) {
-    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",130,NULL);
+    g_object_set(tree_col,"sizing",GTK_TREE_VIEW_COLUMN_FIXED,"fixed-width",135,NULL);
     gtk_tree_view_insert_column(GTK_TREE_VIEW(self->priv->preset_list),tree_col,-1);
   }
   else GST_WARNING("can't create treeview column");

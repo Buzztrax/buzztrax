@@ -32,6 +32,7 @@ libbtedit_la_SOURCES   = \
 	sequence-view.c sequence-view.h sequence-view-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
+	settings-page-controldevices.c settings-page-controldevices.h settings-page-controldevices-methods.h \
 	tools.c tools.h \
 	ui-ressources.c ui-ressources.h ui-ressources-methods.h \
 	volume-popup.c volume-popup.h \

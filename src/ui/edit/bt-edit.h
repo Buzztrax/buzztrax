@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.42 2007-02-01 16:05:31 ensonic Exp $
+/* $Id: bt-edit.h,v 1.43 2007-02-15 21:46:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,6 +68,7 @@
 #include "sequence-view-methods.h"
 #include "settings-dialog-methods.h"
 #include "settings-page-audiodevices-methods.h"
+#include "settings-page-controldevices-methods.h"
 #include "tools.h"
 #include "ui-ressources-methods.h"
 #include "volume-popup.h"
