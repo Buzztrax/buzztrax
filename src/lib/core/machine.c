@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.231 2007-02-12 21:47:12 ensonic Exp $
+/* $Id: machine.c,v 1.232 2007-02-20 07:39:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -451,6 +451,8 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
     if(!res) {
       gst_element_unlink_many(self->priv->machines[pre],self->priv->machines[part_position],self->priv->machines[post],NULL);
       GST_WARNING("failed to link part '%s' inbetween '%s' and '%s'",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]),GST_OBJECT_NAME(self->priv->machines[post]));
+      // relink previous connection
+      gst_element_link(self->priv->machines[pre],self->priv->machines[post]);
     }
   }
   else if(pre==-1) {
@@ -709,9 +711,9 @@ static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMac
     GST_DEBUG("machine '%s' is not yet connected on the output side",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
     if(!gst_element_link(self->priv->machines[PART_MACHINE],self->priv->machines[part])) {
       // DEBUG
-      //bt_machine_dbg_print_parts(self);
-      //gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
-      //gst_element_dbg_pads(self->priv->machines[ part]);
+      // bt_machine_dbg_print_parts(self);
+      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
+      // gst_element_dbg_pads(self->priv->machines[ part]);
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }

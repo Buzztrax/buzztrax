@@ -1,3 +1,18 @@
+2007-02-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/hal/halwatch.c: (device_added), (main):
+	  add new test app
+
+	* src/lib/core/Makefile.am:
+	* src/lib/core/machine.c: (bt_machine_insert_element),
+	(bt_machine_add_output_element):
+	  reestablish previous link, if we can't insert an element (workaround
+	  for #1663535)
+
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	  new stats
+
 2007-02-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sequence.c: (bt_sequence_get_bar_time):

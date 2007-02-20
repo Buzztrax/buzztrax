@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.35 2007-01-20 19:43:34 ensonic Exp $
+## $Id: Makefile.am,v 1.36 2007-02-20 07:39:28 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -83,8 +83,12 @@ todo::
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@todo .*" {} \; | sed "s/@todo/error:/"
 	@find . \( -name "*.c" -o -name "*.h" \) -exec grep -Hno "@idea .*" {} \; | sed "s/@idea/warning:/"
 
-stats::
-	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -n
+stats:: tags
+	@echo "files by size:"
+	@find . \( -name "*.c" -o -name "*.h" \) -printf "%s %p\n" | sort -rn
+	@echo
+	@echo "files by tags:"
+	@for file in *.c; do size=`grep $${file} tags | wc -l`;echo $${size} $${file}; done | sort -rn
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_la_SOURCES)
