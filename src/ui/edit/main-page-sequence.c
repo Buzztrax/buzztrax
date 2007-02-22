@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.151 2007-02-11 17:02:35 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.152 2007-02-22 13:47:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -747,6 +747,8 @@ static void sequence_table_init(const BtMainPageSequence *self) {
     col_index=gtk_tree_view_append_column(self->priv->sequence_table,tree_col);
   }
   else GST_WARNING("can't create treeview column");
+  
+  g_hash_table_remove_all(self->priv->level_to_vumeter);
   
   GST_DEBUG("    number of columns : %d",col_index);
 }

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.97 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: wire.c,v 1.98 2007-02-22 13:47:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -399,7 +399,6 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     goto Error;
   }
   g_object_try_unref(other_wire);
-
 
   GST_DEBUG("bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
   GST_DEBUG("trying to link machines : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));

@@ -1,4 +1,4 @@
-/* $Id: persistence.c,v 1.15 2007-01-22 21:00:57 ensonic Exp $
+/* $Id: persistence.c,v 1.16 2007-02-22 13:47:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -210,6 +210,10 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       const gdouble val=g_ascii_strtod(svalue,NULL);
       g_value_set_double(gvalue,val);
     } break;
+    case G_TYPE_FLOAT: {
+      const gfloat val=(gfloat)g_ascii_strtod(svalue,NULL);
+      g_value_set_float(gvalue,val);
+    } break;
     case G_TYPE_BOOLEAN: {
       const gint val=atoi(svalue);
       g_value_set_boolean(gvalue,val);
@@ -261,9 +265,18 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
   base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
   // depending on the type, set the result
   switch(base_type) {
-    case G_TYPE_DOUBLE:
-      res=g_strdup_printf("%lf",g_value_get_double(gvalue));
-      break;
+    case G_TYPE_DOUBLE: {
+      gchar str[30+1];
+      // this is dependend on the locale
+      //res=g_strdup_printf("%lf",g_value_get_double(gvalue));
+      res=g_strdup(g_ascii_dtostr(str,30,g_value_get_double(gvalue)));
+      } break;
+    case G_TYPE_FLOAT: {
+      gchar str[30+1];
+      // this is dependend on the locale
+      //res=g_strdup_printf("%f",g_value_get_float(gvalue));
+      res=g_strdup(g_ascii_dtostr(str,30,g_value_get_float(gvalue)));
+      } break;
     case G_TYPE_BOOLEAN:
       res=g_strdup_printf("%d",g_value_get_boolean(gvalue));
       break;

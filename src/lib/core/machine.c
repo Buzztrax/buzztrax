@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.232 2007-02-20 07:39:28 ensonic Exp $
+/* $Id: machine.c,v 1.233 2007-02-22 13:47:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2408,7 +2408,7 @@ static void bt_machine_dispose(GObject * const object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p, song=%p",self,self->priv->song);
+  GST_DEBUG("!!!! self=%p,%s, song=%p",self,self->priv->id,self->priv->song);
   
   // disconnect notify handlers
   if(self->priv->song) {
