@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.18 2006-08-27 20:02:55 ensonic Exp $
+/* $Id: e-bt-edit-application.c,v 1.19 2007-02-26 08:59:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -98,6 +98,7 @@ BT_START_TEST(test_new1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
+  gboolean unsaved;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -107,6 +108,9 @@ BT_START_TEST(test_new1) {
   bt_edit_application_new_song(app);
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song created");
   
@@ -132,6 +136,7 @@ BT_START_TEST(test_load1) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   BtSong *song;
+  gboolean unsaved;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -140,6 +145,9 @@ BT_START_TEST(test_load1) {
   bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song loaded");
 

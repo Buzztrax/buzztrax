@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.14 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: e-song.c,v 1.15 2007-02-26 08:59:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,14 +52,19 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
 BT_START_TEST(test_btsong_obj1) {
   BtApplication *app=NULL;
   BtSong *song;
+  gboolean unsaved;
   
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-    
+  
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
+  /* song should be unchanged */
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  
   g_object_checked_unref(song);
 
   g_object_checked_unref(app);
@@ -72,6 +77,7 @@ BT_START_TEST(test_btsong_load1) {
   BtSong *song;
   BtSongIO *loader;
   gboolean load_ret = FALSE;
+  gboolean unsaved;
   
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -86,6 +92,9 @@ BT_START_TEST(test_btsong_load1) {
   load_ret = bt_song_io_load(loader,song);
   mark_point();
   fail_unless(load_ret, NULL);
+  /* song should be unchanged */
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
   
   mark_point();
   g_object_checked_unref(loader);

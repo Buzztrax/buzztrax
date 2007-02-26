@@ -1,3 +1,12 @@
+2007-02-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	  add new file to translatable sources.
+
+	* tests/lib/core/e-song.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST):
+	  increase test coverage by adding checks for unsaved status of a song
+
 2007-02-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_dispose):
