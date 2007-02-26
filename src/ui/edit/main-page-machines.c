@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.96 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.97 2007-02-26 16:03:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -175,7 +175,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   gchar *prop;
   
   // clear the canvas
-  GST_DEBUG("before destoying machine canvas items");
+  GST_DEBUG("before destroying machine canvas items");
   g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
   GST_DEBUG("before destoying wire canvas items");
   g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
@@ -397,6 +397,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
@@ -405,6 +406,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // release the reference
   g_object_try_unref(setup);
   g_object_try_unref(song);
+  GST_INFO("song has changed done");
 }
 
 static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
@@ -958,6 +960,7 @@ void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, B
   g_hash_table_remove(self->priv->machines,machine);
   gtk_object_destroy(GTK_OBJECT(item));
 
+  if(machine) GST_INFO("removed canvas item: machine->ref_ct=%d",G_OBJECT(machine)->ref_count);
   g_object_try_unref(machine);
 }
 
@@ -975,6 +978,7 @@ void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWi
   g_hash_table_remove(self->priv->wires,wire);
   gtk_object_destroy(GTK_OBJECT(item));
 
+  if(wire) GST_INFO("removed canvas item: wire->ref_ct=%d",G_OBJECT(wire)->ref_count);
   g_object_try_unref(wire);
 }
 

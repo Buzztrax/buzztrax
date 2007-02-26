@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.91 2007-02-12 21:47:11 ensonic Exp $
+dnl $Id: configure.ac,v 1.92 2007-02-26 16:03:24 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -213,6 +213,7 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   libxml-2.0 >= 2.6.0 \
   gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
   gstreamer-base-0.10 >= 0.10.0
+  gstreamer-plugins-base-0.10 >= 0.10.0
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \

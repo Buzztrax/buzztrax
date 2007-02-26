@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.152 2007-02-22 13:47:28 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.153 2007-02-26 16:03:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -748,7 +748,9 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   }
   else GST_WARNING("can't create treeview column");
   
-  g_hash_table_remove_all(self->priv->level_to_vumeter);
+  if(self->priv->level_to_vumeter) {
+    g_hash_table_remove_all(self->priv->level_to_vumeter);
+  }
   
   GST_DEBUG("    number of columns : %d",col_index);
 }
@@ -2072,6 +2074,8 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
+
   g_object_get(G_OBJECT(song),"song-info",&song_info,"setup",&setup,"sequence",&sequence,"bin", &bin,NULL);
 
   // make list_length and step_filter_pos accord to song length
@@ -2121,6 +2125,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_try_unref(setup);
   g_object_try_unref(sequence);
   g_object_try_unref(song);
+  GST_INFO("song has changed done");
 }
 
 static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,const BtMainPages *pages) {

@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.42 2007-02-11 17:02:36 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.43 2007-02-26 16:03:26 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -213,6 +213,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(song,"wavetable",&wavetable,NULL);
   // update page
@@ -220,6 +221,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // release the references
   g_object_try_unref(wavetable);
   g_object_try_unref(song);
+  GST_INFO("song has changed done");
 }
 
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {

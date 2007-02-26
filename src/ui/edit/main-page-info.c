@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.46 2007-02-12 21:47:12 ensonic Exp $
+/* $Id: main-page-info.c,v 1.47 2007-02-26 16:03:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -236,6 +236,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   // update info fields
@@ -275,6 +276,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 // release the references
   g_object_try_unref(song_info);
   g_object_try_unref(song);
+  GST_INFO("song has changed done");
 }
 
 //-- helper methods

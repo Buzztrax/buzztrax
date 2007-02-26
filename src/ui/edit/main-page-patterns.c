@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.105 2007-02-04 21:11:55 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.106 2007-02-26 16:03:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -663,7 +663,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   GtkTreeIter menu_iter;
 
   g_object_get(G_OBJECT(machine),"id",&str,NULL);
-  GST_INFO("  adding \"%s\"  (machine-refs: %d)",str,(G_OBJECT(machine))->ref_count);
+  GST_INFO("  adding %p, \"%s\"  (machine-refs: %d)",machine,str,(G_OBJECT(machine))->ref_count);
 
   gtk_list_store_append(store,&menu_iter);
   gtk_list_store_set(store,&menu_iter,
@@ -673,7 +673,7 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
     -1);
   g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)self);
   
-  GST_INFO("  (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
+  GST_DEBUG("  (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
   g_free(str);
 }
 
@@ -692,6 +692,7 @@ static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *s
     index++;  // count so that we can activate the last one
   }
   g_list_free(list);
+  GST_INFO("machine menu refreshed");
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),(machine!=NULL));
   gtk_combo_box_set_model(self->priv->machine_menu,GTK_TREE_MODEL(store));
   gtk_combo_box_set_active(self->priv->machine_menu,((machine!=NULL)?index:-1));
@@ -727,6 +728,7 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
       g_free(str);
     }
     g_list_free(list);
+    GST_INFO("pattern menu refreshed");
   }
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
   gtk_combo_box_set_model(self->priv->pattern_menu,GTK_TREE_MODEL(store));
@@ -1131,6 +1133,7 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMachine *machine;
   
   g_assert(user_data);
+  GST_INFO("machine_menu changed");
   machine=bt_main_page_patterns_get_current_machine(self);
   // show new list of pattern in pattern menu
   pattern_menu_refresh(self,machine);
@@ -1200,6 +1203,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_return_if_fail(song);
+  GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   // update page
@@ -1213,6 +1217,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   // release the references
   g_object_try_unref(setup);
   g_object_try_unref(song);
+  GST_INFO("song has changed done");
 }
 
 static void on_context_menu_track_add_activate(GtkMenuItem *menuitem,gpointer user_data) {

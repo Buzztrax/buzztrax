@@ -1,5 +1,24 @@
 2007-02-26  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  also require gst-plgin-base, spotted by Ben Green
+
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song),
+	(bt_edit_application_set_property):
+	* src/ui/edit/main-page-info.c: (on_song_changed):
+	* src/ui/edit/main-page-machines.c: (machine_view_refresh),
+	(on_song_changed), (bt_main_page_machines_remove_machine_item),
+	(bt_main_page_machines_remove_wire_item):
+	* src/ui/edit/main-page-patterns.c: (machine_menu_add),
+	(machine_menu_refresh), (pattern_menu_refresh),
+	(on_machine_menu_changed), (on_song_changed):
+	* src/ui/edit/main-page-sequence.c: (sequence_table_init),
+	(on_song_changed):
+	* src/ui/edit/main-page-waves.c: (on_song_changed):
+	  more sensible debug logging
+
+2007-02-26  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	  add new file to translatable sources.
 

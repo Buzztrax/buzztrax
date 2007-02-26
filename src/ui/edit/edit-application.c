@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.87 2007-02-01 16:05:31 ensonic Exp $
+/* $Id: edit-application.c,v 1.88 2007-02-26 16:03:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -440,11 +440,12 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
             GList *missing_machines,*missing_waves;
 
             // DEBUG
-            bt_song_write_to_dot_file(song);
+            //bt_song_write_to_dot_file(song);
             // DEBUG
             // set new song
             g_object_set(G_OBJECT(self),"song",song,NULL);
             res=TRUE;
+            GST_INFO("new song activated");
 
             // get missing element info
             g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
@@ -554,21 +555,22 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
           else {
             GST_WARNING("Can't add input level/gain element in sink machine");
           }
+          GST_DEBUG("unreffing stuff after loading");
           g_object_unref(machine);
         }
         else {
           GST_WARNING("Can't look up sink machine");
         }
         g_object_try_unref(setup);
-            g_object_unref(wavetable);
+        g_object_unref(wavetable);
       }
       else {
         GST_ERROR("could not load song \"%s\"",file_name);
       }
-    }  
+      g_object_unref(song);
+    }
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
-    g_object_unref(song);
     g_object_unref(loader);
   }
   return(res);
@@ -799,10 +801,10 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      //if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+      if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
       g_object_try_unref(self->priv->song);
       self->priv->song=BT_SONG(g_value_dup_object(value));
-      GST_DEBUG("set the song for edit_application: %p",self->priv->song);
+      GST_DEBUG("set the song for edit_application: %p, song->ref_ct=%d",self->priv->song,G_OBJECT(self->priv->song)->ref_count);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
