@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.64 2007-02-01 16:05:31 ensonic Exp $
+/* $Id: main-menu.c,v 1.65 2007-02-27 22:07:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -403,7 +403,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_return_if_fail(song);
+  if(!song) return;
 
   on_song_unsaved_changed(song,NULL,self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);

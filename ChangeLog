@@ -1,3 +1,20 @@
+2007-02-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_segment_done),
+	(on_song_state_changed):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new_song),
+	(bt_edit_application_load_song),
+	(bt_edit_application_set_property):
+	* src/ui/edit/main-menu.c: (on_song_changed):
+	* src/ui/edit/main-page-info.c: (on_song_changed):
+	* src/ui/edit/main-page-machines.c: (on_song_changed):
+	* src/ui/edit/main-page-patterns.c: (on_song_changed):
+	* src/ui/edit/main-page-sequence.c: (on_song_changed):
+	* src/ui/edit/main-page-waves.c: (on_song_changed):
+	* src/ui/edit/main-statusbar.c: (on_song_changed):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	  also handle song temporarily beeing NULL
+
 2007-02-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

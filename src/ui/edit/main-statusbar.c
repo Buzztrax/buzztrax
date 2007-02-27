@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.52 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.53 2007-02-27 22:07:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -204,7 +204,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_return_if_fail(song);
+  if(!song) return;
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
   bt_main_statusbar_update_length(self,song,sequence);

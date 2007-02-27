@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.88 2007-02-26 16:03:24 ensonic Exp $
+/* $Id: edit-application.c,v 1.89 2007-02-27 22:07:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -344,7 +344,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   BtSong *song;
   
   g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
-
+  
   // create new song
   if((song=bt_song_new(BT_APPLICATION(self)))) {
     BtSetup *setup;
@@ -352,6 +352,9 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     BtMachine *machine;
     gchar *id;
 
+    // free previous song
+    g_object_set(G_OBJECT(self),"song",NULL,NULL);
+    
     g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
     // add some initial timelines
     g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
@@ -426,6 +429,10 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     
     // create new song
     if((song=bt_song_new(BT_APPLICATION(self)))) {
+      
+      // free previous song
+      g_object_set(G_OBJECT(self),"song",NULL,NULL);
+
       if(bt_song_io_load(loader,song)) {
         BtSetup *setup;
         BtWavetable *wavetable;
@@ -801,10 +808,10 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      if(self->priv->song) GST_INFO("song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+      if(self->priv->song) GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
       g_object_try_unref(self->priv->song);
       self->priv->song=BT_SONG(g_value_dup_object(value));
-      GST_DEBUG("set the song for edit_application: %p, song->ref_ct=%d",self->priv->song,G_OBJECT(self->priv->song)->ref_count);
+      if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT(self->priv->song)->ref_count);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

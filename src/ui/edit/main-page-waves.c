@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.43 2007-02-26 16:03:26 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.44 2007-02-27 22:07:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -212,7 +212,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_return_if_fail(song);
+  if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(song,"wavetable",&wavetable,NULL);

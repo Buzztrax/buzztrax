@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.164 2007-02-12 21:47:12 ensonic Exp $
+/* $Id: song.c,v 1.165 2007-02-27 22:07:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -269,8 +269,20 @@ static void bt_song_send_tags(const BtSong * const self) {
 
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
+  GstStateChangeReturn res;
 
   GST_INFO("received SEGMENT_DONE bus message");
+
+  res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
+  if(res==GST_STATE_CHANGE_FAILURE) {
+    GST_WARNING("can't go to paused state");
+    bt_song_stop(self);
+  }
+  else if(res==GST_STATE_CHANGE_ASYNC) {
+    GST_INFO("->PAUSED needs async wait");
+  }
+  
+#if 0  
   if(self->priv->is_playing) {
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
@@ -290,6 +302,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
     }
     */				
   }
+#endif
 }
 
 static void on_song_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
@@ -363,6 +376,20 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
           GST_INFO("looping");
         }
         break;
+      case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+        self->priv->is_playing=FALSE;
+        g_object_notify(G_OBJECT(self),"is-playing");
+        if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+          GST_WARNING("element failed to handle continuing play seek event");
+        }
+        res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
+        if(res==GST_STATE_CHANGE_FAILURE) {
+          GST_WARNING("can't go to playing state");
+          bt_song_stop(self);
+        }
+        else if(res==GST_STATE_CHANGE_ASYNC) {
+          GST_INFO("->PLAYING needs async wait");
+        }
       default:
         break;
     }

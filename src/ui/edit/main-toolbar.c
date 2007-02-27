@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.103 2007-02-04 21:11:55 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.104 2007-02-27 22:07:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -402,7 +402,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   
   // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  g_return_if_fail(song);
+  if(!song) return;
 
   g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,"bin", &bin,NULL);
   g_object_get(sequence,"loop",&loop,NULL);
