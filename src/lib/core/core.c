@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.33 2007-01-17 21:51:51 ensonic Exp $
+/* $Id: core.c,v 1.34 2007-02-28 21:13:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -75,7 +75,6 @@ static gboolean bt_init_pre (void) {
 #endif /* ENABLE_NLS */
 
   //g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-
   return TRUE;
 }
 
@@ -189,14 +188,13 @@ void bt_init_add_option_groups(GOptionContext * const ctx) {
  * @argv: pointer to application's argv
  * @err: pointer to a #GError to which a message will be posted on error
  *
- * Initializes the GStreamer library, setting up internal path lists,
- * registering built-in elements, and loading standard plugins.
+ * Initializes the Buzztard core library.
  *
- * This function will return %FALSE if GStreamer could not be initialized
+ * This function will return %FALSE if Buzztard core could not be initialized
  * for some reason.  If you want your program to fail fatally,
- * use gst_init() instead.
+ * use bt_init() instead.
  *
- * Returns: %TRUE if GStreamer could be initialized.
+ * Returns: %TRUE if Buzztard core could be initialized.
  */
 gboolean bt_init_check(int *argc, char **argv[], GError **err) {
   GOptionContext *ctx;
@@ -252,7 +250,7 @@ void bt_init(int *argc, char **argv[]) {
   GError *err = NULL;
 
   if(!bt_init_check(argc, argv, &err)) {
-    g_print("Could not initialized Buzztard Core: %s\n", err ? err->message : "unknown error occurred");
+    g_print("Could not initialized Buzztard core: %s\n", err ? err->message : "unknown error occurred");
     if(err) {
       g_error_free(err);
     }

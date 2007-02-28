@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.83 2007-01-29 20:17:03 ensonic Exp $
+/* $Id: core.h,v 1.84 2007-02-28 21:13:37 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,6 +22,7 @@
 #ifndef BT_CORE_H
 #define BT_CORE_H
 
+// @todo: whats that?!
 #undef GST_DISABLE_GST_DEBUG
 
 #include "config.h"
@@ -31,6 +32,7 @@
 #define __USE_ISOC99 /* for isinf() and co. */
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 //#define _XOPEN_SOURCE /* glibc2 needs this */
 #define __USE_XOPEN
@@ -69,8 +71,6 @@
 #include <libxml/xpathInternals.h>
 //-- gnome-vfs
 #include <libgnomevfs/gnome-vfs.h>
-//-- popt
-#include <popt.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS

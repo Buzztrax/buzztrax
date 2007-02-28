@@ -1,24 +1,24 @@
-## Makefile.am for src/lib/core
+## $Id: Makefile.am,v 1.9 2007-02-28 21:13:36 ensonic Exp $
 
 libbtcoredir = $(includedir)/libbtcore
 libbtcore_HEADERS = \
 	core.h \
 	tools.h \
 	version.h \
-  \
+    \
 	application.h application-methods.h \
 	gconf-settings.h gconf-settings-methods.h \
 	machine.h machine-methods.h \
 	pattern.h pattern-methods.h \
-  persistence.h persistence-methods.h \
-  persistence-location.h \
-  persistence-selection.h \
+    persistence.h persistence-methods.h \
+    persistence-location.h \
+    persistence-selection.h \
 	plainfile-settings.h plainfile-settings-methods.h \
 	processor-machine.h processor-machine-methods.h \
 	sequence.h sequence-methods.h \
 	settings.h settings-methods.h \
 	setup.h setup-methods.h \
-  sink-bin.h sink-bin-methods.h \
+    sink-bin.h sink-bin-methods.h \
 	sink-machine.h sink-machine-methods.h \
 	song.h song-methods.h \
 	song-info.h song-info-methods.h \

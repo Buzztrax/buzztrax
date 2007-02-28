@@ -1,5 +1,28 @@
 2007-02-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/core.c: (bt_init_pre), (bt_init):
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/ic/.cvsignore:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/ic.c: (btic_init_pre), (btic_init_post),
+	(btic_init_get_option_group), (btic_init_check), (btic_init):
+	* src/lib/ic/libbtic.pc.in:
+	* src/lib/ic/libbtic/.cvsignore:
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/version.h.in:
+	  Add skelleton for interaction controller library.
+
+	* src/ui/edit/main-page-patterns.c: (machine_menu_clear),
+	(machine_menu_refresh), (on_song_changed):
+	  Some more hunting for the ref-problem.
+
+2007-02-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_dispose):
 	* src/lib/core/song.c: (bt_song_is_playable):
 	* src/ui/edit/edit-application.c:

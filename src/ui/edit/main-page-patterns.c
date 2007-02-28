@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.107 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.108 2007-02-28 21:13:37 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -677,12 +677,17 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   g_free(str);
 }
 
+static void machine_menu_clear(const BtMainPagePatterns *self) {
+  gtk_combo_box_set_model(self->priv->machine_menu,NULL);
+  gtk_combo_box_set_active(self->priv->machine_menu,-1);
+}
+
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
   BtMachine *machine=NULL;
   GtkListStore *store;
   GList *node,*list;
   gint index=-1;
-
+  
   // update machine menu
   store=gtk_list_store_new(3,GDK_TYPE_PIXBUF,G_TYPE_STRING,BT_TYPE_MACHINE);
   g_object_get(G_OBJECT(setup),"machines",&list,NULL);
@@ -1202,7 +1207,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  if(!song) return;
+  if(!song) {
+    machine_menu_clear(self);
+    return;
+  }
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
