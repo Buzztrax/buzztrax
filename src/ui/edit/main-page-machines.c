@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.98 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.99 2007-02-28 16:10:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -164,6 +164,15 @@ static void wire_item_new(const BtMainPageMachines *self,BtWire *wire,gdouble po
   g_hash_table_insert(self->priv->wires,wire,item);
 }
 
+static void machine_view_clear(const BtMainPageMachines *self) {
+  // clear the canvas
+  GST_DEBUG("before destroying machine canvas items");
+  g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
+  GST_DEBUG("before destoying wire canvas items");
+  g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
+  GST_DEBUG("done");
+}
+
 static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *setup) {
   GHashTable *properties;
   BtMachineCanvasItem *src_machine_item,*dst_machine_item;
@@ -174,12 +183,7 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   GList *node,*list;
   gchar *prop;
   
-  // clear the canvas
-  GST_DEBUG("before destroying machine canvas items");
-  g_hash_table_foreach_remove(self->priv->machines,canvas_item_destroy,NULL);
-  GST_DEBUG("before destoying wire canvas items");
-  g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
-  GST_DEBUG("done");
+  machine_view_clear(self);
   
   // update view
   g_object_get(G_OBJECT(setup),"properties",&self->priv->properties,NULL);
@@ -396,7 +400,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  if(!song) return;
+  if(!song) {
+    machine_view_clear(self);
+    return;
+  }
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);

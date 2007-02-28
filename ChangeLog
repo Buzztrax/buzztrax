@@ -1,5 +1,22 @@
 2007-02-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/song.c: (bt_song_is_playable):
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_set_property):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_set_property),
+	(bt_machine_canvas_item_dispose):
+	* src/ui/edit/main-page-machines.c: (machine_view_clear),
+	(machine_view_refresh), (on_song_changed):
+	* src/ui/edit/main-toolbar.c: (on_channels_negotiated),
+	(on_song_changed), (bt_main_toolbar_dispose):
+	* src/ui/edit/wire-canvas-item.c:
+	(bt_wire_canvas_item_set_property), (bt_wire_canvas_item_dispose):
+	  more weak refs and more ref-count debugging, one ref-count fix
+
+2007-02-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c: (on_song_segment_done),
 	(on_song_state_changed):
 	* src/ui/edit/edit-application.c: (bt_edit_application_new_song),

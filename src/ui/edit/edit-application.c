@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.89 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: edit-application.c,v 1.90 2007-02-28 16:10:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -808,8 +808,29 @@ static void bt_edit_application_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case EDIT_APPLICATION_SONG: {
-      if(self->priv->song) GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
-      g_object_try_unref(self->priv->song);
+      // DEBUG
+      GstElement *bin;
+      g_object_get(self,"bin",&bin,NULL);
+      GST_INFO("bin->num_children=%d",GST_BIN_NUMCHILDREN(bin));
+      // DEBUG
+
+      if(self->priv->song) {
+        GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+        g_object_unref(self->priv->song);
+        // DEBUG - if new song is NULL, it should be empty now
+        {
+          gint num=GST_BIN_NUMCHILDREN(bin);
+          GList *node=GST_BIN_CHILDREN(bin);
+  
+          GST_INFO("bin->num_children=%d",num);
+          for(;node;node=g_list_next(node)) {
+            GST_INFO("  %p, ref_ct=%d, '%s'",node->data,G_OBJECT(node->data)->ref_count,GST_ELEMENT_NAME(node->data));
+          }
+          gst_object_unref(bin);
+        }
+        // DEBUG
+      }
+
       self->priv->song=BT_SONG(g_value_dup_object(value));
       if(self->priv->song) GST_DEBUG("new song: %p, song->ref_ct=%d",self->priv->song,G_OBJECT(self->priv->song)->ref_count);
     } break;

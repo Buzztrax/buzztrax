@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.40 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.41 2007-02-28 16:10:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,7 +48,10 @@ struct _BtWireCanvasItemPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  BtEditApplication *app;
+  union {
+    BtEditApplication *app;
+    gpointer app_ptr;
+  };
   /* the machine page we are on */
   union {
     BtMainPageMachines *main_page_machines;
@@ -56,7 +59,10 @@ struct _BtWireCanvasItemPrivate {
   };
 
   /* the underlying wire */
-  BtWire *wire;
+  union {
+    BtWire *wire;
+    gpointer wire_ptr;
+  };
   
   /* end-points of the wire, relative to the group x,y pos */
   gdouble w,h;
@@ -365,8 +371,9 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
   return_if_disposed();
   switch (property_id) {
     case WIRE_CANVAS_ITEM_APP: {
-      g_object_try_unref(self->priv->app);
-      self->priv->app=BT_EDIT_APPLICATION(g_value_dup_object(value));
+      g_object_try_weak_unref(self->priv->app);
+      self->priv->app=BT_EDIT_APPLICATION(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for wire_canvas_item: %p",self->priv->app);
     } break;
     case WIRE_CANVAS_ITEM_MACHINES_PAGE: {
@@ -376,8 +383,9 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case WIRE_CANVAS_ITEM_WIRE: {
-      g_object_try_unref(self->priv->wire);
-      self->priv->wire=BT_WIRE(g_value_dup_object(value));
+      g_object_try_weak_unref(self->priv->wire);
+      self->priv->wire=BT_WIRE(g_value_get_object(value));
+      g_object_try_weak_ref(self->priv->wire);
       //GST_DEBUG("set the wire for wire_canvas_item: %p",self->priv->wire);
     } break;
     case WIRE_CANVAS_ITEM_W: {
@@ -430,8 +438,8 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   g_object_try_unref(song);
 
   GST_DEBUG("wire-refs: %d",(G_OBJECT(self->priv->wire))->ref_count);
-  g_object_try_unref(self->priv->app);
-  g_object_try_unref(self->priv->wire);
+  g_object_try_weak_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
   g_object_try_weak_unref(self->priv->main_page_machines);

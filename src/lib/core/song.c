@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.165 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: song.c,v 1.166 2007-02-28 16:10:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -205,11 +205,20 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
     GList *node;
 
     for(node=wires;node;node=g_list_next(node)) {
+      /* @todo: do not play a song with no wires linked to effects that are linked to the sink
+       * recursively do:
+       * subwires=bt_setup_get_wires_by_dst_machine(self->priv->setup,BT_MACHINE(BT_WIRE(node->data)->src));
+       */
       g_object_try_unref(node->data);
     }
     g_list_free(wires);
   }
-  // @todo: do not play a song with no wires linked to effects that are linked to the sink
+  
+  /* what about iterating all elements in the bin and iterating their always pads
+   * and complaining about !gst_pad_is_linked(pad)
+   * element_iter=gst_bin_iterate_elements(bin);
+   * pad_iter=gst_element_iterate_pads(element);
+   */
 
   // unconnected sources will throw an bus-error-message
   // unconnected effects don't harm

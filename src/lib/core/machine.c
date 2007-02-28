@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.233 2007-02-22 13:47:28 ensonic Exp $
+/* $Id: machine.c,v 1.234 2007-02-28 16:10:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2427,7 +2427,10 @@ static void bt_machine_dispose(GObject * const object) {
   if(self->priv->bin) {
     GstStateChangeReturn res;
     
-    GST_DEBUG("  bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
+    GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
+      (G_OBJECT(self->priv->bin))->ref_count,
+      GST_BIN_NUMCHILDREN(self->priv->bin)
+    );
     for(i=0;i<PART_COUNT;i++) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));
@@ -2438,11 +2441,17 @@ static void bt_machine_dispose(GObject * const object) {
         else
           GST_DEBUG("->NULL state change returned %d",res);
         gst_bin_remove(self->priv->bin,self->priv->machines[i]);
-        GST_DEBUG("  bin->ref_count=%d",(self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1));
+        GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
+          (self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1),
+          (self->priv->bin?GST_BIN_NUMCHILDREN(self->priv->bin):-1)
+        );
       }
     }
     // release the bin (that is ref'ed in bt_machine_setup() )
-    GST_DEBUG("  releasing the bin, bin->ref_count=%d",(self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1));
+    GST_INFO("  releasing the bin, bin->ref_count=%d, bin->num_children=%d",
+      (self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1),
+      (self->priv->bin?GST_BIN_NUMCHILDREN(self->priv->bin):-1)
+    );
     gst_object_unref(self->priv->bin);
   }
 

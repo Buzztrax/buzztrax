@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.104 2007-02-27 22:07:48 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.105 2007-02-28 16:10:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -58,7 +58,10 @@ struct _BtMainToolbarPrivate {
   
   /* the volume gain */
   GtkScale *volume;
-  GstElement *gain;
+  union {
+    GstElement *gain;
+    gpointer gain_ptr;
+  };
 
   /* action buttons */
   GtkWidget *save_button;
@@ -354,7 +357,6 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
     GstStructure *structure;
     GstMessage *message;
     GstElement *bin;
-    GstBus *bus;
     
     channels=gst_caps_get_channels(caps);
     GST_INFO("!!!  input level src has %d output channels",channels);
@@ -365,11 +367,7 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
     message = gst_message_new_application (NULL, structure);
     
     g_object_get(G_OBJECT(self->priv->app),"bin",&bin,NULL);
-    bus=gst_element_get_bus(bin);
-    
-    gst_bus_post (bus, message);
-
-    gst_object_unref(bus);
+    gst_element_post_message(bin,message);
     gst_object_unref(bin);
   }
 }
@@ -415,8 +413,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     
     GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,master,(G_OBJECT(master))->ref_count);
 
-    // get the input_level property from audio_sink
+    // get the input_level and input_gain properties from audio_sink
+    g_object_try_weak_unref(self->priv->gain);
     g_object_get(G_OBJECT(master),"input-level",&level,"input-gain",&self->priv->gain,NULL);
+    g_object_try_weak_ref(self->priv->gain);
     g_assert(GST_IS_ELEMENT(level));
 
     // connect bus signals
@@ -442,6 +442,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
     g_signal_connect(G_OBJECT(self->priv->gain) ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
+    g_object_unref(self->priv->gain);
     g_object_unref(master);
   }
   else {
@@ -672,8 +673,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
     g_object_unref(song);
   }
 
-  if(self->priv->gain) gst_object_unref(self->priv->gain);
-  
+  g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->app);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
