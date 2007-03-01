@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.108 2007-02-28 21:13:37 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.109 2007-03-01 14:52:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -677,11 +677,6 @@ static void machine_menu_add(const BtMainPagePatterns *self,BtMachine *machine,G
   g_free(str);
 }
 
-static void machine_menu_clear(const BtMainPagePatterns *self) {
-  gtk_combo_box_set_model(self->priv->machine_menu,NULL);
-  gtk_combo_box_set_active(self->priv->machine_menu,-1);
-}
-
 static void machine_menu_refresh(const BtMainPagePatterns *self,const BtSetup *setup) {
   BtMachine *machine=NULL;
   GtkListStore *store;
@@ -1207,10 +1202,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   GST_INFO("song has changed : app=%p, self=%p",app,self);
   // get song from app and then setup from song
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  if(!song) {
-    machine_menu_clear(self);
-    return;
-  }
+  if(!song) return;
   GST_INFO("song->ref_ct=%d",G_OBJECT(song)->ref_count);
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
