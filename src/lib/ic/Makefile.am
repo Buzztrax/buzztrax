@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.1 2007-02-28 21:13:37 ensonic Exp $
+## $Id: Makefile.am,v 1.2 2007-03-02 13:17:14 ensonic Exp $
 
 SUBDIRS = . libbtic
 
@@ -10,7 +10,6 @@ libbtic_la_SOURCES = \
 	libbtic/version.h
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

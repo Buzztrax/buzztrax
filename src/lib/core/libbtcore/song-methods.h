@@ -1,4 +1,4 @@
-/* $Id: song-methods.h,v 1.23 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: song-methods.h,v 1.24 2007-03-02 13:17:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -43,6 +43,7 @@ extern gboolean bt_song_continue(const BtSong * const self);
 extern gboolean bt_song_update_playback_position(const BtSong * const self);
 
 extern void bt_song_write_to_xml_file(const BtSong * const self);
-extern void bt_song_write_to_dot_file(const BtSong * const self);
+extern void bt_song_write_to_highlevel_dot_file(const BtSong * const self);
+extern void bt_song_write_to_lowlevel_dot_file(const BtSong * const self);
 
 #endif // BT_SONG_METHDOS_H

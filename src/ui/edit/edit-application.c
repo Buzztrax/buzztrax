@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.90 2007-02-28 16:10:00 ensonic Exp $
+/* $Id: edit-application.c,v 1.91 2007-03-02 13:17:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -447,7 +447,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
             GList *missing_machines,*missing_waves;
 
             // DEBUG
-            //bt_song_write_to_dot_file(song);
+            //bt_song_write_to_highlevel_dot_file(song);
             // DEBUG
             // set new song
             g_object_set(G_OBJECT(self),"song",song,NULL);

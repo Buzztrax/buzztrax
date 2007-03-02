@@ -1,3 +1,25 @@
+2007-03-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/application.c: (bt_application_init):
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/song-methods.h:
+	* src/lib/core/song-io.c: (bt_song_io_load):
+	* src/lib/core/song.c: (bt_song_is_playable),
+	(on_song_state_changed), (bt_song_write_to_highlevel_dot_file),
+	(bt_song_write_to_lowlevel_dot_file), (bt_song_dispose):
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play_song),
+	(bt_cmd_application_info):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/edit-application.c: (bt_edit_application_load_song):
+	  Add another dot-file writer to debug songs better. Cleanup Makefile.am
+	  a bit more. Finally found the bug that keep us from playing newly
+	  loaded songs - I disconnected all handler from the bus and not only
+	  those that belonged to the old song.
+
 2007-03-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c: (on_song_changed):

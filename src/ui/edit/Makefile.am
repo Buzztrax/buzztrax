@@ -42,9 +42,10 @@ libbtedit_la_SOURCES   = \
 	gtkvumeter.c gtkvumeter.h
 	
 INCLUDES = \
-	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
-  -DPREFIX=\"$(prefix)\" \
-  -DSYSCONFDIR=\"$(sysconfdir)\" \
+	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
+	-DPREFIX=\"$(prefix)\" \
+	-DSYSCONFDIR=\"$(sysconfdir)\" \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

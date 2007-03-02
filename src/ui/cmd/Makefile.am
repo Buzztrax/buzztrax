@@ -13,7 +13,7 @@ libbtcmd_la_SOURCES   =	\
 	cmd-application.c cmd-application.h cmd-application-methods.h
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

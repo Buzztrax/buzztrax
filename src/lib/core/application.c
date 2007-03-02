@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.62 2007-01-22 21:00:54 ensonic Exp $
+/* $Id: application.c,v 1.63 2007-03-02 13:17:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -179,8 +179,9 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
   GST_INFO("bin->ref_ct=%d",G_OBJECT(self->priv->bin)->ref_count);
-  
- 
+
+  // tried this when debuging a case where we don't get bus messages
+  //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
   

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.166 2007-02-28 16:10:00 ensonic Exp $
+/* $Id: song.c,v 1.167 2007-03-02 13:17:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -215,10 +215,64 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
   }
   
   /* what about iterating all elements in the bin and iterating their always pads
-   * and complaining about !gst_pad_is_linked(pad)
-   * element_iter=gst_bin_iterate_elements(bin);
-   * pad_iter=gst_element_iterate_pads(element);
+   * and complaining about unlinked pads
    */
+  {
+    GstIterator *element_iter,*pad_iter;
+    gboolean elements_done,pads_done,all_linked=TRUE;
+    guint element_ct=0,pad_ct=0;
+    GstElement *element;
+    GstPad *pad;
+    
+    element_iter=gst_bin_iterate_elements(self->priv->bin);
+    elements_done = FALSE;
+    while (!elements_done) {
+      switch (gst_iterator_next (element_iter, (gpointer)&element)) {
+        case GST_ITERATOR_OK:
+          pad_iter=gst_element_iterate_pads(element);
+          pads_done=FALSE;
+          while (!pads_done) {
+            switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
+              case GST_ITERATOR_OK:
+                if(!gst_pad_is_linked(pad)) {
+                  all_linked=FALSE;
+                  GST_INFO("%s.%s is not linked", 
+                    GST_OBJECT_NAME(element), GST_OBJECT_NAME(pad));
+                }
+                gst_object_unref(pad);
+                pad_ct++;
+                break;
+              case GST_ITERATOR_RESYNC:
+                gst_iterator_resync (pad_iter);
+                break;
+              case GST_ITERATOR_ERROR:
+              case GST_ITERATOR_DONE:
+                pads_done = TRUE;
+                break;
+            }
+          }
+          gst_iterator_free(pad_iter);
+          gst_object_unref(element);
+          element_ct++;
+          break;
+        case GST_ITERATOR_RESYNC:
+          gst_iterator_resync (element_iter);
+          break;
+        case GST_ITERATOR_ERROR:
+        case GST_ITERATOR_DONE:
+          elements_done = TRUE;
+          break;
+      }
+    }
+    gst_iterator_free(element_iter);
+    if(all_linked) {
+      GST_INFO ("checked %u elementes and %u pads, all linked",element_ct, pad_ct);
+    }
+    else {
+      GST_WARNING ("checked %u elementes and %u pads, not all linked",element_ct, pad_ct);
+    }
+  }
+  //bt_song_write_to_lowlevel_dot_file(self);
 
   // unconnected sources will throw an bus-error-message
   // unconnected effects don't harm
@@ -345,7 +399,9 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
   const BtSong * const self = BT_SONG(user_data);
   
   g_assert(user_data);
-  //GST_INFO("user_data=%p, user_data.type=%s",user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)));
+  //GST_INFO("user_data=%p,<%s>, bin=%p, msg->src=%p,<%s>",
+  //  user_data, G_OBJECT_TYPE_NAME(G_OBJECT(user_data)),
+  //  self->priv->bin,GST_MESSAGE_SRC(message),G_OBJECT_TYPE_NAME(GST_MESSAGE_SRC(message)));
   
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->bin)) {
     GstStateChangeReturn res;
@@ -771,19 +827,19 @@ void bt_song_write_to_xml_file(const BtSong * const self) {
 }
 
 /**
- * bt_song_write_to_dot_file:
+ * bt_song_write_to_highlevel_dot_file:
  * @self: the song that should be written
  *
  * To aid debugging applications one can use this method to write out the whole
- * network of gstreamer elements that form the song into an dot file.
+ * network of gstreamer elements from the songs perspective into an dot file.
  * The file will be written to '/tmp' and will be named according the 'name'
  * property of the #BtSongInfo.
  * This file can be processed with graphviz to get an image.
  * <informalexample><programlisting>
- *  dot -Tpng -oimage.png graph.dot
+ *  dot -Tpng -oimage.png graph_highlevel.dot
  * </programlisting></informalexample>
  */
-void bt_song_write_to_dot_file(const BtSong * const self) {
+void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
   FILE *out;
   gchar * const song_name;
   
@@ -791,7 +847,7 @@ void bt_song_write_to_dot_file(const BtSong * const self) {
   
   g_object_get(self->priv->song_info,"name",&song_name,NULL);
   gchar * const file_name=g_alloca(strlen(song_name)+10);
-  g_sprintf(file_name,"/tmp/%s.dot",song_name);
+  g_sprintf(file_name,"/tmp/%s_highlevel.dot",song_name);
 
   /* @idea: improve dot output
    * - make border of main element in machine black, other borders gray
@@ -826,7 +882,7 @@ void bt_song_write_to_dot_file(const BtSong * const self) {
         "  subgraph cluster_%s {\n"
         "    style=filled;\n"
         "    label=\"%s\";\n"
-		    "    fillcolor=\"%s\";\n"
+        "    fillcolor=\"%s\";\n"
         "    color=black\n\n"
         ,id,id,BT_IS_SOURCE_MACHINE(machine)?"#FFAAAA":(BT_IS_SINK_MACHINE(machine)?"#AAAAFF":"#AAFFAA"));
 
@@ -909,6 +965,142 @@ void bt_song_write_to_dot_file(const BtSong * const self) {
     }
     g_list_free(list);
     
+    // write footer
+    fprintf(out,"}\n");
+    fclose(out);
+  }
+  g_free(song_name);
+}
+
+/**
+ * bt_song_write_to_lowlevel_dot_file:
+ * @self: the song that should be written
+ *
+ * To aid debugging applications one can use this method to write out the whole
+ * network of gstreamer elements that form the song into an dot file.
+ * The file will be written to '/tmp' and will be named according the 'name'
+ * property of the #BtSongInfo.
+ * This file can be processed with graphviz to get an image.
+ * <informalexample><programlisting>
+ *  dot -Tpng -oimage.png graph_lowlevel.dot
+ * </programlisting></informalexample>
+ */
+void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
+  FILE *out;
+  gchar * const song_name;
+  
+  g_return_if_fail(BT_IS_SONG(self));
+  
+  g_object_get(self->priv->song_info,"name",&song_name,NULL);
+  gchar * const file_name=g_alloca(strlen(song_name)+10);
+  g_sprintf(file_name,"/tmp/%s_lowlevel.dot",song_name);
+  
+  if((out=fopen(file_name,"wb"))) {
+    GstIterator *element_iter,*pad_iter;
+    gboolean elements_done,pads_done;
+    GstElement *element,*peer_element;
+    GstPad *pad,*peer_pad;
+    GstPadDirection dir;
+    guint src_pads,sink_pads;
+    
+    // write header
+    fprintf(out,
+      "digraph buzztard {\n"
+      "  rankdir=LR;\n"
+      "  fontname=\"Arial\";\n"
+      "  fontsize=\"9\";\n"
+      "  node [style=filled, shape=box, labelfontsize=\"8\", fontsize=\"8\", fontname=\"Arial\"];\n"
+      "\n"
+    );
+    
+    element_iter=gst_bin_iterate_elements(self->priv->bin);
+    elements_done = FALSE;
+    while (!elements_done) {
+      switch (gst_iterator_next (element_iter, (gpointer)&element)) {
+        case GST_ITERATOR_OK:
+          fprintf(out,
+            "  subgraph cluster_%s {\n"
+            "    fontname=\"Arial\";\n"
+            "    fontsize=\"9\";\n"
+            "    style=filled;\n"
+            "    label=\"<%s>\\n%s\";\n"
+            "    color=black\n\n",
+            GST_OBJECT_NAME(element),G_OBJECT_TYPE_NAME(element),GST_OBJECT_NAME(element));
+
+          pad_iter=gst_element_iterate_pads(element);
+          pads_done=FALSE;
+          src_pads=sink_pads=0;
+          while (!pads_done) {
+            switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
+              case GST_ITERATOR_OK:
+                dir=gst_pad_get_direction(pad);
+                fprintf(out,"    %s_%s [color=black, fillcolor=\"%s\", label=\"%s\"];\n",
+                  GST_OBJECT_NAME(element),GST_OBJECT_NAME(pad),
+                  ((dir==GST_PAD_SRC)?"#FFAAAA":((dir==GST_PAD_SINK)?"#AAAAFF":"#FFFFFF")),
+                  GST_OBJECT_NAME(pad));
+                if(dir==GST_PAD_SRC) src_pads++;
+                else if(dir==GST_PAD_SINK) sink_pads++;
+                gst_object_unref(pad);
+                break;
+              case GST_ITERATOR_RESYNC:
+                gst_iterator_resync (pad_iter);
+                break;
+              case GST_ITERATOR_ERROR:
+              case GST_ITERATOR_DONE:
+                pads_done = TRUE;
+                break;
+            }
+          }
+          if(src_pads && !sink_pads)
+            fprintf(out,"    fillcolor=\"#FFAAAA\";\n");
+          else if (!src_pads && sink_pads)
+            fprintf(out,"    fillcolor=\"#AAAAFF\";\n");
+          else if (src_pads && sink_pads)
+            fprintf(out,"    fillcolor=\"#AAFFAA\";\n");
+          else
+            fprintf(out,"    fillcolor=\"#FFFFFF\";\n");
+          gst_iterator_free(pad_iter);
+          fprintf(out,"  }\n\n");
+          pad_iter=gst_element_iterate_pads(element);
+          pads_done=FALSE;
+          while (!pads_done) {
+            switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
+              case GST_ITERATOR_OK:
+                if(gst_pad_is_linked(pad) && gst_pad_get_direction(pad)==GST_PAD_SRC) {
+                  if((peer_pad=gst_pad_get_peer(pad))) {
+                    peer_element=gst_pad_get_parent_element(peer_pad);
+                    fprintf(out,"  %s_%s -> %s_%s\n",
+                      GST_OBJECT_NAME(element),GST_OBJECT_NAME(pad),
+                      GST_OBJECT_NAME(peer_element),GST_OBJECT_NAME(peer_pad));
+                    gst_object_unref(peer_element);
+                    gst_object_unref(peer_pad);
+                  }
+                }
+                gst_object_unref(pad);
+                break;
+              case GST_ITERATOR_RESYNC:
+                gst_iterator_resync (pad_iter);
+                break;
+              case GST_ITERATOR_ERROR:
+              case GST_ITERATOR_DONE:
+                pads_done = TRUE;
+                break;
+            }
+          }
+          gst_iterator_free(pad_iter);
+          gst_object_unref(element);
+          break;
+        case GST_ITERATOR_RESYNC:
+          gst_iterator_resync (element_iter);
+          break;
+        case GST_ITERATOR_ERROR:
+        case GST_ITERATOR_DONE:
+          elements_done = TRUE;
+          break;
+      }
+    }
+    gst_iterator_free(element_iter);
+
     // write footer
     fprintf(out,"}\n");
     fclose(out);
@@ -1092,15 +1284,16 @@ static void bt_song_dispose(GObject * const object) {
   }
   GST_DEBUG("->NULL state change returned %d",res);
   
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_changed,NULL);
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_start_changed,NULL);
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_loop_end_changed,NULL);
-  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC,0,0,NULL,bt_song_on_length_changed,NULL);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_start_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_end_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_length_changed,(gpointer)self);
   
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(self->priv->bin));
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_state_changed,NULL);
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_segment_done,NULL);
-  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_eos,NULL);
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_segment_done,(gpointer)self);
+  g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_eos,(gpointer)self);
+  gst_bus_remove_signal_watch(bus);
   gst_object_unref(bus);
   
   if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);

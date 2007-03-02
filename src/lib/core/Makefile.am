@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.37 2007-02-28 21:13:36 ensonic Exp $
+## $Id: Makefile.am,v 1.38 2007-03-02 13:17:13 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -23,9 +23,9 @@ libbtcore_la_SOURCES = \
 	$(GCONF_SETTINGS_SRC) \
 	machine.c libbtcore/machine.h libbtcore/machine-methods.h libbtcore/machine-private.h \
 	pattern.c libbtcore/pattern.h libbtcore/pattern-methods.h \
-    persistence.c libbtcore/persistence.h libbtcore/persistence-methods.h \
-    persistence-location.c libbtcore/persistence-location.h \
-    persistence-selection.c libbtcore/persistence-selection.h \
+	persistence.c libbtcore/persistence.h libbtcore/persistence-methods.h \
+	persistence-location.c libbtcore/persistence-location.h \
+	persistence-selection.c libbtcore/persistence-selection.h \
 	plainfile-settings.c libbtcore/plainfile-settings.h libbtcore/plainfile-settings-methods.h \
 	processor-machine.c libbtcore/processor-machine.h libbtcore/processor-machine-methods.h \
 	sequence.c libbtcore/sequence.h libbtcore/sequence-methods.h \
@@ -46,7 +46,6 @@ libbtcore_la_SOURCES = \
 	marshal.c marshal.h
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

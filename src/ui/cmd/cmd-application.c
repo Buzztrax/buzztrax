@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.88 2007-01-24 09:27:33 ensonic Exp $
+/* $Id: cmd-application.c,v 1.89 2007-03-02 13:17:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -84,7 +84,7 @@ static gboolean bt_cmd_application_play_song(const BtCmdApplication *self,const 
   gulong length,pos=0;
 
   // DEBUG
-  bt_song_write_to_dot_file(song);
+  //bt_song_write_to_highlevel_dot_file(song);
   // DEBUG
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
@@ -323,7 +323,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     gulong msec,sec,min;
 
     //DEBUG
-    bt_song_write_to_dot_file(song);
+    //bt_song_write_to_highlevel_dot_file(song);
     //DEBUG
 
     g_object_get(G_OBJECT(song),"song-info",&song_info,"sequence",&sequence,"setup",&setup,"wavetable",&wavetable,NULL);
