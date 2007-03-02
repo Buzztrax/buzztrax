@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.91 2007-03-02 13:17:14 ensonic Exp $
+/* $Id: edit-application.c,v 1.92 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -353,7 +353,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
     gchar *id;
 
     // free previous song
-    g_object_set(G_OBJECT(self),"song",NULL,NULL);
+    //g_object_set(G_OBJECT(self),"song",NULL,NULL);
     
     g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
     // add some initial timelines
@@ -431,7 +431,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     if((song=bt_song_new(BT_APPLICATION(self)))) {
       
       // free previous song
-      g_object_set(G_OBJECT(self),"song",NULL,NULL);
+      //g_object_set(G_OBJECT(self),"song",NULL,NULL);
 
       if(bt_song_io_load(loader,song)) {
         BtSetup *setup;

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.109 2007-03-01 14:52:18 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.110 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1116,7 +1116,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   
   g_assert(user_data);
   
-  GST_INFO("machine has been removed");
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   // get the row where row.machine==machine
   machine_model_get_iter_by_machine(store,&iter,machine);

@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.99 2007-02-28 16:10:01 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.100 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -967,7 +967,7 @@ void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, B
   g_hash_table_remove(self->priv->machines,machine);
   gtk_object_destroy(GTK_OBJECT(item));
 
-  if(machine) GST_INFO("removed canvas item: machine->ref_ct=%d",G_OBJECT(machine)->ref_count);
+  if(machine) GST_INFO("removed canvas item: %p,machine->ref_ct=%d",machine,G_OBJECT(machine)->ref_count);
   g_object_try_unref(machine);
 }
 

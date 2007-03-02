@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.105 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: setup.c,v 1.106 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -244,7 +244,7 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
   if(g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_remove(self->priv->machines,machine);
     g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
-    GST_DEBUG("removing machine: ref_count=%d",G_OBJECT(machine)->ref_count);
+    GST_DEBUG("removing machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
     g_object_unref(G_OBJECT(machine));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -267,7 +267,7 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
   if(g_list_find(self->priv->wires,wire)) {
     self->priv->wires=g_list_remove(self->priv->wires,wire);
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
-    GST_DEBUG("removing wire: ref_count=%d",G_OBJECT(wire)->ref_count);
+    GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
     g_object_unref(G_OBJECT(wire));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -749,6 +749,7 @@ static void bt_setup_dispose(GObject * const object) {
     }
   }
 
+  GST_DEBUG("  chaining up");  
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
@@ -779,6 +780,7 @@ static void bt_setup_finalize(GObject * const object) {
 
   g_hash_table_destroy(self->priv->properties);
   
+  GST_DEBUG("  chaining up");  
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.154 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.155 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1981,8 +1981,8 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   BtSequence *sequence;
 
   g_assert(user_data);
-  
-  GST_INFO("machine has been removed");
+
+  GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
 
   machine_menu_refresh(self,setup);
 

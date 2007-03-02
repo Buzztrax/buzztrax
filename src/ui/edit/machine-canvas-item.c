@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.78 2007-02-28 16:10:01 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.79 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -74,10 +74,7 @@ struct _BtMachineCanvasItemPrivate {
   };
 
   /* the underlying machine */
-  union {
-    BtMachine *machine;
-    gpointer machine_ptr;
-  };
+  BtMachine *machine;
   /* and its properties */
   GHashTable *properties;
   
@@ -377,7 +374,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   gchar *msg,*id;
 
   g_assert(user_data);
-  GST_INFO("context_menu delete event occurred");
+  GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
   
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(self->priv->machine,"id",&id,NULL);
@@ -391,6 +388,8 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+    
+    GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     
     bt_setup_remove_machine(setup,self->priv->machine);
     bt_main_page_machines_remove_machine_item(self->priv->main_page_machines,self);
@@ -627,9 +626,8 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
-      g_object_try_weak_unref(self->priv->machine);
-      self->priv->machine = BT_MACHINE(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->machine);
+      g_object_try_unref(self->priv->machine);
+      self->priv->machine = BT_MACHINE(g_value_dup_object(value));
       if(self->priv->machine) {
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
@@ -658,9 +656,9 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   
-  GST_DEBUG("machine-refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
+  GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
   g_object_try_weak_unref(self->priv->app);
-  g_object_try_weak_unref(self->priv->machine);
+  g_object_try_unref(self->priv->machine);
   g_object_try_weak_unref(self->priv->main_page_machines);
 
   GST_DEBUG("  unrefing done");

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.98 2007-02-22 13:47:28 ensonic Exp $
+/* $Id: wire.c,v 1.99 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -710,6 +710,11 @@ static void bt_wire_dispose(GObject * const object) {
   if(self->priv->bin) {
     GstStateChangeReturn res;
     
+    GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
+      (G_OBJECT(self->priv->bin))->ref_count,
+      GST_BIN_NUMCHILDREN(self->priv->bin)
+    );
+    
     bt_wire_unlink_machines(self); // removes helper elements if in use
     if(self->priv->machines[PART_TEE]) {
       GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_TEE]),(G_OBJECT(self->priv->machines[PART_TEE]))->ref_count);
@@ -735,7 +740,9 @@ static void bt_wire_dispose(GObject * const object) {
 
   g_object_try_weak_unref(self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
+  GST_DEBUG("  releasing the dst %p, dst->ref_count=%d",self->priv->dst,(G_OBJECT(self->priv->dst))->ref_count);
   g_object_try_unref(self->priv->dst);
+  GST_DEBUG("  releasing the src %p, src->ref_count=%d",self->priv->src,(G_OBJECT(self->priv->src))->ref_count);
   g_object_try_unref(self->priv->src);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);

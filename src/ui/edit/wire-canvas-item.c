@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.41 2007-02-28 16:10:01 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.42 2007-03-02 16:44:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -59,10 +59,7 @@ struct _BtWireCanvasItemPrivate {
   };
 
   /* the underlying wire */
-  union {
-    BtWire *wire;
-    gpointer wire_ptr;
-  };
+  BtWire *wire;
   
   /* end-points of the wire, relative to the group x,y pos */
   gdouble w,h;
@@ -180,9 +177,9 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   g_object_get(self->priv->src,"machine",&src,NULL);
   g_object_get(self->priv->dst,"machine",&dst,NULL);
   
-  GST_INFO("machine has been removed, checking connected wires");
+  GST_INFO("machine %p has been removed, checking wire %p->%p",machine,src,dst);
   if((src==machine) || (dst==machine)) {
-    GST_INFO("machine this wire is connected to has been removed");
+    GST_INFO("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
     bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
   }
@@ -383,9 +380,8 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
       //GST_DEBUG("set the main_page_machines for wire_canvas_item: %p",self->priv->main_page_machines);
     } break;
     case WIRE_CANVAS_ITEM_WIRE: {
-      g_object_try_weak_unref(self->priv->wire);
-      self->priv->wire=BT_WIRE(g_value_get_object(value));
-      g_object_try_weak_ref(self->priv->wire);
+      g_object_try_unref(self->priv->wire);
+      self->priv->wire=BT_WIRE(g_value_dup_object(value));
       //GST_DEBUG("set the wire for wire_canvas_item: %p",self->priv->wire);
     } break;
     case WIRE_CANVAS_ITEM_W: {
@@ -426,20 +422,20 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   if(self->priv->src) {
-    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->src),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->src),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_position_changed,(gpointer)self);
   }
   if(self->priv->dst) {
-    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_position_changed,NULL);
+    g_signal_handlers_disconnect_matched(G_OBJECT(self->priv->dst),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_wire_position_changed,(gpointer)self);
   }
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   g_signal_handlers_disconnect_matched(G_OBJECT(setup),G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_machine_removed,(gpointer)self);
   g_object_try_unref(setup);
   g_object_try_unref(song);
+  GST_DEBUG("  signal disconected");
 
-  GST_DEBUG("wire-refs: %d",(G_OBJECT(self->priv->wire))->ref_count);
   g_object_try_weak_unref(self->priv->app);
-  g_object_try_weak_unref(self->priv->wire);
+  g_object_try_unref(self->priv->wire);
   g_object_try_unref(self->priv->src);
   g_object_try_unref(self->priv->dst);
   g_object_try_weak_unref(self->priv->main_page_machines);
