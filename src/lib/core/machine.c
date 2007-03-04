@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.234 2007-02-28 16:10:00 ensonic Exp $
+/* $Id: machine.c,v 1.235 2007-03-04 22:04:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2498,7 +2498,9 @@ static void bt_machine_finalize(GObject * const object) {
     self->priv->patterns=NULL;
   }
 
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
+  GST_DEBUG("  done");
 }
 
 static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
@@ -2540,7 +2542,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                         G_ABS_STRUCT_OFFSET(BtMachineClass,pattern_added_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__POINTER,
+                                        g_cclosure_marshal_VOID__OBJECT,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_PATTERN // param data
@@ -2559,7 +2561,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                         G_ABS_STRUCT_OFFSET(BtMachineClass,pattern_removed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__POINTER,
+                                        g_cclosure_marshal_VOID__OBJECT,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_PATTERN // param data

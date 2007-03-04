@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.42 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.43 2007-03-04 22:04:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -173,37 +173,45 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   BtMachine *src,*dst;
   
   g_assert(user_data);
+  g_return_if_fail(BT_IS_MACHINE(machine));
   
+  GST_INFO("machine %p,machine->ref_ct=%d has been removed",machine,G_OBJECT(machine)->ref_count);
+
   g_object_get(self->priv->src,"machine",&src,NULL);
   g_object_get(self->priv->dst,"machine",&dst,NULL);
   
-  GST_INFO("machine %p has been removed, checking wire %p->%p",machine,src,dst);
+  GST_INFO("... machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p",machine,G_OBJECT(machine)->ref_count,src,dst);
   if((src==machine) || (dst==machine)) {
     GST_INFO("the machine, this wire is connected to, has been removed");
     bt_setup_remove_wire(setup,self->priv->wire);
     bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
   }
+  GST_INFO("... machine %p,ref_count=%d has been removed, src %p,ref=%d, dst %p,ref=%d",
+    machine,G_OBJECT(machine)->ref_count,
+    src,G_OBJECT(src)->ref_count,
+    dst,G_OBJECT(dst)->ref_count
+  );
   g_object_try_unref(src);
   g_object_try_unref(dst);
 }
 
 static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-  BtMachine *src_machine,*dst_machine;
+  BtMachine *machine;
   GHashTable *properties;  
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GnomeCanvasPoints *points;
   
   //GST_INFO("wire pos has changed : machine_item=%p, user_data=%p",machine_item,user_data);
 
-  g_object_get(self->priv->src,"machine",&src_machine,NULL);
-  g_object_get(src_machine,"properties",&properties,NULL);
+  g_object_get(self->priv->src,"machine",&machine,NULL);
+  g_object_get(machine,"properties",&properties,NULL);
   machine_view_get_machine_position(properties,&pos_xs,&pos_ys);
-  g_object_unref(src_machine);
-  g_object_get(self->priv->dst,"machine",&dst_machine,NULL);
-  g_object_get(dst_machine,"properties",&properties,NULL);
+  g_object_unref(machine);
+  g_object_get(self->priv->dst,"machine",&machine,NULL);
+  g_object_get(machine,"properties",&properties,NULL);
   machine_view_get_machine_position(properties,&pos_xe,&pos_ye);
-  g_object_unref(dst_machine);
+  g_object_unref(machine);
 
   //GST_INFO("  set new coords: %+5.1f,%+5.1f %+5.1f,%+5.1f",pos_xs,pos_ys,pos_xe,pos_ye);
   

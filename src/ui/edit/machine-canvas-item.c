@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.79 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.80 2007-03-04 22:04:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -390,8 +390,9 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
     g_object_get(G_OBJECT(song),"setup",&setup,NULL);
     
     GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
-    
     bt_setup_remove_machine(setup,self->priv->machine);
+    GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
+    GST_INFO("now removing machine-item : %p",self);
     bt_main_page_machines_remove_machine_item(self->priv->main_page_machines,self);
     
     g_object_try_unref(setup);
@@ -593,7 +594,9 @@ static void bt_machine_canvas_item_get_property(GObject      *object,
       g_value_set_object(value, self->priv->main_page_machines);
     } break;
     case MACHINE_CANVAS_ITEM_MACHINE: {
+      GST_INFO("getting machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
       g_value_set_object(value, self->priv->machine);
+      GST_INFO("... : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     } break;
     case MACHINE_CANVAS_ITEM_ZOOM: {
       g_value_set_double(value, self->priv->zoom);
@@ -629,6 +632,7 @@ static void bt_machine_canvas_item_set_property(GObject      *object,
       g_object_try_unref(self->priv->machine);
       self->priv->machine = BT_MACHINE(g_value_dup_object(value));
       if(self->priv->machine) {
+        GST_INFO("set the  machine %p,machine->ref_ct=%d for new canvas item",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
         g_object_get(self->priv->machine,"properties",&(self->priv->properties),NULL);
         //GST_DEBUG("set the machine for machine_canvas_item: %p, properties: %p",self->priv->machine,self->priv->properties);
         bt_machine_canvas_item_init_context_menu(self);
@@ -675,7 +679,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   
   // this causes warnings on gtk 2.4
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
-  GST_DEBUG("  destroying done");
+  GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
 
   GST_DEBUG("  chaining up");  
   G_OBJECT_CLASS(parent_class)->dispose(object);

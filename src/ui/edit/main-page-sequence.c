@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.155 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.156 2007-03-04 22:04:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1067,7 +1067,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
   machine=bt_main_page_sequence_get_current_machine(self);
   if(machine!=self->priv->machine) {
     if(self->priv->machine) {
-      GST_INFO("unref old cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
+      GST_INFO("unref old cur-machine %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
       g_object_unref(self->priv->machine);
@@ -1085,6 +1085,8 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
     GList *node,*list;
     gboolean is_internal;
     gchar *str,key[2]={0,};
+
+    GST_INFO("... for machine : %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
 
     //-- append default rows
     self->priv->pattern_keys=sink_pattern_keys;
@@ -1126,6 +1128,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       g_free(str);
     }
     g_list_free(list);
+    g_object_unref(machine);
   }
   gtk_tree_view_set_model(self->priv->pattern_list,GTK_TREE_MODEL(store));
   
@@ -1162,6 +1165,7 @@ static void machine_menu_refresh(const BtMainPageSequence *self,const BtSetup *s
     widgets=gtk_container_get_children(GTK_CONTAINER(menu_item));
     label=g_list_nth_data(widgets,0);
     if(GTK_IS_LABEL(label)) {
+      GST_INFO("menu item for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
       g_signal_connect(G_OBJECT(machine),"notify::id",G_CALLBACK(on_machine_id_changed),(gpointer)label);
     }
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_add_activated),(gpointer)self);
@@ -1971,7 +1975,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   
   g_assert(user_data);
   
-  GST_INFO("new machine has been added");
+  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
   machine_menu_refresh(self,setup);
 }
 
@@ -1981,6 +1985,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   BtSequence *sequence;
 
   g_assert(user_data);
+  g_return_if_fail(BT_IS_MACHINE(machine));
 
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
 
@@ -1997,6 +2002,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 
   g_object_unref(sequence);
   g_object_unref(song);
+  GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
 }
 
 static void on_pattern_changed(BtMachine *machine,BtPattern *pattern,gpointer user_data) {
@@ -2606,7 +2612,10 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);  
+  GST_DEBUG("!!!! self=%p",self);
+  
+  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
+  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
@@ -2632,7 +2641,7 @@ static void bt_main_page_sequence_dispose(GObject *object) {
 
   g_object_try_weak_unref(self->priv->app);
   if(self->priv->machine) {
-    GST_INFO("unref old cur-machine: refs: %d",(G_OBJECT(self->priv->machine))->ref_count);
+    GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
     g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
     g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
     g_object_unref(self->priv->machine);

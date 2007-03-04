@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.110 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.111 2007-03-04 22:04:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -172,10 +172,13 @@ static void selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer
 static void machine_model_get_iter_by_machine(GtkTreeModel *store,GtkTreeIter *iter,BtMachine *that_machine) {
   BtMachine *this_machine;
 
+  GST_INFO("look up iter for machine : %p,ref_count=%d",that_machine,G_OBJECT(that_machine)->ref_count);
+  
   gtk_tree_model_get_iter_first(store,iter);
   do {
     gtk_tree_model_get(store,iter,MACHINE_MENU_MACHINE,&this_machine,-1);
     if(this_machine==that_machine) {
+      GST_INFO("found iter for machine : %p,ref_count=%d",that_machine,G_OBJECT(that_machine)->ref_count);
       g_object_unref(this_machine);
       break;
     }
@@ -1097,7 +1100,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   
   g_assert(user_data);
   
-  GST_INFO("new machine has been added");
+  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
   store=gtk_combo_box_get_model(self->priv->machine_menu);
   machine_menu_add(self,machine,GTK_LIST_STORE(store));
 
@@ -1115,6 +1118,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   gint index;
   
   g_assert(user_data);
+  g_return_if_fail(BT_IS_MACHINE(machine));
   
   GST_INFO("machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
   store=gtk_combo_box_get_model(self->priv->machine_menu);
@@ -1126,6 +1130,7 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->machine_menu),FALSE);
   }
   gtk_combo_box_set_active(self->priv->machine_menu,index-1);
+  GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
 }
 
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
@@ -1135,10 +1140,13 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   g_assert(user_data);
   GST_INFO("machine_menu changed");
   machine=bt_main_page_patterns_get_current_machine(self);
+  GST_INFO("refreshing menues for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
   // show new list of pattern in pattern menu
   pattern_menu_refresh(self,machine);
+  GST_INFO("1st done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
   // refresh context menu
   context_menu_refresh(self,machine);
+  GST_INFO("2nd done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
   g_object_try_unref(machine);
 }
 
@@ -1369,7 +1377,7 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
 static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-   BtMachine *machine;
+  BtMachine *machine;
   BtPattern *pattern,*pattern_new;
   GtkWidget *dialog;
 
@@ -1678,6 +1686,7 @@ BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatterns *s
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
     if(machine) {
+      GST_DEBUG("  got machine: %p,machine-refs: %d",machine,(G_OBJECT(machine))->ref_count);
       // gtk_tree_model_get already refs()
       return(machine);
       //return(g_object_ref(machine));
@@ -1708,7 +1717,7 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
     store=gtk_combo_box_get_model(self->priv->machine_menu);
     gtk_tree_model_get(store,&iter,MACHINE_MENU_MACHINE,&machine,-1);
     if(machine) {
-      GST_DEBUG("  got machine: (machine-refs: %d)",(G_OBJECT(machine))->ref_count);
+      GST_DEBUG("  got machine: %p,machine-refs: %d",machine,(G_OBJECT(machine))->ref_count);
       if(gtk_combo_box_get_active_iter(self->priv->pattern_menu,&iter)) {
         store=gtk_combo_box_get_model(self->priv->pattern_menu);
         gtk_tree_model_get(store,&iter,PATTERN_MENU_PATTERN,&pattern,-1);

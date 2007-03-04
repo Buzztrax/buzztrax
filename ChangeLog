@@ -1,3 +1,37 @@
+2007-03-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_finalize),
+	(bt_machine_class_init):
+	* src/lib/core/sequence.c: (bt_sequence_resize_data_tracks),
+	(bt_sequence_invalidate_pattern_region), (bt_sequence_get_machine),
+	(bt_sequence_add_track), (bt_sequence_remove_track_by_ix),
+	(bt_sequence_set_pattern), (bt_sequence_persistence_load),
+	(bt_sequence_dispose), (bt_sequence_finalize):
+	* src/lib/core/setup.c: (bt_setup_add_machine),
+	(bt_setup_add_wire), (bt_setup_remove_machine),
+	(bt_setup_remove_wire), (bt_setup_get_machine_by_id),
+	(bt_setup_get_wire_by_machines), (bt_setup_class_init):
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_delete_activate),
+	(bt_machine_canvas_item_get_property),
+	(bt_machine_canvas_item_set_property),
+	(bt_machine_canvas_item_dispose):
+	* src/ui/edit/main-page-machines.c: (on_machine_added),
+	(bt_main_page_machines_remove_machine_item),
+	(bt_main_page_machines_remove_wire_item):
+	* src/ui/edit/main-page-patterns.c:
+	(machine_model_get_iter_by_machine), (on_machine_added),
+	(on_machine_removed), (on_machine_menu_changed),
+	(on_context_menu_pattern_copy_activate),
+	(bt_main_page_patterns_get_current_machine),
+	(bt_main_page_patterns_get_current_pattern):
+	* src/ui/edit/main-page-sequence.c: (pattern_list_refresh),
+	(machine_menu_refresh), (on_machine_added), (on_machine_removed),
+	(bt_main_page_sequence_dispose):
+	* src/ui/edit/wire-canvas-item.c: (on_machine_removed),
+	(on_wire_position_changed):
+	  Lots of refcount debugging, some fixes, lots of questions still :(
+
 2007-03-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/setup.c: (bt_setup_remove_machine),

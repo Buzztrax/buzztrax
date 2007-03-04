@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.106 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: setup.c,v 1.107 2007-03-04 22:04:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -178,9 +178,10 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
     self->priv->machines=g_list_append(self->priv->machines,g_object_ref(G_OBJECT(machine)));
     g_signal_emit(G_OBJECT(self),signals[MACHINE_ADDED_EVENT], 0, machine);
     bt_song_set_unsaved(self->priv->song,TRUE);
+    GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
   }
   else {
-    GST_WARNING("trying to add machine again"); 
+    GST_WARNING("trying to add machine %p again",machine); 
   }
   return ret;
 }
@@ -218,6 +219,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
       self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
       g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
       bt_song_set_unsaved(self->priv->song,TRUE);
+      GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
     }
     g_object_try_unref(other_wire1);
     g_object_try_unref(other_wire2);
@@ -225,7 +227,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     g_object_try_unref(dst);
   }
   else {
-    GST_WARNING("trying to add wire again"); 
+    GST_WARNING("trying to add wire %p again",wire);
   }
   return ret;
 }
@@ -240,11 +242,13 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
 void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const machine) {
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_MACHINE(machine));
+  
+  GST_DEBUG("trying to remove machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
 
   if(g_list_find(self->priv->machines,machine)) {
     self->priv->machines=g_list_remove(self->priv->machines,machine);
-    g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
     GST_DEBUG("removing machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    g_signal_emit(G_OBJECT(self),signals[MACHINE_REMOVED_EVENT], 0, machine);
     g_object_unref(G_OBJECT(machine));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -263,11 +267,13 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
 void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire) {
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_WIRE(wire));
+  
+  GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
   if(g_list_find(self->priv->wires,wire)) {
     self->priv->wires=g_list_remove(self->priv->wires,wire);
-    g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
     GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
+    g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
     g_object_unref(G_OBJECT(wire));
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
@@ -326,7 +332,10 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
     if(!strcmp(machine_id,id)) found=TRUE;
     g_free(machine_id);
-    if(found) return(g_object_ref(machine));
+    if(found) {
+      GST_DEBUG("  getting machine: %p,ref_count %d",machine,(G_OBJECT(machine))->ref_count);
+      return(g_object_ref(machine));
+    }
   }
   GST_DEBUG("no machine found for id \"%s\"",id);
   return(NULL);
@@ -382,7 +391,7 @@ BtMachine *bt_setup_get_machine_by_type(const BtSetup * const self, const GType 
  * @type: the gobject type (sink,processor,source)
  *
  * Gathers all machines of the given type from the setup.
- * Free the list (and unref the machine), when done with it.
+ * Free the list (and unref the machines), when done with it.
  *
  * Returns: the list instance or %NULL if not found
  */
@@ -460,7 +469,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
-    if((src_machine==src) && (dst_machine==dst))found=TRUE;
+    if((src_machine==src) && (dst_machine==dst)) found=TRUE;
     g_object_try_unref(src_machine);
     g_object_try_unref(dst_machine);
     if(found) return(g_object_ref(wire));
@@ -821,7 +830,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                         G_ABS_STRUCT_OFFSET(BtSetupClass,machine_added_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__POINTER,
+                                        g_cclosure_marshal_VOID__OBJECT,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_MACHINE // param data
@@ -840,7 +849,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                         G_ABS_STRUCT_OFFSET(BtSetupClass,wire_added_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__POINTER,
+                                        g_cclosure_marshal_VOID__OBJECT,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_WIRE // param data
@@ -859,7 +868,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                         G_ABS_STRUCT_OFFSET(BtSetupClass,machine_removed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__POINTER,
+                                        g_cclosure_marshal_VOID__OBJECT,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_MACHINE // param data
@@ -878,7 +887,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                         G_ABS_STRUCT_OFFSET(BtSetupClass,wire_removed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
-                                        g_cclosure_marshal_VOID__POINTER,
+                                        g_cclosure_marshal_VOID__OBJECT,
                                         G_TYPE_NONE, // return type
                                         1, // n_params
                                         BT_TYPE_WIRE // param data

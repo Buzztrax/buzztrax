@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.100 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.101 2007-03-04 22:04:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -377,7 +377,7 @@ static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_dat
   GHashTable *properties;
   
   g_assert(user_data);
-  GST_INFO("new machine has been added");
+  GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
 
   g_object_get(machine,"properties",&properties,NULL);
   if(properties) {
@@ -963,6 +963,8 @@ Error:
 void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, BtMachineCanvasItem *item) {
   BtMachine *machine;
   
+  GST_INFO("now removing machine-item : %p",item);
+  
   g_object_get(G_OBJECT(item),"machine",&machine,NULL);
   g_hash_table_remove(self->priv->machines,machine);
   gtk_object_destroy(GTK_OBJECT(item));
@@ -981,11 +983,13 @@ void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, B
 void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item) {
   BtWire *wire;
   
+  GST_INFO("now removing machine-item : %p",item);
+  
   g_object_get(G_OBJECT(item),"wire",&wire,NULL);
   g_hash_table_remove(self->priv->wires,wire);
   gtk_object_destroy(GTK_OBJECT(item));
 
-  if(wire) GST_INFO("removed canvas item: wire->ref_ct=%d",G_OBJECT(wire)->ref_count);
+  if(wire) GST_INFO("removed canvas item: %p,wire->ref_ct=%d",wire,G_OBJECT(wire)->ref_count);
   g_object_try_unref(wire);
 }
 
