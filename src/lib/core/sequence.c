@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.126 2007-03-04 22:04:02 ensonic Exp $
+/* $Id: sequence.c,v 1.127 2007-03-05 15:35:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -211,8 +211,8 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
   BtMachine ** const machines=self->priv->machines;
   const gulong count=MIN(old_tracks,self->priv->tracks);
   
-	GST_DEBUG("resize to new_data_count=%d",new_data_count);
-	
+  GST_DEBUG("resize tracks %u -> %u to new_data_count=%d",old_tracks,self->priv->tracks,new_data_count);
+  
   // allocate new space
   if((self->priv->patterns=(BtPattern **)g_try_new0(GValue,new_data_count))) {
     if(patterns) {
@@ -254,7 +254,8 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
       if(old_tracks>self->priv->tracks) {
         gulong i;
         for(i=self->priv->tracks;i<old_tracks;i++) {
-          GST_INFO("release machine %p,ref_count=%d for track %u",self->priv->machines[i],G_OBJECT(self->priv->machines[i])->ref_count,i);
+          GST_INFO("release machine %p,ref_count=%d for track %u",
+            machines[i],(machines[i]?G_OBJECT(machines[i])->ref_count:-1),i);
           g_object_try_unref(machines[i]);
         }
       }
@@ -816,7 +817,10 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   GST_INFO("and release machine %p,ref_count=%d",self->priv->machines[track],G_OBJECT(self->priv->machines[track])->ref_count);
   g_object_unref(G_OBJECT(self->priv->machines[track]));
   memcpy(&self->priv->machines[track],&self->priv->machines[track+1],count*sizeof(gpointer));
+  self->priv->machines[self->priv->tracks-1]=NULL;
   g_object_set(G_OBJECT(self),"tracks",(gulong)(self->priv->tracks-1),NULL);
+  
+  GST_INFO("done");
   return(TRUE); 
 }
 
@@ -1369,7 +1373,8 @@ static void bt_sequence_dispose(GObject * const object) {
   // unref the machines
   GST_DEBUG("unref %d machines",self->priv->tracks);
   for(i=0;i<self->priv->tracks;i++) {
-    GST_INFO("releasing machine %p,ref_count=%d",self->priv->machines[i],G_OBJECT(self->priv->machines[i])->ref_count);
+    GST_INFO("releasing machine %p,ref_count=%d",
+      self->priv->machines[i],(self->priv->machines[i]?G_OBJECT(self->priv->machines[i])->ref_count:-1));
     g_object_try_unref(self->priv->machines[i]);
   }
   // free the labels
