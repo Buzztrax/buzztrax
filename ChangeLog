@@ -1,5 +1,22 @@
 2007-03-05  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/POTFILES.in:
+	  add new file
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_ix):
+	* src/lib/core/wire.c: (bt_wire_dispose):
+	* src/ui/edit/main-page-patterns.c: (on_pattern_menu_changed),
+	(bt_main_page_patterns_dispose):
+	  fix another refcount problem
+
+	* Makefile.am:
+	* pixmaps/prefs-audio-card.png:
+	* pixmaps/prefs-input-gaming.png:
+	* pixmaps/prefs-input-keyboard.png:
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	  add more icons for settings
+
+2007-03-05  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/sequence.c: (bt_sequence_resize_data_tracks),
 	(bt_sequence_remove_track_by_ix), (bt_sequence_dispose):
 	  Fix ref-count bug when removing machine (#1666181).

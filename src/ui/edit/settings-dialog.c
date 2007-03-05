@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.31 2007-02-15 21:46:35 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.32 2007-03-05 20:22:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -154,7 +154,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_LONG,GDK_TYPE_PIXBUF,G_TYPE_STRING);
   /* @todo: add icons
    * Audio Devices: tango-audio-card
-   * Control Devices: joystick?, buzztard.png, 'locate midi | grep png'
+   * Control Devices: tango-input-gaming?, buzztard.png, 'locate midi | grep png'
    * Colors: GTK_STOCK_SELECT_COLOR
    * Shortcuts: tango-input-keyboard
    * Directories: GTK_STOCK_DIRECTORY
@@ -166,14 +166,14 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Audio Devices"),
     COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,
-    COL_ICON_PIXBUF,NULL,
+    COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-audio-card.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Control Devices"),
     COL_ID,SETTINGS_PAGE_CONTROL_DEVICES,
-    COL_ICON_PIXBUF,NULL,
+    COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-input-gaming.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);
@@ -187,7 +187,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Shortcuts"),
     COL_ID,SETTINGS_PAGE_SHORTCUTS,
-    COL_ICON_PIXBUF,NULL,
+    COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-input-keyboard.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);

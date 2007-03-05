@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.99 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: wire.c,v 1.100 2007-03-05 20:22:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -740,9 +740,11 @@ static void bt_wire_dispose(GObject * const object) {
 
   g_object_try_weak_unref(self->priv->song);
   //gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
-  GST_DEBUG("  releasing the dst %p, dst->ref_count=%d",self->priv->dst,(G_OBJECT(self->priv->dst))->ref_count);
+  GST_DEBUG("  releasing the dst %p, dst->ref_count=%d",
+    self->priv->dst,(self->priv->dst?(G_OBJECT(self->priv->dst))->ref_count:-1));
   g_object_try_unref(self->priv->dst);
-  GST_DEBUG("  releasing the src %p, src->ref_count=%d",self->priv->src,(G_OBJECT(self->priv->src))->ref_count);
+  GST_DEBUG("  releasing the src %p, src->ref_count=%d",
+    self->priv->src,(self->priv->src?(G_OBJECT(self->priv->src))->ref_count:-1));
   g_object_try_unref(self->priv->src);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);

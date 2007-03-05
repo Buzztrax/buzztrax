@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.111 2007-03-04 22:04:02 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.112 2007-03-05 20:22:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1076,11 +1076,14 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   if(self->priv->pattern) {
     g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_length_changed);
     g_signal_handler_disconnect(self->priv->pattern,self->priv->pattern_voices_changed);
+    GST_INFO("unref old pattern: %p,refs=%d", self->priv->pattern,(G_OBJECT(self->priv->pattern))->ref_count);
     g_object_unref(self->priv->pattern);
   }
 
   // refresh pattern view
   self->priv->pattern=bt_main_page_patterns_get_current_pattern(self);
+  GST_INFO("ref'ed new pattern: %p,refs=%d",
+    self->priv->pattern,(self->priv->pattern?(G_OBJECT(self->priv->pattern))->ref_count:-1));
   
   GST_INFO("new pattern selected : %p",self->priv->pattern);
   pattern_table_refresh(self,self->priv->pattern);
@@ -1812,6 +1815,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
    
   GST_DEBUG("!!!! self=%p",self);  
   g_object_try_weak_unref(self->priv->app);
+  GST_INFO("unref pattern: %p,refs=%d",
+    self->priv->pattern,(self->priv->pattern?(G_OBJECT(self->priv->pattern))->ref_count:-1));
   g_object_try_unref(self->priv->pattern);
   
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));

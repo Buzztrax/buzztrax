@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.127 2007-03-05 15:35:34 ensonic Exp $
+/* $Id: sequence.c,v 1.128 2007-03-05 20:22:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -796,16 +796,20 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
   g_return_val_if_fail(track<self->priv->tracks,FALSE);
   
   const gulong count=(self->priv->tracks-1)-track;
-  GST_INFO("remove track %d/%d",track,self->priv->tracks);
+  GST_INFO("remove track %d/%d (shift %d tracks)",track,self->priv->tracks,count);
 
   src=&self->priv->patterns[track+1];
   dst=&self->priv->patterns[track];
   for(i=0;i<self->priv->length;i++) {
     // unref patterns
-    g_object_try_unref(*src);
+    if(*dst) {
+      GST_INFO("unref pattern: %p,refs=%d at timeline %d", *dst,(G_OBJECT(*dst))->ref_count,i);
+    }
+    g_object_try_unref(*dst);
     if(count) {
       memcpy(dst,src,count*sizeof(gpointer));
     }
+    src[count-1]=NULL;
     src=&src[self->priv->tracks];
     dst=&dst[self->priv->tracks];
   }
