@@ -1,3 +1,34 @@
+2007-03-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  yes, its newsletter time again.
+
+	* docs/reference/bt-edit/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_new),
+	(bt_edit_application_dispose):
+	* src/ui/edit/playback-controller-socket-methods.h:
+	* src/ui/edit/playback-controller-socket.c:
+	(client_socket_io_handler), (master_socket_io_handler),
+	(bt_playback_controller_socket_new),
+	(bt_playback_controller_socket_get_property),
+	(bt_playback_controller_socket_set_property),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_finalize),
+	(bt_playback_controller_socket_init),
+	(bt_playback_controller_socket_class_init),
+	(bt_playback_controller_socket_get_type):
+	* src/ui/edit/playback-controller-socket.h:
+	* src/ui/edit/settings-dialog.h:
+	* tests/Makefile.am:
+	* tests/lib/core/Makefile.am:
+	* tests/m-bt-cmd.c:
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+	  integrate libbtic, start with socket playback controller
+
 2007-03-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/POTFILES.in:

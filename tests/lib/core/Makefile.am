@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.32 2006-08-02 19:34:20 ensonic Exp $
+## $Id: Makefile.am,v 1.33 2007-03-06 21:58:51 ensonic Exp $
 
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
@@ -20,7 +20,7 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-settings.c t-settings.c
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

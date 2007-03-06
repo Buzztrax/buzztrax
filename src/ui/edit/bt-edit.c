@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.37 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: bt-edit.c,v 1.38 2007-03-06 21:58:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
   ctx = g_option_context_new(NULL);
   g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
   bt_init_add_option_groups(ctx);
+  g_option_context_add_group(ctx, btic_init_get_option_group());
   g_option_context_add_group(ctx, gtk_get_option_group(TRUE));
 
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {

@@ -4,6 +4,7 @@ bin_PROGRAMS=bt-edit
 
 bt_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
+  $(top_builddir)/src/lib/ic/libbtic.la \
 	libbtedit.la
 bt_edit_SOURCES= \
 	bt-edit.c bt-edit.h
@@ -29,6 +30,7 @@ libbtedit_la_SOURCES   = \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
 	pattern-view.c pattern-view.h pattern-view-methods.h \
+  playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
 	sequence-view.c sequence-view.h sequence-view-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \

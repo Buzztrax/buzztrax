@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.14 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.15 2007-03-06 21:58:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
 #define BT_CHECK
  
 #include "bt-check.h"
-#include "../src/ui/edit/bt-edit.h"
+#include "../src/ui/cmd/bt-cmd.h"
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.43 2007-02-15 21:46:35 ensonic Exp $
+/* $Id: bt-edit.h,v 1.44 2007-03-06 21:58:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,8 +25,9 @@
 #include <math.h>
 #include <stdio.h>
 
-//-- libbtcore
+//-- libbtcore & libbtic
 #include <libbtcore/core.h>
+#include <libbtic/ic.h>
 //-- gstreamer
 #include <gst/help/help.h>
 #include <gst/preset/preset.h>
@@ -65,6 +66,7 @@
 #include "main-window-methods.h"
 #include "pattern-properties-dialog-methods.h"
 #include "pattern-view-methods.h"
+#include "playback-controller-socket-methods.h"
 #include "sequence-view-methods.h"
 #include "settings-dialog-methods.h"
 #include "settings-page-audiodevices-methods.h"

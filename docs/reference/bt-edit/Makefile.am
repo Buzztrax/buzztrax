@@ -60,6 +60,7 @@ expand_content_files=
 # signals and properties.
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
+  -I$(top_srcdir)/src/lib/ic \
 	-I$(top_srcdir)/src/ui/edit \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \

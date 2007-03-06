@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.41 2007-01-06 16:01:33 ensonic Exp $
+## $Id: Makefile.am,v 1.42 2007-03-06 21:58:51 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -51,7 +51,8 @@ bt_edit_SOURCES= \
 	m-bt-edit.c
 
 INCLUDES = \
-	-I@srcdir@ -I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DDATADIR=\"$(datadir)\" \
 	-DTESTSONGDIR=\"$(top_srcdir)/tests/songs\" \

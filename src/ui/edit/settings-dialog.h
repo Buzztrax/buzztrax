@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.h,v 1.5 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: settings-dialog.h,v 1.6 2007-03-06 21:58:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,9 +25,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_SETTINGS_DIALOG             (bt_settings_dialog_get_type ())
-#define BT_SETTINGS_DIALOG(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SETTINGS_DIALOG, BtSettingsDialog))
-#define BT_SETTINGS_DIALOG_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogClass))
+#define BT_TYPE_SETTINGS_DIALOG            (bt_settings_dialog_get_type ())
+#define BT_SETTINGS_DIALOG(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SETTINGS_DIALOG, BtSettingsDialog))
+#define BT_SETTINGS_DIALOG_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogClass))
 #define BT_IS_SETTINGS_DIALOG(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SETTINGS_DIALOG))
 #define BT_IS_SETTINGS_DIALOG_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SETTINGS_DIALOG))
 #define BT_SETTINGS_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogClass))

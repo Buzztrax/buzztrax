@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.92 2007-03-02 16:44:15 ensonic Exp $
+/* $Id: edit-application.c,v 1.93 2007-03-06 21:58:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,6 +55,9 @@ struct _BtEditApplicationPrivate {
   BtUIRessources *ui_ressources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
+  
+  /* remote playback controller */
+  BtPlaybackControllerSocket *pb_controller;
 };
 
 static BtApplicationClass *parent_class=NULL;
@@ -312,6 +315,9 @@ BtEditApplication *bt_edit_application_new(void) {
   if(!(self->priv->ui_ressources=bt_ui_ressources_new())) {
     goto Error;
   }
+  // create the playback controller
+  self->priv->pb_controller=bt_playback_controller_socket_new(self); 
+  // create main window
   GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
   if(!(self->priv->main_window=bt_main_window_new(self))) {
     goto Error;
@@ -864,6 +870,7 @@ static void bt_edit_application_dispose(GObject *object) {
   //g_object_try_unref(self->priv->main_window);
   
   g_object_try_unref(self->priv->ui_ressources);
+  g_object_try_unref(self->priv->pb_controller);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
