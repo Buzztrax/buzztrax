@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.1 2007-03-06 21:58:51 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.2 2007-03-07 12:36:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -57,39 +57,85 @@ struct _BtPlaybackControllerSocketPrivate {
 
 static GObjectClass *parent_class=NULL;
 
+//-- helper methods
+
+static void client_connection_free(BtPlaybackControllerSocket *self) {
+  if(self->priv->client_channel) {
+    GError *error=NULL;
+
+    g_source_remove(self->priv->client_source);
+    g_io_channel_unref(self->priv->client_channel);
+    g_io_channel_shutdown(self->priv->client_channel,TRUE,&error);
+    if(error) {
+      GST_WARNING("iochannel error while shutting down client: %s",error->message);
+      g_error_free(error);
+    }
+    g_io_channel_unref(self->priv->client_channel);
+    self->priv->client_channel=NULL;
+  }
+  if(self->priv->client_socket>-1) {
+    close(self->priv->client_socket);
+    self->priv->client_socket=-1;
+  }
+}
+
 //-- event handler
 
 static gboolean client_socket_io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
+  BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
+  gboolean res=TRUE;
   gchar *str;
   gsize len,term;
   GError *error=NULL;
 
   GST_INFO("client io handler : %d",condition);
-  switch(condition) {
-    case G_IO_IN:
-      g_io_channel_read_line(channel,&str,&len,&term,&error);
-      if(!error) {
-        str[term]='\0';
-        GST_INFO("command received : %s",str);
+  if(condition & (G_IO_IN | G_IO_PRI)) {
+    g_io_channel_read_line(channel,&str,&len,&term,&error);
+    if(!error) {
+      if(str && term>=0) str[term]='\0';
+      GST_INFO("command received : %s",str);
+      if(str) {
+        // do something
+        g_io_channel_write_chars(channel,"OKAY\n",-1,&len,&error);
+        if(!error) {
+          g_io_channel_flush(channel,&error);
+          //g_io_channel_seek_position(channel,G_GINT64_CONSTANT(0),G_SEEK_CUR,&error);
+          if(error) {
+            GST_WARNING("iochannel error while flushing: %s",error->message);
+            g_error_free(error);
+            res=FALSE;
+          }
+        }
+        else {
+          GST_WARNING("iochannel error while writing: %s",error->message);
+          g_error_free(error);
+          res=FALSE;
+        }
         g_free(str);
       }
       else {
-        GST_WARNING("iochannel error while reading: %s",error->message);
-        g_error_free(error);
+        res=FALSE;
       }
-      break;
-    default:
-      GST_DEBUG("unhandled condition : %d",condition);
-      break;
+    }
+    else {
+      GST_WARNING("iochannel error while reading: %s",error->message);
+      g_error_free(error);
+      res=FALSE;
+    }
   }
-  return(TRUE);
+  if(condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL)) {
+    res=FALSE;
+  }
+  if(!res) {
+    self->priv->master_source=-1;
+  }
+  return(res);
 }
 
 static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   struct sockaddr addr={0,};
   socklen_t addrlen=sizeof(struct sockaddr);
-  GError *error=NULL;
   
   GST_INFO("master io handler : %d",condition);
   if(condition & (G_IO_IN | G_IO_PRI)) {
@@ -98,25 +144,14 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
     }
     else {
       self->priv->client_channel=g_io_channel_unix_new(self->priv->client_socket);
+      //g_io_channel_set_encoding(self->priv->client_channel,NULL,NULL);
+      //g_io_channel_set_buffered(self->priv->client_channel,FALSE);
       self->priv->client_source=g_io_add_watch(self->priv->client_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,client_socket_io_handler,(gpointer)self);
       GST_INFO("playback controller client connected");
     }
   }
   if(condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL)) {
-    if(self->priv->client_channel) {
-      g_source_remove(self->priv->client_source);
-      g_io_channel_shutdown(self->priv->client_channel,FALSE,&error);
-      if(error) {
-        GST_WARNING("iochannel error while shutting down client: %s",error->message);
-        g_error_free(error);
-      }
-      g_io_channel_unref(self->priv->client_channel);
-      self->priv->client_channel=NULL;
-    }
-    if(self->priv->client_socket>-1) {
-      close(self->priv->client_socket);
-      self->priv->client_socket=-1;
-    }
+    client_connection_free(self);
     GST_INFO("playback controller client disconnected");
   }
   return(TRUE);
@@ -200,8 +235,12 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
   
   if(self->priv->master_channel) {
-    g_source_remove(self->priv->master_source);
-    g_io_channel_shutdown(self->priv->master_channel,FALSE,&error);
+    if(self->priv->master_source>=0) {
+      g_source_remove(self->priv->master_source);
+      g_io_channel_unref(self->priv->master_channel);
+      self->priv->master_source=-1;
+    }
+    g_io_channel_shutdown(self->priv->master_channel,TRUE,&error);
     if(error) {
       GST_WARNING("iochannel error while shutting down master: %s",error->message);
       g_error_free(error);
@@ -211,8 +250,7 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   if(self->priv->master_socket>-1) {
     close(self->priv->master_socket);
   }
-  
-  // @todo: kill client connection
+  client_connection_free(self);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
@@ -242,13 +280,12 @@ static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer
   if(bind(self->priv->master_socket,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0) {
     goto bind_error;
   }
-  //if(connect(self->priv->socket,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0) {
-  //  goto connect_error;
-  //}
   if(listen(self->priv->master_socket,64)<0) {
     goto listen_error;
   }
   self->priv->master_channel=g_io_channel_unix_new(self->priv->master_socket);
+  //g_io_channel_set_encoding(self->priv->master_channel,NULL,NULL);
+  //g_io_channel_set_buffered(self->priv->master_channel,FALSE);
   self->priv->master_source=g_io_add_watch(self->priv->master_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,master_socket_io_handler,(gpointer)self);
  
   GST_INFO("playback controller running");
@@ -260,9 +297,6 @@ socket_error:
 bind_error:
   GST_WARNING("binding the socket failed: %s",g_strerror(errno));
   return;
-//connect_error:
-//  GST_WARNING("connecting failed: %s",g_strerror(errno));
-//  return;
 listen_error:
   GST_WARNING("listen failed: %s",g_strerror(errno));
   return;

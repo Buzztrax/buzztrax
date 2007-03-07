@@ -1,3 +1,16 @@
+2007-03-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_segment_done),
+	(on_song_state_changed):
+	  Disable loop hack (causes always loops).
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_connection_free), (client_socket_io_handler),
+	(master_socket_io_handler),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_init):
+	  Fix crash when shutting socket down, add reply.
+
 2007-03-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.167 2007-03-02 13:17:13 ensonic Exp $
+/* $Id: song.c,v 1.168 2007-03-07 12:36:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -332,10 +332,12 @@ static void bt_song_send_tags(const BtSong * const self) {
 
 static void on_song_segment_done(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
-  GstStateChangeReturn res;
+  //GstStateChangeReturn res;
 
   GST_INFO("received SEGMENT_DONE bus message");
 
+#if 0
+  // TEST: pause and send seek when paused was reached
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
   if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
@@ -345,7 +347,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
     GST_INFO("->PAUSED needs async wait");
   }
   
-#if 0  
+#else
   if(self->priv->is_playing) {
     if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
@@ -441,6 +443,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
           GST_INFO("looping");
         }
         break;
+#if 0
+// TEST: pause and send seek when paused was reached
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         self->priv->is_playing=FALSE;
         g_object_notify(G_OBJECT(self),"is-playing");
@@ -455,6 +459,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         else if(res==GST_STATE_CHANGE_ASYNC) {
           GST_INFO("->PLAYING needs async wait");
         }
+        break;
+#endif
       default:
         break;
     }
