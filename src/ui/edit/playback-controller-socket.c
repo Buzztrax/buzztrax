@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.2 2007-03-07 12:36:09 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.3 2007-03-07 20:47:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -79,12 +79,30 @@ static void client_connection_free(BtPlaybackControllerSocket *self) {
   }
 }
 
+static const gchar *parse_and_process_client_cmd(BtPlaybackControllerSocket *self,gchar *cmd) {
+  gchar *reply=NULL;
+  
+  if(!strcasecmp(cmd,"browse")) {
+    // if there are no labels, return the start
+    reply="song|intro|strophe|refrain|outro";
+  }
+  else if(!strcasecmp(cmd,"play")) {
+    // start playback
+  }
+  else if(!strcasecmp(cmd,"stop")) {
+    // stop playback
+  }
+  
+  return(reply);
+}
+
 //-- event handler
 
 static gboolean client_socket_io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   gboolean res=TRUE;
   gchar *str;
+  const gchar *reply;
   gsize len,term;
   GError *error=NULL;
 
@@ -95,21 +113,29 @@ static gboolean client_socket_io_handler(GIOChannel *channel,GIOCondition condit
       if(str && term>=0) str[term]='\0';
       GST_INFO("command received : %s",str);
       if(str) {
-        // do something
-        g_io_channel_write_chars(channel,"OKAY\n",-1,&len,&error);
-        if(!error) {
-          g_io_channel_flush(channel,&error);
-          //g_io_channel_seek_position(channel,G_GINT64_CONSTANT(0),G_SEEK_CUR,&error);
-          if(error) {
-            GST_WARNING("iochannel error while flushing: %s",error->message);
+        if((reply=parse_and_process_client_cmd(self,str))) {
+          g_io_channel_write_chars(channel,reply,-1,&len,&error);
+          if(!error) {
+            g_io_channel_write_chars(channel,"\n",-1,&len,&error);
+            if(!error) {
+              g_io_channel_flush(channel,&error);
+              if(error) {
+                GST_WARNING("iochannel error while flushing: %s",error->message);
+                g_error_free(error);
+                res=FALSE;
+              }
+            }
+            else {
+              GST_WARNING("iochannel error while writing: %s",error->message);
+              g_error_free(error);
+              res=FALSE;
+            }
+          }
+          else {
+            GST_WARNING("iochannel error while writing: %s",error->message);
             g_error_free(error);
             res=FALSE;
           }
-        }
-        else {
-          GST_WARNING("iochannel error while writing: %s",error->message);
-          g_error_free(error);
-          res=FALSE;
         }
         g_free(str);
       }

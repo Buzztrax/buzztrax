@@ -1,5 +1,11 @@
 2007-03-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/playback-controller-socket.c:
+	(parse_and_process_client_cmd), (client_socket_io_handler):
+	  Little cleanup and protocol tweaking.
+
+2007-03-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c: (on_song_segment_done),
 	(on_song_state_changed):
 	  Disable loop hack (causes always loops).
