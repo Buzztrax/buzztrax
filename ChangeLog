@@ -1,3 +1,21 @@
+2007-03-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  told the little newe
+
+	* src/lib/core/core.c: (parse_goption_arg),
+	(bt_init_get_option_group):
+	* src/lib/ic/ic.c: (parse_goption_arg),
+	(btic_init_get_option_group):
+	  make lib options work
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (client_read), (client_write),
+	(client_socket_io_handler), (master_socket_io_handler),
+	(on_song_changed), (bt_playback_controller_socket_new),
+	(bt_playback_controller_socket_set_property):
+	  Refactor a bit and implement some commands.
+
 2007-03-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/playback-controller-socket.c:

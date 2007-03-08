@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.3 2007-03-07 20:47:54 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.4 2007-03-08 20:58:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -79,75 +79,110 @@ static void client_connection_free(BtPlaybackControllerSocket *self) {
   }
 }
 
-static const gchar *parse_and_process_client_cmd(BtPlaybackControllerSocket *self,gchar *cmd) {
+static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gchar *cmd) {
   gchar *reply=NULL;
+  BtSong *song;
+ 
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   
   if(!strcasecmp(cmd,"browse")) {
+    BtSongInfo *song_info;
+    gchar *name;
+    
+    g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+    g_object_get(G_OBJECT(song_info),"name",&name,NULL);
+    
+    // @todo: get sequence labels
     // if there are no labels, return the start
-    reply="song|intro|strophe|refrain|outro";
+    reply=g_strdup_printf("%s|intro|strophe|refrain|outro",name);
+    
+    g_free(name);
+    g_object_unref(song_info);
   }
   else if(!strcasecmp(cmd,"play")) {
-    // start playback
+    bt_song_play(song);
   }
   else if(!strcasecmp(cmd,"stop")) {
-    // stop playback
+    bt_song_stop(song);
   }
   
+  g_object_unref(song);
   return(reply);
+}
+
+static gchar *client_read(BtPlaybackControllerSocket *self) {
+  gchar *str;
+  gsize len,term;
+  GError *error=NULL;
+  
+  g_io_channel_read_line(self->priv->client_channel,&str,&len,&term,&error);
+  if(!error) {
+    if(str && term>=0) str[term]='\0';
+    GST_INFO("command received : %s",str);
+  }
+  else {
+    GST_WARNING("iochannel error while reading: %s",error->message);
+    g_error_free(error);
+    if(str) {
+      g_free(str);
+      str=NULL;
+    }
+  }
+  return(str);
+}
+
+static gboolean client_write(BtPlaybackControllerSocket *self,gchar *str) {
+  gboolean res=FALSE;
+  GError *error=NULL;
+  gsize len;
+  
+  if(!self->priv->client_channel)
+    return(FALSE);
+  
+  g_io_channel_write_chars(self->priv->client_channel,str,-1,&len,&error);
+  if(!error) {
+    g_io_channel_write_chars(self->priv->client_channel,"\n",-1,&len,&error);
+    if(!error) {
+      g_io_channel_flush(self->priv->client_channel,&error);
+      if(!error) {
+        res=TRUE;
+      }
+      else {
+        GST_WARNING("iochannel error while flushing: %s",error->message);
+        g_error_free(error);
+      }
+    }
+    else {
+      GST_WARNING("iochannel error while writing: %s",error->message);
+      g_error_free(error);
+    }
+  }
+  else {
+    GST_WARNING("iochannel error while writing: %s",error->message);
+    g_error_free(error);
+  }
+  return(res);
 }
 
 //-- event handler
 
 static gboolean client_socket_io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
-  BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
+  BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   gboolean res=TRUE;
-  gchar *str;
-  const gchar *reply;
-  gsize len,term;
-  GError *error=NULL;
+  gchar *cmd,*reply;
 
   GST_INFO("client io handler : %d",condition);
   if(condition & (G_IO_IN | G_IO_PRI)) {
-    g_io_channel_read_line(channel,&str,&len,&term,&error);
-    if(!error) {
-      if(str && term>=0) str[term]='\0';
-      GST_INFO("command received : %s",str);
-      if(str) {
-        if((reply=parse_and_process_client_cmd(self,str))) {
-          g_io_channel_write_chars(channel,reply,-1,&len,&error);
-          if(!error) {
-            g_io_channel_write_chars(channel,"\n",-1,&len,&error);
-            if(!error) {
-              g_io_channel_flush(channel,&error);
-              if(error) {
-                GST_WARNING("iochannel error while flushing: %s",error->message);
-                g_error_free(error);
-                res=FALSE;
-              }
-            }
-            else {
-              GST_WARNING("iochannel error while writing: %s",error->message);
-              g_error_free(error);
-              res=FALSE;
-            }
-          }
-          else {
-            GST_WARNING("iochannel error while writing: %s",error->message);
-            g_error_free(error);
-            res=FALSE;
-          }
+    if((cmd=client_read(self))) {
+      if((reply=client_cmd_parse_and_process(self,cmd))) {
+        if(!client_write(self,reply)) {
+          res=FALSE;
         }
-        g_free(str);
+        g_free(reply);
       }
-      else {
-        res=FALSE;
-      }
+      g_free(cmd);
     }
-    else {
-      GST_WARNING("iochannel error while reading: %s",error->message);
-      g_error_free(error);
-      res=FALSE;
-    }
+    else res=FALSE;
   }
   if(condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL)) {
     res=FALSE;
@@ -159,7 +194,7 @@ static gboolean client_socket_io_handler(GIOChannel *channel,GIOCondition condit
 }
 
 static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
-  BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
+  BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   struct sockaddr addr={0,};
   socklen_t addrlen=sizeof(struct sockaddr);
   
@@ -183,6 +218,22 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
   return(TRUE);
 }
 
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
+  BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
+  BtSong *song;
+
+  g_assert(user_data);
+
+  GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
+  
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!song) return;
+  
+  client_write(self,"flush");
+    
+  g_object_unref(song);
+}
+  
 //-- constructor methods
 
 /**
@@ -198,7 +249,7 @@ BtPlaybackControllerSocket *bt_playback_controller_socket_new(const BtEditApplic
 
   if(!(self=BT_PLAYBACK_CONTROLLER_SOCKET(g_object_new(BT_TYPE_PLAYBACK_CONTROLLER_SOCKET,"app",app,NULL)))) {
     goto Error;
-  }  
+  }
   return(self);
 Error:
   g_object_try_unref(self);
@@ -243,6 +294,8 @@ static void bt_playback_controller_socket_set_property(GObject      *object,
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
+      // register event handlers
+      g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

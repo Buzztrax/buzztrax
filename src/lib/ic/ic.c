@@ -1,4 +1,4 @@
-/* $Id: ic.c,v 1.1 2007-02-28 21:13:37 ensonic Exp $
+/* $Id: ic.c,v 1.2 2007-03-08 20:58:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -51,7 +51,6 @@ const unsigned int btic_minor_version=BTIC_MINOR_VERSION;
 const unsigned int btic_micro_version=BTIC_MICRO_VERSION;
 
 static gboolean btic_initialized = FALSE;
-static gboolean arg_version=FALSE;
 
 //-- helper methods
 
@@ -80,6 +79,20 @@ static gboolean btic_init_post (void) {
   return(res);
 }
 
+static gboolean
+parse_goption_arg (const gchar * opt,
+    const gchar * arg, gpointer data, GError ** err)
+{
+  gboolean ret=TRUE;
+  
+  if (!strcmp (opt, "--btic-version")) {
+    g_printf("libbtic-%d.%d.%d from "PACKAGE_STRING"\n",BTIC_MAJOR_VERSION,BTIC_MINOR_VERSION,BTIC_MICRO_VERSION);
+  }
+  else ret=FALSE;
+    
+  return(ret);
+}
+
 //-- ic initialisation
 
 /**
@@ -98,7 +111,7 @@ static gboolean btic_init_post (void) {
 GOptionGroup *btic_init_get_option_group(void) {  
   GOptionGroup *group;
   static GOptionEntry btic_args[] = {
-    {"btic-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE, &arg_version, N_("Print the buzztard interaction controller version"), NULL},
+    {"btic-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg, N_("Print the buzztard interaction controller version"), NULL},
     {NULL}
   };
   

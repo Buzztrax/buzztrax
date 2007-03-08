@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.34 2007-02-28 21:13:36 ensonic Exp $
+/* $Id: core.c,v 1.35 2007-03-08 20:58:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,7 +60,6 @@ const unsigned int bt_micro_version=BT_MICRO_VERSION;
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 
 static gboolean bt_initialized = FALSE;
-static gboolean arg_version=FALSE;
 
 //-- helper methods
 
@@ -138,7 +137,21 @@ static gboolean bt_init_post (void) {
 Error:
   return(res);
 }
+
+static gboolean
+parse_goption_arg (const gchar * opt,
+    const gchar * arg, gpointer data, GError ** err)
+{
+  gboolean ret=TRUE;
   
+  if (!strcmp (opt, "--bt-version")) {
+    g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
+  }
+  else ret=FALSE;
+    
+  return(ret);
+}
+
 //-- core initialisation
 
 /**
@@ -157,7 +170,7 @@ Error:
 GOptionGroup *bt_init_get_option_group(void) {  
   GOptionGroup *group;
   static GOptionEntry bt_args[] = {
-    {"bt-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE, &arg_version, N_("Print the buzztard core version"), NULL},
+    {"bt-version", 0, G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg, N_("Print the buzztard core version"), NULL},
     {NULL}
   };
   

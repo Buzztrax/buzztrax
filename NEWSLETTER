@@ -1,8 +1,20 @@
+2007/04 ========================================================================
+
+* settings ui work
+
 2007/03 ========================================================================
 
-* refcount fixes
-* build fixes
-* settings ui work
+February passed really quickly. I was quite busy preparing the FOSDEM talk.
+Still I found some time to work on the project. Again I had to hunt some
+refcount leaks and it took me days to track them down and fix them. We also had
+more testers in the channel and could fix some build problems. Right now I am
+working on some features for the LAC 2007 demo in Berlin. For those who can't be
+there - I will write more about these new things next month.
+
+Slomo and me are improving the audio plugins in GStreamer. He writes more
+elements (like a compressor/expander) and I improved the existing ones to better
+support float audio (32 and 64 bit). We now can play some more files and also
+need to less often convert.
 
 2007/02 ========================================================================
 
