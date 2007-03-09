@@ -1,4 +1,4 @@
-/* $Id: application.h,v 1.12 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: application.h,v 1.13 2007-03-09 19:39:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,16 +24,6 @@
 
 #include <glib.h>
 #include <glib-object.h>
-
-#define BT_TYPE_APPLICATION             (bt_application_get_type ())
-#define BT_APPLICATION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_APPLICATION, BtApplication))
-#define BT_APPLICATION_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_APPLICATION, BtApplicationClass))
-#define BT_IS_APPLICATION(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_APPLICATION))
-#define BT_IS_APPLICATION_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_APPLICATION))
-#define BT_APPLICATION_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_APPLICATION, BtApplicationClass))
-
-/* type macros */
-
 
 #define BT_TYPE_APPLICATION             (bt_application_get_type ())
 #define BT_APPLICATION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_APPLICATION, BtApplication))

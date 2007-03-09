@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.105 2007-02-28 16:10:01 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.106 2007-03-09 19:39:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -75,6 +75,7 @@ struct _BtMainToolbarPrivate {
 
 static GtkHandleBoxClass *parent_class=NULL;
 
+static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data);
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data);
 
 //-- helper
@@ -140,8 +141,18 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     GST_INFO("song stop event handled");
   }
   else {
-    // update 10 times a second
+    // update playback position 10 times a second
     self->priv->playback_update_id=g_timeout_add(100,on_song_playback_update,(gpointer)song);
+    // if we started playback remotely activate playbutton
+    if(!gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button))) {
+      g_signal_handlers_block_matched(self->priv->play_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_play_clicked,(gpointer)self);
+      gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->play_button),TRUE);
+      g_signal_handlers_unblock_matched(self->priv->play_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_play_clicked,(gpointer)self);
+    }
+    // disable play button
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),FALSE);
+    // enable stop button
+    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
   }
 }
 
@@ -190,21 +201,12 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     BtSong *song;
 
     GST_INFO("toolbar play event occurred");
-
-    // disable play button
-    gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),FALSE);
     
     // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-    if(bt_song_play(song)) {
-      // enable stop button
-      gtk_widget_set_sensitive(GTK_WIDGET(self->priv->stop_button),TRUE);
-    }
-    else {
+    if(!bt_song_play(song)) {
       // switch off play button
       gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(button),FALSE);
-      // re enable play button
-      gtk_widget_set_sensitive(GTK_WIDGET(button),TRUE);
     }
     
     // release the reference

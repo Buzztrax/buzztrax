@@ -1,6 +1,8 @@
-## $Id: Makefile.am,v 1.1 2007-02-28 21:13:37 ensonic Exp $
+## $Id: Makefile.am,v 1.2 2007-03-09 19:39:19 ensonic Exp $
 
 libbtcoredir = $(includedir)/libbtic
 libbtcore_HEADERS = \
 	ic.h \
-	version.h
+	version.h \
+  \
+  registry.h registry-methods.h

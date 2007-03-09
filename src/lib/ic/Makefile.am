@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.2 2007-03-02 13:17:14 ensonic Exp $
+## $Id: Makefile.am,v 1.3 2007-03-09 19:39:19 ensonic Exp $
 
 SUBDIRS = . libbtic
 
@@ -7,9 +7,12 @@ libbtic_la_LIBADD = -lm $(BASE_DEPS_LIBS)
 libbtic_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtic_la_SOURCES = \
 	ic.c libbtcore/ic.h \
-	libbtic/version.h
+	libbtic/version.h \
+  \
+  registry.c libbtic/registry.h libbtic/registry-methods.h
 
 INCLUDES = \
+  -I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

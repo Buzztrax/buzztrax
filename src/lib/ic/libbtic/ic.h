@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.1 2007-02-28 21:13:37 ensonic Exp $
+/* $Id: ic.h,v 1.2 2007-03-09 19:39:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -74,8 +74,13 @@
 #endif
 #endif
 
+//-- libbtcore
+#include "libbtcore/core.h"
+
 //-- libbtic
 // method prototype includes do include the data defs themself
+
+#include "registry.h"
 
 #include "version.h"
 
@@ -86,4 +91,3 @@
 #endif
 
 #endif // BTIC_CORE_H
-

@@ -1,7 +1,31 @@
+2007-03-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/libbtcore/application.h:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/registry-methods.h:
+	* src/lib/ic/libbtic/registry.h:
+	* src/lib/ic/registry.c: (btic_registry_new),
+	(btic_registry_get_property), (btic_registry_set_property),
+	(btic_registry_dispose), (btic_registry_finalize),
+	(btic_registry_init), (btic_registry_class_init),
+	(btic_registry_get_type):
+	  boilerplate for ic device list
+
+	* src/ui/edit/main-toolbar.c: (on_song_is_playing_notify),
+	(on_toolbar_play_clicked):
+	  reflowed the code to also update ui for external plaback trigger
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify),
+	(on_song_changed), (bt_playback_controller_socket_finalize):
+	  implemented more commands
+
 2007-03-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
-	  told the little newe
+	  told the little news
 
 	* src/lib/core/core.c: (parse_goption_arg),
 	(bt_init_get_option_group):
