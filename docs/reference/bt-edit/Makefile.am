@@ -69,6 +69,7 @@ INCLUDES = \
 GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
 	$(GUI_DEPS_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
+  $(top_builddir)/src/lib/ic/libbtic.la \
 	$(top_builddir)/src/ui/edit/libbtedit.la
 
 # include generic part

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.3 2007-03-09 19:39:19 ensonic Exp $
+## $Id: Makefile.am,v 1.4 2007-03-10 14:49:39 ensonic Exp $
 
 SUBDIRS = . libbtic
 
@@ -9,6 +9,7 @@ libbtic_la_SOURCES = \
 	ic.c libbtcore/ic.h \
 	libbtic/version.h \
   \
+  device.c libbtic/device.h libbtic/device-methods.h \
   registry.c libbtic/registry.h libbtic/registry-methods.h
 
 INCLUDES = \

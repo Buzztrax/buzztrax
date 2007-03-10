@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.5 2007-03-09 19:39:20 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.6 2007-03-10 14:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -179,6 +179,8 @@ static gboolean client_write(BtPlaybackControllerSocket *self,gchar *str) {
   if(!self->priv->client_channel)
     return(FALSE);
   
+  GST_INFO("sending reply : %s",str);
+
   g_io_channel_write_chars(self->priv->client_channel,str,-1,&len,&error);
   if(!error) {
     g_io_channel_write_chars(self->priv->client_channel,"\n",-1,&len,&error);

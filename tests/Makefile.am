@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.42 2007-03-06 21:58:51 ensonic Exp $
+## $Id: Makefile.am,v 1.43 2007-03-10 14:49:39 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -45,6 +45,7 @@ bt_cmd_SOURCES= \
 
 bt_edit_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
+  $(top_builddir)/src/lib/ic/libbtic.la \
 	$(top_builddir)/tests/ui/edit/libbt-edit-check.la \
   libbt-check.la $(BASE_DEPS_LIBS) -lcheck
 bt_edit_SOURCES= \

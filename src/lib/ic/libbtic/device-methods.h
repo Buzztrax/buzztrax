@@ -1,4 +1,4 @@
-/* $Id: registry-methods.h,v 1.2 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: device-methods.h,v 1.1 2007-03-10 14:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,11 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BTIC_REGISTRY_METHODS_H
-#define BTIC_REGISTRY_METHODS_H
+#ifndef BTIC_DEVICE_METHODS_H
+#define BTIC_DEVICE_METHODS_H
 
-#include "registry.h"
+#include "device.h"
 
-extern BtIcRegistry *btic_registry_new(void);
+extern BtIcDevice *btic_device_new(const gchar *udi,const gchar *name);
 
-#endif // BTIC_REGISTRY_METHDOS_H
+#endif // BTIC_DEVICE_METHDOS_H

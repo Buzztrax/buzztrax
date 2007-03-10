@@ -1,3 +1,33 @@
+2007-03-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* docs/reference/bt-edit/Makefile.am:
+	* tests/Makefile.am:
+	  build fixes for new lib
+	
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/device.c: (btic_device_new),
+	(btic_device_get_property), (btic_device_set_property),
+	(btic_device_dispose), (btic_device_finalize), (btic_device_init),
+	(btic_device_class_init), (btic_device_get_type):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/device.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/registry-methods.h:
+	* src/lib/ic/registry.c: (on_device_added), (on_device_removed),
+	(btic_registry_new), (btic_registry_dispose), (btic_registry_init):
+	* src/ui/edit/edit-application.c: (bt_edit_application_new),
+	(bt_edit_application_get_property), (bt_edit_application_dispose),
+	(bt_edit_application_class_init):
+	  boilerplate for the device class and start to use registry
+
+	* src/ui/edit/playback-controller-socket.c: (client_write):
+	* src/ui/edit/settings-page-controldevices.c:
+	(on_device_menu_changed), (on_ic_registry_devices_changed),
+	(bt_settings_page_controldevices_init_ui):
+	  start to use registry
+
 2007-03-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/application.h:

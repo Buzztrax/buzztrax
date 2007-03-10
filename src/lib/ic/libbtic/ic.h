@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.2 2007-03-09 19:39:19 ensonic Exp $
+/* $Id: ic.h,v 1.3 2007-03-10 14:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -74,13 +74,23 @@
 #endif
 #endif
 
+//-- hal/dbus
+#ifdef USE_HAL
+#include <glib.h>
+#include <hal/libhal.h>
+#include <dbus/dbus.h>
+#include <dbus/dbus-glib.h>
+#include <dbus/dbus-glib-lowlevel.h>
+#endif
+
 //-- libbtcore
 #include "libbtcore/core.h"
 
 //-- libbtic
 // method prototype includes do include the data defs themself
 
-#include "registry.h"
+#include "device-methods.h"
+#include "registry-methods.h"
 
 #include "version.h"
 

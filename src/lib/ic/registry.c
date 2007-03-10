@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.1 2007-03-09 19:39:19 ensonic Exp $
+/* $Id: registry.c,v 1.2 2007-03-10 14:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -38,33 +38,84 @@ struct _BtIcRegistryPrivate {
   gboolean dispose_has_run;
   
   GList *devices;
+
+#ifdef USE_HAL
+  LibHalContext *ctx;
+  DBusError dbus_error;
+  DBusConnection *dbus_conn;
+#endif
 };
 
 static GObjectClass *parent_class=NULL;
+
+/* we need device type specific subtypes inheriting from BtIcDevice:
+ *   BtIcMidiDevice, BtIcJoystick
+ * they provice the device specific GSource and list of controllers
+ * we keep those instances in priv->devices
+ * BtIcDevice: has udi and display-name
+ */
 
 //-- helper
 
 //-- handler
 
+#ifdef USE_HAL
+static void on_device_added(LibHalContext *ctx, const gchar *udi) {
+  gchar **cap;
+  gchar *parent_udi;
+  size_t n;
+  
+  if(!(cap=libhal_device_get_property_strlist(ctx,udi,"info.capabilities",NULL))) {
+    return;
+  }
+
+  for(n=0;cap[n];n++) {
+    if(!strcmp(cap[n],"alsa")) {
+      parent_udi=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
+      parent_udi=libhal_device_get_property_string(ctx,parent_udi,"info.parent",NULL);
+
+      GST_INFO("alsa device added: type=%s, device_file=%s, vendor=%s",
+        libhal_device_get_property_string(ctx,udi,"alsa.type",NULL),
+        libhal_device_get_property_string(ctx,udi,"alsa.device_file",NULL),
+        libhal_device_get_property_string(ctx,parent_udi,"info.vendor",NULL)
+      );
+      // add devices to our list and trigger notify
+    }
+    else if(!strcmp(cap[n],"input")) {
+      GST_INFO("input device added: producs=%s",
+        libhal_device_get_property_string(ctx,udi,"input.product",NULL)
+      );
+      // add devices to our list and trigger notify
+    }
+    else {
+      GST_INFO("  non alsa device added: udi=%s",udi); 
+    }
+  }
+}
+
+static void on_device_removed(LibHalContext *ctx, const gchar *udi) {
+  // remove devices with this udi from our list and trigger notify
+}
+#endif
+
 //-- constructor methods
 
 /**
  * btic_registry_new:
- * @self: instance to finish construction of
  *
- * This is the common part of registry construction. It needs to be called from
- * within the sub-classes constructor methods.
+ * Create a new instance
  *
- * Returns: %TRUE for succes, %FALSE otherwise
+ * Returns: the new instance or %NULL in case of an error
  */
-gboolean btic_registry_new(const BtIcRegistry * const self) {
-  gboolean res=FALSE;
-
-  g_return_val_if_fail(BTIC_IS_REGISTRY(self),FALSE);
-
-  res=TRUE;
-//Error:
-  return(res);
+BtIcRegistry *btic_registry_new(void) {
+  BtIcRegistry *self=BTIC_REGISTRY(g_object_new(BTIC_TYPE_REGISTRY,NULL));
+  if(!self) {
+    goto Error;
+  }
+  return(self);
+Error:
+  g_object_try_unref(self);
+  return(NULL);
 }
 
 //-- methods
@@ -114,6 +165,11 @@ static void btic_registry_dispose(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
 
+#ifdef USE_HAL
+  libhal_ctx_free(self->priv->ctx);
+  dbus_error_free(&self->priv->dbus_error);
+#endif
+  
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
@@ -145,8 +201,37 @@ static void btic_registry_init(const GTypeInstance * const instance, gconstpoint
   
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_REGISTRY, BtIcRegistryPrivate);
 
-  // @todo: scan devices via hal
-  // @todo: register notify handler for add/remove
+#ifdef USE_HAL
+  /* init dbus */
+  dbus_error_init(&self->priv->dbus_error);
+  self->priv->dbus_conn=dbus_bus_get(DBUS_BUS_SYSTEM,&self->priv->dbus_error);
+  if(dbus_error_is_set(&self->priv->dbus_error)) {
+    GST_WARNING("Could not connect to system bus %s", self->priv->dbus_error.message);
+    return;
+  }
+  dbus_connection_setup_with_g_main(self->priv->dbus_conn,NULL);
+  dbus_connection_set_exit_on_disconnect(self->priv->dbus_conn,FALSE);
+  
+  /* init hal */
+  if(!(self->priv->ctx=libhal_ctx_new())) {
+    GST_WARNING("Could not create hal context");
+    return;
+  }
+  libhal_ctx_set_dbus_connection(self->priv->ctx,self->priv->dbus_conn);
+  // register notify handler for add/remove
+  libhal_ctx_set_device_added(self->priv->ctx,on_device_added);
+  libhal_ctx_set_device_removed(self->priv->ctx,on_device_removed);
+  if(!(libhal_ctx_init(self->priv->ctx,&self->priv->dbus_error))) {
+    GST_WARNING("Could not init hal %s", self->priv->dbus_error.message);
+    return;
+  }
+  /* @todo: scan devices via hal
+  if(devices=libhal_find_device_by_capability(self->priv->ctx,"input",&num_devices,&self->priv->dbus_error)) {
+  
+  }
+  */
+  GST_DEBUG("registry initialized");
+#endif
 }
 
 static void btic_registry_class_init(BtIcRegistryClass * const klass) {

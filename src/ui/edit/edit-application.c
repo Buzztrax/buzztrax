@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.93 2007-03-06 21:58:51 ensonic Exp $
+/* $Id: edit-application.c,v 1.94 2007-03-10 14:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -39,7 +39,8 @@
 
 enum {
   EDIT_APPLICATION_SONG=1,
-  EDIT_APPLICATION_MAIN_WINDOW
+  EDIT_APPLICATION_MAIN_WINDOW,
+  EDIT_APPLICATION_IC_REGISTRY
 };
 
 // this needs to be here because of gtk-doc and unit-tests
@@ -58,6 +59,9 @@ struct _BtEditApplicationPrivate {
   
   /* remote playback controller */
   BtPlaybackControllerSocket *pb_controller;
+  
+  /* interaction controller registry */
+  BtIcRegistry *ic_registry;
 };
 
 static BtApplicationClass *parent_class=NULL;
@@ -317,6 +321,8 @@ BtEditApplication *bt_edit_application_new(void) {
   }
   // create the playback controller
   self->priv->pb_controller=bt_playback_controller_socket_new(self); 
+  // create the interaction controller registry
+  self->priv->ic_registry=btic_registry_new();
   // create main window
   GST_INFO("new edit app created, app->ref_ct=%d",G_OBJECT(self)->ref_count);
   if(!(self->priv->main_window=bt_main_window_new(self))) {
@@ -798,6 +804,9 @@ static void bt_edit_application_get_property(GObject      *object,
     case EDIT_APPLICATION_MAIN_WINDOW: {
       g_value_set_object(value, self->priv->main_window);
     } break;
+    case EDIT_APPLICATION_IC_REGISTRY: {
+      g_value_set_object(value, self->priv->ic_registry);
+    } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -871,6 +880,7 @@ static void bt_edit_application_dispose(GObject *object) {
   
   g_object_try_unref(self->priv->ui_ressources);
   g_object_try_unref(self->priv->pb_controller);
+  g_object_try_unref(self->priv->ic_registry);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -917,6 +927,13 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
                                      "main window prop",
                                      "the main window of this application",
                                      BT_TYPE_MAIN_WINDOW, /* object type */
+                                     G_PARAM_READABLE));
+
+  g_object_class_install_property(gobject_class,EDIT_APPLICATION_IC_REGISTRY,
+                                  g_param_spec_object("ic-registry",
+                                     "ic registry prop",
+                                     "the interaction controller registry of this application",
+                                     BTIC_TYPE_REGISTRY, /* object type */
                                      G_PARAM_READABLE));
 }
 

@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.93 2007-02-28 21:13:36 ensonic Exp $
+dnl $Id: configure.ac,v 1.94 2007-03-10 14:49:39 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -255,6 +255,15 @@ PKG_CHECK_MODULES(HILDON_DEPS, hildon-libs libosso, [
     BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HILDON_DEPS_LIBS"
   ],[
     use_hildon=no
+  ]
+)
+
+PKG_CHECK_MODULES(HAL_DEPS, dbus-glib-1 hal, [
+  AC_DEFINE(USE_HAL, [1], [Define to 1 if we can use hal libraries])
+    BASE_DEPS_CFLAGS="$BASE_DEPS_CFLAGS $HAL_DEPS_CFLAGS"
+    BASE_DEPS_LIBS="$BASE_DEPS_LIBS $HAL_DEPS_LIBS"
+  ],[
+    use_hal=no
   ]
 )
 
