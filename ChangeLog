@@ -1,5 +1,16 @@
 2007-03-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/ic/input-device.c: (btic_input_device_new),
+	(btic_input_device_get_property), (btic_input_device_set_property),
+	(btic_input_device_dispose), (btic_input_device_finalize),
+	(btic_input_device_init), (btic_input_device_class_init),
+	(btic_input_device_get_type):
+	* src/lib/ic/libbtic/input-device-methods.h:
+	* src/lib/ic/libbtic/input-device.h:
+	  add missing files
+
+2007-03-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  adding items for the next one
 
