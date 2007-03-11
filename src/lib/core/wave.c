@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.25 2007-02-11 17:02:35 ensonic Exp $
+/* $Id: wave.c,v 1.26 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -81,7 +81,7 @@ static GObjectClass *parent_class=NULL;
  * bt_wave_new:
  * @song: the song the new instance belongs to
  * @name: the display name for the new wave
- * @url: the location of the sample data
+ * @uri: the location of the sample data
  * @index: the list slot for the new wave
  *
  * Create a new instance

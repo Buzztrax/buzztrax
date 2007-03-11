@@ -1,4 +1,4 @@
-/* $Id: persistence-location.c,v 1.3 2007-01-22 21:00:57 ensonic Exp $
+/* $Id: persistence-location.c,v 1.4 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,9 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btpersistence-location
+ * SECTION:btpersistencelocation
  * @short_description: base-class for object deserialisation filters
+ * @see_also: #BtPersistenceSelection
  *
+ * Base class for a location that partial songs can be loaded in. A 'paste'
+ * operation will use this to specify where data gets pasted.
  */
 
 #define BT_CORE

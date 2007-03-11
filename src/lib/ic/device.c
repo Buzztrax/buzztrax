@@ -1,4 +1,4 @@
-/* $Id: device.c,v 1.1 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: device.c,v 1.2 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,11 +19,14 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:bticregistry
- * @short_description: buzztards interaction controller registry
+ * SECTION:bticdevice
+ * @short_description: buzztards interaction controller device
  *
- */ 
- 
+ * Abstract base class for controll devices.
+ */
+/* @todo: we need a way to export/import controller maps per device
+ *        (list of controller id,type,name)
+ */
 #define BTIC_CORE
 #define BTIC_DEVICE_C
 
@@ -37,6 +40,9 @@ enum {
 struct _BtIcDevicePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+  
+  /* list of BtIcController objects */
+  GList *controllers;
 
   gchar *udi;
   gchar *name;  
@@ -54,26 +60,6 @@ static GObjectClass *parent_class=NULL;
 //-- handler
 
 //-- constructor methods
-
-/**
- * btic_device_new:
- * @udi: the udi of the device
- * @name: human readable name
- *
- * Create a new instance
- *
- * Returns: the new instance or %NULL in case of an error
- */
-BtIcDevice *btic_device_new(const gchar *udi,const gchar *name) {
-  BtIcDevice *self=BTIC_DEVICE(g_object_new(BTIC_TYPE_DEVICE,"udi",udi,"name",name,NULL));
-  if(!self) {
-    goto Error;
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
-}
 
 //-- methods
 
@@ -198,7 +184,9 @@ GType btic_device_get_type(void) {
       (GInstanceInitFunc)btic_device_init, // instance_init
       NULL // value_table
     };
-    type = g_type_register_static(G_TYPE_OBJECT,"BtIcDevice",&info,G_TYPE_FLAG_VALUE_ABSTRACT);
+    // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=417047
+    //type = g_type_register_static(G_TYPE_OBJECT,"BtIcDevice",&info,G_TYPE_FLAG_VALUE_ABSTRACT);
+    type = g_type_register_static(G_TYPE_OBJECT,"BtIcDevice",&info,0);
   }
   return type;
 }

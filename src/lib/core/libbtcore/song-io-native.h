@@ -1,4 +1,4 @@
-/* $Id: song-io-native.h,v 1.20 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: song-io-native.h,v 1.21 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -51,8 +51,9 @@ struct _BtSongIONative {
 };
 /**
  * BtSongIONativeClass:
+ * @parent: parent class type
  *
- * class for song input and output in native zip/xml format
+ * Class for song input and output in native zip/xml format
  */
 struct _BtSongIONativeClass {
   const BtSongIOClass parent;

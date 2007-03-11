@@ -1,1 +1,1 @@
-SUBDIRS = bt-core bt-cmd bt-edit
+SUBDIRS = bt-core bt-ic bt-cmd bt-edit

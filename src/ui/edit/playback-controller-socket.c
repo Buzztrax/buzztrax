@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.6 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.7 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,7 +47,9 @@ struct _BtPlaybackControllerSocketPrivate {
     gpointer app_ptr;
   };
   
+  /* positions for each label */
   GList *playlist;
+  gulong cur_pos;
   
   /* master */
   gint master_socket,master_source;
@@ -131,19 +133,55 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   else if(!strcasecmp(cmd,"stop")) {
     bt_song_stop(song);
   }
-  else if(!strcasecmp(cmd,"getpos")) {
+  else if(!strcasecmp(cmd,"status")) {
+    BtSequence *sequence;
+    gchar *state[]={"stopped","playing"};
+    gchar *label,*label_str;
+    gboolean is_playing;
+    gulong pos;
+    gulong p_msec,p_sec,p_min;
+    gulong l_msec,l_sec,l_min;
+    GstClockTime bar_time;
+
+    g_object_get(G_OBJECT(song),"sequence",&sequence,"is-playing",&is_playing,"play-pos",&pos,NULL);
+    bar_time=bt_sequence_get_bar_time(sequence);
+  
+    // calculate playtime
+    p_msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+    p_min=(gulong)(p_msec/60000);p_msec-=(p_min*60000);
+    p_sec=(gulong)(p_msec/ 1000);p_msec-=(p_sec* 1000);
+
+    // calculate length
+    l_msec=(gulong)(bt_sequence_get_loop_time(sequence)/G_USEC_PER_SEC);
+    l_min=(gulong)(l_msec/60000);l_msec-=(l_min*60000);
+    l_sec=(gulong)(l_msec/ 1000);l_msec-=(l_sec* 1000);
+    
+    // get label text
+    if((label=bt_sequence_get_label(sequence,self->priv->cur_pos))) {
+      label_str=label;
+    }
+    else {
+      label_str="start";
+    }
+    
+    reply=g_strdup_printf("event|%s|%s|0:%02lu:%02lu.%03lu|0:%02lu:%02lu.%03lu",
+      state[is_playing],label_str,
+      p_min,p_sec,p_msec,l_min,l_sec,l_msec);
+    
+    g_free(label);
+    g_object_unref(sequence);
   }
   else if(!strncasecmp(cmd,"goto ",5)) {
-    gulong pos=0;
+    self->priv->cur_pos=0;
     
     // get playlst entry
     if(cmd[5]) {
       // get position for ix-th label
-      pos=GPOINTER_TO_INT(g_list_nth_data(self->priv->playlist,atoi(&cmd[5])));
+      self->priv->cur_pos=GPOINTER_TO_INT(g_list_nth_data(self->priv->playlist,atoi(&cmd[5])));
     }
     
     // seek
-    g_object_set(song,"play-pos",pos,NULL);
+    g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
   }
   
   g_object_unref(song);
@@ -183,7 +221,7 @@ static gboolean client_write(BtPlaybackControllerSocket *self,gchar *str) {
 
   g_io_channel_write_chars(self->priv->client_channel,str,-1,&len,&error);
   if(!error) {
-    g_io_channel_write_chars(self->priv->client_channel,"\n",-1,&len,&error);
+    g_io_channel_write_chars(self->priv->client_channel,"\r\n",-1,&len,&error);
     if(!error) {
       g_io_channel_flush(self->priv->client_channel,&error);
       if(!error) {
@@ -260,6 +298,7 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
   return(TRUE);
 }
 
+#if 0
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   gboolean is_playing;
@@ -274,6 +313,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     client_write(self,"stopped");
   }
 }
+#endif
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
@@ -286,8 +326,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) return;
   
+  self->priv->cur_pos=0;
   client_write(self,"flush");
+#if 0
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
+#endif
     
   g_object_unref(song);
 }

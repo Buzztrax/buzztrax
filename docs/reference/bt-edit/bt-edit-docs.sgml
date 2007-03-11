@@ -9,6 +9,7 @@
 <!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
 <!ENTITY BtMachineMenu SYSTEM "xml/btmachinemenu.xml">
 <!ENTITY BtMachinePreferencesDialog SYSTEM "xml/btmachinepreferencesdialog.xml">
+<!ENTITY BtMachinePresetPropertiesDialog SYSTEM "xml/btmachinepresetpropertiesdialog.xml">
 <!ENTITY BtMachinePropertiesDialog SYSTEM "xml/btmachinepropertiesdialog.xml">
 <!ENTITY BtMainMenu SYSTEM "xml/btmainmenu.xml">
 <!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
@@ -22,9 +23,11 @@
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtPatternPropertiesDialog SYSTEM "xml/btpatternpropertiesdialog.xml">
 <!ENTITY BtPatternView SYSTEM "xml/btpatternview.xml">
+<!ENTITY BtPlaybackControllerSocket SYSTEM "xml/btplaybackcontrollersocket.xml">
 <!ENTITY BtSequenceView SYSTEM "xml/btsequenceview.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
+<!ENTITY BtSettingsPageControldevices SYSTEM "xml/btsettingspagecontroldevices.xml">
 <!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
 <!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
@@ -64,24 +67,27 @@
     &BtMachineActions;
     &BtMachineCanvasItem;
     &BtMachineMenu;
-		&BtMachinePreferencesDialog;
-		&BtMachinePropertiesDialog;
+    &BtMachinePreferencesDialog;
+    &BtMachinePresetPropertiesDialog;
+    &BtMachinePropertiesDialog;
     &BtMainWindow;
     &BtMainMenu;
     &BtMainPageInfo;
     &BtMainPageMachines;
     &BtMainPagePatterns;
     &BtMainPageSequence;
-		&BtMainPages;
+    &BtMainPages;
     &BtMainPageWaves;
     &BtMainStatusbar;
     &BtMainToolbar;
     &BtPatternPropertiesDialog;
     &BtPatternView;
+    &BtPlaybackControllerSocket;
     &BtSequenceView;
     &BtSettingsDialog;
     &BtSettingsPageAudiodevices;
-		&BtUIRessources;
+    &BtSettingsPageControldevices;
+    &BtUIRessources;
     &BtWireCanvasItem;
     &BtVolumePopup;
     

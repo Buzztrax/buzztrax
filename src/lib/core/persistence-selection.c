@@ -1,4 +1,4 @@
-/* $Id: persistence-selection.c,v 1.3 2007-01-22 21:00:57 ensonic Exp $
+/* $Id: persistence-selection.c,v 1.4 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,9 +19,13 @@
  * Boston, MA 02111-1307, USA.
  */
 /**
- * SECTION:btpersistence-selection
+ * SECTION:btpersistenceselection
  * @short_description: base-class for object serialisation filters
+ * @see_also: #BtPersistenceLocation
  *
+ * Base class to specify the range of data that should be serialized as a
+ * partial song. A 'copy' or 'cut' operation can use this to specify the
+ * selection.
  */
 
 #define BT_CORE

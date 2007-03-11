@@ -1,0 +1,90 @@
+# $Id: bt-ic-sections.txt,v 1.1 2007-03-11 20:19:19 ensonic Exp $
+# :mode=html:
+
+# please add section in the alpahbetical order using the following template
+# <SECTION>
+# <FILE>btxxx</FILE>
+# <TITLE>BtXxx</TITLE>
+# <SUBSECTION Standard>
+# <SUBSECTION Private>
+# </SECTION>
+
+<INCLUDE>libbtic/ic.h</INCLUDE>
+
+<SECTION>
+<FILE>bticdevice</FILE>
+<TITLE>BtIcDevice</TITLE>
+BtIcDevice
+<SUBSECTION Standard>
+BtIcDeviceClass
+BTIC_DEVICE
+BTIC_IS_DEVICE
+BTIC_TYPE_DEVICE
+btic_device_get_type
+BTIC_DEVICE_CLASS
+BTIC_IS_DEVICE_CLASS
+BTIC_DEVICE_GET_CLASS
+<SUBSECTION Private>
+BtIcDevicePrivate
+btic_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticinputdevice</FILE>
+<TITLE>BtIcInputDevice</TITLE>
+BtIcInputDevice
+btic_input_device_new
+<SUBSECTION Standard>
+BtIcInputDeviceClass
+BTIC_INPUT_DEVICE
+BTIC_IS_INPUT_DEVICE
+BTIC_TYPE_INPUT_DEVICE
+btic_input_device_get_type
+BTIC_INPUT_DEVICE_CLASS
+BTIC_IS_INPUT_DEVICE_CLASS
+BTIC_INPUT_DEVICE_GET_CLASS
+<SUBSECTION Private>
+BtIcInputDevicePrivate
+btic_input_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticregistry</FILE>
+<TITLE>BtIcRegistry</TITLE>
+BtIcRegistry
+btic_registry_new
+<SUBSECTION Standard>
+BtIcRegistryClass
+BTIC_REGISTRY
+BTIC_IS_REGISTRY
+BTIC_TYPE_REGISTRY
+btic_registry_get_type
+BTIC_REGISTRY_CLASS
+BTIC_IS_REGISTRY_CLASS
+BTIC_REGISTRY_GET_CLASS
+<SUBSECTION Private>
+BtIcRegistryPrivate
+btic_registry_get_type
+</SECTION>
+
+<SECTION>
+<FILE>libbtic</FILE>
+<TITLE>libbtic</TITLE>
+btic_init_get_option_group
+btic_init_check
+btic_init
+BTIC_MAJOR_VERSION
+BTIC_MINOR_VERSION
+BTIC_MICRO_VERSION
+btic_major_version
+btic_minor_version
+btic_micro_version
+<SUBSECTION Private>
+# gettext extras
+_
+N_
+gettext
+dgettext
+textdomain
+bindtextdomain
+</SECTION>

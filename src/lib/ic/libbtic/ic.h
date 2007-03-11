@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.3 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: ic.h,v 1.4 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -90,9 +90,27 @@
 // method prototype includes do include the data defs themself
 
 #include "device-methods.h"
+#include "input-device-methods.h"
 #include "registry-methods.h"
 
 #include "version.h"
+
+//-- global defines ------------------------------------------------------------
+
+//-- misc
+#ifdef BTIC_CORE
+  /**
+   * GST_CAT_DEFAULT:
+   *
+   * default loging category. We use gstreamers logging facillities as we use
+   * gstreamer anyway. All buzztard logging categories are prefixed with "bt-".
+   */
+  #define GST_CAT_DEFAULT bt_ic_debug
+  #ifndef BTIC_CORE_C
+    GST_DEBUG_CATEGORY_EXTERN(GST_CAT_DEFAULT);
+  #endif
+#endif
+
 
 #ifndef BTIC_CORE_C
   extern GOptionGroup *btic_init_get_option_group(void);

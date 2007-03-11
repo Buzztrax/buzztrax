@@ -1,3 +1,63 @@
+2007-03-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  adding items for the next one
+
+	* configure.ac:
+	* docs/reference/Makefile.am:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* docs/reference/bt-ic/.cvsignore:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	* docs/reference/bt-ic/tmpl/.cvsignore:
+	  docs for new lib
+
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/settings.h:
+	* src/lib/core/libbtcore/song-io-native.h:
+	* src/lib/core/libbtcore/song-io.h:
+	* src/lib/core/libbtcore/song.h:
+	* src/lib/core/persistence-location.c:
+	* src/lib/core/persistence-selection.c:
+	* src/lib/core/settings.c: (bt_settings_new):
+	* src/lib/core/wave.c:
+	* src/ui/edit/gtkvumeter.c:
+	* src/ui/edit/machine-actions.c:
+	* src/ui/edit/machine-menu.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_dispose):
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/ui-ressources.h:
+	  improving docs
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (client_write), (on_song_changed):
+	  renderer protocol
+
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/device.c: (btic_device_get_type):
+	* src/lib/ic/ic.c: (btic_init_post):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/registry.c: (on_device_added), (on_device_removed),
+	(btic_registry_new), (btic_registry_dispose),
+	(btic_registry_finalize), (btic_registry_init):
+	  input.joystick devices get recognized danamically
+
+	* src/ui/edit/settings-page-controldevices.c:
+	(on_ic_registry_devices_changed),
+	(bt_settings_page_controldevices_init_ui),
+	(bt_settings_page_controldevices_dispose):
+	  listen to device changes
+
 2007-03-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

@@ -1,4 +1,4 @@
-/* $Id: machine-actions.c,v 1.1 2006-12-07 21:28:22 ensonic Exp $
+/* $Id: machine-actions.c,v 1.2 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -18,12 +18,24 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/**
+ * SECTION:btmachineactions
+ * @short_description: shared machine released ui actions
+ *
+ * Shared UI actions for machines that can be incoked from several UI classes.
+ */ 
 
 #define BT_EDIT
 #define BT_MACHINE_ACTIONS_C
 
 #include "bt-edit.h"
 
+/**
+ * bt_machine_action_help:
+ * @machine: the machine
+ * 
+ * Show help for the given @machine.
+ */
 void bt_machine_action_help(GstElement *machine) {
 #ifdef USE_GNOME
   GError *error=NULL;
@@ -45,6 +57,13 @@ void bt_machine_action_help(GstElement *machine) {
 #endif
 }
 
+/**
+ * bt_machine_action_about:
+ * @machine: the machine
+ * @main_window: the main window to use as parent
+ *
+ * Shows the about dialog for the given @machine.
+ */
 void bt_machine_action_about(GstElement *machine,BtMainWindow *main_window) {
   GstElementFactory *element_factory;
   

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.84 2007-02-28 21:13:37 ensonic Exp $
+/* $Id: core.h,v 1.85 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -183,7 +183,7 @@
    * GST_CAT_DEFAULT:
    *
    * default loging category. We use gstreamers logging facillities as we use
-   * gstreamer anyway. All buzztard logging categories are prefixed with "bt_".
+   * gstreamer anyway. All buzztard logging categories are prefixed with "bt-".
    */
   #define GST_CAT_DEFAULT bt_core_debug
   #ifndef BT_CORE_C

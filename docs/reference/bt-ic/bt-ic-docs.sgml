@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+               "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
+<!ENTITY % version-entities SYSTEM "../../version.entities">
+%version-entities;
+<!ENTITY BtIcDevice SYSTEM "xml/bticdevice.xml">
+<!ENTITY BtIcInputDevice SYSTEM "xml/bticinputdevice.xml">
+<!ENTITY BtIcRegistry SYSTEM "xml/bticregistry.xml">
+
+<!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
+]>
+<book id="index">
+  <bookinfo>
+    <title>Buzztard Bt-Ic Reference Manual</title>
+    <releaseinfo>for Buzztard &BT_VERSION;</releaseinfo>
+  </bookinfo>
+
+  <chapter id="libbtic">
+    <title>Interaction Controller Reference</title>
+    <para>
+    </para>
+    &BtIcDevice;
+    &BtIcInputDevice;
+    &BtIcRegistry;
+  </chapter>
+
+  <chapter id="objecttree">
+    <title>Object Hierarchy</title>
+    &object-tree-index;
+  </chapter>
+
+  <index id="api-index">
+    <title>API Index</title>
+  </index>
+
+</book>

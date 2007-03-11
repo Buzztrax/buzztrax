@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.3 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.4 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -163,7 +163,9 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
 /**
  * bt_machine_preset_properties_dialog_new:
  * @app: the application the dialog belongs to
- * @pattern: the pattern for which to create the dialog for
+ * @machine: the machine for which to create the dialog for
+ * @name: the preset name
+ * @comment: the comment name
  *
  * Create a new instance
  *

@@ -1,4 +1,4 @@
-/* $Id: song-io.h,v 1.23 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: song-io.h,v 1.24 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -73,10 +73,11 @@ typedef gboolean (*bt_song_io_virtual_save)(gconstpointer const self, const BtSo
 
 /**
  * BtSongIOClass:
+ * @parent: parent class type
  * @load: virtual method for loading a song
  * @save: virtual method for saving a song
  *
- * base class for song input and output plugins
+ * Base class for song input and output plugins
  */
 struct _BtSongIOClass {
   const GObjectClass parent;

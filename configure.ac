@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.94 2007-03-10 14:49:39 ensonic Exp $
+dnl $Id: configure.ac,v 1.95 2007-03-11 20:19:18 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -384,6 +384,7 @@ AC_CONFIG_FILES(Makefile \
       docs/reference/bt-cmd/Makefile \
       docs/reference/bt-core/Makefile \
       docs/reference/bt-edit/Makefile \
+      docs/reference/bt-ic/Makefile \
   po/Makefile.in \
   src/Makefile \
     src/lib/Makefile \

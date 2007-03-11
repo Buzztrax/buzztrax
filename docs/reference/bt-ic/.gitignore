@@ -1,0 +1,15 @@
+Makefile
+Makefile.in
+.libs
+*.stamp
+*.txt
+*.types
+*.signals
+*.prerequisites
+*.interfaces
+*.hierarchy
+*.args
+html
+tmpl
+xml
+*.bbg

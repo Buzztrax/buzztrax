@@ -1,4 +1,4 @@
-/* $Id: settings.h,v 1.11 2006-09-26 21:20:30 ensonic Exp $
+/* $Id: settings.h,v 1.12 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -36,6 +36,8 @@
  * BtSettingsFactory:
  *
  * Factory method that creates a new settings instance.
+ *
+ * Returns: the setting implementation
  */
 typedef gpointer (*BtSettingsFactory)(void);
 

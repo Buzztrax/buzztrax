@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.156 2007-03-04 22:04:03 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.157 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2473,6 +2473,13 @@ static const GtkTargetEntry targets[] =
 static int ntargets = G_N_ELEMENTS (targets);
 */
 
+/**
+ * bt_main_page_sequence_cut_selection:
+ * @self: the sequence subpage
+ *
+ * Cut selected area.
+ * <note>not yet working</note> 
+ */
 void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
   /* @todo implement me
    * - where do we store this?
@@ -2488,14 +2495,34 @@ void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self) {
     */
 }
 
+/**
+ * bt_main_page_sequence_copy_selection:
+ * @self: the sequence subpage
+ *
+ * Copy selected area.
+ * <note>not yet working</note> 
+ */
 void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self) {
   /* @todo implement me */
 }
 
+/**
+ * bt_main_page_sequence_paste_selection:
+ * @self: the sequence subpage
+ *
+ * Paste at the top of the selected area.
+ * <note>not yet working</note> 
+ */
 void bt_main_page_sequence_paste_selection(const BtMainPageSequence *self) {
   /* @todo implement me */
 }
 
+/**
+ * bt_main_page_sequence_delete_selection:
+ * @self: the sequence subpage
+ *
+ * Delete (clear) the selected area. 
+ */
 void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
   GtkTreeModel *store;
   BtSong *song;

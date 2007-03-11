@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.112 2007-03-05 20:22:24 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.113 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1823,7 +1823,7 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->machine_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->pattern_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->wavetable_menu));
-	gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
+  gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

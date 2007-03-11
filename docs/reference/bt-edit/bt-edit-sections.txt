@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.29 2007-01-04 18:13:56 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.30 2007-03-11 20:19:19 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -96,6 +96,25 @@ BT_TYPE_MACHINE_PREFERENCES_DIALOG
 <SUBSECTION Private>
 bt_machine_preferences_dialog_get_type
 BtMachinePreferencesDialogPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmachinepresetpropertiesdialog</FILE>
+<TITLE>BtMachinePresetPropertiesDialog</TITLE>
+BtMachinePresetPropertiesDialog
+bt_machine_preset_properties_dialog_new
+bt_machine_preset_properties_dialog_apply
+<SUBSECTION Standard>
+BtMachinePresetPropertiesDialogClass
+BT_MACHINE_PRESET_PROPERTIES_DIALOG
+BT_IS_MACHINE_PRESET_PROPERTIES_DIALOG
+BT_MACHINE_PRESET_PROPERTIES_DIALOG_CLASS
+BT_IS_MACHINE_PRESET_PROPERTIES_DIALOG_CLASS
+BT_MACHINE_PRESET_PROPERTIES_DIALOG_GET_CLASS
+BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG
+<SUBSECTION Private>
+bt_machine_preset_properties_dialog_get_type
+BtMachinePresetPropertiesDialogPrivate
 </SECTION>
 
 <SECTION>
@@ -363,6 +382,24 @@ BtPatternViewPrivate
 </SECTION>
 
 <SECTION>
+<FILE>btplaybackcontrollersocket</FILE>
+<TITLE>BtPlaybackControllerSocket</TITLE>
+BtPlaybackControllerSocket
+bt_playback_controller_socket_new
+<SUBSECTION Standard>
+BtPlaybackControllerSocketClass
+BT_PLAYBACK_CONTROLLER_SOCKET
+BT_IS_PLAYBACK_CONTROLLER_SOCKET
+BT_PLAYBACK_CONTROLLER_SOCKET_CLASS
+BT_IS_PLAYBACK_CONTROLLER_SOCKET_CLASS
+BT_PLAYBACK_CONTROLLER_SOCKET_GET_CLASS
+BT_TYPE_PLAYBACK_CONTROLLER_SOCKET
+<SUBSECTION Private>
+bt_playback_controller_socket_get_type
+BtPlaybackControllerSocketPrivate
+</SECTION>
+
+<SECTION>
 <FILE>btsequenceview</FILE>
 <TITLE>BtSequenceView</TITLE>
 BtSequenceView
@@ -414,6 +451,24 @@ BT_TYPE_SETTINGS_PAGE_AUDIODEVICES
 <SUBSECTION Private>
 bt_settings_page_audiodevices_get_type
 BtSettingsPageAudiodevicesPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsettingspagecontroldevices</FILE>
+<TITLE>BtSettingsPageControldevices</TITLE>
+BtSettingsPageControldevices
+bt_settings_page_controldevices_new
+<SUBSECTION Standard>
+BtSettingsPageControldevicesClass
+BT_SETTINGS_PAGE_CONTROLDEVICES
+BT_IS_SETTINGS_PAGE_CONTROLDEVICES
+BT_SETTINGS_PAGE_CONTROLDEVICES_CLASS
+BT_IS_SETTINGS_PAGE_CONTROLDEVICES_CLASS
+BT_SETTINGS_PAGE_CONTROLDEVICES_GET_CLASS
+BT_TYPE_SETTINGS_PAGE_CONTROLDEVICES
+<SUBSECTION Private>
+bt_settings_page_controldevices_get_type
+BtSettingsPageControldevicesPrivate
 </SECTION>
 
 <SECTION>

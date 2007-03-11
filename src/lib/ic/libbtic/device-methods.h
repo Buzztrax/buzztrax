@@ -1,4 +1,4 @@
-/* $Id: device-methods.h,v 1.1 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: device-methods.h,v 1.2 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,7 +23,5 @@
 #define BTIC_DEVICE_METHODS_H
 
 #include "device.h"
-
-extern BtIcDevice *btic_device_new(const gchar *udi,const gchar *name);
 
 #endif // BTIC_DEVICE_METHDOS_H

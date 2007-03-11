@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.32 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: settings.c,v 1.33 2007-03-11 20:19:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -71,6 +71,7 @@ BtSettings *bt_settings_new(void) {
 #else
       singleton=(gpointer)bt_plainfile_settings_new();
 #endif
+	  GST_INFO("settings created %p",singleton);
     }
     else {
       singleton=bt_settings_factory();
@@ -82,7 +83,6 @@ BtSettings *bt_settings_new(void) {
     GST_INFO("return cached settings object (refct=%d) for thread %p",G_OBJECT(singleton)->ref_count,g_thread_self());
     singleton=g_object_ref(G_OBJECT(singleton));
   }
-  GST_INFO("settings created %p",singleton);
   return(BT_SETTINGS(singleton));
 }
 

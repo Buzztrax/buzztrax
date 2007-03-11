@@ -1,4 +1,4 @@
-/* $Id: ic.c,v 1.2 2007-03-08 20:58:45 ensonic Exp $
+/* $Id: ic.c,v 1.3 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -50,6 +50,8 @@ const unsigned int btic_minor_version=BTIC_MINOR_VERSION;
  */
 const unsigned int btic_micro_version=BTIC_MICRO_VERSION;
 
+GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
+
 static gboolean btic_initialized = FALSE;
 
 //-- helper methods
@@ -71,7 +73,7 @@ static gboolean btic_init_pre (void) {
 static gboolean btic_init_post (void) {
   gboolean res=FALSE;
 
-  // @todo: init hal/dbus
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-ic", 0, "music production environment / interaction controller library");
   
   res=TRUE;
   

@@ -4,7 +4,7 @@
 AUTOMAKE_OPTIONS = 1.6
 
 # The name of the module, e.g. 'glib'.
-DOC_MODULE=bt-edit
+DOC_MODULE=bt-ic
 
 # The top-level SGML file. You can change this if you want to.
 DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
@@ -12,10 +12,10 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 # The directory containing the source code. Relative to $(srcdir).
 # gtk-doc will search all .c & .h files beneath here for inline comments
 # documenting the functions and macros.
-DOC_SOURCE_DIR=$(top_srcdir)/src/ui/edit
+DOC_SOURCE_DIR=$(top_srcdir)/src/lib/ic
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
-SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv);gtk_init(&argc,&argv)"
+SCANGOBJ_OPTIONS=--type-init-func="g_type_init()"
 
 # Extra options to supply to gtkdoc-scan.
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
@@ -30,16 +30,12 @@ MKTMPL_OPTIONS=
 # Extra options to supply to gtkdoc-fixref. Not normally needed.
 FIXXREF_OPTIONS=--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/gobject \
 	--extra-dir=$(GLIB_PREFIX)/share/gtk-doc/html/glib \
-	--extra-dir=$(GTK_PREFIX)/share/gtk-doc/html/gtk \
-	--extra-dir=$(GCANVAS_PREFIX)/share/gtk-doc/html/libgnomecanvas \
 	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer \
-	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer-libs \
-	--extra-dir=../bt-core \
-  --extra-dir=../bt-ic
+	--extra-dir=$(GST_PREFIX)/share/gtk-doc/html/gstreamer-libs
 
-# Used for dependencies.
-HFILE_GLOB=$(top_srcdir)/src/ui/edit/*.h
-CFILE_GLOB=$(top_srcdir)/src/ui/edit/*.c
+# Used for dependencies. The docs will be rebuilt if any of these change.
+HFILE_GLOB=$(top_srcdir)/src/lib/ic/libbtic/*.h
+CFILE_GLOB=$(top_srcdir)/src/lib/ic/*.c
 
 # Header files to ignore when scanning.
 IGNORE_HFILES=config.h
@@ -62,16 +58,11 @@ expand_content_files=
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
   -I$(top_srcdir)/src/lib/ic \
-	-I$(top_srcdir)/src/ui/edit \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
-	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
-	$(GUI_DEPS_LIBS) \
-	$(top_builddir)/src/lib/core/libbtcore.la \
-  $(top_builddir)/src/lib/ic/libbtic.la \
-	$(top_builddir)/src/ui/edit/libbtedit.la
+	$(top_builddir)/src/lib/ic/libbtic.la
 
 # include generic part
 include $(top_srcdir)/gtk-doc.make

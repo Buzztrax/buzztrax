@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.81 2007-03-02 13:17:13 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.82 2007-03-11 20:19:19 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -9,7 +9,7 @@
 # <SUBSECTION Private>
 # </SECTION>
 
-<INCLUDE>bt-core.h</INCLUDE>
+<INCLUDE>libbtcore/core.h</INCLUDE>
 
 <SECTION>
 <FILE>btapplication</FILE>
@@ -379,8 +379,8 @@ bt_song_pause
 bt_song_continue
 bt_song_update_playback_position
 bt_song_write_to_xml_file
-bt_song_write_to_highlevel_xml_file
-bt_song_write_to_lowlevel_xml_file
+bt_song_write_to_highlevel_dot_file
+bt_song_write_to_lowlevel_dot_file
 <SUBSECTION Standard>
 BT_SONG
 BT_IS_SONG
@@ -478,7 +478,7 @@ BtSourceMachinePrivate
 BtWave
 bt_wave_new
 bt_wave_add_wavelevel
-bt_wave_load_from_url
+bt_wave_load_from_uri
 <SUBSECTION Standard>
 BtWaveClass
 BT_WAVE
@@ -572,6 +572,7 @@ g_object_try_weak_unref
 bt_gst_registry_get_element_names_matching_all_categories
 bt_gst_check_elements
 bt_gst_check_core_elements
+bt_gst_element_factory_can_sink_media_type
 bt_g_type_get_base_type
 bt_cpu_load_get_current
 bt_init_get_option_group

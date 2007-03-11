@@ -1,4 +1,4 @@
-/* $Id: machine-menu.h,v 1.3 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: machine-menu.h,v 1.4 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,6 +40,7 @@ typedef struct _BtMachineMenuPrivate BtMachineMenuPrivate;
 
 /**
  * BtMachineMenu:
+ * @parent: parent type
  *
  * the machine selection sub-menu for the canvas page context menu
  */

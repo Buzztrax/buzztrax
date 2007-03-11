@@ -1,4 +1,4 @@
-/* $Id: gtkvumeter.c,v 1.13 2007-02-05 22:31:18 ensonic Exp $
+/* $Id: gtkvumeter.c,v 1.14 2007-03-11 20:19:20 ensonic Exp $
  *
  * GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
@@ -14,6 +14,13 @@
  *   - min,max,rms,peak : gint, read/write
  *   - peaks_falloff,scale_type : enum, read/write
  */
+/**
+ * SECTION:gtkvumeter
+ * @short_description: vu meter widget
+ *
+ * Shows a vertical or horizontal gauge with a colorized bar to signal volume
+ * level.
+ */ 
 
 #include <math.h>
 #include <gtk/gtk.h>

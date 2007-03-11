@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.h,v 1.9 2006-09-30 20:42:55 ensonic Exp $
+/* $Id: ui-ressources.h,v 1.10 2007-03-11 20:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,6 +54,11 @@ struct _BtUIRessourcesClass {
   GObjectClass parent; 
 };
 
+/**
+ * BtUIRessourcesColors:
+ *
+ * Symbolic color names for the UI. 
+ */
 typedef enum {
   BT_UI_RES_COLOR_CURSOR=0,
   BT_UI_RES_COLOR_SELECTION1,
@@ -80,6 +85,11 @@ typedef enum {
   BT_UI_RES_COLOR_COUNT
 } BtUIRessourcesColors;
 
+/**
+ * BtUIRessourcesMachineColors:
+ *
+ * Symbolic color names for machines. 
+ */
 typedef enum {
   BT_UI_RES_COLOR_MACHINE_BASE=0,     /* machine view normal */
   BT_UI_RES_COLOR_MACHINE_BRIGHT1,    /* list view odd */
