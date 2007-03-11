@@ -1,5 +1,10 @@
 2007-03-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-ic/tmpl/.cvsignore:
+	  add dummy
+
+2007-03-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/input-device.c: (btic_input_device_new),
 	(btic_input_device_get_property), (btic_input_device_set_property),
 	(btic_input_device_dispose), (btic_input_device_finalize),
