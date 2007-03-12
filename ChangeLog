@@ -1,3 +1,18 @@
+2007-03-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (bt_song_new):
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_set_property):
+	  typo fix, todo cmt and log level tuning
+	
+	* src/ui/edit/playback-controller-socket.c:
+	(client_connection_free), (client_cmd_parse_and_process),
+	(client_socket_io_handler), (master_socket_io_handler),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_init):
+	  fix unrefs, lower priority and work on the protocol
+
 2007-03-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-ic/tmpl/.cvsignore:

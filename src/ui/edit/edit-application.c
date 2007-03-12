@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.94 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: edit-application.c,v 1.95 2007-03-12 22:31:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -833,6 +833,7 @@ static void bt_edit_application_set_property(GObject      *object,
         GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
         g_object_unref(self->priv->song);
         // DEBUG - if new song is NULL, it should be empty now
+#if 0
         {
           gint num=GST_BIN_NUMCHILDREN(bin);
           GList *node=GST_BIN_CHILDREN(bin);
@@ -843,6 +844,7 @@ static void bt_edit_application_set_property(GObject      *object,
           }
           gst_object_unref(bin);
         }
+#endif
         // DEBUG
       }
 

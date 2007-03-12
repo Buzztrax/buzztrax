@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.3 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: registry.c,v 1.4 2007-03-12 22:31:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,6 +72,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
 
   for(n=0;cap[n];n++) {
     // midi devices seem to appear only as oss under hal?
+    // @todo: try alsa.sequencer
     if(!strcmp(cap[n],"alsa")) {
       parent_udi=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
       parent_udi=libhal_device_get_property_string(ctx,parent_udi,"info.parent",NULL);
@@ -86,7 +87,9 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
     else if(!strcmp(cap[n],"input.joystick")) {
       name=libhal_device_get_property_string(ctx,udi,"input.product",NULL);
 	  
-      GST_INFO("input device added: producs=%s", name);
+      GST_INFO("input device added: producs=%s, input.device=%s",
+        name,
+        libhal_device_get_property_string(ctx,udi,"input.device",NULL));
       // create device
 	  device=BTIC_DEVICE(btic_input_device_new(udi,name));
     }

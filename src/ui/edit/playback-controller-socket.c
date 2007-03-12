@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.7 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.8 2007-03-12 22:31:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,7 +68,8 @@ static void client_connection_free(BtPlaybackControllerSocket *self) {
     GError *error=NULL;
 
     g_source_remove(self->priv->client_source);
-    g_io_channel_unref(self->priv->client_channel);
+    // the above already unrefs
+    //g_io_channel_unref(self->priv->client_channel);
     g_io_channel_shutdown(self->priv->client_channel,TRUE,&error);
     if(error) {
       GST_WARNING("iochannel error while shutting down client: %s",error->message);
@@ -88,6 +89,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   BtSong *song;
  
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!song) return(NULL);
   
   if(!strcasecmp(cmd,"browse")) {
     BtSequence *sequence;
@@ -97,9 +99,12 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     gboolean no_labels=TRUE;
     
     g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
-    g_object_get(G_OBJECT(song_info),"name",&reply,NULL);
+    g_object_get(G_OBJECT(song_info),"name",&str,NULL);
     g_object_get(G_OBJECT(sequence),"length",&length,NULL);
     
+    reply=g_strconcat("playlist|",str,NULL);
+    g_free(str);
+        
     if(self->priv->playlist) {
       g_list_free(self->priv->playlist);
       self->priv->playlist=NULL;
@@ -127,11 +132,15 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     g_object_unref(song_info);
     g_object_unref(sequence);
   }
-  else if(!strcasecmp(cmd,"play")) {
-    bt_song_play(song);
+  else if(!strncasecmp(cmd,"play",4)) {
+    if(!bt_song_play(song)) {
+      GST_WARNING("failed to play");
+    }
   }
   else if(!strcasecmp(cmd,"stop")) {
-    bt_song_stop(song);
+    if(!bt_song_stop(song)) {
+      GST_WARNING("failed to stop");
+    }
   }
   else if(!strcasecmp(cmd,"status")) {
     BtSequence *sequence;
@@ -170,6 +179,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     
     g_free(label);
     g_object_unref(sequence);
+    //reply=g_strdup("event|stopped|start|0:00:00.000|0:00:00.000");
   }
   else if(!strncasecmp(cmd,"goto ",5)) {
     self->priv->cur_pos=0;
@@ -182,6 +192,9 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     
     // seek
     g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
+  }
+  else {
+    GST_WARNING("unknown command!");
   }
   
   g_object_unref(song);
@@ -268,6 +281,7 @@ static gboolean client_socket_io_handler(GIOChannel *channel,GIOCondition condit
     res=FALSE;
   }
   if(!res) {
+    GST_INFO("closing client connection");
     self->priv->master_source=-1;
   }
   return(res);
@@ -285,9 +299,13 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
     }
     else {
       self->priv->client_channel=g_io_channel_unix_new(self->priv->client_socket);
-      //g_io_channel_set_encoding(self->priv->client_channel,NULL,NULL);
-      //g_io_channel_set_buffered(self->priv->client_channel,FALSE);
-      self->priv->client_source=g_io_add_watch(self->priv->client_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,client_socket_io_handler,(gpointer)self);
+      //self->priv->client_source=g_io_add_watch(self->priv->client_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,client_socket_io_handler,(gpointer)self);
+      self->priv->client_source=g_io_add_watch_full(self->priv->client_channel,
+        G_PRIORITY_LOW,
+        G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,
+        client_socket_io_handler,
+        (gpointer)self,
+        NULL);
       GST_INFO("playback controller client connected");
     }
   }
@@ -417,7 +435,8 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   if(self->priv->master_channel) {
     if(self->priv->master_source>=0) {
       g_source_remove(self->priv->master_source);
-      g_io_channel_unref(self->priv->master_channel);
+      // the above already unrefs
+      //g_io_channel_unref(self->priv->master_channel);
       self->priv->master_source=-1;
     }
     g_io_channel_shutdown(self->priv->master_channel,TRUE,&error);
@@ -469,9 +488,13 @@ static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer
     goto listen_error;
   }
   self->priv->master_channel=g_io_channel_unix_new(self->priv->master_socket);
-  //g_io_channel_set_encoding(self->priv->master_channel,NULL,NULL);
-  //g_io_channel_set_buffered(self->priv->master_channel,FALSE);
-  self->priv->master_source=g_io_add_watch(self->priv->master_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,master_socket_io_handler,(gpointer)self);
+  //self->priv->master_source=g_io_add_watch(self->priv->master_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,master_socket_io_handler,(gpointer)self);
+  self->priv->master_source=g_io_add_watch_full(self->priv->master_channel,
+    G_PRIORITY_LOW,
+    G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,
+    master_socket_io_handler,
+    (gpointer)self,
+    NULL);
  
   GST_INFO("playback controller running");
   return;
