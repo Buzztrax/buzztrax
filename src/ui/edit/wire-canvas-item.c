@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.43 2007-03-04 22:04:03 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.44 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,15 +48,9 @@ struct _BtWireCanvasItemPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   /* the machine page we are on */
-  union {
-    BtMainPageMachines *main_page_machines;
-    gpointer main_page_machines_ptr;
-  };
+  G_POINTER_ALIAS(BtMainPageMachines *,main_page_machines);
 
   /* the underlying wire */
   BtWire *wire;

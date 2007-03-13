@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.82 2007-03-11 20:19:19 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.83 2007-03-13 22:38:11 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -564,6 +564,7 @@ safe_string
 return_if_disposed
 G_STRUCT_SIZE
 G_ABS_STRUCT_OFFSET
+G_POINTER_ALIAS
 XML_CHAR_PTR
 g_object_try_ref
 g_object_try_unref

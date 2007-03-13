@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.92 2007-01-22 21:00:57 ensonic Exp $
+/* $Id: pattern.c,v 1.93 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -58,10 +58,7 @@ struct _BtPatternPrivate {
   gboolean dispose_has_run;
   
   /* the song the pattern belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
 
   /* the id, we can use to lookup the pattern */
   gchar *id;
@@ -79,10 +76,7 @@ struct _BtPatternPrivate {
   /* the number of dynamic params the machine provides per instance and voice */
   gulong voice_params;
   /* the machine the pattern belongs to */
-  union {
-    BtMachine *machine;
-    gconstpointer machine_ptr;
-  };
+  G_POINTER_ALIAS(BtMachine *,machine);
 
   /* an array of GValues (not pointing to)
    * with the size of length*(internal_params+global_params+voices*voice_params)

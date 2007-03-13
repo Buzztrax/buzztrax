@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.128 2007-03-05 20:22:24 ensonic Exp $
+/* $Id: sequence.c,v 1.129 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,10 +54,7 @@ struct _BtSequencePrivate {
   gboolean dispose_has_run;
   
   /* the song the sequence belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
 
   /* the number of timeline entries */
   gulong length;

@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.64 2007-02-12 21:47:12 ensonic Exp $
+/* $Id: song-info.c,v 1.65 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -58,10 +58,7 @@ struct _BtSongInfoPrivate {
   gboolean dispose_has_run;
   
   /* the song the song-info belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
   
   /* the song-info as tag-data */
   GstTagList *taglist;

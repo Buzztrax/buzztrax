@@ -1,3 +1,44 @@
+2007-03-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/setup.c:
+	* src/lib/core/song-info.c:
+	* src/lib/core/song.c:
+	* src/lib/core/wave.c:
+	* src/lib/core/wavelevel.c:
+	* src/lib/core/wavetable.c:
+	* src/lib/core/wire.c:
+	* src/ui/edit/machine-canvas-item.c:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/settings-page-controldevices.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  New macro to handle anonymous unis in a nicer way.
+	  
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify),
+	(on_song_changed), (bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_finalize):
+	  Added volume set/get and optimize the status command a bit.
+	  
+
 2007-03-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (bt_song_new):

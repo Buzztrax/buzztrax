@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.27 2007-02-11 17:02:35 ensonic Exp $
+/* $Id: wavetable.c,v 1.28 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -51,10 +51,7 @@ struct _BtWavetablePrivate {
   gboolean dispose_has_run;
   
   /* the song the wavetable belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
   
   GList *waves;         // each entry points to a BtWave
   GList *missing_waves; // each entry points to a gchar*

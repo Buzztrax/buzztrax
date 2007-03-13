@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.65 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: main-menu.c,v 1.66 2007-03-13 22:38:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,10 +42,7 @@ struct _BtMainMenuPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* MenuItems */
   GtkWidget *save_item;

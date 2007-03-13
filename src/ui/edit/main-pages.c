@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.36 2007-02-01 16:05:31 ensonic Exp $
+/* $Id: main-pages.c,v 1.37 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,10 +48,7 @@ struct _BtMainPagesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* the machines tab */
   BtMainPageMachines *machines_page;

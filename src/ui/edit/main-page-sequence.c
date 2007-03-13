@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.157 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.158 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -56,10 +56,7 @@ struct _BtMainPageSequencePrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* bars selection menu */
   GtkComboBox *bars_menu;

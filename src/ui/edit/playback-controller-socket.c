@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.8 2007-03-12 22:31:38 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.9 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,14 +42,18 @@ struct _BtPlaybackControllerSocketPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* positions for each label */
   GList *playlist;
   gulong cur_pos;
+  
+  /* data for the status */
+  G_POINTER_ALIAS(BtSequence *,sequence);
+  G_POINTER_ALIAS(GstElement *,gain);
+  gboolean is_playing;
+  gchar *length_str;
+  gchar *cur_label;
   
   /* master */
   gint master_socket,master_source;
@@ -60,6 +64,8 @@ struct _BtPlaybackControllerSocketPrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+
+#define DEFAULT_LABEL "start"
 
 //-- helper methods
 
@@ -124,7 +130,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     }
     // if there are no labels, return the start
     if(no_labels) {
-      temp=g_strconcat(reply,"|start",NULL);
+      temp=g_strconcat(reply,"|"DEFAULT_LABEL,NULL);
       g_free(reply);
       reply=temp;
     }
@@ -132,7 +138,23 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     g_object_unref(song_info);
     g_object_unref(sequence);
   }
-  else if(!strncasecmp(cmd,"play",4)) {
+  else if(!strncasecmp(cmd,"play|",5)) {
+    self->priv->cur_pos=0;
+    g_free(self->priv->cur_label);
+    
+    // get playlst entry
+    if(cmd[5]) {
+      // get position for ix-th label
+      self->priv->cur_pos=GPOINTER_TO_INT(g_list_nth_data(self->priv->playlist,atoi(&cmd[5])));
+      self->priv->cur_label=bt_sequence_get_label(self->priv->sequence,self->priv->cur_pos);
+    }
+    else {
+      self->priv->cur_label=g_strdup(DEFAULT_LABEL);
+    }
+    
+    // seek
+    g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
+
     if(!bt_song_play(song)) {
       GST_WARNING("failed to play");
     }
@@ -143,58 +165,67 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     }
   }
   else if(!strcasecmp(cmd,"status")) {
-    BtSequence *sequence;
     gchar *state[]={"stopped","playing"};
-    gchar *label,*label_str;
-    gboolean is_playing;
-    gulong pos;
-    gulong p_msec,p_sec,p_min;
-    gulong l_msec,l_sec,l_min;
+    gulong pos,msec,sec,min;
     GstClockTime bar_time;
+    gdouble volume;
 
-    g_object_get(G_OBJECT(song),"sequence",&sequence,"is-playing",&is_playing,"play-pos",&pos,NULL);
-    bar_time=bt_sequence_get_bar_time(sequence);
+    g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
+    bar_time=bt_sequence_get_bar_time(self->priv->sequence);
   
     // calculate playtime
-    p_msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
-    p_min=(gulong)(p_msec/60000);p_msec-=(p_min*60000);
-    p_sec=(gulong)(p_msec/ 1000);p_msec-=(p_sec* 1000);
-
-    // calculate length
-    l_msec=(gulong)(bt_sequence_get_loop_time(sequence)/G_USEC_PER_SEC);
-    l_min=(gulong)(l_msec/60000);l_msec-=(l_min*60000);
-    l_sec=(gulong)(l_msec/ 1000);l_msec-=(l_sec* 1000);
+    msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+    min=(gulong)(msec/60000);msec-=(min*60000);
+    sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
     
-    // get label text
-    if((label=bt_sequence_get_label(sequence,self->priv->cur_pos))) {
-      label_str=label;
+    // get the current input_gain and adjust volume widget
+    g_object_get(self->priv->gain,"volume",&volume,NULL);
+
+    reply=g_strdup_printf("event|%s|%s|0:%02lu:%02lu.%03lu|%s|%u|off",
+      state[self->priv->is_playing],
+      self->priv->cur_label,
+      min,sec,msec,
+      self->priv->length_str,
+      (guint)(100.0*volume));
+    //reply=g_strdup("event|stopped|start|0:00:00.000|0:00:00.000|100|off");
+  }
+  else if(!strncasecmp(cmd,"set|",4)) {
+    gchar *subcmd=&cmd[4];
+
+    if(!strncasecmp(subcmd,"volume|",7)) {
+      if(subcmd[7] && self->priv->gain) {
+        gdouble volume;
+      
+        volume=((gdouble)atoi(&subcmd[7]))/100.0;
+        g_object_set(self->priv->gain,"volume",volume,NULL);
+      }
+    }
+    else if(!strncasecmp(subcmd,"mute|",5)) {
+      // we ignore this for now
     }
     else {
-      label_str="start";
+      GST_WARNING("unknown setting: %s",subcmd);
     }
-    
-    reply=g_strdup_printf("event|%s|%s|0:%02lu:%02lu.%03lu|0:%02lu:%02lu.%03lu",
-      state[is_playing],label_str,
-      p_min,p_sec,p_msec,l_min,l_sec,l_msec);
-    
-    g_free(label);
-    g_object_unref(sequence);
-    //reply=g_strdup("event|stopped|start|0:00:00.000|0:00:00.000");
   }
-  else if(!strncasecmp(cmd,"goto ",5)) {
-    self->priv->cur_pos=0;
+  else if(!strncasecmp(cmd,"get|",4)) {
+    gchar *subcmd=&cmd[4];
     
-    // get playlst entry
-    if(cmd[5]) {
-      // get position for ix-th label
-      self->priv->cur_pos=GPOINTER_TO_INT(g_list_nth_data(self->priv->playlist,atoi(&cmd[5])));
+    if(!strcasecmp(subcmd,"volume")) {
+      gdouble volume;
+      
+      g_object_get(self->priv->gain,"volume",&volume,NULL);
+      reply=g_strdup_printf("volume|%u",
+        (guint)(100.0*volume));
     }
-    
-    // seek
-    g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
+    else if(!strcasecmp(subcmd,"mute")) {
+      reply=g_strdup("mute|off");
+    }
+    else {
+      GST_WARNING("unknown setting: %s",subcmd);
+    }
   }
   else {
-    GST_WARNING("unknown command!");
+    GST_WARNING("unknown command: %s",cmd);
   }
   
   g_object_unref(song);
@@ -316,26 +347,19 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
   return(TRUE);
 }
 
-#if 0
 static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
-  gboolean is_playing;
 
   g_assert(user_data);
 
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  if(is_playing) {
-    client_write(self,"playing");
-  }
-  else {
-    client_write(self,"stopped");
-  }
+  g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
 }
-#endif
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   BtSong *song;
+  BtSinkMachine *master;
+  gulong msec,sec,min;
 
   g_assert(user_data);
 
@@ -346,10 +370,26 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   
   self->priv->cur_pos=0;
   client_write(self,"flush");
-#if 0
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
-#endif
+
+  g_object_try_weak_unref(self->priv->sequence);
+  g_object_get(G_OBJECT(song),"sequence",&self->priv->sequence,"master",&master,NULL);
+  g_object_try_weak_ref(self->priv->sequence);
+  g_object_unref(self->priv->sequence);
+
+  g_object_try_weak_unref(self->priv->gain);
+  g_object_get(G_OBJECT(master),"input-gain",&self->priv->gain,NULL);
+  g_object_try_weak_ref(self->priv->gain);
+  g_object_unref(self->priv->gain);
+  
+  // calculate length
+  g_free(self->priv->length_str);
+  msec=(gulong)(bt_sequence_get_loop_time(self->priv->sequence)/G_USEC_PER_SEC);
+  min=(gulong)(msec/60000);msec-=(min*60000);
+  sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
+  self->priv->length_str=g_strdup_printf("0:%02lu:%02lu.%03lu",min,sec,msec);
     
+  g_object_unref(master);
   g_object_unref(song);
 }
   
@@ -431,6 +471,8 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
+  g_object_try_weak_unref(self->priv->gain);
+  g_object_try_weak_unref(self->priv->sequence);
   
   if(self->priv->master_channel) {
     if(self->priv->master_source>=0) {
@@ -463,6 +505,9 @@ static void bt_playback_controller_socket_finalize(GObject *object) {
     g_list_free(self->priv->playlist);
     self->priv->playlist=NULL;
   }
+  
+  g_free(self->priv->length_str);
+  g_free(self->priv->cur_label);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }

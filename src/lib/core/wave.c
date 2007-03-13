@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.26 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: wave.c,v 1.27 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,10 +55,7 @@ struct _BtWavePrivate {
   gboolean dispose_has_run;
   
   /* the song the wave belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
 
   /* each wave has an index number, the list of waves can have empty slots */
   gulong index;  

@@ -1,4 +1,4 @@
-/* $Id: wavelevel.c,v 1.18 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: wavelevel.c,v 1.19 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,10 +47,7 @@ struct _BtWavelevelPrivate {
   gboolean dispose_has_run;
   
   /* the song the wavelevel belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
   
   /* the wave the wavelevel belongs to */
   const BtWave *wave;

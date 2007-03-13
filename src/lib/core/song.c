@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.169 2007-03-12 22:31:38 ensonic Exp $
+/* $Id: song.c,v 1.170 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -76,17 +76,11 @@ struct _BtSongPrivate {
   gboolean is_playing,is_idle,is_preparing;
 
   /* the application that currently uses the song */
-  union {
-    BtApplication *app;
-    gconstpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtApplication *,app);
   /* the main gstreamer container element */
   GstBin *bin;
   /* the element that has the clock */
-  union {
-    BtSinkMachine *master;
-    gconstpointer master_ptr;
-  };
+  G_POINTER_ALIAS(BtSinkMachine *,master);
   
   /* the query is used in update_playback_position */
   GstQuery *position_query;

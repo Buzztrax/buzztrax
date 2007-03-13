@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.113 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.114 2007-03-13 22:38:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -57,10 +57,7 @@ struct _BtMainPagePatternsPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* machine selection menu */
   GtkComboBox *machine_menu;

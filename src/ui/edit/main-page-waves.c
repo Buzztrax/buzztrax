@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.44 2007-02-27 22:07:48 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.45 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,10 +44,7 @@ struct _BtMainPageWavesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* the toolbar widgets */
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;

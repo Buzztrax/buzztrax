@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.235 2007-03-04 22:04:02 ensonic Exp $
+/* $Id: machine.c,v 1.236 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -140,10 +140,7 @@ struct _BtMachinePrivate {
   GHashTable *properties;
   
   /* the song the machine belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
   /* the main gstreamer container element */
   GstBin *bin;
 

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.100 2007-03-05 20:22:24 ensonic Exp $
+/* $Id: wire.c,v 1.101 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -75,10 +75,7 @@ struct _BtWirePrivate {
   gboolean dispose_has_run;
   
   /* the song the wire belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
 
   /* the main gstreamer container element */
   GstBin *bin;

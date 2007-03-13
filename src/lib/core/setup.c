@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.107 2007-03-04 22:04:02 ensonic Exp $
+/* $Id: setup.c,v 1.108 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,10 +60,7 @@ struct _BtSetupPrivate {
   gboolean dispose_has_run;
   
   /* the song the setup belongs to */
-  union {
-    BtSong *song;
-    gconstpointer song_ptr;
-  };
+  G_POINTER_ALIAS(BtSong *,song);
   
   GList *machines;         // each entry points to BtMachine
   GList *wires;            // each entry points to BtWire

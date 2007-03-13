@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.32 2007-03-05 20:22:24 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.33 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,10 +52,7 @@ struct _BtSettingsDialogPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* the list of settings pages */
   GtkTreeView *settings_list;

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.80 2007-03-04 22:04:02 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.81 2007-03-13 22:38:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -63,15 +63,9 @@ struct _BtMachineCanvasItemPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   /* the machine page we are on */
-  union {
-    BtMainPageMachines *main_page_machines;
-    gpointer main_page_machines_ptr;
-  };
+  G_POINTER_ALIAS(BtMainPageMachines *,main_page_machines);
 
   /* the underlying machine */
   BtMachine *machine;

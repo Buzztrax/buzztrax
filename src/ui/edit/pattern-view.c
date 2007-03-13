@@ -1,4 +1,4 @@
-/* $Id: pattern-view.c,v 1.6 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: pattern-view.c,v 1.7 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,10 +44,7 @@ struct _BtPatternViewPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;

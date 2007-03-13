@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.106 2007-03-09 19:39:19 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.107 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,20 +48,14 @@ struct _BtMainToolbarPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
   
   /* the volume gain */
   GtkScale *volume;
-  union {
-    GstElement *gain;
-    gpointer gain_ptr;
-  };
+  G_POINTER_ALIAS(GstElement *,gain);
 
   /* action buttons */
   GtkWidget *save_button;
@@ -444,7 +438,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     g_signal_connect(G_OBJECT(self->priv->volume),"value_changed",G_CALLBACK(on_song_volume_slider_change),(gpointer)self);
     g_signal_connect(G_OBJECT(self->priv->gain) ,"notify::volume",G_CALLBACK(on_song_volume_changed),(gpointer)self);
 
-    g_object_unref(self->priv->gain);
+    gst_object_unref(self->priv->gain);
     g_object_unref(master);
   }
   else {

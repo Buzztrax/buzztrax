@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.53 2007-02-27 22:07:48 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.54 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,10 +42,7 @@ struct _BtMainStatusbarPrivate {
   gboolean dispose_has_run;
 
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* main status bar */
   GtkStatusbar *status;

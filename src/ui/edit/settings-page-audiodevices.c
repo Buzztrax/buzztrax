@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.27 2007-02-11 17:02:36 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.28 2007-03-13 22:38:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -37,10 +37,7 @@ struct _BtSettingsPageAudiodevicesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   GtkComboBox *audiosink_menu;
   GList *audiosink_names;

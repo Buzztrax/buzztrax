@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.101 2007-03-04 22:04:02 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.102 2007-03-13 22:38:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -38,10 +38,7 @@ struct _BtMainPageMachinesPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* the toolbar widget */
   GtkWidget *toolbar;

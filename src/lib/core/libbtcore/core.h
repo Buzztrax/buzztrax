@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.85 2007-03-11 20:19:19 ensonic Exp $
+/* $Id: core.h,v 1.86 2007-03-13 22:38:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -249,7 +249,6 @@
  */
 #define g_object_try_unref(obj) if(obj) g_object_unref(obj)
 
-
 /*
 GCC 4.1 introduced this crazy warning that complains about casting between
 different pointer types. The question is why this includes void* ?
@@ -292,6 +291,20 @@ Sadly they don't gave tips how they belive to get rid of the warning.
     g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&bt_type_pun_to_gpointer(obj)); \
   }
 */
+
+/**
+ * G_POINTER_ALIAS:
+ * @type: the type
+ * @var: the variable name
+ *
+ * Defines a anonymous union to handle gcc-4.1s type punning warning that one
+ * gets when using e.g. g_object_try_weak_ref() 
+ */
+#define G_POINTER_ALIAS(type,var) \
+union { \
+  type var; \
+  gconstpointer var##_ptr; \
+}
 
 /*
 @idea g_alloca_printf

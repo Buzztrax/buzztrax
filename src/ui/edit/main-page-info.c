@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.48 2007-02-27 22:07:47 ensonic Exp $
+/* $Id: main-page-info.c,v 1.49 2007-03-13 22:38:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,10 +45,7 @@ struct _BtMainPageInfoPrivate {
   gboolean dispose_has_run;
   
   /* the application */
-  union {
-    BtEditApplication *app;
-    gpointer app_ptr;
-  };
+  G_POINTER_ALIAS(BtEditApplication *,app);
   
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;
