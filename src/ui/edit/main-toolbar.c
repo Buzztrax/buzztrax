@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.107 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.108 2007-03-14 22:51:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -341,7 +341,6 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
   g_signal_handlers_unblock_matched(self->priv->gain,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_volume_slider_change,(gpointer)self);
 }
 
-
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
   GstCaps *caps;
   
@@ -380,6 +379,17 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   gtk_widget_set_sensitive(self->priv->save_button,unsaved);
 }
 
+static void on_sequence_loop_notify(const BtSequence *sequence,GParamSpec *arg,gpointer user_data) {
+  BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
+  gboolean loop;
+
+  g_assert(user_data);
+  
+  g_object_get(G_OBJECT(sequence),"loop",&loop,NULL);
+  g_signal_handlers_block_matched(self->priv->loop_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_loop_toggled,(gpointer)self);
+  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->loop_button),loop);
+  g_signal_handlers_unblock_matched(self->priv->loop_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_loop_toggled,(gpointer)self);
+}
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
@@ -388,7 +398,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   BtSinkMachine *master;
   GstBin *bin;
   GstElement *level;
-  gboolean loop;
+  //gboolean loop;
 
   g_assert(user_data);
 
@@ -399,8 +409,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   if(!song) return;
 
   g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,"bin", &bin,NULL);
-  g_object_get(sequence,"loop",&loop,NULL);
-  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->loop_button),loop);
   
   if(master) {
     GstPad *pad;
@@ -445,7 +453,9 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     GST_WARNING("failed to get the master element of the song");
   }
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
-  on_song_unsaved_changed(song,NULL,self);
+  on_sequence_loop_notify(sequence,NULL,(gpointer)self);
+  g_signal_connect(G_OBJECT(sequence),"notify::loop",G_CALLBACK(on_sequence_loop_notify),(gpointer)self);
+  on_song_unsaved_changed(song,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(song), "notify::unsaved", G_CALLBACK(on_song_unsaved_changed), (gpointer)self);
   //-- release the references
   gst_object_unref(bin);

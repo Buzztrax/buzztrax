@@ -32,19 +32,28 @@
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
-          <pattern id="beep1::C-3_E-3_G-3" machine="beep1" name="C-3_E-3_G-3" length="16">
+          <pattern id="beep1::C-3" machine="beep1" name="C-3" length="32">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
-              <globaldata name="decay" value="0.25"/>
+              <globaldata name="decay" value="0.20"/>
               <globaldata name="wave" value="3"/>
             </tick>
-            <tick time="8">
-              <globaldata name="note" value="e-3"/>
-            </tick>
-            <tick time="12">
-              <globaldata name="note" value="g-3"/>
-            </tick>
+            <tick time="2"><globaldata name="note" value="c-4"/></tick>
+            <tick time="4"><globaldata name="note" value="c-3"/></tick>
+            <tick time="6"><globaldata name="note" value="a#3"/></tick>
+            <tick time="8"><globaldata name="note" value="c-3"/></tick>
+            <tick time="10"><globaldata name="note" value="g#3"/></tick>
+            <tick time="12"><globaldata name="note" value="c-3"/></tick>
+            <tick time="14"><globaldata name="note" value="g-3"/></tick>
+            <tick time="16"><globaldata name="note" value="c-3"/></tick>
+            <tick time="18"><globaldata name="note" value="f-3"/></tick>
+            <tick time="20"><globaldata name="note" value="c-3"/></tick>
+            <tick time="22"><globaldata name="note" value="g-3"/></tick>
+            <tick time="24"><globaldata name="note" value="c-3"/></tick>
+            <tick time="26"><globaldata name="note" value="g#3"/></tick>
+            <tick time="28"><globaldata name="note" value="c-3"/></tick>
+            <tick time="30"><globaldata name="note" value="a#3"/></tick>
           </pattern>
         </patterns>
       </machine>
@@ -57,12 +66,13 @@
         <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep2::C-1" machine="beep2" name="C-1" length="16">
-            <tick time="0">
+            <tick time="4">
               <globaldata name="note" value="c-1"/>
               <globaldata name="volume" value="0.5"/>
               <globaldata name="decay" value="1.0"/>
               <globaldata name="wave" value="2"/>
             </tick>
+            <tick time="12"><globaldata name="note" value="c-1"/></tick>
           </pattern>
         </patterns>
       </machine>
@@ -111,8 +121,8 @@
     </labels>
     <tracks>
       <track index="0" machine="beep1">
-        <position time="0" pattern="beep1::C-3_E-3_G-3"/>
-        <position time="32" pattern="beep1::C-3_E-3_G-3"/>
+        <position time="0" pattern="beep1::C-3"/>
+        <position time="32" pattern="beep1::C-3"/>
       </track>
       <track index="1" machine="beep2">
         <position time="0" pattern="beep2::C-1"/>

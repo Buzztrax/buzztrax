@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.5 2007-03-11 20:19:20 ensonic Exp $
+## $Id: Makefile.am,v 1.6 2007-03-14 22:51:35 ensonic Exp $
 
 SUBDIRS = . libbtic
 
@@ -8,10 +8,11 @@ libbtic_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtic_la_SOURCES = \
 	ic.c libbtcore/ic.h \
 	libbtic/version.h \
-  \
-  device.c libbtic/device.h libbtic/device-methods.h \
-  input-device.c libbtic/input-device.h libbtic/input-device-methods.h \
-  registry.c libbtic/registry.h libbtic/registry-methods.h
+	\
+	device.c libbtic/device.h libbtic/device-methods.h \
+	input-device.c libbtic/input-device.h libbtic/input-device-methods.h \
+	midi-device.c libbtic/midi-device.h libbtic/midi-device-methods.h \
+	registry.c libbtic/registry.h libbtic/registry-methods.h
 
 INCLUDES = \
   -I$(top_srcdir)/src/lib/core \

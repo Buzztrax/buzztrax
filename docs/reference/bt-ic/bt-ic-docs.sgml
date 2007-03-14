@@ -1,10 +1,11 @@
 <?xml version="1.0"?>
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN" 
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
 <!ENTITY BtIcDevice SYSTEM "xml/bticdevice.xml">
 <!ENTITY BtIcInputDevice SYSTEM "xml/bticinputdevice.xml">
+<!ENTITY BtIcMidiDevice SYSTEM "xml/bticmididevice.xml">
 <!ENTITY BtIcRegistry SYSTEM "xml/bticregistry.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
@@ -21,6 +22,7 @@
     </para>
     &BtIcDevice;
     &BtIcInputDevice;
+    &BtIcMidiDevice;
     &BtIcRegistry;
   </chapter>
 

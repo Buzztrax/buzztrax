@@ -1,4 +1,4 @@
-/* $Id: input-device-methods.h,v 1.2 2007-03-14 22:51:36 ensonic Exp $
+/* $Id: midi-device-methods.h,v 1.1 2007-03-14 22:51:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,11 +19,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BTIC_INPUT_DEVICE_METHODS_H
-#define BTIC_INPUT_DEVICE_METHODS_H
+#ifndef BTIC_MIDI_DEVICE_METHODS_H
+#define BTIC_MIDI_DEVICE_METHODS_H
 
-#include "input-device.h"
+#include "midi-device.h"
 
-extern BtIcInputDevice *btic_input_device_new(const gchar *udi,const gchar *name,const gchar *devnode);
+extern BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name);
 
-#endif // BTIC_INPUT_DEVICE_METHDOS_H
+#endif // BTIC_MIDI_DEVICE_METHDOS_H

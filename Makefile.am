@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.64 2007-03-05 20:22:24 ensonic Exp $
+## $Id: Makefile.am,v 1.65 2007-03-14 22:51:32 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -19,6 +19,7 @@ songdata_DATA = \
 	tests/songs/buzz8.xml \
 	tests/songs/buzz9.xml \
 	tests/songs/combi1.xml \
+    tests/songs/combi2.xml \
 	tests/songs/example.xml \
 	tests/songs/melo1.xml \
 	tests/songs/melo2.xml \
@@ -89,7 +90,7 @@ DISTCLEANFILES = \
 
 clean-local:
 	rm -f po/.intltool-merge-cache
-  
+
 gtk_update_icon_cache = gtk-update-icon-cache -f -t $(datadir)/icons/hicolor
 install-data-hook: update-icon-cache
 uninstall-hook: update-icon-cache

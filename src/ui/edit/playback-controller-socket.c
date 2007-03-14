@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.9 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.10 2007-03-14 22:51:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -166,12 +166,15 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   }
   else if(!strcasecmp(cmd,"status")) {
     gchar *state[]={"stopped","playing"};
+    gchar *mode[]={"on","off"};
     gulong pos,msec,sec,min;
     GstClockTime bar_time;
     gdouble volume;
+    gboolean loop;
 
     g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
     bar_time=bt_sequence_get_bar_time(self->priv->sequence);
+    g_object_get(G_OBJECT(self->priv->sequence),"loop",&loop,NULL);
   
     // calculate playtime
     msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
@@ -181,13 +184,14 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     // get the current input_gain and adjust volume widget
     g_object_get(self->priv->gain,"volume",&volume,NULL);
 
-    reply=g_strdup_printf("event|%s|%s|0:%02lu:%02lu.%03lu|%s|%u|off",
+    reply=g_strdup_printf("event|%s|%s|0:%02lu:%02lu.%03lu|%s|%u|off|%s",
       state[self->priv->is_playing],
       self->priv->cur_label,
       min,sec,msec,
       self->priv->length_str,
-      (guint)(100.0*volume));
-    //reply=g_strdup("event|stopped|start|0:00:00.000|0:00:00.000|100|off");
+      (guint)(100.0*volume),
+      mode[loop]);
+    //reply=g_strdup("event|stopped|start|0:00:00.000|0:00:00.000|100|off|off");
   }
   else if(!strncasecmp(cmd,"set|",4)) {
     gchar *subcmd=&cmd[4];
@@ -202,6 +206,14 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     }
     else if(!strncasecmp(subcmd,"mute|",5)) {
       // we ignore this for now
+    }
+    else if(!strncasecmp(subcmd,"repeat|",7)) {
+      if(!strcasecmp(&subcmd[7],"on")) {
+        g_object_set(G_OBJECT(self->priv->sequence),"loop",TRUE,NULL);
+      }
+      else if(!strcasecmp(&subcmd[7],"off")) {
+        g_object_set(G_OBJECT(self->priv->sequence),"loop",FALSE,NULL);
+      }
     }
     else {
       GST_WARNING("unknown setting: %s",subcmd);
@@ -219,6 +231,13 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     }
     else if(!strcasecmp(subcmd,"mute")) {
       reply=g_strdup("mute|off");
+    }
+    else if(!strcasecmp(subcmd,"repeat")) {
+      gboolean loop;
+      gchar *mode[]={"on","off"};
+      
+      g_object_get(G_OBJECT(self->priv->sequence),"loop",&loop,NULL);
+      reply=g_strdup_printf("repeat|%s",mode[loop]);
     }
     else {
       GST_WARNING("unknown setting: %s",subcmd);

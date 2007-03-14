@@ -1,3 +1,63 @@
+2007-03-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	  add new class to docs
+
+	* src/lib/core/sequence.c: (bt_sequence_init_data),
+	(bt_sequence_resize_data_length), (bt_sequence_resize_data_tracks),
+	(bt_sequence_get_track_by_machine),
+	(bt_sequence_limit_play_pos_internal),
+	(bt_sequence_get_number_of_pattern_uses),
+	(bt_sequence_test_pattern), (bt_sequence_invalidate_voice_param),
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_repair_voice_damage_entry),
+	(bt_sequence_repair_damage),
+	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_on_pattern_voice_param_changed), (bt_sequence_new),
+	(bt_sequence_get_machine), (bt_sequence_add_track),
+	(bt_sequence_remove_track_by_ix),
+	(bt_sequence_remove_track_by_machine), (bt_sequence_get_label),
+	(bt_sequence_set_label), (bt_sequence_get_pattern),
+	(bt_sequence_set_pattern), (bt_sequence_get_bar_time),
+	(bt_sequence_persistence_save), (bt_sequence_persistence_load),
+	(bt_sequence_persistence_interface_init),
+	(bt_sequence_set_property), (bt_sequence_init),
+	(bt_sequence_class_init):
+	  formatting
+
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/input-device.c: (btic_input_device_new),
+	(btic_input_device_get_property), (btic_input_device_set_property),
+	(btic_input_device_dispose), (btic_input_device_finalize),
+	(btic_input_device_init), (btic_input_device_class_init):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/input-device-methods.h:
+	* src/lib/ic/libbtic/midi-device-methods.h:
+	* src/lib/ic/libbtic/midi-device.h:
+	* src/lib/ic/midi-device.c: (btic_midi_device_new),
+	(btic_midi_device_get_property), (btic_midi_device_set_property),
+	(btic_midi_device_dispose), (btic_midi_device_finalize),
+	(btic_midi_device_init), (btic_midi_device_class_init),
+	(btic_midi_device_get_type):
+	* src/lib/ic/registry.c: (on_device_added), (btic_registry_init):
+	  add midi device class, add device-node for input-device
+	
+	* src/ui/edit/main-toolbar.c: (on_sequence_loop_notify),
+	(on_song_changed):
+	  refactor listening to loop changes
+	
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process):
+	  add repeat commands
+
+	* tests/songs/combi1.xml:
+	* tests/songs/combi2.xml:
+	  add new test song and fix previous
+
 2007-03-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:
@@ -31,13 +91,13 @@
 	* src/ui/edit/settings-page-controldevices.c:
 	* src/ui/edit/wire-canvas-item.c:
 	  New macro to handle anonymous unis in a nicer way.
-	  
+
 	* src/ui/edit/playback-controller-socket.c:
 	(client_cmd_parse_and_process), (on_song_is_playing_notify),
 	(on_song_changed), (bt_playback_controller_socket_dispose),
 	(bt_playback_controller_socket_finalize):
 	  Added volume set/get and optimize the status command a bit.
-	  
+
 
 2007-03-13  Stefan Kost  <ensonic@users.sf.net>
 
@@ -46,7 +106,7 @@
 	* src/ui/edit/edit-application.c:
 	(bt_edit_application_set_property):
 	  typo fix, todo cmt and log level tuning
-	
+
 	* src/ui/edit/playback-controller-socket.c:
 	(client_connection_free), (client_cmd_parse_and_process),
 	(client_socket_io_handler), (master_socket_io_handler),
@@ -136,7 +196,7 @@
 	* docs/reference/bt-edit/Makefile.am:
 	* tests/Makefile.am:
 	  build fixes for new lib
-	
+
 	* src/lib/ic/Makefile.am:
 	* src/lib/ic/device.c: (btic_device_new),
 	(btic_device_get_property), (btic_device_set_property),
@@ -592,7 +652,7 @@
 	  implement fake treeview header to make embedded widgets work, fill
 	  label-menu and make it work, add editing of labels, remove previous
 	  treeview widget hacks and checks for patch
-	  
+
 	* src/ui/edit/main-page-waves.c: (on_browser_toolbar_play_clicked),
 	(on_browser_toolbar_stop_clicked), (on_playbin_state_changed),
 	(bt_main_page_waves_init_ui), (bt_main_page_waves_new),
@@ -610,7 +670,7 @@
 	* src/lib/core/tools.c: (bt_gst_registry_class_filter),
 	(bt_gst_registry_get_element_names_matching_all_categories):
 	  fix filter to treat klass as a list of categories
-	
+
 	* src/ui/edit/machine-menu.c: (bt_machine_menu_init_submenu):
 	* src/ui/edit/main-page-sequence.c: (on_header_parent_event),
 	(on_header_realize), (sequence_table_init),
@@ -700,7 +760,7 @@
 
 	* tests/bt-cmd-info.sh:
 	  remove a trailing ^
-	
+
 
 2007-01-26  Stefan Kost  <ensonic@users.sf.net>
 
@@ -820,7 +880,7 @@
 	(on_preset_list_motion_notify), (on_preset_list_selection_changed),
 	(bt_machine_properties_dialog_init_preset_box):
 	  added comment metadata stuff and treeview tooltips (not perfect yet)
-	  
+
 	* tests/bt-check.c: (check_make_widget_screenshot):
 	  make sure it draws before capturing
 
@@ -899,7 +959,7 @@
 
 	* NEWSLETTER:
 	  january news
-	
+
 	* po/POTFILES.in:
 	* src/lib/core/machine.c: (bt_machine_get_param_min_value),
 	(bt_machine_get_param_max_value):
@@ -934,12 +994,12 @@
 	(bt_machine_properties_dialog_init_preset_box),
 	(bt_machine_properties_dialog_init_ui):
 	  factor out preset property dialog, add float support
-	
+
 	* src/ui/edit/main-page-patterns.c:
 	(on_context_menu_pattern_new_activate),
 	(on_context_menu_pattern_remove_activate):
 	  set transient window
-	
+
 	* src/ui/edit/pattern-properties-dialog.c:
 	(bt_pattern_properties_dialog_init_ui):
 	* tests/m-bt-edit.c: (main):
@@ -973,7 +1033,7 @@
 	* tests/bt-cmd-encode.sh:
 	* tests/bt-cmd-info.sh:
 	  remove log before testrun
-	
+
 	* tests/lib/core/t-song-io.c: (BT_START_TEST):
 	  comment a failing test
 
@@ -1061,18 +1121,18 @@
 	* src/lib/core/machine.c: (bt_machine_setup),
 	(bt_machine_has_patterns):
 	  add _has_patterns method
-	
+
 	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
 	  fix detect for saving
-	
+
 	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
 	(bt_song_update_play_seek_event), (bt_song_send_tags):
 	  add note about loop playback
-	
+
 	* src/ui/cmd/cmd-application.c:
 	(bt_cmd_application_prepare_encoding):
 	  set extension to ogg in the default case
-	
+
 	* src/ui/edit/machine-preferences-dialog.c:
 	(bt_machine_preferences_dialog_init_ui):
 	* src/ui/edit/machine-properties-dialog.c: (make_int_range_widget),
@@ -1103,7 +1163,7 @@
 	* src/lib/core/song-io.c: (bt_song_io_default_load),
 	(bt_song_io_default_save), (bt_song_io_class_init):
 	  rename _real_ to _default_
-	
+
 	* src/ui/edit/machine-canvas-item.c:
 	(bt_machine_canvas_item_realize):
 	  try to fix title-positioning and clipping
@@ -1195,7 +1255,7 @@
 	* src/ui/edit/machine-properties-dialog.c:
 	(bt_machine_properties_dialog_init_ui):
 	  workaround for slider value -> dialog size wobble
-	
+
 
 2006-11-30  Stefan Kost  <ensonic@users.sf.net>
 
@@ -1517,7 +1577,7 @@
 	(bt_song_on_loop_changed), (bt_song_on_loop_start_changed),
 	(bt_song_on_loop_end_changed), (bt_song_on_length_changed),
 	(bt_song_new):
-	  always flush when looping   
+	  always flush when looping
 
 2006-09-16  Stefan Kost  <ensonic@users.sf.net>
 
@@ -2124,7 +2184,7 @@
 2006-08-28  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c: (on_song_changed):
-	set dynamic list-length and step-filter to song-length at song change. 
+	set dynamic list-length and step-filter to song-length at song change.
 
 2006-08-28  Patric Schmitz  <berzerka@users.sf.net>
 
@@ -2770,7 +2830,7 @@
 	* Makefile.am:
 	* tests/songs/combi1.xml:
           new test song
-          
+
 	* NEWS:
           news published (reset list)
 
@@ -2858,7 +2918,7 @@
 	* docs/reference/bt-core/tmpl/.dummy.sgml:
         * docs/reference/bt-cmd/tmpl/.dummy.sgml:
         * docs/reference/bt-edit/tmpl/.dummy.sgml:
-	  added for gt-doc which should fix the problem 
+	  added for gt-doc which should fix the problem
 	  of rerunning the gtk-doc tool again and again
 
 2006-07-30  Stefan Kost  <ensonic@users.sf.net>
@@ -3154,12 +3214,12 @@
 	* src/lib/core/libbtcore/persistence-methods.h:
 	* src/lib/core/persistence.c: (bt_persistence_strfmt_double):
 	add double formatting helper
-	
+
 	* src/lib/core/wire.c: (bt_wire_change_gain),
 	(bt_wire_link_machines), (bt_wire_persistence_save),
 	(bt_wire_persistence_load), (bt_wire_set_property):
 	persistence of wire->gain
-	
+
 	* src/ui/edit/main-page-machines.c:
 	(bt_main_page_machines_draw_grid),
 	(bt_main_page_machines_add_wire),
@@ -3172,7 +3232,7 @@
 	(bt_main_page_machines_init_ui),
 	(bt_main_page_machines_wire_volume_popup):
 	rename methods (add missing 's')
-	
+
 	* src/ui/edit/main-page-sequence.c: (on_header_size_allocate):
 	* src/ui/edit/volume-popup.c: (cb_dock_press),
 	(bt_volume_popup_new):
@@ -3180,7 +3240,7 @@
 	* src/ui/edit/wire-analysis-dialog.c:
 	(bt_wire_analysis_dialog_init_ui):
 	try harder to get event fallthrough work to no avail
-	
+
 	* tests/bt-cmd-encode.sh:
 	remove obsolete '^'
 
@@ -3212,7 +3272,7 @@
 	* docs/reference/bt-edit/bt-edit-docs.sgml:
 	* docs/reference/bt-edit/bt-edit-sections.txt:
 	update docs
-	
+
 	* src/lib/core/libbtcore/core.h:
 	* src/lib/core/wire.c: (bt_wire_make_internal_element),
 	(bt_wire_link_machines), (bt_wire_unlink_machines),
@@ -3320,7 +3380,7 @@
 	(bt_pattern_set_voice_event):
 	* src/lib/core/sequence.c:
 	(bt_sequence_on_pattern_global_param_changed),
-	(bt_sequence_on_pattern_voice_param_changed):	
+	(bt_sequence_on_pattern_voice_param_changed):
 	* src/ui/edit/main-page-patterns.c:
 	(on_pattern_table_key_release_event),
 	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
@@ -3329,7 +3389,7 @@
 	(sequence_table_refresh), (on_sequence_table_key_release_event),
 	(bt_main_page_sequence_class_init):
 	Add basic pattern editing
-	
+
 	* tests/bt-cmd-info.sh:
 	* tests/songs/.cvsignore:
 	* tests/songs/melo2.xml:
@@ -3359,13 +3419,13 @@
 	* src/lib/core/sink-machine.c: (bt_sink_machine_post_init),
 	(bt_sink_machine_new), (bt_sink_machine_persistence_load):
 	Fix master-element creation when loading songs
-	
+
 	* src/ui/edit/main-page-sequence.c: (sequence_table_refresh):
 	moove treeview header experiments
-	
+
 	* src/ui/edit/main-window.c: (on_window_configure_event):
-	Pass on configure event 
-	
+	Pass on configure event
+
 	* tests/songs/melo1.xml:
 	* tests/songs/melo2.xml:
 	* tests/songs/melo3.xml:
@@ -3540,7 +3600,7 @@
 	* tests/songs/melo4.xml:
 	  new test-songs, mute uses volume element, M/S/B Buttons in sequence
 	  view, playline in pattern view, tests reactivated
-	  
+
 
 2006-03-29  Stefan Kost  <ensonic@users.sf.net>
 
@@ -11474,7 +11534,7 @@
 	src/lib/core/song-io.c, src/lib/core/song.c,
 	src/lib/core/source-machine.c, src/lib/core/wire.c,
 	src/ui/cmd/bt-cmd.c, src/ui/cmd/network1.c, src/ui/cmd/network2.c:
-	short descriptions for all sections 
+	short descriptions for all sections
 	now the object hierarchy works
 	now gtk-doc nows that we use gobject
 
@@ -11572,7 +11632,7 @@
 	src/lib/core/libbtcore/song-io-native.h,
 	src/lib/core/libbtcore/version.h,
 	src/lib/core/libbtcore/wire-methods.h, tests/lib/core/core.h:
-	derived machine class 
+	derived machine class
 	wire connect methods
 
 2004-05-07 17:16  Stefan Kost <ensonic@users.sf.net>
@@ -11582,7 +11642,7 @@
 	src/lib/core/setup.c, src/lib/core/song-info.c,
 	src/lib/core/song-io-native.c, src/lib/core/song.c,
 	src/lib/core/wire.c, src/lib/core/libbtcore/setup-methods.h:
-	now all 4 section of the xml are handled basically 
+	now all 4 section of the xml are handled basically
 	started to parse setup section
 
 2004-05-07 13:46  Stefan Kost <ensonic@users.sf.net>
