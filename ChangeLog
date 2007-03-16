@@ -1,3 +1,22 @@
+2007-03-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* pixmaps/tab_info.png:
+	* pixmaps/tab_machines.png:
+	* pixmaps/tab_patterns.png:
+	* pixmaps/tab_sequence.png:
+	* pixmaps/tab_waves.png:
+	  New icons - thanks jimmac
+
+	* src/ui/edit/bt-edit.c: (main):
+	  Remove popt left-over
+
+	* src/ui/edit/main-menu.c: (bt_main_menu_init_ui):
+	  Remove 'go to' from view menu.
+
+	* src/ui/edit/main-toolbar.c: (on_song_error), (on_song_warning),
+	(on_song_changed), (bt_main_toolbar_dispose):
+	  Add separate handler for warnings.
+
 2007-03-15  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

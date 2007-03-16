@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.66 2007-03-13 22:38:12 ensonic Exp $
+/* $Id: main-menu.c,v 1.67 2007-03-16 12:37:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -534,31 +534,31 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_sensitive(subitem,FALSE);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to machine view"));
-  gtk_widget_set_name(subitem,_("Go to machine view"));
+  gtk_widget_set_name(subitem,_("Machine view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_machines.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_machine_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to pattern view"));
-  gtk_widget_set_name(subitem,_("Go to pattern view"));
+  gtk_widget_set_name(subitem,_("Pattern view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_patterns.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_pattern_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to sequence view"));
-  gtk_widget_set_name(subitem,_("Go to sequence view"));
+  gtk_widget_set_name(subitem,_("Sequence view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_sequence.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_sequence_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to wave table view"));
-  gtk_widget_set_name(subitem,_("Go to wave table view"));
+  gtk_widget_set_name(subitem,_("Wave table view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_waves.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_waves_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to song information"));
-  gtk_widget_set_name(subitem,_("Go to song information"));
+  gtk_widget_set_name(subitem,_("Song information"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_info.png"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_info_view_activate),(gpointer)self);

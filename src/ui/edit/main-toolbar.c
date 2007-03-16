@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.108 2007-03-14 22:51:36 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.109 2007-03-16 12:37:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -249,15 +249,41 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   GError *err = NULL;
   gchar *dbg = NULL;
 
-  GST_INFO("received Error bus message");
+  GST_INFO("received %s bus message",GST_MESSAGE_TYPE_NAME(message));
+
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
   bt_song_stop(song);
 
-  gst_message_parse_error (message, &err, &dbg);
+  gst_message_parse_error(message, &err, &dbg);
   // @todo: check domain and code
   GST_WARNING ("ERROR: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
   bt_dialog_message(main_window,_("Error"),_("An error occurred"),err->message);
+  g_error_free (err);
+  g_free (dbg);
+
+  // release the reference
+  g_object_try_unref(song);
+  g_object_try_unref(main_window);
+}
+
+static void on_song_warning(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtMainToolbar * const self=BT_MAIN_TOOLBAR(user_data);
+  BtSong *song;
+  BtMainWindow *main_window;
+  GError *err = NULL;
+  gchar *dbg = NULL;
+
+  GST_INFO("received %s bus message",GST_MESSAGE_TYPE_NAME(message));
+
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+  bt_song_stop(song);
+
+  gst_message_parse_warning(message, &err, &dbg);
+  // @todo: check domain and code
+  GST_WARNING ("WARNING: %s (%s)\n", err->message, (dbg) ? dbg : "no details");
+  bt_dialog_message(main_window,_("Warning"),_("A problem occurred"),err->message);
   g_error_free (err);
   g_free (dbg);
 
@@ -426,7 +452,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     // connect bus signals
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_connect(bus, "message::error", (GCallback)on_song_error, (gpointer)self);
-    g_signal_connect(bus, "message::warning", (GCallback)on_song_error, (gpointer)self);
+    g_signal_connect(bus, "message::warning", (GCallback)on_song_warning, (gpointer)self);
     g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
     g_signal_connect(bus, "message::application", (GCallback)on_song_level_negotiated, (gpointer)self);
     gst_object_unref(bus);
@@ -672,6 +698,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
     g_object_get(G_OBJECT(song),"bin", &bin, NULL);
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_warning,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_change,NULL);
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_level_negotiated,NULL);
     gst_object_unref(bus);

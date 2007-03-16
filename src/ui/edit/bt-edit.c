@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.38 2007-03-06 21:58:51 ensonic Exp $
+/* $Id: bt-edit.c,v 1.39 2007-03-16 12:37:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,     N_("Show version"),    NULL },
     {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
     {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
-    POPT_TABLEEND
+    {NULL}
   };
   
   // in case we ever want to use a custom theme for buzztard:
