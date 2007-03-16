@@ -28,15 +28,16 @@
       <machine type="source" id="beep1" plugin-name="simsyn" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="-0.5"/>
+          <property key="ypos" value="-0.8"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
+        <globaldata name="volume" value="0.7"/>
         <patterns>
           <pattern id="beep1::C-3" machine="beep1" name="C-3" length="32">
             <tick time="0">
               <globaldata name="note" value="c-3"/>
               <globaldata name="volume" value="1.0"/>
-              <globaldata name="decay" value="0.20"/>
+              <globaldata name="decay" value="0.05"/>
+              <globaldata name="resonance" value="7.0"/>
               <globaldata name="wave" value="3"/>
             </tick>
             <tick time="2"><globaldata name="note" value="c-4"/></tick>
@@ -55,24 +56,63 @@
             <tick time="28"><globaldata name="note" value="c-3"/></tick>
             <tick time="30"><globaldata name="note" value="a#3"/></tick>
           </pattern>
+          <pattern id="beep1::D-3" machine="beep1" name="D-3" length="32">
+            <tick time="0">
+              <globaldata name="note" value="d-3"/>
+              <globaldata name="volume" value="1.0"/>
+              <globaldata name="decay" value="0.05"/>
+              <globaldata name="resonance" value="7.0"/>
+              <globaldata name="wave" value="3"/>
+            </tick>
+            <tick time="2"><globaldata name="note" value="d-4"/></tick>
+            <tick time="4"><globaldata name="note" value="d-3"/></tick>
+            <tick time="6"><globaldata name="note" value="c-4"/></tick>
+            <tick time="8"><globaldata name="note" value="d-3"/></tick>
+            <tick time="10"><globaldata name="note" value="a#3"/></tick>
+            <tick time="12"><globaldata name="note" value="d-3"/></tick>
+            <tick time="14"><globaldata name="note" value="a-3"/></tick>
+            <tick time="16"><globaldata name="note" value="d-3"/></tick>
+            <tick time="18"><globaldata name="note" value="g-3"/></tick>
+            <tick time="20"><globaldata name="note" value="d-3"/></tick>
+            <tick time="22"><globaldata name="note" value="a-3"/></tick>
+            <tick time="24"><globaldata name="note" value="d-3"/></tick>
+            <tick time="26"><globaldata name="note" value="a#3"/></tick>
+            <tick time="28"><globaldata name="note" value="d-3"/></tick>
+            <tick time="30"><globaldata name="note" value="c-4"/></tick>
+          </pattern>
         </patterns>
       </machine>
 
       <machine type="source" id="beep2" plugin-name="simsyn" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="0.0"/>
+          <property key="ypos" value="-0.4"/>
         </properties>
         <globaldata name="volume" value="1.0"/>
         <patterns>
           <pattern id="beep2::C-1" machine="beep2" name="C-1" length="16">
-            <tick time="4">
+            <tick time="2">
               <globaldata name="note" value="c-1"/>
-              <globaldata name="volume" value="0.5"/>
-              <globaldata name="decay" value="1.0"/>
+              <globaldata name="volume" value="0.15"/>
+              <globaldata name="decay" value="0.3"/>
+              <globaldata name="cut-off" value="0.8"/>
               <globaldata name="wave" value="2"/>
             </tick>
-            <tick time="12"><globaldata name="note" value="c-1"/></tick>
+            <tick time="6"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.6"/></tick>
+            <tick time="10"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.4"/></tick>
+            <tick time="14"><globaldata name="note" value="c-1"/><globaldata name="cut-off" value="0.2"/></tick>
+          </pattern>
+          <pattern id="beep2::D-1" machine="beep2" name="D-1" length="16">
+            <tick time="2">
+              <globaldata name="note" value="d-1"/>
+              <globaldata name="volume" value="0.15"/>
+              <globaldata name="decay" value="0.3"/>
+              <globaldata name="cut-off" value="0.8"/>
+              <globaldata name="wave" value="2"/>
+            </tick>
+            <tick time="6"><globaldata name="note" value="d-1"/><globaldata name="cut-off" value="0.6"/></tick>
+            <tick time="10"><globaldata name="note" value="d-1"/><globaldata name="cut-off" value="0.4"/></tick>
+            <tick time="14"><globaldata name="note" value="d-1"/><globaldata name="cut-off" value="0.2"/></tick>
           </pattern>
         </patterns>
       </machine>
@@ -80,26 +120,65 @@
       <machine type="processor" id="echo1" plugin-name="audiodelay" voices="0">
         <properties>
           <property key="xpos" value="0.0"/>
-          <property key="ypos" value="-0.5"/>
+          <property key="ypos" value="-0.6"/>
         </properties>
         <globaldata name="delaytime" value="25.0"/>
-        <globaldata name="feedback" value="75.0"/>
+        <globaldata name="feedback" value="70.0"/>
         <globaldata name="drywet" value="50.0"/>
       </machine>
 
       <machine type="source" id="beat" plugin-name="bml-Arguelles-GoaKick" voices="0">
         <properties>
           <property key="xpos" value="-0.7"/>
-          <property key="ypos" value="-0.25"/>
+          <property key="ypos" value="0.0"/>
         </properties>
         <patterns>
-          <pattern id="beat_beats" machine="beat" name="beats" length="16">
+          <pattern id="beat_std" machine="beat" name="std" length="16">
             <tick time="0">
-              <globaldata name="Trigger" value="10"/>
-              <globaldata name="Tone" value="40"/>
+              <globaldata name="Trigger" value="100"/>
+              <globaldata name="Tone" value="50"/>
             </tick>
-            <tick time="4"><globaldata name="Trigger" value="40"/></tick>
+            <tick time="4"><globaldata name="Trigger" value="60"/></tick>
             <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+            <tick time="12"><globaldata name="Trigger" value="80"/></tick>
+          </pattern>
+          <pattern id="beat_off" machine="beat" name="off" length="16">
+            <tick time="0">
+              <globaldata name="Trigger" value="100"/>
+              <globaldata name="Tone" value="50"/>
+            </tick>
+            <tick time="4"><globaldata name="Trigger" value="60"/></tick>
+            <tick time="8"><globaldata name="Trigger" value="80"/></tick>
+            <tick time="12"><globaldata name="Trigger" value="80"/></tick>
+            <tick time="14"><globaldata name="Trigger" value="50"/></tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+      <machine type="source" id="snr" plugin-name="bml-ErsSnare" voices="1">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="0.4"/>
+        </properties>
+        <patterns>
+          <pattern id="snr_beats" machine="snr" name="beats" length="16">
+            <tick time= "4"><voicedata name="Trig" voice="0" value="1"/></tick>
+            <tick time="12"><voicedata name="Trig" voice="0" value="1"/></tick>
+          </pattern>
+        </patterns>
+      </machine>
+
+      <machine type="source" id="hh" plugin-name="bml-ErsHihat" voices="1">
+        <properties>
+          <property key="xpos" value="-0.7"/>
+          <property key="ypos" value="0.8"/>
+        </properties>
+        <patterns>
+          <pattern id="hh_beats" machine="hh" name="beats" length="16">
+            <tick time= "2"><voicedata name="OhTrig" voice="0" value="1"/></tick>
+            <tick time= "6"><voicedata name="ChTrig" voice="0" value="1"/></tick>
+            <tick time="10"><voicedata name="ChTrig" voice="0" value="1"/></tick>
+            <tick time="14"><voicedata name="ChTrig" voice="0" value="1"/></tick>
           </pattern>
         </patterns>
       </machine>
@@ -111,34 +190,68 @@
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
       <wire src="beep2" dst="audio_sink" gain="1.0" pan="-50"/>
       <wire src="beat" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="snr" dst="audio_sink" gain="1.0" pan="0"/>
+      <wire src="hh" dst="audio_sink" gain="1.0" pan="0"/>
     </wires>
   </setup>
 
-  <sequence loop="off" length="96" tracks="5">
+  <sequence loop="off" length="160" tracks="7">
     <labels>
       <label time="0" name="start"/>
-      <label time="63" name="end"/>
+      <label time="128" name="outro"/>
+      <label time="156" name="end"/>
     </labels>
     <tracks>
       <track index="0" machine="beep1">
         <position time="0" pattern="beep1::C-3"/>
         <position time="32" pattern="beep1::C-3"/>
+        <position time="64" pattern="beep1::D-3"/>
+        <position time="96" pattern="beep1::D-3"/>
       </track>
       <track index="1" machine="beep2">
         <position time="0" pattern="beep2::C-1"/>
         <position time="16" pattern="beep2::C-1"/>
         <position time="32" pattern="beep2::C-1"/>
         <position time="48" pattern="beep2::C-1"/>
+        <position time="64" pattern="beep2::D-1"/>
+        <position time="80" pattern="beep2::D-1"/>
+        <position time="96" pattern="beep2::D-1"/>
+        <position time="112" pattern="beep2::D-1"/>
       </track>
       <track index="2" machine="echo1"/>
       <track index="3" machine="beat">
-        <position time="0" pattern="beat_beats"/>
-        <position time="32" pattern="beat_beats"/>
-        <position time="48" pattern="beat_beats"/>
-        <position time="64" pattern="beat_beats"/>
-        <position time="80" pattern="beat_beats"/>
+        <position time="0" pattern="beat_std"/>
+        <position time="16" pattern="beat_std"/>
+        <position time="32" pattern="beat_std"/>
+        <position time="48" pattern="beat_off"/>
+        <position time="64" pattern="beat_std"/>
+        <position time="80" pattern="beat_std"/>
+        <position time="96" pattern="beat_std"/>
+        <position time="112" pattern="beat_off"/>
+        <position time="128" pattern="beat_std"/>
+        <position time="144" pattern="beat_std"/>
       </track>
-      <track index="4" machine="audio_sink"/>
+      <track index="4" machine="snr">
+        <position time="0" pattern="snr_beats"/>
+        <position time="16" pattern="snr_beats"/>
+        <position time="32" pattern="snr_beats"/>
+        <position time="64" pattern="snr_beats"/>
+        <position time="80" pattern="snr_beats"/>
+        <position time="96" pattern="snr_beats"/>
+        <position time="128" pattern="snr_beats"/>
+        <position time="144" pattern="snr_beats"/>
+      </track>
+      <track index="5" machine="hh">
+        <position time="32" pattern="hh_beats"/>
+        <position time="48" pattern="hh_beats"/>
+        <position time="64" pattern="hh_beats"/>
+        <position time="80" pattern="hh_beats"/>
+        <position time="96" pattern="hh_beats"/>
+        <position time="112" pattern="hh_beats"/>
+        <position time="128" pattern="hh_beats"/>
+        <position time="144" pattern="hh_beats"/>
+      </track>
+      <track index="6" machine="audio_sink"/>
     </tracks>
   </sequence>
 

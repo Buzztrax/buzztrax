@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.101 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: wire.c,v 1.102 2007-03-16 23:03:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,8 +26,8 @@
  * are connected. In contrast to directly wiring #GstElements this insert needed
  * conversion elements automatically.
  * Furthermore each wire has a volume element.
- */ 
- 
+ */
+
 /*
  * @todo try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -38,7 +38,7 @@
  *
  * * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
  */
- 
+
 #define BT_CORE
 #define BT_WIRE_C
 
@@ -69,11 +69,11 @@ typedef enum {
   /* how many elements are used */
   PART_COUNT
 } BtWirePart;
- 
+
 struct _BtWirePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the song the wire belongs to */
   G_POINTER_ALIAS(BtSong *,song);
 
@@ -82,13 +82,13 @@ struct _BtWirePrivate {
 
   /* which machines are linked */
   BtMachine *src,*dst;
-  
+
   /* volume gain, set machines[PART_GAIN] to passthrough when gain=1.0 */
   gdouble gain;
-  
+
   /* the gstreamer elements that is used */
   GstElement *machines[PART_COUNT];
-  
+
   /* wire analyzers */
   GList *analyzers;
 };
@@ -108,7 +108,7 @@ static GObjectClass *parent_class=NULL;
  */
 static gboolean bt_wire_make_internal_element(const BtWire * const self, const BtWirePart part, const gchar * const factory_name, const gchar * const element_name) {
   gboolean res=FALSE;
-  
+
   // add internal element
   gchar * const name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
@@ -124,20 +124,20 @@ Error:
  * bt_wire_activate_analyzers:
  * @self: the wire
  *
- * Add all analyzers to the bin and link them. 
+ * Add all analyzers to the bin and link them.
  */
 static void bt_wire_activate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
   const GList* node;
   GstElement *prev,*next;
-  
+
   if(!self->priv->analyzers) return;
 
   GST_INFO("add analyzers (%d elements)",g_list_length(self->priv->analyzers));
   prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
-    
+
     if(!(res=gst_bin_add(self->priv->bin,next))) {
       GST_INFO("cannot add element \"%s\" to bin",gst_element_get_name(next));
     }
@@ -155,7 +155,7 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
  * bt_wire_deactivate_analyzers:
  * @self: the wire
  *
- * Remove all analyzers to the bin and unlink them. 
+ * Remove all analyzers to the bin and unlink them.
  */
 static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
@@ -169,7 +169,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
-    
+
     if((state_ret=gst_element_set_state(next,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
       GST_INFO("cannot set state to NULL for element \"%s\", ret=%d",gst_element_get_name(next),state_ret);
     }
@@ -193,7 +193,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
  */
 static void bt_wire_change_gain(const BtWire * const self) {
   const gboolean passthrough=(fabs(self->priv->gain-1.0)<0.001);
-  
+
   g_object_set(self->priv->machines[PART_GAIN],"volume",self->priv->gain,NULL);
   gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(self->priv->machines[PART_GAIN]),passthrough);
 }
@@ -214,13 +214,13 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   GstElement ** const machines=self->priv->machines;
 
   g_assert(BT_IS_WIRE(self));
-  
+
   g_assert(GST_IS_OBJECT(src->src_elem));
   g_assert(GST_IS_OBJECT(dst->dst_elem));
 
   if(!self->priv->machines[PART_GAIN]) {
     if(!bt_wire_make_internal_element(self,PART_GAIN,"volume","gain")) return(FALSE);
-    bt_wire_change_gain(self);    
+    bt_wire_change_gain(self);
     GST_DEBUG("created volume-gain element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
 
@@ -228,13 +228,11 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     if(!bt_wire_make_internal_element(self,PART_TEE,"tee","tee")) return(FALSE);
     GST_DEBUG("created tee element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
-  
+
   GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   // try link src to dst {directly, with convert, with scale, with ...}
-  /*
   if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL)) {
     gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL);
-    */
     if(!machines[PART_CONVERT]) {
       bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
       g_assert(machines[PART_CONVERT]!=NULL);
@@ -288,14 +286,12 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       machines[PART_DST]=machines[PART_CONVERT];
       GST_DEBUG("  wire okay with convert");
     }
-  /*
   }
   else {
     machines[PART_SRC]=machines[PART_TEE];
     machines[PART_DST]=machines[PART_GAIN];
     GST_DEBUG("  wire okay");
   }
-  */
   return(res);
 }
 
@@ -311,7 +307,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
   GstStateChangeReturn res;
 
   g_assert(BT_IS_WIRE(self));
-  
+
   // check if wire has been properly initialized
   if(self->priv->src->src_elem && self->priv->dst->dst_elem && machines[PART_TEE] && machines[PART_GAIN]) {
     GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
@@ -356,7 +352,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
  * @self: the wire that should be used for this connection
  *
  * Connect two machines with a wire. The source and destination machine must be
- * passed upon construction. 
+ * passed upon construction.
  * Each machine can be involved in multiple connections. The method
  * transparently add spreader or adder elements in such cases. It further
  * inserts elements for data-type conversion if necessary.
@@ -422,7 +418,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
     }
     g_object_unref(other_wire);
   }
-  
+
   // if there is already a wire to dst and dst has not yet an adder (in use)
   if((other_wire=bt_setup_get_wire_by_dst_machine(setup,dst))
     && !bt_machine_has_active_adder(dst)) {
@@ -447,13 +443,13 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   }
 
   GST_DEBUG("link prepared, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
-  
+
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed");goto Error;
   }
   res=TRUE;
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
-  
+
 Error:
   g_object_try_unref(setup);
   return(res);
@@ -480,7 +476,7 @@ BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machi
   g_return_val_if_fail(BT_IS_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(dst_machine),NULL);
   g_return_val_if_fail(src_machine!=dst_machine,NULL);
- 
+
   GST_INFO("create wire between %p and %p",src_machine,dst_machine);
 
   BtWire * const self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
@@ -492,7 +488,7 @@ BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machi
   }
   {
     BtSetup * const setup;
-    
+
     // add the wire to the setup of the song
     g_object_get(G_OBJECT(song),"setup",&setup,NULL);
     g_assert(setup!=NULL);
@@ -518,7 +514,7 @@ Error:
  */
 gboolean bt_wire_reconnect(BtWire * const self) {
   g_return_val_if_fail(BT_IS_WIRE(self),FALSE);
-  
+
   GST_DEBUG("relinking machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
   bt_wire_unlink_machines(self);
   return(bt_wire_link_machines(self));
@@ -529,24 +525,24 @@ gboolean bt_wire_reconnect(BtWire * const self) {
 GList *bt_wire_get_element_list(const BtWire * const self) {
   GList *list=NULL;
   gulong i;
-  
+
   for(i=0;i<PART_COUNT;i++) {
     if(self->priv->machines[i]) {
       list=g_list_append(list,self->priv->machines[i]);
     }
   }
-  
+
   return(list);
 }
 
 void bt_wire_dbg_print_parts(const BtWire * const self) {
   gchar * const sid, * const did;
-  
+
   if(self->priv->src) g_object_get(self->priv->src,"id",&sid,NULL);
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
-      
+
   /* [Src T G C S Dst] */
-  GST_DEBUG("%s->%s [%s %s %s %s %s %s]", sid, did,  
+  GST_DEBUG("%s->%s [%s %s %s %s %s %s]", sid, did,
     self->priv->machines[PART_SRC]?"SRC":"src",
     self->priv->machines[PART_TEE]?"T":"t",
     self->priv->machines[PART_GAIN]?"G":"g",
@@ -566,12 +562,12 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
   xmlNodePtr node=NULL;
 
   GST_DEBUG("PERSISTENCE::wire");
-  
+
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wire"),NULL))) {
     g_object_get(G_OBJECT(self->priv->src),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("src"),XML_CHAR_PTR(id));
     g_free(id);
-  
+
     g_object_get(G_OBJECT(self->priv->dst),"id",&id,NULL);
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
@@ -585,17 +581,17 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   const BtWire * const self = BT_WIRE(persistence);
   BtSetup * const setup;
   xmlChar *id, *gain;
-  
+
   GST_DEBUG("PERSISTENCE::wire");
   g_assert(node);
-  
+
   g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
 
   id=xmlGetProp(node,XML_CHAR_PTR("src"));
   self->priv->src=bt_setup_get_machine_by_id(setup,(gchar *)id);
   GST_DEBUG("src %s -> %p",id,self->priv->src);
   xmlFree(id);
-  
+
   id=xmlGetProp(node,XML_CHAR_PTR("dst"));
   self->priv->dst=bt_setup_get_machine_by_id(setup,(gchar *)id);
   GST_DEBUG("dst %s -> %p",id,self->priv->dst);
@@ -606,7 +602,7 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
     xmlFree(gain);
   }
   // @todo: handle pan
-  
+
   g_object_unref(setup);
 
   return(bt_wire_connect(self));
@@ -614,7 +610,7 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
 
 static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_wire_persistence_load;
   iface->save = bt_wire_persistence_save;
 }
@@ -702,16 +698,16 @@ static void bt_wire_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   // remove the GstElements from the bin
   if(self->priv->bin) {
     GstStateChangeReturn res;
-    
+
     GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
       (G_OBJECT(self->priv->bin))->ref_count,
       GST_BIN_NUMCHILDREN(self->priv->bin)
     );
-    
+
     bt_wire_unlink_machines(self); // removes helper elements if in use
     if(self->priv->machines[PART_TEE]) {
       GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_TEE]),(G_OBJECT(self->priv->machines[PART_TEE]))->ref_count);
@@ -730,7 +726,7 @@ static void bt_wire_dispose(GObject * const object) {
       gst_bin_remove(self->priv->bin, self->priv->machines[PART_GAIN]);
     }
     bt_wire_deactivate_analyzers(self);
-    
+
     GST_DEBUG("  releasing the bin, bin->ref_count=%d",(G_OBJECT(self->priv->bin))->ref_count);
     gst_object_unref(self->priv->bin);
   }
@@ -757,7 +753,7 @@ static void bt_wire_finalize(GObject * const object) {
 
 static void bt_wire_init(GTypeInstance * const instance, gpointer const g_class) {
   BtWire * const self = BT_WIRE(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->gain = 1.0;
 }
@@ -767,7 +763,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
-  
+
   gobject_class->set_property = bt_wire_set_property;
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;

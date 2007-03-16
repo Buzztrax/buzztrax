@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.109 2007-03-16 12:37:27 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.110 2007-03-16 23:03:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
  *
  * Contains typical applications buttons for file i/o and playback, plus volume
  * meters and volume control.
- */ 
+ */
 
 /* @todo should we separate the toolbars?
  * - common - load, save, ...
@@ -49,10 +49,10 @@ struct _BtMainToolbarPrivate {
 
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* the level meters */
   GtkVUMeter *vumeter[MAX_VUMETER];
-  
+
   /* the volume gain */
   GtkScale *volume;
   G_POINTER_ALIAS(GstElement *,gain);
@@ -62,7 +62,7 @@ struct _BtMainToolbarPrivate {
   GtkWidget *play_button;
   GtkWidget *stop_button;
   GtkWidget *loop_button;
-  
+
   /* update handler id */
   guint playback_update_id;
 };
@@ -79,7 +79,7 @@ static gint gst_caps_get_channels(GstCaps *caps) {
   gint channels=0,size,i;
 
   g_assert(caps);
-  
+
   if(GST_CAPS_IS_SIMPLE(caps)) {
     if((structure=gst_caps_get_structure(caps,0))) {
       gst_structure_get_int(structure,"channels",&channels);
@@ -111,11 +111,11 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   gboolean is_playing;
 
   g_assert(user_data);
-  
+
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   if(!is_playing) {
     gint i;
-  
+
     GST_INFO("song stop event occured: %p",g_thread_self());
     if(self->priv->playback_update_id) {
       g_source_remove(self->priv->playback_update_id);
@@ -129,7 +129,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->play_button),TRUE);
     // reset level meters
     for(i=0;i<MAX_VUMETER;i++) {
-      gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
+      gtk_vumeter_set_levels(self->priv->vumeter[i], -200, -200);
     }
 
     GST_INFO("song stop event handled");
@@ -155,7 +155,7 @@ static void on_toolbar_new_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
 
   g_assert(user_data);
-  
+
   GST_INFO("toolbar new event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_new_song(main_window);
@@ -167,7 +167,7 @@ static void on_toolbar_open_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
 
   g_assert(user_data);
-  
+
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_open_song(main_window);
@@ -179,7 +179,7 @@ static void on_toolbar_save_clicked(GtkButton *button, gpointer user_data) {
   BtMainWindow *main_window;
 
   g_assert(user_data);
-  
+
   GST_INFO("toolbar open event occurred");
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   bt_main_window_save_song(main_window);
@@ -195,14 +195,14 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
     BtSong *song;
 
     GST_INFO("toolbar play event occurred");
-    
+
     // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     if(!bt_song_play(song)) {
       // switch off play button
       gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(button),FALSE);
     }
-    
+
     // release the reference
     g_object_try_unref(song);
   }
@@ -295,7 +295,7 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
 static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
-  
+
   if(!strcmp(name,"level")) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     const GValue *l_rms,*l_peak;
@@ -317,28 +317,28 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
 static void on_song_level_negotiated(GstBus * bus, GstMessage * message, gpointer user_data) {
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
-  
+
   // receive message from on_channels_negotiated()
   if(!strcmp(name,"level-caps-changed")) {
     BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
     gint i,channels;
-    
+
     gst_structure_get_int(structure,"channels",&channels);
     GST_INFO("received application bus message: channel=%d",channels);
-    
+
     for(i=0;i<channels;i++) {
       gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
     }
     for(i=channels;i<MAX_VUMETER;i++) {
       gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
-    }        
-  }      
+    }
+  }
 }
 
 static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble value;
-  
+
   g_assert(user_data);
   g_assert(self->priv->gain);
   g_assert(self->priv->volume);
@@ -354,7 +354,7 @@ static void on_song_volume_slider_change(GtkRange *range,gpointer user_data) {
 static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gdouble value;
-  
+
   g_assert(user_data);
   g_assert(self->priv->gain);
   g_assert(self->priv->volume);
@@ -369,7 +369,7 @@ static void on_song_volume_changed(GstElement *volume,GParamSpec *arg,gpointer u
 
 static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data) {
   GstCaps *caps;
-  
+
   g_assert(user_data);
 
   if((caps=(GstCaps *)gst_pad_get_negotiated_caps(pad))) {
@@ -378,15 +378,15 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
     GstStructure *structure;
     GstMessage *message;
     GstElement *bin;
-    
+
     channels=gst_caps_get_channels(caps);
     GST_INFO("!!!  input level src has %d output channels",channels);
-    
+
     // post a message to the bus (we can't do gtk+ stuff here)
     structure = gst_structure_new ("level-caps-changed",
         "channels", G_TYPE_INT, channels, NULL);
     message = gst_message_new_application (NULL, structure);
-    
+
     g_object_get(G_OBJECT(self->priv->app),"bin",&bin,NULL);
     gst_element_post_message(bin,message);
     gst_object_unref(bin);
@@ -398,9 +398,9 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   gboolean unsaved;
 
   g_assert(user_data);
-  
+
   GST_INFO("song.unsaved has changed : song=%p, toolbar=%p",song,user_data);
-  
+
   g_object_get(G_OBJECT(song),"unsaved",&unsaved,NULL);
   gtk_widget_set_sensitive(self->priv->save_button,unsaved);
 }
@@ -410,7 +410,7 @@ static void on_sequence_loop_notify(const BtSequence *sequence,GParamSpec *arg,g
   gboolean loop;
 
   g_assert(user_data);
-  
+
   g_object_get(G_OBJECT(sequence),"loop",&loop,NULL);
   g_signal_handlers_block_matched(self->priv->loop_button,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_toolbar_loop_toggled,(gpointer)self);
   gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(self->priv->loop_button),loop);
@@ -429,18 +429,18 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
-  
+
   // get the audio_sink (song->master is a bt_sink_machine) if there is one already
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) return;
 
   g_object_get(G_OBJECT(song),"master",&master,"sequence",&sequence,"bin", &bin,NULL);
-  
+
   if(master) {
     GstPad *pad;
     gdouble volume;
     GstBus *bus;
-    
+
     GST_INFO("connect to input-level : song=%p,  master=%p (refs: %d)",song,master,(G_OBJECT(master))->ref_count);
 
     // get the input_level and input_gain properties from audio_sink
@@ -463,7 +463,7 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
     }
     // release the references
     gst_object_unref(level);
-    
+
     g_assert(GST_IS_ELEMENT(self->priv->gain));
     // get the current input_gain and adjust volume widget
     g_object_get(self->priv->gain,"volume",&volume,NULL);
@@ -492,10 +492,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
   gchar *toolbar_style;
-  
+
   g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
-  
+
   GST_INFO("!!!  toolbar style has changed '%s'", toolbar_style);
   gtk_toolbar_set_style(GTK_TOOLBAR(self),gtk_toolbar_get_style_from_string(toolbar_style));
   g_free(toolbar_style);
@@ -509,10 +509,10 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkTooltips *tips;
   GtkWidget *box;
   gulong i;
-   
+
   tips=gtk_tooltips_new();
   gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
-  
+
   //-- file controls
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
@@ -537,7 +537,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
 
   //-- media controls
-  
+
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play this song"),NULL);
@@ -563,7 +563,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   self->priv->loop_button=tool_item;
 
   gtk_toolbar_insert(GTK_TOOLBAR(self),gtk_separator_tool_item_new(),-1);
-  
+
   //-- volume level and control
 
   box=gtk_vbox_new(FALSE,0);
@@ -574,9 +574,10 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
     self->priv->vumeter[i]=GTK_VUMETER(gtk_vumeter_new(FALSE));
     // @idea have distinct tooltips
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),GTK_WIDGET(self->priv->vumeter[i]),_("playback volume"),NULL);
-    gtk_vumeter_set_min_max(self->priv->vumeter[i], -900, 0);
-    gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LOG);
-    gtk_vumeter_set_levels(self->priv->vumeter[i], -900, -900);
+    gtk_vumeter_set_min_max(self->priv->vumeter[i], -200, 0);
+    gtk_vumeter_set_levels(self->priv->vumeter[i], -200, -200);
+    gtk_vumeter_set_peaks_falloff(self->priv->vumeter[i], GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
+    gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LINEAR);
     gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,0);
   }
 
@@ -680,21 +681,21 @@ static void bt_main_toolbar_set_property(GObject      *object,
 static void bt_main_toolbar_dispose(GObject *object) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
 	BtSong *song;
-	
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
     GstBin *bin;
     GstBus *bus;
-    
+
     GST_DEBUG("disconnect handlers from song=%p",song);
-    
+
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
-    
+
     g_object_get(G_OBJECT(song),"bin", &bin, NULL);
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_error,NULL);
@@ -714,7 +715,7 @@ static void bt_main_toolbar_dispose(GObject *object) {
 
 static void bt_main_toolbar_finalize(GObject *object) {
   //BtMainToolbar *self = BT_MAIN_TOOLBAR(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -722,7 +723,7 @@ static void bt_main_toolbar_finalize(GObject *object) {
 
 static void bt_main_toolbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainToolbar *self = BT_MAIN_TOOLBAR(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_TOOLBAR, BtMainToolbarPrivate);
 }
 
@@ -731,7 +732,7 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainToolbarPrivate));
-  
+
   gobject_class->set_property = bt_main_toolbar_set_property;
   gobject_class->get_property = bt_main_toolbar_get_property;
   gobject_class->dispose      = bt_main_toolbar_dispose;

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.236 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: machine.c,v 1.237 2007-03-16 23:03:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,8 +22,8 @@
  * SECTION:btmachine
  * @short_description: base class for signal processing machines
  *
- * The machine class cares about inserting additional low-level elemnts to do 
- * signal conversion etc.. Further it provides general facillities like 
+ * The machine class cares about inserting additional low-level elemnts to do
+ * signal conversion etc.. Further it provides general facillities like
  * input/output level monitoring.
  *
  * A machine can have several #GstElements:
@@ -65,7 +65,7 @@
  *
  * Furthermore the machine handles a list of #BtPattern instances. These contain
  * event patterns that form a #BtSequence.
- */ 
+ */
 /*
  * @todo: try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
@@ -78,7 +78,7 @@
  * block, flush (peer-pad), unlink, unblock
  * remove request pad on adder (gst_element_remove_pad)
  */
- 
+
 #define BT_CORE
 #define BT_MACHINE_C
 
@@ -135,10 +135,10 @@ typedef enum {
 struct _BtMachinePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* (ui) properties accociated with this machine */
   GHashTable *properties;
-  
+
   /* the song the machine belongs to */
   G_POINTER_ALIAS(BtSong *,song);
   /* the main gstreamer container element */
@@ -155,7 +155,7 @@ struct _BtMachinePrivate {
   gulong global_params;
   /* the number of dynamic params the machine provides per instance and voice */
   gulong voice_params;
-  
+
   /* the current state of the machine */
   BtMachineState state;
 
@@ -163,16 +163,16 @@ struct _BtMachinePrivate {
   GstController *global_controller;
   GstController **voice_controllers;
   gchar **global_names,**voice_names;
-  GType *global_types,*voice_types; 
+  GType *global_types,*voice_types;
   guint *global_flags,*voice_flags;
   GValue *global_no_val,*voice_no_val;
 
   GList *patterns;  // each entry points to BtPattern
   guint private_patterns;
-  
+
   /* the gstreamer elements that are used */
   GstElement *machines[PART_COUNT];
-  
+
   /* public fields are
   GstElement *dst_elem,*src_elem;
   */
@@ -206,7 +206,7 @@ GType bt_machine_state_get_type(void) {
 void bt_machine_on_bpm_changed(BtSongInfo * const song_info, const GParamSpec * const arg, gconstpointer const user_data) {
   const BtMachine * const self=BT_MACHINE(user_data);
   gulong bpm;
-  
+
   g_object_get(song_info,"bpm",&bpm,NULL);
   gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,-1,-1);
 }
@@ -214,7 +214,7 @@ void bt_machine_on_bpm_changed(BtSongInfo * const song_info, const GParamSpec * 
 void bt_machine_on_tpb_changed(BtSongInfo * const song_info, const GParamSpec * const arg, gconstpointer const user_data) {
   const BtMachine * const self=BT_MACHINE(user_data);
   gulong tpb;
-  
+
   g_object_get(song_info,"tpb",&tpb,NULL);
   gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),-1,(glong)tpb,-1);
 }
@@ -301,7 +301,7 @@ static gboolean bt_machine_set_mute(const BtMachine * const self,const BtSetup *
  */
 static gboolean bt_machine_unset_mute(const BtMachine *const self, const BtSetup * const setup) {
   const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
-  
+
   if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
 
   if(self->priv->machines[part]) {
@@ -329,9 +329,9 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
   if(self->priv->state==new_state) return(TRUE);
 
   g_object_get(self->priv->song,"setup",&setup,NULL);
-  
+
   GST_INFO("state change for element '%s'",self->priv->id);
-  
+
   // return to normal state
   switch(self->priv->state) {
     case BT_MACHINE_STATE_MUTE:  { // source, processor, sink
@@ -425,7 +425,7 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
   gint i,pre,post;
   BtSetup *setup;
   BtWire *wire;
-    
+
   // look for elements before and after part_position
   pre=post=-1;
   for(i=part_position-1;i>-1;i--) {
@@ -529,10 +529,10 @@ static void bt_machine_resize_pattern_voices(const BtMachine * const self) {
  *
  * Adjust the private data structure after a change in the number of voices.
  */
-static void bt_machine_resize_voices(const BtMachine * const self, const gulong voices) {  
+static void bt_machine_resize_voices(const BtMachine * const self, const gulong voices) {
   GST_INFO("changing machine %s:%p voices from %d to %d",self->priv->id,self->priv->machines[PART_MACHINE],voices,self->priv->voices);
 
-  
+
   // @todo GST_IS_CHILD_BIN <-> GST_IS_CHILD_PROXY (sink-bin is a CHILD_PROXY but not a CHILD_BIN)
   if((!self->priv->machines[PART_MACHINE]) || (!GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE]))) {
     GST_WARNING("machine %s:%p is NULL or not polyphonic!",self->priv->id,self->priv->machines[PART_MACHINE]);
@@ -641,7 +641,7 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
 static gboolean bt_machine_make_internal_element(const BtMachine * const self,const BtMachinePart part,const gchar * const factory_name,const gchar * const element_name) {
   gboolean res=FALSE;
   gchar *name;
-  
+
   // add internal element
   name=g_alloca(strlen(element_name)+16);g_sprintf(name,"%s_%p",element_name,self);
   if(!(self->priv->machines[part]=gst_element_factory_make(factory_name,name))) {
@@ -663,7 +663,7 @@ Error:
 static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
   GstElement *peer;
-  
+
   // is the machine unconnected towards the input side (its sink)?
   if(!(peer=bt_machine_get_sink_peer(self->priv->machines[PART_MACHINE]))) {
     GST_DEBUG("machine '%s' is not yet connected on the input side",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
@@ -671,7 +671,7 @@ static gboolean bt_machine_add_input_element(BtMachine * const self,const BtMach
       // DEBUG
       // bt_machine_dbg_print_parts(self);
       // gst_element_dbg_pads(self->priv->machines[ part]);
-      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
+      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
     }
@@ -702,14 +702,14 @@ Error:
 static gboolean bt_machine_add_output_element(BtMachine * const self,const BtMachinePart part) {
   gboolean res=FALSE;
   GstElement *peer;
-  
+
   // is the machine unconnected towards the output side (its source)?
   if(!(peer=bt_machine_get_source_peer(self->priv->machines[PART_MACHINE]))) {
     GST_DEBUG("machine '%s' is not yet connected on the output side",GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));
     if(!gst_element_link(self->priv->machines[PART_MACHINE],self->priv->machines[part])) {
       // DEBUG
       // bt_machine_dbg_print_parts(self);
-      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);   
+      // gst_element_dbg_pads(self->priv->machines[PART_MACHINE]);
       // gst_element_dbg_pads(self->priv->machines[ part]);
       // DEBUG
       GST_ERROR("failed to link the element '%s' for '%s'",GST_OBJECT_NAME(self->priv->machines[part]),GST_OBJECT_NAME(self->priv->machines[PART_MACHINE]));goto Error;
@@ -735,7 +735,7 @@ Error:
 
 static gboolean bt_machine_init_core_machine(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   if(!bt_machine_make_internal_element(self,PART_MACHINE,self->priv->plugin_name,self->priv->id)) goto Error;
 
   // there is no adder or spreader in use by default
@@ -757,18 +757,18 @@ static void bt_machine_init_interfaces(const BtMachine * const self) {
   if(GST_IS_TEMPO(self->priv->machines[PART_MACHINE])) {
     BtSongInfo *song_info;
     gulong bpm,tpb;
-    
+
     g_object_get(G_OBJECT(self->priv->song),"song-info",&song_info,NULL);
     // @todo handle stpb later (subtick per beat)
     g_object_get(song_info,"bpm",&bpm,"tpb",&tpb,NULL);
     gst_tempo_change_tempo(GST_TEMPO(self->priv->machines[PART_MACHINE]),(glong)bpm,(glong)tpb,-1);
-    
+
     g_signal_connect(G_OBJECT(song_info),"notify::bpm",G_CALLBACK(bt_machine_on_bpm_changed),(gpointer)self);
     g_signal_connect(G_OBJECT(song_info),"notify::tpb",G_CALLBACK(bt_machine_on_tpb_changed),(gpointer)self);
     g_object_unref(song_info);
     GST_INFO("  tempo iface initialized");
   }
-  GST_INFO("machine element instantiated and interfaces initialized");  
+  GST_INFO("machine element instantiated and interfaces initialized");
 }
 
 /*
@@ -785,12 +785,12 @@ static gboolean bt_machine_check_type(const BtMachine * const self) {
   GstPad *pad;
   gulong pad_src_ct=0,pad_sink_ct=0;
   gboolean done;
-  
+
   if(!klass->check_type) {
     GST_WARNING("no BtMachine::check_type() implemented");
     return(TRUE);
   }
-  
+
   // get pad counts per type
   it=gst_element_iterate_pads(self->priv->machines[PART_MACHINE]);
   done = FALSE;
@@ -818,7 +818,7 @@ static gboolean bt_machine_check_type(const BtMachine * const self) {
   gst_iterator_free(it);
 
   // test pad counts and element type
-  if(!((klass->check_type)(self,pad_src_ct,pad_sink_ct))) { 
+  if(!((klass->check_type)(self,pad_src_ct,pad_sink_ct))) {
     return(FALSE);
   }
   return(TRUE);
@@ -846,7 +846,7 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
         g_object_unref(voice_child);
       }
     }
-    
+
     // count number of controlable params
     for(i=0;i<number_of_properties;i++) {
       if(properties[i]->flags&GST_PARAM_CONTROLLABLE) {
@@ -900,7 +900,7 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
     }
     g_free(properties);
     g_free(child_properties);
-  }  
+  }
 }
 
 static void bt_machine_init_voice_params(const BtMachine * const self) {
@@ -910,14 +910,14 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
   // check if the elemnt implements the GstChildProxy interface
   if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
-    
+
     // register voice params
     // get child for voice 0
     if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
       if((properties=g_object_class_list_properties(G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(voice_child)),&number_of_properties))) {
         GParamSpec *property;
         guint i,j;
-        
+
         // count number of controlable params
         for(i=0;i<number_of_properties;i++) {
           if(properties[i]->flags&GST_PARAM_CONTROLLABLE) self->priv->voice_params++;
@@ -976,16 +976,16 @@ static gboolean bt_machine_setup(BtMachine * const self) {
   bt_machine_init_interfaces(self);
   // we need to make sure the machine is from the right class
   if(!bt_machine_check_type(self)) return(FALSE);
-    
+
   GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
-  
+
   // register global params
   bt_machine_init_global_params(self);
   // register voice params
   bt_machine_init_voice_params(self);
-  
+
   GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
-  
+
   // post sanity checks
   GST_INFO("  added machine %p to bin, machine->ref_count=%d  bin->ref_count=%d",self->priv->machines[PART_MACHINE],G_OBJECT(self->priv->machines[PART_MACHINE])->ref_count,G_OBJECT(self->priv->bin)->ref_count);
   g_assert(self->priv->machines[PART_MACHINE]!=NULL);
@@ -1010,9 +1010,9 @@ static gboolean bt_machine_setup(BtMachine * const self) {
     self->priv->private_patterns=g_list_length(self->priv->patterns);
   }
 
-  
+
   GST_DEBUG("machine-refs: %d",(G_OBJECT(self))->ref_count);
-  
+
   return(TRUE);
 }
 
@@ -1029,7 +1029,7 @@ static gboolean bt_machine_setup(BtMachine * const self) {
  */
 gboolean bt_machine_new(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!self->priv->machines[PART_MACHINE],FALSE);
   g_return_val_if_fail(BT_IS_STRING(self->priv->id),FALSE);
@@ -1063,13 +1063,13 @@ gboolean bt_machine_new(BtMachine * const self) {
  */
 gboolean bt_machine_enable_input_level(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
-  
+
   if(!self->priv->machines[PART_INPUT_LEVEL]) {
     GST_INFO(" for machine '%s'",self->priv->id);
-    
+
     // add input-level analyser
     if(!bt_machine_make_internal_element(self,PART_INPUT_LEVEL,"level","input_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
@@ -1093,13 +1093,13 @@ Error:
  */
 gboolean bt_machine_enable_output_level(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
-  
+
   if(!self->priv->machines[PART_OUTPUT_LEVEL]) {
     GST_INFO(" for machine '%s'",self->priv->id);
-    
+
     // add output-level analyser
     if(!bt_machine_make_internal_element(self,PART_OUTPUT_LEVEL,"level","output_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_OUTPUT_LEVEL]),
@@ -1123,13 +1123,13 @@ Error:
  */
 gboolean bt_machine_enable_input_gain(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
 
   if(!self->priv->machines[PART_INPUT_GAIN]) {
     GST_INFO(" for machine '%s'",self->priv->id);
-  
+
     // add input-gain element
     if(!bt_machine_make_internal_element(self,PART_INPUT_GAIN,"volume","input_gain")) goto Error;
     if(!bt_machine_add_input_element(self,PART_INPUT_GAIN)) goto Error;
@@ -1149,13 +1149,13 @@ Error:
  */
 gboolean bt_machine_enable_output_gain(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
 
   if(!self->priv->machines[PART_OUTPUT_GAIN]) {
     GST_INFO(" for machine '%s'",self->priv->id);
-  
+
     // add input-gain element
     if(!bt_machine_make_internal_element(self,PART_OUTPUT_GAIN,"volume","output_gain")) goto Error;
     if(!bt_machine_add_output_element(self,PART_OUTPUT_GAIN)) goto Error;
@@ -1176,13 +1176,13 @@ Error:
  */
 gboolean bt_machine_activate_adder(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SOURCE_MACHINE(self),FALSE);
 
   if(!self->priv->machines[PART_ADDER]) {
     GST_INFO(" for machine '%s'",self->priv->id);
-    
+
     // create the adder
     if(!(bt_machine_make_internal_element(self,PART_ADDER,"adder","adder"))) goto Error;
     // adder does not link directly to some elements
@@ -1228,7 +1228,7 @@ gboolean bt_machine_has_active_adder(const BtMachine * const self) {
  */
 gboolean bt_machine_activate_spreader(BtMachine * const self) {
   gboolean res=FALSE;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
   g_return_val_if_fail(!BT_IS_SINK_MACHINE(self),FALSE);
 
@@ -1272,7 +1272,7 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
  * @self: the machine to add the pattern to
  * @pattern: the new pattern instance
  *
- * Add the supplied pattern to the machine. This is automatically done by 
+ * Add the supplied pattern to the machine. This is automatically done by
  * #bt_pattern_new().
  */
 void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * const pattern) {
@@ -1286,7 +1286,7 @@ void bt_machine_add_pattern(const BtMachine * const self, const BtPattern * cons
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
-    GST_WARNING("trying to add pattern again"); 
+    GST_WARNING("trying to add pattern again");
   }
 }
 
@@ -1329,12 +1329,12 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
   BtPattern *pattern;
   gchar *pattern_id;
   GList* node;
-  
+
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(BT_IS_STRING(id),NULL);
-  
+
   //GST_DEBUG("pattern-list.length=%d",g_list_length(self->priv->patterns));
-  
+
   for(node=self->priv->patterns;node;node=g_list_next(node)) {
     pattern=BT_PATTERN(node->data);
     g_object_get(G_OBJECT(pattern),"id",&pattern_id,NULL);
@@ -1360,7 +1360,7 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
 BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<g_list_length(self->priv->patterns),NULL);
-  
+
   return(g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index))));
 }
 
@@ -1379,7 +1379,7 @@ gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self) {
   guint8 i=0;
 
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  
+
   id=g_strdup_printf("%s 00",self->priv->id);
   ptr=&id[strlen(self->priv->id)+1];
   do {
@@ -1389,7 +1389,7 @@ gchar *bt_machine_get_unique_pattern_name(const BtMachine * const self) {
   g_object_try_unref(pattern);
   g_free(id);
   i--;
-  
+
   return(g_strdup_printf("%02u",i));
 }
 
@@ -1444,14 +1444,14 @@ glong bt_machine_get_global_param_index(const BtMachine *const self, const gchar
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
   g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
-  
+
   for(i=0;i<self->priv->global_params;i++) {
     if(!strcmp(self->priv->global_names[i],name)) {
       ret=i;
       found=TRUE;
       break;
     }
-  }  
+  }
   if(!found && error) {
     GST_WARNING("global param for name %s not found", name);
     g_set_error (error, error_domain, /* errorcode= */0,
@@ -1480,14 +1480,14 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
   g_return_val_if_fail(BT_IS_MACHINE(self),-1);
   g_return_val_if_fail(BT_IS_STRING(name),-1);
   g_return_val_if_fail(error == NULL || *error == NULL, -1);
- 
+
   for(i=0;i<self->priv->voice_params;i++) {
     if(!strcmp(self->priv->voice_names[i],name)) {
       ret=i;
       found=TRUE;
       break;
     }
-  }  
+  }
   if(!found && error) {
     GST_WARNING("voice param for name %s not found", name);
     g_set_error (error, error_domain, /* errorcode= */0,
@@ -1521,7 +1521,7 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
 GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
-  
+
   return(g_object_class_find_property(
     G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
     self->priv->global_names[index])
@@ -1540,7 +1540,7 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const
 GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
-  
+
   return(g_object_class_find_property(
     G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
     self->priv->voice_names[index])
@@ -1552,7 +1552,7 @@ GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const 
  * @self: the machine to search for the global param type
  * @index: the offset in the list of global params
  *
- * Retrieves the GType of a global param 
+ * Retrieves the GType of a global param
  *
  * Returns: the requested GType
  */
@@ -1560,7 +1560,7 @@ GType bt_machine_get_global_param_type(const BtMachine * const self, const gulon
   g_return_val_if_fail(BT_IS_MACHINE(self),0);
   g_return_val_if_fail(index<self->priv->global_params,0);
   g_return_val_if_fail(self->priv->global_types,0);
-  
+
   return(self->priv->global_types[index]);
 }
 
@@ -1569,7 +1569,7 @@ GType bt_machine_get_global_param_type(const BtMachine * const self, const gulon
  * @self: the machine to search for the voice param type
  * @index: the offset in the list of voice params
  *
- * Retrieves the GType of a voice param 
+ * Retrieves the GType of a voice param
  *
  * Returns: the requested GType
  */
@@ -1592,7 +1592,7 @@ void bt_machine_set_global_param_value(const BtMachine * const self, const gulon
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(G_IS_VALUE(event));
   g_return_if_fail(index<self->priv->global_params);
-  
+
   GST_DEBUG("set value for %s.%s",self->priv->id,self->priv->global_names[index]);
   g_object_set_property(G_OBJECT(self->priv->machines[PART_MACHINE]),self->priv->global_names[index],event);
 }
@@ -1608,12 +1608,12 @@ void bt_machine_set_global_param_value(const BtMachine * const self, const gulon
  */
 void bt_machine_set_voice_param_value(const BtMachine * const self, const gulong voice, const gulong index, GValue * const event) {
   GstObject *voice_child;
-  
+
   g_return_if_fail(BT_IS_MACHINE(self));
   g_return_if_fail(G_IS_VALUE(event));
   g_return_if_fail(voice<self->priv->voices);
   g_return_if_fail(index<self->priv->voice_params);
-  
+
   if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice))) {
     g_object_set_property(G_OBJECT(voice_child),self->priv->voice_names[index],event);
     g_object_unref(voice_child);
@@ -1656,7 +1656,7 @@ void bt_machine_set_voice_param_no_value(const BtMachine * const self, const gul
 
 /**
  * bt_machine_get_global_param_name:
- * @self: the machine to get the param name from 
+ * @self: the machine to get the param name from
  * @index: the offset in the list of global params
  *
  * Gets the global param name. Do not modify returned content.
@@ -1666,13 +1666,13 @@ void bt_machine_set_voice_param_no_value(const BtMachine * const self, const gul
 const gchar *bt_machine_get_global_param_name(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
-  
+
   return(self->priv->global_names[index]);
 }
 
 /**
  * bt_machine_get_voice_param_name:
- * @self: the machine to get the param name from 
+ * @self: the machine to get the param name from
  * @index: the offset in the list of voice params
  *
  * Gets the voice param name. Do not modify returned content.
@@ -1682,7 +1682,7 @@ const gchar *bt_machine_get_global_param_name(const BtMachine * const self, cons
 const gchar *bt_machine_get_voice_param_name(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
-  
+
   return(self->priv->voice_names[index]);
 }
 
@@ -1693,7 +1693,7 @@ static GValue *bt_machine_get_param_min_value(const BtMachine * const self, GPar
     !bt_machine_get_property_meta_value(value,property,gst_property_meta_quark_min_val)
   ) {
     GType base_type=bt_g_type_get_base_type(property->value_type);
-    
+
     g_value_init(value,property->value_type);
     switch(base_type) {
       case G_TYPE_BOOLEAN:
@@ -1729,23 +1729,23 @@ static GValue *bt_machine_get_param_min_value(const BtMachine * const self, GPar
 
 /**
  * bt_machine_get_global_param_min_value:
- * @self: the machine to get the min param value from 
+ * @self: the machine to get the min param value from
  * @index: the offset in the list of global params
  *
  * Gets the minimum value of a global param.
  *
  * Returns: the the minimum value as a new GValue
  */
-GValue *bt_machine_get_global_param_min_value(const BtMachine * const self, const gulong index) {  
+GValue *bt_machine_get_global_param_min_value(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
-  
+
   return(bt_machine_get_param_min_value(self,bt_machine_get_global_param_spec(self,index)));
 }
 
 /**
  * bt_machine_get_voice_param_min_value:
- * @self: the machine to get the min param value from 
+ * @self: the machine to get the min param value from
  * @index: the offset in the list of voice params
  *
  * Gets the minimum value of a voice param.
@@ -1802,7 +1802,7 @@ static GValue *bt_machine_get_param_max_value(const BtMachine * const self, GPar
 
 /**
  * bt_machine_get_global_param_max_value:
- * @self: the machine to get the max param value from 
+ * @self: the machine to get the max param value from
  * @index: the offset in the list of global params
  *
  * Gets the maximum value of a global param.
@@ -1812,13 +1812,13 @@ static GValue *bt_machine_get_param_max_value(const BtMachine * const self, GPar
 GValue *bt_machine_get_global_param_max_value(const BtMachine * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->global_params,NULL);
-  
+
   return(bt_machine_get_param_max_value(self,bt_machine_get_global_param_spec(self,index)));
 }
 
 /**
  * bt_machine_get_voice_param_max_value:
- * @self: the machine to get the max param value from 
+ * @self: the machine to get the max param value from
  * @index: the offset in the list of voice params
  *
  * Gets the maximum value of a voice param.
@@ -1905,7 +1905,7 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
   g_return_val_if_fail(G_IS_VALUE(value),FALSE);
 
   if(!G_IS_VALUE(&self->priv->voice_no_val[index])) return(FALSE);
-  
+
   if(gst_value_compare(&self->priv->voice_no_val[index],value)==GST_VALUE_EQUAL) return(TRUE);
   return(FALSE);
 }
@@ -1952,7 +1952,7 @@ gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,FALSE);
   g_return_val_if_fail(G_IS_VALUE(event),FALSE);
-  
+
   if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
     GstObject *voice_child;
 
@@ -2020,13 +2020,13 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
 GList *bt_machine_get_element_list(const BtMachine * const self) {
   GList *list=NULL;
   gulong i;
-  
+
   for(i=0;i<PART_COUNT;i++) {
     if(self->priv->machines[i]) {
       list=g_list_append(list,self->priv->machines[i]);
     }
   }
-  
+
   return(list);
 }
 
@@ -2034,35 +2034,35 @@ void bt_machine_dbg_print_parts(const BtMachine * const self) {
   /* [A AC IL IG M OL OG S] */
   GST_DEBUG("%s [%c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c %c%s%c]",
     self->priv->id,
-  
+
     self->priv->machines[PART_ADDER]==self->dst_elem?'<':' ',
     self->priv->machines[PART_ADDER]?"A":"a",
     self->priv->machines[PART_ADDER]==self->src_elem?'>':' ',
-  
+
     self->priv->machines[PART_ADDER_CONVERT]==self->dst_elem?'<':' ',
     self->priv->machines[PART_ADDER_CONVERT]?"AC":"ac",
     self->priv->machines[PART_ADDER_CONVERT]==self->src_elem?'>':' ',
-  
+
     self->priv->machines[PART_INPUT_LEVEL]==self->dst_elem?'<':' ',
     self->priv->machines[PART_INPUT_LEVEL]?"IL":"il",
     self->priv->machines[PART_INPUT_LEVEL]==self->src_elem?'>':' ',
-    
+
     self->priv->machines[PART_INPUT_GAIN]==self->dst_elem?'<':' ',
     self->priv->machines[PART_INPUT_GAIN]?"IG":"ig",
     self->priv->machines[PART_INPUT_GAIN]==self->src_elem?'>':' ',
-  
+
     self->priv->machines[PART_MACHINE]==self->dst_elem?'<':' ',
     self->priv->machines[PART_MACHINE]?"M":"m",
     self->priv->machines[PART_MACHINE]==self->src_elem?'>':' ',
-  
+
     self->priv->machines[PART_OUTPUT_LEVEL]==self->dst_elem?'<':' ',
     self->priv->machines[PART_OUTPUT_LEVEL]?"OL":"ol",
     self->priv->machines[PART_OUTPUT_LEVEL]==self->src_elem?'>':' ',
-  
+
     self->priv->machines[PART_OUTPUT_GAIN]==self->dst_elem?'<':' ',
     self->priv->machines[PART_OUTPUT_GAIN]?"OG":"og",
     self->priv->machines[PART_OUTPUT_GAIN]==self->src_elem?'>':' ',
-  
+
     self->priv->machines[PART_SPREADER]==self->dst_elem?'<':' ',
     self->priv->machines[PART_SPREADER]?"S":"s",
     self->priv->machines[PART_SPREADER]==self->src_elem?'>':' '
@@ -2075,7 +2075,7 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
   gchar *name,*str;
   GList *list,*node;
   GstTimedValue *tv;
-  
+
   for(i=0;i<self->priv->global_params;i++) {
     name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
     if((file=fopen(name,"wb"))) {
@@ -2117,7 +2117,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
       // skip trigger parameters and parametzers that are also used as voice params
       if(bt_machine_is_global_param_trigger(self,i)) continue;
       if(self->priv->voice_params && bt_machine_get_voice_param_index(self,self->priv->global_names[i],NULL)>-1) continue;
-        
+
       if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("globaldata"),NULL))) {
         g_value_init(&value,self->priv->global_types[i]);
         g_object_get_property(G_OBJECT(machine),self->priv->global_names[i],&value);
@@ -2130,7 +2130,7 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
     }
     for(j=0;j<self->priv->voices;j++) {
       machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
-      
+
       for(i=0;i<self->priv->voice_params;i++) {
         if(bt_machine_is_voice_param_trigger(self,i)) continue;
         if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("voicedata"),NULL))) {
@@ -2236,7 +2236,7 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
       }
       else if(!strncmp((gchar *)node->name,"patterns\0",9)) {
         BtPattern *pattern;
-        
+
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"pattern\0",8))) {
             pattern=BT_PATTERN(g_object_new(BT_TYPE_PATTERN,"song",self->priv->song,"machine",self,"voices",self->priv->voices,NULL));
@@ -2257,7 +2257,7 @@ Error:
 
 static void bt_machine_persistence_interface_init(gpointer const g_iface, gconstpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_machine_persistence_load;
   iface->save = bt_machine_persistence_save;
 }
@@ -2342,7 +2342,7 @@ static void bt_machine_set_property(GObject * const object,
                               GParamSpec * const pspec)
 {
   const BtMachine * const self = BT_MACHINE(object);
-  
+
   return_if_disposed();
   switch (property_id) {
     case MACHINE_SONG: {
@@ -2406,7 +2406,7 @@ static void bt_machine_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p,%s, song=%p",self,self->priv->id,self->priv->song);
-  
+
   // disconnect notify handlers
   if(self->priv->song) {
     BtSongInfo *song_info;
@@ -2418,12 +2418,12 @@ static void bt_machine_dispose(GObject * const object) {
       g_object_unref(song_info);
     }
   }
-  
+
   // remove the GstElements from the bin
   // gstreamer uses floating references, therefore elements are destroyed, when removed from the bin
   if(self->priv->bin) {
     GstStateChangeReturn res;
-    
+
     GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
       (G_OBJECT(self->priv->bin))->ref_count,
       GST_BIN_NUMCHILDREN(self->priv->bin)
@@ -2454,7 +2454,7 @@ static void bt_machine_dispose(GObject * const object) {
 
   //GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
-  
+
   GST_DEBUG("  releasing patterns");
 
   // unref list of patterns
@@ -2502,12 +2502,12 @@ static void bt_machine_finalize(GObject * const object) {
 
 static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtMachine * const self = BT_MACHINE(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE, BtMachinePrivate);
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
-    
+
   GST_DEBUG("!!!! self=%p",self);
 }
 
@@ -2517,7 +2517,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   error_domain=g_quark_from_static_string("BtMachine");
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePrivate));
-  
+
   gobject_class->set_property = bt_machine_set_property;
   gobject_class->get_property = bt_machine_get_property;
   gobject_class->dispose      = bt_machine_dispose;
@@ -2525,8 +2525,8 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
 
   klass->pattern_added_event = NULL;
   klass->pattern_removed_event = NULL;
-  
-  /** 
+
+  /**
    * BtMachine::pattern-added:
    * @self: the machine object that emitted the signal
    * @pattern: the new pattern
@@ -2544,7 +2544,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                         1, // n_params
                                         BT_TYPE_PATTERN // param data
                                         );
-  
+
   /**
    * BtMachine::pattern-removed:
    * @self: the machine object that emitted the signal
@@ -2624,7 +2624,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      "the machine element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
                                      G_PARAM_READABLE));
-  
+
   g_object_class_install_property(gobject_class,MACHINE_INPUT_LEVEL,
                                   g_param_spec_object("input-level",
                                      "input-level prop",
