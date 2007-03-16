@@ -1,5 +1,10 @@
 2007-03-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  no need to check for popt.h
+
+2007-03-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* pixmaps/tab_info.png:
 	* pixmaps/tab_machines.png:
 	* pixmaps/tab_patterns.png:

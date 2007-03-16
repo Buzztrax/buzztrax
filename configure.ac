@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.95 2007-03-11 20:19:18 ensonic Exp $
+dnl $Id: configure.ac,v 1.96 2007-03-16 12:54:32 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -338,7 +338,6 @@ AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(X11/Xlocale.h)
-AC_CHECK_HEADERS(popt.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AM_C_PROTOTYPES
