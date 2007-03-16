@@ -1,5 +1,10 @@
 2007-03-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/songs/buzz7.xml:
+	  unbreak another song
+
+2007-03-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  no need to check for popt.h
 

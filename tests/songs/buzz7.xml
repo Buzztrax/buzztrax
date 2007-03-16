@@ -65,7 +65,6 @@
           <property key="xpos" value="-0.7"/>
           <property key="ypos" value="0.5"/>
         </properties>
-        <globaldata name="volume" value="1.0"/>
       </machine>
     </machines>
     
