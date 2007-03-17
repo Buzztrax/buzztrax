@@ -1,5 +1,19 @@
 2007-03-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-canvas-item.c: (on_machine_id_changed),
+	(on_context_menu_properties_activate),
+	(on_context_menu_preferences_activate),
+	(on_context_menu_rename_activate),
+	(on_context_menu_delete_activate),
+	(on_context_menu_about_activate),
+	(bt_machine_canvas_item_is_over_state_switch),
+	(bt_machine_canvas_item_new), (bt_machine_canvas_item_dispose),
+	(bt_machine_canvas_item_realize), (bt_machine_canvas_item_event),
+	(bt_machine_canvas_item_init), (bt_machine_canvas_item_class_init):
+	  make machines state better visible. formatting
+
+2007-03-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_on_bpm_changed),
 	(bt_machine_on_tpb_changed), (bt_machine_unset_mute),
 	(bt_machine_change_state), (bt_machine_insert_element),

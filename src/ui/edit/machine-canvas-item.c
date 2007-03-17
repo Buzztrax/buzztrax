@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.81 2007-03-13 22:38:12 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.82 2007-03-17 08:13:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
  *
  * The canvas object emits #BtMachineCanvasItem::position-changed signal after
  * it has been moved.
- */ 
+ */
 
 /* @todo more graphics:
  * - add level meter widgets
@@ -61,7 +61,7 @@ enum {
 struct _BtMachineCanvasItemPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
   /* the machine page we are on */
@@ -71,7 +71,7 @@ struct _BtMachineCanvasItemPrivate {
   BtMachine *machine;
   /* and its properties */
   GHashTable *properties;
-  
+
   /* machine context_menu */
   GtkMenu *context_menu;
   GtkWidget *menu_item_mute,*menu_item_solo,*menu_item_bypass;
@@ -85,7 +85,7 @@ struct _BtMachineCanvasItemPrivate {
   GnomeCanvasItem *label;
   GnomeCanvasItem *box;
   GnomeCanvasItem *state_switch,*state_mute,*state_solo,*state_bypass;
-  
+
   /* cursor for moving */
   GdkCursor *drag_cursor;
 
@@ -105,16 +105,16 @@ static GnomeCanvasGroupClass *parent_class=NULL;
 
 static void on_machine_id_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  
+
   g_assert(user_data);
-  
+
   if(self->priv->label) {
     gchar *id;
 
     g_object_get(self->priv->machine,"id",&id,NULL);
     gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->label),"text",id,NULL);
     g_free(id);
-  }  
+  }
 }
 
 static void on_machine_state_changed(BtMachine *machine, GParamSpec *arg, gpointer user_data) {
@@ -270,7 +270,7 @@ static void on_context_menu_bypass_toggled(GtkMenuItem *menuitem,gpointer user_d
 
 static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  
+
   g_assert(user_data);
 
   if(!self->priv->properties_dialog) {
@@ -285,7 +285,7 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
 
 static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  
+
   g_assert(user_data);
 
   if(!self->priv->preferences_dialog) {
@@ -303,15 +303,15 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
   BtMainWindow *main_window;
   gint answer;
   GtkWidget *label,*entry,*icon,*hbox,*vbox;
-  gchar *str,*id; 
+  gchar *str,*id;
   GtkWidget *dialog;
-  
+
   g_assert(user_data);
   GST_INFO("context_menu rename event occurred");
 
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   g_object_get(self->priv->machine,"id",&id,NULL);
-  
+
   // @todo: move to new class
   dialog = gtk_dialog_new_with_buttons(_("Rename ..."),
                                         GTK_WINDOW(main_window),
@@ -319,7 +319,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
                                         GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                                         GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
                                         NULL);
-  
+
   gtk_dialog_set_default_response(GTK_DIALOG(dialog),GTK_RESPONSE_ACCEPT);
 
   hbox=gtk_hbox_new(FALSE,12);
@@ -327,7 +327,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
 
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(hbox),icon);
-  
+
   vbox=gtk_vbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(vbox),0);
 
@@ -343,7 +343,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
   gtk_container_add(GTK_CONTAINER(hbox),vbox);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
   gtk_widget_show_all(dialog);
-                                                  
+
   answer=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(answer) {
     case GTK_RESPONSE_ACCEPT:
@@ -358,7 +358,7 @@ static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_
       GST_WARNING("unhandled response code = %d",answer);
   }
   gtk_widget_destroy(dialog);
-  
+
   g_object_try_unref(main_window);
 }
 
@@ -369,26 +369,26 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
 
   g_assert(user_data);
   GST_INFO("context_menu delete event occurred for machine : %p",self->priv->machine);
-  
+
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   g_object_get(self->priv->machine,"id",&id,NULL);
-  
+
   msg=g_strdup_printf(_("Delete machine '%s'"),id);
   g_free(id);
 
   if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
     BtSong *song;
     BtSetup *setup;
-    
+
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-    
+
     GST_INFO("now removing machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     bt_setup_remove_machine(setup,self->priv->machine);
     GST_INFO("... machine : %p,ref_count=%d",self->priv->machine,G_OBJECT(self->priv->machine)->ref_count);
     GST_INFO("now removing machine-item : %p",self);
     bt_main_page_machines_remove_machine_item(self->priv->main_page_machines,self);
-    
+
     g_object_try_unref(setup);
     g_object_try_unref(song);
   }
@@ -412,7 +412,7 @@ static void on_context_menu_about_activate(GtkMenuItem *menuitem,gpointer user_d
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
   BtMainWindow *main_window;
   GstElement *machine;
-  
+
   g_assert(user_data);
 
   GST_INFO("context_menu about event occurred");
@@ -430,7 +430,7 @@ static gboolean bt_machine_canvas_item_is_over_state_switch(const BtMachineCanva
   GnomeCanvas *canvas;
   GnomeCanvasItem *ci,*pci;
   gboolean res=FALSE;
-        
+
   g_object_get(G_OBJECT(self->priv->main_page_machines),"canvas",&canvas,NULL);
   if((ci=gnome_canvas_get_item_at(canvas,event->button.x,event->button.y))) {
     g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
@@ -548,7 +548,7 @@ BtMachineCanvasItem *bt_machine_canvas_item_new(const BtMainPageMachines *main_p
   GnomeCanvas *canvas;
 
   g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
-  
+
   self=BT_MACHINE_CANVAS_ITEM(gnome_canvas_item_new(gnome_canvas_root(canvas),
                             BT_TYPE_MACHINE_CANVAS_ITEM,
                             "machines-page",main_page_machines,
@@ -653,7 +653,7 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   GST_DEBUG("machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
   g_object_try_weak_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
@@ -670,12 +670,12 @@ static void bt_machine_canvas_item_dispose(GObject *object) {
   GST_DEBUG("  destroying dialogs done");
 
   gdk_cursor_unref(self->priv->drag_cursor);
-  
+
   // this causes warnings on gtk 2.4
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   GST_DEBUG("  destroying done, machine: %p,ref_count %d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
 
-  GST_DEBUG("  chaining up");  
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
@@ -698,19 +698,19 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(citem);
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble mx1,mx2,my1,my2,mw,mh;
-  guint32 bg_color,bg_color2;
+  guint32 bg_color,bg_color2,bg_color3;
   gdouble fh=MACHINE_VIEW_FONT_SIZE*self->priv->zoom;
   gchar *id;
   GnomeCanvasPoints *points;
-  
+
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
-  
+
   //GST_DEBUG("realize for machine occured, machine=%p",self->priv->machine);
 
   bg_color=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BASE);
-  //bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
   bg_color2=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_BRIGHT2);
+  bg_color3=bt_ui_ressources_get_color_by_machine(self->priv->machine,BT_UI_RES_COLOR_MACHINE_DARK1);
 
   g_object_get(self->priv->machine,"id",&id,NULL);
 
@@ -726,7 +726,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "outline_color", "black",
                            "width-pixels", 1,
                            NULL);
-  
+
   // title bar
   gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_RECT,
@@ -757,7 +757,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "clip-height",h+h,
                            NULL);
   g_free(id);
-  
+
   // the state switch button
   mw=0.20;mh=0.30;
   mx1=-w*0.90;mx2=-w*(0.90-mw);
@@ -769,8 +769,8 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            "y1", my1,
                            "x2", mx2,
                            "y2", my2,
-                           "fill-color-rgba", bg_color2,
-                           "outline_color", "black",
+                           "fill-color-rgba", bg_color,
+                           "outline_color-rgba", bg_color3,
                            "width-pixels", 1,
                            NULL);
   // the mute-state
@@ -795,7 +795,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            NULL);
   gnome_canvas_item_raise_to_top(self->priv->state_mute);
   gnome_canvas_item_hide(self->priv->state_mute);
-  
+
   // the solo-state
   self->priv->state_solo=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_ELLIPSE,
@@ -844,7 +844,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
   guint bg_color;
 
   //GST_DEBUG("event for machine occured");
-  
+
   switch (event->type) {
     case GDK_2BUTTON_PRESS:
       GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
@@ -887,7 +887,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
           gnome_canvas_item_grab(citem, GDK_POINTER_MOTION_MASK |
                                 /* GDK_ENTER_NOTIFY_MASK | */
                                 /* GDK_LEAVE_NOTIFY_MASK | */
-          GDK_BUTTON_RELEASE_MASK, self->priv->drag_cursor, event->button.time);          
+          GDK_BUTTON_RELEASE_MASK, self->priv->drag_cursor, event->button.time);
         }
         dx=event->button.x-self->priv->dragx;
         dy=event->button.y-self->priv->dragy;
@@ -940,7 +940,7 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
               g_object_set(self->priv->machine,"state",BT_MACHINE_STATE_BYPASS,NULL);
               break;
           }
-        }  
+        }
       }
       break;
     default:
@@ -961,7 +961,7 @@ static void bt_machine_canvas_item_init(GTypeInstance *instance, gpointer g_clas
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_CANVAS_ITEM, BtMachineCanvasItemPrivate);
 
-  // generate the context menu  
+  // generate the context menu
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
   // the menu-items are generated in bt_machine_canvas_item_init_context_menu()
 
@@ -986,7 +986,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 
   klass->position_changed = NULL;
 
-  /** 
+  /**
    * BtMachineCanvasItem::position-changed
    * @self: the machine-canvas-item object that emitted the signal
    *
@@ -1012,7 +1012,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
                                      G_PARAM_READWRITE));
-  
+
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",
                                      "machines-page contruct prop",
@@ -1028,7 +1028,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                      "machine contruct prop",
                                      "Set machine object, the item belongs to",
                                      BT_TYPE_MACHINE, /* object type */
-#ifndef GNOME_CANVAS_BROKEN_PROPERTIES                                     
+#ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
                                      G_PARAM_READWRITE));
