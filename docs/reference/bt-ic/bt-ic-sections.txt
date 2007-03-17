@@ -1,4 +1,4 @@
-# $Id: bt-ic-sections.txt,v 1.2 2007-03-14 22:51:32 ensonic Exp $
+# $Id: bt-ic-sections.txt,v 1.3 2007-03-17 11:42:30 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -85,6 +85,7 @@ btic_registry_get_type
 <SECTION>
 <FILE>libbtic</FILE>
 <TITLE>libbtic</TITLE>
+GST_CAT_DEFAULT
 btic_init_get_option_group
 btic_init_check
 btic_init

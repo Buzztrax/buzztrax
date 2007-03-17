@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.1 2007-03-14 22:51:35 ensonic Exp $
+/* $Id: midi-device.c,v 1.2 2007-03-17 11:42:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,14 +30,15 @@
 
 #include <libbtic/ic.h>
 
-//enum {
-//  DEVICE_UDI=1,
-//  DEVICE_NAME
-//};
+enum {
+  DEVICE_DEVNODE=1
+};
 
 struct _BtIcMidiDevicePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+
+  gchar *devnode;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -57,13 +58,14 @@ static GObjectClass *parent_class=NULL;
  * btic_midi_device_new:
  * @udi: the udi of the device
  * @name: human readable name
+ * @devnode: device node in filesystem
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name) {
-  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(g_object_new(BTIC_TYPE_MIDI_DEVICE,"udi",udi,"name",name,NULL));
+BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name,const gchar *devnode) {
+  BtIcMidiDevice *self=BTIC_MIDI_DEVICE(g_object_new(BTIC_TYPE_MIDI_DEVICE,"udi",udi,"name",name,"devnode",devnode,NULL));
   if(!self) {
     goto Error;
   }
@@ -88,6 +90,9 @@ static void btic_midi_device_get_property(GObject      * const object,
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
+    case DEVICE_DEVNODE: {
+      g_value_set_string(value, self->priv->devnode);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -103,6 +108,10 @@ static void btic_midi_device_set_property(GObject      * const object,
   const BtIcMidiDevice * const self = BTIC_MIDI_DEVICE(object);
   return_if_disposed();
   switch (property_id) {
+    case DEVICE_DEVNODE: {
+      g_free(self->priv->devnode);
+      self->priv->devnode = g_value_dup_string(value);
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -127,6 +136,8 @@ static void btic_midi_device_finalize(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_free(self->priv->devnode);
+
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
@@ -148,6 +159,13 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
   gobject_class->get_property = btic_midi_device_get_property;
   gobject_class->dispose      = btic_midi_device_dispose;
   gobject_class->finalize     = btic_midi_device_finalize;
+
+  g_object_class_install_property(gobject_class,DEVICE_DEVNODE,
+                                  g_param_spec_string("devnode",
+                                     "devnode prop",
+                                     "device node path",
+                                     NULL, /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
 }
 
 GType btic_midi_device_get_type(void) {

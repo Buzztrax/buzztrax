@@ -1,4 +1,4 @@
-/* $Id: persistence-methods.h,v 1.11 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: persistence-methods.h,v 1.12 2007-03-17 11:42:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,10 +28,10 @@
 #include "persistence-selection.h"
 #include "persistence-location.h"
 #include "persistence.h"
- 
+
 
 // string formatting helper
-extern const gchar *bt_persistence_strfmt_uchar(const guchar const val);
+extern const gchar *bt_persistence_strfmt_uchar(const guchar val);
 extern const gchar *bt_persistence_strfmt_long(const glong val);
 extern const gchar *bt_persistence_strfmt_ulong(const gulong val);
 extern const gchar *bt_persistence_strfmt_double(const gdouble val);

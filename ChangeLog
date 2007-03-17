@@ -1,5 +1,29 @@
 2007-03-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* src/lib/core/libbtcore/persistence-methods.h:
+	* src/lib/core/persistence.c:
+	(bt_persistence_save_hashtable_entries),
+	(bt_persistence_save_hashtable), (bt_persistence_load_hashtable),
+	(bt_persistence_set_value), (bt_persistence_get_value),
+	(bt_persistence_save), (bt_persistence_load),
+	(bt_persistence_get_type):
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c: (btic_midi_device_new),
+	(btic_midi_device_get_property), (btic_midi_device_set_property),
+	(btic_midi_device_finalize), (btic_midi_device_class_init):
+	* src/lib/ic/registry.c: (on_device_added), (on_device_removed),
+	(btic_registry_dispose), (btic_registry_finalize),
+	(btic_registry_init):
+	  Some more doc fixes. Adding devnode parameter for midi too and
+	  scanning oss devices as well.
+
+2007-03-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-canvas-item.c: (on_machine_id_changed),
 	(on_context_menu_properties_activate),
 	(on_context_menu_preferences_activate),

@@ -1,4 +1,4 @@
-/* $Id: persistence.c,v 1.16 2007-02-22 13:47:28 ensonic Exp $
+/* $Id: persistence.c,v 1.17 2007-03-17 11:42:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -27,8 +27,8 @@
  * children objects (which also implement the interface) to serialize/
  * deserialize a whole object hierarchy.
  *
- */ 
- 
+ */
+
 #define BT_CORE
 #define BT_PERSISTENCE_C
 
@@ -136,7 +136,7 @@ gboolean bt_persistence_load_list(const GList *list,xmlNodePtr node,const gchar 
 
 static void bt_persistence_save_hashtable_entries(gpointer const key, gpointer const value, gpointer const user_data) {
   xmlNodePtr node;
-  
+
   node=xmlNewChild(user_data,NULL,XML_CHAR_PTR("property"),NULL);
   xmlNewProp(node,XML_CHAR_PTR("key"),XML_CHAR_PTR(key));
   xmlNewProp(node,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));
@@ -155,7 +155,7 @@ gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const n
   gboolean res=TRUE;
 
   g_hash_table_foreach(hashtable,bt_persistence_save_hashtable_entries,(gpointer)node);
-  
+
   return(res);
 }
 
@@ -170,7 +170,7 @@ gboolean bt_persistence_save_hashtable(GHashTable *hashtable, xmlNodePtr const n
  */
 gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
   xmlChar *key,*value;
-  
+
   // iterate over children
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node) && !strncmp((char *)node->name,"property\0",9)) {
@@ -198,7 +198,7 @@ gboolean bt_persistence_load_hashtable(GHashTable *hashtable, xmlNodePtr node) {
  */
 gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
   GType base_type;
-  
+
   g_return_val_if_fail(G_IS_VALUE(gvalue),FALSE);
   g_return_val_if_fail(svalue,FALSE);
 
@@ -261,7 +261,7 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
   gchar *res=NULL;
 
   g_return_val_if_fail(G_IS_VALUE(gvalue),NULL);
-  
+
   base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
   // depending on the type, set the result
   switch(base_type) {
@@ -320,7 +320,7 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
  */
 xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
-  
+
   return (BT_PERSISTENCE_GET_INTERFACE (self)->save (self, parent_node, selection));
 }
 
@@ -336,7 +336,7 @@ xmlNodePtr bt_persistence_save(const BtPersistence * const self, xmlNodePtr cons
  */
 gboolean bt_persistence_load(const BtPersistence * const self, xmlNodePtr node, const BtPersistenceLocation * const location) {
   g_return_val_if_fail (BT_IS_PERSISTENCE (self), FALSE);
-  
+
   return (BT_PERSISTENCE_GET_INTERFACE (self)->load (self, node, location));
 }
 
@@ -353,7 +353,7 @@ static void bt_persistence_base_init(gpointer g_class) {
 
 GType bt_persistence_get_type (void) {
   static GType type = 0;
-  
+
   if (type == 0) {
     const GTypeInfo info = {
       sizeof (BtPersistenceInterface),

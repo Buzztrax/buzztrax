@@ -57,12 +57,13 @@ expand_content_files=
 # signals and properties.
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
-  -I$(top_srcdir)/src/lib/ic \
+	-I$(top_srcdir)/src/lib/ic \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
-GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
-	$(top_builddir)/src/lib/ic/libbtic.la
+GTKDOC_LIBS = \
+    $(top_builddir)/src/lib/ic/libbtic.la \
+    $(BASE_DEPS_LIBS)
 
 # include generic part
 include $(top_srcdir)/gtk-doc.make

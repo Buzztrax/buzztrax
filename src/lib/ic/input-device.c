@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.2 2007-03-14 22:51:35 ensonic Exp $
+/* $Id: input-device.c,v 1.3 2007-03-17 11:42:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,6 +60,7 @@ static GObjectClass *parent_class=NULL;
  * btic_input_device_new:
  * @udi: the udi of the device
  * @name: human readable name
+ * @devnode: device node in filesystem
  *
  * Create a new instance
  *

@@ -62,9 +62,10 @@ INCLUDES = \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
-GTKDOC_LIBS = $(BASE_DEPS_LIBS) \
+GTKDOC_LIBS = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
-	$(top_builddir)/src/ui/cmd/libbtcmd.la
+	$(top_builddir)/src/ui/cmd/libbtcmd.la \
+	$(BASE_DEPS_LIBS)
 
 # include generic part
 include $(top_srcdir)/gtk-doc.make

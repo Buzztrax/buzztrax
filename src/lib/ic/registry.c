@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.5 2007-03-14 22:51:36 ensonic Exp $
+/* $Id: registry.c,v 1.6 2007-03-17 11:42:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -39,7 +39,7 @@ enum {
 struct _BtIcRegistryPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* list of BtIcDevice objects */
   GList *devices;
 
@@ -62,22 +62,21 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   BtIcRegistry *self=BTIC_REGISTRY(singleton);
   gchar **cap;
   gchar *parent_udi;
-  gchar *name,*devnode;
+  gchar *name,*devnode,*type;
   size_t n;
   BtIcDevice *device=NULL;
-  
+
   if(!(cap=libhal_device_get_property_strlist(ctx,udi,"info.capabilities",NULL))) {
     return;
   }
 
   for(n=0;cap[n];n++) {
+    name=libhal_device_get_property_string(ctx,udi,"info.product",NULL);
     // midi devices seem to appear only as oss under hal?
     // @todo: try alsa.sequencer
-    if(!strcmp(cap[n],"alsa.sequence")) {
+    if(!strcmp(cap[n],"alsa.sequencer")) {
       parent_udi=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
       parent_udi=libhal_device_get_property_string(ctx,parent_udi,"info.parent",NULL);
-      
-      name=libhal_device_get_property_string(ctx,udi,"input.product",NULL);
 
       GST_INFO("alsa device added: type=%s, device_file=%s, vendor=%s",
         libhal_device_get_property_string(ctx,udi,"alsa.type",NULL),
@@ -87,17 +86,27 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       // create device
       device=BTIC_DEVICE(btic_midi_device_new(udi,name));
     }
+    if(!strcmp(cap[n],"oss")) {
+      type=libhal_device_get_property_string(ctx,udi,"oss.type",NULL);
+      if(!strcmp(type,"midi")) {
+        devnode=libhal_device_get_property_string(ctx,udi,"oss.device_file",NULL);
+
+        GST_INFO("midi device added: product=%s, devnode=%s",
+          name,devnode);
+        // create device
+        device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+      }
+    }
     else if(!strcmp(cap[n],"input.joystick")) {
-      name=libhal_device_get_property_string(ctx,udi,"input.product",NULL);
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
-	  
-      GST_INFO("input device added: producs=%s, input.device=%s",
+
+      GST_INFO("input device added: product=%s, devnode=%s",
         name,devnode);
       // create device
 	  device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
     }
     else {
-      GST_INFO("  unknown device added: udi=%s",udi); 
+      GST_INFO("  unknown device added: name=%s",name);
     }
     if(device) {
       // add devices to our list and trigger notify
@@ -113,7 +122,7 @@ static void on_device_removed(LibHalContext *ctx, const gchar *udi) {
   GList *node;
   BtIcDevice *device;
   gchar *device_udi;
-  
+
   // search for device by udi
   for(node=self->priv->devices;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
@@ -211,7 +220,7 @@ static void btic_registry_dispose(GObject * const object) {
       node->data=NULL;
     }
   }
-  
+
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
@@ -221,7 +230,7 @@ static void btic_registry_finalize(GObject * const object) {
   const BtIcRegistry * const self = BTIC_REGISTRY(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   if(self->priv->devices) {
     g_list_free(self->priv->devices);
     self->priv->devices=NULL;
@@ -238,7 +247,7 @@ static void btic_registry_init(const GTypeInstance * const instance, gconstpoint
   gchar **devices;
   gint i,num_devices;
 #endif
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_REGISTRY, BtIcRegistryPrivate);
   singleton=self;
 
@@ -252,7 +261,7 @@ static void btic_registry_init(const GTypeInstance * const instance, gconstpoint
   }
   dbus_connection_setup_with_g_main(self->priv->dbus_conn,NULL);
   dbus_connection_set_exit_on_disconnect(self->priv->dbus_conn,FALSE);
-  
+
   /* init hal */
   if(!(self->priv->ctx=libhal_ctx_new())) {
     GST_WARNING("Could not create hal context");
@@ -272,16 +281,23 @@ static void btic_registry_init(const GTypeInstance * const instance, gconstpoint
     for(i=0;i<num_devices;i++) {
       on_device_added(self->priv->ctx,devices[i]);
     }
-    libhal_free_string_array(devices);  
+    libhal_free_string_array(devices);
   }
-  if((devices=libhal_find_device_by_capability(self->priv->ctx,"alsa.sequence",&num_devices,&self->priv->dbus_error))) {
-    GST_INFO("%d input devices found, try adding",num_devices);
+  if((devices=libhal_find_device_by_capability(self->priv->ctx,"alsa.sequencer",&num_devices,&self->priv->dbus_error))) {
+    GST_INFO("%d alsa.sequencer devices found, try adding",num_devices);
     for(i=0;i<num_devices;i++) {
       on_device_added(self->priv->ctx,devices[i]);
     }
-    libhal_free_string_array(devices);  
+    libhal_free_string_array(devices);
   }
-  
+  if((devices=libhal_find_device_by_capability(self->priv->ctx,"oss",&num_devices,&self->priv->dbus_error))) {
+    GST_INFO("%d oss devices found, try adding",num_devices);
+    for(i=0;i<num_devices;i++) {
+      on_device_added(self->priv->ctx,devices[i]);
+    }
+    libhal_free_string_array(devices);
+  }
+
   GST_INFO("device registry initialized");
 #else
   GST_INFO("no HAL support, not creating device registry");
