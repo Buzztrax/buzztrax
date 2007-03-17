@@ -1,4 +1,4 @@
-$Id: README,v 1.24 2006-09-27 21:31:08 ensonic Exp $
+$Id: README,v 1.25 2007-03-17 23:15:25 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -39,7 +39,7 @@ src : the project sources
     core : logic, e.g. connections framework, file i/o, ...
   tests : unit tests (same directory structure as src)
 
-= installing locally =
+= installing localy =
 Use following options for ./autogen.sh or ./configure
   --prefix=$HOME/buzztard
   --with-gconf-source=xml::/home/ensonic/.gconf/
@@ -75,3 +75,6 @@ in one console enter
 where XXX is one of 'core', 'cmd' and 'edit'
 and in another
   make check
+
+= make dist =
+remove ChangeLog from po/Makefile.in.in, DISTFILES

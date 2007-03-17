@@ -1,5 +1,12 @@
 2007-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* README:
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_init_ui):
+	* tests/Makefile.am:
+	  unbreak the build
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* docs/reference/bt-edit/bt-edit-docs.sgml:
 	* docs/reference/bt-edit/bt-edit-sections.txt:
