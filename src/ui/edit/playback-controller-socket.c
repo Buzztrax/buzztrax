@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.10 2007-03-14 22:51:36 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.11 2007-03-17 22:50:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,21 +40,21 @@ enum {
 struct _BtPlaybackControllerSocketPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* positions for each label */
   GList *playlist;
   gulong cur_pos;
-  
+
   /* data for the status */
   G_POINTER_ALIAS(BtSequence *,sequence);
   G_POINTER_ALIAS(GstElement *,gain);
   gboolean is_playing;
   gchar *length_str;
   gchar *cur_label;
-  
+
   /* master */
   gint master_socket,master_source;
   GIOChannel *master_channel;
@@ -93,24 +93,24 @@ static void client_connection_free(BtPlaybackControllerSocket *self) {
 static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gchar *cmd) {
   gchar *reply=NULL;
   BtSong *song;
- 
+
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) return(NULL);
-  
+
   if(!strcasecmp(cmd,"browse")) {
     BtSequence *sequence;
     BtSongInfo *song_info;
     gchar *str,*temp;
     gulong i,length;
     gboolean no_labels=TRUE;
-    
+
     g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
     g_object_get(G_OBJECT(song_info),"name",&str,NULL);
     g_object_get(G_OBJECT(sequence),"length",&length,NULL);
-    
+
     reply=g_strconcat("playlist|",str,NULL);
     g_free(str);
-        
+
     if(self->priv->playlist) {
       g_list_free(self->priv->playlist);
       self->priv->playlist=NULL;
@@ -124,7 +124,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
         g_free(reply);
         reply=temp;
         no_labels=FALSE;
-        
+
         self->priv->playlist=g_list_append(self->priv->playlist,GINT_TO_POINTER(i));
       }
     }
@@ -134,14 +134,14 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
       g_free(reply);
       reply=temp;
     }
-    
+
     g_object_unref(song_info);
     g_object_unref(sequence);
   }
   else if(!strncasecmp(cmd,"play|",5)) {
     self->priv->cur_pos=0;
     g_free(self->priv->cur_label);
-    
+
     // get playlst entry
     if(cmd[5]) {
       // get position for ix-th label
@@ -151,7 +151,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     else {
       self->priv->cur_label=g_strdup(DEFAULT_LABEL);
     }
-    
+
     // seek
     g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
 
@@ -175,12 +175,12 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     g_object_get(G_OBJECT(song),"play-pos",&pos,NULL);
     bar_time=bt_sequence_get_bar_time(self->priv->sequence);
     g_object_get(G_OBJECT(self->priv->sequence),"loop",&loop,NULL);
-  
+
     // calculate playtime
     msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
     min=(gulong)(msec/60000);msec-=(min*60000);
     sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
-    
+
     // get the current input_gain and adjust volume widget
     g_object_get(self->priv->gain,"volume",&volume,NULL);
 
@@ -199,7 +199,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     if(!strncasecmp(subcmd,"volume|",7)) {
       if(subcmd[7] && self->priv->gain) {
         gdouble volume;
-      
+
         volume=((gdouble)atoi(&subcmd[7]))/100.0;
         g_object_set(self->priv->gain,"volume",volume,NULL);
       }
@@ -221,10 +221,10 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   }
   else if(!strncasecmp(cmd,"get|",4)) {
     gchar *subcmd=&cmd[4];
-    
+
     if(!strcasecmp(subcmd,"volume")) {
       gdouble volume;
-      
+
       g_object_get(self->priv->gain,"volume",&volume,NULL);
       reply=g_strdup_printf("volume|%u",
         (guint)(100.0*volume));
@@ -235,7 +235,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     else if(!strcasecmp(subcmd,"repeat")) {
       gboolean loop;
       gchar *mode[]={"on","off"};
-      
+
       g_object_get(G_OBJECT(self->priv->sequence),"loop",&loop,NULL);
       reply=g_strdup_printf("repeat|%s",mode[loop]);
     }
@@ -246,7 +246,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   else {
     GST_WARNING("unknown command: %s",cmd);
   }
-  
+
   g_object_unref(song);
   return(reply);
 }
@@ -255,7 +255,7 @@ static gchar *client_read(BtPlaybackControllerSocket *self) {
   gchar *str;
   gsize len,term;
   GError *error=NULL;
-  
+
   g_io_channel_read_line(self->priv->client_channel,&str,&len,&term,&error);
   if(!error) {
     if(str && term>=0) str[term]='\0';
@@ -276,10 +276,10 @@ static gboolean client_write(BtPlaybackControllerSocket *self,gchar *str) {
   gboolean res=FALSE;
   GError *error=NULL;
   gsize len;
-  
+
   if(!self->priv->client_channel)
     return(FALSE);
-  
+
   GST_INFO("sending reply : %s",str);
 
   g_io_channel_write_chars(self->priv->client_channel,str,-1,&len,&error);
@@ -341,7 +341,7 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
   BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
   struct sockaddr addr={0,};
   socklen_t addrlen=sizeof(struct sockaddr);
-  
+
   GST_INFO("master io handler : %d",condition);
   if(condition & (G_IO_IN | G_IO_PRI)) {
     if((self->priv->client_socket=accept(self->priv->master_socket, &addr, &addrlen))<0) {
@@ -383,10 +383,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_assert(user_data);
 
   GST_INFO("song has changed : app=%p, toolbar=%p",app,user_data);
-  
+
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(!song) return;
-  
+
   self->priv->cur_pos=0;
   client_write(self,"flush");
   g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),(gpointer)self);
@@ -400,18 +400,69 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(master),"input-gain",&self->priv->gain,NULL);
   g_object_try_weak_ref(self->priv->gain);
   g_object_unref(self->priv->gain);
-  
+
   // calculate length
   g_free(self->priv->length_str);
   msec=(gulong)(bt_sequence_get_loop_time(self->priv->sequence)/G_USEC_PER_SEC);
   min=(gulong)(msec/60000);msec-=(min*60000);
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
   self->priv->length_str=g_strdup_printf("0:%02lu:%02lu.%03lu",min,sec,msec);
-    
+
   g_object_unref(master);
   g_object_unref(song);
 }
-  
+
+//-- helper
+
+static void master_connection_open(BtPlaybackControllerSocket *self) {
+  BtSettings *settings;
+  static struct sockaddr_in serv_addr={0,};
+  gboolean active;
+  guint port;
+
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  // @todo react to changes on-the-fly
+  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
+  g_object_unref(settings);
+
+  if(!active) return;
+
+  /* new socket: internet address family, stream socket */
+  if((self->priv->master_socket=socket(AF_INET,SOCK_STREAM,0))<0) {
+    goto socket_error;
+  }
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);// my address
+  serv_addr.sin_port = htons(port);
+  if(bind(self->priv->master_socket,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0) {
+    goto bind_error;
+  }
+  if(listen(self->priv->master_socket,64)<0) {
+    goto listen_error;
+  }
+  self->priv->master_channel=g_io_channel_unix_new(self->priv->master_socket);
+  //self->priv->master_source=g_io_add_watch(self->priv->master_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,master_socket_io_handler,(gpointer)self);
+  self->priv->master_source=g_io_add_watch_full(self->priv->master_channel,
+    G_PRIORITY_LOW,
+    G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,
+    master_socket_io_handler,
+    (gpointer)self,
+    NULL);
+
+  GST_INFO("playback controller running");
+  return;
+
+socket_error:
+  GST_WARNING("socket allocation failed: %s",g_strerror(errno));
+  return;
+bind_error:
+  GST_WARNING("binding the socket failed: %s",g_strerror(errno));
+  return;
+listen_error:
+  GST_WARNING("listen failed: %s",g_strerror(errno));
+  return;
+}
+
 //-- constructor methods
 
 /**
@@ -472,6 +523,8 @@ static void bt_playback_controller_socket_set_property(GObject      *object,
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
+      // open socket
+      master_connection_open(self);
       // register event handlers
       g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
     } break;
@@ -492,7 +545,7 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->sequence);
-  
+
   if(self->priv->master_channel) {
     if(self->priv->master_source>=0) {
       g_source_remove(self->priv->master_source);
@@ -519,12 +572,12 @@ static void bt_playback_controller_socket_finalize(GObject *object) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   if(self->priv->playlist) {
     g_list_free(self->priv->playlist);
     self->priv->playlist=NULL;
   }
-  
+
   g_free(self->priv->length_str);
   g_free(self->priv->cur_label);
 
@@ -533,45 +586,8 @@ static void bt_playback_controller_socket_finalize(GObject *object) {
 
 static void bt_playback_controller_socket_init(GTypeInstance *instance, gpointer g_class) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(instance);
-  static struct sockaddr_in serv_addr={0,};;
-  
-  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAYBACK_CONTROLLER_SOCKET, BtPlaybackControllerSocketPrivate);
-  
-  /* new socket: internet address family, stream socket */
-  if((self->priv->master_socket=socket(AF_INET,SOCK_STREAM,0))<0) {
-    goto socket_error;
-  }
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);// my address
-  // @todo: make port a config options
-  serv_addr.sin_port = htons(7654);
-  if(bind(self->priv->master_socket,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0) {
-    goto bind_error;
-  }
-  if(listen(self->priv->master_socket,64)<0) {
-    goto listen_error;
-  }
-  self->priv->master_channel=g_io_channel_unix_new(self->priv->master_socket);
-  //self->priv->master_source=g_io_add_watch(self->priv->master_channel,G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,master_socket_io_handler,(gpointer)self);
-  self->priv->master_source=g_io_add_watch_full(self->priv->master_channel,
-    G_PRIORITY_LOW,
-    G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,
-    master_socket_io_handler,
-    (gpointer)self,
-    NULL);
- 
-  GST_INFO("playback controller running");
-  return;
 
-socket_error:
-  GST_WARNING("socket allocation failed: %s",g_strerror(errno));
-  return;
-bind_error:
-  GST_WARNING("binding the socket failed: %s",g_strerror(errno));
-  return;
-listen_error:
-  GST_WARNING("listen failed: %s",g_strerror(errno));
-  return;
+  self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PLAYBACK_CONTROLLER_SOCKET, BtPlaybackControllerSocketPrivate);
 }
 
 static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketClass *klass) {
@@ -579,7 +595,7 @@ static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketC
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPlaybackControllerSocketPrivate));
-  
+
   gobject_class->set_property = bt_playback_controller_socket_set_property;
   gobject_class->get_property = bt_playback_controller_socket_get_property;
   gobject_class->dispose      = bt_playback_controller_socket_dispose;

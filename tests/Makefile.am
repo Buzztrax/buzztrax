@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.43 2007-03-10 14:49:39 ensonic Exp $
+## $Id: Makefile.am,v 1.44 2007-03-17 22:50:22 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -23,31 +23,32 @@ if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
 
 noinst_LTLIBRARIES = libbt-check.la
-libbt_check_la_LIBADD = -lm -lcheck $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
+#this is a convinience lib, we link the deps later
+#libbt_check_la_LIBADD = -lm -lcheck $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS)
 libbt_check_la_SOURCES = \
 	bt-check.c bt-check.h \
 	bt-test-plugin.c bt-test-plugin.h \
-  bt-test-settings.c bt-test-settings.h
+	bt-test-settings.c bt-test-settings.h
 
 bt_core_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/lib/core/libbtcore-check.la \
-  libbt-check.la $(BASE_DEPS_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) -lcheck
 bt_core_SOURCES= \
 	m-bt-core.c
 
 bt_cmd_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/tests/ui/cmd/libbt-cmd-check.la \
-  libbt-check.la $(BASE_DEPS_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) -lcheck
 bt_cmd_SOURCES= \
 	m-bt-cmd.c
 
 bt_edit_LDADD = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
-  $(top_builddir)/src/lib/ic/libbtic.la \
+	$(top_builddir)/src/lib/ic/libbtic.la \
 	$(top_builddir)/tests/ui/edit/libbt-edit-check.la \
-  libbt-check.la $(BASE_DEPS_LIBS) -lcheck
+	libbt-check.la $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) -lcheck
 bt_edit_SOURCES= \
 	m-bt-edit.c
 

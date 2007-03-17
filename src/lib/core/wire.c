@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.102 2007-03-16 23:03:30 ensonic Exp $
+/* $Id: wire.c,v 1.103 2007-03-17 22:50:04 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -231,6 +231,11 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 
   GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   // try link src to dst {directly, with convert, with scale, with ...}
+  /* @todo: if we try linking without audioconvert and this links to an adder,
+   * then the first link enforces the format (if first is mono and later stereo
+   * sugnal is linked, this is downgraded).
+   * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982
+   */
   if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL)) {
     gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL);
     if(!machines[PART_CONVERT]) {

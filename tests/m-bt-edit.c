@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.25 2007-01-13 19:47:17 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.26 2007-03-17 22:50:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,10 +22,10 @@
  */
 
 /* @todo: try gdk_error_trap_push() to use FORK mode and trap XErrors
- */ 
+ */
 
 #define BT_CHECK
- 
+
 #include "bt-check.h"
 #include "../src/ui/edit/bt-edit.h"
 
@@ -48,6 +48,7 @@ gchar **test_argvptr;
 void bt_edit_setup(void) {
   //g_type_init();
   bt_init(&test_argc,&test_argvptr);
+  btic_init(&test_argc,&test_argvptr);
   gtk_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
@@ -66,7 +67,7 @@ void bt_edit_setup(void) {
   check_setup_test_display();
 
   //gdk_threads_enter();
-	
+
   GST_INFO("================================================================================");
 }
 
@@ -80,7 +81,7 @@ void bt_edit_teardown(void) {
 
 /* start the test run */
 int main(int argc, char **argv) {
-  int nf; 
+  int nf;
   SRunner *sr;
 
   // initialize as soon as possible
@@ -93,24 +94,24 @@ int main(int argc, char **argv) {
   test_argv[0]=test_arg0;
   test_argv[1]=test_arg1;
   test_argvptr=test_argv;
- 
+
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();
   gtk_init(&test_argc,&test_argvptr);
-  
+
   sr=srunner_create(bt_edit_application_suite());
   srunner_add_suite(sr, bt_machine_preset_properties_dialog_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());
-  srunner_set_fork_status(sr,CK_NOFORK);
+  //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
-  
+
   check_shutdown_test_server();
-	
-  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
+
+  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

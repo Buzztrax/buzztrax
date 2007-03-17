@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.28 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.29 2007-03-17 22:50:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,7 @@
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
- */ 
+ */
 
 #define BT_EDIT
 #define BT_SETTINGS_PAGE_AUDIODEVICES_C
@@ -35,10 +35,10 @@ enum {
 struct _BtSettingsPageAudiodevicesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   GtkComboBox *audiosink_menu;
   GList *audiosink_names;
 };
@@ -71,7 +71,7 @@ static void on_audiosink_menu_changed(GtkComboBox *combo_box, gpointer user_data
 
 static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiodevices *self) {
   BtSettings *settings;
-  GtkWidget *label,*spacer;  
+  GtkWidget *label,*spacer;
   gchar *audiosink_name,*system_audiosink_name,*str;
   GList *node,*audiosink_names;
   gulong audiosink_index=0,ct;
@@ -80,11 +80,12 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
   //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
 
+  // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
   if(BT_IS_STRING(audiosink_name)) use_system_audiosink=FALSE;
 
-  // add notebook page #1
+  // add setting widgets
   spacer=gtk_label_new("    ");
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>",_("Audio Device"));
@@ -98,7 +99,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(self),label, 1, 2, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
   self->priv->audiosink_menu=GTK_COMBO_BOX(gtk_combo_box_new_text());
-  
+
   str=g_strdup_printf(_("system default (%s)"),(system_audiosink_name?system_audiosink_name:"-"));
   gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),str);
   g_free(str);
@@ -119,7 +120,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
     //can_float_caps=gst_element_factory_can_sink_caps(factory,float_caps);
     if(can_int_caps || can_float_caps) {
       // @ todo: try to open the element and skip those that we can't open
-      
+
       if(!use_system_audiosink) {
         // compare with audiosink_name and set audiosink_index if equal
         if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
@@ -142,7 +143,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
    * GstBaseAudioSink: buffer-time (ms), latency-time (ms)
    * GstAudioSink: (no-properties)
    */
-  
+
   g_free(audiosink_name);
   g_free(system_audiosink_name);
   g_list_free(audiosink_names);
@@ -251,7 +252,7 @@ static void bt_settings_page_audiodevices_finalize(GObject *object) {
 
 static void bt_settings_page_audiodevices_init(GTypeInstance *instance, gpointer g_class) {
   BtSettingsPageAudiodevices *self = BT_SETTINGS_PAGE_AUDIODEVICES(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_PAGE_AUDIODEVICES, BtSettingsPageAudiodevicesPrivate);
 }
 
@@ -260,7 +261,7 @@ static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesC
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsPageAudiodevicesPrivate));
-  
+
   gobject_class->set_property = bt_settings_page_audiodevices_set_property;
   gobject_class->get_property = bt_settings_page_audiodevices_get_property;
   gobject_class->dispose      = bt_settings_page_audiodevices_dispose;

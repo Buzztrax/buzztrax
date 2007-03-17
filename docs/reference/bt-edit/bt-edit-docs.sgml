@@ -27,7 +27,8 @@
 <!ENTITY BtSequenceView SYSTEM "xml/btsequenceview.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
-<!ENTITY BtSettingsPageControldevices SYSTEM "xml/btsettingspagecontroldevices.xml">
+<!ENTITY BtSettingsPageInteractionController SYSTEM "xml/btsettingspageinteractioncontroller.xml">
+<!ENTITY BtSettingsPagePlaybackController SYSTEM "xml/btsettingspageplaybackcontroller.xml">
 <!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
 <!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
@@ -86,11 +87,12 @@
     &BtSequenceView;
     &BtSettingsDialog;
     &BtSettingsPageAudiodevices;
-    &BtSettingsPageControldevices;
+    &BtSettingsPageInteractionController;
+    &BtSettingsPagePlaybackController;
     &BtUIRessources;
     &BtWireCanvasItem;
     &BtVolumePopup;
-    
+
     &GtkVUMeter;
   </chapter>
 

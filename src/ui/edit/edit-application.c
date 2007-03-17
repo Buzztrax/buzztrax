@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.95 2007-03-12 22:31:38 ensonic Exp $
+/* $Id: edit-application.c,v 1.96 2007-03-17 22:50:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,8 +25,8 @@
  *
  * Opens the #BtMainWindow and provide application level function like load,
  * save, run and exit.
- */ 
- 
+ */
+
 #define BT_EDIT
 #define BT_EDIT_APPLICATION_C
 
@@ -49,17 +49,17 @@ GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 struct _BtEditApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the currently loaded song */
   BtSong *song;
   /* shared ui ressources */
   BtUIRessources *ui_ressources;
   /* the top-level window of our app */
   BtMainWindow *main_window;
-  
+
   /* remote playback controller */
   BtPlaybackControllerSocket *pb_controller;
-  
+
   /* interaction controller registry */
   BtIcRegistry *ic_registry;
 };
@@ -77,7 +77,7 @@ static void on_songio_status_changed(BtSongIO *songio,GParamSpec *arg,gpointer u
   g_assert(user_data);
 
   g_object_get(self->priv->main_window,"statusbar",&statusbar,NULL);
-  
+
   /* @todo push loader status changes into the statusbar
    * - how to handle to push and pop stuff, first_acces=push_only, last_access=pop_only
    *   - str!=NULL old.pop & new.push
@@ -132,7 +132,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
     missing_edit_elements=g_list_append(missing_edit_elements,"-> You will not be able to ploink.");
     missing=TRUE;
   }
-  g_list_free(edit_elements);  
+  g_list_free(edit_elements);
   edit_elements=g_list_prepend(NULL,"grummel");
   edit_elements=g_list_prepend(edit_elements,"groll");
   if((missing_elements=bt_gst_check_elements(edit_elements))) {
@@ -149,7 +149,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
      * if only non-critical elements are missing
      */
     GtkWidget *label,*icon,*hbox,*vbox;
-    gchar *str; 
+    gchar *str;
     GtkWidget *dialog;
 
     // @todo: move to new class
@@ -158,13 +158,13 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
                                           GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                                           NULL);
-  
+
     hbox=gtk_hbox_new(FALSE,12);
     gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
-  
+
     icon=gtk_image_new_from_stock(res?GTK_STOCK_DIALOG_WARNING:GTK_STOCK_DIALOG_ERROR,GTK_ICON_SIZE_DIALOG);
     gtk_container_add(GTK_CONTAINER(hbox),icon);
-    
+
     vbox=gtk_vbox_new(FALSE,6);
     label=gtk_label_new(NULL);
     str=g_strdup_printf("<big><b>%s</b></big>",_("Missing GStreamer elemnts"));
@@ -177,11 +177,11 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       GtkWidget *missing_list, *missing_list_view;
       gchar *missing_text,*ptr;
       gint length=0;
-      
+
       label=gtk_label_new(_("The elements listed below are missing from you installation, but are required."));
       gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
       gtk_container_add(GTK_CONTAINER(vbox),label);
-      
+
       for(node=missing_core_elements;node;node=g_list_next(node)) {
         length+=2+strlen((gchar *)(node->data));
       }
@@ -190,7 +190,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
         length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
         ptr=&ptr[length];
       }
-      
+
       missing_list = gtk_text_view_new();
       gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
       gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
@@ -198,7 +198,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
       gtk_widget_show(missing_list);
       g_free(missing_text);
-    
+
       missing_list_view = gtk_scrolled_window_new(NULL, NULL);
       gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -211,7 +211,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       GtkWidget *missing_list, *missing_list_view;
       gchar *missing_text,*ptr;
       gint length=0;
-      
+
       label=gtk_label_new(_("The elements listed below are missing from you installation, but are recommended for full functionality."));
       gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
       gtk_container_add(GTK_CONTAINER(vbox),label);
@@ -224,7 +224,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
         length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
         ptr=&ptr[length];
       }
-      
+
       missing_list = gtk_text_view_new();
       gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
       gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
@@ -232,18 +232,18 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
       gtk_widget_show(missing_list);
       g_free(missing_text);
-    
+
       missing_list_view = gtk_scrolled_window_new(NULL, NULL);
       gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
       gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
       gtk_widget_show(missing_list_view);
-      gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);        
+      gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
     }
     gtk_container_add(GTK_CONTAINER(hbox),vbox);
     gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
     gtk_widget_show_all(dialog);
-                                                    
+
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
   }
@@ -266,12 +266,12 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
   BtSettings *settings;
   guint version;
   gboolean res;
-  
+
   g_assert(self);
   g_assert(self->priv->main_window);
-  
+
   GST_INFO("application.run_ui launched");
-  
+
   g_object_get(G_OBJECT(self),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),"news-seen",&version,NULL);
 
@@ -281,9 +281,9 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
     // store new version
     version=PACKAGE_VERSION_NUMBER;
     g_object_set(G_OBJECT(settings),"news-seen",version,NULL);
-  }  
+  }
   g_object_unref(settings);
-  
+
   // check for missing elements
   if((res=bt_edit_application_check_missing(self))) {
     res=bt_main_window_run(self->priv->main_window);
@@ -320,7 +320,7 @@ BtEditApplication *bt_edit_application_new(void) {
     goto Error;
   }
   // create the playback controller
-  self->priv->pb_controller=bt_playback_controller_socket_new(self); 
+  self->priv->pb_controller=bt_playback_controller_socket_new(self);
   // create the interaction controller registry
   self->priv->ic_registry=btic_registry_new();
   // create main window
@@ -354,9 +354,9 @@ Error:
 gboolean bt_edit_application_new_song(const BtEditApplication *self) {
   gboolean res=FALSE;
   BtSong *song;
-  
+
   g_return_val_if_fail(BT_IS_EDIT_APPLICATION(self),FALSE);
-  
+
   // create new song
   if((song=bt_song_new(BT_APPLICATION(self)))) {
     BtSetup *setup;
@@ -366,7 +366,7 @@ gboolean bt_edit_application_new_song(const BtEditApplication *self) {
 
     // free previous song
     //g_object_set(G_OBJECT(self),"song",NULL,NULL);
-    
+
     g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
     // add some initial timelines
     g_object_set(sequence,"length",SEQUENCE_ROW_ADDITION_INTERVAL,NULL);
@@ -431,17 +431,17 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
   if((loader=bt_song_io_new(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
-      
+
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
-      
+
     g_signal_connect(G_OBJECT(loader),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
-    
+
     // create new song
     if((song=bt_song_new(BT_APPLICATION(self)))) {
-      
+
       // free previous song
       //g_object_set(G_OBJECT(self),"song",NULL,NULL);
 
@@ -449,7 +449,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
         BtSetup *setup;
         BtWavetable *wavetable;
         BtMachine *machine;
-      
+
         g_object_get(song,"setup",&setup,"wavetable",&wavetable,NULL);
         // get sink-machine
         if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
@@ -472,22 +472,22 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
             // tell about missing machines and/or missing waves
             if(missing_machines || missing_waves) {
               GtkWidget *label,*icon,*hbox,*vbox;
-              gchar *str; 
+              gchar *str;
               GtkWidget *dialog;
-      
+
               // @todo: move to new class
               dialog = gtk_dialog_new_with_buttons(_("Missing elements in song"),
                                                     GTK_WINDOW(self->priv->main_window),
                                                     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
                                                     GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                                                     NULL);
-            
+
               hbox=gtk_hbox_new(FALSE,12);
               gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
-            
+
               icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_WARNING,GTK_ICON_SIZE_DIALOG);
               gtk_container_add(GTK_CONTAINER(hbox),icon);
-              
+
               vbox=gtk_vbox_new(FALSE,6);
               label=gtk_label_new(NULL);
               str=g_strdup_printf("<big><b>%s</b></big>",_("Missing elements in song"));
@@ -500,11 +500,11 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                 GtkWidget *missing_list, *missing_list_view;
                 gchar *missing_text,*ptr;
                 gint length=0;
-                
+
                 label=gtk_label_new(_("The machines listed below are missing or failed to load."));
                 gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
                 gtk_container_add(GTK_CONTAINER(vbox),label);
-                
+
                 for(node=missing_machines;node;node=g_list_next(node)) {
                   length+=2+strlen((gchar *)(node->data));
                 }
@@ -513,7 +513,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                   length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
                   ptr=&ptr[length];
                 }
-                
+
                 missing_list = gtk_text_view_new();
                 gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
                 gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
@@ -521,7 +521,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                 gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
                 gtk_widget_show(missing_list);
                 g_free(missing_text);
-              
+
                 missing_list_view = gtk_scrolled_window_new(NULL, NULL);
                 gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
                 gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
@@ -534,7 +534,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                 GtkWidget *missing_list, *missing_list_view;
                 gchar *missing_text,*ptr;
                 gint length=0;
-                
+
                 label=gtk_label_new(_("The waves listed below are missing or failed to load."));
                 gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
                 gtk_container_add(GTK_CONTAINER(vbox),label);
@@ -547,7 +547,7 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                   length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
                   ptr=&ptr[length];
                 }
-                
+
                 missing_list = gtk_text_view_new();
                 gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
                 gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
@@ -555,21 +555,21 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
                 gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
                 gtk_widget_show(missing_list);
                 g_free(missing_text);
-              
+
                 missing_list_view = gtk_scrolled_window_new(NULL, NULL);
                 gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
                 gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
                 gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
                 gtk_widget_show(missing_list_view);
-                gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);        
-              }       
+                gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
+              }
               gtk_container_add(GTK_CONTAINER(hbox),vbox);
               gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
               gtk_widget_show_all(dialog);
-                                                              
+
               gtk_dialog_run(GTK_DIALOG(dialog));
               gtk_widget_destroy(dialog);
-            }      
+            }
           }
           else {
             GST_WARNING("Can't add input level/gain element in sink machine");
@@ -615,11 +615,11 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
   if((saver=bt_song_io_new(file_name))) {
     GdkCursor *cursor=gdk_cursor_new(GDK_WATCH);
     GdkWindow *window=GTK_WIDGET(self->priv->main_window)->window;
-      
+
     gdk_window_set_cursor(window,cursor);
     gdk_cursor_unref(cursor);
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),FALSE);
-      
+
     g_signal_connect(G_OBJECT(saver),"notify::status",G_CALLBACK(on_songio_status_changed),(gpointer)self);
     while(gtk_events_pending()) gtk_main_iteration();
     if(bt_song_io_save(saver,self->priv->song)) {
@@ -709,7 +709,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   };
 
   GST_INFO("menu about event occurred");
-  
+
   /* we can get logo via icon name, so this here is just for educational purpose
   GdkPixbuf *logo;
   GError *error = NULL;
@@ -720,13 +720,13 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
     g_error_free(error);
   }
   */
-  
+
   /* use GtkAboutDialog */
   dialog = gtk_about_dialog_new();
   g_object_set(dialog,
     "authors",authors,
     "comments",_("Music production environment"),
-    "copyright",_("Copyright \xc2\xa9 2003-2006 Buzztard developer team"),
+    "copyright",_("Copyright \xc2\xa9 2003-2007 Buzztard developer team"),
     "documenters", documenters,
     /* http://www.gnu.org/licenses/lgpl.html, http://www.gnu.de/lgpl-ger.html */
     "license", _(
@@ -750,7 +750,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
     "website","http://www.buzztard.org",
     "wrap-license",TRUE,
     NULL);
-    
+
   // install hooks for hyper-links
   gtk_about_dialog_set_email_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
   gtk_about_dialog_set_url_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
@@ -777,7 +777,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   // set parent relationship
   gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
   gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
-	gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+  gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
 
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
@@ -837,7 +837,7 @@ static void bt_edit_application_set_property(GObject      *object,
         {
           gint num=GST_BIN_NUMCHILDREN(bin);
           GList *node=GST_BIN_CHILDREN(bin);
-  
+
           GST_INFO("bin->num_children=%d",num);
           for(;node;node=g_list_next(node)) {
             GST_INFO("  %p, ref_ct=%d, '%s'",node->data,G_OBJECT(node->data)->ref_count,GST_ELEMENT_NAME(node->data));
@@ -879,7 +879,7 @@ static void bt_edit_application_dispose(GObject *object) {
   //if(self->priv->main_window)
     //GST_INFO("main_window->ref_ct=%d",G_OBJECT(self->priv->main_window)->ref_count);
   //g_object_try_unref(self->priv->main_window);
-  
+
   g_object_try_unref(self->priv->ui_ressources);
   g_object_try_unref(self->priv->pb_controller);
   g_object_try_unref(self->priv->ic_registry);
@@ -891,7 +891,7 @@ static void bt_edit_application_dispose(GObject *object) {
 
 static void bt_edit_application_finalize(GObject *object) {
   //BtEditApplication *self = BT_EDIT_APPLICATION(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -900,7 +900,7 @@ static void bt_edit_application_finalize(GObject *object) {
 
 static void bt_edit_application_init(GTypeInstance *instance, gpointer g_class) {
   BtEditApplication *self = BT_EDIT_APPLICATION(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_EDIT_APPLICATION, BtEditApplicationPrivate);
 }
 

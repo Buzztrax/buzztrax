@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.30 2007-03-11 20:19:19 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.31 2007-03-17 22:49:58 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -454,21 +454,39 @@ BtSettingsPageAudiodevicesPrivate
 </SECTION>
 
 <SECTION>
-<FILE>btsettingspagecontroldevices</FILE>
-<TITLE>BtSettingsPageControldevices</TITLE>
-BtSettingsPageControldevices
-bt_settings_page_controldevices_new
+<FILE>btsettingspageinteractioncontroller</FILE>
+<TITLE>BtSettingsPageInteractionController</TITLE>
+BtSettingsPageInteractionController
+bt_settings_page_interaction_controller_new
 <SUBSECTION Standard>
-BtSettingsPageControldevicesClass
-BT_SETTINGS_PAGE_CONTROLDEVICES
-BT_IS_SETTINGS_PAGE_CONTROLDEVICES
-BT_SETTINGS_PAGE_CONTROLDEVICES_CLASS
-BT_IS_SETTINGS_PAGE_CONTROLDEVICES_CLASS
-BT_SETTINGS_PAGE_CONTROLDEVICES_GET_CLASS
-BT_TYPE_SETTINGS_PAGE_CONTROLDEVICES
+BtSettingsPageInteractionControllerClass
+BT_SETTINGS_PAGE_INTERACTION_CONTROLLER
+BT_IS_SETTINGS_PAGE_INTERACTION_CONTROLLER
+BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_CLASS
+BT_IS_SETTINGS_PAGE_INTERACTION_CONTROLLER_CLASS
+BT_SETTINGS_PAGE_INTERACTION_CONTROLLER_GET_CLASS
+BT_TYPE_SETTINGS_PAGE_INTERACTION_CONTROLLER
 <SUBSECTION Private>
-bt_settings_page_controldevices_get_type
-BtSettingsPageControldevicesPrivate
+bt_settings_page_interaction_controller_get_type
+BtSettingsPageInteractionControllerPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btsettingspageplaybackcontroller</FILE>
+<TITLE>BtSettingsPagePlaybackController</TITLE>
+BtSettingsPagePlaybackController
+bt_settings_page_playback_controller_new
+<SUBSECTION Standard>
+BtSettingsPagePlaybackControllerClass
+BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER
+BT_IS_SETTINGS_PAGE_PLAYBACK_CONTROLLER
+BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_CLASS
+BT_IS_SETTINGS_PAGE_PLAYBACK_CONTROLLER_CLASS
+BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_GET_CLASS
+BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER
+<SUBSECTION Private>
+bt_settings_page_playback_controller_get_type
+BtSettingsPagePlaybackControllerPrivate
 </SECTION>
 
 <SECTION>

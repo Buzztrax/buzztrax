@@ -1,3 +1,111 @@
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	  new docs
+
+	* po/POTFILES.in:
+	  new translatable files
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	(bt_gconf_settings_notify_toolbar_style), (bt_gconf_settings_new),
+	(bt_gconf_settings_get_property), (bt_gconf_settings_set_property),
+	(bt_gconf_settings_dispose), (bt_gconf_settings_init):
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/settings.c: (bt_settings_init),
+	(bt_settings_class_init):
+	  new settings for playback controller
+
+	* src/lib/core/wire.c: (bt_wire_link_machines):
+	  comment on with/without audioconvert problem
+
+	* src/lib/ic/Makefile.am:
+	  dist fix
+
+	* src/lib/ic/libbtic/midi-device-methods.h:
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (on_songio_status_changed),
+	(bt_edit_application_check_missing), (bt_edit_application_run_ui),
+	(bt_edit_application_new), (bt_edit_application_new_song),
+	(bt_edit_application_load_song), (bt_edit_application_save_song),
+	(bt_edit_application_show_about),
+	(bt_edit_application_set_property), (bt_edit_application_dispose),
+	(bt_edit_application_finalize), (bt_edit_application_init):
+	* src/ui/edit/main-toolbar.c:
+	  have 2 vumeters visible per default
+
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (client_read), (client_write),
+	(master_socket_io_handler), (on_song_changed),
+	(master_connection_open),
+	(bt_playback_controller_socket_set_property),
+	(bt_playback_controller_socket_dispose),
+	(bt_playback_controller_socket_finalize),
+	(bt_playback_controller_socket_init),
+	(bt_playback_controller_socket_class_init):
+	* src/ui/edit/settings-dialog.c: (on_settings_list_cursor_changed),
+	(bt_settings_dialog_init_ui), (bt_settings_dialog_init),
+	(bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui),
+	(bt_settings_page_audiodevices_init),
+	(bt_settings_page_audiodevices_class_init):
+	* src/ui/edit/settings-page-controldevices-methods.h:
+	* src/ui/edit/settings-page-controldevices.c:
+	* src/ui/edit/settings-page-controldevices.h:
+	* src/ui/edit/settings-page-interaction-controller-methods.h:
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(on_device_menu_changed), (on_ic_registry_devices_changed),
+	(bt_settings_page_interaction_controller_init_ui),
+	(bt_settings_page_interaction_controller_new),
+	(bt_settings_page_interaction_controller_get_property),
+	(bt_settings_page_interaction_controller_set_property),
+	(bt_settings_page_interaction_controller_dispose),
+	(bt_settings_page_interaction_controller_finalize),
+	(bt_settings_page_interaction_controller_init),
+	(bt_settings_page_interaction_controller_class_init),
+	(bt_settings_page_interaction_controller_get_type):
+	* src/ui/edit/settings-page-interaction-controller.h:
+	* src/ui/edit/settings-page-playback-controller-methods.h:
+	* src/ui/edit/settings-page-playback-controller.c:
+	(on_activate_toggled), (on_port_changed),
+	(bt_settings_page_playback_controller_init_ui),
+	(bt_settings_page_playback_controller_new),
+	(bt_settings_page_playback_controller_get_property),
+	(bt_settings_page_playback_controller_set_property),
+	(bt_settings_page_playback_controller_dispose),
+	(bt_settings_page_playback_controller_finalize),
+	(bt_settings_page_playback_controller_init),
+	(bt_settings_page_playback_controller_class_init),
+	(bt_settings_page_playback_controller_get_type):
+	* src/ui/edit/settings-page-playback-controller.h:
+	  settings for playback controller, renaming of interaction controller
+	  page
+	
+	* tests/Makefile.am:
+	* tests/bt-check.c: (check_print_handler), (setup_log),
+	(file_contains_str), (check_get_test_song_path),
+	(check_read_int_param), (check_read_uint_param),
+	(check_read_int64_param), (check_read_long_param),
+	(check_read_ulong_param), (check_read_property),
+	(check_write_int_param), (check_write_uint_param),
+	(check_write_int64_param), (check_write_long_param),
+	(check_write_ulong_param), (check_write_property),
+	(check_readwrite_property), (check_gobject_properties),
+	(check_setup_test_server), (check_setup_test_display),
+	(check_shutdown_test_display), (check_make_widget_screenshot):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	  more attempts to fix screenshots on open suse.
+	
+	* tests/songs/combi2.xml:
+	* tests/songs/combi3.xml:
+	  new songs
+
 2007-03-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-cmd/Makefile.am:

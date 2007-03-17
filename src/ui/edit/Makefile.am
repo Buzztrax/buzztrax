@@ -15,7 +15,7 @@ libbtedit_la_SOURCES   = \
 	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\
 	machine-menu.c machine-menu.h machine-menu-methods.h \
 	machine-actions.c machine-actions.h \
-  machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
+    machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
 	machine-properties-dialog.c machine-properties-dialog.h machine-properties-dialog-methods.h \
 	machine-preferences-dialog.c machine-preferences-dialog.h machine-preferences-dialog-methods.h \
 	main-window.c main-window.h main-window-methods.h \
@@ -30,11 +30,12 @@ libbtedit_la_SOURCES   = \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
 	pattern-view.c pattern-view.h pattern-view-methods.h \
-  playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
+    playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
 	sequence-view.c sequence-view.h sequence-view-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
-	settings-page-controldevices.c settings-page-controldevices.h settings-page-controldevices-methods.h \
+	settings-page-interaction-controller.c settings-page-interaction-controller.h settings-page-interaction-controller-methods.h \
+	settings-page-playback-controller.c settings-page-playback-controller.h settings-page-playback-controller-methods.h \
 	tools.c tools.h \
 	ui-ressources.c ui-ressources.h ui-ressources-methods.h \
 	volume-popup.c volume-popup.h \
@@ -42,7 +43,7 @@ libbtedit_la_SOURCES   = \
 	wire-canvas-item.c wire-canvas-item.h wire-canvas-item-methods.h \
 	\
 	gtkvumeter.c gtkvumeter.h
-	
+
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
 	-I$(top_srcdir)/src/lib/ic \

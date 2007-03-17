@@ -1,7 +1,7 @@
-/* $Id: midi-device-methods.h,v 1.2 2007-03-17 22:50:12 ensonic Exp $
+/* $Id: settings-page-playback-controller-methods.h,v 1.1 2007-03-17 22:50:19 ensonic Exp $
  *
  * Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,11 +19,12 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BTIC_MIDI_DEVICE_METHODS_H
-#define BTIC_MIDI_DEVICE_METHODS_H
+#ifndef BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_METHODS_H
+#define BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_METHODS_H
 
-#include "midi-device.h"
+#include "settings-page-playback-controller.h"
+#include "edit-application.h"
 
-extern BtIcMidiDevice *btic_midi_device_new(const gchar *udi,const gchar *name,const gchar *devnode);
+extern BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(const BtEditApplication *app);
 
-#endif // BTIC_MIDI_DEVICE_METHDOS_H
+#endif // BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER_METHDOS_H

@@ -1,4 +1,4 @@
-/* $Id: settings-private.h,v 1.11 2006-09-28 21:07:22 ensonic Exp $
+/* $Id: settings-private.h,v 1.12 2007-03-17 22:50:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,6 +30,8 @@ enum {
   BT_SETTINGS_MENU_TABS_HIDE,
   BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
   BT_SETTINGS_NEWS_SEEN,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
+  BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
   /* @todo additional application settings
   */
   BT_SETTINGS_SYSTEM_AUDIOSINK,

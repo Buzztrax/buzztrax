@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.33 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.34 2007-03-17 22:50:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,7 @@
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
- */ 
+ */
 
 #define BT_EDIT
 #define BT_SETTINGS_DIALOG_C
@@ -34,7 +34,8 @@ enum {
 
 enum {
   SETTINGS_PAGE_AUDIO_DEVICES=0,
-  SETTINGS_PAGE_CONTROL_DEVICES,
+  SETTINGS_PAGE_INTERACTION_CONTROLLER,
+  SETTINGS_PAGE_PLAYBACK_CONTROLLER,
   SETTINGS_PAGE_COLORS,
   SETTINGS_PAGE_SHORTCUTS,
   SETTINGS_PAGE_DIRECTORIES
@@ -50,19 +51,20 @@ enum {
 struct _BtSettingsDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* the list of settings pages */
   GtkTreeView *settings_list;
-  
+
   /* the pages */
   GtkNotebook *settings_pages;
-  
+
   /* the audiodevices settings */
   BtSettingsPageAudiodevices *audiodevices_page;
-  BtSettingsPageControldevices *controldevices_page;
+  BtSettingsPageInteractionController *interaction_controller_page;
+  BtSettingsPagePlaybackController *playback_controller_page;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -76,7 +78,7 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
   GtkTreeIter       iter;
 
   g_assert(user_data);
-  
+
   GST_INFO("settings list cursor changed");
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->settings_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
@@ -115,18 +117,18 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("buzztard settings"));
-  
+
   //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
   gtk_window_set_title(GTK_WINDOW(self), _("buzztard settings"));
-  
+
   // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
-  
+
   // add widgets to the dialog content area
   box=gtk_hbox_new(FALSE,12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
@@ -151,7 +153,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_LONG,GDK_TYPE_PIXBUF,G_TYPE_STRING);
   /* @todo: add icons
    * Audio Devices: tango-audio-card
-   * Control Devices: tango-input-gaming?, buzztard.png, 'locate midi | grep png'
+   * Interaction Controller: tango-input-gaming
+   * Playback Controller: GTK_STOCK_MEDIA_PLAY
    * Colors: GTK_STOCK_SELECT_COLOR
    * Shortcuts: tango-input-keyboard
    * Directories: GTK_STOCK_DIRECTORY
@@ -168,10 +171,17 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
-    COL_LABEL,_("Control Devices"),
-    COL_ID,SETTINGS_PAGE_CONTROL_DEVICES,
+    COL_LABEL,_("Interaction Controler"),
+    COL_ID,SETTINGS_PAGE_INTERACTION_CONTROLLER,
     COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-input-gaming.png"),
     COL_ICON_STOCK_ID,NULL,
+    -1);
+  gtk_list_store_append(store, &tree_iter);
+  gtk_list_store_set(store,&tree_iter,
+    COL_LABEL,_("Playback Controler"),
+    COL_ID,SETTINGS_PAGE_PLAYBACK_CONTROLLER,
+    COL_ICON_PIXBUF,NULL,
+    COL_ICON_STOCK_ID,GTK_STOCK_MEDIA_PLAY,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
@@ -208,45 +218,52 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   self->priv->audiodevices_page=bt_settings_page_audiodevices_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_AUDIO_DEVICES),
-    gtk_label_new(_("Audio Devices")));
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_AUDIO_DEVICES),
+  gtk_label_new(_("Audio Devices")));
 
-  // add control device page
-  self->priv->controldevices_page=bt_settings_page_controldevices_new(self->priv->app);
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->controldevices_page));
+  // add interaction controller page
+  self->priv->interaction_controller_page=bt_settings_page_interaction_controller_new(self->priv->app);
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->interaction_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_CONTROL_DEVICES),
-    gtk_label_new(_("Control Devices")));
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_INTERACTION_CONTROLLER),
+  gtk_label_new(_("Interaction Controller")));
 
-  // add notebook page #3
-  page=gtk_vbox_new(FALSE,0);
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 3 yet"));
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  // add playback controller page
+  self->priv->playback_controller_page=bt_settings_page_playback_controller_new(self->priv->app);
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->playback_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_COLORS),
-    gtk_label_new(_("Colors")));
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_PLAYBACK_CONTROLLER),
+  gtk_label_new(_("Playback Controller")));
 
   // add notebook page #4
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_SHORTCUTS),
-    gtk_label_new(_("Shortcuts")));
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_COLORS),
+  gtk_label_new(_("Colors")));
 
   // add notebook page #5
   page=gtk_vbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 5 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_SHORTCUTS),
+  gtk_label_new(_("Shortcuts")));
+
+  // add notebook page #6
+  page=gtk_vbox_new(FALSE,0);
+  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 6 yet"));
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
     gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_DIRECTORIES),
     gtk_label_new(_("Directories")));
 
 	/* @todo more settings
-   * - fonts
-   *   - font + size for machine view canvas
-   *   - font sizes for table-headings (as pango markup sizes)
-   * - misc
+     * - fonts
+     *   - font + size for machine view canvas
+     *   - font sizes for table-headings (as pango markup sizes)
+     * - misc
 	 *   - initial song bpm (from, to)
 	 *   - cpu monitor (view menu?)
 	 */
@@ -348,7 +365,7 @@ static void bt_settings_dialog_finalize(GObject *object) {
 
 static void bt_settings_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtSettingsDialog *self = BT_SETTINGS_DIALOG(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS_DIALOG, BtSettingsDialogPrivate);
 }
 
@@ -357,7 +374,7 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSettingsDialogPrivate));
-  
+
   gobject_class->set_property = bt_settings_dialog_set_property;
   gobject_class->get_property = bt_settings_dialog_get_property;
   gobject_class->dispose      = bt_settings_dialog_dispose;

@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.6 2007-03-17 11:42:32 ensonic Exp $
+/* $Id: registry.c,v 1.7 2007-03-17 22:50:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -78,13 +78,15 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       parent_udi=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
       parent_udi=libhal_device_get_property_string(ctx,parent_udi,"info.parent",NULL);
 
+      devnode=libhal_device_get_property_string(ctx,udi,"alsa.device_file",NULL);
+
       GST_INFO("alsa device added: type=%s, device_file=%s, vendor=%s",
         libhal_device_get_property_string(ctx,udi,"alsa.type",NULL),
-        libhal_device_get_property_string(ctx,udi,"alsa.device_file",NULL),
+        devnode,
         libhal_device_get_property_string(ctx,parent_udi,"info.vendor",NULL)
       );
       // create device
-      device=BTIC_DEVICE(btic_midi_device_new(udi,name));
+      device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
     }
     if(!strcmp(cap[n],"oss")) {
       type=libhal_device_get_property_string(ctx,udi,"oss.type",NULL);

@@ -43,9 +43,9 @@
         <default>low</default>
         <short>Machine view grid detail level</short>
         <long>
-					How dense the app should draw the grid lines shown in machine view:
-					(off,low,medium,high)
-				</long>
+          How dense the app should draw the grid lines shown in machine view:
+          (off,low,medium,high)
+        </long>
       </locale>
     </schema>
     <schema>
@@ -57,6 +57,29 @@
         <default>0</default>
         <short>Version number for that the user has seen the news</short>
         <long>Tracks for which application version the user has seen the news already.</long>
+      </locale>
+    </schema>
+    <!-- playback controller -->
+    <schema>
+      <key>/schemas/apps/buzztard/playback-controller/coherence-upnp-active</key>
+      <applyto>/apps/buzztard/playback-controller/coherence-upnp-active</applyto>
+      <owner>buzztard</owner>
+      <type>bool</type>
+      <locale name="C">
+        <default>false</default>
+        <short>Activate Coherence UPnP based playback controller</short>
+        <long>Allows to remote control buzztard via upnp together by using the coherence backend.</long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/playback-controller/coherence-upnp-port</key>
+      <applyto>/apps/buzztard/playback-controller/coherence-upnp-port</applyto>
+      <owner>buzztard</owner>
+      <type>int</type>
+      <locale name="C">
+        <default>7654</default>
+        <short>Socket port for the Coherence UPnP based playback controller</short>
+        <long>The port number for the communication with the coherence backend.</long>
       </locale>
     </schema>
   </schemalist>

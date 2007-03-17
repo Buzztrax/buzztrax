@@ -168,6 +168,14 @@
         </patterns>
       </machine>
 
+      <machine type="processor" id="pano1" plugin-name="audiopanorama" voices="0">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.4"/>
+        </properties>
+        <globaldata name="panorama" value="-1.0"/>
+      </machine>
+
       <machine type="source" id="hh" plugin-name="bml-ErsHihat" voices="1">
         <properties>
           <property key="xpos" value="-0.7"/>
@@ -183,6 +191,13 @@
         </patterns>
       </machine>
 
+      <machine type="processor" id="pano2" plugin-name="audiopanorama" voices="0">
+        <properties>
+          <property key="xpos" value="0.0"/>
+          <property key="ypos" value="0.8"/>
+        </properties>
+        <globaldata name="panorama" value="1.0"/>
+      </machine>
     </machines>
 
     <wires>
@@ -190,8 +205,10 @@
       <wire src="echo1" dst="audio_sink" gain="1.0"/>
       <wire src="beep2" dst="audio_sink" gain="1.0" pan="-50"/>
       <wire src="beat" dst="audio_sink" gain="1.0" pan="0"/>
-      <wire src="snr" dst="audio_sink" gain="1.0"/>
-      <wire src="hh" dst="audio_sink" gain="1.0"/>
+      <wire src="snr" dst="pano1" gain="1.0"/>
+      <wire src="pano1" dst="audio_sink" gain="1.0"/>
+      <wire src="hh" dst="pano2" gain="1.0"/>
+      <wire src="pano2" dst="audio_sink" gain="1.0"/>
     </wires>
   </setup>
 

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.110 2007-03-16 23:03:32 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.111 2007-03-17 22:50:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,7 +41,10 @@ enum {
   MAIN_TOOLBAR_APP=1,
 };
 
-#define MAX_VUMETER 4
+/* lets get stereo working first :) */
+//#define MAX_VUMETER 4
+#define MAX_VUMETER 2
+#define DEF_VUMETER 2
 
 struct _BtMainToolbarPrivate {
   /* used to validate if dispose has run */
@@ -578,6 +581,12 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
     gtk_vumeter_set_levels(self->priv->vumeter[i], -200, -200);
     gtk_vumeter_set_peaks_falloff(self->priv->vumeter[i], GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
     gtk_vumeter_set_scale(self->priv->vumeter[i], GTK_VUMETER_SCALE_LINEAR);
+    gtk_widget_set_no_show_all(self->priv->vumeter[i],TRUE);
+    if(i<DEF_VUMETER) {
+      gtk_widget_show(GTK_WIDGET(self->priv->vumeter[i]));
+    else {
+      gtk_widget_hide(GTK_WIDGET(self->priv->vumeter[i]));
+    }
     gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->vumeter[i]),TRUE,TRUE,0);
   }
 

@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.32 2007-01-20 19:43:34 ensonic Exp $
+/* $Id: bt-check.c,v 1.33 2007-03-17 22:50:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -77,9 +77,9 @@ static void check_print_handler(const gchar * const message) {
     FILE *logfile;
     gboolean add_nl=FALSE;
     guint sl=strlen(message);
-    //-- check if messages has no newline 
+    //-- check if messages has no newline
     if((sl>1) && (message[sl-1]!='\n')) add_nl=TRUE;
-  
+
     //-- check message contents
     if(__check_method  && (strstr(message,__check_method)!=NULL) && __check_test && (strstr(message,__check_test)!=NULL)) __check_error_trapped=TRUE;
     else if(__check_method && (strstr(message,__check_method)!=NULL) && !__check_test) __check_error_trapped=TRUE;
@@ -134,7 +134,7 @@ static void check_log_handler(const gchar * const log_domain, const GLogLevelFla
  */
 void setup_log(int argc, char **argv) {
   gchar *basename,*str;
-  
+
   __log_file_name="/tmp/buzztard.log";
   // get basename from argv[0]; -> lt-bt_edit
   if((str=g_path_get_basename(argv[0]))) {
@@ -192,10 +192,10 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
   FILE *input_file;
   gchar read_str[1024];
   gboolean ret=FALSE;
-  
+
   g_assert(tmp_file_name);
   g_assert(str);
-  
+
   input_file=fopen(tmp_file_name,"rb");
   if (!input_file) {
     return ret;
@@ -218,7 +218,7 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 
 gchar *check_get_test_song_path(const gchar *name) {
   static gchar path[2048];
-  
+
   // TESTSONGDIR gets defined in Makefile.am
   snprintf(path,2048,TESTSONGDIR"/%s",name);
   return(path);
@@ -236,9 +236,9 @@ void check_register_plugins(void) {
 static gboolean check_read_int_param(GParamSpec *paramspec, GObject *toCheck) {
   gint check;
   gboolean ret=FALSE;
-  
+
   g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_INT(paramspec)->minimum) && 
+  if ((check >= G_PARAM_SPEC_INT(paramspec)->minimum) &&
       (check <= G_PARAM_SPEC_INT(paramspec)->maximum)) {
     ret=TRUE;
   }
@@ -256,9 +256,9 @@ static gboolean check_read_int_param(GParamSpec *paramspec, GObject *toCheck) {
 static gboolean check_read_uint_param(GParamSpec *paramspec, GObject *toCheck) {
   guint check;
   gboolean ret=FALSE;
-  
+
   g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_UINT(paramspec)->minimum) && 
+  if ((check >= G_PARAM_SPEC_UINT(paramspec)->minimum) &&
       (check <= G_PARAM_SPEC_UINT(paramspec)->maximum)) {
     ret=TRUE;
   }
@@ -276,9 +276,9 @@ static gboolean check_read_uint_param(GParamSpec *paramspec, GObject *toCheck) {
 static gboolean check_read_int64_param(GParamSpec *paramspec, GObject *toCheck) {
   gint64 check;
   gboolean ret=FALSE;
-  
+
   g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_INT64(paramspec)->minimum) && 
+  if ((check >= G_PARAM_SPEC_INT64(paramspec)->minimum) &&
       (check <= G_PARAM_SPEC_INT64(paramspec)->maximum)) {
     ret=TRUE;
   }
@@ -291,9 +291,9 @@ static gboolean check_read_int64_param(GParamSpec *paramspec, GObject *toCheck) 
 static gboolean check_read_long_param(GParamSpec *paramspec, GObject *toCheck) {
   glong check;
   gboolean ret=FALSE;
-  
+
   g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_LONG(paramspec)->minimum) && 
+  if ((check >= G_PARAM_SPEC_LONG(paramspec)->minimum) &&
       (check <= G_PARAM_SPEC_LONG(paramspec)->maximum)) {
     ret=TRUE;
   }
@@ -313,7 +313,7 @@ static gboolean check_read_ulong_param(GParamSpec *paramspec, GObject *toCheck) 
   gboolean ret=FALSE;
 
   g_object_get(toCheck,paramspec->name,&check,NULL);
-  if ((check >= G_PARAM_SPEC_ULONG(paramspec)->minimum) && 
+  if ((check >= G_PARAM_SPEC_ULONG(paramspec)->minimum) &&
       (check <= G_PARAM_SPEC_ULONG(paramspec)->maximum)) {
     ret=TRUE;
   }
@@ -331,7 +331,7 @@ static gboolean check_read_ulong_param(GParamSpec *paramspec, GObject *toCheck) 
 static gboolean check_read_property(GParamSpec *paramspec, GObject *toCheck) {
   GType param_type;
   gboolean ret=FALSE;
-  
+
   param_type=G_PARAM_SPEC_TYPE(paramspec);
   if(param_type == G_TYPE_PARAM_INT) {
     ret=check_read_int_param(paramspec, toCheck);
@@ -342,7 +342,7 @@ static gboolean check_read_property(GParamSpec *paramspec, GObject *toCheck) {
   } else if (param_type == G_TYPE_PARAM_LONG) {
     ret=check_read_long_param(paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_ULONG) {
-    ret=check_read_ulong_param(paramspec, toCheck); 
+    ret=check_read_ulong_param(paramspec, toCheck);
   } else { // no check performed
     ret=TRUE;
   }
@@ -354,10 +354,10 @@ static gboolean check_write_int_param(GParamSpec *paramspec, GObject *toCheck) {
 
   check1=G_PARAM_SPEC_INT(paramspec)->minimum;
   g_object_set(toCheck,paramspec->name,check1,NULL);
-  
+
   check2=G_PARAM_SPEC_INT(paramspec)->maximum;
   g_object_set(toCheck,paramspec->name,check2,NULL);
-  
+
   return TRUE;
 }
 
@@ -366,10 +366,10 @@ static gboolean check_write_uint_param(GParamSpec *paramspec, GObject *toCheck) 
 
   check1=G_PARAM_SPEC_UINT(paramspec)->minimum;
   g_object_set(toCheck,paramspec->name,check1,NULL);
-  
+
   check2=G_PARAM_SPEC_UINT(paramspec)->maximum;
   g_object_set(toCheck,paramspec->name,check2,NULL);
-  
+
   return TRUE;
 }
 
@@ -378,10 +378,10 @@ static gboolean check_write_int64_param(GParamSpec *paramspec, GObject *toCheck)
 
   check1=G_PARAM_SPEC_INT64(paramspec)->minimum;
   g_object_set(toCheck,paramspec->name,check1,NULL);
-  
+
   check2=G_PARAM_SPEC_INT64(paramspec)->maximum;
   g_object_set(toCheck,paramspec->name,check2,NULL);
-  
+
   return TRUE;
 }
 
@@ -390,10 +390,10 @@ static gboolean check_write_long_param(GParamSpec *paramspec, GObject *toCheck) 
 
   check1=G_PARAM_SPEC_LONG(paramspec)->minimum;
   g_object_set(toCheck,paramspec->name,check1,NULL);
-  
+
   check2=G_PARAM_SPEC_LONG(paramspec)->maximum;
   g_object_set(toCheck,paramspec->name,check2,NULL);
-  
+
   return TRUE;
 }
 
@@ -402,17 +402,17 @@ static gboolean check_write_ulong_param(GParamSpec *paramspec, GObject *toCheck)
 
   check1=G_PARAM_SPEC_ULONG(paramspec)->minimum;
   g_object_set(toCheck,paramspec->name,check1,NULL);
-  
+
   check2=G_PARAM_SPEC_ULONG(paramspec)->maximum;
   g_object_set(toCheck,paramspec->name,check2,NULL);
-  
+
   return TRUE;
 }
 
 static gboolean check_write_property(GParamSpec *paramspec, GObject *toCheck) {
   GType param_type;
   gboolean ret=FALSE;
-  
+
   param_type=G_PARAM_SPEC_TYPE(paramspec);
   if(param_type == G_TYPE_PARAM_INT) {
     ret=check_write_int_param(paramspec, toCheck);
@@ -423,7 +423,7 @@ static gboolean check_write_property(GParamSpec *paramspec, GObject *toCheck) {
   } else if (param_type == G_TYPE_PARAM_LONG) {
     ret=check_write_long_param(paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_ULONG) {
-    ret=check_write_ulong_param(paramspec, toCheck); 
+    ret=check_write_ulong_param(paramspec, toCheck);
   } else { // no check performed
     ret=TRUE;
   }
@@ -569,10 +569,10 @@ static gboolean check_readwrite_ulong_param(GParamSpec *paramspec, GObject *toCh
   return ret;
 }
 
-static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck) {  
+static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck) {
   GType param_type;
   gboolean ret=FALSE;
-  
+
   param_type=G_PARAM_SPEC_TYPE(paramspec);
   if(param_type == G_TYPE_PARAM_INT) {
     ret=check_readwrite_int_param(paramspec, toCheck);
@@ -583,7 +583,7 @@ static gboolean check_readwrite_property(GParamSpec *paramspec, GObject *toCheck
   } else if (param_type == G_TYPE_PARAM_LONG) {
     ret=check_readwrite_long_param(paramspec, toCheck);
   } else if (param_type == G_TYPE_PARAM_ULONG) {
-    ret=check_readwrite_ulong_param(paramspec, toCheck); 
+    ret=check_readwrite_ulong_param(paramspec, toCheck);
   } else { // no check performed
     ret=TRUE;
   }
@@ -606,18 +606,18 @@ gboolean check_gobject_properties(GObject *toCheck) {
   guint n_properties;
   guint loop;
   GParamSpec **return_params;
-  
+
   return_params=g_object_class_list_properties(G_OBJECT_GET_CLASS(toCheck),&n_properties);
   // iterate over properties
   for (loop=0; loop<n_properties; loop++) {
     GParamSpec *paramspec=return_params[loop];
-    
+
     GST_DEBUG("property check for : %s",paramspec->name);
     if (paramspec->flags&G_PARAM_READABLE) {
       if(!(check_read=check_read_property(paramspec, toCheck))) {
         GST_WARNING("property read check failed for : %s",paramspec->name);
       }
-    } 
+    }
     if (paramspec->flags&G_PARAM_WRITABLE) {
       if(!(check_write=check_write_property(paramspec, toCheck))) {
         GST_WARNING("property write check failed for : %s",paramspec->name);
@@ -674,10 +674,11 @@ void check_setup_test_server(void) {
 #ifdef XFONT_PATH
     "-fp", XFONT_PATH, /*"/usr/X11R6/lib/X11/fonts/misc"*/
 #endif
-		/*"-fp","/usr/share/fonts/misc",*/
+    /*"-fp","/usr/share/fonts/misc",*/
     /*"-reset",
     "-terminate",*/
-    "-screen","0","1024x786x16",
+    "-screen","0","1024x786x24",
+    "-render",
     NULL
   };
   gboolean found=FALSE,launched=FALSE,trying=TRUE;
@@ -698,12 +699,12 @@ void check_setup_test_server(void) {
       gchar pid_str[20];
       guint pid;
       gchar proc_file[15];
-      
+
       // read pid
       if((pid_file=fopen(lock_file,"rt"))) {
         fgets(pid_str,20,pid_file);
         fclose(pid_file);
-        
+
         pid=atol(pid_str);
         g_sprintf(proc_file,"/proc/%d",pid);
         // check proc entry
@@ -718,7 +719,7 @@ void check_setup_test_server(void) {
     else {
       found=TRUE;
     }
-    
+
     // this display is not yet in use
     if(!g_file_test(display_file, G_FILE_TEST_EXISTS)) {
       // create the testing server
@@ -729,7 +730,7 @@ void check_setup_test_server(void) {
       }
       else {
         g_child_watch_add(server_pid,__test_server_watch,NULL);
-  
+
         while(wait_for_server) {
           // try also waiting for /tmp/X%1d-lock" files
           if(g_file_test(display_file, G_FILE_TEST_EXISTS)) {
@@ -753,7 +754,7 @@ void check_setup_test_server(void) {
     display_number=-1;
     GST_WARNING("no free display number found");
   }
-	else { 
+	else {
     g_setenv("DISPLAY",display_name,TRUE);
 		GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
 	}
@@ -768,8 +769,8 @@ void check_setup_test_display(void) {
       GdkScreen *default_screen;
       GtkSettings *default_settings;
       gchar *theme_name;
-      
-			default_display = gdk_display_manager_get_default_display(display_manager);
+
+      default_display = gdk_display_manager_get_default_display(display_manager);
       if((default_screen = gdk_display_get_default_screen(default_display))) {
         /* this block when protected by gdk_threads_enter() and crashes if not :( */
         //gdk_threads_enter();
@@ -783,8 +784,8 @@ void check_setup_test_display(void) {
         //g_object_unref(default_screen);
       }
       else GST_WARNING("can't get default_screen");
-      
-			if((test_display = gdk_display_open(display_name))) {
+
+      if((test_display = gdk_display_open(display_name))) {
         GdkScreen *test_screen;
         GtkSettings *test_settings;
 
@@ -802,17 +803,17 @@ void check_setup_test_display(void) {
         }
         else GST_WARNING("can't get test_screen on display: \"%s\"",display_name);
 
-				gdk_display_manager_set_default_display(display_manager,test_display);
-				GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));        
-			}
-			else {
-				GST_WARNING("failed to open display: \"%s\"",display_name);
-			}
+        gdk_display_manager_set_default_display(display_manager,test_display);
+        GST_INFO("display %p,\"%s\" is active",test_display,gdk_display_get_name(test_display));
+      }
+      else {
+        GST_WARNING("failed to open display: \"%s\"",display_name);
+      }
       //g_free(theme_name);
-		}
-		else {
-			GST_WARNING("can't get display-manager");
-		}
+    }
+    else {
+      GST_WARNING("can't get display-manager");
+    }
   }
 #endif
 }
@@ -822,7 +823,7 @@ void check_shutdown_test_display(void) {
   if(test_display) {
     wait_for_server=TRUE;
 
-		g_assert(GDK_IS_DISPLAY_MANAGER(display_manager));
+    g_assert(GDK_IS_DISPLAY_MANAGER(display_manager));
     g_assert(GDK_IS_DISPLAY(test_display));
     g_assert(GDK_IS_DISPLAY(default_display));
 
@@ -878,7 +879,7 @@ void check_shutdown_test_server(void) {
  * check_make_widget_screenshot:
  * @widget: a #GtkWidget to screenshoot
  *
- * 
+ *
  */
 void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   GdkColormap *colormap=gdk_colormap_get_system();
@@ -886,16 +887,16 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   GdkPixbuf *pixbuf, *scaled_pixbuf;
   gint wx,wy,ww,wh;
   gchar *filename;
-  
+
   g_return_if_fail(GTK_IS_WIDGET(widget));
 
-  // make sure the window gets drawn  
+  // make sure the window gets drawn
   if(!GTK_WIDGET_VISIBLE(widget)) {
     gtk_widget_show_all(widget);
   }
   gtk_widget_queue_draw(widget);
   while(gtk_events_pending()) gtk_main_iteration();
-  
+
   if(!name) {
     filename=g_strdup_printf("/tmp/%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget));
   }
@@ -908,11 +909,11 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   gdk_pixbuf_get_from_drawable(pixbuf,window,colormap,0,0,0,0,ww,wh);
   scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
   gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
-  
+
   /* @todo: add shadow to screenshots
   // see: http://developer.gnome.org/doc/books/WGA/graphics-gdk-pixbuf.html
   // gdk_drawable_get_image / gdk_pixbuf_get_from_image
-  
+
   // add alpha channel for shadow
   shadow_pixbuf = gdk_pixbuf_add_alpha(scaled_pixbuf, FALSE, 0,0,0);
   // enlarge pixbuf

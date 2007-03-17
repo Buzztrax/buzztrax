@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.33 2007-01-28 17:30:48 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.34 2007-03-17 22:50:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -20,11 +20,11 @@
  */
 /**
  * SECTION:btgconfsettings
- * @short_description: gconf based implementation sub class for buzztard 
+ * @short_description: gconf based implementation sub class for buzztard
  * settings handling
  *
  * GConf is the standart mechanism used in GNOME to handle persistance of
- * application settings and status. 
+ * application settings and status.
  */
 
 #define BT_CORE
@@ -51,9 +51,9 @@ static BtSettingsClass *parent_class=NULL;
 
 static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, guint cnxn_id, GConfEntry  * const entry, gpointer const user_data) {
   BtGConfSettings *self=BT_GCONF_SETTINGS(user_data);
-  
+
   GST_INFO("!!!  gconf notify for toolbar style");
-  
+
   g_object_notify(G_OBJECT(self),"toolbar-style");
 }
 
@@ -69,7 +69,7 @@ static void bt_gconf_settings_notify_toolbar_style(GConfClient * const client, g
 BtGConfSettings *bt_gconf_settings_new(void) {
   BtGConfSettings * const self = BT_GCONF_SETTINGS(g_object_new(BT_TYPE_GCONF_SETTINGS,NULL));
   GError *error=NULL;
-  
+
   if(!self) {
     goto Error;
   }
@@ -85,7 +85,7 @@ BtGConfSettings *bt_gconf_settings_new(void) {
     g_error_free(error);
   }
   /* @todo: also listen to BT_GCONF_PATH_GSTREAMER"/audiosink" */
-  
+
   return(self);
 Error:
   g_object_try_unref(self);
@@ -121,27 +121,13 @@ static void bt_gconf_settings_get_property(GObject      * const object,
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/toolbar-hide",NULL);
-      if(prop) {
-        GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
-        g_value_set_boolean(value, prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] system toolbar-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
-        g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
-      }
-
+      GST_DEBUG("application reads system toolbar-hide gconf_settings : %d",prop);
+      g_value_set_boolean(value, prop);
     } break;
     case BT_SETTINGS_MENU_TABS_HIDE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/tabs-hide",NULL);
-      if(prop) {
-        GST_DEBUG("application reads system tabs-hide gconf_settings : %d",prop);
-        g_value_set_boolean(value, prop);
-      }
-      else {
-        GST_DEBUG("application reads [def] system tabs-hide gconf_settings : %d",((GParamSpecBoolean *)pspec)->default_value);
-        g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
-      }
-
+      GST_DEBUG("application reads tabs-hide gconf_settings : %d",prop);
+      g_value_set_boolean(value, prop);
     } break;
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY: {
       gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/grid-density",NULL);
@@ -160,6 +146,18 @@ static void bt_gconf_settings_get_property(GObject      * const object,
       GST_DEBUG("application reads news-seen gconf_settings : '%u'",prop);
       g_value_set_uint(value, prop);
     } break;
+    /* playback controller */
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
+      gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",NULL);
+      GST_DEBUG("application reads playback-controller/coherence-upnp-activee gconf_settings : %d",prop);
+      g_value_set_boolean(value, prop);
+    } break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT: {
+      guint prop=gconf_client_get_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",NULL);
+      GST_DEBUG("application reads playback-controller/coherence-upnp-port gconf_settings : '%u'",prop);
+      g_value_set_uint(value, prop);
+    } break;
+    /* system settings */
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
       GST_DEBUG("application reads system audiosink gconf_settings : '%s'",prop);
@@ -224,6 +222,22 @@ static void bt_gconf_settings_set_property(GObject      * const object,
       gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/news-seen",prop,NULL);
       g_return_if_fail(gconf_ret == TRUE);
     } break;
+    /* playback controller */
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
+      gboolean gconf_ret=FALSE;
+      gboolean prop=g_value_get_boolean(value);
+      GST_DEBUG("application writes playback-controller/coherence-upnp-active gconf_settings : %d",prop);
+      gconf_ret=gconf_client_set_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",prop,NULL);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT: {
+     gboolean gconf_ret=FALSE;
+      guint prop=g_value_get_uint(value);
+      GST_DEBUG("application writes playback-controller/coherence-upnp-port gconf_settings : %u",prop);
+      gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",prop,NULL);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    /* system settings */
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -235,7 +249,7 @@ static void bt_gconf_settings_dispose(GObject * const object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
+
   // unregister directories to watch
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,NULL);
   gconf_client_remove_dir(self->priv->client,BT_GCONF_PATH_GNOME,NULL);
@@ -258,11 +272,11 @@ static void bt_gconf_settings_finalize(GObject * const object) {
 
 static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtGConfSettings * const self = BT_GCONF_SETTINGS(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_GCONF_SETTINGS, BtGConfSettingsPrivate);
-  
+
   GST_DEBUG("!!!! self=%p",self);
-  
+
   self->priv->client=gconf_client_get_default();
   gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
   // register the config cache

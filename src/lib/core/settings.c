@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.33 2007-03-11 20:19:19 ensonic Exp $
+/* $Id: settings.c,v 1.34 2007-03-17 22:50:04 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -158,7 +158,7 @@ static void bt_settings_finalize(GObject * const object) {
 
 static void bt_settings_init(GTypeInstance * const instance, gpointer g_class) {
   BtSettings * const self = BT_SETTINGS(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETTINGS, BtSettingsPrivate);
 }
 
@@ -177,7 +177,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
   //klass->set           = bt_settings_real_set;
 
   // application settings
-  
+
   g_object_class_install_property(gobject_class,BT_SETTINGS_AUDIOSINK,
                                   g_param_spec_string("audiosink",
                                      "audiosink prop",
@@ -215,6 +215,22 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      0, /* default value */
                                      G_PARAM_READWRITE));
 
+  // playback controller
+  g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
+                                  g_param_spec_boolean("coherence-upnp-active",
+                                     "coherence-upnp-active",
+                                     "activate Coherence UPnP based playback controller",
+                                     FALSE, /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
+                                  g_param_spec_uint("coherence-upnp-port",
+                                     "coherence-upnp-port",
+                                     "the port number for the communication with the coherence backend",
+                                     0,
+                                     G_MAXUINT,
+                                     7654, /* default value */
+                                     G_PARAM_READWRITE));
   // system settings
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,

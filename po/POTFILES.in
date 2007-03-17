@@ -31,7 +31,8 @@ src/ui/edit/main-window.c
 src/ui/edit/pattern-properties-dialog.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
-src/ui/edit/settings-page-controldevices.c
+src/ui/edit/settings-page-interaction-controller.c
+src/ui/edit/settings-page-playback-controller.c
 src/ui/edit/tools.c
 src/ui/edit/volume-popup.c
 src/ui/edit/wire-analysis-dialog.c
