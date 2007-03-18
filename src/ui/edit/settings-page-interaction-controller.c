@@ -1,4 +1,4 @@
-/* $Id: settings-page-interaction-controller.c,v 1.1 2007-03-17 22:50:19 ensonic Exp $
+/* $Id: settings-page-interaction-controller.c,v 1.2 2007-03-18 12:08:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -131,11 +131,25 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   on_ic_registry_devices_changed(ic_registry,NULL,(gpointer)self);
   g_object_unref(ic_registry);
 
-  // @todo: add list of controllers (updated when selecting a device)
-
   gtk_combo_box_set_active(self->priv->device_menu,0);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->device_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->device_menu), "changed", G_CALLBACK(on_device_menu_changed), (gpointer)self);
+
+  // @todo: add list of controllers (updated when selecting a device)
+#if 0
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_ETCHED_IN);
+  self->priv->controller_list=GTK_TREE_VIEW(gtk_tree_view_new());
+  //gtk_tree_view_set_headers_visible(self->priv->controller_list,FALSE);
+  renderer = gtk_cell_renderer_pixbuf_new();
+  gtk_tree_view_insert_column_with_attributes(self->priv->controller_list,-1,NULL,renderer,"pixbuf",COL_ICON_PIXBUF,"stock-id",COL_ICON_STOCK_ID,NULL);
+  renderer=gtk_cell_renderer_text_new();
+  gtk_tree_view_insert_column_with_attributes(self->priv->controller_list,-1,NULL,renderer,"text",COL_LABEL,NULL);
+  gtk_tree_selection_set_mode(gtk_tree_view_get_selection(self->priv->controller_list),GTK_SELECTION_BROWSE);
+  gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->controller_list));
+  gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(scrolled_window), 1, 3, 2, 3, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+#endif
 
   return(TRUE);
 }

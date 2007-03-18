@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.34 2007-03-17 22:50:04 ensonic Exp $
+/* $Id: settings.c,v 1.35 2007-03-18 12:08:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -172,9 +172,6 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
   gobject_class->get_property = bt_settings_get_property;
   gobject_class->dispose      = bt_settings_dispose;
   gobject_class->finalize     = bt_settings_finalize;
-
-  //klass->get           = bt_settings_real_get;
-  //klass->set           = bt_settings_real_set;
 
   // application settings
 

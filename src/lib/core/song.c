@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.171 2007-03-16 23:03:30 ensonic Exp $
+/* $Id: song.c,v 1.172 2007-03-18 12:08:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -406,10 +406,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
-      //case GST_STATE_CHANGE_NULL_TO_READY:
-        //bt_song_write_to_lowlevel_dot_file(self);
-        //break;
       case GST_STATE_CHANGE_READY_TO_PAUSED:
+        // here the formats are negotiated
         //bt_song_write_to_lowlevel_dot_file(self);
         self->priv->is_preparing=FALSE;
         // this should be sequence->play_start

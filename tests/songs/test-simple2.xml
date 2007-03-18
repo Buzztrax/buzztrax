@@ -15,36 +15,35 @@
     <create-dts>2005-09-20T22:10:56Z</create-dts>
     <change-dts>2005-09-20T22:10:56Z</change-dts>
   </meta>
-  
+
   <setup>
     <machines>
       <machine type="sink" id="audio_sink">
       </machine>
+
       <machine type="source" id="sine1" plugin-name="audiotestsrc" voices="0">
+        <globaldata name="volume" value="0.1"/>
         <patterns>
           <pattern id="sine1_beep" machine="sine1" name="beeps" length="3">
             <tick time="0">
-              <globaldata name="freq" value="440,0"/>
-              <globaldata name="volume" value="1,0"/>
+              <globaldata name="freq" value="440.0"/>
             </tick>
             <tick time="1">
-              <globaldata name="freq" value="880,0"/>
-              <globaldata name="volume" value="1,0"/>
+              <globaldata name="freq" value="880.0"/>
             </tick>
             <tick time="2">
-              <globaldata name="freq" value="1760,0"/>
-              <globaldata name="volume" value="1,0"/>
+              <globaldata name="freq" value="1760.0"/>
             </tick>
           </pattern>
         </patterns>
       </machine>
     </machines>
-    
+
     <wires>
       <wire src="sine1" dst="audio_sink" gain="1.0"/>
-    </wires>    
+    </wires>
   </setup>
-    
+
   <sequence length="16" tracks="1">
     <labels>
       <label time="0" name="start"/>
@@ -56,5 +55,5 @@
       </track>
     </tracks>
   </sequence>
-  
+
 </buzztard>

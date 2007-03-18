@@ -5,13 +5,13 @@
 #     1) Define: figdir, docname, lang, omffile, and entities in
 #        your Makefile.am file for each document directory,
 #        although figdir, omffile, and entities may be empty
-#     2) Make sure the Makefile in (1) also includes 
+#     2) Make sure the Makefile in (1) also includes
 #	 "include $(top_srcdir)/xmldocs.make" and
 #	 "dist-hook: app-dist-hook".
 #     3) Optionally define 'entities' to hold xml entities which
 #        you would also like installed
 #     4) Figures must go under $(figdir)/ and be in PNG format
-#     5) You should only have one document per directory 
+#     5) You should only have one document per directory
 #     6) Note that the figure directory, $(figdir)/, should not have its
 #        own Makefile since this Makefile installs those figures.
 #
@@ -26,7 +26,7 @@
 #
 # About this file:
 #	This file was taken from scrollkeeper_example2, a package illustrating
-#	how to install documentation and OMF files for use with ScrollKeeper 
+#	how to install documentation and OMF files for use with ScrollKeeper
 #	0.3.x and 0.4.x.  For more information, see:
 #		http://scrollkeeper.sourceforge.net/
 #	Version: 0.1.2 (last updated: March 20, 2002)
@@ -45,19 +45,18 @@ xml_files = $(entities) $(docname).xml
 EXTRA_DIST = $(xml_files) $(omffile)
 CLEANFILES = omf_timestamp
 
-if ENABLE_SCROLLKEEPER
-
+##if ENABLE_SCROLLKEEPER
 # If the following file is in a subdir (like help/) you need to add that to the path
 include $(top_srcdir)/omf.make
 
 all: omf
 
 $(docname).xml: $(entities)
-	-ourdir=`pwd`;  \
-	cd $(srcdir);   \
-	cp $(entities) $$ourdir
+##	-ourdir=`pwd`;  \
+##	cd $(srcdir);   \
+##	cp $(entities) $$ourdir
 
-endif
+##endif
 
 app-dist-hook:
 	if test "$(figdir)"; then \
@@ -68,8 +67,7 @@ app-dist-hook:
 	  done \
 	fi
 
-if ENABLE_SCROLLKEEPER
-
+##if ENABLE_SCROLLKEEPER
 install-data-local: omf
 	$(mkinstalldirs) $(DESTDIR)$(docdir)
 	for file in $(xml_files); do \
@@ -91,7 +89,7 @@ uninstall-local-doc:
 	-if test "$(figdir)"; then \
 	  for file in $(srcdir)/$(figdir)/*.png; do \
 	    basefile=`echo $$file | sed -e  's,^.*/,,'`; \
-	    rm -f $(docdir)/$(figdir)/$$basefile; \
+	    rm -f $(DESTDIR)$(docdir)/$(figdir)/$$basefile; \
 	  done; \
 	  rmdir $(DESTDIR)$(docdir)/$(figdir); \
 	fi
@@ -100,4 +98,4 @@ uninstall-local-doc:
 	done
 	-rmdir $(DESTDIR)$(docdir)
 
-endif
+##endif

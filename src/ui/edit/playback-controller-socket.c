@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.11 2007-03-17 22:50:18 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.12 2007-03-18 12:08:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,9 @@
 /**
  * SECTION:btplaybackcontrollersocket
  * @short_description: sockets based playback controller
+ *
+ * Allows the coherence upnp backend for buzztard to remote control and query
+ * bt-edit.
  *
  * Function can be tested doing "netcat -n 127.0.0.1 7654".
  */
@@ -69,13 +72,16 @@ static GObjectClass *parent_class=NULL;
 
 //-- helper methods
 
-static void client_connection_free(BtPlaybackControllerSocket *self) {
+static void client_connection_close(BtPlaybackControllerSocket *self) {
   if(self->priv->client_channel) {
     GError *error=NULL;
 
-    g_source_remove(self->priv->client_source);
-    // the above already unrefs
-    //g_io_channel_unref(self->priv->client_channel);
+    if(self->priv->client_source>=0) {
+      g_source_remove(self->priv->client_source);
+      // the above already unrefs
+      //g_io_channel_unref(self->priv->client_channel);
+      self->priv->client_source=-1;
+    }
     g_io_channel_shutdown(self->priv->client_channel,TRUE,&error);
     if(error) {
       GST_WARNING("iochannel error while shutting down client: %s",error->message);
@@ -360,7 +366,7 @@ static gboolean master_socket_io_handler(GIOChannel *channel,GIOCondition condit
     }
   }
   if(condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL)) {
-    client_connection_free(self);
+    client_connection_close(self);
     GST_INFO("playback controller client disconnected");
   }
   return(TRUE);
@@ -414,14 +420,39 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper
 
+static void master_connection_close(BtPlaybackControllerSocket *self) {
+  if(self->priv->master_channel) {
+    GError *error=NULL;
+
+    if(self->priv->master_source>=0) {
+      g_source_remove(self->priv->master_source);
+      // the above already unrefs
+      //g_io_channel_unref(self->priv->master_channel);
+      self->priv->master_source=-1;
+    }
+    g_io_channel_shutdown(self->priv->master_channel,TRUE,&error);
+    if(error) {
+      GST_WARNING("iochannel error while shutting down master: %s",error->message);
+      g_error_free(error);
+    }
+    g_io_channel_unref(self->priv->master_channel);
+    self->priv->master_channel=NULL;
+  }
+  if(self->priv->master_socket>-1) {
+    close(self->priv->master_socket);
+    self->priv->master_socket=-1;
+  }
+  client_connection_close(self);
+  GST_INFO("playback controller terminated");
+}
+
 static void master_connection_open(BtPlaybackControllerSocket *self) {
   BtSettings *settings;
-  static struct sockaddr_in serv_addr={0,};
   gboolean active;
   guint port;
+  static struct sockaddr_in serv_addr={0,};
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  // @todo react to changes on-the-fly
   g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,"coherence-upnp-port",&port,NULL);
   g_object_unref(settings);
 
@@ -461,6 +492,43 @@ bind_error:
 listen_error:
   GST_WARNING("listen failed: %s",g_strerror(errno));
   return;
+}
+
+static void on_port_notify(BtSettings * const settings, GParamSpec * const arg, gconstpointer user_data) {
+  BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
+  gboolean active;
+
+  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,NULL);
+
+  if(active) {
+    master_connection_close(self);
+    master_connection_open(self);
+  }
+}
+
+static void on_active_notify(BtSettings * const settings, GParamSpec * const arg, gconstpointer user_data) {
+  BtPlaybackControllerSocket *self=BT_PLAYBACK_CONTROLLER_SOCKET(user_data);
+  gboolean active;
+
+  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,NULL);
+
+  if(active) {
+    master_connection_open(self);
+  }
+  else {
+    master_connection_close(self);
+  }
+}
+
+static void settings_listen(BtPlaybackControllerSocket *self) {
+  BtSettings *settings;
+
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_signal_connect(G_OBJECT(settings), "notify::coherence-upnp-active", G_CALLBACK(on_active_notify), (gpointer)self);
+  g_signal_connect(G_OBJECT(settings), "notify::coherence-upnp-port", G_CALLBACK(on_port_notify), (gpointer)self);
+  on_active_notify(settings,NULL,(gpointer)self);
+  g_object_unref(settings);
+
 }
 
 //-- constructor methods
@@ -523,8 +591,9 @@ static void bt_playback_controller_socket_set_property(GObject      *object,
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
-      // open socket
-      master_connection_open(self);
+      // check settings
+      //master_connection_open(self);
+      settings_listen(self);
       // register event handlers
       g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
     } break;
@@ -536,7 +605,6 @@ static void bt_playback_controller_socket_set_property(GObject      *object,
 
 static void bt_playback_controller_socket_dispose(GObject *object) {
   BtPlaybackControllerSocket *self = BT_PLAYBACK_CONTROLLER_SOCKET(object);
-  GError *error=NULL;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -546,24 +614,7 @@ static void bt_playback_controller_socket_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->gain);
   g_object_try_weak_unref(self->priv->sequence);
 
-  if(self->priv->master_channel) {
-    if(self->priv->master_source>=0) {
-      g_source_remove(self->priv->master_source);
-      // the above already unrefs
-      //g_io_channel_unref(self->priv->master_channel);
-      self->priv->master_source=-1;
-    }
-    g_io_channel_shutdown(self->priv->master_channel,TRUE,&error);
-    if(error) {
-      GST_WARNING("iochannel error while shutting down master: %s",error->message);
-      g_error_free(error);
-    }
-    g_io_channel_unref(self->priv->master_channel);
-  }
-  if(self->priv->master_socket>-1) {
-    close(self->priv->master_socket);
-  }
-  client_connection_free(self);
+  master_connection_close(self);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

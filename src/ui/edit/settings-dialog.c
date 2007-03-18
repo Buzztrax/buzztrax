@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.34 2007-03-17 22:50:18 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.35 2007-03-18 12:08:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -151,16 +151,6 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   g_signal_connect(G_OBJECT(self->priv->settings_list),"cursor-changed",G_CALLBACK(on_settings_list_cursor_changed),(gpointer)self);
 
   store=gtk_list_store_new(4,G_TYPE_STRING,G_TYPE_LONG,GDK_TYPE_PIXBUF,G_TYPE_STRING);
-  /* @todo: add icons
-   * Audio Devices: tango-audio-card
-   * Interaction Controller: tango-input-gaming
-   * Playback Controller: GTK_STOCK_MEDIA_PLAY
-   * Colors: GTK_STOCK_SELECT_COLOR
-   * Shortcuts: tango-input-keyboard
-   * Directories: GTK_STOCK_DIRECTORY
-   * Fonts: GTK_STOCK_SELECT_FONT
-   * Misc: GTK_STOCK_PREFERENCES
-   */
   //-- append entries for settings pages
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,

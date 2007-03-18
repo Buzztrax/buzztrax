@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.66 2007-03-17 22:49:56 ensonic Exp $
+## $Id: Makefile.am,v 1.67 2007-03-18 12:08:02 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -120,10 +120,14 @@ install-data-local:
 ##	rm -r $(datadir)/$(PACKAGE)
 
 
+distuninstallcheck_listfiles = find . -type f -print
+
 ## Workaround for scrollkeeper bug
 ## otherwise we get warnings for left-over files when doing 'make distuninstallcheck'
-distuninstallcheck_listfiles = find . -type f -print | grep -v '^\./var/scrollkeeper' | grep -v '^\./share/mime'
+distuninstallcheck_listfiles += | grep -v '/var/scrollkeeper' | grep -v '/share/mime'
 
+## Workaround for installing icon theme in own prefix
+distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
 
 .PHONY: help coverage valgrind dict todo stats splint
 

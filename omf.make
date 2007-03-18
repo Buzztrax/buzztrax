@@ -28,6 +28,7 @@
 
 omf_dest_dir=$(datadir)/omf/@PACKAGE@
 scrollkeeper_localstate_dir = $(localstatedir)/scrollkeeper
+CLEANFILES += *.out
 
 omf: omf_timestamp
 
@@ -47,7 +48,7 @@ install-data-hook-omf:
 uninstall-local-omf:
 	-for file in $(srcdir)/*.omf; do \
 		basefile=`basename $$file`; \
-		rm -f $(omf_dest_dir)/$$basefile; \
+		rm -f $(DESTDIR)$(omf_dest_dir)/$$basefile; \
 	done
-	-rmdir $(omf_dest_dir)
+	-rmdir $(DESTDIR)$(omf_dest_dir)
 	-scrollkeeper-update -p $(scrollkeeper_localstate_dir)

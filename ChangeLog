@@ -1,5 +1,52 @@
 2007-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* Makefile.am:
+	* docs/Makefile.am:
+	* omf.make:
+	* src/lib/core/settings.c: (bt_settings_class_init):
+	* src/lib/core/song.c: (on_song_state_changed):
+	* src/ui/edit/main-page-patterns.c: (selection_cell_data_function),
+	(machine_model_get_iter_by_machine), (pattern_view_get_cursor_pos),
+	(pattern_view_update_column_description), (on_machine_id_changed),
+	(on_pattern_name_changed), (on_pattern_table_cursor_changed_idle),
+	(on_pattern_table_key_release_event),
+	(on_pattern_table_button_press_event),
+	(on_pattern_table_motion_notify_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(machine_menu_add), (machine_menu_refresh),
+	(wavetable_menu_refresh), (pattern_pos_table_init),
+	(pattern_table_clear), (pattern_table_refresh),
+	(context_menu_refresh), (on_pattern_menu_changed),
+	(on_machine_added), (on_machine_removed),
+	(on_machine_menu_changed), (on_sequence_tick),
+	(on_context_menu_pattern_new_activate),
+	(on_context_menu_pattern_properties_activate),
+	(on_context_menu_pattern_remove_activate),
+	(on_context_menu_pattern_copy_activate),
+	(bt_main_page_patterns_init_ui),
+	(bt_main_page_patterns_get_current_machine),
+	(bt_main_page_patterns_get_current_pattern),
+	(bt_main_page_patterns_dispose), (bt_main_page_patterns_finalize),
+	(bt_main_page_patterns_init), (bt_main_page_patterns_class_init):
+	* src/ui/edit/playback-controller-socket.c:
+	(client_connection_close), (master_socket_io_handler),
+	(master_connection_close), (master_connection_open),
+	(on_port_notify), (on_active_notify), (settings_listen),
+	(bt_playback_controller_socket_set_property),
+	(bt_playback_controller_socket_dispose):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(bt_settings_page_interaction_controller_init_ui):
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	* tests/songs/test-simple1.xml:
+	* tests/songs/test-simple2.xml:
+	* xmldocs.make:
+	  fix make distcheck, make test-songs quieter, make playback controller
+	  instant apply
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* README:
 	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_init_ui):
 	* tests/Makefile.am:
