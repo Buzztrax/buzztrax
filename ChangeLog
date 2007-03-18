@@ -1,5 +1,41 @@
 2007-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta), (preset_list_refresh),
+	(on_int_range_global_property_format_value),
+	(on_int_range_voice_property_format_value),
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(on_double_range_property_notify_idle),
+	(on_double_range_property_notify),
+	(on_double_range_property_changed),
+	(on_float_range_property_notify_idle),
+	(on_float_range_property_notify),
+	(on_float_range_property_changed),
+	(on_int_range_property_notify_idle),
+	(on_int_range_property_notify), (on_int_range_property_changed),
+	(on_uint_range_property_notify_idle),
+	(on_uint_range_property_notify), (on_uint_range_property_changed),
+	(on_combobox_property_notify_idle), (on_combobox_property_notify),
+	(on_combobox_property_changed), (on_checkbox_property_notify_idle),
+	(on_checkbox_property_notify), (on_checkbox_property_toggled),
+	(on_toolbar_about_clicked), (on_toolbar_preset_add_clicked),
+	(on_toolbar_preset_remove_clicked),
+	(on_toolbar_preset_edit_clicked),
+	(on_toolbar_preset_random_clicked), (on_preset_list_row_activated),
+	(on_preset_list_motion_notify), (on_toolbar_style_changed),
+	(make_checkbox_widget), (make_int_range_widget),
+	(make_uint_range_widget), (make_float_range_widget),
+	(make_double_range_widget), (make_combobox_widget),
+	(bt_machine_properties_dialog_init_preset_box),
+	(bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose),
+	(bt_machine_properties_dialog_init),
+	(bt_machine_properties_dialog_class_init):
+	  fix looooong standing problem with Xlib async replies.
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* docs/Makefile.am:
 	* omf.make:
