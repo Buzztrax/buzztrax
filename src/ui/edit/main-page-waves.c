@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.45 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.46 2007-03-18 19:23:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,7 +42,7 @@ enum {
 struct _BtMainPageWavesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
@@ -50,16 +50,16 @@ struct _BtMainPageWavesPrivate {
   GtkWidget *list_toolbar,*browser_toolbar,*editor_toolbar;
   GtkWidget *browser_stop,*wavetable_stop,*stop;
   GtkWidget *wavetable_play,*wavetable_clear;
-  
+
   /* the list of wavetable entries */
   GtkTreeView *waves_list;
-  
+
   /* the list of wavelevels */
   GtkTreeView *wavelevels_list;
-  
+
   /* the sample chooser */
   GtkWidget *file_chooser;
-  
+
   /* playbin for preview */
   GstElement *playbin;
 };
@@ -71,8 +71,8 @@ static GtkVBoxClass *parent_class=NULL;
 /*
  * waves_list_refresh:
  * @self: the waves page
- * @wavetable: the wavetable that is the source for the list 
- * 
+ * @wavetable: the wavetable that is the source for the list
+ *
  * Build the list of waves from the songs wavetable
  */
 static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wavetable) {
@@ -83,7 +83,7 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
   gint i;
 
   GST_INFO("refresh waves list: self=%p, wavetable=%p",self,wavetable);
-    
+
   store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
 
   //-- append waves rows (buzz numbers them from 0x01 to 0xC8=200)
@@ -117,8 +117,8 @@ static void waves_list_refresh(const BtMainPageWaves *self,const BtWavetable *wa
 /*
  * wavelevels_list_refresh:
  * @self: the waves page
- * @wavetable: the wavetable that is the source for the list 
- * 
+ * @wavetable: the wavetable that is the source for the list
+ *
  * Build the list of waves from the songs wavetable
  */
 static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wave) {
@@ -130,9 +130,9 @@ static void wavelevels_list_refresh(const BtMainPageWaves *self,const BtWave *wa
   guint root_note;
   gulong length,rate;
   glong loop_start,loop_end;
-  
+
   GST_INFO("refresh wavelevels list: self=%p, wave=%p",self,wave);
-    
+
   store=gtk_list_store_new(5,G_TYPE_UINT,G_TYPE_ULONG,G_TYPE_LONG,G_TYPE_LONG,G_TYPE_ULONG);
 
   //-- append wavelevels rows
@@ -158,7 +158,7 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
   GtkTreeIter       iter;
 
   g_assert(user_data);
-  
+
   GST_INFO("waves list cursor changed");
   selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->waves_list));
   if(gtk_tree_selection_get_selected(selection, &model, &iter)) {
@@ -170,7 +170,7 @@ static void on_waves_list_cursor_changed(GtkTreeView *treeview,gpointer user_dat
 
     gtk_tree_model_get(model,&iter,0,&id,-1);
     GST_INFO("selected entry id %d",id);
-    
+
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_return_if_fail(song);
     g_object_get(song,"wavetable",&wavetable,NULL);
@@ -225,7 +225,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   GtkToolbarStyle style;
   gchar *toolbar_style;
-  
+
   g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
@@ -240,7 +240,7 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
 static void on_browser_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   gchar *uri;
-    
+
   // get current entry and play
   uri=gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(self->priv->file_chooser));
   GST_INFO("current uri : %s",uri);
@@ -252,7 +252,7 @@ static void on_browser_toolbar_play_clicked(GtkButton *button, gpointer user_dat
     g_object_set(self->priv->playbin,"uri",uri,NULL);
     self->priv->stop=self->priv->browser_stop;
     gst_element_set_state(self->priv->playbin,GST_STATE_PLAYING);
-  
+
     g_free(uri);
   }
 }
@@ -283,19 +283,19 @@ static void on_wavetable_toolbar_play_clicked(GtkButton *button, gpointer user_d
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_return_if_fail(song);
     g_object_get(song,"wavetable",&wavetable,NULL);
-    
+
     wave=bt_wavetable_get_wave_by_index(wavetable,id);
     g_object_get(wave,"uri",&uri,NULL);
 
     if(uri) {
       // stop previous play
       gst_element_set_state(self->priv->playbin,GST_STATE_READY);
-    
+
       // ... and play
       g_object_set(self->priv->playbin,"uri",uri,NULL);
       self->priv->stop=self->priv->wavetable_stop;
       gst_element_set_state(self->priv->playbin,GST_STATE_PLAYING);
-    
+
       g_free(uri);
     }
     // release the references
@@ -312,10 +312,10 @@ static void on_wavetable_toolbar_stop_clicked(GtkButton *button, gpointer user_d
 
 static void on_playbin_state_changed(GstBus * bus, GstMessage * message, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
-  
+
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(self->priv->playbin)) {
     GstState oldstate,newstate,pending;
-    
+
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     GST_INFO("state change on the bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
@@ -353,7 +353,7 @@ static void on_wavetable_toolbar_clear_clicked(GtkButton *button, gpointer user_
     wave=bt_wavetable_get_wave_by_index(wavetable,id);
     bt_wavetable_remove_wave(wavetable,wave);
     // update page
-    waves_list_refresh(self,wavetable);    
+    waves_list_refresh(self,wavetable);
     // release the references
     g_object_try_unref(wave);
     g_object_try_unref(wavetable);
@@ -380,11 +380,11 @@ static void on_file_chooser_load_sample(GtkFileChooser *chooser, gpointer user_d
 
     // get current entry and load
     uri=gtk_file_chooser_get_uri(GTK_FILE_CHOOSER(self->priv->file_chooser));
-    
+
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_return_if_fail(song);
     g_object_get(song,"wavetable",&wavetable,NULL);
-  
+
     // trim off protocol, path and extension
     tmp_name=g_filename_from_uri(uri,NULL,NULL);
     name=g_path_get_basename(tmp_name);
@@ -408,17 +408,17 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   GtkWidget *scrolled_window;
   GtkCellRenderer *renderer;
   GtkTooltips *tips;
-  
+
   GST_DEBUG("!!!! self=%p",self);
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("wave table view"));
-  
+
   tips=gtk_tooltips_new();
-  
+
   // vpane
   vpaned=gtk_vpaned_new();
   gtk_container_add(GTK_CONTAINER(self),vpaned);
-  
+
   //   hpane
   hpaned=gtk_hpaned_new();
   gtk_paned_pack1(GTK_PANED(vpaned),GTK_WIDGET(hpaned),FALSE,FALSE);
@@ -429,7 +429,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   //       toolbar
   self->priv->list_toolbar=gtk_toolbar_new();
   gtk_widget_set_name(self->priv->list_toolbar,_("sample list tool bar"));
-  
+
   // add buttons (play,stop,clear)
   self->priv->wavetable_play=tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
@@ -451,7 +451,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->list_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_wavetable_toolbar_clear_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
-  
+
   gtk_box_pack_start(GTK_BOX(box),self->priv->list_toolbar,FALSE,FALSE,0);
 
   //       listview
@@ -475,7 +475,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   //       toolbar
   self->priv->browser_toolbar=gtk_toolbar_new();
   gtk_widget_set_name(self->priv->browser_toolbar,_("sample browser tool bar"));
-    
+
   // add buttons (play,stop,load)
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
@@ -523,7 +523,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   //     toolbar
   self->priv->editor_toolbar=gtk_toolbar_new();
   gtk_widget_set_name(self->priv->editor_toolbar,_("sample edit tool bar"));
-  
+
   gtk_box_pack_start(GTK_BOX(box),self->priv->editor_toolbar,FALSE,FALSE,0);
 
   //     hbox
@@ -558,7 +558,7 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->waves_list),"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", (GCallback)on_song_changed, (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
   // let settings control toolbar style
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -596,7 +596,7 @@ BtMainPageWaves *bt_main_page_waves_new(const BtEditApplication *app,const BtMai
   self->priv->playbin=gst_element_factory_make("playbin",NULL);
   bus=gst_element_get_bus(self->priv->playbin);
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect(bus, "message::state-changed", (GCallback)on_playbin_state_changed, (gpointer)self);
+  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_playbin_state_changed), (gpointer)self);
   gst_object_unref(bus);
   return(self);
 Error:
@@ -655,7 +655,7 @@ static void bt_main_page_waves_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   g_object_try_weak_unref(self->priv->app);
-  
+
   gst_element_set_state(self->priv->playbin,GST_STATE_NULL);
   gst_object_unref(self->priv->playbin);
 
@@ -666,7 +666,7 @@ static void bt_main_page_waves_dispose(GObject *object) {
 
 static void bt_main_page_waves_finalize(GObject *object) {
   //BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(object);
-  
+
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -674,7 +674,7 @@ static void bt_main_page_waves_finalize(GObject *object) {
 
 static void bt_main_page_waves_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageWaves *self = BT_MAIN_PAGE_WAVES(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_WAVES, BtMainPageWavesPrivate);
 }
 
@@ -683,7 +683,7 @@ static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageWavesPrivate));
-    
+
   gobject_class->set_property = bt_main_page_waves_set_property;
   gobject_class->get_property = bt_main_page_waves_get_property;
   gobject_class->dispose      = bt_main_page_waves_dispose;

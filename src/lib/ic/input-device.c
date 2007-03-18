@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.3 2007-03-17 11:42:32 ensonic Exp $
+/* $Id: input-device.c,v 1.4 2007-03-18 19:23:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,6 +26,8 @@
  */
 /*
  * http://linuxconsole.cvs.sourceforge.net/linuxconsole/ruby/utils/
+ * http://gentoo-wiki.com/HOWTO_Joystick_Setup
+ * http://www.frogmouth.net/hid-doco/p13.html
  */
 #define BTIC_CORE
 #define BTIC_INPUT_DEVICE_C

@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.12 2007-03-13 22:38:12 ensonic Exp $
+/* $Id: machine-menu.c,v 1.13 2007-03-18 19:23:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,7 @@
 /**
  * SECTION:btmachinemenu
  * @short_description: class for the machine selection sub-menu
- */ 
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_MENU_C
@@ -39,9 +39,9 @@ struct _BtMachineMenuPrivate {
 
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* MenuItems */
-  //GtkWidget *save_item;  
+  //GtkWidget *save_item;
 };
 
 static GtkMenuClass *parent_class=NULL;
@@ -58,10 +58,10 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   GST_DEBUG("adding source machine \"%s\"",name);
-  
+
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
-  
+
   id=bt_setup_get_unique_machine_id(setup,name);
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
@@ -79,14 +79,14 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   BtSetup *setup;
   BtMachine *machine;
   gchar *name,*id;
-  
+
   g_assert(user_data);
   name=(gchar *)gtk_widget_get_name(GTK_WIDGET(menuitem));
   GST_DEBUG("adding processor machine \"%s\"",name);
-  
+
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
-  
+
   id=bt_setup_get_unique_machine_id(setup,name);
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
@@ -110,14 +110,14 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
   GstElementFactory *factory;
   GHashTable *parent_menu_hash;
   const gchar *klass_name,*menu_name;
-  
+
   // scan registered sources
   element_names=bt_gst_registry_get_element_names_matching_all_categories(root);
   parent_menu_hash=g_hash_table_new(g_str_hash,g_str_equal);
   // sort list by name
   element_names=g_list_sort(element_names,(GCompareFunc)bt_machine_menu_compare);
   for(node=element_names;node;node=g_list_next(node)) {
-    GST_DEBUG("found source element : '%s'",node->data);
+    GST_LOG("found source element : '%s'",node->data);
     factory=gst_element_factory_find(node->data);
 
     // add sub-menus for BML, LADSPA & Co.
@@ -127,7 +127,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     if(*klass_name) {
       // skip '/'
       klass_name=&klass_name[1];
-      GST_DEBUG("  subclass : '%s'",klass_name);
+      GST_LOG("  subclass : '%s'",klass_name);
       //check in parent_menu_hash if we have a parent for this klass
       if(!(parentmenu=g_hash_table_lookup(parent_menu_hash,(gpointer)klass_name))) {
         GST_DEBUG("    create new: '%s'",klass_name);
@@ -140,7 +140,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
       }
     }
     else parentmenu=submenu;
-    
+
     menu_name=gst_plugin_feature_get_name(GST_PLUGIN_FEATURE(factory));
     if(*klass_name) {
       // remove prefix <klass-name>-
@@ -152,12 +152,12 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     gtk_widget_show(menu_item);
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(handler),(gpointer)self);
   }
-  g_hash_table_destroy(parent_menu_hash);  
+  g_hash_table_destroy(parent_menu_hash);
 }
 
 static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   GtkWidget *menu_item,*submenu,*image;
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("add menu"));
 
   // generators
@@ -172,7 +172,7 @@ static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
   bt_machine_menu_init_submenu(self,submenu,"Source/Audio",G_CALLBACK(on_source_machine_add_activated));
-  
+
   // effects
   menu_item=gtk_image_menu_item_new_with_label(_("Effects")); // green machine icon
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
@@ -264,7 +264,7 @@ static void bt_machine_menu_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);  
+  GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
@@ -274,7 +274,7 @@ static void bt_machine_menu_dispose(GObject *object) {
 
 static void bt_machine_menu_finalize(GObject *object) {
   //BtMachineMenu *self = BT_MACHINE_MENU(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
@@ -293,7 +293,7 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachineMenuPrivate));
-  
+
   gobject_class->set_property = bt_machine_menu_set_property;
   gobject_class->get_property = bt_machine_menu_get_property;
   gobject_class->dispose      = bt_machine_menu_dispose;

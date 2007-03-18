@@ -1,5 +1,77 @@
 2007-03-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	* NEWSLETTER:
+	  add items
+	
+	* design/gst/connection1.c: (message_received), (main):
+	* design/gst/loop1.c: (message_received), (state_changed), (main):
+	* design/gst/seek1.c: (event_loop), (main):
+	* design/gst/states1.c: (main):
+	* design/gst/states1a.c: (main):
+	* design/gst/states1b.c: (main):
+	* design/gst/states1c.c: (main):
+	* design/gst/states2.c: (main):
+	* design/gst/states3.c: (main):
+	* design/gst/states3a.c: (main):
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_set_property):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_clear),
+	(bt_sink_bin_add_many), (bt_sink_bin_link_many),
+	(bt_sink_bin_determine_plugin_name),
+	(bt_sink_bin_get_player_elements), (bt_sink_bin_update),
+	(on_song_state_changed), (on_audio_sink_changed),
+	(on_system_audio_sink_changed), (bt_sink_bin_set_property),
+	(bt_sink_bin_dispose), (bt_sink_bin_finalize), (bt_sink_bin_init),
+	(bt_sink_bin_class_init):
+	* src/lib/core/song.c: (bt_song_new):
+	* src/lib/ic/input-device.c:
+	* src/ui/edit/machine-menu.c: (on_source_machine_add_activated),
+	(on_processor_machine_add_activated),
+	(bt_machine_menu_init_submenu), (bt_machine_menu_init_ui),
+	(bt_machine_menu_dispose), (bt_machine_menu_finalize),
+	(bt_machine_menu_class_init):
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_range_property_notify), (on_double_entry_property_notify),
+	(on_combobox_property_notify), (on_range_property_changed),
+	(on_double_entry_property_changed),
+	(on_spinbutton_property_changed), (on_combobox_property_changed),
+	(bt_machine_preferences_dialog_init_ui),
+	(bt_machine_preferences_dialog_dispose),
+	(bt_machine_preferences_dialog_init),
+	(bt_machine_preferences_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c: (make_checkbox_widget),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_float_range_widget), (make_double_range_widget),
+	(make_combobox_widget):
+	* src/ui/edit/main-page-sequence.c: (on_song_changed):
+	* src/ui/edit/main-page-waves.c: (waves_list_refresh),
+	(wavelevels_list_refresh), (on_waves_list_cursor_changed),
+	(on_toolbar_style_changed), (on_browser_toolbar_play_clicked),
+	(on_wavetable_toolbar_play_clicked), (on_playbin_state_changed),
+	(on_wavetable_toolbar_clear_clicked),
+	(on_file_chooser_load_sample), (bt_main_page_waves_init_ui),
+	(bt_main_page_waves_new), (bt_main_page_waves_dispose),
+	(bt_main_page_waves_finalize), (bt_main_page_waves_init),
+	(bt_main_page_waves_class_init):
+	* src/ui/edit/main-toolbar.c: (on_song_changed):
+	* src/ui/edit/playback-controller-socket.c: (on_active_notify):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(on_activate_toggled):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change),
+	(on_wire_analyzer_redraw), (bt_wire_analysis_dialog_make_element),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose), (bt_wire_analysis_dialog_init),
+	(bt_wire_analysis_dialog_class_init):
+	  cleanup (GCallback) -> G_CALLBACK, make instant apply work for
+	  changing the audiosink
+
+	* xmldocs.make:
+	  revert last change a bit
+
+2007-03-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	(preset_list_edit_preset_meta), (preset_list_refresh),
 	(on_int_range_global_property_format_value),

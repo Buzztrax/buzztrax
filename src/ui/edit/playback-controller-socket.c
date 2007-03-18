@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.12 2007-03-18 12:08:07 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.13 2007-03-18 19:23:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -513,7 +513,9 @@ static void on_active_notify(BtSettings * const settings, GParamSpec * const arg
   g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active,NULL);
 
   if(active) {
-    master_connection_open(self);
+    if(!self->priv->master_channel) {
+      master_connection_open(self);
+    }
   }
   else {
     master_connection_close(self);

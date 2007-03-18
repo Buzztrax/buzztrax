@@ -1,9 +1,9 @@
-/** $Id: states2.c,v 1.5 2006-09-16 16:28:13 ensonic Exp $
+/** $Id: states2.c,v 1.6 2007-03-18 19:23:45 ensonic Exp $
  * test state changing in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states2.c -o states2
  */
- 
+
 #include <stdio.h>
 #include <unistd.h>
 
@@ -33,14 +33,14 @@ int main(int argc, char **argv) {
   /* elements used in pipeline */
   GstElement *src1,*src2,*mix,*conv,*proc,*sink;
   GstBus *bus;
-  
+
   /* init gstreamer */
   gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-  
+
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new("song");
- 
+
   /* make elements */
   if(!(src1 = gst_element_factory_make ("audiotestsrc", "src1"))) {
     fprintf(stderr,"Can't create element \"audiotestsrc\"\n");exit (-1);
@@ -62,10 +62,10 @@ int main(int argc, char **argv) {
   if(!(sink = gst_element_factory_make ("alsasink", "sink"))) {
     fprintf(stderr,"Can't create element \"alsasink\"\n");exit (-1);
   }
-    
+
   /* add objects to the main bin */
   gst_bin_add_many(GST_BIN (bin), src1, src2, mix, conv, proc, sink, NULL);
-  
+
   /* link chains */
   if(!gst_element_link (src1, mix)) {
     fprintf(stderr,"Can't link chain 1\n");exit (-1);
@@ -86,9 +86,9 @@ int main(int argc, char **argv) {
   /* see if we get errors */
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect (bus, "message::error", (GCallback) message_received, bin);
-  g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
-  
+  g_signal_connect (bus, "message::error", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), bin);
+
 
   /* prepare playing */
   if(gst_element_set_state (bin, GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
@@ -101,11 +101,11 @@ int main(int argc, char **argv) {
   }
 
   sleep(1);
-  
+
   /* stop the pipeline */
   gst_element_set_state (bin, GST_STATE_NULL);
- 
-  
+
+
   /* we don't need a reference to these objects anymore */
   gst_object_unref(GST_OBJECT(bus));
   gst_object_unref(GST_OBJECT(bin));

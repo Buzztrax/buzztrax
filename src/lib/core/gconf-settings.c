@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.34 2007-03-17 22:50:03 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.35 2007-03-18 19:23:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -188,7 +188,7 @@ static void bt_gconf_settings_set_property(GObject      * const object,
     case BT_SETTINGS_AUDIOSINK: {
       gboolean gconf_ret=FALSE;
       gchar * const prop=g_value_dup_string(value);
-      GST_DEBUG("application writes audiosink gconf_settings : %s",prop);
+      GST_DEBUG("application writes audiosink gconf_settings(%p) : %s",self,prop);
       gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/audiosink",prop,NULL);
       g_free(prop);
       g_return_if_fail(gconf_ret == TRUE);

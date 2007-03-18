@@ -1,4 +1,4 @@
-/* $Id: seek1.c,v 1.3 2006-09-16 16:28:13 ensonic Exp $
+/* $Id: seek1.c,v 1.4 2007-03-18 19:23:45 ensonic Exp $
  *
  * Build a pipeline with testaudiosource->alsasink
  * and sweep frequency and volume
@@ -35,7 +35,7 @@ event_loop (GstElement * bin)
         return;
       case GST_MESSAGE_SEGMENT_DONE: {
 	GstEvent *event;
-	
+
 	event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
 	    GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
 	    GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
@@ -87,7 +87,7 @@ segment_done (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
 {
   const GstStructure *s = gst_message_get_structure (message);
   GstEvent *event;
-  
+
   event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
       GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
       GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
@@ -95,7 +95,7 @@ segment_done (GstBus * bus, GstMessage * message, GstPipeline * pipeline)
   if(!(gst_element_send_event(GST_ELEMENT(pipeline),event))) {
     GST_WARNING("element failed to handle seek event");
   }
-  
+
   g_print ("message from \"%s\" (%s): ",
       GST_STR_NULL (GST_ELEMENT_NAME (GST_MESSAGE_SRC (message))),
       gst_message_type_get_name (GST_MESSAGE_TYPE (message)));
@@ -181,8 +181,8 @@ main (gint argc, gchar ** argv)
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
 
-  //g_signal_connect (bus, "message::eos", (GCallback) eos, bin);
-  //g_signal_connect (bus, "message::segment-done", (GCallback) segment_done, bin);
+  //g_signal_connect (bus, "message::eos", G_CALLBACK(eos), bin);
+  //g_signal_connect (bus, "message::segment-done", G_CALLBACK(segment_done), bin);
 
   // prepare playback
   if ((state_res = gst_element_set_state(GST_ELEMENT(bin),GST_STATE_PAUSED))==GST_STATE_CHANGE_FAILURE) {
@@ -204,7 +204,7 @@ main (gint argc, gchar ** argv)
   if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
     GST_WARNING("element failed to handle seek event");
   }
-  
+
   // start playback for 7 second
   if ((state_res = gst_element_set_state(GST_ELEMENT(bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to playing state");

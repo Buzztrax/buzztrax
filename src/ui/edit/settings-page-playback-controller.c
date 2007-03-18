@@ -1,4 +1,4 @@
-/* $Id: settings-page-playback-controller.c,v 1.1 2007-03-17 22:50:19 ensonic Exp $
+/* $Id: settings-page-playback-controller.c,v 1.2 2007-03-18 19:23:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -58,11 +58,16 @@ static void on_activate_toggled(GtkToggleButton *togglebutton, gpointer user_dat
   BtSettingsPagePlaybackController *self=BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(user_data);
   BtSettings *settings;
   gboolean active=gtk_toggle_button_get_active(togglebutton);
+  gboolean active_setting;
 
   g_assert(user_data);
 
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  g_object_set(G_OBJECT(settings),"coherence-upnp-active",active,NULL);
+  g_object_get(G_OBJECT(settings),"coherence-upnp-active",&active_setting,NULL);
+  GST_INFO("upnp active changes from %d -> %d",active_setting,active);
+  if(active!=active_setting) {
+    g_object_set(G_OBJECT(settings),"coherence-upnp-active",active,NULL);
+  }
   gtk_widget_set_sensitive(self->priv->port_entry,active);
   g_object_unref(settings);
 }

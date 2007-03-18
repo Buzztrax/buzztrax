@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.112 2007-03-17 23:15:25 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.113 2007-03-18 19:23:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -454,10 +454,10 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
     // connect bus signals
     bus=gst_element_get_bus(GST_ELEMENT(bin));
-    g_signal_connect(bus, "message::error", (GCallback)on_song_error, (gpointer)self);
-    g_signal_connect(bus, "message::warning", (GCallback)on_song_warning, (gpointer)self);
-    g_signal_connect(bus, "message::element", (GCallback)on_song_level_change, (gpointer)self);
-    g_signal_connect(bus, "message::application", (GCallback)on_song_level_negotiated, (gpointer)self);
+    g_signal_connect(bus, "message::error", G_CALLBACK(on_song_error), (gpointer)self);
+    g_signal_connect(bus, "message::warning", G_CALLBACK(on_song_warning), (gpointer)self);
+    g_signal_connect(bus, "message::element", G_CALLBACK(on_song_level_change), (gpointer)self);
+    g_signal_connect(bus, "message::application", G_CALLBACK(on_song_level_negotiated), (gpointer)self);
     gst_object_unref(bus);
 
     // get the pad from the input-level and listen there for channel negotiation

@@ -1,9 +1,9 @@
-/** $Id: connection1.c,v 1.2 2006-09-17 15:50:48 ensonic Exp $
+/** $Id: connection1.c,v 1.3 2007-03-18 19:23:45 ensonic Exp $
  * test handling disconnected elements in gstreamer
  *
  * gcc -g `pkg-config gstreamer-0.10 --cflags --libs` connection1.c -o connection1
  */
- 
+
 #include <stdio.h>
 #include <gst/gst.h>
 
@@ -35,7 +35,7 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
   else {
     puts ("no message details");
   }
-  
+
   g_main_loop_quit(main_loop);
 }
 
@@ -51,23 +51,23 @@ int main(int argc, char **argv) {
   GstElement *sink,*effect,*src1,*src2;
   GstBus *bus;
   int test=TEST_UNCONNECTED_SRC;
-  
+
   if(argc>1) {
     test=atoi(argv[1]);
   }
-  
+
   /* init gstreamer */
   gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-  
+
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("song");
   /* see if we get errors */
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect (bus, "message::error", (GCallback) message_received, bin);
-  g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
-  g_signal_connect (bus, "message::eos", (GCallback) message_received, bin);
+  g_signal_connect (bus, "message::error", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::eos", G_CALLBACK(message_received), bin);
   gst_object_unref (G_OBJECT (bus));
 
   main_loop=g_main_loop_new(NULL,FALSE);
@@ -87,18 +87,18 @@ int main(int argc, char **argv) {
   if(!(effect = gst_element_factory_make (EFFECT_NAME, "effect"))) {
     fprintf(stderr,"Can't create element \""EFFECT_NAME"\"\n");exit (-1);
   }
-  
+
   switch(test) {
     case TEST_UNCONNECTED_SRC:
       puts("unconnected src ========================================================\n");
       /* add objects to the main bin */
       gst_bin_add_many (GST_BIN (bin), src1, src2, sink, NULL);
-      
+
       /* link elements */
       if(!gst_element_link_many (src1, sink, NULL)) {
         fprintf(stderr,"Can't link elements\n");exit (-1);
       }
-         
+
       /* start playing */
       if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
         fprintf(stderr,"Can't start playing\n");exit(-1);
@@ -108,12 +108,12 @@ int main(int argc, char **argv) {
       puts("unconnected effect =====================================================\n");
       /* add objects to the main bin */
       gst_bin_add_many (GST_BIN (bin), src1, effect, sink, NULL);
-      
+
       /* link elements */
       if(!gst_element_link_many (src1, sink, NULL)) {
         fprintf(stderr,"Can't link elements\n");exit (-1);
       }
-         
+
       /* start playing */
       if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
         fprintf(stderr,"Can't start playing\n");exit(-1);
@@ -123,7 +123,7 @@ int main(int argc, char **argv) {
       puts("unconnected sink =====================================================\n");
       /* add objects to the main bin */
       gst_bin_add_many (GST_BIN (bin), sink, NULL);
-      
+
       /* start playing */
       if(gst_element_set_state (bin, GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
         fprintf(stderr,"Can't start playing\n");exit(-1);
@@ -132,11 +132,11 @@ int main(int argc, char **argv) {
   }
   g_timeout_add(2*1000, test_timeout, NULL);
   g_main_loop_run(main_loop);
-  
+
   /* stop the pipeline */
   puts("playing done ===========================================================\n");
   gst_element_set_state (bin, GST_STATE_NULL);
-  
+
   /* we don't need a reference to these objects anymore */
   gst_object_unref (GST_OBJECT (bin));
   g_main_loop_unref(main_loop);

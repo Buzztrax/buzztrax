@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.172 2007-03-18 12:08:06 ensonic Exp $
+/* $Id: song.c,v 1.173 2007-03-18 19:23:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -513,10 +513,11 @@ BtSong *bt_song_new(const BtApplication * const app) {
   }
 
   GstBus * const bus=gst_element_get_bus(GST_ELEMENT(bin));
+  GST_DEBUG("listen to bus messages (%p)",bus);
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect(bus, "message::segment-done", (GCallback)on_song_segment_done, (gpointer)self);
-  g_signal_connect(bus, "message::eos", (GCallback)on_song_eos, (gpointer)self);
-  g_signal_connect(bus, "message::state-changed", (GCallback)on_song_state_changed, (gpointer)self);
+  g_signal_connect(bus, "message::segment-done", G_CALLBACK(on_song_segment_done), (gpointer)self);
+  g_signal_connect(bus, "message::eos", G_CALLBACK(on_song_eos), (gpointer)self);
+  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
   gst_object_unref(bus);
   gst_object_unref(bin);
   g_signal_connect(self->priv->sequence,"notify::loop",G_CALLBACK(bt_song_on_loop_changed),(gpointer)self);

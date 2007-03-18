@@ -1,9 +1,9 @@
-/** $Id: loop1.c,v 1.1 2006-09-17 15:50:48 ensonic Exp $
+/** $Id: loop1.c,v 1.2 2007-03-18 19:23:45 ensonic Exp $
  * test handling looping in gstreamer
  *
  * gcc -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` loop1.c -o loop1
  */
- 
+
 #include <stdio.h>
 #include <gst/gst.h>
 #include <gst/controller/gstcontroller.h>
@@ -32,7 +32,7 @@ static void message_received (GstBus * bus, GstMessage * message, GstPipeline * 
   else {
     puts ("no message details");
   }
-  
+
   g_main_loop_quit(main_loop);
 }
 
@@ -41,7 +41,7 @@ static void state_changed(const GstBus * const bus, GstMessage *message, gconstp
   if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
     GstStateChangeReturn res;
     GstState oldstate,newstate,pending;
-    
+
     gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
@@ -85,21 +85,21 @@ int main(int argc, char **argv) {
   GstBus *bus;
   GstStateChangeReturn res;
   GValue val = { 0, };
-  
+
   /* init gstreamer */
   gst_init(&argc, &argv);
   g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-  
+
   /* create a new bin to hold the elements */
   bin = gst_pipeline_new ("song");
   /* see if we get errors */
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
   gst_bus_add_signal_watch_full (bus, G_PRIORITY_HIGH);
-  g_signal_connect (bus, "message::error", (GCallback) message_received, bin);
-  g_signal_connect (bus, "message::warning", (GCallback) message_received, bin);
-  g_signal_connect (bus, "message::eos", (GCallback) message_received, bin);
-  g_signal_connect (bus, "message::segment-done", (GCallback) segment_done, bin);
-  g_signal_connect (bus, "message::state-changed", (GCallback) state_changed, bin);
+  g_signal_connect (bus, "message::error", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::warning", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::eos", G_CALLBACK(message_received), bin);
+  g_signal_connect (bus, "message::segment-done", G_CALLBACK(segment_done), bin);
+  g_signal_connect (bus, "message::state-changed", G_CALLBACK(state_changed), bin);
   gst_object_unref (G_OBJECT (bus));
 
   main_loop=g_main_loop_new(NULL,FALSE);
@@ -118,10 +118,10 @@ int main(int argc, char **argv) {
   if(!(sink = gst_element_factory_make (SINK_NAME, "sink"))) {
     fprintf(stderr,"Can't create element \""SINK_NAME"\"\n");exit (-1);
   }
-  
+
   /* add objects to the main bin */
   gst_bin_add_many (GST_BIN (bin), src1, src2, mix, sink, NULL);
-  
+
   /* link elements */
   if(!gst_element_link_many (src1, mix, sink, NULL)) {
     fprintf(stderr,"Can't link part1\n");exit (-1);
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
 
   /* prepare controller queues */
   g_value_init (&val, G_TYPE_DOUBLE);
-  
+
   /* add a controller to the source */
   if (!(ctrl1 = gst_controller_new (G_OBJECT (src1), "freq", "volume", NULL))) {
     fprintf(stderr,"can't control source element");exit (-1);
@@ -164,13 +164,13 @@ int main(int argc, char **argv) {
   gst_controller_set (ctrl2, "volume", 1000 * GST_MSECOND, &val);
   g_value_set_double (&val, 880.0);
   gst_controller_set (ctrl2, "freq", 0 * GST_MSECOND, &val);
-  
+
   /* initial seek event (without flush) */
   play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)0,
         GST_SEEK_TYPE_SET, (GstClockTime)GST_SECOND);
-  
+
   /* prepare playing */
   puts("prepare playing ========================================================\n");
   res=gst_element_set_state (bin, GST_STATE_PAUSED);
@@ -181,11 +181,11 @@ int main(int argc, char **argv) {
     puts("->PAUSED needs async wait");
   }
   g_main_loop_run(main_loop);
-  
+
   /* stop the pipeline */
   puts("exiting ================================================================\n");
   gst_element_set_state (bin, GST_STATE_NULL);
-  
+
   /* we don't need a reference to these objects anymore */
   gst_object_unref (GST_OBJECT (bin));
   g_main_loop_unref(main_loop);

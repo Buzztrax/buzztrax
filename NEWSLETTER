@@ -3,6 +3,9 @@
 * settings ui work
 * libbtic (interaction controller started)
 * api docs updated
+* xlib warnings fixed (continous loop should work)
+* distcheck fixed
+* more instant apply of settings
 
 2007/03 ========================================================================
 

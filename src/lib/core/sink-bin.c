@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.28 2007-02-01 20:44:50 ensonic Exp $
+/* $Id: sink-bin.c,v 1.29 2007-03-18 19:23:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,8 +23,8 @@
  * @short_description: bin to be used by #BtSinkMachine
  *
  * The sink-bin provides switchable play and record facillities.
- */ 
- 
+ */
+
  /* @todo: detect supported encoders
  * get gst mimetype from the extension
  * and then look at all encoders which supply that mimetype
@@ -42,7 +42,7 @@
  * - we could implement the child-bin iface and add song-info as a child, in
  *   song-info we make tempo controlable
  */
- 
+
 #define BT_CORE
 #define BT_SINK_BIN_C
 
@@ -61,17 +61,27 @@ enum {
 struct _BtSinkBinPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
+  /* change configuration at next convinient point? */
+  gboolean pending_update;
+
   /* mode of operation */
   BtSinkBinMode mode;
   BtSinkBinRecordFormat record_format;
-  
+
   gchar *record_file_name;
-  
+
   GstPad *sink;
+
+  /* we need to hold the reference to not kill the notifies */
+  BtSettings *settings;
+
+  gulong bus_handler_id;
 };
 
 static GstBinClass *parent_class=NULL;
+
+static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data);
 
 //-- enums
 
@@ -110,12 +120,12 @@ GType bt_sink_bin_record_format_get_type(void) {
 static void bt_sink_bin_clear(const BtSinkBin * const self) {
   GstBin * const bin=GST_BIN(self);
   GstElement *elem;
-  
+
   GST_INFO("clearing sink-bin : %d",g_list_length(bin->children));
   if(bin->children) {
     //gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),NULL);
     GST_DEBUG("released ghost-pad");
-    
+
     while(bin->children) {
       elem=GST_ELEMENT_CAST (bin->children->data);
       GST_DEBUG("  removing elem=%p (ref_ct=%d),'%s'",
@@ -128,9 +138,9 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
 
 static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const list) {
   const GList *node;
-  
+
   GST_DEBUG("add elements: list=%p",list);
-  
+
   for(node=list;node;node=node->next) {
     gst_bin_add(GST_BIN(self),GST_ELEMENT(node->data));
   }
@@ -139,10 +149,10 @@ static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const
 
 static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last_elem, GList * const list) {
   const GList *node;
-  
+
   GST_DEBUG("link elements: list=%p",list);
   if(!list) return;
- 
+
   for(node=list;node;node=node->next) {
     GstElement * const cur_elem=GST_ELEMENT(node->data);
     gst_element_link(last_elem,cur_elem);
@@ -154,7 +164,7 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
   BtSettings *settings;
   gchar *audiosink_name,*system_audiosink_name;
   gchar *plugin_name=NULL;
-  
+
   settings=bt_settings_new();
   g_object_get(G_OBJECT(settings),"audiosink",&audiosink_name,"system-audiosink",&system_audiosink_name,NULL);
 
@@ -199,10 +209,10 @@ static gchar *bt_sink_bin_determine_plugin_name(void) {
     GstCaps *caps2=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
 
     GST_INFO("get audiosink from gst registry by rank");
-    
+
     for(node=audiosink_names;node;node=g_list_next(node)) {
       GstElementFactory * const factory=gst_element_factory_find(node->data);
-      
+
       // can the sink accept raw audio?
       if(gst_element_factory_can_sink_caps(factory,caps1) || gst_element_factory_can_sink_caps(factory,caps2)) {
         // get element max(rank)
@@ -247,7 +257,7 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   //g_object_set(G_OBJECT (element), "sync", FALSE, NULL);
   //}
   list=g_list_append(list,element);
-  
+
 Error:
   g_free(plugin_name);
   return(list);
@@ -333,14 +343,36 @@ Error:
 static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   GstElement *first_elem=NULL;
   GstPad *sink_pad;
-  
+  GstState state;
+  gboolean defer=FALSE;
+
+  // check current state
+  if(gst_element_get_state(GST_ELEMENT(self),&state,NULL,0)==GST_STATE_CHANGE_SUCCESS) {
+    if(state>GST_STATE_READY) defer=TRUE;
+  }
+  else defer=TRUE;
+  if(defer) {
+    GST_INFO("defer switching sink-bin elements");
+    self->priv->pending_update=TRUE;
+    if(!self->priv->bus_handler_id) {
+      // watch the bus
+      GstObject *parent=gst_object_get_parent(GST_OBJECT(self));
+      GstBus *bus=gst_element_get_bus(GST_ELEMENT(parent));
+      GST_DEBUG("listen to bus messages (%p)",bus);
+      self->priv->bus_handler_id=g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_song_state_changed), (gpointer)self);
+      gst_object_unref(bus);
+      gst_object_unref(parent);
+    }
+    return(FALSE);
+  }
+
   GST_INFO("clearing sink-bin");
 
   // remove existing children
   bt_sink_bin_clear(self);
 
   GST_INFO("initializing sink-bin");
-  
+
   // add new children
   switch(self->priv->mode) {
     case BT_SINK_BIN_MODE_PLAY:{
@@ -401,13 +433,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
     default:
       g_assert_not_reached();
   }
-  
-  // @todo where do we put that, should the sink watch itself, or should the song do it?
-  // add notifies to audio-sink and system-audio-sink
-  //g_signal_connect(G_OBJECT(settings), "notify::audio-sink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
-  //g_signal_connect(G_OBJECT(settings), "notify::system-audio-sink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);
 
-  
   // set new ghostpad-target
   sink_pad=gst_element_get_pad(first_elem,"sink");
   if(!sink_pad) {
@@ -423,54 +449,70 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
   GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
   gst_object_unref(sink_pad);
-  
+
   GST_INFO("done");
   return(TRUE);
 }
 
 //-- event handler
 
-#ifdef __NOT_IN_USE__
-static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
-  //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
+static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  const BtSinkBin * const self = BT_SINK_BIN(user_data);
 
   g_assert(user_data);
-  GST_INFO("audio-sink has changed");
-  gchar * const plugin_name=bt_sink_machine_determine_plugin_name(settings);
-  GST_INFO("  -> '%s'",plugin_name);
-  
-  // @todo exchange the machine
-#if 0
-  //// version 1
-    g_object_set(self,"plugin-name",plugin_name,NULL);
-    //plugin-name is construct only :(
-    //if sink has input-gain or input-level, we do not need to relink all wires.
-  
-  //// version 2
-    g_object_get(self,"id",&id,NULL)
-    wires=bt_setup_get_wires_by_machine_type(setup,self,"dst");
-    sink=bt_sink_machine_new(song,id);
-    for(node=wires;node;node=g_list_next(node)) {
-      wire=BT_WIRE(node->data);
-      g_object-set(wire,"dst",sink,NULL);
-      bt_wire_reconnect(wire);
+  if(!self->priv->pending_update)
+    return;
+
+  if(GST_MESSAGE_SRC(message) == GST_OBJECT(self)) {
+    GstState oldstate,newstate,pending;
+
+    gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
+    GST_INFO("state change on the sink-bin: %s -> %s",gst_element_state_get_name(oldstate),gst_element_state_get_name(newstate));
+    switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+      case GST_STATE_CHANGE_PAUSED_TO_READY:
+        self->priv->pending_update=FALSE;
+        bt_sink_bin_update(self);
+        break;
+      default:
+        break;
     }
-#endif
+  }
+}
+
+static void on_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
+  BtSinkBin *self = BT_SINK_BIN(user_data);
+
+  g_assert(user_data);
+
+  GST_INFO("audio-sink has changed");
+  gchar * const plugin_name=bt_sink_bin_determine_plugin_name();
+  GST_INFO("  -> '%s'",plugin_name);
+
+  // exchange the machine
+  switch(self->priv->mode) {
+    case BT_SINK_BIN_MODE_PLAY:
+    case BT_SINK_BIN_MODE_PLAY_AND_RECORD:
+      bt_sink_bin_update(self);
+      break;
+    default:
+      break;
+  }
   g_free(plugin_name);
 }
 
 static void on_system_audio_sink_changed(const BtSettings * const settings, GParamSpec * const arg, gconstpointer const user_data) {
-  //BtSinkMachine *self=BT_SINK_MACHINE(user_data);
+  //BtSinkBin *self = BT_SINK_BIN(user_data);
 
   g_assert(user_data);
+
   GST_INFO("system audio-sink has changed");
-  gchar * const plugin_name=bt_sink_machine_determine_plugin_name(settings);
+  gchar * const plugin_name=bt_sink_bin_determine_plugin_name();
   GST_INFO("  -> '%s'",plugin_name);
-  
+
   // @todo exchange the machine (only if the system-audiosink is in use)
+  //bt_sink_bin_update(self);
   g_free(plugin_name);
 }
-#endif
 
 //-- methods
 
@@ -510,7 +552,7 @@ static void bt_sink_bin_set_property(GObject      * const object,
 {
   const BtSinkBin * const self = BT_SINK_BIN(object);
   return_if_disposed();
-  
+
   // @todo avoid non-sense updates
   switch (property_id) {
     case SINK_BIN_MODE: {
@@ -549,15 +591,27 @@ static void bt_sink_bin_set_property(GObject      * const object,
 
 static void bt_sink_bin_dispose(GObject * const object) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
+  // disconnect handlers
+  if(self->priv->bus_handler_id) {
+    GstBus *bus=gst_element_get_bus(GST_ELEMENT(self));
+    g_signal_handler_disconnect(bus,self->priv->bus_handler_id);
+    //g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
+    gst_object_unref(bus);
+  }
+
+  g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_audio_sink_changed,(gpointer)self);
+  g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_system_audio_sink_changed,(gpointer)self);
+  g_object_unref(self->priv->settings);
+
   GST_INFO("self->sink=%p, refct=%d",self->priv->sink,(G_OBJECT(self->priv->sink))->ref_count);
   gst_element_remove_pad(GST_ELEMENT(self),self->priv->sink);
-  //gst_object_unref(self->priv->sink);
-  
+
   g_free(self->priv->record_file_name);
 
   GST_INFO("chaining up");
@@ -572,7 +626,7 @@ static void bt_sink_bin_finalize(GObject * const object) {
   const BtSinkBin * const self = BT_SINK_BIN(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -580,12 +634,18 @@ static void bt_sink_bin_finalize(GObject * const object) {
 
 static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSinkBin * const self = BT_SINK_BIN(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
-  
+
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
   bt_sink_bin_update(self);
+
+  // watch settings changes
+  self->priv->settings=bt_settings_new();
+  GST_DEBUG("listen to settings changes (%p)",self->priv->settings);
+  g_signal_connect(G_OBJECT(self->priv->settings), "notify::audiosink", G_CALLBACK(on_audio_sink_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->settings), "notify::system-audiosink", G_CALLBACK(on_system_audio_sink_changed), (gpointer)self);
 }
 
 static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
@@ -593,7 +653,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSinkBinPrivate));
-  
+
   gobject_class->set_property = bt_sink_bin_set_property;
   gobject_class->get_property = bt_sink_bin_get_property;
   gobject_class->dispose      = bt_sink_bin_dispose;

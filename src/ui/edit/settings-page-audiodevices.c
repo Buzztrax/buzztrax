@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.29 2007-03-17 22:50:18 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.30 2007-03-18 19:23:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -110,7 +110,7 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   // solution would be to give all real AudioSinks a "Device" category
 
   // add audio sinks gstreamer provides
-  for(node=audiosink_names,ct=1;node;node=g_list_next(node),ct++) {
+  for(node=audiosink_names,ct=1;node;node=g_list_next(node)) {
     GstElementFactory * const factory=gst_element_factory_find(node->data);
 
     // can the sink accept raw audio?
@@ -121,18 +121,20 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
     if(can_int_caps || can_float_caps) {
       // @ todo: try to open the element and skip those that we can't open
 
+      // compare with audiosink_name and set audiosink_index if equal
       if(!use_system_audiosink) {
-        // compare with audiosink_name and set audiosink_index if equal
         if(!strcmp(audiosink_name,node->data)) audiosink_index=ct;
       }
       gtk_combo_box_append_text(GTK_COMBO_BOX(self->priv->audiosink_menu),node->data);
       self->priv->audiosink_names=g_list_append(self->priv->audiosink_names,node->data);
       GST_INFO("  adding audio sink: \"%s\"",node->data);
+      ct++;
     }
     else {
       GST_INFO("  skipping audio sink: \"%s\" because of incompatible caps (%d,%d)",node->data,can_int_caps,can_float_caps);
     }
   }
+  GST_INFO("current sink (is_system? %d): %d",use_system_audiosink,audiosink_index);
   gtk_combo_box_set_active(self->priv->audiosink_menu,audiosink_index);
   gtk_table_attach(GTK_TABLE(self),GTK_WIDGET(self->priv->audiosink_menu), 2, 3, 1, 2, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
   g_signal_connect(G_OBJECT(self->priv->audiosink_menu), "changed", G_CALLBACK(on_audiosink_menu_changed), (gpointer)self);
