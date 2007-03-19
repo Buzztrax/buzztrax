@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.160 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.161 2007-03-19 15:19:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -36,6 +36,7 @@
  *   - add navigation action
  * - re-arrange rows
  * - format positions in pos-column and label menu
+ * - use gray color for unused patterns in pattern list
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756

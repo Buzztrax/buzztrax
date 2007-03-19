@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.173 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: song.c,v 1.174 2007-03-19 15:19:23 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -409,6 +409,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // here the formats are negotiated
         //bt_song_write_to_lowlevel_dot_file(self);
+        //
         self->priv->is_preparing=FALSE;
         // this should be sequence->play_start
         self->priv->play_pos=0;
@@ -1082,6 +1083,8 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
                         gst_caps_unref(caps);
                       }
                       else src_media="!";
+                      //src_media=gst_caps_to_string(caps);
+                      //needs to be formatted/filtered and freed later
                     }
                     else src_media="?";
                     if((caps=gst_pad_get_negotiated_caps(peer_pad))) {

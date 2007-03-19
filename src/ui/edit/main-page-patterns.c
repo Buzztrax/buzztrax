@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.115 2007-03-18 12:08:07 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.116 2007-03-19 15:19:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,6 +41,7 @@
  *     - low pass median filter over changes
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  * - add parameter info when inside cell
+ * - use gray color for unused patterns in pattern menu
  */
 
 #define BT_EDIT

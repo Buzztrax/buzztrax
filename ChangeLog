@@ -1,3 +1,11 @@
+2007-03-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song.c: (on_song_state_changed),
+	(bt_song_write_to_lowlevel_dot_file):
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	  more comments
+
 2007-03-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWS:
