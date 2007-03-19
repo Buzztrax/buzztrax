@@ -1,0 +1,77 @@
+/* $Id: interaction-controller-menu.h,v 1.1 2007-03-19 22:27:54 ensonic Exp $
+ *
+ * Buzztard
+ * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+#ifndef BT_INTERACTION_CONTROLLER_MENU_H
+#define BT_INTERACTION_CONTROLLER_MENU_H
+
+#include <glib.h>
+#include <glib-object.h>
+
+#define BT_TYPE_INTERACTION_CONTROLLER_MENU            (bt_interaction_controller_menu_get_type ())
+#define BT_INTERACTION_CONTROLLER_MENU(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_INTERACTION_CONTROLLER_MENU, BtInteractionControllerMenu))
+#define BT_INTERACTION_CONTROLLER_MENU_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_INTERACTION_CONTROLLER_MENU, BtInteractionControllerMenuClass))
+#define BT_IS_INTERACTION_CONTROLLER_MENU(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_INTERACTION_CONTROLLER_MENU))
+#define BT_IS_INTERACTION_CONTROLLER_MENU_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_INTERACTION_CONTROLLER_MENU))
+#define BT_INTERACTION_CONTROLLER_MENU_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_INTERACTION_CONTROLLER_MENU, BtInteractionControllerMenuClass))
+
+/* type macros */
+
+typedef struct _BtInteractionControllerMenu BtInteractionControllerMenu;
+typedef struct _BtInteractionControllerMenuClass BtInteractionControllerMenuClass;
+typedef struct _BtInteractionControllerMenuPrivate BtInteractionControllerMenuPrivate;
+
+/**
+ * BtInteractionControllerMenu:
+ * @parent: parent type
+ *
+ * the machine selection sub-menu for the canvas page context menu
+ */
+struct _BtInteractionControllerMenu {
+  GtkMenu parent;
+
+  /*< private >*/
+  BtInteractionControllerMenuPrivate *priv;
+};
+/* structure of the machine-menu class */
+struct _BtInteractionControllerMenuClass {
+  GtkMenuClass parent;
+
+};
+
+/**
+ * BtInteractionControllerMenuType:
+ * @BT_INTERACTION_CONTROLLER_RANGE_MENU: range controllers
+ * @BT_INTERACTION_CONTROLLER_TRIGGER_MENU: trigger controllers
+ *
+ * #BtInteractionControllerMenu can generate a menu showing different controller
+ * types.
+ */
+typedef enum {
+  BT_INTERACTION_CONTROLLER_RANGE_MENU=0,
+  BT_INTERACTION_CONTROLLER_TRIGGER_MENU,
+} BtInteractionControllerMenuType;
+
+#define BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE (bt_interaction_controller_menu_type_get_type())
+
+/* used by INTERACTION_CONTROLLER_MENU_TYPE */
+GType bt_interaction_controller_menu_get_type(void) G_GNUC_CONST;
+
+#endif // BT_INTERACTION_CONTROLLER_MENU_H

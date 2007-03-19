@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.30 2007-03-18 19:23:46 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.31 2007-03-19 22:27:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -144,6 +144,12 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
    * GstBaseSink: preroll-queue-len (buffers), max-lateness (ns)
    * GstBaseAudioSink: buffer-time (ms), latency-time (ms)
    * GstAudioSink: (no-properties)
+   *
+   * If we change settings here, we need to store them per sink, which is not so
+   * easy with the current settings system.
+   * We also need to restore them, when selecting the sink, allowing to reset
+   * them to defaults.
+   * Finaly sink-bin needs to apply those.
    */
 
   g_free(audiosink_name);

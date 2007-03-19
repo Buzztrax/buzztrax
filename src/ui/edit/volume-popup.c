@@ -1,4 +1,4 @@
-/* $Id: volume-popup.c,v 1.6 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: volume-popup.c,v 1.7 2007-03-19 22:27:54 ensonic Exp $
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
@@ -20,9 +20,15 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+/**
+ * SECTION:btvolumepopup
+ * @short_description: volume popup widget
+ *
+ * Shows a popup widnow containing a vertical slider
+ */
 
 #define BT_EDIT
-#define BT_WIRE_CANVAS_ITEM_C
+#define VOLUME_POPUP_C
 
 #include "bt-edit.h"
 
@@ -108,7 +114,7 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
     GtkWidget *parent=GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(self)));
     //GtkWidget *parent=gtk_widget_get_parent(GTK_WIDGET(self));
     //gboolean retval;
-    
+
     GST_INFO("FORWARD : popup=%p, widget=%p", self, widget);
     GST_INFO("FORWARD : parent=%p, parent->window=%p", parent, parent->window);
     */
@@ -116,14 +122,14 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
     bt_volume_popup_hide(self);
 
     // forward event
-    e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);    
+    e = (GdkEventButton *) gdk_event_copy ((GdkEvent *) event);
     //GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",e->type,e->window,e->send_event,e->time);
     //GST_INFO("x=%6.4lf, y=%6.4lf, axes=%p, state=%4d",e->x,e->y,e->axes,e->state);
     //GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
     //e->window = widget->window;
     //e->window = parent->window;
     //e->type = GDK_BUTTON_PRESS;
-    
+
     gtk_main_do_event ((GdkEvent *) e);
     //retval=gtk_widget_event (widget, (GdkEvent *) e);
     //retval=gtk_widget_event (parent, (GdkEvent *) e);
@@ -194,7 +200,7 @@ bt_volume_popup_new(GtkAdjustment *adj) {
 
   gtk_container_add(GTK_CONTAINER(self), frame);
   gtk_widget_show(frame);
-  
+
   g_signal_connect(self, "button-press-event", G_CALLBACK (cb_dock_press), self);
 
   return GTK_WIDGET(self);

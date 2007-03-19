@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.13 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: machine-menu.c,v 1.14 2007-03-19 22:27:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -20,7 +20,9 @@
  */
 /**
  * SECTION:btmachinemenu
- * @short_description: class for the machine selection sub-menu
+ * @short_description: class for the machine selection popup menu
+ *
+ * Builds a hierachical menu with usable machines from the GStreamer registry.
  */
 
 #define BT_EDIT

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.45 2007-03-17 22:50:18 ensonic Exp $
+/* $Id: bt-edit.h,v 1.46 2007-03-19 22:27:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,6 +48,7 @@
 #endif
 
 #include "edit-application-methods.h"
+#include "interaction-controller-menu-methods.h"
 #include "machine-canvas-item-methods.h"
 #include "machine-menu-methods.h"
 #include "machine-actions.h"

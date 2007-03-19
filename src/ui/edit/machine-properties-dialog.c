@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.69 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.70 2007-03-19 22:27:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -49,6 +49,9 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *preset_box;
   GtkWidget *preset_list;
   GtkTooltips *preset_tips;
+
+  /* interaction controller menus */
+  GtkMenu *range_ic_menu;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -124,6 +127,8 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   gst_object_unref(machine);
   GST_INFO("rebuilt preset list");
 }
+
+
 
 //-- event handler
 
@@ -250,6 +255,20 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   g_signal_handlers_unblock_matched(machine,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_notify,(gpointer)range);
   g_sprintf(str,"%lf",value);
   gtk_label_set_text(label,str);
+}
+
+static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  gboolean res=FALSE;
+
+  GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  /* Ignore double-clicks and triple-clicks */
+  if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
+    // show context menu
+    gtk_menu_popup(self->priv->range_ic_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+    res=TRUE;
+  }
+  return(res);
 }
 
 
@@ -406,6 +425,20 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   else {
     gtk_label_set_text(label,on_uint_range_voice_property_format_value(GTK_SCALE(range),value,(gpointer)self->priv->machine));
   }
+}
+
+static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  gboolean res=FALSE;
+
+  GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  /* Ignore double-clicks and triple-clicks */
+  if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
+    // show context menu
+    gtk_menu_popup(self->priv->range_ic_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+    res=TRUE;
+  }
+  return(res);
 }
 
 
@@ -789,17 +822,17 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
-  g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_uint_range_property_notify), (gpointer)widget);
-  g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
+  g_signal_connect(G_OBJECT(machine),signal_name,G_CALLBACK(on_uint_range_property_notify), (gpointer)widget);
+  g_signal_connect(G_OBJECT(widget),"value-changed",G_CALLBACK(on_uint_range_property_changed), (gpointer)machine);
   if(GST_IS_ELEMENT(machine)) {
-    g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_uint_range_global_property_format_value), (gpointer)self->priv->machine);
+    g_signal_connect(G_OBJECT(widget),"format-value",G_CALLBACK(on_uint_range_global_property_format_value), (gpointer)self->priv->machine);
   }
   else {
-    g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
+    g_signal_connect(G_OBJECT(widget),"format-value",G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
   }
+  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_uint_range_button_press_event), (gpointer)self);
 
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
-
   return(widget);
 }
 
@@ -858,8 +891,9 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
   //g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_double_range_global_property_format_value), (gpointer)machine);
 
-  g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
+  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_double_range_button_press_event), (gpointer)self);
 
+  g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
 }
 
@@ -1295,6 +1329,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   }
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
+  // create interaction controller menus
+  self->priv->range_ic_menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
+
   g_object_try_unref(machine);
   g_object_try_unref(main_window);
   g_object_try_unref(settings);
@@ -1411,6 +1448,8 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
+
+  gtk_widget_destroy(GTK_WIDGET(self->priv->range_ic_menu));
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

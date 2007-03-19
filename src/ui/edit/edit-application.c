@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.96 2007-03-17 22:50:18 ensonic Exp $
+/* $Id: edit-application.c,v 1.97 2007-03-19 22:27:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -143,10 +143,15 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   g_list_free(edit_elements);
 #endif
   // DEBUG
-  // show missing dialog
+  // show missing dialog (@todo: move to own class)
   if(missing) {
-    /* @todo add checkbox 'don't show again'
-     * if only non-critical elements are missing
+    /* @todo add checkbox 'don't show again' (if only non-critical elements are
+     * missing). If the checkbox is selected, we need to remember which they
+     * are. Whenever there is a new one we need to show it again and eventually
+     * add to the list.
+     * We don't flush the list.
+     * If we have only non-critical elements, we need to check if they are all
+     * on the ignore-list and if so not show the dialog.
      */
     GtkWidget *label,*icon,*hbox,*vbox;
     gchar *str;

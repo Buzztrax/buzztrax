@@ -1,3 +1,41 @@
+2007-03-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing):
+	* src/ui/edit/interaction-controller-menu-methods.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_type_get_type),
+	(on_controller_bind_activated),
+	(bt_interaction_controller_menu_init_submenu),
+	(bt_interaction_controller_menu_init_ui),
+	(bt_interaction_controller_menu_new),
+	(bt_interaction_controller_menu_get_property),
+	(bt_interaction_controller_menu_set_property),
+	(bt_interaction_controller_menu_dispose),
+	(bt_interaction_controller_menu_finalize),
+	(bt_interaction_controller_menu_init),
+	(bt_interaction_controller_menu_class_init),
+	(bt_interaction_controller_menu_get_type):
+	* src/ui/edit/interaction-controller-menu.h:
+	* src/ui/edit/machine-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_double_range_button_press_event),
+	(on_uint_range_button_press_event), (make_uint_range_widget),
+	(make_double_range_widget), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose):
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	  more documentation comments, added interaction controller menu (not
+	  yet functional).
+
 2007-03-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c: (on_song_state_changed),

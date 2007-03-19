@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.67 2007-03-16 12:37:27 ensonic Exp $
+/* $Id: main-menu.c,v 1.68 2007-03-19 22:27:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,10 +21,12 @@
 /**
  * SECTION:btmainmenu
  * @short_description: class for the editor main menu
+ *
+ * Provides the main application menu.
  */
 
 /* @todo main-menu tasks
- *  - enable/disable edit menu entries
+ *  - enable/disable edit menu entries based on selection and focus
  */
 
 #define BT_EDIT

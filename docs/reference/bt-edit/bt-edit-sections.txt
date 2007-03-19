@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.31 2007-03-17 22:49:58 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.32 2007-03-19 22:27:54 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -33,6 +33,24 @@ BT_TYPE_EDIT_APPLICATION
 <SUBSECTION Private>
 bt_edit_application_get_type
 BtEditApplicationPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btinteractioncontrollermenu</FILE>
+<TITLE>BtInteractionControllerMenu</TITLE>
+BtInteractionControllerMenu
+bt_interaction_controller_menu_new
+<SUBSECTION Standard>
+BtInteractionControllerMenuClass
+BT_INTERACTION_CONTROLLER_MENU
+BT_IS_INTERACTION_CONTROLLER_MENU
+BT_INTERACTION_CONTROLLER_MENU_CLASS
+BT_IS_INTERACTION_CONTROLLER_MENU_CLASS
+BT_INTERACTION_CONTROLLER_MENU_GET_CLASS
+BT_TYPE_INTERACTION_CONTROLLER_MENU
+<SUBSECTION Private>
+bt_interaction_controller_menu_get_type
+BtInteractionControllerMenuPrivate
 </SECTION>
 
 <SECTION>
