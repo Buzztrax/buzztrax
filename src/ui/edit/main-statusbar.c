@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.54 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.55 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -97,8 +97,9 @@ static void bt_main_statusbar_update_length(const BtMainStatusbar *self, const B
 static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   BtSequence *sequence;
-  gchar str[2+2+3+3];
-  gulong msec,sec,min,pos;
+  // the +4 is not really needed, but I get a stack smashing error on ubuntu without
+  gchar str[2+2+3+3 + 4];
+  gulong pos,msec,sec,min;
   GstClockTime bar_time;
   
   g_assert(user_data);

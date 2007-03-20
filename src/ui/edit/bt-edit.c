@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.39 2007-03-16 12:37:27 ensonic Exp $
+/* $Id: bt-edit.c,v 1.40 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -102,6 +102,8 @@ int main(int argc, char **argv) {
   gnome_app=gnome_program_init("bt-edit", VERSION, LIBGNOME_MODULE, argc, argv, 
     GNOME_PROGRAM_STANDARD_PROPERTIES, NULL);
 #endif
+
+  GST_INFO("starting: thread=%p",g_thread_self());
 
   //gdk_threads_enter();
   app=bt_edit_application_new();

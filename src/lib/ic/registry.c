@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.7 2007-03-17 22:50:09 ensonic Exp $
+/* $Id: registry.c,v 1.8 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -61,7 +61,7 @@ static gpointer singleton=NULL;
 static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   BtIcRegistry *self=BTIC_REGISTRY(singleton);
   gchar **cap;
-  gchar *parent_udi;
+  gchar *temp,*parent_udi;
   gchar *name,*devnode,*type;
   size_t n;
   BtIcDevice *device=NULL;
@@ -75,8 +75,9 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
     // midi devices seem to appear only as oss under hal?
     // @todo: try alsa.sequencer
     if(!strcmp(cap[n],"alsa.sequencer")) {
-      parent_udi=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
-      parent_udi=libhal_device_get_property_string(ctx,parent_udi,"info.parent",NULL);
+      temp=libhal_device_get_property_string(ctx,udi,"info.parent",NULL);
+      parent_udi=libhal_device_get_property_string(ctx,temp,"info.parent",NULL);
+      libhal_free_string(temp);
 
       devnode=libhal_device_get_property_string(ctx,udi,"alsa.device_file",NULL);
 
@@ -87,6 +88,8 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       );
       // create device
       device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+      libhal_free_string(devnode);
+      libhal_free_string(parent_udi);
     }
     if(!strcmp(cap[n],"oss")) {
       type=libhal_device_get_property_string(ctx,udi,"oss.type",NULL);
@@ -97,7 +100,9 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
           name,devnode);
         // create device
         device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+        libhal_free_string(devnode);
       }
+      libhal_free_string(type);
     }
     else if(!strcmp(cap[n],"input.joystick")) {
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
@@ -105,7 +110,8 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       GST_INFO("input device added: product=%s, devnode=%s",
         name,devnode);
       // create device
-	  device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+      device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+      libhal_free_string(devnode);
     }
     else {
       GST_INFO("  unknown device added: name=%s",name);
@@ -116,7 +122,9 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       g_object_notify(G_OBJECT(self),"devices");
       device=NULL;
     }
+    libhal_free_string(name);
   }
+  libhal_free_string_array(cap);
 }
 
 static void on_device_removed(LibHalContext *ctx, const gchar *udi) {

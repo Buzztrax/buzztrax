@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.174 2007-03-19 15:19:23 ensonic Exp $
+/* $Id: song.c,v 1.175 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -112,7 +112,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
   g_object_get(self->priv->sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
   const GstClockTime bar_time=bt_sequence_get_bar_time(self->priv->sequence);
 
-  GST_DEBUG("loop %d? %ld, length %ld, bar_time %"G_GINT64_FORMAT,loop,loop_end,length,bar_time);
+  GST_INFO("loop %d? %ld, length %ld, bar_time %"G_GINT64_FORMAT,loop,loop_end,length,bar_time);
 
   if (loop) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,

@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.65 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: song-info.c,v 1.66 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -347,27 +347,27 @@ static void bt_song_info_set_property(GObject      * const object,
 
       if(dts) {
         if(strlen(dts)==DTS_LEN) {
-					struct tm tm;
+          struct tm tm={0,};
           strcpy(self->priv->change_dts,dts);
-					// parse date and update tag
-					strptime(dts, "%FT%TZ", &tm);
+          // parse date and update tag
+          strptime(dts, "%FT%TZ", &tm);
 #ifdef HAVE_GLIB_2_10
           g_date_set_time_t(self->priv->tag_date,mktime(&tm));
 #else
-					g_date_set_time(self->priv->tag_date,mktime(&tm));
+          g_date_set_time(self->priv->tag_date,mktime(&tm));
 #endif
-  				gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
+          gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
         }
       }
       else {
         time_t now=time(NULL);
         strftime(self->priv->change_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
 #ifdef HAVE_GLIB_2_10
-				g_date_set_time_t(self->priv->tag_date,now);
+        g_date_set_time_t(self->priv->tag_date,now);
 #else
-				g_date_set_time(self->priv->tag_date,now);
+        g_date_set_time(self->priv->tag_date,now);
 #endif
-				gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
+        gst_tag_list_add(self->priv->taglist, GST_TAG_MERGE_REPLACE,GST_TAG_DATE, self->priv->tag_date,NULL);
       }
     } break;
     default: {

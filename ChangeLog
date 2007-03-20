@@ -1,3 +1,18 @@
+2007-03-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/song-info.c: (bt_song_info_set_property):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos):
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/cmd/bt-cmd.c: (main):
+	* src/ui/edit/bt-edit.c: (main):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_compare),
+	(bt_machine_menu_init_submenu):
+	* src/ui/edit/main-statusbar.c: (on_song_play_pos_notify):
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process):
+	  fix memory leaks and workaround a stack smasher
+
 2007-03-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-edit/bt-edit-docs.sgml:

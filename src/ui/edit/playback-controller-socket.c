@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.13 2007-03-18 19:23:46 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.14 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -145,22 +145,26 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     g_object_unref(sequence);
   }
   else if(!strncasecmp(cmd,"play|",5)) {
-    self->priv->cur_pos=0;
     g_free(self->priv->cur_label);
 
     // get playlst entry
-    if(cmd[5]) {
+    if(cmd[5] && self->priv->playlist) {
       // get position for ix-th label
       self->priv->cur_pos=GPOINTER_TO_INT(g_list_nth_data(self->priv->playlist,atoi(&cmd[5])));
       self->priv->cur_label=bt_sequence_get_label(self->priv->sequence,self->priv->cur_pos);
     }
     else {
+      self->priv->cur_pos=0;
       self->priv->cur_label=g_strdup(DEFAULT_LABEL);
     }
 
     // seek
-    g_object_set(song,"play-pos",self->priv->cur_pos,NULL);
+    GST_INFO("seeking to pos=%d",self->priv->cur_pos);
+    // this causes stack smashing, but only if we play afterwards
+    // its also avoided by making the string buffer in main-statusbar.c (notify) +4 bytes
+    g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
 
+    GST_INFO("starting to play");
     if(!bt_song_play(song)) {
       GST_WARNING("failed to play");
     }

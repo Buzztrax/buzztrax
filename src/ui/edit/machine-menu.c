@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.14 2007-03-19 22:27:54 ensonic Exp $
+/* $Id: machine-menu.c,v 1.15 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -103,7 +103,13 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 //-- helper methods
 
 static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
-  return(g_utf8_collate(g_utf8_casefold(str1,-1),g_utf8_casefold(str2,-1)));
+  gchar *str1c=g_utf8_casefold(str1,-1);
+  gchar *str2c=g_utf8_casefold(str2,-1);
+  gint res=g_utf8_collate(str1c,str2c);
+  
+  g_free(str1c);
+  g_free(str2c);
+  return(res);
 }
 
 static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *submenu, const gchar *root, GCallback handler) {
@@ -155,6 +161,7 @@ static void bt_machine_menu_init_submenu(const BtMachineMenu *self,GtkWidget *su
     g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(handler),(gpointer)self);
   }
   g_hash_table_destroy(parent_menu_hash);
+  g_list_free(element_names);
 }
 
 static gboolean bt_machine_menu_init_ui(const BtMachineMenu *self) {

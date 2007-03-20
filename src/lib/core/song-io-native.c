@@ -1,4 +1,4 @@
-/* $Id: song-io-native.c,v 1.121 2007-02-11 17:02:35 ensonic Exp $
+/* $Id: song-io-native.c,v 1.122 2007-03-20 23:22:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -104,8 +104,8 @@ GType bt_song_io_native_detect(const gchar * const file_name) {
     }
     g_free(lc_file_name);
   }
-  gnome_vfs_uri_unref(input_uri);
 Error:
+  gnome_vfs_uri_unref(input_uri);
   if(absolute_uri_string) g_free(absolute_uri_string);
   return(type);
 }
