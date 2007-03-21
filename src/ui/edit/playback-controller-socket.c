@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.14 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.15 2007-03-21 09:50:23 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -146,6 +146,9 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   }
   else if(!strncasecmp(cmd,"play|",5)) {
     g_free(self->priv->cur_label);
+    
+    // always stop, so that seeking works
+    bt_song_stop(song);
 
     // get playlst entry
     if(cmd[5] && self->priv->playlist) {
@@ -158,16 +161,17 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
       self->priv->cur_label=g_strdup(DEFAULT_LABEL);
     }
 
-    // seek
-    GST_INFO("seeking to pos=%d",self->priv->cur_pos);
-    // this causes stack smashing, but only if we play afterwards
-    // its also avoided by making the string buffer in main-statusbar.c (notify) +4 bytes
-    g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
-
     GST_INFO("starting to play");
     if(!bt_song_play(song)) {
       GST_WARNING("failed to play");
     }
+
+    // seek - we're seeking in on_song_is_playing_notify()
+    //GST_INFO("seeking to pos=%d",self->priv->cur_pos);
+    // this causes stack smashing, but only if we play afterwards
+    // its also avoided by making the string buffer in main-statusbar.c (notify) +4 bytes
+    //g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
+
   }
   else if(!strcasecmp(cmd,"stop")) {
     if(!bt_song_stop(song)) {
@@ -382,6 +386,11 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   g_assert(user_data);
 
   g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
+
+  if(self->priv->is_playing) {
+    GST_INFO("seeking to pos=%d",self->priv->cur_pos);
+    g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
+  }
 }
 
 static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {

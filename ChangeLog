@@ -1,5 +1,11 @@
 2007-03-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify):
+	  made play-from-label work
+
+2007-03-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-info.c: (bt_song_info_set_property):
 	* src/lib/core/song-io-native.c: (bt_song_io_native_detect):
 	* src/lib/core/song.c: (bt_song_seek_to_play_pos):
