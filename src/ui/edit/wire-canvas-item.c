@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.44 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.45 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,10 @@
 /**
  * SECTION:btwirecanvasitem
  * @short_description: class for the editor wire views wire canvas item
+ * @see_also: #btwireanalysisdialog
+ *
+ * Provides volume control on the wires, as well as a menu to disconnect wires
+ * and to launch the analyzer screen.
  */ 
 
 #define BT_EDIT

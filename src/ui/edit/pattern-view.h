@@ -1,4 +1,4 @@
-/* $Id: pattern-view.h,v 1.2 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: pattern-view.h,v 1.3 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,7 +41,7 @@ typedef struct _BtPatternViewPrivate BtPatternViewPrivate;
 /**
  * BtPatternView:
  *
- * the root window for the editor application
+ * the pattern widget view
  */
 struct _BtPatternView {
   GtkTreeView parent;

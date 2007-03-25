@@ -1,3 +1,72 @@
+2007-03-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* buzztard.schemas.in:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_get_property),
+	(bt_gconf_settings_set_property):
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/machine.c: (bt_machine_dispose):
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	* src/lib/core/sequence.c: (bt_sequence_invalidate_pattern_region),
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_on_pattern_removed), (bt_sequence_set_pattern),
+	(bt_sequence_is_pattern_used):
+	* src/lib/core/settings.c: (bt_settings_class_init):
+	* src/lib/core/song.c: (bt_song_stop):
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing):
+	* src/ui/edit/gtkvumeter.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_init_submenu),
+	(bt_interaction_controller_menu_init_ui):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_compare):
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_double_range_button_press_event),
+	(on_uint_range_button_press_event):
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c: (on_canvas_event):
+	* src/ui/edit/main-page-patterns-methods.h:
+	* src/ui/edit/main-page-patterns.c:
+	(pattern_view_update_column_description),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(pattern_menu_refresh), (pattern_table_refresh),
+	(on_page_switched_idle), (on_page_switched),
+	(on_context_menu_pattern_remove_activate),
+	(bt_main_page_patterns_init_ui),
+	(bt_main_page_patterns_show_machine):
+	* src/ui/edit/main-page-sequence.c: (sequence_model_recolorize),
+	(pattern_list_refresh), (sequence_add_track),
+	(on_track_add_activated), (on_sequence_table_key_release_event),
+	(on_sequence_header_button_press_event), (on_machine_added),
+	(on_machine_removed), (on_pattern_changed),
+	(bt_main_page_sequence_init_ui):
+	* src/ui/edit/main-statusbar.c:
+	* src/ui/edit/main-window.c: (bt_main_window_init_ui):
+	* src/ui/edit/pattern-properties-dialog.c:
+	* src/ui/edit/pattern-view.h:
+	* src/ui/edit/playback-controller-socket.c:
+	(client_cmd_parse_and_process), (on_song_is_playing_notify):
+	* src/ui/edit/sequence-view.h:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-audiodevices.c:
+	* src/ui/edit/volume-popup.c: (cb_dock_press):
+	* src/ui/edit/volume-popup.h:
+	* src/ui/edit/wire-canvas-item.c:
+	* tests/songs/combi2.xml:
+	  add config for remembering missing machines, ref-count fixes, improve
+	  navigation between patter & sequence, make unused patterns gray in
+	  pattern and sequence view, warn differently when removing a used/
+	  unused pattern, fix warning when clearing a note and playing
+	  afterwards, add context menu to sequence header, more ui docs,
+	  lots of idea comments
+
 2007-03-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/playback-controller-socket.c:

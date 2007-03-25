@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.35 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.36 2007-03-25 14:18:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -146,6 +146,12 @@ static void bt_gconf_settings_get_property(GObject      * const object,
       GST_DEBUG("application reads news-seen gconf_settings : '%u'",prop);
       g_value_set_uint(value, prop);
     } break;
+    case BT_SETTINGS_MISSING_MACHINES: {
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/missing-machines",NULL);
+      GST_DEBUG("application reads missing-machines gconf_settings : '%s'",prop);
+      g_value_set_string(value, prop);
+      g_free(prop);
+    } break;
     /* playback controller */
     case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE: {
       gboolean prop=gconf_client_get_bool(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-active",NULL);
@@ -220,6 +226,14 @@ static void bt_gconf_settings_set_property(GObject      * const object,
       guint prop=g_value_get_uint(value);
       GST_DEBUG("application writes news-seen gconf_settings : %u",prop);
       gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/news-seen",prop,NULL);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_MISSING_MACHINES: {
+      gboolean gconf_ret=FALSE;
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes missing-machines gconf_settings : %s",prop);
+      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/missing-machines",prop,NULL);
+      g_free(prop);
       g_return_if_fail(gconf_ret == TRUE);
     } break;
     /* playback controller */

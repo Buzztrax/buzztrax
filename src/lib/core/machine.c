@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.237 2007-03-16 23:03:29 ensonic Exp $
+/* $Id: machine.c,v 1.238 2007-03-25 14:18:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2452,7 +2452,7 @@ static void bt_machine_dispose(GObject * const object) {
     gst_object_unref(self->priv->bin);
   }
 
-  //GST_DEBUG("  releasing song: %p",self->priv->song);
+  GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
 
   GST_DEBUG("  releasing patterns");

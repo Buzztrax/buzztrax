@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.102 2007-03-13 22:38:12 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.103 2007-03-25 14:18:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,9 @@
 /**
  * SECTION:btmainpagemachines
  * @short_description: the editor main machines page
+ * @see_also: #BtSetup
+ *
+ * Displays the machine setup on a canvas.
  */ 
 
 #define BT_EDIT
@@ -610,6 +613,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   gchar *color;
   BtMachine *machine;
   
+  //if(!GTK_WIDGET_REALIZED(canvas)) return(res);
   //GST_INFO("canvas event received: type=%d", event->type);
 
   g_assert(user_data);

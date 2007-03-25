@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.8 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: registry.c,v 1.9 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -105,6 +105,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       libhal_free_string(type);
     }
     else if(!strcmp(cap[n],"input.joystick")) {
+    //else if(!strcmp(cap[n],"input")) {
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
 
       GST_INFO("input device added: product=%s, devnode=%s",

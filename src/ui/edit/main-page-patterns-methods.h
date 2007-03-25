@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns-methods.h,v 1.7 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-page-patterns-methods.h,v 1.8 2007-03-25 14:18:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -32,5 +32,6 @@ extern BtMachine *bt_main_page_patterns_get_current_machine(const BtMainPagePatt
 extern BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *self);
 
 extern void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern);
+extern void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine *machine);
 
 #endif // BT_MAIN_PAGE_PATTERNS_METHDOS_H

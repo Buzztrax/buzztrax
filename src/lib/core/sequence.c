@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.130 2007-03-14 22:51:32 ensonic Exp $
+/* $Id: sequence.c,v 1.131 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -424,11 +424,11 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
 
   // determine region of change
   g_object_get(G_OBJECT(pattern),"length",&length,"machine",&machine,NULL);
-	if(!length) {
+  if(!length) {
     g_object_unref(machine);
-		GST_WARNING("pattern has length 0");
-		return;
-	}
+    GST_WARNING("pattern has length 0");
+    return;
+  }
   g_assert(machine);
   g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
   // check if from time+1 to time+length another pattern starts (in this track)
@@ -455,7 +455,7 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     }
   }
   g_object_unref(machine);
-	GST_DEBUG("done");
+  GST_DEBUG("done");
 }
 
 /*
@@ -470,7 +470,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   const BtMachine * const machine=BT_MACHINE(hash_params[1]);
   const gulong param=GPOINTER_TO_UINT(hash_params[2]);
   const gulong tick=GPOINTER_TO_UINT(key);
-  gulong i,j;
+  glong i,j;
   GValue *value=NULL,*cur_value;
   BtPattern *pattern=NULL;
 
@@ -693,7 +693,7 @@ static void bt_sequence_on_pattern_removed(const BtMachine * const machine, cons
   }
   // repair damage
   bt_sequence_repair_damage(self);
-	GST_DEBUG("Done");
+  GST_DEBUG("Done");
 }
 
 //-- constructor methods
@@ -849,7 +849,6 @@ gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const
   return(res);
 }
 
-
 /**
  * bt_sequence_set_machine:
  * @self: the #BtSequence that holds the tracks
@@ -959,9 +958,11 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     g_object_unref(machine);
   }
 
-  GST_INFO("set pattern %p for time %d, track %d",pattern,time,track);
-
   const gulong index=time*self->priv->tracks+track;
+
+  GST_INFO("set pattern from %p to %p for time %d, track %d",
+    self->priv->patterns[index],pattern,time,track);
+
   // take out the old pattern
   if(self->priv->patterns[index]) {
     GST_DEBUG("clean up for old pattern");
@@ -979,6 +980,8 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     GST_DEBUG("set new pattern");
     // enter the new pattern
     self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
+    //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
+    
     // attatch a signal handler if this is the first usage
     if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
       g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
@@ -1066,6 +1069,43 @@ gulong bt_sequence_limit_play_pos(const BtSequence * const self, gulong play_pos
   }
   return(play_pos);
 }
+
+/*
+ * bt_sequence_is_pattern_used:
+ * @self: the sequence to check for pattern use
+ * @pattern: the pattern to check for
+ *
+ * Checks if the %pattern is used in the sequence.
+ *
+ * Returns: %TRUE if %pattern is used.
+ */
+gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern) {
+  gboolean res=FALSE;
+  BtMachine *machine;
+  BtPattern *that_pattern;
+  gulong i,j=0;
+
+  g_return_val_if_fail(BT_IS_SEQUENCE(self),0);
+  g_return_val_if_fail(BT_IS_PATTERN(pattern),0);
+
+  g_object_get(G_OBJECT(pattern),"machine",&machine,NULL);
+  for(i=0;(i<self->priv->tracks && !res);i++) {
+    // track uses the same machine
+    if(self->priv->machines[i]==machine) {
+      for(j=0;(j<self->priv->length && !res);j++) {
+        // time has a pattern
+        if((that_pattern=bt_sequence_get_pattern(self,j,i))) {
+          if(that_pattern==pattern) res=TRUE;
+          g_object_unref(that_pattern);
+        }
+      }
+    }
+  }
+  g_object_unref(machine);
+  GST_INFO("is pattern used = %d",res);
+  return(res);
+}
+
 
 //-- io interface
 

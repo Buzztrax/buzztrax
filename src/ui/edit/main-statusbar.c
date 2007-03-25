@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.55 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.56 2007-03-25 14:18:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,9 @@
 /**
  * SECTION:btmainstatusbar
  * @short_description: class for the editor main statusbar
+ *
+ * The statusbar shows some contextual help, as well as things like playback
+ * status.
  */
 /* buzz uses 3 time counters 
  * file:///windows/C/Programme/Jeskola/Buzz%20(work)/Help/Files/Time%20Window.htm

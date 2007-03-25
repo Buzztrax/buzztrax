@@ -1,4 +1,4 @@
-/* $Id: sequence-view.h,v 1.4 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: sequence-view.h,v 1.5 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,9 +25,9 @@
 #include <glib.h>
 #include <glib-object.h>
 
-#define BT_TYPE_SEQUENCE_VIEW             (bt_sequence_view_get_type ())
-#define BT_SEQUENCE_VIEW(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceView))
-#define BT_SEQUENCE_VIEW_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
+#define BT_TYPE_SEQUENCE_VIEW            (bt_sequence_view_get_type ())
+#define BT_SEQUENCE_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceView))
+#define BT_SEQUENCE_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
 #define BT_IS_SEQUENCE_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_SEQUENCE_VIEW))
 #define BT_IS_SEQUENCE_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), BT_TYPE_SEQUENCE_VIEW))
 #define BT_SEQUENCE_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), BT_TYPE_SEQUENCE_VIEW, BtSequenceViewClass))
@@ -41,7 +41,7 @@ typedef struct _BtSequenceViewPrivate BtSequenceViewPrivate;
 /**
  * BtSequenceView:
  *
- * the root window for the editor application
+ * the sequence widget view
  */
 struct _BtSequenceView {
   GtkTreeView parent;

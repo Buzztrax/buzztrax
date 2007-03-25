@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.30 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.31 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,9 @@
 /**
  * SECTION:btmachinepreferencesdialog
  * @short_description: machine non-realtime parameters
+ * @see_also: #BtMachine
+ *
+ * A dialog to configure static settings of a #BtMachine.
  */
 
 /* @todo: filter certain properties (tempo iface, ...)

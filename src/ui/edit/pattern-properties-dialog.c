@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.18 2007-01-22 21:00:59 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.19 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,9 @@
 /**
  * SECTION:btpatternpropertiesdialog
  * @short_description: pattern settings
- */ 
+ *
+ * A dialog to (re)configure a #BtPattern.
+ */
 
 #define BT_EDIT
 #define BT_PATTERN_PROPERTIES_DIALOG_C

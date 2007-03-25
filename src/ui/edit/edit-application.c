@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.97 2007-03-19 22:27:54 ensonic Exp $
+/* $Id: edit-application.c,v 1.98 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -145,18 +145,10 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   // DEBUG
   // show missing dialog (@todo: move to own class)
   if(missing) {
-    /* @todo add checkbox 'don't show again' (if only non-critical elements are
-     * missing). If the checkbox is selected, we need to remember which they
-     * are. Whenever there is a new one we need to show it again and eventually
-     * add to the list.
-     * We don't flush the list.
-     * If we have only non-critical elements, we need to check if they are all
-     * on the ignore-list and if so not show the dialog.
-     */
     GtkWidget *label,*icon,*hbox,*vbox;
     gchar *str;
     GtkWidget *dialog;
-
+    
     // @todo: move to new class
     dialog = gtk_dialog_new_with_buttons(_("Missing GStreamer elements"),
                                           GTK_WINDOW(self->priv->main_window),
@@ -212,10 +204,25 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
     }
     if(missing_edit_elements) {
+      /* @todo add checkbox 'don't warn again' (if only non-critical elements are
+       * missing). If the checkbox is selected, we need to remember which they
+       * are. Whenever there is a new one we need to show it again and eventually
+       * add to the list.
+       * We don't flush the list.
+       * If we have only non-critical elements, we need to check if they are all
+       * on the ignore-list and if so not show the dialog.
+       */
       GList *node;
       GtkWidget *missing_list, *missing_list_view;
       gchar *missing_text,*ptr;
       gint length=0;
+
+      /*
+      BtSettings *settings;
+      g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+      g_object_get(G_OBJECT(settings),"missing-machines",&machine_ignore_list,NULL);
+      g_object_unref(settings);
+      */
 
       label=gtk_label_new(_("The elements listed below are missing from you installation, but are recommended for full functionality."));
       gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);

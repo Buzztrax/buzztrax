@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.4 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.5 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,8 @@
 /**
  * SECTION:btmachinepresetpropertiesdialog
  * @short_description: machine preset settings
+ *
+ * A dialog to (re)configure machine presets.
  */ 
 
 #define BT_EDIT

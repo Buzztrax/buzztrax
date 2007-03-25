@@ -1,4 +1,4 @@
-/* $Id: volume-popup.h,v 1.4 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: volume-popup.h,v 1.5 2007-03-25 14:18:33 ensonic Exp $
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
@@ -40,7 +40,15 @@ G_BEGIN_DECLS
 #define BT_VOLUME_POPUP_CLASS(klass)  (G_TYPE_CHECK_CLASS_CAST ((klass),  BT_TYPE_VOLUME_POPUP, BtVolumePopupClass))
 #define BT_IS_VOLUME_POPUP_CLASS(obj) (G_TYPE_CHECK_CLASS_TYPE ((klass),  BT_TYPE_VOLUME_POPUP))
 
-typedef struct _BtVolumePopup {
+typedef struct _BtVolumePopup      BtVolumePopup;
+typedef struct _BtVolumePopupClass BtVolumePopupClass;
+
+/**
+ * BtVolumePopup:
+ *
+ * a volume popup widget
+ */
+struct _BtVolumePopup {
   GtkWindow parent;
 
   /* us */
@@ -51,11 +59,11 @@ typedef struct _BtVolumePopup {
   guint timeout;
   /* for +/- buttons */
   gint direction;
-} BtVolumePopup;
+};
 
-typedef struct _BtVolumePopupClass {
+struct _BtVolumePopupClass {
   GtkWindowClass klass;
-} BtVolumePopupClass;
+};
 
 GtkWidget *bt_volume_popup_new(GtkAdjustment *adj);
 

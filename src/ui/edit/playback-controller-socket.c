@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.15 2007-03-21 09:50:23 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.16 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -50,6 +50,7 @@ struct _BtPlaybackControllerSocketPrivate {
   /* positions for each label */
   GList *playlist;
   gulong cur_pos;
+  gboolean seek;
 
   /* data for the status */
   G_POINTER_ALIAS(BtSequence *,sequence);
@@ -171,6 +172,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
     // this causes stack smashing, but only if we play afterwards
     // its also avoided by making the string buffer in main-statusbar.c (notify) +4 bytes
     //g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
+    self->priv->seek=TRUE;
 
   }
   else if(!strcasecmp(cmd,"stop")) {
@@ -387,7 +389,9 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
 
   g_object_get(G_OBJECT(song),"is-playing",&self->priv->is_playing,NULL);
 
-  if(self->priv->is_playing) {
+  if(self->priv->is_playing && self->priv->seek) {
+    // do this only if play was invoked via playbackcontroller
+    self->priv->seek=FALSE;
     GST_INFO("seeking to pos=%d",self->priv->cur_pos);
     g_object_set(G_OBJECT(song),"play-pos",self->priv->cur_pos,NULL);
   }

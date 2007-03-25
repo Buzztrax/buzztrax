@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.87 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: main-window.c,v 1.88 2007-03-25 14:18:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -90,19 +90,6 @@ static void on_window_destroy(GtkWidget *widget, gpointer user_data) {
     gtk_main_quit();
   }
 }
-
-static gboolean on_window_configure_event(GtkWidget *widget,GdkEventConfigure *event,gpointer user_data) {
-  //BtMainWindow *self=BT_MAIN_WINDOW(user_data);
-  
-  //GST_DEBUG("#### window pos & size %d x %d , %d x %d",
-  //  event->x,event->y,
-  //  event->width,event->height);
-  // @todo: store as properties per song or gconf settings
-  
-  // return FALSE so that the event is also processed further
-  return(FALSE);
-}
-
 
 static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainWindow *self=BT_MAIN_WINDOW(user_data);
@@ -255,7 +242,6 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
-  g_signal_connect(G_OBJECT(self),"configure-event",G_CALLBACK(on_window_configure_event),(gpointer)self);
   /* just for testing 
   g_signal_connect(G_OBJECT(self),"event",G_CALLBACK(on_window_event),(gpointer)self);
   */

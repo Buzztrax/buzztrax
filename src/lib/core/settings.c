@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.35 2007-03-18 12:08:06 ensonic Exp $
+/* $Id: settings.c,v 1.36 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -210,6 +210,13 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      0,
                                      G_MAXUINT,
                                      0, /* default value */
+                                     G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_MISSING_MACHINES,
+                                  g_param_spec_string("missing-machines",
+                                     "missing-machines prop",
+                                     "list of missing machines to ignore",
+                                     NULL, /* default value */
                                      G_PARAM_READWRITE));
 
   // playback controller

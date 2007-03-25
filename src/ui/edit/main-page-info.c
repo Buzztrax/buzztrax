@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.49 2007-03-13 22:38:12 ensonic Exp $
+/* $Id: main-page-info.c,v 1.50 2007-03-25 14:18:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,10 @@
 /**
  * SECTION:btmainpageinfo
  * @short_description: the editor main info page
- */ 
+ * @see_also: #BtSongInfo
+ *
+ * Provides an editor for the song meta data.
+ */
 
 /* @todo
  * - use this tab as the first one?

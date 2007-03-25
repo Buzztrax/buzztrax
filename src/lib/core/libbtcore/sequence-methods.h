@@ -1,4 +1,4 @@
-/* $Id: sequence-methods.h,v 1.21 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: sequence-methods.h,v 1.22 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,5 +41,7 @@ extern void bt_sequence_set_pattern(const BtSequence * const self, const gulong 
 extern GstClockTime bt_sequence_get_bar_time(const BtSequence * const self);
 extern GstClockTime bt_sequence_get_loop_time(const BtSequence * const self);
 extern gulong bt_sequence_limit_play_pos(const BtSequence * const self, const gulong play_pos);
+
+extern gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPattern * const pattern);
 
 #endif // BT_SEQUENCE_METHDOS_H

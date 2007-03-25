@@ -59,6 +59,19 @@
         <long>Tracks for which application version the user has seen the news already.</long>
       </locale>
     </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/missing-machines</key>
+      <applyto>/apps/buzztard/missing-machines</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default></default>
+        <short>List of missing machines to ignore</short>
+        <long>
+          Comma separated list of machine names, that we will not warn about on startup, if they are missing.
+        </long>
+      </locale>
+    </schema>
     <!-- playback controller -->
     <schema>
       <key>/schemas/apps/buzztard/playback-controller/coherence-upnp-active</key>

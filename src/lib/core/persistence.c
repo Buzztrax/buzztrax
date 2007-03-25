@@ -1,4 +1,4 @@
-/* $Id: persistence.c,v 1.17 2007-03-17 11:42:31 ensonic Exp $
+/* $Id: persistence.c,v 1.18 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -200,45 +200,44 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
   GType base_type;
 
   g_return_val_if_fail(G_IS_VALUE(gvalue),FALSE);
-  g_return_val_if_fail(svalue,FALSE);
 
   base_type=bt_g_type_get_base_type(G_VALUE_TYPE(gvalue));
   // depending on the type, set the GValue
   switch(base_type) {
     case G_TYPE_DOUBLE: {
       //gdouble val=atof(svalue); // this is dependend on the locale
-      const gdouble val=g_ascii_strtod(svalue,NULL);
+      const gdouble val=svalue?g_ascii_strtod(svalue,NULL):0.0;
       g_value_set_double(gvalue,val);
     } break;
     case G_TYPE_FLOAT: {
-      const gfloat val=(gfloat)g_ascii_strtod(svalue,NULL);
+      const gfloat val=svalue?(gfloat)g_ascii_strtod(svalue,NULL):0.0;
       g_value_set_float(gvalue,val);
     } break;
     case G_TYPE_BOOLEAN: {
-      const gint val=atoi(svalue);
+      const gint val=svalue?atoi(svalue):0;
       g_value_set_boolean(gvalue,val);
     } break;
     case G_TYPE_STRING: {
       g_value_set_string(gvalue,svalue);
     } break;
     case G_TYPE_ENUM: {
-      const gint val=atoi(svalue);
+      const gint val=svalue?atoi(svalue):0;
       g_value_set_enum(gvalue,val);
     } break;
     case G_TYPE_INT: {
-      const gint val=atoi(svalue);
+      const gint val=svalue?atoi(svalue):0;
       g_value_set_int(gvalue,val);
     } break;
     case G_TYPE_UINT: {
-      const guint val=atoi(svalue);
+      const guint val=svalue?atoi(svalue):0;
       g_value_set_uint(gvalue,val);
     } break;
     case G_TYPE_LONG: {
-      const glong val=atol(svalue);
+      const glong val=svalue?atol(svalue):0;
       g_value_set_long(gvalue,val);
     } break;
     case G_TYPE_ULONG: {
-      const gulong val=atol(svalue);
+      const gulong val=svalue?atol(svalue):0;
       g_value_set_ulong(gvalue,val);
     } break;
     default:
@@ -257,6 +256,8 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
  * Returns: a newly allocated string with the data or %NULL on error
  */
 gchar *bt_persistence_get_value(GValue * const gvalue) {
+// we're not showing more digits in the pattern view right now
+#define FLOAT_BUFFER_LEN 8
   GType base_type;
   gchar *res=NULL;
 
@@ -266,16 +267,16 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
   // depending on the type, set the result
   switch(base_type) {
     case G_TYPE_DOUBLE: {
-      gchar str[30+1];
+      gchar str[FLOAT_BUFFER_LEN+1];
       // this is dependend on the locale
       //res=g_strdup_printf("%lf",g_value_get_double(gvalue));
-      res=g_strdup(g_ascii_dtostr(str,30,g_value_get_double(gvalue)));
+      res=g_strdup(g_ascii_dtostr(str,FLOAT_BUFFER_LEN,g_value_get_double(gvalue)));
       } break;
     case G_TYPE_FLOAT: {
-      gchar str[30+1];
+      gchar str[FLOAT_BUFFER_LEN+1];
       // this is dependend on the locale
       //res=g_strdup_printf("%f",g_value_get_float(gvalue));
-      res=g_strdup(g_ascii_dtostr(str,30,g_value_get_float(gvalue)));
+      res=g_strdup(g_ascii_dtostr(str,FLOAT_BUFFER_LEN,g_value_get_float(gvalue)));
       } break;
     case G_TYPE_BOOLEAN:
       res=g_strdup_printf("%d",g_value_get_boolean(gvalue));

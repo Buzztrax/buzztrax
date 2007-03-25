@@ -6,8 +6,8 @@
   xsd:noNamespaceSchemaLocation="buzztard.xsd">
 
   <meta>
-    <info>a three voice melody</info>
-    <name>combi 1</name>
+    <info>a five voice melody</info>
+    <name>combi 2</name>
     <genre>chip-music</genre>
     <bpm>120</bpm>
     <tpb>4</tpb>

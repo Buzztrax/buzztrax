@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.70 2007-03-19 22:27:54 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.71 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,10 @@
 /**
  * SECTION:btmachinepropertiesdialog
  * @short_description: machine realtime parameters
+ * @see_also: #BtMachine
+ *
+ * A dialog to configure dynamic settings of a #BtMachine. The dialog also
+ * allows to editing and manage presets for machines that support them.
  */
 
 #define BT_EDIT
@@ -265,6 +269,7 @@ static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventBu
   /* Ignore double-clicks and triple-clicks */
   if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
     // show context menu
+    // @todo: make a new one every time
     gtk_menu_popup(self->priv->range_ic_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
@@ -435,6 +440,7 @@ static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButt
   /* Ignore double-clicks and triple-clicks */
   if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
     // show context menu
+    // @todo: make a new one every time
     gtk_menu_popup(self->priv->range_ic_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }

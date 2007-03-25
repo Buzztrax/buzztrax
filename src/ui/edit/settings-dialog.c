@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.35 2007-03-18 12:08:07 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.36 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,9 @@
 /**
  * SECTION:btsettingsdialog
  * @short_description: class for the editor settings dialog
+ * @see_also: #BtSettings
+ *
+ * Provides UI to access the #BtSettings.
  */
 
 #define BT_EDIT

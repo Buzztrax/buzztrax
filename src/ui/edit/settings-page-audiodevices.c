@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.31 2007-03-19 22:27:54 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.32 2007-03-25 14:18:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,6 +21,8 @@
 /**
  * SECTION:btsettingspageaudiodevices
  * @short_description: audio device configuration settings page
+ *
+ * List available GStreamer audio devices and allows to selection to use.
  */
 
 #define BT_EDIT

@@ -1,4 +1,4 @@
-/* $Id: gtkvumeter.h,v 1.4 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: gtkvumeter.h,v 1.5 2007-03-25 14:18:31 ensonic Exp $
  *
  * GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
@@ -23,7 +23,12 @@ G_BEGIN_DECLS
 
 typedef struct _GtkVUMeter      GtkVUMeter;
 typedef struct _GtkVUMeterClass GtkVUMeterClass;
-    
+
+/**
+ * GtkVUMeter:
+ *
+ * a volume meter widget
+ */
 struct _GtkVUMeter {
     GtkWidget   widget;
   

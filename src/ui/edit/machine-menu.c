@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.15 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: machine-menu.c,v 1.16 2007-03-25 14:18:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -103,6 +103,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
 //-- helper methods
 
 static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
+  // @todo: this is fragmenting memory :/
   gchar *str1c=g_utf8_casefold(str1,-1);
   gchar *str2c=g_utf8_casefold(str2,-1);
   gint res=g_utf8_collate(str1c,str2c);

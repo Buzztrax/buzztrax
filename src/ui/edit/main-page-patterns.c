@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.116 2007-03-19 15:19:24 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.117 2007-03-25 14:18:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,18 +21,20 @@
 /**
  * SECTION:btmainpagepatterns
  * @short_description: the editor main pattern page
- * @see_also: #BtPatternView
+ * @see_also: #BtPattern, #BtPatternView
+ *
+ * Provides an editor for #BtPattern instances.
  */
 
 /* @todo: main-page-patterns tasks
+ * - cut/copy/paste
  * - add third view for eating remaining space
- * - test wheter we can use pango-markup for tree-view labels to make font
- *   smaller
  * - need dividers for global and voice data (take care of cursor navi)
  *   - 2 pixel wide column?
  *   - extra views (needs dynamic number of view
  * - shortcuts
- *   - Ctrl-I : Interpolate
+ *   - Ctrl-I/D : Insert/Delete rows
+ *   - Ctrl-B : Blend
  *     - from min/max of parameter or content of start/end cell (also multi-column)
  *     - what if only start or end is given?
  *   - Ctrl-R : Randomize
@@ -41,7 +43,7 @@
  *     - low pass median filter over changes
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  * - add parameter info when inside cell
- * - use gray color for unused patterns in pattern menu
+ * - move cursor down on edit
  */
 
 #define BT_EDIT
@@ -112,7 +114,8 @@ enum {
 
 enum {
   PATTERN_MENU_LABEL=0,
-  PATTERN_MENU_PATTERN
+  PATTERN_MENU_PATTERN,
+  PATTERN_MENU_COLOR_SET
 };
 
 enum {
@@ -231,6 +234,18 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
   // called too early
   if(!main_window) return;
+  // our page is not the current
+  if(mode&UPDATE_COLUMN_UPDATE) {
+    BtMainPages *pages;
+    gint page_num;
+    
+    g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
+    page_num=gtk_notebook_get_current_page(GTK_NOTEBOOK(pages));
+    g_object_try_unref(pages);
+    
+    if(page_num!=BT_MAIN_PAGES_PATTERNS_PAGE) return;
+  }
+  
   g_object_get(main_window,"statusbar",&statusbar,NULL);
 
   // pop previous text by passing str=NULL;
@@ -276,35 +291,6 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
 }
 
 //-- event handlers
-
-static gboolean on_page_switched_idle(gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
-  return(FALSE);
-}
-
-static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
-  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  static gint prev_page_num=-1;
-
-  if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
-    GST_DEBUG("enter pattern page");
-    // only set new
-    pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
-    // delay the pattern-table grab
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
-  }
-  else {
-    // only do this if the page was BT_MAIN_PAGES_PATTERNS_PAGE
-    if(prev_page_num == BT_MAIN_PAGES_PATTERNS_PAGE) {
-      // only reset old
-      GST_DEBUG("leave pattern page");
-      pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
-    }
-  }
-  prev_page_num = page_num;
-}
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -626,7 +612,7 @@ static void on_pattern_global_cell_edited(GtkCellRendererText *cellrenderertext,
     GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
     // store the changed text in the model and pattern
     gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
-    bt_pattern_set_global_event(self->priv->pattern,tick,param,new_text);
+    bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(new_text)?new_text:NULL));
   }
 }
 
@@ -651,7 +637,7 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
 
     ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
     gtk_list_store_set(GTK_LIST_STORE(store),&iter,ix+param,g_strdup(new_text),-1);
-    bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,new_text);
+    bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,(BT_IS_STRING(new_text)?new_text:NULL));
 
     g_object_unref(machine);
   }
@@ -707,21 +693,28 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
   GtkListStore *store;
   GtkTreeIter menu_iter;
   gint index=-1;
-  gboolean is_internal;
+  gboolean is_internal,is_used;
 
   // update pattern menu
-  store=gtk_list_store_new(2,G_TYPE_STRING,BT_TYPE_PATTERN);
+  store=gtk_list_store_new(3,G_TYPE_STRING,BT_TYPE_PATTERN,G_TYPE_BOOLEAN);
   if(machine) {
+    BtSong *song;
+    BtSequence *sequence;
+
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
     g_object_get(G_OBJECT(machine),"patterns",&list,NULL);
     for(node=list;node;node=g_list_next(node)) {
       pattern=BT_PATTERN(node->data);
       g_object_get(G_OBJECT(pattern),"name",&str,"is-internal",&is_internal,NULL);
       if(!is_internal) {
         GST_INFO("  adding \"%s\"",str);
+        is_used=bt_sequence_is_pattern_used(sequence,pattern);
         gtk_list_store_append(store,&menu_iter);
         gtk_list_store_set(store,&menu_iter,
           PATTERN_MENU_LABEL,str,
           PATTERN_MENU_PATTERN,pattern,
+          PATTERN_MENU_COLOR_SET,!is_used,
           -1);
         g_signal_connect(G_OBJECT(pattern),"notify::name",G_CALLBACK(on_pattern_name_changed),(gpointer)self);
         index++;  // count so that we can activate the last one
@@ -729,6 +722,8 @@ static void pattern_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
       g_free(str);
     }
     g_list_free(list);
+    g_object_unref(sequence);
+    g_object_unref(song);
     GST_INFO("pattern menu refreshed");
   }
   gtk_widget_set_sensitive(GTK_WIDGET(self->priv->pattern_menu),(pattern!=NULL));
@@ -850,6 +845,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     store_types=(GType *)g_new(GType *,col_ct);
     store_types[0]=G_TYPE_LONG;
     for(i=1;i<col_ct;i++) {
+      // @todo: use specific type depedning on parameter
       store_types[i]=G_TYPE_STRING;
     }
     store=gtk_list_store_newv(col_ct,store_types);
@@ -865,6 +861,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       // global params
       for(j=0;j<global_params;j++) {
         if((str=bt_pattern_get_global_event(pattern,i,j))) {
+          GST_INFO("  cell %d,%d : %s",i,j,str);
           gtk_list_store_set(store,&tree_iter,
             ix,str,
             -1);
@@ -894,6 +891,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     GST_DEBUG("  build view");
     ix=PATTERN_TABLE_PRE_CT;
     for(j=0;j<global_params;j++) {
+      // @todo: use specific cell-renderers by type
+
       renderer=gtk_cell_renderer_text_new();
       g_object_set(G_OBJECT(renderer),
         //"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
@@ -1058,6 +1057,42 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 }
 
 //-- event handler
+
+static gboolean on_page_switched_idle(gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  return(FALSE);
+}
+
+static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  static gint prev_page_num=-1;
+
+  if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
+    BtMachine *machine;
+    
+    GST_DEBUG("enter pattern page");
+    // only set new text
+    pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
+    if((machine=bt_main_page_patterns_get_current_machine(self))) {
+      // refresh to update colors in the menu (as usage might have changed)
+      pattern_menu_refresh(self,machine);
+      g_object_unref(machine);
+    }
+    // delay the pattern-table grab
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+  }
+  else {
+    // only do this if the page was BT_MAIN_PAGES_PATTERNS_PAGE
+    if(prev_page_num == BT_MAIN_PAGES_PATTERNS_PAGE) {
+      // only reset old
+      GST_DEBUG("leave pattern page");
+      pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
+    }
+  }
+  prev_page_num = page_num;
+}
 
 static void on_pattern_size_changed(BtPattern *pattern,GParamSpec *arg,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -1349,6 +1384,8 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMainWindow *main_window;
   BtPattern *pattern;
+  BtSong *song;
+  BtSequence *sequence;
   gchar *msg,*id;
 
   g_assert(user_data);
@@ -1356,9 +1393,16 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
   pattern=bt_main_page_patterns_get_current_pattern(self);
   g_return_if_fail(pattern);
 
-  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
   g_object_get(pattern,"name",&id,NULL);
-  msg=g_strdup_printf(_("Delete pattern '%s'"),id);
+
+  if(bt_sequence_is_pattern_used(sequence,pattern)) {
+    msg=g_strdup_printf(_("Delete used pattern '%s'"),id);
+  }
+  else {
+    msg=g_strdup_printf(_("Delete unused pattern '%s'"),id);
+  }
   g_free(id);
 
   if(bt_dialog_question(main_window,_("Delete pattern..."),msg,_("There is no undo for this."))) {
@@ -1371,7 +1415,9 @@ static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpoint
 
     g_object_unref(machine);
   }
+  g_object_unref(sequence);
   g_object_unref(main_window);
+  g_object_unref(song);
   g_object_unref(pattern);  // should finalize the pattern
   g_free(msg);
 }
@@ -1467,8 +1513,14 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_container_set_border_width(GTK_CONTAINER(box),4);
   self->priv->pattern_menu=GTK_COMBO_BOX(gtk_combo_box_new());
   renderer=gtk_cell_renderer_text_new();
+  g_object_set(G_OBJECT(renderer),
+    "foreground","gray",
+    NULL);
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,TRUE);
-  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,"text", 0,NULL);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->pattern_menu),renderer,
+    "text",PATTERN_MENU_LABEL,
+    "foreground-set",PATTERN_MENU_COLOR_SET,
+    NULL);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Pattern")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->pattern_menu),TRUE,TRUE,2);
   self->priv->pattern_menu_changed=g_signal_connect(G_OBJECT(self->priv->pattern_menu), "changed", G_CALLBACK(on_pattern_menu_changed), (gpointer)self);
@@ -1741,7 +1793,7 @@ BtPattern *bt_main_page_patterns_get_current_pattern(const BtMainPagePatterns *s
  * @self: the pattern subpage
  * @pattern: the pattern to show
  *
- * Show the given pattern. Will update machine and pattern menu.
+ * Show the given @pattern. Will update machine and pattern menu.
  */
 void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern *pattern) {
   BtMachine *machine;
@@ -1761,6 +1813,25 @@ void bt_main_page_patterns_show_pattern(const BtMainPagePatterns *self,BtPattern
   gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
   // release the references
   g_object_try_unref(machine);
+}
+
+/**
+ * bt_main_page_patterns_show_machine:
+ * @self: the pattern subpage
+ * @machine: the machine to show
+ *
+ * Show the given @machine. Will update machine menu.
+ */
+void bt_main_page_patterns_show_machine(const BtMainPagePatterns *self,BtMachine *machine) {
+  GtkTreeIter iter;
+  GtkTreeModel *store;
+
+  // update machine menu
+  store=gtk_combo_box_get_model(self->priv->machine_menu);
+  machine_model_get_iter_by_machine(store,&iter,machine);
+  gtk_combo_box_set_active_iter(self->priv->machine_menu,&iter);
+  // focus pattern editor
+  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
 }
 
 //-- wrapper
