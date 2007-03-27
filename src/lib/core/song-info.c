@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.66 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: song-info.c,v 1.67 2007-03-27 13:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,8 +31,13 @@
  * and BtSongInfo::tpb. If 'bars' is 16, than on can have 1/16 notes.
  * And if 'ticks per beat' is 4 one will have 4 beats - a classic 4/4 meassure.
  * For a 3/4 meassure, 'bars' would be 12. Thus bars = beats * tpb.
- */ 
- 
+ */
+ /* @todo: add more metadata
+ * copyright: GST_TAG_COPYRIGHT
+ * license: GST_TAG_LICENSE (http://creativecommons.org/licenses/)
+ *
+ */
+
 #define BT_CORE
 #define BT_SONG_INFO_C
 
@@ -56,17 +61,17 @@ enum {
 struct _BtSongInfoPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the song the song-info belongs to */
   G_POINTER_ALIAS(BtSong *,song);
-  
+
   /* the song-info as tag-data */
   GstTagList *taglist;
   GDate *tag_date;
 
   /* the file name of the song */
   gchar *file_name;
-  
+
   /* freeform info about the song */
   gchar *info;
   /* the name of the tune */
@@ -102,7 +107,7 @@ static GObjectClass *parent_class=NULL;
  */
 BtSongInfo *bt_song_info_new(const BtSong * const song) {
   g_return_val_if_fail(BT_IS_SONG(song),NULL);
-  
+
   BtSongInfo * const self=BT_SONG_INFO(g_object_new(BT_TYPE_SONG_INFO,"song",song,NULL));
 
   return(self);
@@ -118,7 +123,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
   xmlNodePtr node=NULL;
 
   GST_DEBUG("PERSISTENCE::song-info");
-  
+
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("meta"),NULL))) {
     if(self->priv->info) {
       xmlNewChild(node,NULL,XML_CHAR_PTR("info"),XML_CHAR_PTR(self->priv->info));
@@ -148,7 +153,7 @@ static xmlNodePtr bt_song_info_persistence_save(const BtPersistence * const pers
 static gboolean bt_song_info_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   const BtSongInfo * const self = BT_SONG_INFO(persistence);
   gboolean res=FALSE;
-  
+
   GST_DEBUG("PERSISTENCE::song-info");
   g_assert(node);
 
@@ -186,7 +191,7 @@ static gboolean bt_song_info_persistence_load(const BtPersistence * const persis
 
 static void bt_song_info_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_song_info_persistence_load;
   iface->save = bt_song_info_persistence_save;
 }
@@ -255,7 +260,7 @@ static void bt_song_info_set_property(GObject      * const object,
   const BtSongInfo * const self = BT_SONG_INFO(object);
   return_if_disposed();
   switch (property_id) {
-    case SONG_INFO_SONG: {  
+    case SONG_INFO_SONG: {
       g_object_try_weak_unref(self->priv->song);
       self->priv->song = BT_SONG(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->song);
@@ -410,7 +415,7 @@ static void bt_song_info_finalize(GObject * const object) {
 static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSongInfo * const self = BT_SONG_INFO(instance);
   time_t now=time(NULL);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_INFO, BtSongInfoPrivate);
   self->priv->taglist=gst_tag_list_new();
 
@@ -426,7 +431,7 @@ static void bt_song_info_init(GTypeInstance * const instance, gconstpointer g_cl
   strftime(self->priv->create_dts,DTS_LEN+1,"%FT%TZ",gmtime(&now));
   strncpy(self->priv->change_dts,self->priv->create_dts,DTS_LEN+1);
   GST_DEBUG("date initialized as %s",self->priv->change_dts);
-  
+
   // init taglist
   self->priv->tag_date=g_date_new();
 #ifdef HAVE_GLIB_2_10
@@ -450,7 +455,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
   gobject_class->get_property = bt_song_info_get_property;
   gobject_class->dispose      = bt_song_info_dispose;
   gobject_class->finalize     = bt_song_info_finalize;
-  
+
   g_object_class_install_property(gobject_class,SONG_INFO_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",

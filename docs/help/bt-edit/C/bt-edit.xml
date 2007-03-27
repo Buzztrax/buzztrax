@@ -13,7 +13,7 @@
 -->
 <!-- ===========Document Header ======================== -->
 <article id="index" lang="en">
-<!-- 
+<!--
   please do not change the id: for translations, change lang to
   appropriate code
 -->
@@ -97,7 +97,7 @@
   <para>
     During the next section we describe the concept of the <application>&app;</application>
     and also compare it to similar applications. If you are familiar with some
-    of those, the resoective sections should help to understand the way
+    of those, the retrospective sections should help to understand the way
     <application>&app;</application> works.
   </para>
   <para>
@@ -108,7 +108,7 @@
       <listitem><para><link linkend="bt-edit-reference" endterm="bt-edit-reference.title"/></para></listitem>
     </itemizedlist>
   </para>
-  
+
   <sect2 id="bt-edit-intro-concept">
     <title id='bt-edit-intro-concept.title'>The concept behind <application>&app;</application></title>
     <para>
@@ -121,13 +121,18 @@
     <para>
       &app;:
       <itemizedlist>
-        <listitem><para>can have multiple analyzers open</para></listitem>
-        <listitem><para>can render songs to wav/mp3,ogg-vorbis/...</para></listitem>
+        <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-metadata (tags)</para></listitem>
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
-        <listitem><para>generates cleaner machine UIs (hiding, more widgets)</para></listitem>
+        <listitem><para>generates cleaner machine UIs (collapsing parts, more distinct widgets)</para></listitem>
         <listitem><para>has a zoomable machine view</para></listitem>
         <listitem><para>can use beats other that 4/4</para></listitem>
+        <listitem><para>has analyzers in sequence view</para></listitem>
+        <listitem><para>can have multiple wire-analyzers open</para></listitem>
+        <listitem><para>can be remotecontrolled with upnp a/v software</para></listitem>
       </itemizedlist>
+    </para>
+    <para>
+      For Buzz users the UI will look familiar still.
     </para>
   </sect2>
 
@@ -152,7 +157,7 @@
     (as a parameter on the commandline or by double clicking a song in <application>Nautilus</application>),
     the window will look like this.
   </para>
-  
+
   <figure id="bt-edit-main-window-fig">
     <title>&app; window</title>
     <screenshot>
@@ -166,15 +171,15 @@
       </mediaobject>
     </screenshot>
   </figure>
-  
+
   <para>
     On the very top of the window is <link linkend="bt-edit-main-menu">the menu bar</link>.
     Below one finds the toolbar.
-    And below again are tabs to switch between various views. Each view is for 
+    And below again are tabs to switch between various views. Each view is for
     editing certain aspects of the song.
     On the bottom is a status bar.
   </para>
-  
+
   <para>
     Many parts in the UI show tooltips with explanations. Hover the mouse pointer
     over the region and wait a moment.
@@ -206,7 +211,7 @@
       Next we briefly introduce each tab, where in the next sub section they will
       be described in detail.
     </para>
-    
+
     <sect3 id="bt-edit-main-view-machines">
       <title id='bt-edit-main-view-machines.title'>The machine view of a song</title>
       <para>
@@ -321,7 +326,7 @@
         </para>
       </note-->
       <para>
-        (FIXME: special-patterns = {mute, break, solo, bypass}) 
+        (FIXME: special-patterns = {mute, break, solo, bypass})
       </para>
     </sect3>
 
@@ -412,7 +417,7 @@
 
   <sect2 id="bt-edit-prefs-audio">
     <title id='bt-edit-prefs-audio.title'>Audio device settings</title>
-    
+
     <para>
       (FIXME:)
     </para>

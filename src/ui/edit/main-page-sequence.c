@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.162 2007-03-25 14:18:32 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.163 2007-03-27 13:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,6 +31,8 @@
  * - add third view for eating remaining space
  * - shortcuts
  *   - Ctrl-I/D : Insert/Delete rows
+ *   - Ctrl-<num> :  Stepping
+ *     - set increment for cursor-down on edit
  * - sequence header
  *   - add table to separate scrollable window
  *     (no own adjustments, share x-adjustment with sequence-view, show full height)
@@ -1834,7 +1836,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             cpath=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1);
             gtk_tree_view_set_cursor(self->priv->sequence_table,cpath,column,FALSE);
             if(cpath) gtk_tree_path_free(cpath);
-            
+
             if(pattern_usage_changed) {
               pattern_list_refresh(self);
               // idealy we like to refresh here: pattern_menu_refresh(self);

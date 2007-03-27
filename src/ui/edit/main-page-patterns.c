@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.117 2007-03-25 14:18:32 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.118 2007-03-27 13:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,6 +41,8 @@
  *     - from min/max of parameter or content of start/end cell (also multi-column)
  *   - Ctrl-S : Smooth
  *     - low pass median filter over changes
+ *   - Ctrl-<num> :  Stepping
+ *     - set increment for cursor-down on edit
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
  * - add parameter info when inside cell
  * - move cursor down on edit
@@ -238,14 +240,14 @@ static void pattern_view_update_column_description(const BtMainPagePatterns *sel
   if(mode&UPDATE_COLUMN_UPDATE) {
     BtMainPages *pages;
     gint page_num;
-    
+
     g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
     page_num=gtk_notebook_get_current_page(GTK_NOTEBOOK(pages));
     g_object_try_unref(pages);
-    
+
     if(page_num!=BT_MAIN_PAGES_PATTERNS_PAGE) return;
   }
-  
+
   g_object_get(main_window,"statusbar",&statusbar,NULL);
 
   // pop previous text by passing str=NULL;
@@ -1071,7 +1073,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 
   if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
     BtMachine *machine;
-    
+
     GST_DEBUG("enter pattern page");
     // only set new text
     pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);

@@ -1,4 +1,4 @@
-/* $Id: settings-page-playback-controller.c,v 1.2 2007-03-18 19:23:46 ensonic Exp $
+/* $Id: settings-page-playback-controller.c,v 1.3 2007-03-27 13:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -122,6 +122,12 @@ static gboolean bt_settings_page_playback_controller_init_ui(const BtSettingsPag
   self->priv->port_entry=gtk_spin_button_new(spin_adjustment,1.0,0);
   gtk_table_attach(GTK_TABLE(self),self->priv->port_entry, 2, 3, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
 
+  // add coherence URL
+  label=gtk_label_new("Requires Coherence UPnP framework which can be found at: https://coherence.beebits.net.");
+  gtk_label_set_line_wrap(GTK_LABEL(label),TRUE);
+  gtk_label_set_selectable(GTK_LABEL(label),TRUE);
+  gtk_table_attach(GTK_TABLE(self),label, 1, 3, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+
   // set current settings
   g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(on_activate_toggled), (gpointer)self);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),active);
@@ -146,7 +152,7 @@ BtSettingsPagePlaybackController *bt_settings_page_playback_controller_new(const
 
   if(!(self=BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER(g_object_new(BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
     "app",app,
-    "n-rows",3,
+    "n-rows",4,
     "n-columns",3,
     "homogeneous",FALSE,
     NULL)))) {

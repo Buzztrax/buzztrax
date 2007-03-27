@@ -1,3 +1,22 @@
+2007-03-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	* po/POTFILES.in:
+	* src/lib/core/song-info.c: (bt_song_info_new),
+	(bt_song_info_persistence_save), (bt_song_info_persistence_load),
+	(bt_song_info_persistence_interface_init),
+	(bt_song_info_set_property), (bt_song_info_init),
+	(bt_song_info_class_init):
+	* src/ui/edit/main-page-patterns.c:
+	(pattern_view_update_column_description), (on_page_switched):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_key_release_event):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(bt_settings_page_playback_controller_init_ui),
+	(bt_settings_page_playback_controller_new):
+          add coherence URL, more comments, more user docs and new translatable
+          file
+
 2007-03-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* buzztard.schemas.in:
