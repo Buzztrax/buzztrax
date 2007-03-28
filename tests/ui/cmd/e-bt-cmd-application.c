@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.10 2006-08-27 20:02:55 ensonic Exp $
+/* $Id: e-bt-cmd-application.c,v 1.11 2007-03-28 08:33:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,7 +52,7 @@ BT_END_TEST
 BT_START_TEST(test_play1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
-  
+
   app=bt_cmd_application_new(TRUE);
   ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple1.xml"));
   fail_unless(ret==TRUE, NULL);
@@ -65,7 +65,7 @@ BT_END_TEST
 BT_START_TEST(test_play2) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
-  
+
   app=bt_cmd_application_new(TRUE);
   ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple2.xml"));
   fail_unless(ret==TRUE, NULL);
@@ -79,7 +79,7 @@ BT_END_TEST
 BT_START_TEST(test_play3) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
-  
+
   app=bt_cmd_application_new(TRUE);
 
   ret = bt_cmd_application_play(app, check_get_test_song_path("test-simple1.xml"));
@@ -99,7 +99,7 @@ BT_START_TEST(test_info1) {
   BtCmdApplication *app;
   gboolean ret=FALSE;
   gchar *tmp_file_name;
-    
+
   app=bt_cmd_application_new(TRUE);
   tmp_file_name=tmpnam(NULL);
   ret = bt_cmd_application_info(app, check_get_test_song_path("test-simple1.xml"), tmp_file_name);
@@ -119,5 +119,7 @@ TCase *bt_cmd_application_example_case(void) {
   tcase_add_test(tc,test_play3);
   tcase_add_test(tc,test_info1);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
+  // we need to raise the default timeout of 3 seconds
+  tcase_set_timeout(tc, 6);
   return(tc);
 }

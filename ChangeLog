@@ -1,3 +1,17 @@
+2007-03-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/cmd/cmd-application.c: (on_song_is_playing_notify),
+	(bt_cmd_application_prepare_encoding), (bt_cmd_application_new),
+	(bt_cmd_application_play), (bt_cmd_application_info),
+	(bt_cmd_application_convert), (bt_cmd_application_encode),
+	(bt_cmd_application_dispose), (bt_cmd_application_init),
+	(bt_cmd_application_class_init):
+	* tests/bt-check.c: (check_get_test_song_path):
+	* tests/bt-check.h:
+	* tests/ui/cmd/e-bt-cmd-application.c: (BT_START_TEST),
+	(bt_cmd_application_example_case):
+	  increase test timeout
+
 2007-03-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/bt-edit.xml:

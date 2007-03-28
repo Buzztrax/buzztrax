@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.89 2007-03-02 13:17:14 ensonic Exp $
+/* $Id: cmd-application.c,v 1.90 2007-03-28 08:33:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
  *
  * This class implements the body of the buzztard commandline tool.
  * It provides application level function like play, convert and encode songs.
- */ 
+ */
 /* @todo: shouldn't we start a mainloop, then launch
  * bt_cmd_application_play_song() in an idle callback, hookup the state-change
  * and the eos to quit the mainloop and run a timer for the play position prints
@@ -50,7 +50,7 @@ enum {
 struct _BtCmdApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* do no output on stdout */
   gboolean quiet;
 };
@@ -66,7 +66,7 @@ static gboolean is_playing=FALSE;
  *
  * playback status signal callback function
  */
-static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {  
+static void on_song_is_playing_notify(const BtSong *song, GParamSpec *arg, gpointer user_data) {
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   GST_INFO("%s playing - invoked per signal : song=%p, user_data=%p",
     (is_playing?"started":"stopped"),song,user_data);
@@ -146,9 +146,9 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   BtSinkBin *sink_bin;
   BtSinkBinRecordFormat format;
   gchar *lc_file_name,*file_name=NULL;
-  
+
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  
+
   lc_file_name=g_ascii_strdown(output_file_name,-1);
   if(g_str_has_suffix(lc_file_name,".ogg")) {
     format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
@@ -171,7 +171,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     file_name=g_strdup_printf("%s.ogg",output_file_name);
   }
   g_free(lc_file_name);
-  
+
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
     g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
@@ -183,7 +183,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
       "record-file-name",(file_name?file_name:output_file_name),
       NULL);
     ret=TRUE;
-    
+
     g_free(file_name);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
@@ -204,10 +204,10 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
  */
 BtCmdApplication *bt_cmd_application_new(gboolean quiet) {
   BtCmdApplication *self;
-  
+
   if(!(self=BT_CMD_APPLICATION(g_object_new(BT_TYPE_CMD_APPLICATION,"quiet",quiet,NULL)))) {
     goto Error;
-  }  
+  }
   if(!(bt_application_new(BT_APPLICATION(self)))) {
     goto Error;
   }
@@ -236,9 +236,9 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
 
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
   g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
-  
-  GST_INFO("application.play launched");
-  
+
+  GST_INFO("application.play(%s) launched",input_file_name);
+
   // prepare song and song-io
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
@@ -246,10 +246,10 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   if(!(loader=bt_song_io_new(input_file_name))) {
     goto Error;
   }
-  
+
   GST_INFO("objects initialized");
-  
-  if(bt_song_io_load(loader,song)) {   
+
+  if(bt_song_io_load(loader,song)) {
     if(bt_cmd_application_play_song(self,song)) {
       res=TRUE;
     }
@@ -272,7 +272,7 @@ Error:
  * bt_cmd_application_info:
  * @self: the application instance to run
  * @input_file_name: the file to print information about
- * @output_file_name: the file to put informations from the input_file_name. 
+ * @output_file_name: the file to put informations from the input_file_name.
  * If the given file_name is NULL, stdout is used to print the informations.
  *
  * load the file of the supplied name and print information about it to stdout.
@@ -292,7 +292,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
 
   // choose appropriate output
   if (!BT_IS_STRING(output_file_name)) {
-    output_file=stdout; 
+    output_file=stdout;
   } else {
     output_file = fopen(output_file_name,"wb");
   }
@@ -303,9 +303,9 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
   if(!(loader=bt_song_io_new(input_file_name))) {
     goto Error;
   }
-  
+
   GST_INFO("objects initialized");
-  
+
   if(bt_song_io_load(loader,song)) {
     BtSongInfo *song_info;
     BtSequence *sequence;
@@ -330,7 +330,7 @@ gboolean bt_cmd_application_info(const BtCmdApplication *self, const gchar *inpu
     // get missing element info
     g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
     g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
-    
+
     // print some info about the song
     g_object_get(G_OBJECT(song_info),
       "name",&name,"author",&author,"genre",&genre,"info",&info,
@@ -429,7 +429,7 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   gboolean res=FALSE;
   BtSong *song=NULL;
   BtSongIO *loader=NULL,*saver=NULL;
-  
+
   g_return_val_if_fail(BT_IS_CMD_APPLICATION(self),FALSE);
   g_return_val_if_fail(BT_IS_STRING(input_file_name),FALSE);
   g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
@@ -444,9 +444,9 @@ gboolean bt_cmd_application_convert(const BtCmdApplication *self, const gchar *i
   if(!(saver=bt_song_io_new(output_file_name))) {
     goto Error;
   }
-  
+
   GST_INFO("objects initialized");
-  
+
   if(bt_song_io_load(loader,song)) {
     if(bt_song_io_save(saver,song)) {
       res=TRUE;
@@ -462,7 +462,7 @@ Error:
   g_object_try_unref(song);
   g_object_try_unref(loader);
   g_object_try_unref(saver);
-  return(res);  
+  return(res);
 }
 
 /**
@@ -487,7 +487,7 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   g_return_val_if_fail(BT_IS_STRING(output_file_name),FALSE);
 
   GST_INFO("application.play launched");
-  
+
   // prepare song and song-io
   if(!(song=bt_song_new(BT_APPLICATION(self)))) {
     goto Error;
@@ -495,9 +495,9 @@ gboolean bt_cmd_application_encode(const BtCmdApplication *self, const gchar *in
   if(!(loader=bt_song_io_new(input_file_name))) {
     goto Error;
   }
-  
+
   GST_INFO("objects initialized");
-  
+
   if(bt_song_io_load(loader,song)) {
     if(bt_cmd_application_prepare_encoding(self,song,output_file_name)) {
       if(bt_cmd_application_play_song(self,song)) {
@@ -568,7 +568,7 @@ static void bt_cmd_application_dispose(GObject *object) {
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
-  
+
   GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -584,7 +584,7 @@ static void bt_cmd_application_finalize(GObject *object) {
 
 static void bt_cmd_application_init(GTypeInstance *instance, gpointer g_class) {
   BtCmdApplication *self = BT_CMD_APPLICATION(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_CMD_APPLICATION, BtCmdApplicationPrivate);
 }
 
@@ -593,7 +593,7 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtCmdApplicationPrivate));
-  
+
   gobject_class->set_property = bt_cmd_application_set_property;
   gobject_class->get_property = bt_cmd_application_get_property;
   gobject_class->dispose      = bt_cmd_application_dispose;

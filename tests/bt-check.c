@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.33 2007-03-17 22:50:22 ensonic Exp $
+/* $Id: bt-check.c,v 1.34 2007-03-28 08:33:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -216,11 +216,12 @@ gboolean file_contains_str(gchar *tmp_file_name, gchar *str) {
 
 // test file access
 
-gchar *check_get_test_song_path(const gchar *name) {
+const gchar *check_get_test_song_path(const gchar *name) {
   static gchar path[2048];
 
   // TESTSONGDIR gets defined in Makefile.am
-  snprintf(path,2048,TESTSONGDIR"/%s",name);
+  g_snprintf(path,2047,TESTSONGDIR""G_DIR_SEPARATOR_S"%s",name);
+  //GST_INFO("build path: '%s'",path);
   return(path);
 }
 

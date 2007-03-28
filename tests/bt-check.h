@@ -1,4 +1,4 @@
-/* $Id: bt-check.h,v 1.19 2007-01-06 16:01:33 ensonic Exp $
+/* $Id: bt-check.h,v 1.20 2007-03-28 08:33:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -93,7 +93,7 @@ extern gboolean check_has_error_trapped(void);
 extern void setup_log(int argc, char **argv);
 extern void setup_log_capture(void);
 
-extern gchar *check_get_test_song_path(const gchar *name);
+extern const gchar *check_get_test_song_path(const gchar *name);
 
 extern gboolean file_contains_str(gchar *tmp_file_name, gchar *string);
 
