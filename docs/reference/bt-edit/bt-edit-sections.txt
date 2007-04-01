@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.33 2007-03-25 14:18:30 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.34 2007-04-01 16:18:21 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -363,6 +363,25 @@ BT_TYPE_MAIN_WINDOW
 <SUBSECTION Private>
 bt_main_window_get_type
 BtMainWindowPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmissingframeworkelementsdialog</FILE>
+<TITLE>BtMissingFrameworkElementsDialog</TITLE>
+BtMissingFrameworkElementsDialog
+bt_missing_framework_elements_dialog_new
+bt_missing_framework_elements_dialog_apply
+<SUBSECTION Standard>
+BtMissingFrameworkElementsDialogClass
+BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG
+BT_IS_MISSING_FRAMEWORK_ELEMENTS_DIALOG
+BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG_CLASS
+BT_IS_MISSING_FRAMEWORK_ELEMENTS_DIALOG_CLASS
+BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG_GET_CLASS
+BT_TYPE_MISSING_FRAMEWORK_ELEMENTS_DIALOG
+<SUBSECTION Private>
+bt_missing_framework_elements_dialog_get_type
+BtMissingFrameworkElementsDialogPrivate
 </SECTION>
 
 <SECTION>

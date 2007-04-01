@@ -1,4 +1,4 @@
-/* $Id: gtkvumeter.h,v 1.5 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: gtkvumeter.h,v 1.6 2007-04-01 16:18:22 ensonic Exp $
  *
  * GtkVumeter
  * Copyright (C) 2003 Todd Goyen <wettoad@knighthoodofbuh.org>
@@ -31,24 +31,24 @@ typedef struct _GtkVUMeterClass GtkVUMeterClass;
  */
 struct _GtkVUMeter {
     GtkWidget   widget;
-  
+
     GdkColormap *colormap;
     gint        colors;
-  
+
     GdkGC       **f_gc;
     GdkGC       **b_gc;
     GdkColor    *f_colors;
     GdkColor    *b_colors;
-  
+
     gboolean    vertical;
     gint        rms_level;
     gint        min;
     gint        max;
-  
+
     gint        peaks_falloff;
     gint        delay_peak_level;
     gint        peak_level;
-    
+
     gint        scale;
 };
 
@@ -56,17 +56,18 @@ struct _GtkVUMeterClass {
     GtkWidgetClass  parent_class;
 };
 
+/* this is not yet implemented */
 enum {
     GTK_VUMETER_PEAKS_FALLOFF_SLOW,
     GTK_VUMETER_PEAKS_FALLOFF_MEDIUM,
     GTK_VUMETER_PEAKS_FALLOFF_FAST,
-    GTK_VUMETER_PEAKS_FALLOFF_LAST    
+    GTK_VUMETER_PEAKS_FALLOFF_LAST
 };
 
 enum {
     GTK_VUMETER_SCALE_LINEAR,
     GTK_VUMETER_SCALE_LOG,
-    GTK_VUMETER_SCALE_LAST    
+    GTK_VUMETER_SCALE_LAST
 };
 
 GtkType    gtk_vumeter_get_type (void) G_GNUC_CONST;

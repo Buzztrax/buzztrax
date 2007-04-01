@@ -1,4 +1,4 @@
-/* $Id: pattern-view.c,v 1.7 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: pattern-view.c,v 1.8 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -135,6 +135,7 @@ static gboolean bt_pattern_view_expose_event(GtkWidget *widget,GdkEventExpose *e
   BtPatternView *self = BT_PATTERN_VIEW(widget);
 
   //GST_INFO("!!!! self=%p",self);  
+  //if(!GTK_WIDGET_REALIZED(self)) return FALSE;
   
   // let the parent handle its expose
   if(GTK_WIDGET_CLASS(parent_class)->expose_event) {

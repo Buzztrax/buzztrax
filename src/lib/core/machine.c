@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.238 2007-03-25 14:18:30 ensonic Exp $
+/* $Id: machine.c,v 1.239 2007-04-01 16:18:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1073,8 +1073,8 @@ gboolean bt_machine_enable_input_level(BtMachine * const self) {
     // add input-level analyser
     if(!bt_machine_make_internal_element(self,PART_INPUT_LEVEL,"level","input_level")) goto Error;
     g_object_set(G_OBJECT(self->priv->machines[PART_INPUT_LEVEL]),
-      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.50*GST_SECOND),"peak-falloff", 20.0,
+      "interval",(GstClockTime)(0.10*GST_SECOND),"message",TRUE,
+      "peak-ttl",(GstClockTime)(0.25*GST_SECOND),"peak-falloff", 36.0,
       NULL);
     if(!bt_machine_add_input_element(self,PART_INPUT_LEVEL)) goto Error;
   }

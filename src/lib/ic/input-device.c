@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.4 2007-03-18 19:23:45 ensonic Exp $
+/* $Id: input-device.c,v 1.5 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,12 +22,13 @@
  * SECTION:bticinputdevice
  * @short_description: buzztards interaction controller input device
  *
- * Event handling for input devices.
+ * Event handling for input devices (joystick,hdaps).
  */
 /*
  * http://linuxconsole.cvs.sourceforge.net/linuxconsole/ruby/utils/
  * http://gentoo-wiki.com/HOWTO_Joystick_Setup
  * http://www.frogmouth.net/hid-doco/p13.html
+ * http://libhid.alioth.debian.org/
  */
 #define BTIC_CORE
 #define BTIC_INPUT_DEVICE_C
@@ -46,11 +47,6 @@ struct _BtIcInputDevicePrivate {
 };
 
 static GObjectClass *parent_class=NULL;
-
-/* we need device type specific subtypes inheriting from this:
- *   BtIcMidiDevice, BtIcJoystick
- * they provice the device specific GSource and list of controllers
- */
 
 //-- helper
 

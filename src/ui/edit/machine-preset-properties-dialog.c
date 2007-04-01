@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.5 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.6 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,7 +23,7 @@
  * @short_description: machine preset settings
  *
  * A dialog to (re)configure machine presets.
- */ 
+ */
 
 #define BT_EDIT
 #define BT_MACHINE_PRESET_PROPERTIES_DIALOG_C
@@ -42,10 +42,10 @@ enum {
 struct _BtMachinePresetPropertiesDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   BtEditApplication *app;
-  
+
   /* the element that has the presets */
   GstElement *machine;
   GList *presets;
@@ -53,7 +53,7 @@ struct _BtMachinePresetPropertiesDialogPrivate {
   /* dialog data */
   gchar *name,*comment;
   gchar **name_ptr,**comment_ptr;
-  
+
   /* widgets and their handlers */
   GtkWidget *okay_button;
 };
@@ -71,7 +71,7 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
 
   g_assert(user_data);
   // assure validity & uniquness of the entered data
-  if(!(*name)) 
+  if(!(*name))
     // empty box
     valid=FALSE;
   else if(*self->priv->name_ptr && strcmp(name,*self->priv->name_ptr) && g_list_find_custom(self->priv->presets,name,(GCompareFunc)strcmp))
@@ -80,7 +80,7 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   else if(!(*self->priv->name_ptr) && g_list_find_custom(self->priv->presets,name,(GCompareFunc)strcmp))
     // name already exists
     valid=FALSE;
-  
+
   gtk_widget_set_sensitive(self->priv->okay_button,valid);
   g_free(self->priv->name);
   self->priv->name=g_strdup(name);
@@ -105,23 +105,23 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   GList *buttons;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("preset name and comment"));
-  
+
   // create and set window icon
   /*
   if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   */
-  
+
   // set a title
   gtk_window_set_title(GTK_WINDOW(self),_("preset name and comment"));
-   
+
     // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
-  
+
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // grab okay button, so that we can block if input is not valid
@@ -144,7 +144,7 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_name_changed), (gpointer)self);
-  
+
   // GtkEntry : preset comment
   label=gtk_label_new(_("comment"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -154,7 +154,7 @@ static gboolean bt_machine_preset_properties_dialog_init_ui(const BtMachinePrese
   gtk_entry_set_activates_default(GTK_ENTRY(widget),TRUE);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_comment_changed), (gpointer)self);
-  
+
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),table);
 
   return(TRUE);
@@ -183,10 +183,9 @@ BtMachinePresetPropertiesDialog *bt_machine_preset_properties_dialog_new(const B
   if(!bt_machine_preset_properties_dialog_init_ui(self)) {
     goto Error;
   }
-  gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 
@@ -199,8 +198,8 @@ Error:
  * Makes the dialog settings effective.
  */
 void bt_machine_preset_properties_dialog_apply(const BtMachinePresetPropertiesDialog *self) {
-  GST_INFO("applying prest changes settings");
-  
+  GST_INFO("applying preset changes settings");
+
   *self->priv->name_ptr=self->priv->name;
   self->priv->name=NULL;
   *self->priv->comment_ptr=self->priv->comment;
@@ -278,7 +277,7 @@ static void bt_machine_preset_properties_dialog_set_property(GObject      *objec
 
 static void bt_machine_preset_properties_dialog_dispose(GObject *object) {
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(object);
-  
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -296,7 +295,7 @@ static void bt_machine_preset_properties_dialog_finalize(GObject *object) {
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   g_free(self->priv->name);
   g_free(self->priv->comment);
 
@@ -307,7 +306,7 @@ static void bt_machine_preset_properties_dialog_finalize(GObject *object) {
 
 static void bt_machine_preset_properties_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtMachinePresetPropertiesDialog *self = BT_MACHINE_PRESET_PROPERTIES_DIALOG(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PRESET_PROPERTIES_DIALOG, BtMachinePresetPropertiesDialogPrivate);
 }
 
@@ -316,7 +315,7 @@ static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetProper
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePresetPropertiesDialogPrivate));
-  
+
   gobject_class->set_property = bt_machine_preset_properties_dialog_set_property;
   gobject_class->get_property = bt_machine_preset_properties_dialog_get_property;
   gobject_class->dispose      = bt_machine_preset_properties_dialog_dispose;

@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.12 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.13 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,26 +54,28 @@ BT_START_TEST(test_create_dialog) {
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));
-  
+
   // make screenshot
   check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
-  
+
+  // @todo: need to snapshot the other pages (needs api)
+
   gtk_widget_destroy(dialog);
-  
+
   // close window
   g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
-  
+
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  g_object_checked_unref(app);  
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
 TCase *bt_settings_dialog_example_case(void) {
   TCase *tc = tcase_create("BtSettingsDialogExamples");
-  
+
   tcase_add_test(tc,test_create_dialog);
   // we *must* use a checked fixture, as only this runns in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

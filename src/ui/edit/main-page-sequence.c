@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.163 2007-03-27 13:53:21 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.164 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -539,19 +539,23 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
     GtkVUMeter *vumeter;
 
     if((vumeter=g_hash_table_lookup(self->priv->level_to_vumeter,GST_MESSAGE_SRC(message)))) {
-      const GValue *l_rms,*l_peak;
-      gdouble rms=0.0, peak=0.0;
+      const GValue *l_cur,*l_peak;
+      gdouble cur=0.0, peak=0.0;
       guint i,size;
 
-      l_rms=(GValue *)gst_structure_get_value(structure, "rms");
-      l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-      //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-      size=gst_value_list_get_size(l_rms);
+      //l_cur=(GValue *)gst_structure_get_value(structure, "rms");
+      l_cur=(GValue *)gst_structure_get_value(structure, "peak");
+      //l_peak=(GValue *)gst_structure_get_value(structure, "peak");
+      l_peak=(GValue *)gst_structure_get_value(structure, "decay");
+      size=gst_value_list_get_size(l_cur);
       for(i=0;i<size;i++) {
-        rms+=g_value_get_double(gst_value_list_get_value(l_rms,i));
+        cur+=g_value_get_double(gst_value_list_get_value(l_cur,i));
         peak+=g_value_get_double(gst_value_list_get_value(l_peak,i));
       }
-      gtk_vumeter_set_levels(vumeter, (gint)((rms*10.0)/size), (gint)((peak*10.0)/size));
+      if(isinf(cur) || isnan(cur)) cur=-200.0;
+      if(isinf(peak) || isnan(peak)) peak=-200.0;
+      //gtk_vumeter_set_levels(vumeter, (gint)(cur/size), (gint)(peak/size));
+      gtk_vumeter_set_levels(vumeter, (gint)(peak/size), (gint)(cur/size));
     }
   }
 }
@@ -989,7 +993,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       vumeter=GTK_VUMETER(gtk_vumeter_new(FALSE));
       gtk_vumeter_set_min_max(vumeter, -200, 0);
       gtk_vumeter_set_levels(vumeter, -200, -200);
-      gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
+      // no falloff in widget, we have falloff in GstLevel
+      //gtk_vumeter_set_peaks_falloff(vumeter, GTK_VUMETER_PEAKS_FALLOFF_MEDIUM);
       gtk_vumeter_set_scale(vumeter, GTK_VUMETER_SCALE_LINEAR);
       gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(vumeter),TRUE,TRUE,0);
 

@@ -1,4 +1,4 @@
-/* $Id: device.c,v 1.2 2007-03-11 20:19:20 ensonic Exp $
+/* $Id: device.c,v 1.3 2007-04-01 16:18:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,6 +26,9 @@
  */
 /* @todo: we need a way to export/import controller maps per device
  *        (list of controller id,type,name)
+ *
+ * BtIcController will bind one value and provide a value-changed signal
+ * we'll have subclasses: BtIcBooleanController, BtIcRangeController
  */
 #define BTIC_CORE
 #define BTIC_DEVICE_C
@@ -40,12 +43,12 @@ enum {
 struct _BtIcDevicePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* list of BtIcController objects */
   GList *controllers;
 
   gchar *udi;
-  gchar *name;  
+  gchar *name;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -118,7 +121,7 @@ static void btic_device_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
-  
+
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
@@ -139,7 +142,7 @@ static void btic_device_finalize(GObject * const object) {
 
 static void btic_device_init(const GTypeInstance * const instance, gconstpointer const g_class) {
   BtIcDevice * const self = BTIC_DEVICE(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_DEVICE, BtIcDevicePrivate);
 }
 

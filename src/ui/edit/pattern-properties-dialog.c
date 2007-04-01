@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.19 2007-03-25 14:18:33 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.20 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,13 +40,13 @@ enum {
 struct _BtPatternPropertiesDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   BtEditApplication *app;
 
   /* the underlying pattern */
   BtPattern *pattern;
-  
+
   /* the machine and its id the pattern belongs to, needed to veryfy unique name */
   BtMachine *machine;
   gchar *machine_id;
@@ -54,7 +54,7 @@ struct _BtPatternPropertiesDialogPrivate {
   /* dialog data */
   gchar *name;
   gulong length,voices;
-  
+
   /* widgets and their handlers */
   GtkWidget *okay_button;
 };
@@ -115,26 +115,26 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   GList *buttons;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("pattern properties"));
-  
+
   // create and set window icon
   /* e.v. tab_pattern.png
   if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
   */
-  
+
   // set a title
   g_object_get(self->priv->pattern,"name",&name,NULL);
   title=g_strdup_printf(_("%s properties"),name);
   gtk_window_set_title(GTK_WINDOW(self),title);
   g_free(name);g_free(title);
-   
+
     // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
                           GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
-  
+
   gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
 
   // grab okay button, so that we can block if input is not valid
@@ -145,15 +145,15 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 
   // add widgets to the dialog content area
   box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
-  gtk_box_set_spacing(GTK_BOX(box),12);  
+  gtk_box_set_spacing(GTK_BOX(box),12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
-  
+
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
-  
+
   g_object_get(G_OBJECT(self->priv->pattern),"name",&self->priv->name,"length",&self->priv->length,"voices",&self->priv->voices,"machine",&self->priv->machine,NULL);
   g_object_get(G_OBJECT(self->priv->machine),"id",&self->priv->machine_id,NULL);
-  
+
   // GtkEntry : pattern name
   label=gtk_label_new(_("name"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -173,7 +173,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   gtk_entry_set_text(GTK_ENTRY(widget),length_str);g_free(length_str);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_length_changed), (gpointer)self);
-  
+
   // GtkSpinButton : number of voices
   label=gtk_label_new(_("voices"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
@@ -188,7 +188,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
     gtk_widget_set_sensitive(widget,FALSE);
   }
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
-  
+
   return(TRUE);
 }
 
@@ -213,7 +213,6 @@ BtPatternPropertiesDialog *bt_pattern_properties_dialog_new(const BtEditApplicat
   if(!bt_pattern_properties_dialog_init_ui(self)) {
     goto Error;
   }
-  gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
   g_object_try_unref(self);
@@ -285,7 +284,7 @@ static void bt_pattern_properties_dialog_set_property(GObject      *object,
 
 static void bt_pattern_properties_dialog_dispose(GObject *object) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
-  
+
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
@@ -304,9 +303,9 @@ static void bt_pattern_properties_dialog_finalize(GObject *object) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(object);
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   g_free(self->priv->machine_id);
-  g_free(self->priv->name);  
+  g_free(self->priv->name);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -315,7 +314,7 @@ static void bt_pattern_properties_dialog_finalize(GObject *object) {
 
 static void bt_pattern_properties_dialog_init(GTypeInstance *instance, gpointer g_class) {
   BtPatternPropertiesDialog *self = BT_PATTERN_PROPERTIES_DIALOG(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN_PROPERTIES_DIALOG, BtPatternPropertiesDialogPrivate);
 }
 
@@ -324,7 +323,7 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPatternPropertiesDialogPrivate));
-  
+
   gobject_class->set_property = bt_pattern_properties_dialog_set_property;
   gobject_class->get_property = bt_pattern_properties_dialog_get_property;
   gobject_class->dispose      = bt_pattern_properties_dialog_dispose;

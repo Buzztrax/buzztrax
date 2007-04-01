@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.36 2007-03-25 14:18:33 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.37 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -249,17 +249,17 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 6 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-    gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_DIRECTORIES),
-    gtk_label_new(_("Directories")));
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_DIRECTORIES),
+  gtk_label_new(_("Directories")));
 
-	/* @todo more settings
-     * - fonts
-     *   - font + size for machine view canvas
-     *   - font sizes for table-headings (as pango markup sizes)
-     * - misc
-	 *   - initial song bpm (from, to)
-	 *   - cpu monitor (view menu?)
-	 */
+  /* @todo more settings
+   * - fonts
+   *   - font + size for machine view canvas
+   *   - font sizes for table-headings (as pango markup sizes)
+   * - misc
+   *   - initial song bpm (from, to)
+   *   - cpu monitor (view menu?)
+   */
 
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   return(TRUE);

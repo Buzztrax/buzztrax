@@ -1,4 +1,4 @@
-/* $Id: volume-popup.c,v 1.8 2007-03-25 14:18:33 ensonic Exp $
+/* $Id: volume-popup.c,v 1.9 2007-04-01 16:18:22 ensonic Exp $
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
@@ -103,6 +103,8 @@ static gboolean
 cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
   BtVolumePopup *self = BT_VOLUME_POPUP(data);
+  
+  //if(!GTK_WIDGET_REALIZED(self)) return FALSE;
   
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton *e;

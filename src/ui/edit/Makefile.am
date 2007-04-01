@@ -12,11 +12,11 @@ bt_edit_SOURCES= \
 noinst_LTLIBRARIES      = libbtedit.la
 libbtedit_la_SOURCES   = \
 	edit-application.c edit-application.h edit-application-methods.h \
-    interaction-controller-menu.c interaction-controller-menu.h interaction-controller-menu-methods.h \
+	interaction-controller-menu.c interaction-controller-menu.h interaction-controller-menu-methods.h \
 	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\
 	machine-menu.c machine-menu.h machine-menu-methods.h \
 	machine-actions.c machine-actions.h \
-    machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
+	machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
 	machine-properties-dialog.c machine-properties-dialog.h machine-properties-dialog-methods.h \
 	machine-preferences-dialog.c machine-preferences-dialog.h machine-preferences-dialog-methods.h \
 	main-window.c main-window.h main-window-methods.h \
@@ -29,9 +29,10 @@ libbtedit_la_SOURCES   = \
 	main-page-waves.c main-page-waves.h main-page-waves-methods.h \
 	main-page-info.c main-page-info.h main-page-info-methods.h \
 	main-statusbar.c main-statusbar.h main-statusbar-methods.h \
+	missing-framework-elements-dialog.c missing-framework-elements-dialog.h missing-framework-elements-dialog-methods.h \
 	pattern-properties-dialog.c pattern-properties-dialog.h pattern-properties-dialog-methods.h \
 	pattern-view.c pattern-view.h pattern-view-methods.h \
-    playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
+	playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
 	sequence-view.c sequence-view.h sequence-view-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \

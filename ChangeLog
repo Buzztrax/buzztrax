@@ -1,3 +1,79 @@
+2007-04-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  write news.
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	  new class added
+
+	* src/lib/core/machine.c: (bt_machine_enable_input_level):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_add_many):
+	* src/lib/ic/device.c: (btic_device_dispose), (btic_device_init):
+	* src/lib/ic/input-device.c:
+	* src/lib/ic/midi-device.c:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing),
+	(bt_edit_application_show_about):
+	* src/ui/edit/gtkvumeter.c: (gtk_vumeter_get_type),
+	(gtk_vumeter_class_init), (gtk_vumeter_destroy),
+	(gtk_vumeter_realize), (gtk_vumeter_size_request),
+	(gtk_vumeter_size_allocate), (gtk_vumeter_expose),
+	(gtk_vumeter_free_colors), (gtk_vumeter_setup_colors),
+	(gtk_vumeter_sound_level_to_draw_level), (gtk_vumeter_set_min_max),
+	(gtk_vumeter_set_levels), (gtk_vumeter_set_peaks_falloff),
+	(gtk_vumeter_set_scale):
+	* src/ui/edit/gtkvumeter.h:
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	(on_name_changed), (bt_machine_preset_properties_dialog_init_ui),
+	(bt_machine_preset_properties_dialog_new),
+	(bt_machine_preset_properties_dialog_apply),
+	(bt_machine_preset_properties_dialog_dispose),
+	(bt_machine_preset_properties_dialog_finalize),
+	(bt_machine_preset_properties_dialog_init),
+	(bt_machine_preset_properties_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c:
+	(preset_list_edit_preset_meta):
+	* src/ui/edit/main-page-sequence.c: (on_song_level_change),
+	(sequence_table_refresh):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_update_length),
+	(on_song_play_pos_notify), (on_cpu_load_update),
+	(bt_main_statusbar_init_ui), (bt_main_statusbar_dispose),
+	(bt_main_statusbar_finalize), (bt_main_statusbar_init):
+	* src/ui/edit/main-toolbar.c: (on_song_level_change),
+	(bt_main_toolbar_init_ui):
+	* src/ui/edit/missing-framework-elements-dialog-methods.h:
+	* src/ui/edit/missing-framework-elements-dialog.c: (make_listview),
+	(bt_missing_framework_elements_dialog_init_ui),
+	(bt_missing_framework_elements_dialog_new),
+	(bt_missing_framework_elements_dialog_apply),
+	(bt_missing_framework_elements_dialog_get_property),
+	(bt_missing_framework_elements_dialog_set_property),
+	(bt_missing_framework_elements_dialog_dispose),
+	(bt_missing_framework_elements_dialog_finalize),
+	(bt_missing_framework_elements_dialog_init),
+	(bt_missing_framework_elements_dialog_class_init),
+	(bt_missing_framework_elements_dialog_get_type):
+	* src/ui/edit/missing-framework-elements-dialog.h:
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui),
+	(bt_pattern_properties_dialog_new),
+	(bt_pattern_properties_dialog_dispose),
+	(bt_pattern_properties_dialog_finalize),
+	(bt_pattern_properties_dialog_init),
+	(bt_pattern_properties_dialog_class_init):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_expose_event):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui):
+	* src/ui/edit/volume-popup.c: (cb_dock_press):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST),
+	(bt_settings_dialog_example_case):
+	  more ideas, level meter tuning, cpu load meter placment changed,
+	  factored missing machines dialog into new class, make it remember
+	  missing machines.
+
 2007-03-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/cmd/cmd-application.c: (on_song_is_playing_notify),
@@ -94,7 +170,7 @@
 	* src/ui/edit/wire-canvas-item.c:
 	* tests/songs/combi2.xml:
 	  add config for remembering missing machines, ref-count fixes, improve
-	  navigation between patter & sequence, make unused patterns gray in
+	  navigation between pattern & sequence, make unused patterns gray in
 	  pattern and sequence view, warn differently when removing a used/
 	  unused pattern, fix warning when clearing a note and playing
 	  afterwards, add context menu to sequence header, more ui docs,

@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.71 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.72 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -88,18 +88,18 @@ static gboolean preset_list_edit_preset_meta(const BtMachinePropertiesDialog *se
 
   GST_INFO("create preset edit dialog");
 
-  dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(self->priv->app,machine,name,comment));
+  if((dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(self->priv->app,machine,name,comment)))) {
+    GST_INFO("run preset edit dialog");
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self));
+    gtk_widget_show_all(GTK_WIDGET(dialog));
 
-  GST_INFO("run preset edit dialog");
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self));
-  gtk_widget_show_all(dialog);
+    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+      bt_machine_preset_properties_dialog_apply(BT_MACHINE_PRESET_PROPERTIES_DIALOG(dialog));
+      result=TRUE;
+    }
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-    bt_machine_preset_properties_dialog_apply(BT_MACHINE_PRESET_PROPERTIES_DIALOG(dialog));
-    result=TRUE;
+    gtk_widget_destroy(dialog);
   }
-
-  gtk_widget_destroy(dialog);
   return(result);
 }
 

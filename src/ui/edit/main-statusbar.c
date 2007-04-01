@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.56 2007-03-25 14:18:32 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.57 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,7 +25,7 @@
  * The statusbar shows some contextual help, as well as things like playback
  * status.
  */
-/* buzz uses 3 time counters 
+/* buzz uses 3 time counters
  * file:///windows/C/Programme/Jeskola/Buzz%20(work)/Help/Files/Time%20Window.htm
  */
 
@@ -46,12 +46,12 @@ struct _BtMainStatusbarPrivate {
 
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* main status bar */
   GtkStatusbar *status;
   /* identifier of the status message group */
   gint status_context_id;
-  
+
   /* time-elapsed (total) status bar */
   GtkStatusbar *elapsed;
   /* identifier of the elapsed message group */
@@ -66,11 +66,11 @@ struct _BtMainStatusbarPrivate {
   GtkStatusbar *loop;
   /* identifier of the loop message group */
   gint loop_context_id;
-  
+
   /* cpu load */
   GtkProgressBar *cpu_load;
   guint cpu_load_handler_id;
-  
+
   /* total playtime */
   GstClockTime total_time;
   gulong last_pos, play_start;
@@ -91,7 +91,7 @@ static void bt_main_statusbar_update_length(const BtMainStatusbar *self, const B
   sec=(gulong)(msec/ 1000);msec-=(sec* 1000);
   g_sprintf(str,"%02lu:%02lu.%03lu",min,sec,msec);
   // update statusbar fields
-  gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id); 
+  gtk_statusbar_pop(self->priv->loop,self->priv->loop_context_id);
   gtk_statusbar_push(self->priv->loop,self->priv->loop_context_id,str);
 }
 
@@ -104,14 +104,14 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   gchar str[2+2+3+3 + 4];
   gulong pos,msec,sec,min;
   GstClockTime bar_time;
-  
+
   g_assert(user_data);
   GST_DEBUG("tick update");
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
   //GST_INFO("sequence tick received : %d",pos);
   bar_time=bt_sequence_get_bar_time(sequence);
-  
+
   // update current statusbar
   msec=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
   min=(gulong)(msec/60000);msec-=(min*60000);
@@ -230,7 +230,7 @@ static gboolean on_cpu_load_update(gpointer user_data) {
   BtMainStatusbar *self=BT_MAIN_STATUSBAR(user_data);
   guint cpu_load=bt_cpu_load_get_current();
   gchar str[strlen("CPU: 000 %") + 3];
-  
+
   g_assert(user_data);
   g_sprintf(str,"CPU: %d %%",cpu_load);
   gtk_progress_bar_set_fraction(self->priv->cpu_load,(gdouble)cpu_load/100.0);
@@ -244,18 +244,27 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   GtkTooltips *tips;
   GtkWidget *ev_box;
   gchar str[]="00:00.000";
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("status bar"));
   //gtk_box_set_spacing(GTK_BOX(self),1);
-  
+
   tips=gtk_tooltips_new();
 
+  // context sensitip help statusbar
   self->priv->status=GTK_STATUSBAR(gtk_statusbar_new());
   self->priv->status_context_id=gtk_statusbar_get_context_id(GTK_STATUSBAR(self->priv->status),_("default"));
   gtk_statusbar_set_has_resize_grip(self->priv->status,FALSE);
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->status),self->priv->status_context_id,_("Ready to rock!"));
   gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->status),TRUE,TRUE,1);
 
+  // cpu load
+  // @todo: make this dependend on settings (view menu?)
+  self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
+  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->cpu_load),_("CPU load"),NULL);
+  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
+  self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
+
+  // timer status-bars
   ev_box=gtk_event_box_new();
   gtk_tooltips_set_tip(tips,ev_box,_("Playback time"),NULL);
   self->priv->elapsed=GTK_STATUSBAR(gtk_statusbar_new());
@@ -284,12 +293,6 @@ static gboolean bt_main_statusbar_init_ui(const BtMainStatusbar *self, const BtE
   gtk_statusbar_push(GTK_STATUSBAR(self->priv->loop),self->priv->loop_context_id,str);
   gtk_container_add(GTK_CONTAINER(ev_box),GTK_WIDGET(self->priv->loop));
   gtk_box_pack_start(GTK_BOX(self),ev_box,FALSE,FALSE,1);
-  
-  // @todo: make this dependend on settings (view menu?)
-  self->priv->cpu_load=GTK_PROGRESS_BAR(gtk_progress_bar_new());
-  gtk_tooltips_set_tip(tips,GTK_WIDGET(self->priv->cpu_load),_("CPU load"),NULL);
-  gtk_box_pack_start(GTK_BOX(self),GTK_WIDGET(self->priv->cpu_load),FALSE,FALSE,1);
-  self->priv->cpu_load_handler_id=g_timeout_add(1000, on_cpu_load_update, (gpointer)self);
 
   // register event handlers
   g_signal_connect(G_OBJECT(app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
@@ -394,7 +397,7 @@ static void bt_main_statusbar_dispose(GObject *object) {
 
     GST_DEBUG("disconnect handlers from song=%p",song);
     g_object_get(G_OBJECT(song),"sequence",&sequence,"song-info",&song_info,NULL);
-    
+
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
     g_signal_handlers_disconnect_matched(song_info,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_info_rhythm_notify,NULL);
@@ -404,15 +407,15 @@ static void bt_main_statusbar_dispose(GObject *object) {
     g_object_unref(song);
   }
   g_source_remove(self->priv->cpu_load_handler_id);
-  
+
   g_object_try_weak_unref(self->priv->app);
-  
+
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
 static void bt_main_statusbar_finalize(GObject *object) {
   //BtMainStatusbar *self = BT_MAIN_STATUSBAR(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -420,7 +423,7 @@ static void bt_main_statusbar_finalize(GObject *object) {
 
 static void bt_main_statusbar_init(GTypeInstance *instance, gpointer g_class) {
   BtMainStatusbar *self = BT_MAIN_STATUSBAR(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_STATUSBAR, BtMainStatusbarPrivate);
 }
 

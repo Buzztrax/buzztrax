@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.2 2007-03-17 11:42:32 ensonic Exp $
+/* $Id: midi-device.c,v 1.3 2007-04-01 16:18:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,11 +42,6 @@ struct _BtIcMidiDevicePrivate {
 };
 
 static GObjectClass *parent_class=NULL;
-
-/* we need device type specific subtypes inheriting from this:
- *   BtIcMidiDevice, BtIcJoystick
- * they provice the device specific GSource and list of controllers
- */
 
 //-- helper
 
