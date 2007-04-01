@@ -1,4 +1,4 @@
-$Id: README,v 1.25 2007-03-17 23:15:25 ensonic Exp $
+$Id: README,v 1.26 2007-04-01 16:29:18 ensonic Exp $
 
 = quick info =
 Please turn you browser to http://www.buzztard.org to learn what this project
@@ -17,10 +17,13 @@ gst-plugins-base (head gstreamer cvs)
 gst-plugins-good (head gstreamer cvs)
 gst-plugins-bad (head gstreamer cvs)
 gnome-canvas
+gst-buzztard (from buzztard cvs)
 
 = supported packages =
 check (http://check.sf.net - for unit tests)
-gconf
+gconf (for persistent settings)
+hal (for interaction controller)
+libgnomeui (for help)
 
 = building from cvs =
 To build use autogen.sh instead of configure. This accept the same options like
@@ -37,6 +40,7 @@ src : the project sources
     edit : buzztard editor (gtk based ui)
   lib
     core : logic, e.g. connections framework, file i/o, ...
+    ic : interaction controller
   tests : unit tests (same directory structure as src)
 
 = installing localy =

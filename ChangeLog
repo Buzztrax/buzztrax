@@ -1,6 +1,12 @@
 2007-04-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
+	* README:
+	  update README and add links to NEWSLETTER
+
+2007-04-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
 	  write news.
 
 	* docs/reference/bt-edit/bt-edit-docs.sgml:
