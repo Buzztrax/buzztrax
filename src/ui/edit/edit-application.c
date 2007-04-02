@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.99 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: edit-application.c,v 1.100 2007-04-02 14:51:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -125,7 +125,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
   }
   g_list_free(edit_elements);
   // DEBUG test if it works
-//#if 0
+#if 0
   edit_elements=g_list_prepend(NULL,"ploink");
   if((missing_elements=bt_gst_check_elements(edit_elements))) {
     missing_edit_elements=g_list_concat(missing_edit_elements,g_list_copy(missing_elements));
@@ -141,7 +141,7 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
     missing=TRUE;
   }
   g_list_free(edit_elements);
-//#endif
+#endif
   // DEBUG
   // show missing dialog
   if(missing) {

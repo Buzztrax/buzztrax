@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.164 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.165 2007-04-02 14:51:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1316,7 +1316,9 @@ static void sequence_add_track(const BtMainPageSequence *self,BtMachine *machine
   self->priv->cursor_column=g_list_length(columns)-1;
   column=GTK_TREE_VIEW_COLUMN(g_list_previous(g_list_last(columns))->data);
   gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+  if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+  }
 
   g_list_free(columns);
   gtk_tree_path_free(path);
@@ -1387,7 +1389,9 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     self->priv->cursor_column=g_list_length(columns)-1;
     column=GTK_TREE_VIEW_COLUMN(g_list_previous(g_list_last(columns))->data);
     gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+    if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+      gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+    }
 
     pattern_list_refresh(self);
 
@@ -2434,6 +2438,7 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   //gtk_paned_pack2(GTK_PANED(split_box),GTK_WIDGET(scrolled_window),FALSE,FALSE);
 
   // set default widget
+  //g_signal_connect_after(GTK_WIDGET(self->priv->sequence_table),"realize",G_CALLBACK(on_sequence_view_realized),(gpointer)self);
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_table));
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);

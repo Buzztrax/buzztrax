@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.118 2007-03-27 13:53:21 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.119 2007-04-02 14:51:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1123,7 +1123,9 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   GST_INFO("new pattern selected : %p",self->priv->pattern);
   pattern_table_refresh(self,self->priv->pattern);
   pattern_view_update_column_description(self,UPDATE_COLUMN_UPDATE);
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  }
   if(self->priv->pattern) {
     // watch the pattern
     self->priv->pattern_length_changed=g_signal_connect(G_OBJECT(self->priv->pattern),"notify::length",G_CALLBACK(on_pattern_size_changed),(gpointer)self);
@@ -1682,6 +1684,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   // @todo cut, copy, paste
 
   // set default widget
+  //g_signal_connect_after(GTK_WIDGET(self->priv->pattern_table),"realize",G_CALLBACK(on_pattern_view_realized),(gpointer)self);
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->pattern_table));
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);

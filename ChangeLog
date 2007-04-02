@@ -1,3 +1,15 @@
+2007-04-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing):
+	  disable test code
+
+	* src/ui/edit/main-page-patterns.c: (on_pattern_menu_changed),
+	(bt_main_page_patterns_init_ui):
+	* src/ui/edit/main-page-sequence.c: (sequence_add_track),
+	(on_track_remove_activated), (bt_main_page_sequence_init_ui):
+	  fix gtk+ warning about unrealized widget.
+
 2007-04-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
