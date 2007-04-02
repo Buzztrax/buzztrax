@@ -1,5 +1,14 @@
 2007-04-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  spellchecking
+
+	* design/input/input.c: (main):
+	* design/input/jstest.c: (main):
+	  add two new test sources
+
+2007-04-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/edit-application.c:
 	(bt_edit_application_check_missing):
 	  disable test code

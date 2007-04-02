@@ -4,19 +4,19 @@
 
 LAC 2007 was great. Was nice to meet all these people. The buzztard demo was
 well received. I will try to make a screencast of the upnp remote control
-feature. I could only demo t there at a second attempt as I didn't received the
+feature. I could only demo it there at a second attempt as I didn't received the
 wifi router which was needed for the demo. I have put the slides online [1] (if
 someone knows how the get rid of the stripes that openoffice 2 produces when
 exporting slides with a gradient in the background to pdf, I am listening). For
 the slides I updated the architecture picture and put it on the wiki too [2]
-The time there was good to fix a lot of small issues. I belive its a good time
+The time there was good to fix a lot of small issues. I believe its a good time
 to try the project now. If everything goes right we try to release a 0.2 end of
-april.
+April.
 
 First bigger change is the settings UI. We have icons there for the subpages and
 there are two new subpages - for the playback controller (upnp via coherence)
-and for the comming interaction controller. The settings of the playback device
-is instant apply now (except when playing, it wll be switched after stopping).
+and for the coming interaction controller. The settings of the playback device
+is instant apply now (except when playing, it will be switched after stopping).
 Speaking of the interaction controller - implementation has started there. This
 is one thing I would like to get into 0.2 still. I'll explain in more detail
 once it is done.
@@ -27,7 +27,7 @@ been found and fixed and refdbg helped to track down more ref-count issues.
 Also now 'make distcheck' runs through for the first time. Finally I could fix
 one xlib warning, which broke playback when playing with realtime effects.
 
-During and after LAC I aslo spend time to work one small, but annoying things.
+During and after LAC I also spend time to work one small, but annoying things.
 First I refactored the missing machines dialog so that it can remember elements
 it already warned about. Next items was the level meters, they now are more
 reactive and show current as well as peak level. The ui should be a bit more
@@ -36,7 +36,7 @@ usable too. The keyboard shortcut for switching between patterns and sequence
 in sequence automatically. In pattern and sequence view bt-edit shows unused
 patterns in gray color (in the menu/list).
 
-Alltogether a nice list of fixes and enhancements.
+Altogether a nice list of fixes and enhancements.
 
 [1] http://www.buzztard.org/files/lac2007_buzztard.pdf
 [2] http://www.buzztard.org/index.php/Architecture
