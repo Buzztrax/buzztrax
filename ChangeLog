@@ -1,3 +1,10 @@
+2007-04-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/input/input.c: (main):
+	* src/lib/ic/input-device.c: (register_controllers),
+	(btic_input_device_set_property):
+	  started evdev implementation
+
 2007-04-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

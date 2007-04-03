@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.5 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: input-device.c,v 1.6 2007-04-03 19:11:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -27,13 +27,22 @@
 /*
  * http://linuxconsole.cvs.sourceforge.net/linuxconsole/ruby/utils/
  * http://gentoo-wiki.com/HOWTO_Joystick_Setup
- * http://www.frogmouth.net/hid-doco/p13.html
+ * http://www.frogmouth.net/hid-doco/linux-hid.html
+ *
+ * This is lowlevel
  * http://libhid.alioth.debian.org/
  */
 #define BTIC_CORE
 #define BTIC_INPUT_DEVICE_C
 
 #include <libbtic/ic.h>
+
+#include <fcntl.h>
+
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <linux/input.h>
 
 enum {
   DEVICE_DEVNODE=1
@@ -49,6 +58,68 @@ struct _BtIcInputDevicePrivate {
 static GObjectClass *parent_class=NULL;
 
 //-- helper
+#define test_bit(bit, array)    (array[bit>>3] & (1<<(bit&0x7)))
+
+static gboolean register_controllers(const BtIcInputDevice * const self) {
+  int fd;
+
+  if ((fd = open(self->priv->devnode, O_RDONLY)) < 0) {
+    GST_WARNING("evdev open failed : %s",g_strerror(errno));
+    return(FALSE);
+  }
+
+  //@todo: query capabillities and register controllers
+#if 0
+  guint ix;
+  guint8 evtype_bitmask[EV_MAX/8 + 1];
+
+  memset(evtype_bitmask, 0, sizeof(evtype_bitmask));
+  if(ioctl(fd, EVIOCGBIT(0, sizeof(evtype_bitmask)), evtype_bitmask) < 0) {
+    perror("evdev ioctl");
+  }
+
+  // check supported event types
+  for (ix = 0; ix < EV_MAX; ix++) {
+    if (test_bit(ix, evtype_bitmask)) {
+      switch (yalv) {
+        case EV_SYN:
+          break;
+        case EV_KEY:
+          GST_INFO("Keys or Buttons");
+          register_trigger_controllers(self,fd);
+          break;
+        case EV_REL :
+		  GST_INFO("Relative Axes");
+		  break;
+        case EV_ABS:
+          GST_INFO("Absolute Axes");
+          register_abs_range_controllers(self,fd);
+          break;
+        case EV_MSC:
+		  GST_INFO("Miscellaneous");
+		  break;
+	    case EV_LED:
+		  GST_INFO("LEDs");
+		  break;
+	    case EV_SND:
+		  GST_INFO("Sounds");
+		  break;
+	    case EV_REP:
+		  GST_INFO("Repeat");
+		  break;
+	    case EV_FF:
+		  GST_INFO("Force Feedback");
+          break;
+        default:
+          GST_INFO("Unknown event type: 0x%04hx", ix);
+       }
+    }
+  }
+#endif
+
+  close(fd);
+  return(TRUE);
+}
 
 //-- handler
 
@@ -111,6 +182,7 @@ static void btic_input_device_set_property(GObject      * const object,
     case DEVICE_DEVNODE: {
       g_free(self->priv->devnode);
       self->priv->devnode = g_value_dup_string(value);
+      register_controllers(self);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
