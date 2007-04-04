@@ -1,4 +1,4 @@
-/* $Id: m-bt-core.c,v 1.25 2007-01-05 19:31:10 ensonic Exp $
+/* $Id: m-bt-core.c,v 1.26 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,7 +22,7 @@
  */
 
 #define BT_CHECK
- 
+
 #include "bt-check.h"
 #include "../src/lib/core/libbtcore/core.h"
 
@@ -52,6 +52,9 @@ gchar **test_argvptr;
 
 /* common setup and teardown code */
 void bt_core_setup(void) {
+  // this unfortunately crashes (also with CK_FORK=no)
+  //g_mem_set_vtable(glib_mem_profiler_table);
+
   bt_init(&test_argc,&test_argvptr);
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   // set this to e.g. DEBUG to see more from gst in the log
@@ -61,20 +64,19 @@ void bt_core_setup(void) {
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
-  
+
   // use our dummy settings
   bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
 }
 
 void bt_core_teardown(void) {
+  //g_mem_profile();
 }
 
 /* start the test run */
 int main(int argc, char **argv) {
-  int nf; 
+  int nf;
   SRunner *sr;
-
-  //g_mem_set_vtable(glib_mem_profiler_table);
 
   // initialize as soon as possible
   if(!g_thread_supported()) {
@@ -108,8 +110,8 @@ int main(int argc, char **argv) {
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
-  
+
   //g_mem_profile();
 
-  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
+  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

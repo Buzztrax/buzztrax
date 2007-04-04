@@ -1,4 +1,4 @@
-/* $Id: e-processor-machine.c,v 1.6 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: e-processor-machine.c,v 1.7 2007-04-04 13:43:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
 }
 
 //-- tests
@@ -46,7 +46,7 @@ BT_START_TEST(test_btprocessormachine_obj1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* create a machine */
   machine=bt_processor_machine_new(song,"vol","volume",0);
   fail_unless(machine != NULL, NULL);
@@ -56,8 +56,8 @@ BT_START_TEST(test_btprocessormachine_obj1) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-  
-  
+
+
 TCase *bt_processor_machine_example_case(void) {
   TCase *tc = tcase_create("BtProcessorMachineExamples");
 

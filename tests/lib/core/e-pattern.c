@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.14 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: e-pattern.c,v 1.15 2007-04-04 13:43:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
 }
 
 //-- tests
@@ -52,7 +52,7 @@ BT_START_TEST(test_btpattern_obj1) {
   /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
@@ -72,7 +72,7 @@ BT_START_TEST(test_btpattern_obj2) {
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
-  
+
   GstElement *element;
   gulong voices;
 
@@ -86,12 +86,12 @@ BT_START_TEST(test_btpattern_obj2) {
   /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
   fail_unless(machine!=NULL, NULL);
-  
+
   g_object_get(machine,"machine",&element,NULL);
   voices=gst_child_proxy_get_children_count(GST_CHILD_PROXY(element));
   g_object_unref(element);
   fail_unless(voices==2, NULL);
-  
+
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
@@ -116,11 +116,11 @@ BT_START_TEST(test_btpattern_copy) {
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
-	
+
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* try to create a pattern */
   pattern1=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern1!=NULL, NULL);
@@ -129,13 +129,13 @@ BT_START_TEST(test_btpattern_copy) {
   pattern2=bt_pattern_copy(pattern1);
   fail_unless(pattern2!=NULL, NULL);
   fail_unless(pattern2!=pattern1, NULL);
-  
+
   /* compare */
   g_object_get(pattern1,"length",&length1,"voices",&voices1,NULL);
   g_object_get(pattern2,"length",&length2,"voices",&voices2,NULL);
   fail_unless(length1==length2, NULL);
   fail_unless(voices1==voices2, NULL);
-  
+
   g_object_try_unref(pattern1);
   g_object_try_unref(pattern2);
   g_object_try_unref(machine);
@@ -162,15 +162,15 @@ BT_START_TEST(test_btpattern_enlarge_length) {
   // @todo try "bml-ErsKick" before and fall back to "buzztard-test-mono-source" as long as we don't have multi-voice machine in gst
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
-  
+
   /* set some test data */
   bt_pattern_set_global_event(pattern,0,0,"5");
   bt_pattern_set_global_event(pattern,4,0,"10");
-  
+
   /* verify length */
   g_object_get(pattern,"length",&length,NULL);
   fail_unless(length==8, NULL);
@@ -179,7 +179,7 @@ BT_START_TEST(test_btpattern_enlarge_length) {
   g_object_set(pattern,"length",16L,NULL);
   g_object_get(pattern,"length",&length,NULL);
   fail_unless(length==16, NULL);
-  
+
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
   fail_unless(data!=NULL, NULL);
@@ -217,11 +217,11 @@ BT_START_TEST(test_btpattern_shrink_length) {
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",16L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
-  
+
   /* set some test data */
   bt_pattern_set_global_event(pattern,0,0,"5");
   bt_pattern_set_global_event(pattern,4,0,"10");
@@ -234,7 +234,7 @@ BT_START_TEST(test_btpattern_shrink_length) {
   g_object_set(pattern,"length",8L,NULL);
   g_object_get(pattern,"length",&length,NULL);
   fail_unless(length==8, NULL);
-  
+
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
   fail_unless(data!=NULL, NULL);
@@ -269,11 +269,11 @@ BT_START_TEST(test_btpattern_enlarge_voices) {
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",1L));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
-  
+
   /* set some test data */
   bt_pattern_set_global_event(pattern,0,0,"5");
   bt_pattern_set_voice_event(pattern,4,0,0,"10");
@@ -324,11 +324,11 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   /* try to create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-poly-source",2L));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* try to create a pattern */
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,BT_MACHINE(machine));
   fail_unless(pattern!=NULL, NULL);
-  
+
   /* set some test data */
   bt_pattern_set_global_event(pattern,0,0,"5");
   bt_pattern_set_voice_event(pattern,4,0,0,"10");
@@ -341,7 +341,7 @@ BT_START_TEST(test_btpattern_shrink_voices) {
   g_object_set(pattern,"voices",1L,NULL);
   g_object_get(pattern,"voices",&voices,NULL);
   fail_unless(voices==1, NULL);
-  
+
   /* verify data */
   data=bt_pattern_get_global_event(pattern,0,0);
   fail_unless(data!=NULL, NULL);

@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.6 2007-04-03 19:11:33 ensonic Exp $
+/* $Id: input-device.c,v 1.7 2007-04-04 13:43:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,28 +60,176 @@ static GObjectClass *parent_class=NULL;
 //-- helper
 #define test_bit(bit, array)    (array[bit>>3] & (1<<(bit&0x7)))
 
+static gboolean register_trigger_controllers(const BtIcInputDevice * const self,int fd) {
+  guint ix;
+  guint8 key_bitmask[KEY_MAX/8 + 1];
+  const gchar *name = NULL;
+
+  memset(key_bitmask, 0, sizeof(key_bitmask));
+  if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
+    GST_WARNING("evdev ioctl : %s",g_strerror(errno));
+    return(FALSE);
+  }
+  // read details
+  for (ix = 0; ix < KEY_MAX; ix++) {
+    if (test_bit(ix, key_bitmask)) {
+      GST_DEBUG("Key  0x%02x", ix);
+      switch (ix) {
+        case BTN_0 : name="Button 0"; break;
+        case BTN_1 : name="Button 1"; break;
+        case BTN_2 : name="Button 2"; break;
+        case BTN_3 : name="Button 3"; break;
+        case BTN_4 : name="Button 4"; break;
+        case BTN_5 : name="Button 5"; break;
+        case BTN_6 : name="Button 6"; break;
+        case BTN_7 : name="Button 7"; break;
+        case BTN_8 : name="Button 8"; break;
+        case BTN_9 : name="Button 9"; break;
+        case BTN_LEFT : name="Left Button"; break;
+        case BTN_RIGHT : name="Right Button"; break;
+        case BTN_MIDDLE : name="Middle Button"; break;
+        case BTN_SIDE : name="Side Button"; break;
+        case BTN_EXTRA : name="Extra Button"; break;
+        case BTN_FORWARD : name="Forward Button"; break;
+        case BTN_BACK : name="Back Button"; break;
+        case BTN_TRIGGER : name="Trigger Button"; break;
+        case BTN_THUMB : name="Thumb Button"; break;
+        case BTN_THUMB2 : name="Second Thumb Button"; break;
+        case BTN_TOP : name="Top Button"; break;
+        case BTN_TOP2 : name="Second Top Button"; break;
+        case BTN_PINKIE : name="Pinkie Button"; break;
+        case BTN_BASE : name="Base Button"; break;
+        case BTN_BASE2 : name="Second Base Button"; break;
+        case BTN_BASE3 : name="Third Base Button"; break;
+        case BTN_BASE4 : name="Fourth Base Button"; break;
+        case BTN_BASE5 : name="Fifth Base Button"; break;
+        case BTN_BASE6 : name="Sixth Base Button"; break;
+        case BTN_DEAD : name="Dead Button"; break;
+        case BTN_A : name="Button A"; break;
+        case BTN_B : name="Button B"; break;
+        case BTN_C : name="Button C"; break;
+        case BTN_X : name="Button X"; break;
+        case BTN_Y : name="Button Y"; break;
+        case BTN_Z : name="Button Z"; break;
+        case BTN_TL : name="Thumb Left Button"; break;
+        case BTN_TR : name="Thumb Right Button "; break;
+        case BTN_TL2 : name="Second Thumb Left Button"; break;
+        case BTN_TR2 : name="Second Thumb Right Button "; break;
+        case BTN_SELECT : name="Select Button"; break;
+        case BTN_MODE : name="Mode Button"; break;
+        case BTN_THUMBL : name="Another Left Thumb Button "; break;
+        case BTN_THUMBR : name="Another Right Thumb Button "; break;
+        case BTN_TOOL_PEN : name="Digitiser Pen Tool"; break;
+        case BTN_TOOL_RUBBER : name="Digitiser Rubber Tool"; break;
+        case BTN_TOOL_BRUSH : name="Digitiser Brush Tool"; break;
+        case BTN_TOOL_PENCIL : name="Digitiser Pencil Tool"; break;
+        case BTN_TOOL_AIRBRUSH : name="Digitiser Airbrush Tool"; break;
+        case BTN_TOOL_FINGER : name="Digitiser Finger Tool"; break;
+        case BTN_TOOL_MOUSE : name="Digitiser Mouse Tool"; break;
+        case BTN_TOOL_LENS : name="Digitiser Lens Tool"; break;
+        case BTN_TOUCH : name="Digitiser Touch Button"; break;
+        case BTN_STYLUS : name="Digitiser Stylus Button"; break;
+        case BTN_STYLUS2 : name="Second Digitiser Stylus Button"; break;
+        default:
+           GST_INFO("Unknown key");
+      }
+      if(name) {
+        /* create controller instances and register them
+        controller = btic_trigger_controller_new(self,name);
+        */
+      }
+    }
+  }
+  return(TRUE);
+}
+
+static gboolean register_abs_range_controllers(const BtIcInputDevice * const self,int fd) {
+  guint ix;
+  guint8 abs_bitmask[ABS_MAX/8 + 1];
+  struct input_absinfo abs_features;
+  const gchar *name = NULL;
+
+  memset(abs_bitmask, 0, sizeof(abs_bitmask));
+  if (ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(abs_bitmask)), abs_bitmask) < 0) {
+    GST_WARNING("evdev ioctl : %s",g_strerror(errno));
+    return(FALSE);
+  }
+  // read details
+  for (ix = 0; ix < ABS_MAX; ix++) {
+    if (test_bit(ix, abs_bitmask)) {
+      GST_DEBUG("Absolute Axis 0x%02x", ix);
+      switch (ix) {
+        case ABS_X : name="X axis";break;
+        case ABS_Y : name="Y axis";break;
+        case ABS_Z : name="Z axis";break;
+        case ABS_RX : name="X rate axis";break;
+        case ABS_RY : name="Y rate axis";break;
+        case ABS_RZ : name="Z rate axis";break;
+        case ABS_THROTTLE : name="Throttle";break;
+        case ABS_RUDDER : name="Rudder";break;
+        case ABS_WHEEL : name="Wheel";break;
+        case ABS_GAS : name="Accelerator";break;
+        case ABS_BRAKE : name="Brake";break;
+        case ABS_HAT0X : name="Hat zero, x axis";break;
+        case ABS_HAT0Y : name="Hat zero, y axis";break;
+        case ABS_HAT1X : name="Hat one, x axis";break;
+        case ABS_HAT1Y : name="Hat one, y axis";break;
+        case ABS_HAT2X : name="Hat two, x axis";break;
+        case ABS_HAT2Y : name="Hat two, y axis";break;
+        case ABS_HAT3X : name="Hat three, x axis";break;
+        case ABS_HAT3Y : name="Hat three, y axis";break;
+        case ABS_PRESSURE : name="Pressure";break;
+        case ABS_DISTANCE : name="Distance";break;
+        case ABS_TILT_X : name="Tilt, X axis";break;
+        case ABS_TILT_Y : name="Tilt, Y axis";break;
+        case ABS_MISC : name="Miscellaneous";break;
+        default:
+          GST_INFO("Unknown absolute axis : 0x%02x ", ix);
+      }
+      if(ioctl(fd, EVIOCGABS(ix), &abs_features)) {
+        GST_WARNING("evdev EVIOCGABS ioctl : %s",g_strerror(errno));
+      }
+      else {
+        GST_DEBUG("min: %d, max: %d, flatness: %d, fuzz: %d",
+           abs_features.minimum,abs_features.maximum,
+           abs_features.flat, // default = middle value
+           abs_features.fuzz  // tolerance
+        );
+        if(name) {
+          /* create controller instances and register them
+          controller = btic_abs_range_controller_new(self,name,
+            abs_features.minimum,abs_features.maximum,abs_features.flat);
+          */
+        }
+      }
+    }
+  }
+  // create controller instances and register them
+  return(TRUE);
+}
+
 static gboolean register_controllers(const BtIcInputDevice * const self) {
   int fd;
+  guint ix;
+  guint8 evtype_bitmask[EV_MAX/8 + 1];
 
   if ((fd = open(self->priv->devnode, O_RDONLY)) < 0) {
     GST_WARNING("evdev open failed : %s",g_strerror(errno));
     return(FALSE);
   }
+  GST_INFO("openede device : %s",self->priv->devnode);
 
-  //@todo: query capabillities and register controllers
-#if 0
-  guint ix;
-  guint8 evtype_bitmask[EV_MAX/8 + 1];
+  // @todo: query capabillities and register controllers
 
   memset(evtype_bitmask, 0, sizeof(evtype_bitmask));
   if(ioctl(fd, EVIOCGBIT(0, sizeof(evtype_bitmask)), evtype_bitmask) < 0) {
-    perror("evdev ioctl");
+    GST_WARNING("evdev ioctl : %s",g_strerror(errno));
   }
 
   // check supported event types
   for (ix = 0; ix < EV_MAX; ix++) {
     if (test_bit(ix, evtype_bitmask)) {
-      switch (yalv) {
+      switch (ix) {
         case EV_SYN:
           break;
         case EV_KEY:
@@ -89,33 +237,32 @@ static gboolean register_controllers(const BtIcInputDevice * const self) {
           register_trigger_controllers(self,fd);
           break;
         case EV_REL :
-		  GST_INFO("Relative Axes");
-		  break;
+          GST_INFO("Relative Axes");
+          break;
         case EV_ABS:
           GST_INFO("Absolute Axes");
           register_abs_range_controllers(self,fd);
           break;
         case EV_MSC:
-		  GST_INFO("Miscellaneous");
-		  break;
-	    case EV_LED:
-		  GST_INFO("LEDs");
-		  break;
-	    case EV_SND:
-		  GST_INFO("Sounds");
-		  break;
-	    case EV_REP:
-		  GST_INFO("Repeat");
-		  break;
-	    case EV_FF:
-		  GST_INFO("Force Feedback");
+          GST_INFO("Miscellaneous");
+          break;
+        case EV_LED:
+          GST_INFO("LEDs");
+          break;
+        case EV_SND:
+          GST_INFO("Sounds");
+          break;
+        case EV_REP:
+          GST_INFO("Repeat");
+          break;
+        case EV_FF:
+          GST_INFO("Force Feedback");
           break;
         default:
           GST_INFO("Unknown event type: 0x%04hx", ix);
        }
     }
   }
-#endif
 
   close(fd);
   return(TRUE);

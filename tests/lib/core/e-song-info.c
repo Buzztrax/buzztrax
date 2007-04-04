@@ -1,4 +1,4 @@
-/* $Id: e-song-info.c,v 1.7 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: e-song-info.c,v 1.8 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,11 +31,11 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
 }
 
 /**
-* In this test we show, how to get the creation date of an song from the 
+* In this test we show, how to get the creation date of an song from the
 * song info class. We load a example song and try to retrive the creation date
 * from it.
 */

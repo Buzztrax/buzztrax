@@ -1,4 +1,4 @@
-/* $Id: t-settings.c,v 1.10 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-settings.c,v 1.11 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,7 +28,7 @@ static int variant=0;
 
 BtSettings *get_settings(void) {
   BtSettings *settings=NULL;
-  
+
   switch(variant) {
     case 0:
       settings=BT_SETTINGS(bt_gconf_settings_new());
@@ -48,26 +48,27 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
   variant++;
 }
 
 //-- tests
+
 BT_START_TEST(test_btsettings_get_audiosink1) {
   BtSettings *settings=get_settings();
   gchar *saved_audiosink_name,*test_audiosink_name;
-  
+
   g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
-  
+
   g_object_set(settings,"audiosink","fakesink",NULL);
-  
+
   g_object_get(settings,"audiosink",&test_audiosink_name,NULL);
-  
+
   fail_unless(!strcmp(test_audiosink_name,"fakesink"),"sink is %s",test_audiosink_name);
-  
+
   g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-  
+
   /* clean up */
   g_object_unref(settings);
   g_free(saved_audiosink_name);

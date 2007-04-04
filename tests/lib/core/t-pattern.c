@@ -1,4 +1,4 @@
-/* $Id: t-pattern.c,v 1.9 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-pattern.c,v 1.10 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
 }
 
 //-- tests
@@ -50,7 +50,7 @@ BT_START_TEST(test_btpattern_obj1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   check_init_error_trapp("bt_pattern_new","BT_IS_MACHINE(machine)");
   pattern=bt_pattern_new(song,"pattern-id","pattern-name",1L,NULL);
   fail_unless(check_has_error_trapped(), NULL);

@@ -29,6 +29,7 @@ src/ui/edit/main-pages.c
 src/ui/edit/main-statusbar.c
 src/ui/edit/main-toolbar.c
 src/ui/edit/main-window.c
+src/ui/edit/missing-framework-elements-dialog.c
 src/ui/edit/pattern-properties-dialog.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c

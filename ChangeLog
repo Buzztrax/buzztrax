@@ -1,3 +1,43 @@
+2007-04-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* TODO:
+	  New report idea
+
+	* po/POTFILES.in:
+	  Add new translatable source.
+
+	* design/input/input.c: (main):
+	* src/lib/ic/input-device.c: (register_trigger_controllers),
+	(register_abs_range_controllers), (register_controllers):
+	  Prepare the HIDDev support
+	
+	* tests/lib/core/e-machine.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-pattern.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-processor-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/e-sequence.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-setup.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-song-info.c: (test_teardown):
+	* tests/lib/core/e-song.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/e-source-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-core.c:
+	* tests/lib/core/t-machine.c: (test_teardown), (BT_START_TEST),
+	(bt_machine_test_case):
+	* tests/lib/core/t-network.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-pattern.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-sequence.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-settings.c: (get_settings), (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-sink-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-song.c: (test_teardown), (BT_START_TEST):
+	* tests/lib/core/t-source-machine.c: (test_teardown),
+	(BT_START_TEST):
+	* tests/lib/core/t-wire.c: (test_teardown), (BT_START_TEST):
+	* tests/m-bt-core.c: (bt_core_setup), (bt_core_teardown), (main):
+	  Cleanup on the tests
+
 2007-04-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/input/input.c: (main):

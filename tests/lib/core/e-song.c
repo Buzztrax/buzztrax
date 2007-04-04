@@ -1,4 +1,4 @@
-/* $Id: e-song.c,v 1.15 2007-02-26 08:59:46 ensonic Exp $
+/* $Id: e-song.c,v 1.16 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,7 +35,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -53,18 +53,18 @@ BT_START_TEST(test_btsong_obj1) {
   BtApplication *app=NULL;
   BtSong *song;
   gboolean unsaved;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   /* song should be unchanged */
   g_object_get(song,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
-  
+
   g_object_checked_unref(song);
 
   g_object_checked_unref(app);
@@ -78,10 +78,10 @@ BT_START_TEST(test_btsong_load1) {
   BtSongIO *loader;
   gboolean load_ret = FALSE;
   gboolean unsaved;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
@@ -95,7 +95,7 @@ BT_START_TEST(test_btsong_load1) {
   /* song should be unchanged */
   g_object_get(song,"unsaved",&unsaved,NULL);
   fail_unless(unsaved == FALSE, NULL);
-  
+
   mark_point();
   g_object_checked_unref(loader);
   mark_point();
@@ -111,10 +111,10 @@ BT_START_TEST(test_btsong_load2) {
   BtSong *song;
   BtSongIO *loader;
   gboolean load_ret = FALSE;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   loader=bt_song_io_new(check_get_test_song_path("test-simple1.xml"));
@@ -132,7 +132,7 @@ BT_START_TEST(test_btsong_load2) {
   fail_unless(load_ret, NULL);
   g_object_checked_unref(loader);
   g_object_checked_unref(song);
-  
+
   g_object_checked_unref(app);
 }
 BT_END_TEST
@@ -144,10 +144,10 @@ BT_START_TEST(test_btsong_load3) {
   BtSongIO *loader;
   gboolean load_ret = FALSE;
   BtSinkMachine *master;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
   //gst_debug_set_threshold_for_name("bt*",GST_LEVEL_DEBUG);
@@ -158,11 +158,11 @@ BT_START_TEST(test_btsong_load3) {
   load_ret = bt_song_io_load(loader,song);
   mark_point();
   fail_unless(load_ret, NULL);
-  
+
   g_object_get(song,"master",&master,NULL);
   fail_unless(master != NULL, NULL);
   g_object_unref(master);
-  
+
   mark_point();
   g_object_checked_unref(loader);
   mark_point();
@@ -179,7 +179,7 @@ BT_START_TEST(test_btsong_play1) {
   BtSongIO *loader=NULL;
   gboolean load_ret = FALSE;
   gboolean res;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -210,7 +210,7 @@ BT_END_TEST
 /* @todo: play, wait a little, stop, play again */
 /* @todo: load a new song which the first plays */
 
-// test, if a newly created song contains empty setup, sequence, song-info and 
+// test, if a newly created song contains empty setup, sequence, song-info and
 // wavetable
 BT_START_TEST(test_btsong_new1){
   BtApplication *app=NULL;
@@ -219,7 +219,7 @@ BT_START_TEST(test_btsong_new1){
   BtSequence *sequence=NULL;
   BtSongInfo *songinfo=NULL;
   BtWavetable *wavetable=NULL;
-  
+
   // create a dummy application
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
@@ -227,31 +227,31 @@ BT_START_TEST(test_btsong_new1){
   // create a new, empty song
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  
+
   // get the setup property
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL,NULL);
   g_object_unref(setup);
-  
+
   // get the sequence property
   g_object_get(song,"sequence",&sequence,NULL);
   fail_unless(sequence!=NULL,NULL);
   g_object_unref(sequence);
-  
+
   // get the song-info property
   g_object_get(song,"song-info",&songinfo,NULL);
   fail_unless(songinfo!=NULL,NULL);
   g_object_unref(songinfo);
-  
+
   // get the wavetable property
   g_object_get(song,"wavetable",&wavetable,NULL);
   fail_unless(wavetable!=NULL,NULL);
   g_object_unref(wavetable);
-  
+
   g_object_checked_unref(song);
   g_object_checked_unref(app);
-  
-  
+
+
 }
 BT_END_TEST
 

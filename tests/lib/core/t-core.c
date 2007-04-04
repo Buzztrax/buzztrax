@@ -1,4 +1,4 @@
-/* $Id: t-core.c,v 1.10 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-core.c,v 1.11 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,6 +23,8 @@
 
 //-- globals
 
+
+//-- tests
 
 // test if the normal init call works with commandline arguments
 START_TEST(test_btcore_init0) {

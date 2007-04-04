@@ -1,4 +1,4 @@
-/* $Id: t-song.c,v 1.27 2006-09-29 22:01:22 ensonic Exp $
+/* $Id: t-song.c,v 1.28 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,7 +35,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -52,7 +52,7 @@ BT_START_TEST(test_btsong_properties) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   gboolean check_prop_ret=FALSE;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -69,7 +69,7 @@ BT_END_TEST
 // test if the default constructor handles NULL
 BT_START_TEST(test_btsong_obj1) {
   BtSong *song;
-  
+
   /* create a new song */
   check_init_error_trapp("bt_song_new","BT_IS_APPLICATION(app)");
   song=bt_song_new(NULL);
@@ -83,7 +83,7 @@ BT_START_TEST(test_btsong_play1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   gboolean res;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -92,7 +92,7 @@ BT_START_TEST(test_btsong_play1) {
 
   //play_signal_invoked=FALSE;
   //g_signal_connect(G_OBJECT(song),"notify::is-playing",G_CALLBACK(on_song_is_playing_notify),NULL);
-  
+
   // returns FALSE as the song is empty!
   res=bt_song_play(song);
   fail_unless(!res, NULL);
@@ -107,16 +107,16 @@ BT_START_TEST(test_btsong_setup1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSetup *setup=NULL;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  
+
   g_object_get(song,"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
-  
+
   g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -130,7 +130,7 @@ BT_END_TEST
 BT_START_TEST(test_btsong_play2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -140,7 +140,7 @@ BT_START_TEST(test_btsong_play2) {
   check_init_error_trapp("bt_song_play","BT_IS_SONG(self)");
   bt_song_play(NULL);
   fail_unless(check_has_error_trapped(),NULL);
-  
+
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }

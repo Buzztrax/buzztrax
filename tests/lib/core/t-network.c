@@ -1,4 +1,4 @@
-/* $Id: t-network.c,v 1.20 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-network.c,v 1.21 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,9 +31,11 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
+
+//-- tests
 
 /*
 * try to check if we can create a network of NULL machines and NULL wires
@@ -45,30 +47,30 @@ BT_START_TEST(test_btcore_net1) {
   BtSong *song=NULL;
   BtSetup *setup=NULL;
   gboolean song_ret;
-    
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
   fail_unless(song!=NULL, NULL);
-    
+
   /* get the setup for the song */
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
   fail_unless(setup!=NULL, NULL);
-  
+
   /* try to add a NULL wire to the setup */
   check_init_error_trapp("bt_setup_add_wire","BT_IS_WIRE");
   bt_setup_add_wire(setup, NULL);
   fail_unless(check_has_error_trapped(), NULL);
-    
+
   /* try to start playing the song */
   song_ret=bt_song_play(song);
   fail_unless(song_ret==FALSE, NULL);
   //fail_unless(song_ret==TRUE, NULL);
-    
-  g_object_unref(setup);  
+
+  g_object_unref(setup);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
 }

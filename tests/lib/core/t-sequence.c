@@ -1,4 +1,4 @@
-/* $Id: t-sequence.c,v 1.21 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-sequence.c,v 1.22 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,9 +31,11 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
+
+//-- tests
 
 /* apply generic property tests to sequence */
 BT_START_TEST(test_btsequence_properties) {
@@ -41,16 +43,16 @@ BT_START_TEST(test_btsequence_properties) {
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
   gboolean check_prop_ret=FALSE;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
   song=bt_song_new(app);
   fail_unless(song != NULL, NULL);
-  
+
   g_object_get(song,"sequence",&sequence,NULL);
   fail_unless(sequence!=NULL,NULL);
-  
+
   check_prop_ret=check_gobject_properties(G_OBJECT(sequence));
   fail_unless(check_prop_ret==TRUE,NULL);
 
@@ -63,7 +65,7 @@ BT_END_TEST
 /* try to create a new sequence with NULL for song object */
 BT_START_TEST(test_btsequence_obj1) {
   BtSequence *sequence=NULL;
-  
+
   check_init_error_trapp("bt_sequence_new","BT_IS_SONG(song)");
   sequence=bt_sequence_new(NULL);
   fail_unless(check_has_error_trapped(), NULL);
@@ -76,19 +78,19 @@ BT_START_TEST(test_btsequence_add_track1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
-  
+
   check_init_error_trapp("","BT_IS_MACHINE(machine)");
   bt_sequence_add_track(sequence,NULL);
   fail_unless(check_has_error_trapped(), NULL);
 
-  /* clean up */  
+  /* clean up */
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -100,23 +102,23 @@ BT_START_TEST(test_btsequence_add_track2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* try to create a source machine */
   machine=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(machine!=NULL, NULL);
-  
+
   check_init_error_trapp("","BT_IS_SEQUENCE(self)");
   bt_sequence_add_track(NULL,BT_MACHINE(machine));
   fail_unless(check_has_error_trapped(), NULL);
-  
-  /* clean up */  
+
+  /* clean up */
   g_object_try_unref(machine);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -128,19 +130,19 @@ BT_START_TEST(test_btsequence_rem_track1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
-  
+
   check_init_error_trapp("","BT_IS_MACHINE(machine)");
   bt_sequence_remove_track_by_machine(sequence,NULL);
   fail_unless(check_has_error_trapped(), NULL);
-  
-  /* clean up */  
+
+  /* clean up */
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -153,21 +155,21 @@ BT_START_TEST(test_btsequence_rem_track2) {
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
   BtSourceMachine *machine=NULL;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
   song=bt_song_new(app);
   g_object_get(BT_SONG(song), "sequence", &sequence, NULL);
   fail_unless(sequence!=NULL,NULL);
-  
+
   /* try to create a source machine */
   machine=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(machine!=NULL, NULL);
-  
+
   bt_sequence_remove_track_by_machine(sequence,BT_MACHINE(machine));
-  
-  /* clean up */  
+
+  /* clean up */
   g_object_try_unref(machine);
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
@@ -180,7 +182,7 @@ BT_START_TEST(test_btsequence_length1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSequence *sequence=NULL;
-  
+
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
 
@@ -190,12 +192,12 @@ BT_START_TEST(test_btsequence_length1) {
 
   /* enlarge length */
   g_object_set(sequence,"length",4L,NULL);
-  
+
   check_init_error_trapp("bt_sequence_set_label","time<self->priv->length");
   bt_sequence_set_label(sequence,5,"test");
   fail_unless(check_has_error_trapped(), NULL);
-  
-  /* clean up */  
+
+  /* clean up */
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -229,7 +231,7 @@ BT_START_TEST(test_btsequence_pattern1) {
 	check_init_error_trapp("bt_sequence_set_pattern","track<self->priv->tracks");
   bt_sequence_set_pattern(sequence,0,0,pattern);
 	fail_unless(check_has_error_trapped(), NULL);
-	
+
   /* clean up */
   g_object_try_unref(pattern);
   g_object_try_unref(machine);

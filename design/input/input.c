@@ -66,25 +66,25 @@ int main(int argc, char **argv) {
           printf(" (Keys or Buttons)\n");
           break;
         case EV_REL :
-		  printf(" (Relative Axes)\n");
-		  break;
+          printf(" (Relative Axes)\n");
+          break;
         case EV_ABS:
           printf(" (Absolute Axes)\n");
           break;
         case EV_MSC:
-		  printf(" (Something miscellaneous)\n");
-		  break;
-	    case EV_LED:
-		  printf(" (LEDs)\n");
-		  break;
-	    case EV_SND:
-		  printf(" (Sounds)\n");
-		  break;
-	    case EV_REP:
-		  printf(" (Repeat)\n");
-		  break;
-	    case EV_FF:
-		  printf(" (Force Feedback)\n");
+          printf(" (Something miscellaneous)\n");
+          break;
+        case EV_LED:
+          printf(" (LEDs)\n");
+          break;
+        case EV_SND:
+          printf(" (Sounds)\n");
+          break;
+        case EV_REP:
+          printf(" (Repeat)\n");
+          break;
+        case EV_FF:
+          printf(" (Force Feedback)\n");
           break;
         default:
           printf(" (Unknown event type: 0x%04hx)\n", yalv);
@@ -104,9 +104,9 @@ int main(int argc, char **argv) {
   printf("Supported Keys:\n");
   for (yalv = 0; yalv < KEY_MAX; yalv++) {
     if (test_bit(yalv, key_bitmask)) {
-	  /* this means that the bit is set in the key list */
-	  printf("  Key  0x%02x ", yalv);
-	  switch ( yalv) {
+      /* this means that the bit is set in the key list */
+      printf("  Key  0x%02x ", yalv);
+      switch ( yalv) {
         case KEY_RESERVED : printf(" (Reserved)\n"); break;
         case KEY_ESC : printf(" (Escape)\n"); break;
         case KEY_1 : printf(" (1)\n"); break;
@@ -389,32 +389,18 @@ int main(int argc, char **argv) {
   printf("Supported Relative axes:\n");
   for (yalv = 0; yalv < REL_MAX; yalv++) {
     if (test_bit(yalv, rel_bitmask)) {
-	  /* this means that the bit is set in the axes list */
-	  printf("  Relative axis 0x%02x ", yalv);
-	  switch ( yalv) {
-        case REL_X :
-		  printf(" (X Axis)\n");
-		  break;
-        case REL_Y :
-		  printf(" (Y Axis)\n");
-		  break;
-        case REL_Z :
-		  printf(" (Z Axis)\n");
-		  break;
-        case REL_HWHEEL :
-		  printf(" (Horizontal Wheel)\n");
-		  break;
-        case REL_DIAL :
-		  printf(" (Dial)\n");
-		  break;
-        case REL_WHEEL :
-		  printf(" (Vertical Wheel)\n");
-		  break;
-        case REL_MISC :
-		  printf(" (Miscellaneous)\n");
-		  break;
+      /* this means that the bit is set in the axes list */
+      printf("  Relative axis 0x%02x ", yalv);
+      switch ( yalv) {
+        case REL_X : printf(" (X Axis)\n");break;
+        case REL_Y : printf(" (Y Axis)\n");break;
+        case REL_Z : printf(" (Z Axis)\n");break;
+        case REL_HWHEEL : printf(" (Horizontal Wheel)\n");break;
+        case REL_DIAL : printf(" (Dial)\n");break;
+        case REL_WHEEL : printf(" (Vertical Wheel)\n");break;
+        case REL_MISC : printf(" (Miscellaneous)\n");break;
         default:
-		  printf(" (Unknown relative feature)\n");
+          printf(" (Unknown relative feature)\n");
       }
     }
   }
@@ -432,94 +418,46 @@ int main(int argc, char **argv) {
   printf("Supported Absolute axes:\n");
   for (yalv = 0; yalv < ABS_MAX; yalv++) {
     if (test_bit(yalv, abs_bitmask)) {
-	  /* this means that the bit is set in the axes list */
-	  printf("  Absolute axis 0x%02x ", yalv);
-	  switch ( yalv) {
-        case ABS_X :
-		  printf(" (X Axis)\n");
-		  break;
-        case ABS_Y :
-		  printf(" (Y Axis)\n");
-		  break;
-        case ABS_Z :
-		  printf(" (Z Axis)\n");
-		  break;
-        case ABS_RX :
-		  printf(" (X Rate Axis)\n");
-          break;
-        case ABS_RY :
-		  printf(" (Y Rate Axis)\n");
-		  break;
-        case ABS_RZ :
-		  printf(" (Z Rate Axis)\n");
-		  break;
-        case ABS_THROTTLE :
-		  printf(" (Throttle)\n");
-		  break;
-        case ABS_RUDDER :
-		  printf(" (Rudder)\n");
-		  break;
-        case ABS_WHEEL :
-		  printf(" (Wheel)\n");
-		  break;
-        case ABS_GAS :
-		  printf(" (Accelerator)\n");
-		  break;
-        case ABS_BRAKE :
-		  printf(" (Brake)\n");
-		  break;
-        case ABS_HAT0X :
-		  printf(" (Hat zero, x axis)\n");
-		  break;
-        case ABS_HAT0Y :
-		  printf(" (Hat zero, y axis)\n");
-		  break;
-        case ABS_HAT1X :
-		  printf(" (Hat one, x axis)\n");
-		  break;
-        case ABS_HAT1Y :
-		  printf(" (Hat one, y axis)\n");
-		  break;
-        case ABS_HAT2X :
-		  printf(" (Hat two, x axis)\n");
-		  break;
-        case ABS_HAT2Y :
-		  printf(" (Hat two, y axis)\n");
-		  break;
-        case ABS_HAT3X :
-		  printf(" (Hat three, x axis)\n");
-		  break;
-        case ABS_HAT3Y :
-		  printf(" (Hat three, y axis)\n");
-		  break;
-        case ABS_PRESSURE :
-		  printf(" (Pressure)\n");
-		  break;
-        case ABS_DISTANCE :
-		  printf(" (Distance)\n");
-		  break;
-        case ABS_TILT_X :
-		  printf(" (Tilt, X axis)\n");
-		  break;
-        case ABS_TILT_Y :
-		  printf(" (Tilt, Y axis)\n");
-		  break;
-        case ABS_MISC :
-		  printf(" (Miscellaneous)\n");
-		  break;
+      /* this means that the bit is set in the axes list */
+      printf("  Absolute axis 0x%02x ", yalv);
+      switch ( yalv) {
+        case ABS_X : printf(" (X Axis)\n");break;
+        case ABS_Y : printf(" (Y Axis)\n");break;
+        case ABS_Z : printf(" (Z Axis)\n");break;
+        case ABS_RX : printf(" (X Rate Axis)\n");break;
+        case ABS_RY : printf(" (Y Rate Axis)\n");break;
+        case ABS_RZ : printf(" (Z Rate Axis)\n");break;
+        case ABS_THROTTLE : printf(" (Throttle)\n");break;
+        case ABS_RUDDER : printf(" (Rudder)\n");break;
+        case ABS_WHEEL : printf(" (Wheel)\n");break;
+        case ABS_GAS : printf(" (Accelerator)\n");break;
+        case ABS_BRAKE : printf(" (Brake)\n");break;
+        case ABS_HAT0X : printf(" (Hat zero, x axis)\n");break;
+        case ABS_HAT0Y : printf(" (Hat zero, y axis)\n");break;
+        case ABS_HAT1X : printf(" (Hat one, x axis)\n");break;
+        case ABS_HAT1Y : printf(" (Hat one, y axis)\n");break;
+        case ABS_HAT2X : printf(" (Hat two, x axis)\n");break;
+        case ABS_HAT2Y : printf(" (Hat two, y axis)\n");break;
+        case ABS_HAT3X : printf(" (Hat three, x axis)\n");break;
+        case ABS_HAT3Y : printf(" (Hat three, y axis)\n");break;
+        case ABS_PRESSURE : printf(" (Pressure)\n");break;
+        case ABS_DISTANCE : printf(" (Distance)\n");break;
+        case ABS_TILT_X : printf(" (Tilt, X axis)\n");break;
+        case ABS_TILT_Y : printf(" (Tilt, Y axis)\n");break;
+        case ABS_MISC : printf(" (Miscellaneous)\n");break;
         default:
-		  printf(" (Unknown absolute feature)\n");
+          printf(" (Unknown absolute feature)\n");
       }
       if(ioctl(fd, EVIOCGABS(yalv), &abs_features)) {
         perror("evdev EVIOCGABS ioctl");
-	  }
-	  printf("    (min: %d, max: %d, flatness: %d, fuzz: %d)\n",
-		 //abs_features.min_value,
-		 //abs_features.max_value,
-		 abs_features.minimum,
-		 abs_features.maximum,
-		 abs_features.flat,
-		 abs_features.fuzz);
+      }
+      printf("    (min: %d, max: %d, flatness: %d, fuzz: %d)\n",
+             //abs_features.min_value,
+             //abs_features.max_value,
+             abs_features.minimum,
+             abs_features.maximum,
+             abs_features.flat,
+             abs_features.fuzz);
     }
   }
   puts("");

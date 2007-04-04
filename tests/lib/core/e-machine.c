@@ -1,4 +1,4 @@
-/* $Id: e-machine.c,v 1.9 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: e-machine.c,v 1.10 2007-04-04 13:43:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
 }
 
 //-- tests
@@ -46,7 +46,7 @@ BT_START_TEST(test_btmachine_obj1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* create a machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0L));
   fail_unless(machine != NULL, NULL);
@@ -74,14 +74,14 @@ BT_START_TEST(test_btmachine_enable_input_level1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* create a machine */
   machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
   fail_unless(machine != NULL, NULL);
-  
+
   res=bt_machine_enable_input_level(machine);
   fail_unless(res == TRUE, NULL);
-  
+
   g_object_checked_unref(song);
   g_object_checked_unref(machine);
   g_object_checked_unref(app);
@@ -103,20 +103,20 @@ BT_START_TEST(test_btmachine_enable_input_level2) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* create two machines */
   machine1=BT_MACHINE(bt_processor_machine_new(song,"vol1","volume",0));
   fail_unless(machine1 != NULL, NULL);
   machine2=BT_MACHINE(bt_processor_machine_new(song,"vol2","volume",0));
   fail_unless(machine2 != NULL, NULL);
-  
+
   /* connect them */
   wire=bt_wire_new(song,machine1,machine2);
   fail_unless(wire != NULL, NULL);
-  
+
   res=bt_machine_enable_input_level(machine2);
   fail_unless(res == TRUE, NULL);
-  
+
   g_object_checked_unref(song);
   g_object_checked_unref(wire);
   g_object_checked_unref(machine1);
@@ -139,14 +139,14 @@ BT_START_TEST(test_btmachine_enable_input_gain1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* create a machine */
   machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
   fail_unless(machine != NULL, NULL);
-  
+
   res=bt_machine_enable_input_gain(machine);
   fail_unless(res == TRUE, NULL);
-  
+
   g_object_checked_unref(song);
   g_object_checked_unref(machine);
   g_object_checked_unref(app);
@@ -167,14 +167,14 @@ BT_START_TEST(test_btmachine_enable_output_gain1) {
   bt_application_new(app);
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* create a machine */
   machine=BT_MACHINE(bt_processor_machine_new(song,"vol","volume",0));
   fail_unless(machine != NULL, NULL);
-  
+
   res=bt_machine_enable_output_gain(machine);
   fail_unless(res == TRUE, NULL);
-  
+
   g_object_checked_unref(song);
   g_object_checked_unref(machine);
   g_object_checked_unref(app);

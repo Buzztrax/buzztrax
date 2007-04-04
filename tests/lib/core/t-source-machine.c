@@ -1,4 +1,4 @@
-/* $Id: t-source-machine.c,v 1.10 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-source-machine.c,v 1.11 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,27 +31,27 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
 //-- tests
 
-/**
+/*
 * try to create a machine with not exising plugin name
 */
 BT_START_TEST(test_btsourcemachine_obj1) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* try to create a source machine with wrong pluginname (not existing)*/
   machine=bt_source_machine_new(song,"id","nonsense",1);
   fail_unless(machine==NULL, NULL);
@@ -61,21 +61,21 @@ BT_START_TEST(test_btsourcemachine_obj1) {
 }
 BT_END_TEST
 
-/**
+/*
 * try to create a machine which is a sink machine and not a source machine
 */
 BT_START_TEST(test_btsourcemachine_obj2) {
   BtApplication *app=NULL;
   BtSong *song=NULL;
   BtSourceMachine *machine=NULL;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* try to create a source machine with wrong plugin type (sink instead of source) */
   machine=bt_source_machine_new(song,"id","esdsink",1);
   fail_unless(machine==NULL, NULL);
@@ -91,14 +91,14 @@ BT_START_TEST(test_btsourcemachine_obj3){
   BtSourceMachine *machine=NULL;
   gulong testIdx=0;
   GError *error=NULL;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* try to create a normal sink machine */
   machine=bt_source_machine_new(song,"id","audiotestsrc",0);
   fail_unless(machine!=NULL,NULL);

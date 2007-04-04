@@ -1,4 +1,4 @@
-$Id: TODO,v 1.26 2006-04-08 16:18:18 ensonic Exp $
+$Id: TODO,v 1.27 2007-04-04 13:43:58 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -21,7 +21,7 @@ when releasing do:
 
 * how do we implement multiple voices per machine?
   * simulate
-    * source 
+    * source
       * separate instances that are mixed together
     * processors (e.g. multi-tap delay)
       * separate instances that are getting the same input
@@ -30,7 +30,7 @@ when releasing do:
     * instrument interface
 
 * gobject private members
-  * we need guidelines for use of ->priv, 
+  * we need guidelines for use of ->priv,
     when make members private, when public
   * we need some convention how to shorten all the
     object->priv->member statements
@@ -42,3 +42,7 @@ when releasing do:
     (e.g. bt_machine_get_pattern_by_id)
   * try gtk_main_do_event() in GUI tests
   * add test for trigger params
+
+* new stats
+  * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
+    mcstrip tools.c | cyclo -c | sort -k2 -n

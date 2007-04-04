@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.15 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: e-sequence.c,v 1.16 2007-04-04 13:43:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -49,14 +49,14 @@ BT_START_TEST(test_btsequence_enlarge_length) {
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
-  
+
   g_object_get(sequence,"length",&length,NULL);
   fail_unless(length==0, NULL);
 
   g_object_set(sequence,"length",16L,NULL);
   g_object_get(sequence,"length",&length,NULL);
   fail_unless(length==16, NULL);
-  
+
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -87,22 +87,22 @@ BT_START_TEST(test_btsequence_enlarge_length_vals) {
     label2=bt_sequence_get_label(sequence,i);
     fail_unless(label2==NULL, NULL);
   }
-  
+
   /* set label twice */
   bt_sequence_set_label(sequence,0,label1);
   bt_sequence_set_label(sequence,7,label1);
-  
+
   /* now label should be at time=0 */
   label2=bt_sequence_get_label(sequence,0);
   fail_unless(label2!=NULL, NULL);
   fail_unless(!strcmp(label2,label1), NULL);
   g_free(label2);
-  
+
   /* try to enlarge length again */
   g_object_set(sequence,"length",16L,NULL);
   g_object_get(sequence,"length",&length,NULL);
   fail_unless(length==16, NULL);
-  
+
   /* now pattern should still be at time=0 */
   label2=bt_sequence_get_label(sequence,0);
   fail_unless(label2!=NULL, NULL);
@@ -112,7 +112,7 @@ BT_START_TEST(test_btsequence_enlarge_length_vals) {
   /* nothing should be at time=8 */
   label2=bt_sequence_get_label(sequence,8);
   fail_unless(label2==NULL, NULL);
-  
+
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -131,7 +131,7 @@ BT_START_TEST(test_btsequence_shrink_length) {
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
-  
+
   g_object_get(sequence,"length",&length,NULL);
   fail_unless(length==0, NULL);
 
@@ -165,7 +165,7 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen-m","buzztard-test-mono-source",0));
   fail_unless(machine!=NULL, NULL);
-  
+
   /* now tracks should be 0 */
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==0, NULL);
@@ -177,7 +177,7 @@ BT_START_TEST(test_btsequence_enlarge_track) {
   bt_sequence_add_track(sequence,machine);
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==4, NULL);
-  
+
   /* clean up */
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
@@ -201,7 +201,7 @@ BT_START_TEST(test_btsequence_enlarge_track_vals) {
    /* create a source machine */
   machine1=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
   fail_unless(machine1!=NULL, NULL);
-  
+
   /* now tracks should be 0 */
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==0, NULL);
@@ -258,7 +258,7 @@ BT_START_TEST(test_btsequence_shrink_track) {
    /* create a source machine */
   machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
   fail_unless(machine!=NULL, NULL);
-  
+
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==0, NULL);
 	g_object_set(sequence,"length",1L,NULL);
@@ -309,7 +309,7 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   g_object_set(sequence,"length",8L,NULL);
   g_object_get(sequence,"length",&length,NULL);
   fail_unless(length==8, NULL);
- 
+
   /* set machine twice */
   bt_sequence_add_track(sequence,machine);
   bt_sequence_add_track(sequence,machine);
@@ -325,18 +325,18 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
       fail_unless(pattern2==NULL, "pattern!=NULL at %d,%d",i,j);
     }
   }
-  
+
   /* set pattern twice */
   bt_sequence_set_pattern(sequence,0,0,pattern1);
   mark_point();
   bt_sequence_set_pattern(sequence,7,1,pattern1);
   mark_point();
-  
+
   /* now pattern should be at time=0,track=0 */
   pattern2=bt_sequence_get_pattern(sequence,0,0);
   fail_unless(pattern2==pattern1, NULL);
   g_object_try_unref(pattern2);
-  
+
   /* try to enlarge length again */
   g_object_set(sequence,"length",16L,NULL);
   g_object_get(sequence,"length",&length,NULL);
@@ -346,7 +346,7 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   bt_sequence_add_track(sequence,machine);
   g_object_get(sequence,"tracks",&tracks,NULL);
   fail_unless(tracks==4, NULL);
-  
+
   /* now pattern should still be at time=0,track=0 */
   pattern2=bt_sequence_get_pattern(sequence,0,0);
   fail_unless(pattern2==pattern1, NULL);
@@ -361,7 +361,7 @@ BT_START_TEST(test_btsequence_enlarge_both_vals) {
   pattern2=bt_sequence_get_pattern(sequence,0,2);
   fail_unless(pattern2==NULL, NULL);
   g_object_try_unref(pattern2);
-  
+
   /* clean up */
   g_object_try_unref(pattern1);
   g_object_try_unref(machine);
@@ -431,17 +431,17 @@ BT_START_TEST(test_btsequence_validate_loop) {
   song=bt_song_new(app);
   g_object_get(song,"sequence",&sequence,NULL);
   g_object_set(sequence,"length",16L,NULL);
-  
+
   g_object_get(sequence,"loop",&loop,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
   fail_unless(loop==FALSE, NULL);
   fail_unless(loop_start==-1, NULL);
   fail_unless(loop_end==-1, NULL);
-  
+
   g_object_set(sequence,"loop",TRUE,NULL);
   g_object_get(sequence,"loop-start",&loop_start,"loop-end",&loop_end,NULL);
   fail_unless(loop_start==0L, NULL);
   fail_unless(loop_end==16L, NULL);
-  
+
   g_object_try_unref(sequence);
   g_object_checked_unref(song);
   g_object_checked_unref(app);

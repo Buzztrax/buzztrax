@@ -1,4 +1,4 @@
-/* $Id: t-machine.c,v 1.16 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: t-machine.c,v 1.17 2007-04-04 13:43:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,7 @@ static void test_setup(void) {
 }
 
 static void test_teardown(void) {
-	bt_core_teardown();
+  bt_core_teardown();
   //puts(__FILE__":teardown");
 }
 
@@ -43,7 +43,7 @@ static void test_teardown(void) {
 /*
 BT_START_TEST(test_btmachine_abstract) {
   BtMachine *machine;
-  
+
   machine=g_object_new(BT_TYPE_MACHINE,NULL);
   fail_unless(machine==NULL,NULL);
 }
@@ -67,35 +67,35 @@ BT_START_TEST(test_btmachine_state1) {
   BtWire *wire_proc_sink=NULL;
   // machine states
   BtMachineState state_ref;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
-  
+
   /* create a new source machine */
   source=bt_source_machine_new(song,"source","audiotestsrc",0);
   bt_setup_add_machine(setup,BT_MACHINE(source));
-  
+
   /* create a new processor machine */
   volume=bt_processor_machine_new(song,"volume","volume",0);
   bt_setup_add_machine(setup,BT_MACHINE(volume));
-  
+
   /* create a new sink machine */
   sink=bt_sink_machine_new(song, "alsasink");
   bt_setup_add_machine(setup,BT_MACHINE(sink));
-  
+
   /* create wire (src,proc) */
   wire_src_proc=bt_wire_new(song,BT_MACHINE(source),BT_MACHINE(volume));
   bt_setup_add_wire(setup,wire_src_proc);
-  
+
   /* create wire (proc,sink) */
   wire_proc_sink=bt_wire_new(song,BT_MACHINE(volume),BT_MACHINE(sink));
   bt_setup_add_wire(setup,wire_proc_sink);
-  
+
   /* start setting the states */
   g_object_set(source,"state",BT_MACHINE_STATE_MUTE,NULL);
   g_object_get(source,"state",&state_ref,NULL);
@@ -111,7 +111,7 @@ BT_START_TEST(test_btmachine_state1) {
 
   g_object_get(volume,"state",&state_ref,NULL);
   fail_unless(state_ref==BT_MACHINE_STATE_MUTE,NULL);
-	
+
   g_object_unref(wire_proc_sink);
   g_object_unref(wire_src_proc);
   g_object_unref(sink);
@@ -140,36 +140,36 @@ BT_START_TEST(test_btmachine_state2) {
   BtWire *wire_sine2_sink=NULL;
   // machine states
   BtMachineState state_ref;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
   g_object_get(song,"setup",&setup,NULL);
-  
+
   /* create a new sine source machine */
   sine1=bt_source_machine_new(song,"sine1","audiotestsrc",0);
   bt_setup_add_machine(setup,BT_MACHINE(sine1));
-  
+
   /* create a new sine source machine */
   sine2=bt_source_machine_new(song,"sine2","audiotestsrc",0);
   bt_setup_add_machine(setup,BT_MACHINE(sine2));
-  
+
   /* create a new sink machine */
   sink=bt_sink_machine_new(song,"alsasink");
   bt_setup_add_machine(setup,BT_MACHINE(sink));
-  
+
   /* create wire (sine1,src) */
   wire_sine1_sink=bt_wire_new(song,BT_MACHINE(sine1),BT_MACHINE(sink));
   bt_setup_add_wire(setup, wire_sine1_sink);
-  
+
   /* create wire (sine2,src) */
   wire_sine2_sink=bt_wire_new(song,BT_MACHINE(sine2),BT_MACHINE(sink));
   bt_setup_add_wire(setup, wire_sine2_sink);
   mark_point();
-  
+
   /* start setting the states */
   g_object_set(sine1,"state",BT_MACHINE_STATE_SOLO,NULL);
   g_object_set(sine2,"state",BT_MACHINE_STATE_SOLO,NULL);
@@ -189,7 +189,7 @@ BT_END_TEST
 
 TCase *bt_machine_test_case(void) {
   TCase *tc = tcase_create("BtMachineTests");
-  
+
   // @todo try catching the critical log
   //tcase_add_test(tc, test_btmachine_abstract);
   tcase_add_test(tc, test_btmachine_state1);
