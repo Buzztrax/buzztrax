@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.7 2007-04-04 13:43:58 ensonic Exp $
+/* $Id: input-device.c,v 1.8 2007-04-04 18:47:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,7 +60,8 @@ static GObjectClass *parent_class=NULL;
 //-- helper
 #define test_bit(bit, array)    (array[bit>>3] & (1<<(bit&0x7)))
 
-static gboolean register_trigger_controllers(const BtIcInputDevice * const self,int fd) {
+static gboolean register_trigger_controls(const BtIcInputDevice * const self,int fd) {
+  BtIcTriggerControl *control;
   guint ix;
   guint8 key_bitmask[KEY_MAX/8 + 1];
   const gchar *name = NULL;
@@ -134,16 +135,16 @@ static gboolean register_trigger_controllers(const BtIcInputDevice * const self,
            GST_INFO("Unknown key");
       }
       if(name) {
-        /* create controller instances and register them
-        controller = btic_trigger_controller_new(self,name);
-        */
+        // create controller instances and register them
+        control = btic_trigger_control_new(BTIC_DEVICE(self),name);
       }
     }
   }
   return(TRUE);
 }
 
-static gboolean register_abs_range_controllers(const BtIcInputDevice * const self,int fd) {
+static gboolean register_abs_range_controls(const BtIcInputDevice * const self,int fd) {
+  //BtIcAbsRangeControl *control;
   guint ix;
   guint8 abs_bitmask[ABS_MAX/8 + 1];
   struct input_absinfo abs_features;
@@ -197,7 +198,7 @@ static gboolean register_abs_range_controllers(const BtIcInputDevice * const sel
         );
         if(name) {
           /* create controller instances and register them
-          controller = btic_abs_range_controller_new(self,name,
+          control = btic_abs_range_control_new(self,name,
             abs_features.minimum,abs_features.maximum,abs_features.flat);
           */
         }
@@ -208,7 +209,7 @@ static gboolean register_abs_range_controllers(const BtIcInputDevice * const sel
   return(TRUE);
 }
 
-static gboolean register_controllers(const BtIcInputDevice * const self) {
+static gboolean register_controls(const BtIcInputDevice * const self) {
   int fd;
   guint ix;
   guint8 evtype_bitmask[EV_MAX/8 + 1];
@@ -234,14 +235,14 @@ static gboolean register_controllers(const BtIcInputDevice * const self) {
           break;
         case EV_KEY:
           GST_INFO("Keys or Buttons");
-          register_trigger_controllers(self,fd);
+          register_trigger_controls(self,fd);
           break;
         case EV_REL :
           GST_INFO("Relative Axes");
           break;
         case EV_ABS:
           GST_INFO("Absolute Axes");
-          register_abs_range_controllers(self,fd);
+          register_abs_range_controls(self,fd);
           break;
         case EV_MSC:
           GST_INFO("Miscellaneous");
@@ -329,7 +330,7 @@ static void btic_input_device_set_property(GObject      * const object,
     case DEVICE_DEVNODE: {
       g_free(self->priv->devnode);
       self->priv->devnode = g_value_dup_string(value);
-      register_controllers(self);
+      register_controls(self);
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);

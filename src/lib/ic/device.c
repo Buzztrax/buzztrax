@@ -1,4 +1,4 @@
-/* $Id: device.c,v 1.3 2007-04-01 16:18:21 ensonic Exp $
+/* $Id: device.c,v 1.4 2007-04-04 18:47:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,13 +22,16 @@
  * SECTION:bticdevice
  * @short_description: buzztards interaction controller device
  *
- * Abstract base class for controll devices.
+ * Abstract base class for control devices. Subclasses will provide
+ * functionality to query capabilities and register #BtIcControl instances.
+ * They will also read from the device and trigger the change events on their
+ * controls.
  */
 /* @todo: we need a way to export/import controller maps per device
  *        (list of controller id,type,name)
  *
- * BtIcController will bind one value and provide a value-changed signal
- * we'll have subclasses: BtIcBooleanController, BtIcRangeController
+ * BtIcControl will bind one value and provide a value-changed signal
+ * we'll have subclasses: BtIcTriggerControl, BtIcAbsRangeControl
  */
 #define BTIC_CORE
 #define BTIC_DEVICE_C
@@ -37,26 +40,22 @@
 
 enum {
   DEVICE_UDI=1,
-  DEVICE_NAME
+  DEVICE_NAME,
+  DEVICE_CONTROL_LIST
 };
 
 struct _BtIcDevicePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
-  /* list of BtIcController objects */
-  GList *controllers;
+  /* list of BtIcControl objects */
+  GList *controls;
 
   gchar *udi;
   gchar *name;
 };
 
 static GObjectClass *parent_class=NULL;
-
-/* we need device type specific subtypes inheriting from this:
- *   BtIcMidiDevice, BtIcJoystick
- * they provice the device specific GSource and list of controllers
- */
 
 //-- helper
 
@@ -65,6 +64,20 @@ static GObjectClass *parent_class=NULL;
 //-- constructor methods
 
 //-- methods
+
+/**
+ * btic_device_add_control:
+ * @self: the device
+ * @control: new control
+ *
+ * Add the given @control to the list that the device manages.
+ */
+void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control) {
+  g_return_if_fail(BTIC_CONTROL(control));
+
+  // @todo: should we ref?
+  self->priv->controls=g_list_append(self->priv->controls,(gpointer)control);
+}
 
 //-- wrapper
 
@@ -84,6 +97,9 @@ static void btic_device_get_property(GObject      * const object,
     } break;
     case DEVICE_NAME: {
       g_value_set_string(value, self->priv->name);
+    } break;
+    case DEVICE_CONTROL_LIST: {
+      g_value_set_pointer(value,g_list_copy(self->priv->controls));
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -135,6 +151,11 @@ static void btic_device_finalize(GObject * const object) {
   g_free(self->priv->udi);
   g_free(self->priv->name);
 
+  if(self->priv->controls) {
+    g_list_free(self->priv->controls);
+    self->priv->controls=NULL;
+  }
+
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
   GST_DEBUG("  done");
@@ -170,6 +191,12 @@ static void btic_device_class_init(BtIcDeviceClass * const klass) {
                                      "device name",
                                      NULL, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+
+  g_object_class_install_property(gobject_class,DEVICE_CONTROL_LIST,
+                                  g_param_spec_pointer("controls",
+                                     "control list prop",
+                                     "A copy of the list of device controls",
+                                     G_PARAM_READABLE));
 }
 
 GType btic_device_get_type(void) {

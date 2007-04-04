@@ -3,10 +3,12 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
+<!ENTITY BtIcControl SYSTEM "xml/bticcontrol.xml">
 <!ENTITY BtIcDevice SYSTEM "xml/bticdevice.xml">
 <!ENTITY BtIcInputDevice SYSTEM "xml/bticinputdevice.xml">
 <!ENTITY BtIcMidiDevice SYSTEM "xml/bticmididevice.xml">
 <!ENTITY BtIcRegistry SYSTEM "xml/bticregistry.xml">
+<!ENTITY BtIcTriggerControl SYSTEM "xml/btictriggercontrol.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
 ]>
@@ -20,10 +22,12 @@
     <title>Interaction Controller Reference</title>
     <para>
     </para>
+    &BtIcRegistry;
     &BtIcDevice;
     &BtIcInputDevice;
     &BtIcMidiDevice;
-    &BtIcRegistry;
+    &BtIcControl;
+    &BtIcTriggerControl;
   </chapter>
 
   <chapter id="objecttree">

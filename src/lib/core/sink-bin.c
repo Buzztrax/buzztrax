@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.30 2007-04-01 16:18:21 ensonic Exp $
+/* $Id: sink-bin.c,v 1.31 2007-04-04 18:47:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,7 +25,7 @@
  * The sink-bin provides switchable play and record facillities.
  */
 
- /* @todo: detect supported encoders
+/* @todo: detect supported encoders
  * get gst mimetype from the extension
  * and then look at all encoders which supply that mimetype
  * check elements in "codec/encoder/audio", "codec/muxer/audio"
@@ -33,14 +33,14 @@
  * gst_element_factory_can_src_caps()
  * problem here is that we need extra option for each encoder (e.g. quality)
  *
- * @todo: listen to settings changes to switch audio-sink
- *
  * @todo: add properties for bpm and master volume,
  * - implementing the tempo iface here wont help
  * - we could make it a dummy property and from the song listen to property
  *   notify
  * - we could implement the child-bin iface and add song-info as a child, in
  *   song-info we make tempo controlable
+ *
+ * @todo: for upnp it would be nice to stream on-demand
  */
 
 #define BT_CORE

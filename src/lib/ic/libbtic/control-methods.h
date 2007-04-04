@@ -1,4 +1,4 @@
-/* $Id: device-methods.h,v 1.3 2007-04-04 18:47:44 ensonic Exp $
+/* $Id: control-methods.h,v 1.1 2007-04-04 18:47:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,12 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BTIC_DEVICE_METHODS_H
-#define BTIC_DEVICE_METHODS_H
+#ifndef BTIC_CONTROL_METHODS_H
+#define BTIC_CONTROL_METHODS_H
 
 #include "control.h"
-#include "device.h"
 
-extern void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control);
-
-#endif // BTIC_DEVICE_METHDOS_H
+#endif // BTIC_CONTROL_METHDOS_H

@@ -1,6 +1,8 @@
 #include <libbtic/ic.h>
 
+btic_control_get_type
 btic_device_get_type
 btic_input_device_get_type
 btic_midi_device_get_type
 btic_registry_get_type
+btic_trigger_control_get_type

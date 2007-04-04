@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.2 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.3 2007-04-04 18:47:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -82,7 +82,34 @@ static void on_controller_bind_activated(GtkMenuItem *menuitem, gpointer user_da
 
 //-- helper methods
 
-static void bt_interaction_controller_menu_init_submenu(const BtInteractionControllerMenu *self,GtkWidget *submenu) {
+static void bt_interaction_controller_menu_init_control_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu,BtIcDevice *device) {
+  BtIcControl *control=NULL;
+  GtkWidget *menu_item;
+  GList *node,*list;
+  gchar *str;
+
+  // get list of interaction devices
+  g_object_get(device,"controls",&list,NULL);
+  for(node=list;node;node=g_list_next(node)) {
+    control=BTIC_CONTROL(node->data);
+
+    // @todo: filter by self->priv->type
+
+    g_object_get(G_OBJECT(control),"name",&str,NULL);
+
+    menu_item=gtk_image_menu_item_new_with_label(str);
+    gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+    gtk_widget_show(menu_item);
+    g_free(str);
+
+    // @todo: connet handler
+    //g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_controller_bind_activated),(gpointer)self);
+
+  }
+  g_list_free(list);
+}
+
+static void bt_interaction_controller_menu_init_device_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu) {
   BtIcRegistry *ic_registry;
   BtIcDevice *device=NULL;
   GtkWidget *menu_item,*parentmenu;
@@ -95,17 +122,18 @@ static void bt_interaction_controller_menu_init_submenu(const BtInteractionContr
   for(node=list;node;node=g_list_next(node)) {
     device=BTIC_DEVICE(node->data);
     g_object_get(G_OBJECT(device),"name",&str,NULL);
-    
+
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     gtk_widget_show(menu_item);
     g_free(str);
-    
+
     parentmenu=gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
+    bt_interaction_controller_menu_init_control_menu(self,parentmenu,device);
     // @todo: register controllers as submenu
     //g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_controller_bind_activated),(gpointer)self);
-    
+
   }
   g_list_free(list);
 }
@@ -126,7 +154,7 @@ static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionContro
   gtk_widget_set_name(submenu,_("interaction controllers menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),submenu);
 
-  bt_interaction_controller_menu_init_submenu(self,submenu);
+  bt_interaction_controller_menu_init_device_menu(self,submenu);
 
   // effects
   menu_item=gtk_image_menu_item_new_with_label(_("Unbind all controllers"));

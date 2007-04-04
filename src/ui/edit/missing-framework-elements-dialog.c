@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.1 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: missing-framework-elements-dialog.c,v 1.2 2007-04-04 18:47:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -186,8 +186,8 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
 /**
  * bt_missing_framework_elements_dialog_new:
  * @app: the application the dialog belongs to
- * @missing_core_elements: list of missing core elements
- * @missing_edit_elements: list of missing edit elements
+ * @core_elements: list of missing core elements
+ * @edit_elements: list of missing edit elements
  *
  * Create a new instance
  *

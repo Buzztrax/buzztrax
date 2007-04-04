@@ -1,4 +1,4 @@
-# $Id: bt-ic-sections.txt,v 1.3 2007-03-17 11:42:30 ensonic Exp $
+# $Id: bt-ic-sections.txt,v 1.4 2007-04-04 18:47:43 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -12,9 +12,27 @@
 <INCLUDE>libbtic/ic.h</INCLUDE>
 
 <SECTION>
+<FILE>bticcontrol</FILE>
+<TITLE>BtIcControl</TITLE>
+BtIcControl
+<SUBSECTION Standard>
+BtIcControlClass
+BTIC_CONTROL
+BTIC_IS_CONTROL
+BTIC_TYPE_CONTROL
+BTIC_CONTROL_CLASS
+BTIC_IS_CONTROL_CLASS
+BTIC_CONTROL_GET_CLASS
+<SUBSECTION Private>
+BtIcControlPrivate
+btic_control_get_type
+</SECTION>
+
+<SECTION>
 <FILE>bticdevice</FILE>
 <TITLE>BtIcDevice</TITLE>
 BtIcDevice
+btic_device_add_control
 <SUBSECTION Standard>
 BtIcDeviceClass
 BTIC_DEVICE
@@ -81,6 +99,26 @@ BTIC_REGISTRY_GET_CLASS
 BtIcRegistryPrivate
 btic_registry_get_type
 </SECTION>
+
+
+<SECTION>
+<FILE>btictriggercontrol</FILE>
+<TITLE>BtIcTriggerControl</TITLE>
+BtIcTriggerControl
+btic_trigger_control_new
+<SUBSECTION Standard>
+BtIcTriggerControlClass
+BTIC_TRIGGER_CONTROL
+BTIC_IS_TRIGGER_CONTROL
+BTIC_TYPE_TRIGGER_CONTROL
+BTIC_TRIGGER_CONTROL_CLASS
+BTIC_IS_TRIGGER_CONTROL_CLASS
+BTIC_TRIGGER_CONTROL_GET_CLASS
+<SUBSECTION Private>
+BtIcTriggerControlPrivate
+btic_trigger_control_get_type
+</SECTION>
+
 
 <SECTION>
 <FILE>libbtic</FILE>

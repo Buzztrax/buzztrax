@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.5 2007-03-14 22:51:36 ensonic Exp $
+/* $Id: ic.h,v 1.6 2007-04-04 18:47:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -89,6 +89,8 @@
 //-- libbtic
 // method prototype includes do include the data defs themself
 
+#include "control-methods.h"
+#include "trigger-control-methods.h"
 #include "device-methods.h"
 #include "input-device-methods.h"
 #include "midi-device-methods.h"

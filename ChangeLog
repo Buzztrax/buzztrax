@@ -1,5 +1,46 @@
 2007-04-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	* src/lib/core/sink-bin.c:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/control.c: (btic_control_get_property),
+	(btic_control_set_property), (btic_control_dispose),
+	(btic_control_finalize), (btic_control_init),
+	(btic_control_class_init), (btic_control_get_type):
+	* src/lib/ic/device.c: (btic_device_add_control),
+	(btic_device_get_property), (btic_device_finalize),
+	(btic_device_class_init):
+	* src/lib/ic/input-device.c: (register_trigger_controls),
+	(register_abs_range_controls), (register_controls),
+	(btic_input_device_set_property):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/control-methods.h:
+	* src/lib/ic/libbtic/control.h:
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/trigger-control-methods.h:
+	* src/lib/ic/libbtic/trigger-control.h:
+	* src/lib/ic/trigger-control.c: (btic_trigger_control_new),
+	(btic_trigger_control_get_property),
+	(btic_trigger_control_set_property),
+	(btic_trigger_control_dispose), (btic_trigger_control_finalize),
+	(btic_trigger_control_init), (btic_trigger_control_class_init),
+	(btic_trigger_control_get_type):
+	  start with the classes for the controls
+	
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_init_control_menu),
+	(bt_interaction_controller_menu_init_device_menu),
+	(bt_interaction_controller_menu_init_ui):
+	  add list of control targets
+	
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	  fix docs
+
+2007-04-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* TODO:
 	  New report idea
 
