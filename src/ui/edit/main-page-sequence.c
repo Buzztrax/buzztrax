@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.165 2007-04-02 14:51:14 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.166 2007-04-09 15:53:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1090,6 +1090,7 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
       // unref the old machine
       g_object_unref(self->priv->machine);
+      self->priv->machine=NULL;
       self->priv->pattern_added_handler=0;
       self->priv->pattern_removed_handler=0;
     }
@@ -1097,9 +1098,9 @@ static void pattern_list_refresh(const BtMainPageSequence *self) {
       GST_INFO("ref new cur-machine: refs: %d",(G_OBJECT(machine))->ref_count);
       self->priv->pattern_added_handler=g_signal_connect(G_OBJECT(machine),"pattern-added",G_CALLBACK(on_pattern_changed),(gpointer)self);
       self->priv->pattern_removed_handler=g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(on_pattern_changed),(gpointer)self);
+      // ref the new machine
+      self->priv->machine=g_object_ref(machine);
     }
-    // ref the new machine
-    self->priv->machine=g_object_ref(machine);;
   }
   if(machine) {
     BtSong *song;
@@ -2786,8 +2787,10 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   g_object_try_weak_unref(self->priv->app);
   if(self->priv->machine) {
     GST_INFO("unref old cur-machine: %p,refs=%d",self->priv->machine,(G_OBJECT(self->priv->machine))->ref_count);
-    g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
-    g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
+    if(self->priv->pattern_added_handler)
+      g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_added_handler);
+    if(self->priv->pattern_removed_handler)
+      g_signal_handler_disconnect(G_OBJECT(self->priv->machine),self->priv->pattern_removed_handler);
     g_object_unref(self->priv->machine);
   }
 
