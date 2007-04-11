@@ -3,6 +3,7 @@
                "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
+<!ENTITY BtIcAbsRangeControl SYSTEM "xml/bticabsrangecontrol.xml">
 <!ENTITY BtIcControl SYSTEM "xml/bticcontrol.xml">
 <!ENTITY BtIcDevice SYSTEM "xml/bticdevice.xml">
 <!ENTITY BtIcInputDevice SYSTEM "xml/bticinputdevice.xml">
@@ -27,6 +28,7 @@
     &BtIcInputDevice;
     &BtIcMidiDevice;
     &BtIcControl;
+    &BtIcAbsRangeControl;
     &BtIcTriggerControl;
   </chapter>
 

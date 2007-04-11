@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.72 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.73 2007-04-11 18:31:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,6 +55,7 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkTooltips *preset_tips;
 
   /* interaction controller menus */
+  GtkMenu *trigger_ic_menu;
   GtkMenu *range_ic_menu;
 };
 
@@ -1336,6 +1337,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
   // create interaction controller menus
+  /* @todo: needs machine & property-name */
+  self->priv->trigger_ic_menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_TRIGGER_MENU));
   self->priv->range_ic_menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
 
   g_object_try_unref(machine);
@@ -1455,6 +1458,7 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
 
+  gtk_widget_destroy(GTK_WIDGET(self->priv->trigger_ic_menu));
   gtk_widget_destroy(GTK_WIDGET(self->priv->range_ic_menu));
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {

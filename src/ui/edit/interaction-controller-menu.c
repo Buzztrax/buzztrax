@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.3 2007-04-04 18:47:44 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.4 2007-04-11 18:31:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -71,12 +71,10 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 
 #if 0
 static void on_controller_bind_activated(GtkMenuItem *menuitem, gpointer user_data) {
-  BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
+  BtIcControl *self=BTIC_CONTROL(user_data);
 
-  /* need controller-device + controller name
-   * on_controller_notify() needs target object,property
-   */
-  g_signal_connect(G_OBJECT(ic_device),"notify::controller",G_CALLBACK(on_controller_notify),(gpointer)self);
+  /* @todo: on_controller_notify() needs target object,property */
+  g_signal_connect(G_OBJECT(self),"notify::value",G_CALLBACK(on_controller_notify),(gpointer)self);
 }
 #endif
 
@@ -102,8 +100,17 @@ static void bt_interaction_controller_menu_init_control_menu(const BtInteraction
     gtk_widget_show(menu_item);
     g_free(str);
 
-    // @todo: connet handler
-    //g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_controller_bind_activated),(gpointer)self);
+    // connect handler
+#if 0
+    switch(self->priv->type) {
+      case BT_INTERACTION_CONTROLLER_RANGE_MENU:
+        g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_range_controller_bind_activated),(gpointer)control);
+        break;
+      case BT_INTERACTION_CONTROLLER_TRIGGER_MENU:
+        g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_trigger_controller_bind_activated),(gpointer)control);
+        break;
+    }
+#endif
 
   }
   g_list_free(list);

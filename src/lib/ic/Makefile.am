@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.8 2007-04-04 18:47:43 ensonic Exp $
+## $Id: Makefile.am,v 1.9 2007-04-11 18:31:07 ensonic Exp $
 
 SUBDIRS = . libbtic
 
@@ -15,6 +15,7 @@ libbtic_la_SOURCES = \
 	midi-device.c libbtic/midi-device.h libbtic/midi-device-methods.h \
     \
     control.c libbtic/control.h libbtic/control-methods.h \
+    abs-range-control.c libbtic/abs-range-control.h libbtic/abs-range-control-methods.h \
     trigger-control.c libbtic/trigger-control.h libbtic/trigger-control-methods.h
 
 INCLUDES = \

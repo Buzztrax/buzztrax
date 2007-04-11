@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.8 2007-04-04 18:47:43 ensonic Exp $
+/* $Id: input-device.c,v 1.9 2007-04-11 18:31:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -144,7 +144,7 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
 }
 
 static gboolean register_abs_range_controls(const BtIcInputDevice * const self,int fd) {
-  //BtIcAbsRangeControl *control;
+  BtIcAbsRangeControl *control;
   guint ix;
   guint8 abs_bitmask[ABS_MAX/8 + 1];
   struct input_absinfo abs_features;
@@ -197,10 +197,9 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
            abs_features.fuzz  // tolerance
         );
         if(name) {
-          /* create controller instances and register them
-          control = btic_abs_range_control_new(self,name,
+          // create controller instances and register them
+          control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
             abs_features.minimum,abs_features.maximum,abs_features.flat);
-          */
         }
       }
     }

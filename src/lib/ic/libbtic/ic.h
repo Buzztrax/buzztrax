@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.6 2007-04-04 18:47:44 ensonic Exp $
+/* $Id: ic.h,v 1.7 2007-04-11 18:31:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -90,6 +90,7 @@
 // method prototype includes do include the data defs themself
 
 #include "control-methods.h"
+#include "abs-range-control-methods.h"
 #include "trigger-control-methods.h"
 #include "device-methods.h"
 #include "input-device-methods.h"

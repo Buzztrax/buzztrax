@@ -1,4 +1,4 @@
-# $Id: bt-ic-sections.txt,v 1.4 2007-04-04 18:47:43 ensonic Exp $
+# $Id: bt-ic-sections.txt,v 1.5 2007-04-11 18:31:07 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -10,6 +10,24 @@
 # </SECTION>
 
 <INCLUDE>libbtic/ic.h</INCLUDE>
+
+<SECTION>
+<FILE>bticabsrangecontrol</FILE>
+<TITLE>BtIcAbsRangeControl</TITLE>
+BtIcAbsRangeControl
+btic_abs_range_control_new
+<SUBSECTION Standard>
+BtIcAbsRangeControlClass
+BTIC_ABS_RANGE_CONTROL
+BTIC_IS_ABS_RANGE_CONTROL
+BTIC_TYPE_ABS_RANGE_CONTROL
+BTIC_ABS_RANGE_CONTROL_CLASS
+BTIC_IS_ABS_RANGE_CONTROL_CLASS
+BTIC_ABS_RANGE_CONTROL_GET_CLASS
+<SUBSECTION Private>
+BtIcAbsRangeControlPrivate
+btic_abs_range_control_get_type
+</SECTION>
 
 <SECTION>
 <FILE>bticcontrol</FILE>
@@ -100,7 +118,6 @@ BtIcRegistryPrivate
 btic_registry_get_type
 </SECTION>
 
-
 <SECTION>
 <FILE>btictriggercontrol</FILE>
 <TITLE>BtIcTriggerControl</TITLE>
@@ -118,7 +135,6 @@ BTIC_TRIGGER_CONTROL_GET_CLASS
 BtIcTriggerControlPrivate
 btic_trigger_control_get_type
 </SECTION>
-
 
 <SECTION>
 <FILE>libbtic</FILE>

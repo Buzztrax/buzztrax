@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.6 2007-04-04 18:47:44 ensonic Exp $
+## $Id: Makefile.am,v 1.7 2007-04-11 18:31:07 ensonic Exp $
 
 libbtcoredir = $(includedir)/libbtic
 libbtcore_HEADERS = \
@@ -11,4 +11,5 @@ libbtcore_HEADERS = \
 	midi-device.h midi-device-methods.h \
     \
     control.h control-methods.h \
+    abs-range-control.h abs-range-control-methods.h \
     trigger-control.h trigger-control-methods.h

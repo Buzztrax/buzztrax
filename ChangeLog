@@ -1,3 +1,29 @@
+2007-04-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/abs-range-control.c: (btic_abs_range_control_new),
+	(btic_abs_range_control_get_property),
+	(btic_abs_range_control_set_property),
+	(btic_abs_range_control_dispose),
+	(btic_abs_range_control_finalize), (btic_abs_range_control_init),
+	(btic_abs_range_control_class_init),
+	(btic_abs_range_control_get_type):
+	* src/lib/ic/input-device.c: (register_abs_range_controls):
+	* src/lib/ic/libbtic/Makefile.am:
+	* src/lib/ic/libbtic/abs-range-control-methods.h:
+	* src/lib/ic/libbtic/abs-range-control.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_controller_bind_activated),
+	(bt_interaction_controller_menu_init_control_menu):
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose):
+	  add the range control and some comments about binding them
+
 2007-04-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-sequence.c: (pattern_list_refresh),
