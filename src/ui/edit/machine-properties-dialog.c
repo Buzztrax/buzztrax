@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.73 2007-04-11 18:31:07 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.74 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,7 +26,9 @@
  * A dialog to configure dynamic settings of a #BtMachine. The dialog also
  * allows to editing and manage presets for machines that support them.
  */
-
+/* @todo: move/associate self->priv->control_data to/with BtMachine
+ * right now controllers get disconnected when closing this dialog :/
+ */
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
 
@@ -54,15 +56,15 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *preset_list;
   GtkTooltips *preset_tips;
 
-  /* interaction controller menus */
-  GtkMenu *trigger_ic_menu;
-  GtkMenu *range_ic_menu;
+  GHashTable *control_data; // each entry points to BtControlData
 };
 
 static GtkDialogClass *parent_class=NULL;
 
-static GQuark range_label_quark=0;
-static GQuark range_parent_quark=0;
+static GQuark widget_label_quark=0;
+static GQuark widget_parent_quark=0;
+static GQuark control_object_quark=0;
+static GQuark control_property_quark=0;
 
 enum {
   PRESET_LIST_LABEL=0,
@@ -80,6 +82,14 @@ typedef struct {
   data->machine=machine; \
   data->property=property; \
   data->user_data=user_data;
+
+
+typedef struct {
+  const BtIcControl *control;
+  GstObject *object;
+  gchar *property_name;
+  GParamSpec *pspec;
+} BtControlData;
 
 //-- event handler helper
 
@@ -132,7 +142,6 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   gst_object_unref(machine);
   GST_INFO("rebuilt preset list");
 }
-
 
 
 //-- event handler
@@ -217,12 +226,68 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
 }
 
 
+static BtControlData *make_control_data(const BtMachinePropertiesDialog *self,const BtInteractionControllerMenu *menu,const BtIcControl *control) {
+  BtControlData *data;
+  GstObject *object;
+  gchar *property_name;
+  GParamSpec *pspec;
+  BtIcDevice *device;
+  gboolean new_data=FALSE;
+
+  object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
+  property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
+  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+
+  GST_INFO("make control data for param (%p): %s",pspec,property_name);
+
+  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
+  if(!data) {
+    new_data=TRUE;
+    data=g_new(BtControlData,1);
+    data->object=object;
+    data->property_name=property_name;
+    data->pspec=pspec;
+  }
+  else {
+    // stop the old device
+    g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+    btic_device_stop(device);
+    g_object_unref(device);
+  }
+  data->control=control;
+  // start the new device
+  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+  btic_device_start(device);
+  g_object_unref(device);
+
+  if(new_data) {
+    g_hash_table_insert(self->priv->control_data,(gpointer)pspec,(gpointer)data);
+  }
+
+  return(data);
+}
+
+static void free_control_data(BtControlData *data) {
+  BtIcDevice *device;
+
+  // stop the device
+  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+  btic_device_stop(device);
+  g_object_unref(device);
+
+  // disconnect the handler
+  g_signal_handlers_disconnect_matched(G_OBJECT(data->control),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)data);
+
+  g_free(data);
+}
+
+
 static gboolean on_double_range_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
   const GstElement *machine=data->machine;
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
   gdouble value;
   gchar str[30];
 
@@ -248,7 +313,7 @@ static void on_double_range_property_notify(const GstElement *machine,GParamSpec
 static void on_double_range_property_changed(GtkRange *range,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
   gdouble value=gtk_range_get_value(range);
   gchar str[30];
 
@@ -262,16 +327,44 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   gtk_label_set_text(label,str);
 }
 
-static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+static void on_double_range_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  GParamSpecDouble *pspec=(GParamSpecDouble *)data->pspec;
+  glong svalue,min,max;
+  gdouble dvalue;
+
+  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  dvalue=pspec->minimum+((svalue-min)*((pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
+  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
+  GST_INFO("setting %s value %lf",data->property_name,dvalue);
+  g_object_set(data->object,data->property_name,dvalue,NULL);
+}
+
+static void on_double_range_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  BtIcControl *control;
+
+  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
+  GST_INFO("control selected: %p",control);
+  g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_double_range_control_notify),(gpointer)make_control_data(self,menu,control));
+}
+
+static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
   gboolean res=FALSE;
 
   GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
   /* Ignore double-clicks and triple-clicks */
   if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
+    GtkMenu *menu;
     // show context menu
-    // @todo: make a new one every time
-    gtk_menu_popup(self->priv->range_ic_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+    menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
+    g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
+    g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
+    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_double_range_control_bind),(gpointer)self);
+    gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
   return(res);
@@ -283,7 +376,7 @@ static gboolean on_float_range_property_notify_idle(gpointer _data) {
   const GstElement *machine=data->machine;
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
   gfloat value;
   gchar str[30];
 
@@ -310,7 +403,7 @@ static void on_float_range_property_notify(const GstElement *machine,GParamSpec 
 static void on_float_range_property_changed(GtkRange *range,gpointer user_data) {
   GstElement *machine=GST_ELEMENT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
   gfloat value=gtk_range_get_value(range);
   gchar str[30];
 
@@ -330,8 +423,8 @@ static gboolean on_int_range_property_notify_idle(gpointer _data) {
   const GstElement *machine=data->machine;
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),range_parent_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
   gint value;
 
   g_free(data);
@@ -361,8 +454,8 @@ static void on_int_range_property_notify(const GstElement *machine,GParamSpec *p
 static void on_int_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),range_parent_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
   g_assert(user_data);
@@ -385,8 +478,8 @@ static gboolean on_uint_range_property_notify_idle(gpointer _data) {
   const GstElement *machine=data->machine;
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),range_label_quark));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),range_parent_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
   guint value;
 
   //GST_INFO("property value notify received : %s ",property->name);
@@ -415,8 +508,8 @@ static void on_uint_range_property_notify(const GstElement *machine,GParamSpec *
 static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
-  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),range_label_quark));
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),range_parent_quark));
+  GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(range),widget_parent_quark));
   gdouble value=gtk_range_get_value(range);
 
   g_assert(user_data);
@@ -433,16 +526,42 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   }
 }
 
-static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+static void on_uint_range_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  GParamSpecUInt *pspec=(GParamSpecUInt *)data->pspec;
+  glong svalue,min,max;
+  guint dvalue;
+
+  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  dvalue=pspec->minimum+(guint)((svalue-min)*((gdouble)(pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
+  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
+  g_object_set(data->object,data->property_name,dvalue,NULL);
+}
+
+static void on_uint_range_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
   BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  BtIcControl *control;
+
+  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
+  g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_uint_range_control_notify),(gpointer)make_control_data(self,menu,control));
+}
+
+static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
   gboolean res=FALSE;
 
   GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
   /* Ignore double-clicks and triple-clicks */
   if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
+    GtkMenu *menu;
     // show context menu
-    // @todo: make a new one every time
-    gtk_menu_popup(self->priv->range_ic_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+    menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
+    g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
+    g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
+    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_uint_range_control_bind),(gpointer)self);
+    gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
   return(res);
@@ -524,6 +643,43 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
   g_object_set(param_parent,name,value,NULL);
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
+}
+
+static void on_checkbox_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  gboolean value;
+
+  g_object_get(G_OBJECT(data->control),"value",&value,NULL);
+  g_object_set(data->object,data->property_name,value,NULL);
+}
+
+static void on_checkbox_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  BtIcControl *control;
+
+  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
+  g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_checkbox_control_notify),(gpointer)make_control_data(self,menu,control));
+}
+
+static gboolean on_checkbox_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(g_object_get_qdata(G_OBJECT(widget),widget_parent_quark));
+  gboolean res=FALSE;
+
+  GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  /* Ignore double-clicks and triple-clicks */
+  if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
+    GtkMenu *menu;
+    // show context menu
+    menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_TRIGGER_MENU));
+    g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
+    g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
+    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_checkbox_control_bind),(gpointer)self);
+    gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+    res=TRUE;
+  }
+  return(res);
 }
 
 
@@ -770,11 +926,14 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self, Gs
   widget=gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
   g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_checkbox_property_notify), (gpointer)widget);
   g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
+
+  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_checkbox_button_press_event), (gpointer)self);
 
   return(widget);
 }
@@ -791,8 +950,8 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
+  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -823,8 +982,8 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
+  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -837,7 +996,7 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
   else {
     g_signal_connect(G_OBJECT(widget),"format-value",G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
   }
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_uint_range_button_press_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_uint_range_button_press_event), (gpointer)machine);
 
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
@@ -858,8 +1017,8 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
+  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -888,8 +1047,8 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   //gtk_scale_set_value_pos(GTK_SCALE(widget),GTK_POS_RIGHT);
   gtk_range_set_value(GTK_RANGE(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
-  g_object_set_qdata(G_OBJECT(widget),range_label_quark,(gpointer)label);
-  g_object_set_qdata(G_OBJECT(widget),range_parent_quark,(gpointer)self);
+  g_object_set_qdata(G_OBJECT(widget),widget_label_quark,(gpointer)label);
+  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
   // @todo add numerical entry as well ?
 
   signal_name=g_alloca(9+strlen(property->name));
@@ -898,7 +1057,7 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_double_range_property_changed), (gpointer)machine);
   //g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_double_range_global_property_format_value), (gpointer)machine);
 
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_double_range_button_press_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_double_range_button_press_event), (gpointer)machine);
 
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
@@ -920,6 +1079,7 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   g_object_get(machine,property->name,&value,NULL);
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
+  g_object_set_qdata(G_OBJECT(widget),widget_parent_quark,(gpointer)self);
 
   signal_name=g_alloca(9+strlen(property->name));
   g_sprintf(signal_name,"notify::%s",property->name);
@@ -1336,11 +1496,6 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   }
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
-  // create interaction controller menus
-  /* @todo: needs machine & property-name */
-  self->priv->trigger_ic_menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_TRIGGER_MENU));
-  self->priv->range_ic_menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
-
   g_object_try_unref(machine);
   g_object_try_unref(main_window);
   g_object_try_unref(settings);
@@ -1458,18 +1613,17 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->machine);
 
-  gtk_widget_destroy(GTK_WIDGET(self->priv->trigger_ic_menu));
-  gtk_widget_destroy(GTK_WIDGET(self->priv->range_ic_menu));
-
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
   }
 }
 
 static void bt_machine_properties_dialog_finalize(GObject *object) {
-  //BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
+  BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
 
-  //GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
+
+  g_hash_table_destroy(self->priv->control_data);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -1480,13 +1634,17 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
+
+  self->priv->control_data=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,(GDestroyNotify)free_control_data);
 }
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-  range_label_quark=g_quark_from_static_string("BtMachinePropertiesDialog::range-label");
-  range_parent_quark=g_quark_from_static_string("BtMachinePropertiesDialog::range-parent");
+  widget_label_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-label");
+  widget_parent_quark=g_quark_from_static_string("BtMachinePropertiesDialog::widget-parent");
+  control_object_quark=g_quark_from_static_string("BtMachinePropertiesDialog::control-object");
+  control_property_quark=g_quark_from_static_string("BtMachinePropertiesDialog::control-property");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMachinePropertiesDialogPrivate));

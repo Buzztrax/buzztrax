@@ -1,4 +1,4 @@
-/* $Id: device-methods.h,v 1.3 2007-04-04 18:47:44 ensonic Exp $
+/* $Id: device-methods.h,v 1.4 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,5 +26,8 @@
 #include "device.h"
 
 extern void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control);
+
+extern gboolean btic_device_start(const BtIcDevice *self);
+extern gboolean btic_device_stop(const BtIcDevice *self);
 
 #endif // BTIC_DEVICE_METHDOS_H

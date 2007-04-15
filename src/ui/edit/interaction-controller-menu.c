@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.4 2007-04-11 18:31:07 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.5 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -30,9 +30,12 @@
 
 #include "bt-edit.h"
 
+//-- property ids
+
 enum {
   INTERACTION_CONTROLLER_MENU_APP=1,
-  INTERACTION_CONTROLLER_MENU_TYPE
+  INTERACTION_CONTROLLER_MENU_TYPE,
+  INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL
 };
 
 
@@ -43,13 +46,15 @@ struct _BtInteractionControllerMenuPrivate {
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
-  /* MenuItems */
-  //GtkWidget *save_item;
-
   BtInteractionControllerMenuType type;
+
+  /* the selected control */
+  BtIcControl *selected_control;
 };
 
 static GtkMenuClass *parent_class=NULL;
+
+static GQuark widget_parent_quark=0;
 
 //-- enums
 
@@ -70,13 +75,33 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 
 
 #if 0
-static void on_controller_bind_activated(GtkMenuItem *menuitem, gpointer user_data) {
-  BtIcControl *self=BTIC_CONTROL(user_data);
+// this needs to go to machine-properties-dialog.c
+static void on_range_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
+  glong value,min,max;
 
-  /* @todo: on_controller_notify() needs target object,property */
-  g_signal_connect(G_OBJECT(self),"notify::value",G_CALLBACK(on_controller_notify),(gpointer)self);
+  g_object_get(G_OBJECT(control),"value",&value,"min",&min,"max",&max,NULL);
+
+  // @todo: map values
+  //GParamSpec *pspec=g_object_class_find_property(klass,self->priv->property_name);
+  g_object_set(self->priv->machine,self->priv->property_name,value,NULL);
+}
+
+static void on_trigger_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(user_data);
+  gboolean value;
+
+  g_object_get(G_OBJECT(control),"value",&value,NULL);
+  g_object_set(self->priv->machine,self->priv->property_name,value,NULL);
 }
 #endif
+
+static void on_control_bind_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(g_object_get_qdata(G_OBJECT(menuitem),widget_parent_quark));
+  BtIcControl *control=BTIC_CONTROL(user_data);
+
+  g_object_set(self,"selected-control",control,NULL);
+}
 
 //-- helper methods
 
@@ -91,27 +116,28 @@ static void bt_interaction_controller_menu_init_control_menu(const BtInteraction
   for(node=list;node;node=g_list_next(node)) {
     control=BTIC_CONTROL(node->data);
 
-    // @todo: filter by self->priv->type
+    // filter by self->priv->type
+    switch(self->priv->type) {
+      case BT_INTERACTION_CONTROLLER_RANGE_MENU:
+        if(!BTIC_IS_ABS_RANGE_CONTROL(control))
+          continue;
+        break;
+      case BT_INTERACTION_CONTROLLER_TRIGGER_MENU:
+        if(!BTIC_IS_TRIGGER_CONTROL(control))
+          continue;
+        break;
+    }
 
     g_object_get(G_OBJECT(control),"name",&str,NULL);
 
     menu_item=gtk_image_menu_item_new_with_label(str);
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+    g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
     gtk_widget_show(menu_item);
     g_free(str);
 
     // connect handler
-#if 0
-    switch(self->priv->type) {
-      case BT_INTERACTION_CONTROLLER_RANGE_MENU:
-        g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_range_controller_bind_activated),(gpointer)control);
-        break;
-      case BT_INTERACTION_CONTROLLER_TRIGGER_MENU:
-        g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_trigger_controller_bind_activated),(gpointer)control);
-        break;
-    }
-#endif
-
+    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_bind_activated),(gpointer)control);
   }
   g_list_free(list);
 }
@@ -138,9 +164,6 @@ static void bt_interaction_controller_menu_init_device_menu(const BtInteractionC
     parentmenu=gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item),parentmenu);
     bt_interaction_controller_menu_init_control_menu(self,parentmenu,device);
-    // @todo: register controllers as submenu
-    //g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_controller_bind_activated),(gpointer)self);
-
   }
   g_list_free(list);
 }
@@ -220,8 +243,11 @@ static void bt_interaction_controller_menu_get_property(GObject      *object,
     case INTERACTION_CONTROLLER_MENU_TYPE: {
       g_value_set_enum(value, self->priv->type);
     } break;
+    case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL: {
+      g_value_set_object(value, self->priv->selected_control);
+    } break;
     default: {
-       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
+      G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
   }
 }
@@ -244,6 +270,10 @@ static void bt_interaction_controller_menu_set_property(GObject      *object,
     case INTERACTION_CONTROLLER_MENU_TYPE: {
       self->priv->type=g_value_get_enum(value);
     } break;
+    case INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL: {
+      g_object_try_unref(self->priv->selected_control);
+      self->priv->selected_control = BTIC_CONTROL(g_value_get_object(value));
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -257,6 +287,7 @@ static void bt_interaction_controller_menu_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
+  g_object_try_unref(self->priv->selected_control);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
@@ -282,6 +313,8 @@ static void bt_interaction_controller_menu_init(GTypeInstance *instance, gpointe
 static void bt_interaction_controller_menu_class_init(BtInteractionControllerMenuClass *klass) {
   GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
+  widget_parent_quark=g_quark_from_static_string("BtInteractionControllerMenu::widget-parent");
+
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtInteractionControllerMenuPrivate));
 
@@ -292,18 +325,25 @@ static void bt_interaction_controller_menu_class_init(BtInteractionControllerMen
 
   g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_APP,
                                   g_param_spec_object("app",
-                                     "app contruct prop",
-                                     "Set application object, the menu belongs to",
+                                     "app construct prop",
+                                     "set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
 
   g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_TYPE,
                                   g_param_spec_enum("type",
-                                     "type prop",
-                                     "controller types to list",
+                                     "menu type construct prop",
+                                     "control types to list in the menu",
                                      BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE,  /* enum type */
                                      BT_INTERACTION_CONTROLLER_RANGE_MENU, /* default value */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+
+  g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL,
+                                  g_param_spec_object("selected-control",
+                                     "selected control prop",
+                                     "control after menu selection",
+                                     BTIC_TYPE_CONTROL, /* object type */
+                                     G_PARAM_READWRITE));
 }
 
 GType bt_interaction_controller_menu_get_type(void) {

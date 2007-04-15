@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.66 2007-03-02 13:17:13 ensonic Exp $
+/* $Id: song-io.c,v 1.67 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,8 +31,8 @@
  * Such a module should overwrite bt_song_io_load() and/or bt_song_io_save().
  *
  * There is an internal subclass of this called #BtSongIONative.
- */ 
- 
+ */
+
 #define BT_CORE
 #define BT_SONG_IO_C
 
@@ -48,7 +48,7 @@ enum {
 struct _BtSongIOPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* used to load or save the song file */
   gchar *file_name;
 
@@ -71,8 +71,8 @@ static GList *plugins=NULL;
  */
 static void bt_song_io_register_plugins(void) {
   DIR * const dirp=opendir(LIBDIR"/songio");
-  
-  /* @todo shoudn't the contents of the plugin list be structures 
+
+  /* @todo shoudn't the contents of the plugin list be structures
    * (so that apart from the detect ptr, we could keep the modules handle. we need this to close the plugins at sometime ... )
    */
   GST_INFO("register song-io plugins ...");
@@ -84,7 +84,7 @@ static void bt_song_io_register_plugins(void) {
     const struct dirent *dire;
     gpointer bt_song_io_plugin_detect=NULL;
     gchar link_target[FILENAME_MAX],plugin_name[FILENAME_MAX];
-    
+
     //   1.) scan plugin-folder (LIBDIR/songio)
     while((dire=readdir(dirp))!=NULL) {
       // skip names starting with a dot
@@ -114,7 +114,7 @@ static void bt_song_io_register_plugins(void) {
 /*
  * bt_song_io_detect:
  * @filename: the full filename of the song
- * 
+ *
  * factory method that returns the GType of the class that is able to handle
  * the supplied file
  *
@@ -124,11 +124,11 @@ static GType bt_song_io_detect(const gchar * const file_name) {
   GType type=0;
   const GList *node;
   BtSongIODetect detect;
-  
+
   GST_INFO("detecting loader for file '%s'",file_name);
-  
+
   if(!plugins) bt_song_io_register_plugins();
-  
+
   // try all registered plugins
   for(node=plugins;node;node=g_list_next(node)) {
     detect=(BtSongIODetect)node->data;
@@ -182,7 +182,7 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
 BtSongIO *bt_song_io_new(const gchar * const file_name) {
   BtSongIO *self=NULL;
   GType type = 0;
-  
+
   if(!BT_IS_STRING(file_name)) {
     GST_WARNING("filename should not be empty");
     return NULL;
@@ -203,13 +203,13 @@ BtSongIO *bt_song_io_new(const gchar * const file_name) {
 
 //-- methods
 
-static gboolean bt_song_io_default_load(gconstpointer const _self, const BtSong * const song) {
-  GST_ERROR("virtual method bt_song_io_real_load(self,song) called");
+static gboolean bt_song_io_default_load(gconstpointer const self, const BtSong * const song) {
+  GST_ERROR("virtual method bt_song_io_load(self=%p,song=%p) called",self,song);
   return(FALSE);  // this is a base class that can't load anything
 }
 
-static gboolean bt_song_io_default_save(gconstpointer const _self, const BtSong * const song) {
-  GST_ERROR("virtual method bt_song_io_real_save(self,song) called");
+static gboolean bt_song_io_default_save(gconstpointer const self, const BtSong * const song) {
+  GST_ERROR("virtual method bt_song_io_save(self=%p,song=%p) called",self,song);
   return(FALSE);  // this is a base class that can't save anything
 }
 
@@ -226,7 +226,9 @@ static gboolean bt_song_io_default_save(gconstpointer const _self, const BtSong 
  */
 gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
   gboolean result;
-  
+
+  g_assert(BT_IS_SONG_IO(self));
+
   bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->load(self,song))) {
     bt_song_io_update_filename(BT_SONG_IO(self),song);
@@ -240,7 +242,7 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
       BtSetup * const setup;
       GList * const list;
       const GList *node;
-      
+
       g_object_get(G_OBJECT(song),"setup",&setup,NULL);
       g_object_get(G_OBJECT(setup),"machines",&list,NULL);
       for(node=list;node;node=g_list_next(node)) {
@@ -271,7 +273,9 @@ gboolean bt_song_io_load(gconstpointer const self, const BtSong * const song) {
 gboolean bt_song_io_save(gconstpointer const self, const BtSong * const song) {
   gboolean result;
   BtSongInfo * const song_info;
-	
+
+  g_assert(BT_IS_SONG_IO(self));
+
   // this updates the time-stamp
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_set(G_OBJECT(song_info),"change-dts",NULL,NULL);
@@ -350,7 +354,7 @@ static void bt_song_io_finalize(GObject * const object) {
 
 static void bt_song_io_init(GTypeInstance * const instance, gconstpointer g_class) {
   BtSongIO * const self = BT_SONG_IO(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SONG_IO, BtSongIOPrivate);
 }
 
@@ -359,15 +363,15 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtSongIOPrivate));
-  
+
   gobject_class->set_property = bt_song_io_set_property;
   gobject_class->get_property = bt_song_io_get_property;
   gobject_class->dispose      = bt_song_io_dispose;
   gobject_class->finalize     = bt_song_io_finalize;
-  
-  klass->load           = bt_song_io_default_load;
-  klass->save           = bt_song_io_default_save;
-  
+
+  klass->load = bt_song_io_default_load;
+  klass->save = bt_song_io_default_save;
+
   g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "filename prop",

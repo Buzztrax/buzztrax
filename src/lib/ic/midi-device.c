@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.3 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: midi-device.c,v 1.4 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -71,6 +71,16 @@ Error:
 }
 
 //-- methods
+
+static gboolean btic_midi_device_start(gconstpointer self) {
+  // @todo: start the io-loop
+  return(FALSE);
+}
+
+static gboolean btic_midi_device_stop(gconstpointer self) {
+  // @todo: stop the io-loop
+  return(FALSE);
+}
 
 //-- wrapper
 
@@ -146,6 +156,7 @@ static void btic_midi_device_init(const GTypeInstance * const instance, gconstpo
 
 static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  BtIcDeviceClass * const bticdevice_class = BTIC_DEVICE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcMidiDevicePrivate));
@@ -154,6 +165,9 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
   gobject_class->get_property = btic_midi_device_get_property;
   gobject_class->dispose      = btic_midi_device_dispose;
   gobject_class->finalize     = btic_midi_device_finalize;
+
+  bticdevice_class->start     = btic_midi_device_start;
+  bticdevice_class->stop      = btic_midi_device_stop;
 
   g_object_class_install_property(gobject_class,DEVICE_DEVNODE,
                                   g_param_spec_string("devnode",

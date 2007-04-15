@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.9 2007-04-11 18:31:07 ensonic Exp $
+/* $Id: input-device.c,v 1.10 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -53,6 +53,13 @@ struct _BtIcInputDevicePrivate {
   gboolean dispose_has_run;
 
   gchar *devnode;
+
+  /* io channel */
+  GIOChannel *io_channel;
+  gint io_source;
+
+  /* type|code -> control lookup */
+  GHashTable *controls;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -65,6 +72,7 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
   guint ix;
   guint8 key_bitmask[KEY_MAX/8 + 1];
   const gchar *name = NULL;
+  gulong key;
 
   memset(key_bitmask, 0, sizeof(key_bitmask));
   if (ioctl(fd, EVIOCGBIT(EV_KEY, sizeof(key_bitmask)), key_bitmask) < 0) {
@@ -137,6 +145,8 @@ static gboolean register_trigger_controls(const BtIcInputDevice * const self,int
       if(name) {
         // create controller instances and register them
         control = btic_trigger_control_new(BTIC_DEVICE(self),name);
+        key=(((gulong)EV_KEY)<<16)|(gulong)ix;
+        g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(key),(gpointer)control);
       }
     }
   }
@@ -149,6 +159,7 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
   guint8 abs_bitmask[ABS_MAX/8 + 1];
   struct input_absinfo abs_features;
   const gchar *name = NULL;
+  gulong key;
 
   memset(abs_bitmask, 0, sizeof(abs_bitmask));
   if (ioctl(fd, EVIOCGBIT(EV_ABS, sizeof(abs_bitmask)), abs_bitmask) < 0) {
@@ -200,6 +211,8 @@ static gboolean register_abs_range_controls(const BtIcInputDevice * const self,i
           // create controller instances and register them
           control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
             abs_features.minimum,abs_features.maximum,abs_features.flat);
+          key=(((gulong)EV_ABS)<<16)|(gulong)ix;
+          g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(key),(gpointer)control);
         }
       }
     }
@@ -270,6 +283,49 @@ static gboolean register_controls(const BtIcInputDevice * const self) {
 
 //-- handler
 
+static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer user_data) {
+  BtIcInputDevice *self=BTIC_INPUT_DEVICE(user_data);
+  BtIcControl *control;
+  GError *error=NULL;
+  struct input_event ev;
+  gulong key;
+  gboolean res=TRUE;
+
+  //GST_INFO("io handler : %d",condition);
+  if(condition & (G_IO_IN | G_IO_PRI)) {
+    g_io_channel_read_chars(self->priv->io_channel, (gchar *)&ev, sizeof(struct input_event),NULL,&error);
+    if(error) {
+      GST_WARNING("iochannel error when reading: %s",error->message);
+      g_error_free(error);
+    }
+    else {
+      key=(((gulong)ev.type)<<16)|(gulong)ev.code;
+      if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+        switch(ev.type) {
+          case EV_KEY:
+            //GST_INFO("key/button event: value %d, code 0x%x",ev.value,ev.code);
+            g_object_set(control,"value",(gboolean)ev.value,NULL);
+            break;
+          case EV_ABS:
+            //GST_INFO("abs axis event: value %d, code 0x%x",ev.value,ev.code);
+            g_object_set(control,"value",ev.value,NULL);
+            break;
+          default:
+            GST_INFO("unhandled control event: type 0x%x, value %d, code 0x%x",ev.type,ev.value,ev.code);
+        }
+      }
+    }
+  }
+  if(condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL)) {
+    res=FALSE;
+  }
+  if(!res) {
+    GST_INFO("closing connection");
+    self->priv->io_source=-1;
+  }
+  return(res);
+}
+
 //-- constructor methods
 
 /**
@@ -294,6 +350,49 @@ Error:
 }
 
 //-- methods
+
+static gboolean btic_input_device_start(gconstpointer _self) {
+  BtIcInputDevice *self=BTIC_INPUT_DEVICE(_self);
+  GError *error=NULL;
+
+  // start the io-loop
+  self->priv->io_channel=g_io_channel_new_file(self->priv->devnode,"r",&error);
+  if(error) {
+    GST_WARNING("iochannel error for open(%s): %s",self->priv->devnode,error->message);
+    g_error_free(error);
+    return(FALSE);
+  }
+  g_io_channel_set_encoding(self->priv->io_channel,NULL,&error);
+  if(error) {
+    GST_WARNING("iochannel error for settin encoding to NULL: %s",error->message);
+    g_error_free(error);
+    g_io_channel_unref(self->priv->io_channel);
+    self->priv->io_channel=NULL;
+    return(FALSE);
+  }
+  self->priv->io_source=g_io_add_watch_full(self->priv->io_channel,
+        G_PRIORITY_LOW,
+        G_IO_IN|G_IO_PRI|G_IO_ERR|G_IO_HUP|G_IO_NVAL,
+        io_handler,
+        (gpointer)self,
+        NULL);
+  return(TRUE);
+}
+
+static gboolean btic_input_device_stop(gconstpointer _self) {
+  BtIcInputDevice *self=BTIC_INPUT_DEVICE(_self);
+
+  // stop the io-loop
+  if(self->priv->io_channel) {
+    if(self->priv->io_source>=0) {
+      g_source_remove(self->priv->io_source);
+      self->priv->io_source=-1;
+    }
+    g_io_channel_unref(self->priv->io_channel);
+    self->priv->io_channel=NULL;
+  }
+  return(TRUE);
+}
 
 //-- wrapper
 
@@ -344,6 +443,7 @@ static void btic_input_device_dispose(GObject * const object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p, self->ref_ct=%d",self,G_OBJECT(self)->ref_count);
+  btic_input_device_stop(self);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -356,6 +456,7 @@ static void btic_input_device_finalize(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_free(self->priv->devnode);
+  g_hash_table_destroy(self->priv->controls);
 
   GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -366,10 +467,13 @@ static void btic_input_device_init(const GTypeInstance * const instance, gconstp
   BtIcInputDevice * const self = BTIC_INPUT_DEVICE(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BTIC_TYPE_INPUT_DEVICE, BtIcInputDevicePrivate);
+
+  self->priv->controls=g_hash_table_new(g_direct_hash,g_direct_equal);
 }
 
 static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
+  BtIcDeviceClass * const bticdevice_class = BTIC_DEVICE_CLASS(klass);
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtIcInputDevicePrivate));
@@ -378,6 +482,9 @@ static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {
   gobject_class->get_property = btic_input_device_get_property;
   gobject_class->dispose      = btic_input_device_dispose;
   gobject_class->finalize     = btic_input_device_finalize;
+
+  bticdevice_class->start     = btic_input_device_start;
+  bticdevice_class->stop      = btic_input_device_stop;
 
   g_object_class_install_property(gobject_class,DEVICE_DEVNODE,
                                   g_param_spec_string("devnode",

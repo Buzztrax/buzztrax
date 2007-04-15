@@ -1,4 +1,4 @@
-/* $Id: device.c,v 1.4 2007-04-04 18:47:43 ensonic Exp $
+/* $Id: device.c,v 1.5 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,13 +25,14 @@
  * Abstract base class for control devices. Subclasses will provide
  * functionality to query capabilities and register #BtIcControl instances.
  * They will also read from the device and trigger the change events on their
- * controls.
+ * controls (via value property).
  */
 /* @todo: we need a way to export/import controller maps per device
  *        (list of controller id,type,name)
- *
- * BtIcControl will bind one value and provide a value-changed signal
- * we'll have subclasses: BtIcTriggerControl, BtIcAbsRangeControl
+ * @todo: need abstract _start() and _stop() method, whenever we bind/unbind a
+ *        control we need to call _start/_stop on the respective device. The
+ *        methods inc/dec a counter and if the counter is >0 we run the
+ *        g_io_channel
  */
 #define BTIC_CORE
 #define BTIC_DEVICE_C
@@ -53,6 +54,9 @@ struct _BtIcDevicePrivate {
 
   gchar *udi;
   gchar *name;
+
+  /* start/stop counter */
+  gulong run_ct;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -79,7 +83,60 @@ void btic_device_add_control(const BtIcDevice *self, const BtIcControl *control)
   self->priv->controls=g_list_append(self->priv->controls,(gpointer)control);
 }
 
+static gboolean btic_device_default_start(gconstpointer self) {
+  GST_ERROR("virtual method btic_device_start(self=%p) called",self);
+  return(FALSE);  // this is a base class that can't do anything
+}
+
+static gboolean btic_device_default_stop(gconstpointer self) {
+  GST_ERROR("virtual method btic_device_stop(self=%p) called",self);
+  return(FALSE);  // this is a base class that can't do anything
+}
+
 //-- wrapper
+
+/**
+ * btic_device_start:
+ * @self: the #Device instance to use
+ *
+ * Starts the io-loop for the device. This can be called multiple times and must
+ * be paired by an equal amount of btic_device_stop() calls.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean btic_device_start(const BtIcDevice *self) {
+  //const BtIcDevice *self=BTIC_DEVICE(_self);
+  gboolean result=TRUE;
+
+  self->priv->run_ct++;
+  if(self->priv->run_ct==1) {
+    result=BTIC_DEVICE_GET_CLASS(self)->start(self);
+  }
+  return(result);
+}
+
+/**
+ * btic_device_stop:
+ * @self: the #Device instance to use
+ *
+ * Stops the io-loop for the device. This must be called as often as the device
+ * has been started using  btic_device_start().
+ *
+ * Returns: %TRUE for success
+ */
+gboolean btic_device_stop(const BtIcDevice *self) {
+  //const BtIcDevice *self=BTIC_DEVICE(_self);
+  gboolean result=TRUE;
+
+  g_assert(self->priv->run_ct>0);
+
+  self->priv->run_ct--;
+  if(self->priv->run_ct==0) {
+    result=BTIC_DEVICE_GET_CLASS(self)->stop(self);
+  }
+  return(result);
+}
+
 
 //-- class internals
 
@@ -177,6 +234,9 @@ static void btic_device_class_init(BtIcDeviceClass * const klass) {
   gobject_class->get_property = btic_device_get_property;
   gobject_class->dispose      = btic_device_dispose;
   gobject_class->finalize     = btic_device_finalize;
+
+  klass->start = btic_device_default_start;
+  klass->stop  = btic_device_default_stop;
 
   g_object_class_install_property(gobject_class,DEVICE_UDI,
                                   g_param_spec_string("udi",

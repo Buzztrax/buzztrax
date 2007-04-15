@@ -1,4 +1,4 @@
-/* $Id: device.h,v 1.1 2007-03-10 14:49:39 ensonic Exp $
+/* $Id: device.h,v 1.2 2007-04-15 18:47:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,18 +41,51 @@ typedef struct _BtIcDevicePrivate BtIcDevicePrivate;
 /**
  * BtIcDevice:
  *
- * buzztards interaction controller registry
+ * buzztards interaction controller device
  */
 struct _BtIcDevice {
   const GObject parent;
-  
+
   /*< private >*/
   BtIcDevicePrivate *priv;
 };
-/* structure of the registry class */
+
+/**
+ * btic_device_virtual_start:
+ * @self: device instance
+ *
+ * Subclasses will override this methods with a function that counts start calls
+ * and runs the device-io for starts>0.
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*btic_device_virtual_start)(gconstpointer self);
+
+/**
+ * btic_device_virtual_stop:
+ * @self: device instance
+ *
+ * Subclasses will override this methods with a function that counts stop calls
+ * and stops the device-io for starts==0.
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*btic_device_virtual_stop)(gconstpointer self);
+
+/**
+ * BtIcDeviceClass:
+ * @parent: parent class type
+ * @start: virtual method for starting a devie
+ * @stop: virtual method for stopping a device
+ *
+ * buzztards interaction controller device class
+ */
 struct _BtIcDeviceClass {
   const GObjectClass parent;
-  
+
+  /* class methods */
+  btic_device_virtual_start start;
+  btic_device_virtual_stop stop;
 };
 
 /* used by DEVICE_TYPE */

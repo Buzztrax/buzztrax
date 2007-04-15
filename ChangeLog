@@ -1,3 +1,54 @@
+2007-04-15  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* src/lib/core/song-io.c: (bt_song_io_register_plugins),
+	(bt_song_io_detect), (bt_song_io_new), (bt_song_io_default_load),
+	(bt_song_io_default_save), (bt_song_io_load), (bt_song_io_save),
+	(bt_song_io_init), (bt_song_io_class_init):
+	* src/lib/ic/device.c: (btic_device_default_start),
+	(btic_device_default_stop), (btic_device_start),
+	(btic_device_stop), (btic_device_class_init):
+	* src/lib/ic/input-device.c: (register_trigger_controls),
+	(register_abs_range_controls), (io_handler),
+	(btic_input_device_start), (btic_input_device_stop),
+	(btic_input_device_dispose), (btic_input_device_finalize),
+	(btic_input_device_init), (btic_input_device_class_init):
+	* src/lib/ic/libbtic/device-methods.h:
+	* src/lib/ic/libbtic/device.h:
+	* src/lib/ic/midi-device.c: (btic_midi_device_start),
+	(btic_midi_device_stop), (btic_midi_device_class_init):
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_range_control_notify), (on_trigger_control_notify),
+	(on_control_bind_activated),
+	(bt_interaction_controller_menu_init_control_menu),
+	(bt_interaction_controller_menu_init_device_menu),
+	(bt_interaction_controller_menu_get_property),
+	(bt_interaction_controller_menu_set_property),
+	(bt_interaction_controller_menu_dispose),
+	(bt_interaction_controller_menu_class_init):
+	* src/ui/edit/machine-properties-dialog.c: (make_control_data),
+	(free_control_data), (on_double_range_property_notify_idle),
+	(on_double_range_property_changed),
+	(on_double_range_control_notify), (on_double_range_control_bind),
+	(on_double_range_button_press_event),
+	(on_float_range_property_notify_idle),
+	(on_float_range_property_changed),
+	(on_int_range_property_notify_idle),
+	(on_int_range_property_changed),
+	(on_uint_range_property_notify_idle),
+	(on_uint_range_property_changed), (on_uint_range_control_notify),
+	(on_uint_range_control_bind), (on_uint_range_button_press_event),
+	(on_checkbox_control_notify), (on_checkbox_control_bind),
+	(on_checkbox_button_press_event), (make_checkbox_widget),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_float_range_widget), (make_double_range_widget),
+	(make_combobox_widget), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose),
+	(bt_machine_properties_dialog_finalize),
+	(bt_machine_properties_dialog_init),
+	(bt_machine_properties_dialog_class_init):
+	  implement input device interaction controllers, implement ui to bind controls
+
 2007-04-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-ic/bt-ic-docs.sgml:
