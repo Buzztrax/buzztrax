@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.131 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: sequence.c,v 1.132 2007-04-16 13:53:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -601,6 +601,9 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
   gulong i,j,k;
 
   g_object_get(G_OBJECT(pattern),"machine",&this_machine,NULL);
+
+  GST_INFO("pattern %p changed",pattern);
+
   // for all occurences of pattern
   for(i=0;i<self->priv->tracks;i++) {
     BtMachine * const that_machine=bt_sequence_get_machine(self,i);
@@ -977,16 +980,24 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     self->priv->patterns[index]=NULL;
   }
   if(pattern) {
+    //gulong pattern_uses;
+
     GST_DEBUG("set new pattern");
     // enter the new pattern
     self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
     //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
-    
+
     // attatch a signal handler if this is the first usage
-    if(bt_sequence_get_number_of_pattern_uses(self,self->priv->patterns[index])==1) {
+    //pattern_uses=bt_sequence_get_number_of_pattern_uses(self,pattern);
+    if(bt_sequence_get_number_of_pattern_uses(self,pattern==1) {
+    //if(pattern_uses==1) {
+      //GST_INFO("subscribing to changes for pattern %p",pattern);
       g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
       g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
     }
+    //else {
+    //  GST_INFO("not subscribing to changes for pattern %p, uses=%lu",pattern,pattern_uses);
+    //}
     // mark region covered by new pattern as damaged
     bt_sequence_invalidate_pattern_region(self,time,track,pattern);
     // repair damage
