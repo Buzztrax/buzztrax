@@ -2,6 +2,20 @@
 
 	* src/lib/core/sequence.c:
 	(bt_sequence_on_pattern_global_param_changed),
+	(bt_sequence_on_pattern_voice_param_changed),
+	(bt_sequence_set_pattern):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_link_many),
+	(bt_sink_bin_get_player_elements),
+	(bt_sink_bin_get_recorder_elements), (bt_sink_bin_update):
+	* src/ui/edit/main-page-patterns.c:
+	* tests/lib/core/e-sequence.c: (BT_START_TEST),
+	(bt_sequence_example_case):
+	  fix build and hopefully #1701421
+
+2007-04-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sequence.c:
+	(bt_sequence_on_pattern_global_param_changed),
 	(bt_sequence_set_pattern):
 	  some logging for #1701421
 

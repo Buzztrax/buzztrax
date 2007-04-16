@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.31 2007-04-04 18:47:43 ensonic Exp $
+/* $Id: sink-bin.c,v 1.32 2007-04-16 20:01:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -151,7 +151,7 @@ static gboolean bt_sink_bin_add_many(const BtSinkBin * const self, GList * const
 static void bt_sink_bin_link_many(const BtSinkBin * const self, GstElement *last_elem, GList * const list) {
   const GList *node;
 
-  GST_DEBUG("link elements: list=%p",list);
+  GST_DEBUG("link elements: last_elem=%p, list=%p",last_elem,list);
   if(!list) return;
 
   for(node=list;node;node=node->next) {
@@ -245,6 +245,8 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   gchar *plugin_name;
 
+  GST_DEBUG("get playback elements");
+
   plugin_name=bt_sink_bin_determine_plugin_name();
   GstElement * const element=gst_element_factory_make(plugin_name,"player");
   if(!element) {
@@ -267,6 +269,8 @@ Error:
 static GList *bt_sink_bin_get_recorder_elements(const BtSinkBin * const self) {
   GList *list=NULL;
   GstElement *element;
+
+  GST_DEBUG("get record elements");
 
   // @todo: check extension ?
   // generate recorder elements
@@ -343,7 +347,6 @@ Error:
  */
 static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   GstElement *first_elem=NULL;
-  GstPad *sink_pad;
   GstState state;
   gboolean defer=FALSE;
 
@@ -385,7 +388,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         g_list_free(list);
       }
       else {
-        GST_WARNING("Can't get playback elemnt list");
+        GST_WARNING("Can't get playback element list");
         return(FALSE);
       }
       break;}
@@ -398,7 +401,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         g_list_free(list);
       }
       else {
-        GST_WARNING("Can't get record elemnt list");
+        GST_WARNING("Can't get record element list");
         return(FALSE);
       }
       break;}
@@ -416,7 +419,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         g_list_free(list1);
       }
       else {
-        GST_WARNING("Can't get playback elemnt list");
+        GST_WARNING("Can't get playback element list");
         return(FALSE);
       }
       // add recorder elems
@@ -427,7 +430,7 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
         g_list_free(list2);
       }
       else {
-        GST_WARNING("Can't get record elemnt list");
+        GST_WARNING("Can't get record element list");
         return(FALSE);
       }
       break;}
@@ -436,20 +439,25 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   }
 
   // set new ghostpad-target
-  sink_pad=gst_element_get_pad(first_elem,"sink");
-  if(!sink_pad) {
-    GST_INFO("failed to get 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
-    sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
+  if(first_elem) {
+    GstPad *sink_pad=gst_element_get_pad(first_elem,"sink");
+
+    GST_INFO("updating ghostpad");
+
     if(!sink_pad) {
-      GST_INFO("failed to get 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
+      GST_INFO("failed to get 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
+      sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
+      if(!sink_pad) {
+        GST_INFO("failed to get 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
+      }
     }
+    GST_INFO("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
+      first_elem,(G_OBJECT(first_elem)->ref_count),GST_OBJECT_NAME(first_elem),
+      sink_pad,(G_OBJECT(sink_pad)->ref_count));
+    gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
+    GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
+    gst_object_unref(sink_pad);
   }
-  GST_INFO("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
-    first_elem,(G_OBJECT(first_elem)->ref_count),GST_OBJECT_NAME(first_elem),
-    sink_pad,(G_OBJECT(sink_pad)->ref_count));
-  gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
-  GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
-  gst_object_unref(sink_pad);
 
   GST_INFO("done");
   return(TRUE);

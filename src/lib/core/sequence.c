@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.132 2007-04-16 13:53:32 ensonic Exp $
+/* $Id: sequence.c,v 1.133 2007-04-16 20:01:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -615,7 +615,8 @@ static void bt_sequence_on_pattern_global_param_changed(const BtPattern * const 
           for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
             if(bt_sequence_test_pattern(self,j+k,i)) break;
           }
-          if(k==tick) {
+          // for tick==0 we always invalidate
+          if(!tick || k==tick) {
             bt_sequence_invalidate_global_param(self,this_machine,j+tick,param);
           }
         }
@@ -651,7 +652,8 @@ static void bt_sequence_on_pattern_voice_param_changed(const BtPattern * const p
           for(k=1;((k<tick) && (j+k<self->priv->length));k++) {
             if(bt_sequence_test_pattern(self,j+k,i)) break;
           }
-          if(k==tick) {
+          // for tick==0 we always invalidate
+          if(!tick || k==tick) {
             bt_sequence_invalidate_voice_param(self,this_machine,j+tick,voice,param);
           }
         }
@@ -989,7 +991,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
 
     // attatch a signal handler if this is the first usage
     //pattern_uses=bt_sequence_get_number_of_pattern_uses(self,pattern);
-    if(bt_sequence_get_number_of_pattern_uses(self,pattern==1) {
+    if(bt_sequence_get_number_of_pattern_uses(self,pattern)==1) {
     //if(pattern_uses==1) {
       //GST_INFO("subscribing to changes for pattern %p",pattern);
       g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);

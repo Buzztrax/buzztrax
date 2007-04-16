@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.119 2007-04-02 14:51:14 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.120 2007-04-16 20:01:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -168,7 +168,6 @@ static void selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer
      NULL);
   g_free(str);
 }
-
 
 //-- tree model helper
 

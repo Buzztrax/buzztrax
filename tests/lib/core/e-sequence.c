@@ -1,4 +1,4 @@
-/* $Id: e-sequence.c,v 1.16 2007-04-04 13:43:58 ensonic Exp $
+/* $Id: e-sequence.c,v 1.17 2007-04-16 20:01:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -417,6 +417,63 @@ BT_START_TEST(test_btsequence_update) {
 }
 BT_END_TEST
 
+BT_START_TEST(test_btsequence_change_pattern) {
+  BtApplication *app;
+  BtSong *song;
+  BtSequence *sequence;
+  BtMachine *machine;
+  BtPattern *pattern;
+  GstObject *element;
+  gulong val;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+  /* create a new song */
+  song=bt_song_new(app);
+  g_object_get(song,"sequence",&sequence,NULL);
+   /* create a source machine and get the gstreamer element */
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+  fail_unless(machine!=NULL, NULL);
+  g_object_get(machine,"machine",&element,NULL);
+  /* create a pattern */
+  pattern=bt_pattern_new(song,"pattern-id","pattern-name",8L,machine);
+  fail_unless(pattern!=NULL, NULL);
+
+  /* enlarge length */
+  g_object_set(sequence,"length",4L,NULL);
+
+  /* set machine */
+  bt_sequence_add_track(sequence,machine);
+
+  /* set pattern */
+  bt_sequence_set_pattern(sequence,0,0,pattern);
+
+  /* schedule a parameter change */
+  bt_pattern_set_global_event(pattern,0,0,"100");
+
+  /* we should still have the default value */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==0, NULL);
+
+  /* pull in the change */
+  gst_object_sync_values(G_OBJECT(element),G_GUINT64_CONSTANT(0));
+
+  /* and verify */
+  g_object_get(element,"g-ulong",&val,NULL);
+  fail_unless(val==100, NULL);
+
+  /* clean up */
+  g_object_try_unref(pattern);
+  gst_object_unref(element);
+  g_object_try_unref(machine);
+  g_object_try_unref(sequence);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
+
+
 BT_START_TEST(test_btsequence_validate_loop) {
   BtApplication *app=NULL;
   BtSong *song;
@@ -460,6 +517,7 @@ TCase *bt_sequence_example_case(void) {
   tcase_add_test(tc,test_btsequence_shrink_track);
   tcase_add_test(tc,test_btsequence_enlarge_both_vals);
   tcase_add_test(tc,test_btsequence_update);
+  tcase_add_test(tc,test_btsequence_change_pattern);
   tcase_add_test(tc,test_btsequence_validate_loop);
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   return(tc);
