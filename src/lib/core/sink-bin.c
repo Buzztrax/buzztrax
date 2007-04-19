@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.32 2007-04-16 20:01:43 ensonic Exp $
+/* $Id: sink-bin.c,v 1.33 2007-04-19 20:39:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,7 +55,10 @@ enum {
   SINK_BIN_MODE=1,
   SINK_BIN_RECORD_FORMAT,
   SINK_BIN_RECORD_FILE_NAME,
-  SINK_BIN_TEMPO_BPM
+  // tempo iface
+  SINK_BIN_TEMPO_BPM,
+  SINK_BIN_TEMPO_TPB,
+  SINK_BIN_TEMPO_STPT,
 };
 
 struct _BtSinkBinPrivate {
@@ -77,11 +80,58 @@ struct _BtSinkBinPrivate {
   BtSettings *settings;
 
   gulong bus_handler_id;
+
+  /* tempo handling */
+  gulong beats_per_minute;
+  gulong ticks_per_beat;
+  gulong subticks_per_tick;
 };
 
 static GstBinClass *parent_class=NULL;
 
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data);
+
+//-- tempo interface implementations
+
+static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minute, glong ticks_per_beat, glong subticks_per_tick) {
+  BtSinkBin *self=BT_SINK_BIN(tempo);
+  gboolean changed=FALSE;
+
+  if(beats_per_minute>=0) {
+    if(self->priv->beats_per_minute!=beats_per_minute) {
+      self->priv->beats_per_minute=(gulong)beats_per_minute;
+      g_object_notify(G_OBJECT(self),"beats-per-minute");
+      changed=TRUE;
+    }
+  }
+  if(ticks_per_beat>=0) {
+    if(self->priv->ticks_per_beat!=ticks_per_beat) {
+      self->priv->ticks_per_beat=(gulong)ticks_per_beat;
+      g_object_notify(G_OBJECT(self),"ticks-per-beat");
+      changed=TRUE;
+    }
+  }
+  if(subticks_per_tick>=0) {
+    if(self->priv->subticks_per_tick!=subticks_per_tick) {
+      self->priv->subticks_per_tick=(gulong)subticks_per_tick;
+      g_object_notify(G_OBJECT(self),"subticks-per-tick");
+      changed=TRUE;
+    }
+  }
+  if(changed) {
+    GST_DEBUG("changing tempo to %d BPM  %d TPB  %d STPT",self->priv->beats_per_minute,self->priv->ticks_per_beat,self->priv->subticks_per_tick);
+    // @todo: set buffersize
+  }
+}
+
+static void bt_sink_bin_tempo_interface_init(gpointer g_iface, gpointer iface_data) {
+  GstTempoInterface *iface = g_iface;
+
+  GST_INFO("initializing iface");
+
+  iface->change_tempo = bt_sink_bin_tempo_change_tempo;
+}
+
 
 //-- enums
 
@@ -255,10 +305,16 @@ static GList *bt_sink_bin_get_player_elements(const BtSinkBin * const self) {
   if(GST_IS_BASE_SINK(element)) {
     // enable syncing to timestamps
     gst_base_sink_set_sync(GST_BASE_SINK(element),TRUE);
+    // @todo: do this bt_sink_bin_tempo_change_tempo()
+    if(GST_IS_BASE_AUDIO_SINK(element)) {
+      if(self->priv->beats_per_minute && self->priv->ticks_per_beat) {
+        // configure buffer size (e.g.  GST_SECONG*60/120*4
+        gint64 buffer_time=(GST_SECOND*60)/(self->priv->beats_per_minute*self->priv->ticks_per_beat);
+        GST_INFO("changing buffer-size for sink to %"G_GUINT64_FORMAT,buffer_time);
+        g_object_set(element,"buffer-time",buffer_time,NULL);
+      }
+    }
   }
-  //else {
-  //g_object_set(G_OBJECT (element), "sync", FALSE, NULL);
-  //}
   list=g_list_append(list,element);
 
 Error:
@@ -547,6 +603,16 @@ static void bt_sink_bin_get_property(GObject      * const object,
     case SINK_BIN_RECORD_FILE_NAME: {
       g_value_set_string(value, self->priv->record_file_name);
     } break;
+	// tempo iface
+    case SINK_BIN_TEMPO_BPM:
+      g_value_set_ulong(value, self->priv->beats_per_minute);
+      break;
+    case SINK_BIN_TEMPO_TPB:
+      g_value_set_ulong(value, self->priv->ticks_per_beat);
+      break;
+    case SINK_BIN_TEMPO_STPT:
+      g_value_set_ulong(value, self->priv->subticks_per_tick);
+      break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -592,6 +658,12 @@ static void bt_sink_bin_set_property(GObject      * const object,
         bt_sink_bin_update(self);
       }
     } break;
+	// tempo iface
+    case SINK_BIN_TEMPO_BPM:
+    case SINK_BIN_TEMPO_TPB:
+    case SINK_BIN_TEMPO_STPT:
+	  GST_WARNING("use gst_tempo_change_tempo()");
+      break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;
@@ -668,6 +740,11 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
   gobject_class->dispose      = bt_sink_bin_dispose;
   gobject_class->finalize     = bt_sink_bin_finalize;
 
+  // override interface properties
+  g_object_class_override_property(gobject_class, SINK_BIN_TEMPO_BPM, "beats-per-minute");
+  g_object_class_override_property(gobject_class, SINK_BIN_TEMPO_TPB, "ticks-per-beat");
+  g_object_class_override_property(gobject_class, SINK_BIN_TEMPO_STPT, "subticks-per-tick");
+
   g_object_class_install_property(gobject_class,SINK_BIN_MODE,
                                   g_param_spec_enum("mode",
                                      "mode prop",
@@ -695,6 +772,11 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
 GType bt_sink_bin_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
+    const GInterfaceInfo tempo_interface_info = {
+      (GInterfaceInitFunc) bt_sink_bin_tempo_interface_init,          /* interface_init */
+      NULL,               /* interface_finalize */
+      NULL                /* interface_data */
+    };
     const GTypeInfo info = {
       G_STRUCT_SIZE(BtSinkBinClass),
       NULL, // base_init
@@ -708,6 +790,7 @@ GType bt_sink_bin_get_type(void) {
       NULL // value_table
     };
     type = g_type_register_static(GST_TYPE_BIN,"BtSinkBin",&info,0);
+    g_type_add_interface_static(type, GST_TYPE_TEMPO, &tempo_interface_info);
   }
   return type;
 }

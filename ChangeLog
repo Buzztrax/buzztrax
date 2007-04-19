@@ -1,5 +1,21 @@
 2007-04-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/sink-bin.c: (bt_sink_bin_tempo_change_tempo),
+	(bt_sink_bin_tempo_interface_init),
+	(bt_sink_bin_get_player_elements), (bt_sink_bin_get_property),
+	(bt_sink_bin_set_property), (bt_sink_bin_class_init),
+	(bt_sink_bin_get_type):
+	  add tempo iface to sink
+	
+	* tests/lib/core/e-pattern.c: (BT_START_TEST),
+	(bt_pattern_example_case):
+	  add new test for pattern_tick_has_data.
+
+2007-04-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/persistence.h:
 	* src/lib/core/machine.c: (bt_machine_persistence_load):

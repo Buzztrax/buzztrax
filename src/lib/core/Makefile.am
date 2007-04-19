@@ -1,18 +1,18 @@
-## $Id: Makefile.am,v 1.38 2007-03-02 13:17:13 ensonic Exp $
+## $Id: Makefile.am,v 1.39 2007-04-19 20:39:19 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
 if USE_GCONF
 GCONF_SETTINGS_SRC = gconf-settings.c libbtcore/gconf-settings.h libbtcore/gconf-settings-methods.h
 else
-GCONF_SETTINGS_SRC = 
+GCONF_SETTINGS_SRC =
 endif
 
 # these sources (also mentioned above) are generated.
 BUILT_SOURCES = marshal.h marshal.c
 
 lib_LTLIBRARIES = libbtcore.la
-libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS)
+libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS) -lgstaudio-0.10
 libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \

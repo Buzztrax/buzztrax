@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.86 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: core.h,v 1.87 2007-04-19 20:39:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,6 +55,7 @@
 //-- gstreamer
 #include <gst/gst.h>
 #include <gst/audio/audio.h>
+#include <gst/audio/gstbaseaudiosink.h>
 #include <gst/base/gstbasesink.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/controller/gstcontroller.h>
@@ -142,14 +143,14 @@
  * G_ABS_STRUCT_OFFSET:
  * @struct_type: a structure type, e.g. GtkWidget.
  * @member: a field in the structure, e.g. window.
- * 
+ *
  * Returns the offset, in bytes, of a member of a struct.
  *
  * Returns: the offset of member from the start of struct_type.
- */  
+ */
 #define G_ABS_STRUCT_OFFSET(struct_type, member)    \
     ((guint) ((guint8*) &((struct_type*) 0)->member))
-  
+
 /**
  * XML_CHAR_PTR:
  * @str: the string to cast
@@ -200,7 +201,7 @@
  * This macro is handy to use at the start of all class routines
  * such as _get_property(), _set_property(), _dispose().
  */
-#define return_if_disposed() if(self->priv->dispose_has_run) return 
+#define return_if_disposed() if(self->priv->dispose_has_run) return
 
 /**
  * G_STRUCT_SIZE:
@@ -298,7 +299,7 @@ Sadly they don't gave tips how they belive to get rid of the warning.
  * @var: the variable name
  *
  * Defines a anonymous union to handle gcc-4.1s type punning warning that one
- * gets when using e.g. g_object_try_weak_ref() 
+ * gets when using e.g. g_object_try_weak_ref()
  */
 #define G_POINTER_ALIAS(type,var) \
 union { \
@@ -308,7 +309,7 @@ union { \
 
 /*
 @idea g_alloca_printf
-	
+
 #define g_alloca_printf(str,format,...) \
 sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 */

@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.96 2007-03-16 12:54:32 ensonic Exp $
+dnl $Id: configure.ac,v 1.97 2007-04-19 20:39:19 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -79,7 +79,7 @@ PKG_PROG_PKG_CONFIG
 AC_PATH_PROG(xvfb_path, [Xvfb], [no])
 if test "x$xvfb_path" != "xno" ; then
   AC_DEFINE_UNQUOTED(XVFB_PATH, "$xvfb_path", [Path of Xvfb executable to be used to run gui unit tests under])
-  
+
   xfont_path=`xset q | grep fonts | sed 's/^\ *//'`
   if test "x$xfont_path" != "x"; then
     AC_DEFINE_UNQUOTED(XFONT_PATH, "$xfont_path", [X font path])
@@ -212,13 +212,13 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
   gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
-  gstreamer-base-0.10 >= 0.10.0
-  gstreamer-plugins-base-0.10 >= 0.10.0
+  gstreamer-base-0.10 >= 0.10.0 \
+  gstreamer-plugins-base-0.10 >= 0.10.0 \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
   gtk+-2.0 >= 2.6.0 \
-  libgnomecanvas-2.0
+  libgnomecanvas-2.0 \
 )
 
 PKG_CHECK_MODULES(GCONF_DEPS, gconf-2.0 >= 2.2.0, [
