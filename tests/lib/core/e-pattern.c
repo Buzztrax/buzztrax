@@ -1,4 +1,4 @@
-/* $Id: e-pattern.c,v 1.16 2007-04-19 20:39:19 ensonic Exp $
+/* $Id: e-pattern.c,v 1.17 2007-04-19 20:47:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -149,7 +149,6 @@ BT_START_TEST(test_btpattern_has_data) {
   BtSong *song=NULL;
   BtMachine *machine=NULL;
   BtPattern *pattern=NULL;
-  gulong length;
   gchar *data;
   gboolean res;
 

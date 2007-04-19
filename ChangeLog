@@ -1,5 +1,10 @@
 2007-04-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-pattern.c: (BT_START_TEST):
+	  build fix
+
+2007-04-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/Makefile.am:
 	* src/lib/core/libbtcore/core.h:
