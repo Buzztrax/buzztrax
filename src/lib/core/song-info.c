@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.67 2007-03-27 13:53:21 ensonic Exp $
+/* $Id: song-info.c,v 1.68 2007-04-19 17:55:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -161,7 +161,7 @@ static gboolean bt_song_info_persistence_load(const BtPersistence * const persis
     if(!xmlNodeIsText(node)) {
       xmlNodePtr const child_node=node->children;
       if(child_node && xmlNodeIsText(child_node) && !xmlIsBlankNode(child_node)) {
-	      xmlChar * const elem=xmlNodeGetContent(child_node);
+	    xmlChar * const elem=xmlNodeGetContent(child_node);
         if(elem) {
           const gchar * const property_name=(gchar *)node->name;
           GST_DEBUG("  \"%s\"=\"%s\"",property_name,elem);

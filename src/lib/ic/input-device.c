@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.10 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: input-device.c,v 1.11 2007-04-19 17:55:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,12 +22,14 @@
  * SECTION:bticinputdevice
  * @short_description: buzztards interaction controller input device
  *
- * Event handling for input devices (joystick,hdaps).
+ * Event handling for input devices (joystick,hdaps,wiimote).
  */
 /*
  * http://linuxconsole.cvs.sourceforge.net/linuxconsole/ruby/utils/
- * http://gentoo-wiki.com/HOWTO_Joystick_Setup
  * http://www.frogmouth.net/hid-doco/linux-hid.html
+ *
+ * http://gentoo-wiki.com/HOWTO_Joystick_Setup
+ * http://www.wiili.org/index.php/Wiimote
  *
  * This is lowlevel
  * http://libhid.alioth.debian.org/

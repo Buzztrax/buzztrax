@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.108 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: setup.c,v 1.109 2007-04-19 17:55:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -20,16 +20,16 @@
  */
 /**
  * SECTION:btsetup
- * @short_description: class with all machines and wires (#BtMachine and #BtWire) 
+ * @short_description: class with all machines and wires (#BtMachine and #BtWire)
  * for a #BtSong instance
  *
  * The setup manages virtual gear. That is used #BtMachines and the #BtWires
  * that connect them.
- */ 
+ */
 /* @idea add a methods for dumping the setup as a dot-graph
  * machines and wires should be dumped with details (as subgraphs)!
  */
- 
+
 #define BT_CORE
 #define BT_SETUP_C
 
@@ -58,14 +58,14 @@ enum {
 struct _BtSetupPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the song the setup belongs to */
   G_POINTER_ALIAS(BtSong *,song);
-  
+
   GList *machines;         // each entry points to BtMachine
   GList *wires;            // each entry points to BtWire
   GList *missing_machines; // each entry points to a gchar*
-  
+
   /* (ui) properties accociated with this song
      zoom. scroll-position
    */
@@ -106,13 +106,13 @@ BtSetup *bt_setup_new(const BtSong * const song) {
  * In other words - it returns the first wire that has the the given #BtMachine as
  * the given type.
  *
- * Returns: the #BtWire or %NULL 
+ * Returns: the #BtWire or %NULL
  */
 static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup * const self, const BtMachine * const machine, const gchar * const type) {
   gboolean found=FALSE;
   BtMachine * const search_machine;
   GList *node;
-  
+
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),type,&search_machine,NULL);
@@ -133,7 +133,7 @@ static BtWire *bt_setup_get_wire_by_machine_type(const BtSetup * const self, con
  * Searches for all wires in setup that uses the given #BtMachine as the given
  * type.
  *
- * Returns: a #GList with the #BtWires or %NULL 
+ * Returns: a #GList with the #BtWires or %NULL
  */
 static GList *bt_setup_get_wires_by_machine_type(const BtSetup * const self,const BtMachine * const machine, const gchar * const type) {
   GList *wires=NULL,*node;
@@ -166,7 +166,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
   gboolean ret=FALSE;
 
   // @todo add g_error stuff, to give the programmer more information, whats going wrong.
-  
+
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
@@ -178,7 +178,7 @@ gboolean bt_setup_add_machine(const BtSetup * const self, const BtMachine * cons
     GST_DEBUG("added machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
   }
   else {
-    GST_WARNING("trying to add machine %p again",machine); 
+    GST_WARNING("trying to add machine %p again",machine);
   }
   return ret;
 }
@@ -199,15 +199,15 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
   gboolean ret=FALSE;
 
   // @todo add g_error stuff, to give the programmer more information, whats going wrong.
-  
+
   g_return_val_if_fail(BT_IS_SETUP(self),FALSE);
   g_return_val_if_fail(BT_IS_WIRE(wire),FALSE);
 
   if(!g_list_find(self->priv->wires,wire)) {
     BtMachine *src,*dst;
     BtWire *other_wire1,*other_wire2;
-    
-    // check for wires with equal src and dst machines 
+
+    // check for wires with equal src and dst machines
     g_object_get(G_OBJECT(wire),"src",&src,"dst",&dst,NULL);
     other_wire1=bt_setup_get_wire_by_machines(self,src,dst);
     other_wire2=bt_setup_get_wire_by_machines(self,dst,src);
@@ -239,7 +239,7 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
 void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const machine) {
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_MACHINE(machine));
-  
+
   GST_DEBUG("trying to remove machine: %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
 
   if(g_list_find(self->priv->machines,machine)) {
@@ -250,7 +250,7 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
-    GST_WARNING("trying to remove machine that is not in setup"); 
+    GST_WARNING("trying to remove machine that is not in setup");
   }
 }
 
@@ -264,7 +264,7 @@ void bt_setup_remove_machine(const BtSetup * const self, const BtMachine * const
 void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire) {
   g_return_if_fail(BT_IS_SETUP(self));
   g_return_if_fail(BT_IS_WIRE(wire));
-  
+
   GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
   if(g_list_find(self->priv->wires,wire)) {
@@ -275,7 +275,7 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
-    GST_WARNING("trying to remove wire that is not in setup"); 
+    GST_WARNING("trying to remove wire that is not in setup");
   }
 }
 
@@ -297,7 +297,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
 
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   g_return_val_if_fail(BT_IS_STRING(id),NULL);
-  
+
   /*
     find_by_property(gpointer item,gpointer data) {
       GValue value;
@@ -310,8 +310,8 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
       //-> what about: gst_value_compare()
       // @todo method puts key-key into a gvalue and gets the param-spec by name, then calls generalized search
       //-> what about: g_param_values_cmp()
-    }  
-   
+    }
+
     struct {
      gchar *key;
      GValue compare_value;
@@ -319,11 +319,11 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
     g_value_init(data.compare_value, G_TYPE_STRING);
     g_value_set_string(data.compare_value,id);
     data.key="id";
-   
+
     node = g_list_find_custom(self->priv->machines, data, find_by_property);
     if(node) return(BT_MACHINE(node->data);
   */
-  
+
   for(node=self->priv->machines;node;node=g_list_next(node)) {
     BtMachine * const machine=BT_MACHINE(node->data);
     g_object_get(G_OBJECT(machine),"id",&machine_id,NULL);
@@ -352,7 +352,7 @@ BtMachine *bt_setup_get_machine_by_id(const BtSetup * const self, const gchar * 
 BtMachine *bt_setup_get_machine_by_index(const BtSetup * const self, const gulong index) {
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   g_return_val_if_fail(index<g_list_length(self->priv->machines),NULL);
-  
+
   return(g_object_ref(BT_MACHINE(g_list_nth_data(self->priv->machines,(guint)index))));
 }
 
@@ -407,7 +407,7 @@ GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType typ
   return(machines);
 }
 
- 
+
 /**
  * bt_setup_get_wire_by_src_machine:
  * @self: the setup to search for the wire
@@ -417,7 +417,7 @@ GList *bt_setup_get_machines_by_type(const BtSetup * const self, const GType typ
  * In other words - it returns the first wire that starts at the given #BtMachine.
  * Unref the wire, when done with it.
  *
- * Returns: the #BtWire or %NULL 
+ * Returns: the #BtWire or %NULL
  */
 BtWire *bt_setup_get_wire_by_src_machine(const BtSetup * const self, const BtMachine * const src) {
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
@@ -434,7 +434,7 @@ BtWire *bt_setup_get_wire_by_src_machine(const BtSetup * const self, const BtMac
  * In other words - it returns the first wire that ends at the given #BtMachine.
  * Unref the wire, when done with it.
  *
- * Returns: the #BtWire or %NULL 
+ * Returns: the #BtWire or %NULL
  */
 BtWire *bt_setup_get_wire_by_dst_machine(const BtSetup *const self, const BtMachine * const dst) {
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
@@ -462,7 +462,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(src),NULL);
   g_return_val_if_fail(BT_IS_MACHINE(dst),NULL);
-   
+
   for(node=self->priv->wires;node;node=g_list_next(node)) {
     BtWire * const wire=BT_WIRE(node->data);
     g_object_get(G_OBJECT(wire),"src",&src_machine,"dst",&dst_machine,NULL);
@@ -483,7 +483,7 @@ BtWire *bt_setup_get_wire_by_machines(const BtSetup * const self, const BtMachin
  * Searches for all wires in setup that use the given #BtMachine as a source.
  * Free the list (and unref the wires), when done with it.
  *
- * Returns: a #GList with the #BtWires or %NULL 
+ * Returns: a #GList with the #BtWires or %NULL
  */
 GList *bt_setup_get_wires_by_src_machine(const BtSetup * const self, const BtMachine * const src) {
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
@@ -499,7 +499,7 @@ GList *bt_setup_get_wires_by_src_machine(const BtSetup * const self, const BtMac
  * Searches for all wires in setup that use the given #BtMachine as a target.
  * Free the list (and unref the wires), when done with it.
  *
- * Returns: a #GList with the #BtWires or %NULL 
+ * Returns: a #GList with the #BtWires or %NULL
  */
 GList *bt_setup_get_wires_by_dst_machine(const BtSetup * const self, const BtMachine * const dst) {
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
@@ -520,10 +520,10 @@ GList *bt_setup_get_wires_by_dst_machine(const BtSetup * const self, const BtMac
 gchar *bt_setup_get_unique_machine_id(const BtSetup * const self, gchar * const base_name) {
   BtMachine *machine;
   guint8 i=0;
-  
+
   g_return_val_if_fail(BT_IS_SETUP(self),NULL);
   g_return_val_if_fail(BT_IS_STRING(base_name),NULL);
-  
+
   if(!(machine=bt_setup_get_machine_by_id(self,base_name))) {
     return(g_strdup(base_name));
   }
@@ -563,7 +563,7 @@ static xmlNodePtr bt_setup_persistence_save(const BtPersistence * const persiste
   BtSetup * const self = BT_SETUP(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
-  
+
   GST_DEBUG("PERSISTENCE::setup");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("setup"),NULL))) {
@@ -587,15 +587,15 @@ Error:
 static gboolean bt_setup_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   BtSetup * const self = BT_SETUP(persistence);
   xmlNodePtr child_node;
-  
+
   GST_DEBUG("PERSISTENCE::setup");
   g_assert(node);
-  
+
   for(node=node->children;node;node=node->next) {
     if(!xmlNodeIsText(node)) {
       if(!strncmp((gchar *)node->name,"machines\0",9)) {
         GType type=0;
-        
+
         //bt_song_io_native_load_setup_machines(self,song,node->children);
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
@@ -621,12 +621,12 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
                 else {
                   // collect failed machines
                   gchar * const id,* const plugin_name;
-                  
-                  g_object_get(machine,"id",&id,"plugin-name",&plugin_name,NULL);        
+
+                  g_object_get(machine,"id",&id,"plugin-name",&plugin_name,NULL);
                   const gchar * const str=g_strdup_printf("%s: %s",id, plugin_name);  // str is freed elsewhere
                   bt_setup_remember_missing_machine(self,str);
                   g_free(id);
-		              g_free(plugin_name);
+                  g_free(plugin_name);
                 }
                 g_object_unref(machine);
               }
@@ -656,7 +656,7 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
 
 static void bt_setup_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_setup_persistence_load;
   iface->save = bt_setup_persistence_save;
 }
@@ -755,7 +755,7 @@ static void bt_setup_dispose(GObject * const object) {
     }
   }
 
-  GST_DEBUG("  chaining up");  
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }
 
@@ -785,16 +785,16 @@ static void bt_setup_finalize(GObject * const object) {
   }
 
   g_hash_table_destroy(self->priv->properties);
-  
-  GST_DEBUG("  chaining up");  
+
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_setup_init(const GTypeInstance * const instance, gconstpointer g_class) {
   BtSetup * const self = BT_SETUP(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SETUP, BtSetupPrivate);
-  
+
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
 }
 
@@ -813,8 +813,8 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
   klass->wire_added_event = NULL;
   klass->machine_removed_event = NULL;
   klass->wire_removed_event = NULL;
-  
-  /** 
+
+  /**
    * BtSetup::machine-added:
    * @self: the setup object that emitted the signal
    * @machine: the new machine
@@ -833,7 +833,7 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                         BT_TYPE_MACHINE // param data
                                         );
 
-  /** 
+  /**
    * BtSetup::wire-added:
    * @self: the setup object that emitted the signal
    * @wire: the new wire
@@ -870,8 +870,8 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                         1, // n_params
                                         BT_TYPE_MACHINE // param data
                                         );
-  
-  /** 
+
+  /**
    * BtSetup::wire-removed:
    * @self: the setup object that emitted the signal
    * @wire: the old wire

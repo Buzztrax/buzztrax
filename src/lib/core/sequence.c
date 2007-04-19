@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.133 2007-04-16 20:01:43 ensonic Exp $
+/* $Id: sequence.c,v 1.134 2007-04-19 17:55:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -168,7 +168,7 @@ static void bt_sequence_resize_data_length(const BtSequence * const self, const 
     }
   }
   else {
-    GST_WARNING("extending sequence length from %d to %d failed : data_count=%d = length=%d * tracks=%d",
+    GST_INFO("extending sequence length from %d to %d failed : data_count=%d = length=%d * tracks=%d",
       length,self->priv->length,
       new_data_count,self->priv->length,self->priv->tracks);
   }
@@ -189,7 +189,7 @@ static void bt_sequence_resize_data_length(const BtSequence * const self, const 
     }
   }
   else {
-    GST_WARNING("extending sequence labels from %d to %d failed",length,self->priv->length);
+    GST_INFO("extending sequence labels from %d to %d failed",length,self->priv->length);
   }
 }
 
@@ -238,7 +238,7 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
     }
   }
   else {
-    GST_WARNING("extending sequence tracks from %d to %d failed : data_count=%d = length=%d * tracks=%d",
+    GST_INFO("extending sequence tracks from %d to %d failed : data_count=%d = length=%d * tracks=%d",
       old_tracks,self->priv->tracks,
       new_data_count,self->priv->length,self->priv->tracks);
   }
@@ -260,7 +260,7 @@ static void bt_sequence_resize_data_tracks(const BtSequence * const self, const 
     }
   }
   else {
-    GST_WARNING("extending sequence machines from %d to %d failed",old_tracks,self->priv->tracks);
+    GST_INFO("extending sequence machines from %d to %d failed",old_tracks,self->priv->tracks);
   }
 }
 
@@ -1218,7 +1218,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
             xmlChar * const name=xmlGetProp(child_node,XML_CHAR_PTR("name"));
             bt_sequence_set_label(self,atol((const char *)time_str),(const gchar *)name);
             xmlFree(time_str);
-	          xmlFree(name);
+	        xmlFree(name);
           }
         }
       }
@@ -1232,7 +1232,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
             xmlChar * const machine_id=xmlGetProp(child_node,XML_CHAR_PTR("machine"));
             xmlChar * const index_str=xmlGetProp(child_node,XML_CHAR_PTR("index"));
             const gulong index=index_str?atol((char *)index_str):0;
-	          BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
+	        BtMachine * const machine=bt_setup_get_machine_by_id(setup, (gchar *)machine_id);
 
             if(machine) {
               GST_INFO("add track for machine %p,ref_count=%d at position %d",machine,G_OBJECT(machine)->ref_count,index);
@@ -1245,13 +1245,18 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
                   GST_DEBUG("  at %s, machinepattern \"%s\"",time_str,safe_string(pattern_id));
                   if(pattern_id) {
                     // get pattern by name from machine
-		                BtPattern * const pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id);
+		            BtPattern * const pattern=bt_machine_get_pattern_by_id(machine,(gchar *)pattern_id);
                     if(pattern) {
                       // this refs the pattern
                       bt_sequence_set_pattern(self,atol((char *)time_str),index,pattern);
                       g_object_unref(pattern);
                     }
-                    else GST_ERROR("  unknown pattern \"%s\"",pattern_id);
+                    else {
+                      GST_WARNING("  unknown pattern \"%s\"",pattern_id);
+                      xmlFree(pattern_id);xmlFree(time_str);
+                      xmlFree(index_str);xmlFree(machine_id);
+                      BT_PERSISTENCE_ERROR(Error);
+                    }
                     xmlFree(pattern_id);
                   }
                   xmlFree(time_str);
@@ -1264,7 +1269,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
               GST_INFO("invalid or missing machine %s referenced at track %d",(gchar *)machine_id,index);
             }
             xmlFree(index_str);
-	          xmlFree(machine_id);
+	        xmlFree(machine_id);
           }
         }
         g_object_try_unref(setup);
@@ -1273,6 +1278,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
   }
 
   res=TRUE;
+Error:
   return(res);
 }
 

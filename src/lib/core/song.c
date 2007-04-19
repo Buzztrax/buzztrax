@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.176 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: song.c,v 1.177 2007-04-19 17:55:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -119,7 +119,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
         // +1 does not fully work, something between 4 and 5 seems to
-        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+2)*bar_time);
   }
   else {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
@@ -157,7 +157,7 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
         // +1 does not fully work, something between 4 and 5 seems to
-        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+1)*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+2)*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
@@ -727,7 +727,7 @@ gboolean bt_song_stop(const BtSong * const self) {
   // do not stop if not playing or not preparing
   //if(!self->priv->is_playing && !self->priv->is_preparing) return(TRUE);
   if(!self->priv->is_playing)  return(TRUE);
-  
+
   self->priv->is_playing=FALSE;
   self->priv->is_preparing=FALSE;
   g_object_notify(G_OBJECT(self),"is-playing");

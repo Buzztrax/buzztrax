@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.114 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.115 2007-04-19 17:55:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -314,7 +314,7 @@ static void on_song_level_change(GstBus * bus, GstMessage * message, gpointer us
       peak=g_value_get_double(gst_value_list_get_value(l_peak,i));
       if(isinf(cur) || isnan(cur)) cur=-200.0;
       if(isinf(peak) || isnan(peak)) peak=-200.0;
-      GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
+      //GST_INFO("level.%d  %.3f %.3f", i, cur, peak);
       //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)cur, (gint)peak);
       gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)peak, (gint)cur);
     }

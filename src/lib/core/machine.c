@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.239 2007-04-01 16:18:21 ensonic Exp $
+/* $Id: machine.c,v 1.240 2007-04-19 17:55:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2202,7 +2202,7 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
           GST_WARNING("error while loading global machine data for param %d: %s",param,error->message);
           g_error_free(error);
           xmlFree(name);xmlFree(value_str);
-          goto Error;
+          BT_PERSISTENCE_ERROR(Error);
         }
         xmlFree(name);xmlFree(value_str);
       }
@@ -2227,7 +2227,7 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
           GST_WARNING("error while loading voice machine data for param %d, voice %d: %s",param,voice,error->message);
           g_error_free(error);
           xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
-          goto Error;
+          BT_PERSISTENCE_ERROR(Error);
         }
         xmlFree(name);xmlFree(value_str);xmlFree(voice_str);
       }

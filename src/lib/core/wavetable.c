@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.28 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: wavetable.c,v 1.29 2007-04-19 17:55:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
  *
  * Each wave table entry can constist of multiple #BtWaves, were each of the
  * waves has a #BtWaveLevel with the data for a note range.
- */ 
+ */
 
 #define BT_CORE
 #define BT_WAVETABLE_C
@@ -49,10 +49,10 @@ enum {
 struct _BtWavetablePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the song the wavetable belongs to */
   G_POINTER_ALIAS(BtSong *,song);
-  
+
   GList *waves;         // each entry points to a BtWave
   GList *missing_waves; // each entry points to a gchar*
 };
@@ -94,14 +94,14 @@ Error:
  * @self: the wavetable to add the wave to
  * @wave: the new wave instance
  *
- * Add the supplied wave to the wavetable. This is automatically done by 
+ * Add the supplied wave to the wavetable. This is automatically done by
  * #bt_wave_new().
  *
  * Returns: %TRUE for success, %FALSE otheriwse
  */
 gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * const wave) {
   gboolean ret=FALSE;
-  
+
   g_assert(BT_IS_WAVETABLE(self));
   g_assert(BT_IS_WAVE(wave));
 
@@ -112,7 +112,7 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
     ret=TRUE;
   }
   else {
-    GST_WARNING("trying to add wave again"); 
+    GST_WARNING("trying to add wave again");
   }
   return ret;
 }
@@ -128,7 +128,7 @@ gboolean bt_wavetable_add_wave(const BtWavetable * const self, const BtWave * co
  */
 gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave * const wave) {
   gboolean ret=FALSE;
-  
+
   g_assert(BT_IS_WAVETABLE(self));
   g_assert(BT_IS_WAVE(wave));
 
@@ -140,7 +140,7 @@ gboolean bt_wavetable_remove_wave(const BtWavetable * const self, const BtWave *
     ret=TRUE;
   }
   else {
-    GST_WARNING("trying to remove wave that is not in the list"); 
+    GST_WARNING("trying to remove wave that is not in the list");
   }
   return ret;
 }
@@ -190,7 +190,7 @@ void bt_wavetable_remember_missing_wave(const BtWavetable * const self, const gc
 static xmlNodePtr bt_wavetable_persistence_save(const BtPersistence * const persistence, xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   const BtWavetable * const self = BT_WAVETABLE(persistence);
   xmlNodePtr node=NULL;
-  
+
   GST_DEBUG("PERSISTENCE::wavetable");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wavetable"),NULL))) {
@@ -206,7 +206,7 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
 
   GST_DEBUG("PERSISTENCE::wavetable");
   g_assert(node);
-  
+
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wave\0",5))) {
       BtWave * const wave=BT_WAVE(g_object_new(BT_TYPE_WAVE,NULL));
@@ -216,12 +216,12 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
       else {
         // collect failed waves
         gchar * const name, * const uri;
-        
-        g_object_get(wave,"name",&name,"uri",&uri,NULL);        
+
+        g_object_get(wave,"name",&name,"uri",&uri,NULL);
         gchar * const str=g_strdup_printf("%s: %s",name, uri);
         bt_wavetable_remember_missing_wave(self,str);
         g_free(name);
-	      g_free(uri);
+	    g_free(uri);
       }
       g_object_unref(wave);
     }
@@ -232,7 +232,7 @@ static gboolean bt_wavetable_persistence_load(const BtPersistence * const persis
 
 static void bt_wavetable_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_wavetable_persistence_load;
   iface->save = bt_wavetable_persistence_save;
 }
@@ -342,7 +342,7 @@ static void bt_wavetable_finalize(GObject * const object) {
 
 static void bt_wavetable_init(GTypeInstance * const instance, gconstpointer const g_class) {
   BtWavetable * const self = BT_WAVETABLE(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVETABLE, BtWavetablePrivate);
 }
 

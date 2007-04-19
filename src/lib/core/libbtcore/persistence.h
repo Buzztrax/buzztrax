@@ -1,4 +1,4 @@
-/* $Id: persistence.h,v 1.5 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: persistence.h,v 1.6 2007-04-19 17:55:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -18,7 +18,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
+
 #ifndef BT_PERSISTENCE_H
 #define BT_PERSISTENCE_H
 
@@ -30,6 +30,18 @@
 #define BT_IS_PERSISTENCE(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), BT_TYPE_PERSISTENCE))
 #define BT_PERSISTENCE_GET_INTERFACE(obj) (G_TYPE_INSTANCE_GET_INTERFACE ((obj), BT_TYPE_PERSISTENCE, BtPersistenceInterface))
 
+/**
+ * BT_PERSISTENCE_ERROR:
+ * @label: label to jump to
+ *
+ * depending on the configuration aborts the loading by jumping to the given
+ * @label.
+ */
+/* uncomment this to make loading files fail on warnings
+#define BT_PERSISTENCE_ERROR(label) goto label
+*/
+/* this is a hack to avoid undefined label warnings */
+#define BT_PERSISTENCE_ERROR(label) if(0) goto label
 
 /* type macros */
 
