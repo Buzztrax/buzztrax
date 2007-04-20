@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.94 2007-04-19 17:55:27 ensonic Exp $
+/* $Id: pattern.c,v 1.95 2007-04-20 10:56:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -840,10 +840,10 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
         child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("tick"),NULL);
         xmlNewProp(child_node,XML_CHAR_PTR("time"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
         // save tick data
-        for(j=0;j<self->priv->global_params;j++) {
-          if((value=bt_pattern_get_global_event(self,i,j))) {
+        for(k=0;k<self->priv->global_params;k++) {
+          if((value=bt_pattern_get_global_event(self,i,k))) {
             child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("globaldata"),NULL);
-            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_global_param_name(self->priv->machine,j)));
+            xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_global_param_name(self->priv->machine,k)));
             xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
           }
         }
@@ -853,7 +853,7 @@ static xmlNodePtr bt_pattern_persistence_save(const BtPersistence * const persis
             if((value=bt_pattern_get_voice_event(self,i,j,k))) {
               child_node2=xmlNewChild(child_node,NULL,XML_CHAR_PTR("voicedata"),NULL);
               xmlNewProp(child_node2,XML_CHAR_PTR("voice"),XML_CHAR_PTR(voice_str));
-              xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_voice_param_name(self->priv->machine,j)));
+              xmlNewProp(child_node2,XML_CHAR_PTR("name"),XML_CHAR_PTR(bt_machine_get_voice_param_name(self->priv->machine,k)));
               xmlNewProp(child_node2,XML_CHAR_PTR("value"),XML_CHAR_PTR(value));g_free(value);
             }
           }
