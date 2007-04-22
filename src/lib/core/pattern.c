@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.95 2007-04-20 10:56:46 ensonic Exp $
+/* $Id: pattern.c,v 1.96 2007-04-22 18:01:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -555,6 +555,7 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
       bt_pattern_init_global_event(self,event,param);
     }
     if(bt_persistence_set_value(event,value)) {
+      bt_song_set_unsaved(self->priv->song,TRUE);
       if(bt_machine_is_global_param_no_value(self->priv->machine,param,event)) {
         g_value_unset(event);
       }
@@ -598,6 +599,7 @@ gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong t
       bt_pattern_init_voice_event(self,event,param);
     }
     if(bt_persistence_set_value(event,value)) {
+      bt_song_set_unsaved(self->priv->song,TRUE);
       if(bt_machine_is_voice_param_no_value(self->priv->machine,param,event)) {
         g_value_unset(event);
       }

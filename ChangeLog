@@ -1,7 +1,36 @@
+2007-04-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  prepare next newsletter
+
+	* po/de.po:
+	  update translations
+	
+	* src/lib/core/machine.c: (bt_machine_persistence_save):
+	  comment typo and add comment for todo
+
+	* src/lib/core/pattern.c: (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event):
+	  fix marking songs as changed when editing the pattern
+
+	* src/lib/core/sequence.c: (bt_sequence_invalidate_pattern_region):
+	  fix pattern updates
+
+	* src/lib/core/song.c: (bt_song_seek_to_play_pos),
+	(bt_song_update_play_seek_event), (on_song_segment_done),
+	(bt_song_dispose):
+	  add non flushing seek for countinious playback
+
+	* src/ui/edit/main-page-sequence.c: (sequence_view_set_pos):
+	  fix setting end of loop
+
+	* tests/bt-cmd-convert.sh:
+	  add new test script (not yet run by default)
+
 2007-04-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c: (bt_pattern_persistence_save):
-	  and another save fix (was swapping tow params).
+	  and another save fix (was swapping two params).
 
 2007-04-19  Stefan Kost  <ensonic@users.sf.net>
 
@@ -19,7 +48,7 @@
 	(bt_sink_bin_set_property), (bt_sink_bin_class_init),
 	(bt_sink_bin_get_type):
 	  add tempo iface to sink
-	
+
 	* tests/lib/core/e-pattern.c: (BT_START_TEST),
 	(bt_pattern_example_case):
 	  add new test for pattern_tick_has_data.
@@ -195,13 +224,13 @@
 	(btic_trigger_control_init), (btic_trigger_control_class_init),
 	(btic_trigger_control_get_type):
 	  start with the classes for the controls
-	
+
 	* src/ui/edit/interaction-controller-menu.c:
 	(bt_interaction_controller_menu_init_control_menu),
 	(bt_interaction_controller_menu_init_device_menu),
 	(bt_interaction_controller_menu_init_ui):
 	  add list of control targets
-	
+
 	* src/ui/edit/missing-framework-elements-dialog.c:
 	  fix docs
 
@@ -217,7 +246,7 @@
 	* src/lib/ic/input-device.c: (register_trigger_controllers),
 	(register_abs_range_controllers), (register_controllers):
 	  Prepare the HIDDev support
-	
+
 	* tests/lib/core/e-machine.c: (test_teardown), (BT_START_TEST):
 	* tests/lib/core/e-pattern.c: (test_teardown), (BT_START_TEST):
 	* tests/lib/core/e-processor-machine.c: (test_teardown),
@@ -529,7 +558,7 @@
 	* NEWS:
 	* NEWSLETTER:
 	  add items
-	
+
 	* design/gst/connection1.c: (message_received), (main):
 	* design/gst/loop1.c: (message_received), (state_changed), (main):
 	* design/gst/seek1.c: (event_loop), (main):
@@ -774,7 +803,7 @@
 	* src/ui/edit/settings-page-playback-controller.h:
 	  settings for playback controller, renaming of interaction controller
 	  page
-	
+
 	* tests/Makefile.am:
 	* tests/bt-check.c: (check_print_handler), (setup_log),
 	(file_contains_str), (check_get_test_song_path),
@@ -789,7 +818,7 @@
 	(check_shutdown_test_display), (check_make_widget_screenshot):
 	* tests/m-bt-edit.c: (bt_edit_setup), (main):
 	  more attempts to fix screenshots on open suse.
-	
+
 	* tests/songs/combi2.xml:
 	* tests/songs/combi3.xml:
 	  new songs
@@ -928,7 +957,7 @@
 	(bt_main_toolbar_class_init):
 	  made more songs working again (fix/workaround for adder problem).
 	  Tuned the level meters to be a bit more visibly changing. Formatting.
-	
+
 	* tests/songs/combi2.xml:
 	  made it a 'real' melody
 
@@ -1008,11 +1037,11 @@
 	(btic_midi_device_get_type):
 	* src/lib/ic/registry.c: (on_device_added), (btic_registry_init):
 	  add midi device class, add device-node for input-device
-	
+
 	* src/ui/edit/main-toolbar.c: (on_sequence_loop_notify),
 	(on_song_changed):
 	  refactor listening to loop changes
-	
+
 	* src/ui/edit/playback-controller-socket.c:
 	(client_cmd_parse_and_process):
 	  add repeat commands

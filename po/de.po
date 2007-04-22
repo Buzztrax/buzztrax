@@ -114,8 +114,8 @@ msgid "Music production environment"
 msgstr "Musikproduktionsumgebung"
 
 #: ../src/ui/edit/edit-application.c:530
-msgid "Copyright © 2003-2006 Buzztard developer team"
-msgstr "Copyright © 2003-2006 Buzztard Entwicklerteam"
+msgid "Copyright © 2003-2007 Buzztard developer team"
+msgstr "Copyright © 2003-2007 Buzztard Entwicklerteam"
 
 #: ../src/ui/edit/edit-application.c:534
 msgid ""
@@ -156,7 +156,7 @@ msgid ""
 "contact us."
 msgstr ""
 "Dies ist eine Technologiedemo. Die Anwendung ist noch nicht komplett "
-"oderEndnutzer-tauglich. Das Dateiformat der Songs kann sich noch ändern.\n"
+"oder Endnutzer-tauglich. Das Dateiformat der Songs kann sich noch ändern.\n"
 "\n"
 "Wenn Sie Bugs entdeckt oder Anregungen für uns haben, nehmen Sie sich bitte "
 "die Zeit mit uns in Kontakt zu treten."
@@ -761,7 +761,7 @@ msgstr "Fehler"
 
 #: ../src/ui/edit/main-toolbar.c:259
 msgid "An error occurred"
-msgstr ""
+msgstr "Ein Fehler trat auf"
 
 #: ../src/ui/edit/main-toolbar.c:453
 msgid "handlebox for toolbar"

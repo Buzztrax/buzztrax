@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.134 2007-04-19 17:55:30 ensonic Exp $
+/* $Id: sequence.c,v 1.135 2007-04-22 18:01:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -449,8 +449,10 @@ static void bt_sequence_invalidate_pattern_region(const BtSequence * const self,
     for(k=0;k<voices;k++) {
       // check voice params
       for(j=0;j<voice_params;j++) {
-        // mark region covered by change as damaged
-        bt_sequence_invalidate_voice_param(self,machine,time+i,k,j);
+        if(bt_pattern_test_voice_event(pattern,i,k,j)) {
+          // mark region covered by change as damaged
+          bt_sequence_invalidate_voice_param(self,machine,time+i,k,j);
+        }
       }
     }
   }

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.240 2007-04-19 17:55:27 ensonic Exp $
+/* $Id: machine.c,v 1.241 2007-04-22 18:01:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2111,10 +2111,10 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
     xmlNewProp(node,XML_CHAR_PTR("id"),XML_CHAR_PTR(self->priv->id));
 
     // @todo: also store non-controllable parameters (preferences) <prefsdata name="" value="">
-    // @todo: skip parameters which are default values
+    // @todo: skip parameters which are default values (is that really a good idea?)
     machine=GST_OBJECT(self->priv->machines[PART_MACHINE]);
     for(i=0;i<self->priv->global_params;i++) {
-      // skip trigger parameters and parametzers that are also used as voice params
+      // skip trigger parameters and parameters that are also used as voice params
       if(bt_machine_is_global_param_trigger(self,i)) continue;
       if(self->priv->voice_params && bt_machine_get_voice_param_index(self,self->priv->global_names[i],NULL)>-1) continue;
 

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.177 2007-04-19 17:55:31 ensonic Exp $
+/* $Id: song.c,v 1.178 2007-04-22 18:01:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -86,6 +86,7 @@ struct _BtSongPrivate {
   GstQuery *position_query;
   /* seek events */
   GstEvent *play_seek_event;
+  GstEvent *loop_seek_event;
   GstEvent *idle_seek_event;
 };
 
@@ -118,8 +119,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
-        // +1 does not fully work, something between 4 and 5 seems to
-        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+2)*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+0)*bar_time);
   }
   else {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
@@ -150,18 +150,25 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
   GST_DEBUG("loop %d? %ld ... %ld, length %ld bar_time %"G_GINT64_FORMAT,loop,loop_start,loop_end,length,bar_time);
 
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
-  // we seem to always need to use FLUSH, as due to prerolling we also need to flush
-  //const GstSeekFlags flags=first?GST_SEEK_FLAG_NONE:GST_SEEK_FLAG_FLUSH;
+  if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+  // we need to use FLUSH for play (due to prerolling), but not for loop
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
         GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
-        // +1 does not fully work, something between 4 and 5 seems to
-        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+2)*bar_time);
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+0)*bar_time);
+    self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        GST_SEEK_FLAG_SEGMENT,
+        GST_SEEK_TYPE_SET, (GstClockTime)loop_start*bar_time,
+        GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+0)*bar_time);
   }
   else {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH,
+        GST_SEEK_TYPE_SET, 0,
+        GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
+    self->priv->loop_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+        0L,
         GST_SEEK_TYPE_SET, 0,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
@@ -343,7 +350,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 
 #else
   if(self->priv->is_playing) {
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->loop_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
     /*
@@ -1341,10 +1348,9 @@ static void bt_song_dispose(GObject * const object) {
   g_object_try_unref(self->priv->setup);
   g_object_try_unref(self->priv->wavetable);
   gst_query_unref(self->priv->position_query);
-  if(self->priv->play_seek_event)
-    gst_event_unref(self->priv->play_seek_event);
-  if(self->priv->idle_seek_event)
-    gst_event_unref(self->priv->idle_seek_event);
+  if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
+  if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
+  if(self->priv->idle_seek_event) gst_event_unref(self->priv->idle_seek_event);
   gst_object_unref(self->priv->bin);
   g_object_try_weak_unref(self->priv->app);
 

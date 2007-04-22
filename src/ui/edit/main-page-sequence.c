@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.166 2007-04-09 15:53:41 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.167 2007-04-22 18:01:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1249,7 +1249,7 @@ static void sequence_view_set_pos(const BtMainPageSequence *self,gulong type,glo
       break;
     case 2: // loop end
       // pos is beyond length adjust length
-      if(row>=sequence_length) {
+      if(row>sequence_length) {
         GST_INFO("adjusted length = %ld -> %ld",sequence_length,row);
         sequence_length=row;
         g_object_set(sequence,"length",sequence_length,NULL);

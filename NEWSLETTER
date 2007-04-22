@@ -1,5 +1,9 @@
 2007/05 ========================================================================
 
+* bugfixes (song saving, pattern edits, gtk-warnings, looping)
+* more tests
+* interaction controller for input devices
+
 2007/04 ========================================================================
 
 LAC 2007 was great. Was nice to meet all these people. The buzztard demo was
