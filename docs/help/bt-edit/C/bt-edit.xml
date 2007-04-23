@@ -112,7 +112,15 @@
   <sect2 id="bt-edit-intro-concept">
     <title id='bt-edit-intro-concept.title'>The concept behind <application>&app;</application></title>
     <para>
-      (FIXME:)
+      &app; follows the concept of tracker applications. this is quite different
+      when compared to other music composers.
+      The tracker concept is more focused on the data.
+    </para>
+    <para>
+      Important design criteria are: fast, keyboard accessible, system ui.
+    </para>
+    <para>
+      (FIXME: write more)
     </para>
   </sect2>
 
@@ -129,10 +137,11 @@
         <listitem><para>has analyzers in sequence view</para></listitem>
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
         <listitem><para>can be remotecontrolled with upnp a/v software</para></listitem>
+        <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
     </para>
     <para>
-      For Buzz users the UI will look familiar still.
+      Even there are some changes, for Buzz users the UI will still look familiar.
     </para>
   </sect2>
 
@@ -274,11 +283,21 @@
         </screenshot>
       </figure>
       <para>
-	      To switch to the sequence editor press 'Enter' while the pattern editor has focus.
+        In the page toolbar one can select the machine and the pattern for the machine.
+        Pattern names in gray color indicated that the pattern is not used in the
+        sequence (thus save to be removed or changed).
+      </para>
+      <para>
+        A context menu in the pattern area allows to create new patterns and
+        modify existing ones.
+      </para>
+      <para>
+        To switch to the sequence editor press <keycap>Enter</keycap> while the pattern editor has focus.
       </para>
       <note><title>Limmitations</title>
         <para>
-          Editing the pattern is currently not realy comfortable.
+          Editing the pattern is currently not realy comfortable. That will
+          be addressed real soon.
         </para>
       </note>
     </sect3>
@@ -303,14 +322,19 @@
         </screenshot>
       </figure>
       <para>
-        Patterns can be entered into tracks by pressing the associated key.
-	      To switch to the pattern editor with the pattern the cursor is over selected,
-	      press <keycap>Enter</keycap>.
+        One can navigate around using cursor keys. When changing tracks, the
+        list of patterns on the right is updated to show the patterns for the
+        current machine. Again gray pattern label color indicates that the
+        pattern is not in use.
+        Patterns can be entered into tracks by pressing the associated key
+        (shown left to the pattern name in the list).
+        To switch to the pattern editor with the pattern the cursor is over selected,
+        press <keycap>Enter</keycap>.
       </para>
       <para>
         To set play position click with left-mouse button in 'pos' column at the
-	      desired time location. To modify the loop start/end instead hold down
-	      the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
+        desired time location. To modify the loop start/end instead hold down
+        the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
         key while clicking.
       </para>
       <para>
@@ -349,9 +373,12 @@
           </mediaobject>
         </screenshot>
       </figure>
+      <para>
+        Samples can be loaded, played and previewed when browsing.
+      </para>
       <note><title>Limmitations</title>
         <para>
-          Not working yet at all.
+          No waveform, no details and no use of loaded waves yet.
         </para>
       </note>
     </sect3>
@@ -419,10 +446,29 @@
     <title id='bt-edit-prefs-audio.title'>Audio device settings</title>
 
     <para>
+      Select the audiosink to use. It will be changed immediately, except when a
+      song is playing (will be switched after stopping).
+      (FIXME: write more)
+    </para>
+  </sect2>
+
+  <sect2 id="bt-edit-prefs-playback-controller">
+    <title id='bt-edit-prefs-playback-controller.title'>Playback controller settings</title>
+
+    <para>
+      Upnp A/V remote control via Coherence.
       (FIXME:)
     </para>
   </sect2>
 
+  <sect2 id="bt-edit-prefs-interaction-controller">
+    <title id='bt-edit-prefs-interaction-controller.title'>Interaction controller settings</title>
+
+    <para>
+      Interactive controller for machine parameters.
+      (FIXME:)
+    </para>
+  </sect2>
 </sect1>
 
 <sect1 id="bt-edit-reference">
