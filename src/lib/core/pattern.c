@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.96 2007-04-22 18:01:55 ensonic Exp $
+/* $Id: pattern.c,v 1.97 2007-04-24 08:02:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -908,7 +908,7 @@ static gboolean bt_pattern_persistence_load(const BtPersistence * const persiste
             }
             else {
               GST_WARNING("error while loading global pattern data at tick %d, param %d: %s",tick,param,error->message);
-              g_error_free(error);
+              g_error_free(error);error=NULL;
               BT_PERSISTENCE_ERROR(Error);
             }
           }
@@ -921,7 +921,7 @@ static gboolean bt_pattern_persistence_load(const BtPersistence * const persiste
             }
             else {
               GST_WARNING("error while loading voice pattern data at tick %d, param %d, voice %d: %s",tick,param,voice,error->message);
-              g_error_free(error);
+              g_error_free(error);error=NULL;
               BT_PERSISTENCE_ERROR(Error);
             }
             xmlFree(voice_str);

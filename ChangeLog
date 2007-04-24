@@ -1,5 +1,11 @@
 2007-04-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
+	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
+	  Reset error=NULL for reuse. 
+
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
 	Patch by: Henri Valta <henrivee@users.sourceforge.net>
 
 	* src/ui/edit/main-page-machines.c: (on_toolbar_zoom_fit_clicked):
