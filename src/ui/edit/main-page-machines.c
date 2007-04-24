@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.103 2007-03-25 14:18:32 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.104 2007-04-24 07:17:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -480,8 +480,8 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   /* pos can be between: lower ... upper-page_size) */
   GST_INFO("x: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_xl,(ma_xd*self->priv->zoom),((pg_xl-(ma_xd*self->priv->zoom))/2.0));
   GST_INFO("y: (%+6.4lf-%+6.4lf)/2=%+6.4lf",pg_yl,(ma_yd*self->priv->zoom),((pg_yl-(ma_yd*self->priv->zoom))/2.0));
-  c_x=MACHINE_VIEW_ZOOM_X+ma_xs-((pg_xl-(ma_xd*self->priv->zoom))/2.0);
-  c_y=MACHINE_VIEW_ZOOM_Y+ma_ys-((pg_yl-(ma_yd*self->priv->zoom))/2.0);
+  c_x=(MACHINE_VIEW_ZOOM_X+ma_xs)*self->priv->zoom-((pg_xl-(ma_xd*self->priv->zoom))/2.0);
+  c_y=(MACHINE_VIEW_ZOOM_Y+ma_ys)*self->priv->zoom-((pg_yl-(ma_yd*self->priv->zoom))/2.0);
   gtk_adjustment_set_value(self->priv->hadjustment,c_x);
   gtk_adjustment_set_value(self->priv->vadjustment,c_y);
   
