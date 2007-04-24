@@ -1,5 +1,16 @@
 2007-04-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Prepare news
+
+	* buzztard.doap:
+	  Prepare for moap
+
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_play):
+	  Print missing stuff also for play.
+
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
 	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
 	  Reset error=NULL for reuse. 

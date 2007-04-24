@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.90 2007-03-28 08:33:35 ensonic Exp $
+/* $Id: cmd-application.c,v 1.91 2007-04-24 19:36:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -250,6 +250,33 @@ gboolean bt_cmd_application_play(const BtCmdApplication *self, const gchar *inpu
   GST_INFO("objects initialized");
 
   if(bt_song_io_load(loader,song)) {
+    BtSetup *setup;
+    BtWavetable *wavetable;
+    GList *node,*missing_machines,*missing_waves;
+
+    g_object_get(G_OBJECT(song),"setup",&setup,"wavetable",&wavetable,NULL);
+    // get missing element info
+    g_object_get(G_OBJECT(setup),"missing-machines",&missing_machines,NULL);
+    g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
+
+    if(missing_machines || missing_waves) {
+      printf("could not load all of song\"%s\"\n",input_file_name);
+    }
+    if(missing_machines) {
+      puts("missing machines");
+      for(node=missing_machines;node;node=g_list_next(node)) {
+        printf("  %s\n",(gchar *)(node->data));
+      }
+    }
+    if(missing_waves) {
+      puts("missing waves");
+      for(node=missing_waves;node;node=g_list_next(node)) {
+        printf("  %s\n",(gchar *)(node->data));
+      }
+    }
+    g_object_try_unref(setup);
+    g_object_try_unref(wavetable);
+
     if(bt_cmd_application_play_song(self,song)) {
       res=TRUE;
     }

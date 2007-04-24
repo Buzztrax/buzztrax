@@ -1,6 +1,7 @@
 2007/05 ========================================================================
 
 * bugfixes (song saving, pattern edits, gtk-warnings, looping)
+* Henri Valta contributed some nice patches
 * more tests
 * interaction controller for input devices
 

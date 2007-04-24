@@ -1,0 +1,38 @@
+<Project
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns="http://usefulinc.com/ns/doap#"
+  xmlns:foaf="http://xmlns.com/foaf/0.1/"
+  xmlns:admin="http://webns.net/mvcb/">
+
+  <name>Buzztard music production environment</name>
+  <shortname>buzztard</shortname>
+  <homepage rdf:resource="http://www.buzztard.org" />
+  <created>2002-06-06</created>
+  <shortdesc xml:lang="en">Buzztard is a free music composer</shortdesc>
+  <description xml:lang="en">
+    The buzztard project aims to provide a free replacement of the currently windows only and close source software Buzz. It is a music production environment, which is based on a very modular approach, to allow many people to get involved.
+  </description>
+  <category></category>
+  <bug-database rdf:resource="http://sourceforge.net/tracker/?group_id=55124&amp;atid=476037" />
+  <screenshots></screenshots>
+  <mailing-list rdf:resource="http://sourceforge.net/mailarchive/forum.php?forum_name=buzztard-devel" />
+  <programming-language>C</programming-language>
+  <license rdf:resource="http://usefulinc.com/doap/licenses/lgpl" />
+  <download-page rdf:resource="http://sourceforge.net/project/showfiles.php?group_id=55124" />
+
+  <repository>
+    <CVSRepository>
+      <anon-root>:pserver:anonymous@buzztard.cvs.sourceforge.net:/cvsroot/buzztard</anon-root>
+      <module>buzztard</module>
+      <browse rdf:resource="http://buzztard.cvs.sourceforge.net/buzztard/buzztard/" />
+    </CVSRepository>
+  </repository>
+
+  <maintainer>
+    <foaf:Person>
+       <foaf:name>Stefan Kost</foaf:name>
+    </foaf:Person>
+  </maintainer>
+
+</Project>
