@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.82 2007-03-17 08:13:51 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.83 2007-04-24 06:53:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -699,7 +699,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   gdouble w=MACHINE_VIEW_MACHINE_SIZE_X,h=MACHINE_VIEW_MACHINE_SIZE_Y;
   gdouble mx1,mx2,my1,my2,mw,mh;
   guint32 bg_color,bg_color2,bg_color3;
-  gdouble fh=MACHINE_VIEW_FONT_SIZE*self->priv->zoom;
+  gdouble fh=MACHINE_VIEW_FONT_SIZE;
   gchar *id;
   GnomeCanvasPoints *points;
 
@@ -748,7 +748,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
                            /* test if this ensures equal sizes among systems,
                             * maybe we should leave it blank */
                            "font", "helvetica",
-                           "size-points", fh,
+                           "size-points", fh*self->priv->zoom,
                            "size-set", TRUE,
                            "text", id,
                            "fill-color", "black",

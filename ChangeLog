@@ -1,3 +1,11 @@
+2007-04-24  Stefan Kost  <ensonic@users.sf.net>
+
+	Patch by: Henri Valta <henrivee@users.sourceforge.net>
+
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_realize):
+	  Fix machine creation when zoom!=1, Fixes #1684508
+
 2007-04-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/bt-edit.xml:
