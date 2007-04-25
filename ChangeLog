@@ -1,3 +1,13 @@
+2007-04-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* NEWSLETTER:
+	  More release preparation
+
+	* src/lib/core/song.c: (on_song_state_changed), (bt_song_play),
+	(bt_song_stop):
+	  Fix loop when we can't open the audio device.
+
 2007-04-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

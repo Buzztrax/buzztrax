@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.178 2007-04-22 18:01:55 ensonic Exp $
+/* $Id: song.c,v 1.179 2007-04-25 17:40:23 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -415,7 +415,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
     switch(GST_STATE_TRANSITION(oldstate,newstate)) {
       case GST_STATE_CHANGE_READY_TO_PAUSED:
         // here the formats are negotiated
-        //bt_song_write_to_lowlevel_dot_file(self);
+        bt_song_write_to_lowlevel_dot_file(self);
         //
         self->priv->is_preparing=FALSE;
         // this should be sequence->play_start
@@ -667,7 +667,7 @@ gboolean bt_song_play(const BtSong * const self) {
   // prepare playback
   self->priv->is_preparing=TRUE;
   res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PAUSED);
-  GST_INFO("->PAUSED state change returned %d",res);
+  GST_DEBUG("->PAUSED state change returned '%s'",gst_element_state_change_return_get_name(res));
   if(res==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to paused state");
     bt_machine_dbg_print_parts(BT_MACHINE(self->priv->master));
@@ -725,18 +725,22 @@ gboolean bt_song_stop(const BtSong * const self) {
 
   GST_INFO("stopping playback, is_playing: %d, is_preparing: %d",self->priv->is_playing,self->priv->is_preparing);
 
+  if(self->priv->is_preparing) {
+    self->priv->is_preparing=FALSE;
+    return(TRUE);
+  }
+
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_READY))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to ready state");
     return(FALSE);
   }
-  GST_DEBUG("->READY state change returned %d",res);
+  GST_DEBUG("->READY state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   // do not stop if not playing or not preparing
   //if(!self->priv->is_playing && !self->priv->is_preparing) return(TRUE);
   if(!self->priv->is_playing)  return(TRUE);
 
   self->priv->is_playing=FALSE;
-  self->priv->is_preparing=FALSE;
   g_object_notify(G_OBJECT(self),"is-playing");
 
   bt_song_idle_start(self);
