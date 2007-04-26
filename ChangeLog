@@ -1,3 +1,8 @@
+2007-04-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c (bt_machine_persistence_load):
+	  Reset error=NULL for reuse. 
+
 2007-04-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWS:
@@ -21,7 +26,6 @@
 
 2007-04-24  Stefan Kost  <ensonic@users.sf.net>
 
-	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
 	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
 	  Reset error=NULL for reuse. 
 
