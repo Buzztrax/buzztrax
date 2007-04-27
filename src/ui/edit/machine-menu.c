@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.16 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: machine-menu.c,v 1.17 2007-04-27 08:40:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,6 +68,7 @@ static void on_source_machine_add_activated(GtkMenuItem *menuitem, gpointer user
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
   if((machine=BT_MACHINE(bt_source_machine_new(song,id,name,/*voices=*/1)))) {
+    GST_INFO("created source machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
     g_object_unref(machine);
   }
   g_free(id);
@@ -93,6 +94,7 @@ static void on_processor_machine_add_activated(GtkMenuItem *menuitem, gpointer u
   // try with 1 voice, if monophonic, voices will be reset to 0 in
   // bt_machine_init_voice_params()
   if((machine=BT_MACHINE(bt_processor_machine_new(song,id,name,/*voices=*/1)))) {
+    GST_INFO("created processor machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
     g_object_unref(machine);
   }
   g_free(id);
@@ -107,7 +109,7 @@ static gint bt_machine_menu_compare(const gchar *str1, const gchar *str2) {
   gchar *str1c=g_utf8_casefold(str1,-1);
   gchar *str2c=g_utf8_casefold(str2,-1);
   gint res=g_utf8_collate(str1c,str2c);
-  
+
   g_free(str1c);
   g_free(str2c);
   return(res);

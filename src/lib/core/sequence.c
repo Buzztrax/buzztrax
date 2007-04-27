@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.135 2007-04-22 18:01:55 ensonic Exp $
+/* $Id: sequence.c,v 1.136 2007-04-27 08:40:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -847,12 +847,13 @@ gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const
   g_return_val_if_fail(BT_IS_SEQUENCE(self),FALSE);
   g_return_val_if_fail(BT_IS_MACHINE(machine),FALSE);
 
-  GST_INFO("remove track for machine %p",machine);
+  GST_INFO("remove tracks for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
 
   // do bt_sequence_remove_track_by_ix() for each occurance
   while(((track=bt_sequence_get_track_by_machine(self,machine))>-1) && res) {
     res=bt_sequence_remove_track_by_ix(self,(gulong)track);
   }
+  GST_INFO("removed tracks for machine %p,ref_count=%d,res=%d",machine,G_OBJECT(machine)->ref_count,res);
   return(res);
 }
 

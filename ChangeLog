@@ -1,3 +1,13 @@
+2007-04-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_resize_voices),
+	(bt_machine_init_global_params), (bt_machine_dispose):
+	* src/lib/core/sequence.c: (bt_sequence_remove_track_by_machine):
+	* src/ui/edit/machine-menu.c: (on_source_machine_add_activated),
+	(on_processor_machine_add_activated), (bt_machine_menu_compare):
+	* src/ui/edit/main-toolbar.c: (on_song_error):
+	  Fix GstController leaks.
+
 2007-04-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c (bt_machine_persistence_load):

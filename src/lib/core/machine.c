@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.242 2007-04-26 07:57:26 ensonic Exp $
+/* $Id: machine.c,v 1.243 2007-04-27 08:40:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -541,6 +541,15 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
 
   g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
 
+  if(voices>self->priv->voices) {
+    gulong j;
+
+    // release params for old voices
+    for(j=self->priv->voices;j<voices;j++) {
+      g_object_try_unref(self->priv->voice_controllers[j]);
+    }
+  }
+
   // @todo make it use g_renew0()
   // this is not as easy as it sounds (realloc does not know how big the old mem was)
   self->priv->voice_controllers=(GstController **)g_renew(gpointer, self->priv->voice_controllers ,self->priv->voices);
@@ -549,6 +558,7 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
     GParamSpec **properties,*property;
     guint number_of_properties;
     gulong i,j,k;
+    gboolean unref=FALSE;
 
     // bind params for new voices
     for(j=voices;j<self->priv->voices;j++) {
@@ -558,11 +568,17 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
           for(i=k=0;i<number_of_properties;i++) {
             property=properties[i];
             if(property->flags&GST_PARAM_CONTROLLABLE) {
-              // bind params to the voice controller
+              // bind params to the voice controller (possibly returns ref to existing)
+              if(self->priv->voice_controllers[j]) unref=TRUE;
               if(!(self->priv->voice_controllers[j]=gst_controller_new(G_OBJECT(voice_child), property->name, NULL))) {
                 GST_WARNING("failed to add property \"%s\" to the %d voice controller",property->name,j);
               }
               else {
+                if(unref) {
+                  // revert double ref
+                  g_object_unref(self->priv->voice_controllers[j]);
+                  unref=FALSE;
+                }
                 // set interpolation mode depending on param type
                 if(bt_machine_is_voice_param_trigger(self,k)) {
                   gst_controller_set_interpolation_mode(self->priv->voice_controllers[j],self->priv->voice_names[k],GST_INTERPOLATE_TRIGGER);
@@ -833,7 +849,7 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
     guint i,j;
     GParamSpec **child_properties=NULL;
     guint number_of_child_properties;
-    gboolean skip;
+    gboolean skip, unref=FALSE;
 
     // check if the elemnt implements the GstChildBin interface
     if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
@@ -881,11 +897,17 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
           self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
           bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val);
         }
-        // bind param to machines global controller
+        // bind param to machines global controller (possibly returns ref to existing)
+        if(self->priv->global_controller) unref=TRUE;
         if(!(self->priv->global_controller=gst_controller_new(G_OBJECT(self->priv->machines[PART_MACHINE]), property->name, NULL))) {
           GST_WARNING("failed to add property \"%s\" to the global controller",property->name);
         }
         else {
+          if(unref) {
+            // revert double ref
+            g_object_unref(self->priv->global_controller);
+            unref=FALSE;
+          }
           // set interpolation mode depending on param type
           if(bt_machine_is_global_param_trigger(self,j)) {
             gst_controller_set_interpolation_mode(self->priv->global_controller,self->priv->global_names[j],GST_INTERPOLATE_TRIGGER);
@@ -2455,8 +2477,15 @@ static void bt_machine_dispose(GObject * const object) {
   GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
 
-  GST_DEBUG("  releasing patterns");
+  GST_DEBUG("  releasing controllers, global.ref_ct=%d",
+    (self->priv->global_controller?(G_OBJECT(self->priv->global_controller))->ref_count:-1));
+  // unref controllers
+  g_object_try_unref(self->priv->global_controller);
+  for(i=0;i<self->priv->voices;i++) {
+    g_object_try_unref(self->priv->voice_controllers[i]);
+  }
 
+  GST_DEBUG("  releasing patterns");
   // unref list of patterns
   if(self->priv->patterns) {
     GList* node;

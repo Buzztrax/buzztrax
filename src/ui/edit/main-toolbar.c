@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.115 2007-04-19 17:55:31 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.116 2007-04-27 08:40:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -256,6 +256,8 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
 
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
+  // debug the state
+  bt_song_write_to_lowlevel_dot_file(song);
   bt_song_stop(song);
 
   gst_message_parse_error(message, &err, &dbg);
