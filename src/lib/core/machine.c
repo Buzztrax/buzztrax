@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.243 2007-04-27 08:40:41 ensonic Exp $
+/* $Id: machine.c,v 1.244 2007-04-27 09:14:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2458,7 +2458,7 @@ static void bt_machine_dispose(GObject * const object) {
         if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
           GST_WARNING("can't go to null state");
         else
-          GST_DEBUG("->NULL state change returned %d",res);
+          GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
         gst_bin_remove(self->priv->bin,self->priv->machines[i]);
         GST_DEBUG("  bin->ref_count=%d, bin->num_children=%d",
           (self->priv->bin?(G_OBJECT(self->priv->bin))->ref_count:-1),

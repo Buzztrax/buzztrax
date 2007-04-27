@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.179 2007-04-25 17:40:23 ensonic Exp $
+/* $Id: song.c,v 1.180 2007-04-27 09:14:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1325,7 +1325,7 @@ static void bt_song_dispose(GObject * const object) {
   if((res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE) {
     GST_WARNING("can't go to null state");
   }
-  GST_DEBUG("->NULL state change returned %d",res);
+  GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
 
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_changed,(gpointer)self);
   g_signal_handlers_disconnect_matched(self->priv->sequence,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,bt_song_on_loop_start_changed,(gpointer)self);
