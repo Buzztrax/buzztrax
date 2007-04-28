@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.103 2007-03-17 22:50:04 ensonic Exp $
+/* $Id: wire.c,v 1.104 2007-04-28 17:12:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -171,7 +171,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
     next=GST_ELEMENT(node->data);
 
     if((state_ret=gst_element_set_state(next,GST_STATE_NULL))!=GST_STATE_CHANGE_SUCCESS) {
-      GST_INFO("cannot set state to NULL for element \"%s\", ret=%d",gst_element_get_name(next),state_ret);
+      GST_INFO("cannot set state to NULL for element '%s', ret='%s'",gst_element_get_name(next),gst_element_state_change_return_get_name(state_ret));
     }
     gst_element_unlink(prev,next);
     prev=next;
@@ -179,7 +179,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
     if(!(res=gst_bin_remove(self->priv->bin,next))) {
-      GST_INFO("cannot remove element \"%s\" from bin",gst_element_get_name(next));
+      GST_INFO("cannot remove element '%s' from bin",gst_element_get_name(next));
     }
   }
 }
@@ -719,7 +719,7 @@ static void bt_wire_dispose(GObject * const object) {
       if((res=gst_element_set_state(self->priv->machines[PART_TEE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
         GST_WARNING("can't go to null state");
       else
-        GST_DEBUG("->NULL state change returned %d",res);
+        GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
       gst_bin_remove(self->priv->bin, self->priv->machines[PART_TEE]);
     }
     if(self->priv->machines[PART_GAIN]) {
@@ -727,7 +727,7 @@ static void bt_wire_dispose(GObject * const object) {
       if((res=gst_element_set_state(self->priv->machines[PART_GAIN],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
         GST_WARNING("can't go to null state");
       else
-        GST_DEBUG("->NULL state change returned %d",res);
+        GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
       gst_bin_remove(self->priv->bin, self->priv->machines[PART_GAIN]);
     }
     bt_wire_deactivate_analyzers(self);

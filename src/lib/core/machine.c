@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.244 2007-04-27 09:14:15 ensonic Exp $
+/* $Id: machine.c,v 1.245 2007-04-28 17:12:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2422,7 +2422,7 @@ static void bt_machine_set_property(GObject * const object,
 
 static void bt_machine_dispose(GObject * const object) {
   const BtMachine * const self = BT_MACHINE(object);
-  guint i;
+  guint i,j;
 
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
@@ -2454,6 +2454,14 @@ static void bt_machine_dispose(GObject * const object) {
       if(self->priv->machines[i]) {
         g_assert(GST_IS_BIN(self->priv->bin));
         g_assert(GST_IS_ELEMENT(self->priv->machines[i]));
+        for(j=i+1;j<PART_COUNT;j++) {
+          if(self->priv->machines[j]) {
+            GST_DEBUG("  unlinking machine \"%s\", \"%s\"",
+              gst_element_get_name(self->priv->machines[i]),
+              gst_element_get_name(self->priv->machines[j]));
+            gst_element_unlink(self->priv->machines[i],self->priv->machines[j]);
+          }
+        }
         GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[i]),(G_OBJECT(self->priv->machines[i]))->ref_count);
         if((res=gst_element_set_state(self->priv->machines[i],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
           GST_WARNING("can't go to null state");

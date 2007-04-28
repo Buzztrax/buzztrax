@@ -1,5 +1,14 @@
 2007-04-28  Stefan Kost  <ensonic@users.sf.net>
 
+	* buzztard.doap:
+	  Add first release to history.
+
+	* src/lib/core/machine.c (bt_machine_dispose):
+	* src/lib/core/wire.c (bt_wire_deactivate_analyzers, bt_wire_dispose):
+	  Unlink elements in machine when disposing. Better debug logging. Fixes #1707610.
+
+2007-04-28  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c (on_song_paused_timeout,
 	  on_song_playback_timeout, bt_song_write_to_lowlevel_dot_file):
 	  Escaping spaces in names, Fixes #1707615.

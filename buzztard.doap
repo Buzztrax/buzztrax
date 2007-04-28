@@ -35,4 +35,13 @@
     </foaf:Person>
   </maintainer>
 
+  <release>
+    <Version>
+     <revision>0.1</revision>
+     <name>Genesis</name>
+     <created>2006-10-30</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztard/buzztard-0.1.0.tar.gz" />
+    </Version>
+  </release>
+
 </Project>
