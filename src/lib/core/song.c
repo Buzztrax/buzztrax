@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.180 2007-04-27 09:14:15 ensonic Exp $
+/* $Id: song.c,v 1.181 2007-04-28 17:08:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -383,6 +383,7 @@ static gboolean on_song_paused_timeout(gpointer user_data) {
 
   if(self->priv->is_preparing) {
     GST_INFO("->PAUSED timeout occured");
+    bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }
   return(FALSE);
@@ -393,6 +394,7 @@ static gboolean on_song_playback_timeout(gpointer user_data) {
 
   if(!self->priv->is_playing) {
     GST_INFO("->PLAYING timeout occured");
+    bt_song_write_to_lowlevel_dot_file(self);
     bt_song_stop(self);
   }
   return(FALSE);
@@ -1008,6 +1010,8 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
   g_return_if_fail(BT_IS_SONG(self));
 
   g_object_get(self->priv->song_info,"name",&song_name,NULL);
+  g_strcanon(song_name, G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
+
   gchar * const file_name=g_alloca(strlen(song_name)+10);
   g_sprintf(file_name,"/tmp/%s_lowlevel.dot",song_name);
 
@@ -1021,6 +1025,7 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
     GstStructure *structure;
     guint src_pads,sink_pads;
     const gchar *src_media,*dst_media;
+    gchar *pad_name,*element_name,*peer_pad_name,*peer_element_name;
 
     // write header
     fprintf(out,
@@ -1054,12 +1059,16 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
             switch (gst_iterator_next (pad_iter, (gpointer)&pad)) {
               case GST_ITERATOR_OK:
                 dir=gst_pad_get_direction(pad);
+                pad_name=g_strcanon(g_strdup(GST_OBJECT_NAME(pad)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
+                element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
                 fprintf(out,"    %s_%s [color=black, fillcolor=\"%s\", label=\"%s\"];\n",
-                  GST_OBJECT_NAME(element),GST_OBJECT_NAME(pad),
+                  element_name,pad_name,
                   ((dir==GST_PAD_SRC)?"#FFAAAA":((dir==GST_PAD_SINK)?"#AAAAFF":"#FFFFFF")),
                   GST_OBJECT_NAME(pad));
                 if(dir==GST_PAD_SRC) src_pads++;
                 else if(dir==GST_PAD_SINK) sink_pads++;
+                g_free(pad_name);
+                g_free(element_name);
                 gst_object_unref(pad);
                 break;
               case GST_ITERATOR_RESYNC:
@@ -1110,12 +1119,19 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
                     else dst_media="?";
 
                     peer_element=gst_pad_get_parent_element(peer_pad);
+                    pad_name=g_strcanon(g_strdup(GST_OBJECT_NAME(pad)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
+                    element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
+                    peer_pad_name=g_strcanon(g_strdup(GST_OBJECT_NAME(peer_pad)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
+                    peer_element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(peer_element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
                     fprintf(out,"  %s_%s -> %s_%s [taillabel=\"%s\",headlabel=\"%s\"]\n",
-                      GST_OBJECT_NAME(element),GST_OBJECT_NAME(pad),
-                      GST_OBJECT_NAME(peer_element),GST_OBJECT_NAME(peer_pad),
+                      element_name,pad_name, peer_element_name,peer_pad_name,
                       src_media,dst_media);
-                    gst_object_unref(peer_element);
 
+                    g_free(pad_name);
+                    g_free(element_name);
+                    g_free(peer_pad_name);
+                    g_free(peer_element_name);
+                    gst_object_unref(peer_element);
                     gst_object_unref(peer_pad);
                   }
                 }
