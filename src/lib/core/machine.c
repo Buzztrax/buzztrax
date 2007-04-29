@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.245 2007-04-28 17:12:45 ensonic Exp $
+/* $Id: machine.c,v 1.246 2007-04-29 17:32:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -236,22 +236,22 @@ static GstElement *bt_machine_get_peer(GstElement * const elem, GstIterator *it)
         if((peer_pad=gst_pad_get_peer(pad))) {
           peer=GST_ELEMENT(gst_object_get_parent(GST_OBJECT(peer_pad)));
           gst_object_unref(peer_pad);
-          done = TRUE;
+          done=TRUE;
         }
-        gst_object_unref (pad);
+        gst_object_unref(pad);
         break;
       case GST_ITERATOR_RESYNC:
-        gst_iterator_resync (it);
+        gst_iterator_resync(it);
         break;
       case GST_ITERATOR_ERROR:
-        done = TRUE;
+        done=TRUE;
         break;
       case GST_ITERATOR_DONE:
-        done = TRUE;
+        done=TRUE;
         break;
     }
   }
-  gst_iterator_free (it);
+  gst_iterator_free(it);
   return(peer);
 }
 

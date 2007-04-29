@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.104 2007-04-28 17:12:45 ensonic Exp $
+/* $Id: wire.c,v 1.105 2007-04-29 17:32:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -300,6 +300,38 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   return(res);
 }
 
+static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
+  GstIterator *it;
+  gboolean done=FALSE;
+  gpointer item;
+  GstPad *pad,*peer_pad=NULL;
+
+  it=gst_element_iterate_src_pads(elem);
+
+  while (!done) {
+    switch (gst_iterator_next (it, &item)) {
+      case GST_ITERATOR_OK:
+        pad=GST_PAD(item);
+        peer_pad=gst_pad_get_peer(pad);
+        done=TRUE;
+        gst_object_unref(pad);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync(it);
+        break;
+      case GST_ITERATOR_ERROR:
+        done=TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done=TRUE;
+        break;
+    }
+  }
+  gst_iterator_free(it);
+  return(peer_pad);
+}
+
+
 /*
  * bt_wire_unlink_machines:
  * @self: the wire that should be used for this connection
@@ -315,21 +347,31 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
 
   // check if wire has been properly initialized
   if(self->priv->src->src_elem && self->priv->dst->dst_elem && machines[PART_TEE] && machines[PART_GAIN]) {
+    GstPad *dst_pad=NULL;
+
     GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
     /*if(machines[PART_CONVERT] && machines[PART_SCALE]) {
       gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
     }
     else*/
     if(machines[PART_CONVERT]) {
+      dst_pad=bt_wire_get_src_peer_pad(machines[PART_CONVERT]);
       gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_CONVERT], self->priv->dst->dst_elem, NULL);
     }
     /*
     else if(machines[PART_SCALE]) {
+      dst_pad=bt_wire_get_src_peer_pad(machines[PART_SCALE]);
       gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], machines[PART_SCALE], self->priv->dst->dst_elem, NULL);
     }
     */
     else {
+      dst_pad=bt_wire_get_src_peer_pad(machines[PART_GAIN]);
       gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], self->priv->dst->dst_elem, NULL);
+    }
+    if(dst_pad && bt_machine_has_active_adder(self->priv->dst)) {
+      // remove request-pad
+      GST_DEBUG("releasing request pad for dst-adder");
+      gst_element_release_request_pad(self->priv->dst->dst_elem,dst_pad);
     }
   }
   if(machines[PART_CONVERT]) {
