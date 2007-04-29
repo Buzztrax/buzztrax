@@ -83,6 +83,7 @@
   machine preferences
   wire analysis
   pattern properties
+  missing machines and waves
 -->
 
 <sect1 id="bt-edit-introduction">
@@ -322,6 +323,11 @@
         </screenshot>
       </figure>
       <para>
+        The sequence header for each track shows the name of the machine, mute,
+        solo. bypass buttons (depending wheter it is a generator, effect or
+        sink) and a level-meter.
+      </para>
+      <para>
         One can navigate around using cursor keys. When changing tracks, the
         list of patterns on the right is updated to show the patterns for the
         current machine. Again gray pattern label color indicates that the
@@ -345,10 +351,13 @@
         will set the loop-end marker. To set the loop-begin marker press
         <keycombo><keycap>Ctrl</keycap><keycap>B</keycap></keycombo>.
       </para>
-      <!--note><title>Limmitations</title>
+      <note><title>Limmitations</title>
         <para>
+          The unit-selector in the first column of the sequence header is not
+          yet functional. The label-navigator in the second column is not yet
+          dynamically updated.
         </para>
-      </note-->
+      </note>
       <para>
         (FIXME: special-patterns = {mute, break, solo, bypass})
       </para>

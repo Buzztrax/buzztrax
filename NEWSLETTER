@@ -1,10 +1,14 @@
 2007/05 ========================================================================
 
-* bugfixes (song saving, pattern edits, gtk-warnings, looping)
+Lots of commit and bug tracker activity this month.
+
+* bugfixes (song saving, pattern edits, gtk-warnings, looping, setup editing)
 * Henri Valta contributed some nice patches
-* more tests
+* more unit tests
 * interaction controller for input devices
 * got fluidsynth working together with Josh Green
+
+I will now start to prepare the release. Should be out in the comming weeks.
 
 2007/04 ========================================================================
 

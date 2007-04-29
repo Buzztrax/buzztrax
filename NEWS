@@ -1,9 +1,9 @@
-0.2.0 sterni release
+0.2.0 sunrise release (May.2007)
 ================================================================================
 This version has lots of UI usability improvments, bug fixes and introduces some
 interactivity features (interaction controller and playback controller).
 
-0.1.0 genesis release
+0.1.0 genesis release (30.Oct.2006)
 ================================================================================
 This is a technical preview version. The application is not complete or end-user
 ready yet. The fileformat of the songs can still change.

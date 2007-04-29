@@ -1,5 +1,14 @@
 2007-04-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWS:
+	* NEWSLETTER:
+	  More release preparation.
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Some more user guide paragraphs.
+
+2007-04-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_get_peer):
 	* src/lib/core/wire.c: (bt_wire_get_src_peer_pad),
 	(bt_wire_unlink_machines):
@@ -40,13 +49,6 @@
 
 	* src/lib/core/machine.c (bt_machine_persistence_load):
 	  Reset error=NULL for reuse. 
-
-2007-04-25  Stefan Kost  <ensonic@users.sf.net>
-
-	reviewed by: <delete if not using a buddy>
-
-	* NEWS:
-	* buzztard.doap:
 
 2007-04-25  Stefan Kost  <ensonic@users.sf.net>
 
