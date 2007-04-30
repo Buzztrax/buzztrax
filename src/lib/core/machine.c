@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.246 2007-04-29 17:32:58 ensonic Exp $
+/* $Id: machine.c,v 1.247 2007-04-30 07:50:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2485,12 +2485,16 @@ static void bt_machine_dispose(GObject * const object) {
   GST_DEBUG("  releasing song: %p",self->priv->song);
   g_object_try_weak_unref(self->priv->song);
 
-  GST_DEBUG("  releasing controllers, global.ref_ct=%d",
-    (self->priv->global_controller?(G_OBJECT(self->priv->global_controller))->ref_count:-1));
+  GST_DEBUG("  releasing controllers, global.ref_ct=%d, voices=%d",
+    (self->priv->global_controller?(G_OBJECT(self->priv->global_controller))->ref_count:-1),
+    self->priv->voices);
   // unref controllers
   g_object_try_unref(self->priv->global_controller);
-  for(i=0;i<self->priv->voices;i++) {
-    g_object_try_unref(self->priv->voice_controllers[i]);
+  if(self->priv->voice_controllers) {
+    for(i=0;i<self->priv->voices;i++) {
+      g_object_try_unref(self->priv->voice_controllers[i]);
+    }
+    g_free(self->priv->voice_controllers);
   }
 
   GST_DEBUG("  releasing patterns");
