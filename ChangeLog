@@ -1,5 +1,11 @@
 2007-04-30  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/e-network.c (BT_START_TEST, BT_START_TEST,
+	  BT_START_TEST, BT_START_TEST, bt_network_example_case):
+	  Reactivate two tests that now work and prepare another for #1709322.
+
+2007-04-30  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_dispose):
 	  Fix the tests.
 

@@ -1,4 +1,4 @@
-/* $Id: e-network.c,v 1.24 2006-08-24 20:00:54 ensonic Exp $
+/* $Id: e-network.c,v 1.25 2007-04-30 14:15:26 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -55,10 +55,10 @@ BT_START_TEST(test_btcore_net_example1) {
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* get the song setup and sequence */
   g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -66,11 +66,11 @@ BT_START_TEST(test_btcore_net_example1) {
   /* try to create the sink */
   sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
-  
+
   /* try to create generator1 */
   gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
   fail_unless(gen1!=NULL, NULL);
-  
+
   /* check if we can retrieve the machine via the id */
   machine=bt_setup_get_machine_by_id(setup,"master");
   fail_unless(machine==sink, NULL);
@@ -79,7 +79,7 @@ BT_START_TEST(test_btcore_net_example1) {
   machine=bt_setup_get_machine_by_id(setup,"generator1");
   fail_unless(machine==gen1, NULL);
   g_object_unref(machine);
-  
+
   /* try to link machines */
   wire1=bt_wire_new(song, gen1, sink);
   fail_unless(wire1!=NULL, NULL);
@@ -97,7 +97,7 @@ BT_START_TEST(test_btcore_net_example1) {
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",1L,NULL);
   bt_sequence_add_track(sequence,gen1);
-  
+
   /* try to start playing the song */
   if(bt_song_play(song)) {
     mark_point();
@@ -107,7 +107,7 @@ BT_START_TEST(test_btcore_net_example1) {
   } else {
     fail("playing of network song failed");
   }
-  
+
   g_object_unref(gen1);
   g_object_unref(sink);
   g_object_unref(wire1);
@@ -121,10 +121,7 @@ BT_END_TEST
 /**
  * try to check if we can connect two sine machines to one sink. We also try
  * to start play after connecting the machines.
- *
- * hangs after bt_song_play()
  */
-#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btcore_net_example2) {
   BtApplication *app=NULL;
   // the song
@@ -136,14 +133,14 @@ BT_START_TEST(test_btcore_net_example2) {
   BtMachine *sink=NULL;
   // wires
   BtWire *wire1=NULL, *wire2=NULL;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* get the song setup and sequence */
   g_object_get(song,"setup",&setup,"sequence",&sequence,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -151,23 +148,23 @@ BT_START_TEST(test_btcore_net_example2) {
   /* try to create the sink */
   sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
-  
+
   /* try to create generator1 */
   gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
   fail_unless(gen1!=NULL, NULL);
-  
+
   /* try to create generator2 */
   gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0));
   fail_unless(gen2!=NULL, NULL);
-  
+
   /* try to create a wire from gen1 to sink */
   wire1=bt_wire_new(song, gen1, sink);
   fail_unless(wire1!=NULL, NULL);
-  
-  /* try to create a wire from gen2 to sink */ 
+
+  /* try to create a wire from gen2 to sink */
   wire2=bt_wire_new(song, gen2, sink);
   fail_unless(wire2!=NULL, NULL);
-  
+
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
   bt_sequence_add_track(sequence,gen1);
@@ -181,9 +178,9 @@ BT_START_TEST(test_btcore_net_example2) {
     /* stop the song */
     bt_song_stop(song);
   } else {
-    fail("playing of network song failed");
+    fail("playing song failed");
   }
-  
+
   g_object_unref(gen1);
   g_object_unref(gen2);
   g_object_unref(sink);
@@ -195,15 +192,11 @@ BT_START_TEST(test_btcore_net_example2) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-#endif
 
 /**
  * try to check if we can connect two sine machines to one effect and this to the
  * sink. We also try to start play after connecting the machines.
- *
- * hangs after bt_song_play()
  */
-#ifdef __CHECK_DISABLED__
 BT_START_TEST(test_btcore_net_example3) {
   BtApplication *app=NULL;
   // the song
@@ -217,14 +210,14 @@ BT_START_TEST(test_btcore_net_example3) {
   BtMachine *sink=NULL;
   // wires
   BtWire *wire1=NULL, *wire2=NULL, *wire3=NULL;
-  
+
   /* create a dummy app */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
   bt_application_new(app);
-  
+
   /* create a new song */
   song=bt_song_new(app);
-  
+
   /* get the song setup and sequence */
   g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
   fail_unless(setup!=NULL, NULL);
@@ -234,11 +227,11 @@ BT_START_TEST(test_btcore_net_example3) {
   /* try to create the sink */
   sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
   fail_unless(sink!=NULL, NULL);
-  
+
   /* try to create generator1 */
   gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
   fail_unless(gen1!=NULL, NULL);
-  
+
   /* try to create generator2 */
   gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0));
   fail_unless(gen2!=NULL, NULL);
@@ -250,17 +243,14 @@ BT_START_TEST(test_btcore_net_example3) {
   /* try to create a wire from gen1 to proc */
   wire1=bt_wire_new(song,gen1,proc);
   fail_unless(wire1!=NULL, NULL);
-  
-  /* try to create a wire from gen2 to proc */ 
+
+  /* try to create a wire from gen2 to proc */
   wire2=bt_wire_new(song,gen2,proc);
   fail_unless(wire2!=NULL, NULL);
 
-  /* try to create a wire from proc to sink */ 
+  /* try to create a wire from proc to sink */
   wire3=bt_wire_new(song,proc,sink);
   fail_unless(wire3!=NULL, NULL);
-
-  /* generate diagraph */
-  bt_song_write_to_dot_file(song);
 
   /* enlarge the sequence */
   g_object_set(sequence,"length",1L,"tracks",2L,NULL);
@@ -275,9 +265,9 @@ BT_START_TEST(test_btcore_net_example3) {
     /* stop the song */
     bt_song_stop(song);
   } else {
-    fail("playing of network song failed");
+    fail("playing song failed");
   }
-  
+
   g_object_unref(gen1);
   g_object_unref(gen2);
   g_object_unref(proc);
@@ -292,15 +282,116 @@ BT_START_TEST(test_btcore_net_example3) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
+
+/**
+ * try to check if we can connect two sine machines to one sink, then play() and
+ * stop(). After stopping remove one machine and play again.
+ *
+ * Not yet ready.
+ */
+#ifdef __CHECK_DISABLED__
+BT_START_TEST(test_btcore_net_example4) {
+  BtApplication *app=NULL;
+  // the song
+  BtSong *song=NULL;
+  BtSetup *setup=NULL;
+  BtSequence *sequence=NULL;
+  BtSongInfo *song_info=NULL;
+  // machines
+  BtMachine *gen1=NULL,*gen2=NULL;
+  BtMachine *sink=NULL;
+  // wires
+  BtWire *wire1=NULL, *wire2=NULL;
+  gboolean res;
+
+  /* create a dummy app */
+  app=g_object_new(BT_TYPE_APPLICATION,NULL);
+  bt_application_new(app);
+
+  /* create a new song */
+  song=bt_song_new(app);
+
+  /* get the song setup and sequence */
+  g_object_get(song,"setup",&setup,"sequence",&sequence,"song-info",&song_info,NULL);
+  fail_unless(setup!=NULL, NULL);
+  fail_unless(sequence!=NULL, NULL);
+  g_object_set(song_info,"name","btcore_net_example3",NULL);
+
+  /* try to create the sink */
+  sink=BT_MACHINE(bt_sink_machine_new(song,"master"));
+  fail_unless(sink!=NULL, NULL);
+
+  /* try to create generator1 */
+  gen1=BT_MACHINE(bt_source_machine_new(song,"generator1","audiotestsrc",0));
+  fail_unless(gen1!=NULL, NULL);
+
+  /* try to create generator2 */
+  gen2=BT_MACHINE(bt_source_machine_new(song,"generator2","audiotestsrc",0));
+  fail_unless(gen2!=NULL, NULL);
+
+  /* try to create a wire from gen1 to proc */
+  wire1=bt_wire_new(song,gen1,sink);
+  fail_unless(wire1!=NULL, NULL);
+
+  /* try to create a wire from gen2 to proc */
+  wire2=bt_wire_new(song,gen2,sink);
+  fail_unless(wire2!=NULL, NULL);
+
+  /* enlarge the sequence */
+  g_object_set(sequence,"length",1L,"tracks",2L,NULL);
+  bt_sequence_add_track(sequence,gen1);
+  bt_sequence_add_track(sequence,gen2);
+  mark_point();
+
+  /* try to start playing the song */
+  if(bt_song_play(song)) {
+    mark_point();
+    sleep(1);
+    /* stop the song */
+    bt_song_stop(song);
+  } else {
+    fail("playing of network song failed");
+  }
+
+  /* remove one machine */
+  bt_setup_remove_wire(setup,wire2);
+  g_object_unref(wire2);
+  res=bt_sequence_remove_track_by_machine(sequence,gen2);
+  fail_unless(res, NULL);
+  bt_setup_remove_machine(setup,gen2);
+  g_object_unref(gen2);
+  mark_point();
+
+  /* try to start playing the song again */
+  if(bt_song_play(song)) {
+    mark_point();
+    sleep(1);
+    /* stop the song */
+    bt_song_stop(song);
+  } else {
+    fail("playing song failed again");
+  }
+
+  g_object_unref(gen1);
+  g_object_unref(sink);
+  g_object_unref(wire1);
+  g_object_unref(setup);
+  g_object_unref(sequence);
+  g_object_unref(song_info);
+  g_object_checked_unref(song);
+  g_object_checked_unref(app);
+}
+BT_END_TEST
 #endif
 
 TCase *bt_network_example_case(void) {
   TCase *tc = tcase_create("BtNetworkExamples");
 
   tcase_add_test(tc,test_btcore_net_example1);
-  /* these test play short songs, which fails somehow :( 
   tcase_add_test(tc,test_btcore_net_example2);
   tcase_add_test(tc,test_btcore_net_example3);
+  /* these tests aren't ready yet
+  tcase_add_test(tc,test_btcore_net_example4);
   */
   tcase_add_unchecked_fixture(tc, test_setup, test_teardown);
   // we need to raise the default timeout of 3 seconds
