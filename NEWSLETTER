@@ -1,14 +1,29 @@
 2007/05 ========================================================================
 
-Lots of commit and bug tracker activity this month.
+Lots of commit and bug tracker activity this month. As we're heading for the 0.2
+release I spend most time doing bugfixing. Berzerka discovered that song-saving
+was flawed. Editing the patterns did not always took effect. Removing machines
+had leaks and ref-count problems. There were some long-standing gtk-warnings.
+All fixed in CVS. Finally that loop-playing problem got on my nerves. I was
+trying to fix that several times in the past already. Finally I found that it
+was a small issue with GStreamers adder element. Many thanks also to Henri
+Valta, who contributed several patches. All the new testing also lead to some
+new and some re-enabled unit tests.
 
-* bugfixes (song saving, pattern edits, gtk-warnings, looping, setup editing)
-* Henri Valta contributed some nice patches
-* more unit tests
-* interaction controller for input devices
-* got fluidsynth working together with Josh Green
+Beside fixing, I was also working a bit on the features. The interaction
+controller now works for input devices (via evdev). I've tested it with a USB
+joystick and the harddisk in my laptop (via hdaps). Control devices are detected
+via HAL and shown in the menus. One can assign those to effect parameters. Using
+the accelerometer in the harddisk, one can control e.g. filter-cut of and
+resonance by tilting the laptop - how useless. There is one flaw to mention -
+the bindings aren't yet persistent, close the window and there gone.
 
-I will now start to prepare the release. Should be out in the comming weeks.
+Finally in gst-buzztard we have a first working version of a fluidsynth
+GStreamer source. Josh Green the author of swami [1] made the initial port.
+
+I will now start to prepare the release. Should be out in the coming weeks.
+
+[1] http://swami.resonance.org/trac
 
 2007/04 ========================================================================
 
