@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.247 2007-04-30 07:50:07 ensonic Exp $
+/* $Id: machine.c,v 1.248 2007-05-02 20:27:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2494,7 +2494,6 @@ static void bt_machine_dispose(GObject * const object) {
     for(i=0;i<self->priv->voices;i++) {
       g_object_try_unref(self->priv->voice_controllers[i]);
     }
-    g_free(self->priv->voice_controllers);
   }
 
   GST_DEBUG("  releasing patterns");
