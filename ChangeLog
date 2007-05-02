@@ -1,5 +1,12 @@
 2007-05-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* ChangeLog:
+	  Released
+
+=== release 0.2.0 ===
+
+2007-05-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_dispose):
 	  Hotfix double free
 
@@ -78,7 +85,7 @@
 2007-04-26  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c (bt_machine_persistence_load):
-	  Reset error=NULL for reuse. 
+	  Reset error=NULL for reuse.
 
 2007-04-25  Stefan Kost  <ensonic@users.sf.net>
 
@@ -104,7 +111,7 @@
 2007-04-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/pattern.c: (bt_pattern_persistence_load):
-	  Reset error=NULL for reuse. 
+	  Reset error=NULL for reuse.
 
 2007-04-24  Stefan Kost  <ensonic@users.sf.net>
 
@@ -133,7 +140,7 @@
 
 	* po/de.po:
 	  update translations
-	
+
 	* src/lib/core/machine.c: (bt_machine_persistence_save):
 	  comment typo and add comment for todo
 
