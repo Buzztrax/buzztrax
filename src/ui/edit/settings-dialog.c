@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.37 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.38 2007-05-02 19:35:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -164,14 +164,14 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
-    COL_LABEL,_("Interaction Controler"),
+    COL_LABEL,_("Interaction Controller"),
     COL_ID,SETTINGS_PAGE_INTERACTION_CONTROLLER,
     COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-input-gaming.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
-    COL_LABEL,_("Playback Controler"),
+    COL_LABEL,_("Playback Controller"),
     COL_ID,SETTINGS_PAGE_PLAYBACK_CONTROLLER,
     COL_ICON_PIXBUF,NULL,
     COL_ICON_STOCK_ID,GTK_STOCK_MEDIA_PLAY,

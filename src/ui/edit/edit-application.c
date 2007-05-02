@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.100 2007-04-02 14:51:14 ensonic Exp $
+/* $Id: edit-application.c,v 1.101 2007-05-02 19:35:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -671,9 +671,9 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
   gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
   gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("This is a technical preview version. The application is not complete or end-user ready yet. "
-      "The fileformat of the songs can still change.\n\n"
-      "Nonetheless if you find bugs or have comments, please take your time to contact us."
+    _("This version has lots of UI usability improvements, bug fixes, "
+      "more instant apply settings and introduces some interactivity features "
+      "(interaction controller and upnp playback controller)."
     ),-1);
   //gtk_widget_show(news);
 

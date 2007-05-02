@@ -1,3 +1,12 @@
+2007-05-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWS:
+	* configure.ac:
+	* po/de.po:
+	* src/ui/edit/edit-application.c (bt_edit_application_show_about):
+	* src/ui/edit/settings-dialog.c (bt_settings_dialog_init_ui):
+	  Releasing
+
 2007-05-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
