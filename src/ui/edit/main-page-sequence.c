@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.167 2007-04-22 18:01:56 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.168 2007-05-03 18:46:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -764,9 +764,8 @@ static void sequence_table_init(const BtMainPageSequence *self) {
   }
   else GST_WARNING("can't create treeview column");
 
-  if(self->priv->level_to_vumeter) {
-    g_hash_table_remove_all(self->priv->level_to_vumeter);
-  }
+  if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
+  self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
 
   GST_DEBUG("    number of columns : %d",col_index);
 }
@@ -2189,7 +2188,6 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
   if(self->priv->level_to_vumeter) g_hash_table_destroy(self->priv->level_to_vumeter);
   self->priv->level_to_vumeter=g_hash_table_new_full(NULL,NULL,(GDestroyNotify)gst_object_unref,NULL);
-  //self->priv->level_to_vumeter=g_hash_table_new(NULL,NULL);
 
   // update page
   // update sequence and pattern list
