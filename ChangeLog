@@ -1,3 +1,13 @@
+2007-05-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/dynlink.c (SINK_NAME, PROC_NAME, SRC_NAME, WAIT_LENGTH,
+	  get_state, open_link, gst_pads_insert_link, gst_pads_remove_link,
+	  message_received, main):
+	  new design test
+
+	* src/lib/core/song.c (bt_song_send_tags, bt_song_get_type):
+	  send tags to all elements
+
 2007-05-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* ChangeLog:

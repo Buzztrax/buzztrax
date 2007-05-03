@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.181 2007-04-28 17:08:08 ensonic Exp $
+/* $Id: song.c,v 1.182 2007-05-03 15:09:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -284,12 +284,13 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
 static void bt_song_send_tags(const BtSong * const self) {
   GstTagList * const taglist;
   GstIterator *it;
+  GstEvent *tag_event;
   gboolean done;
   gpointer item;
 
   // send tags
   g_object_get(self->priv->song_info,"taglist",&taglist,NULL);
-  GST_DEBUG("about to send metadata, taglist=%p",taglist);
+  GST_DEBUG("about to send metadata to tagsetters, taglist=%p",taglist);
   it=gst_bin_iterate_all_by_interface(self->priv->bin,GST_TYPE_TAG_SETTER);
   done=FALSE;
   while(!done) {
@@ -313,17 +314,36 @@ static void bt_song_send_tags(const BtSong * const self) {
   }
   gst_iterator_free (it);
 
-  /* has no effect if not send to a source
-  gst_element_found_tags(GST_ELEMENT(self->priv->bin), taglist);
-  */
-  /* also fails
-   * GStreamer-WARNING **: pad sink:proxypad1 sending event in wrong direction
-   * GStreamer-WARNING **: pad oggmux:src sending event in wrong direction
-  tag_event=gst_event_new_tag(taglist);
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),tag_event))) {
-    GST_WARNING("element failed to handle tag event");
+//#if 0
+  GST_DEBUG("about to send metadata to sources");
+  //it=gst_bin_iterate_sources(self->priv->bin);
+  it=gst_bin_iterate_elements(self->priv->bin);
+  done=FALSE;
+  tag_event=gst_event_new_tag(gst_structure_copy(taglist));
+  while(!done) {
+    switch(gst_iterator_next(it, &item)) {
+      case GST_ITERATOR_OK:
+        GST_INFO("sending tags to '%s' element",gst_element_get_name(GST_ELEMENT(item)));
+        if(!(gst_element_send_event(GST_ELEMENT(item),gst_event_ref(tag_event)))) {
+          //GST_WARNING("element '%s' failed to handle tag event",gst_element_get_name(GST_ELEMENT(item)));
+        }
+        gst_object_unref(item);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync(it);
+        break;
+      case GST_ITERATOR_ERROR:
+        GST_WARNING("wrong parameter for iterator");
+        done=TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done=TRUE;
+        break;
+    }
   }
-  */
+  gst_iterator_free (it);
+  gst_event_unref(tag_event);
+//#endif
 
   gst_tag_list_free(taglist);
 }
@@ -1517,6 +1537,7 @@ GType bt_song_get_type(void) {
       NULL, // interface_finalize
       NULL  // interface_data
     };
+
     type = g_type_register_static(G_TYPE_OBJECT,"BtSong",&info,0);
     g_type_add_interface_static(type, BT_TYPE_PERSISTENCE, &persistence_interface_info);
   }
