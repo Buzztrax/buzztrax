@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.33 2007-04-19 20:39:19 ensonic Exp $
+/* $Id: sink-bin.c,v 1.34 2007-05-03 20:32:18 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -173,6 +173,8 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
 
   GST_INFO("clearing sink-bin : %d",g_list_length(bin->children));
   if(bin->children) {
+    GstStateChangeReturn res;
+
     //gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),NULL);
     GST_DEBUG("released ghost-pad");
 
@@ -180,6 +182,10 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
       elem=GST_ELEMENT_CAST (bin->children->data);
       GST_DEBUG("  removing elem=%p (ref_ct=%d),'%s'",
         elem,(G_OBJECT(elem)->ref_count),GST_OBJECT_NAME(elem));
+      if((res=gst_element_set_state(elem,GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
+        GST_WARNING("can't go to null state");
+      else
+        GST_DEBUG("->NULL state change returned '%s'",gst_element_state_change_return_get_name(res));
       gst_bin_remove (bin, elem);
     }
   }
@@ -522,9 +528,11 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
 //-- event handler
 
 static void on_song_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  // @todo: what wrong here?
+  if(!user_data) return;
+
   const BtSinkBin * const self = BT_SINK_BIN(user_data);
 
-  g_assert(user_data);
   if(!self->priv->pending_update)
     return;
 
@@ -681,9 +689,14 @@ static void bt_sink_bin_dispose(GObject * const object) {
   // disconnect handlers
   if(self->priv->bus_handler_id) {
     GstBus *bus=gst_element_get_bus(GST_ELEMENT(self));
-    g_signal_handler_disconnect(bus,self->priv->bus_handler_id);
-    //g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
-    gst_object_unref(bus);
+    if(bus) {
+      g_signal_handler_disconnect(bus,self->priv->bus_handler_id);
+      //g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_song_state_changed,(gpointer)self);
+      gst_object_unref(bus);
+    }
+    else {
+      GST_WARNING("element has no bus ?!?");
+    }
   }
 
   g_signal_handlers_disconnect_matched(self->priv->settings,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_audio_sink_changed,(gpointer)self);
