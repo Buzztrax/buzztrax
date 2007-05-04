@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.74 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.75 2007-05-04 07:43:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1072,9 +1072,11 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   gint value;
 
   widget=gtk_combo_box_new_text();
+  // @todo: need a real model and store value in one (invisible) column for sparse enums
   for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
-    enum_value=g_enum_get_value(enum_class, value);
-    gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+    if((enum_value=g_enum_get_value(enum_class, value))) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+    }
   }
   g_object_get(machine,property->name,&value,NULL);
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);

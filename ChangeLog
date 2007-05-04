@@ -1,3 +1,11 @@
+2007-05-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-preferences-dialog.c
+	  (bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c (make_combobox_widget):
+	  Irks, fluidsynth has sparse enums. Do not crash for now, but we need a
+	  real fix for that.
+
 2007-05-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c (bt_sink_bin_clear, on_song_state_changed,

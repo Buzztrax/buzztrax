@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.31 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.32 2007-05-04 07:43:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -392,9 +392,13 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             gint value;
 
             widget1=gtk_combo_box_new_text();
+            GST_INFO("enum range: %d, %d",enum_class->minimum,enum_class->maximum);
+            // @todo: need a real model and store value in one (invisible) column for sparse enums
             for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
-              enum_value=g_enum_get_value(enum_class, value);
-              gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+              if((enum_value=g_enum_get_value(enum_class, value))) {
+                //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
+                gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+              }
             }
             g_object_get(machine,property->name,&value,NULL);
             gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
