@@ -1,3 +1,13 @@
+2007-05-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/dynlink.c (main):
+	* design/gst/fmtnego.c (SINK_NAME, SRC_NAME, WAIT_LENGTH,
+	  message_received, on_format_negotiated, main):
+	  New tryout app
+
+	* src/ui/edit/main-toolbar.c (on_channels_negotiated):
+	  Fix one caps leak
+
 2007-05-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/application.c (dispose_has_run, bt_application_init,
@@ -111,6 +121,7 @@
 	  bt_wire_canvas_item_event, bt_wire_canvas_item_class_init):
 	  Make property strings static.
 
+>>>>>>> 1.257
 2007-05-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c

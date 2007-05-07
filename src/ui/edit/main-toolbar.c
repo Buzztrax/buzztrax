@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.117 2007-05-07 14:45:46 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.118 2007-05-07 16:34:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -389,6 +389,7 @@ static void on_channels_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_dat
     GstElement *bin;
 
     channels=gst_caps_get_channels(caps);
+    gst_caps_unref(caps);
     GST_INFO("!!!  input level src has %d output channels",channels);
 
     // post a message to the bus (we can't do gtk+ stuff here)

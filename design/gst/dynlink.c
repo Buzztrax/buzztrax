@@ -1,4 +1,4 @@
-/** $Id: dynlink.c,v 1.1 2007-05-03 15:09:38 ensonic Exp $
+/** $Id: dynlink.c,v 1.2 2007-05-07 16:34:33 ensonic Exp $
  * test dynamic linking
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` dynlink.c -o dynlink
@@ -8,6 +8,11 @@
 /* TODO:
  * - insert multiple elements
  * - handle new segment
+ * THOUGHTS
+ * - what about making the fragment only one element (or bin)
+ *   this is easier to sync with the pipeline state
+ * - regading the tags, what about sending a tag-query downstream
+ *   and doing send_event(new_elem,tag_event) before linking it in
  */
 
 #include <stdio.h>
@@ -351,7 +356,7 @@ int main(int argc, char **argv) {
     fprintf(stderr,"Can't get sink pad of vol\n");exit (-1);
   }
 
-  /* mke a clock */
+  /* make a clock */
   clock_id = gst_clock_new_periodic_id (clock,
     gst_clock_get_time (clock)+(WAIT_LENGTH * GST_SECOND), (WAIT_LENGTH * GST_SECOND));
 
