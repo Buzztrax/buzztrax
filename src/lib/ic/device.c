@@ -1,4 +1,4 @@
-/* $Id: device.c,v 1.5 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: device.c,v 1.6 2007-05-07 14:45:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -243,20 +243,20 @@ static void btic_device_class_init(BtIcDeviceClass * const klass) {
                                      "udi prop",
                                      "device udi",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,DEVICE_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "device name",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,DEVICE_CONTROL_LIST,
                                   g_param_spec_pointer("controls",
                                      "control list prop",
                                      "A copy of the list of device controls",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_device_get_type(void) {

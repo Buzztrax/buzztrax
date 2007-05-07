@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.30 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: sequence-view.c,v 1.31 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,8 +25,8 @@
  *
  * This widget derives from the #GtkTreeView to additionaly draw loop- and
  * play-position bars.
- */ 
- 
+ */
+
 #define BT_EDIT
 #define BT_SEQUENCE_VIEW_C
 
@@ -44,19 +44,19 @@ enum {
 struct _BtSequenceViewPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
-  
+
   /* position of loop range from 0.0 ... 1.0 */
   gdouble loop_start,loop_end;
 
   /* number of visible rows, the height of one row */
   gulong visible_rows,row_height;
-  
+
   /* cache some ressources */
   GdkWindow *window;
   GdkGC *play_pos_gc,*loop_pos_gc,*end_pos_gc;
@@ -76,9 +76,9 @@ static void bt_sequence_view_invalidate(const BtSequenceView *self, gdouble old_
   gdouble h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
   gint y;
 
-  y=(gint)(old_pos*h);  
+  y=(gint)(old_pos*h);
   gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
-  y=(gint)(new_pos*h);  
+  y=(gint)(new_pos*h);
   gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
 }
 #endif
@@ -142,10 +142,10 @@ static void bt_sequence_view_unrealize(GtkWidget *widget) {
   if(GTK_WIDGET_CLASS(parent_class)->unrealize) {
     (GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
   }
-  
+
   g_object_unref(self->priv->play_pos_gc);
   self->priv->play_pos_gc=NULL;
-  
+
   g_object_unref(self->priv->loop_pos_gc);
   self->priv->loop_pos_gc=NULL;
 }
@@ -153,8 +153,8 @@ static void bt_sequence_view_unrealize(GtkWidget *widget) {
 static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(widget);
 
-  //GST_INFO("!!!! self=%p",self);  
-  
+  //GST_INFO("!!!! self=%p",self);
+
   // let the parent handle its expose
   if(GTK_WIDGET_CLASS(parent_class)->expose_event) {
     (GTK_WIDGET_CLASS(parent_class)->expose_event)(widget,event);
@@ -178,11 +178,11 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
       gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
       self->priv->row_height=br.height;
       gtk_tree_path_free(path);
-      GST_INFO("view=%p, cell background rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height); 
+      GST_INFO("view=%p, cell background rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height);
     }
 
     gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
-    //GST_INFO("view=%p, visible rect: %d x %d, %d x %d",widget,vr.x,vr.y,vr.width,vr.height); 
+    //GST_INFO("view=%p, visible rect: %d x %d, %d x %d",widget,vr.x,vr.y,vr.width,vr.height);
 
     //h=(gint)(self->priv->play_pos*(double)widget->allocation.height);
     //w=vr.width;
@@ -295,7 +295,7 @@ static void bt_sequence_view_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
-  
+
   g_object_try_unref(self->priv->play_pos_gc);
   g_object_try_unref(self->priv->loop_pos_gc);
   g_object_try_unref(self->priv->end_pos_gc);
@@ -305,7 +305,7 @@ static void bt_sequence_view_dispose(GObject *object) {
 
 static void bt_sequence_view_finalize(GObject *object) {
   //BtSequenceView *self = BT_SEQUENCE_VIEW(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -313,7 +313,7 @@ static void bt_sequence_view_finalize(GObject *object) {
 
 static void bt_sequence_view_init(GTypeInstance *instance, gpointer g_class) {
   BtSequenceView *self = BT_SEQUENCE_VIEW(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SEQUENCE_VIEW, BtSequenceViewPrivate);
 }
 
@@ -328,7 +328,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
   gobject_class->get_property = bt_sequence_view_get_property;
   gobject_class->dispose      = bt_sequence_view_dispose;
   gobject_class->finalize     = bt_sequence_view_finalize;
-  
+
   // override some gtkwidget methods
   gtkwidget_class->realize = bt_sequence_view_realize;
   gtkwidget_class->unrealize = bt_sequence_view_unrealize;
@@ -339,7 +339,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_PLAY_POSITION,
                                   g_param_spec_double("play-position",
@@ -348,7 +348,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      0.0,
                                      1.0,
                                      0.0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_LOOP_START,
                                   g_param_spec_double("loop-start",
@@ -357,7 +357,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      0.0,
                                      1.0,
                                      0.0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_LOOP_END,
                                   g_param_spec_double("loop-end",
@@ -366,7 +366,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      0.0,
                                      1.0,
                                      1.0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_VIEW_VISIBLE_ROWS,
                                   g_param_spec_ulong("visible-rows",
@@ -375,7 +375,7 @@ static void bt_sequence_view_class_init(BtSequenceViewClass *klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_sequence_view_get_type(void) {

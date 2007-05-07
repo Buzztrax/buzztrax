@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.97 2007-04-24 08:02:35 ensonic Exp $
+/* $Id: pattern.c,v 1.98 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1147,21 +1147,21 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                      "song contruct prop",
                                      "Song object, the pattern belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_ID,
                                   g_param_spec_string("id",
                                      "id contruct prop",
                                      "pattern identifier",
                                      "unamed pattern", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_NAME,
                                   g_param_spec_string("name",
                                      "name contruct prop",
                                      "the display-name of the pattern",
                                      "unamed", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
    g_object_class_install_property(gobject_class,PATTERN_LENGTH,
                                   g_param_spec_ulong("length",
@@ -1170,7 +1170,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                      1,
                                      G_MAXULONG,
                                      1,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_VOICES,
                                   g_param_spec_ulong("voices",
@@ -1179,7 +1179,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_MACHINE,
                                   g_param_spec_object("machine",
@@ -1193,7 +1193,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
                                      "is-internal construct prop",
                                      "internal (cmd-pattern) indicator",
                                      FALSE,
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

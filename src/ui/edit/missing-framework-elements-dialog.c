@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.2 2007-04-04 18:47:44 ensonic Exp $
+/* $Id: missing-framework-elements-dialog.c,v 1.3 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -352,19 +352,19 @@ static void bt_missing_framework_elements_dialog_class_init(BtMissingFrameworkEl
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MISSING_FRAMEWORK_ELEMENTS_DIALOG_CORE_ELEMENTS,
                                   g_param_spec_pointer("core-elements",
                                      "core-elements construct prop",
                                      "Set missing core-elements list, the dialog handles",
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MISSING_FRAMEWORK_ELEMENTS_DIALOG_EDIT_ELEMENTS,
                                   g_param_spec_pointer("edit-elements",
                                      "edit-elements construct prop",
                                      "Set missing edit-elements list, the dialog handles",
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_missing_framework_elements_dialog_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.5 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.6 2007-05-07 14:45:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -328,7 +328,7 @@ static void bt_interaction_controller_menu_class_init(BtInteractionControllerMen
                                      "app construct prop",
                                      "set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_TYPE,
                                   g_param_spec_enum("type",
@@ -336,14 +336,14 @@ static void bt_interaction_controller_menu_class_init(BtInteractionControllerMen
                                      "control types to list in the menu",
                                      BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE,  /* enum type */
                                      BT_INTERACTION_CONTROLLER_RANGE_MENU, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,INTERACTION_CONTROLLER_MENU_SELECTED_CONTROL,
                                   g_param_spec_object("selected-control",
                                      "selected control prop",
                                      "control after menu selection",
                                      BTIC_TYPE_CONTROL, /* object type */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_interaction_controller_menu_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: playback-controller-socket.c,v 1.16 2007-03-25 14:18:33 ensonic Exp $
+/* $Id: playback-controller-socket.c,v 1.17 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -147,7 +147,7 @@ static gchar *client_cmd_parse_and_process(BtPlaybackControllerSocket *self,gcha
   }
   else if(!strncasecmp(cmd,"play|",5)) {
     g_free(self->priv->cur_label);
-    
+
     // always stop, so that seeking works
     bt_song_stop(song);
 
@@ -676,7 +676,7 @@ static void bt_playback_controller_socket_class_init(BtPlaybackControllerSocketC
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

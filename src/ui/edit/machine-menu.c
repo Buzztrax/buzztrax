@@ -1,4 +1,4 @@
-/* $Id: machine-menu.c,v 1.17 2007-04-27 08:40:42 ensonic Exp $
+/* $Id: machine-menu.c,v 1.18 2007-05-07 14:45:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -316,7 +316,7 @@ static void bt_machine_menu_class_init(BtMachineMenuClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_machine_menu_get_type(void) {

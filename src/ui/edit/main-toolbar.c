@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.116 2007-04-27 08:40:42 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.117 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -760,7 +760,7 @@ static void bt_main_toolbar_class_init(BtMainToolbarClass *klass) {
                                      "app construct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

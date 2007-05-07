@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.67 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: song-io.c,v 1.68 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -377,14 +377,14 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
                                      "filename prop",
                                      "filename for load save operations",
                                      NULL, /* default value */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_IO_STATUS,
                                   g_param_spec_string("status",
                                      "status prop",
                                      "status of load save operations",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_song_io_get_type(void) {

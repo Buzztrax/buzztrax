@@ -1,3 +1,116 @@
+2007-05-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/application.c (dispose_has_run, bt_application_init,
+	  bt_application_class_init):
+	* src/lib/core/libbtcore/core.h (G_OPTION_FLAG_NO_ARG,
+	  G_PARAM_STATIC_STRINGS, G_PARAM_STATIC_STRINGS):
+	* src/lib/core/machine.c (bt_machine_class_init):
+	* src/lib/core/pattern.c (bt_pattern_class_init):
+	* src/lib/core/sequence.c (bt_sequence_class_init):
+	* src/lib/core/settings.c (bt_settings_class_init):
+	* src/lib/core/setup.c (bt_setup_class_init):
+	* src/lib/core/sink-bin.c (bt_sink_bin_class_init):
+	* src/lib/core/song-info.c (bt_song_info_class_init):
+	* src/lib/core/song-io.c (bt_song_io_class_init):
+	* src/lib/core/song.c (bt_song_class_init):
+	* src/lib/core/wave.c (dispose_has_run, index, name, uri, bt_wave_new,
+	  bt_wave_add_wavelevel, bt_wave_load_from_uri,
+	  bt_wave_persistence_save, bt_wave_persistence_load,
+	  bt_wave_persistence_interface_init, bt_wave_init,
+	  bt_wave_class_init):
+	* src/lib/core/wavelevel.c (dispose_has_run, rate,
+	  bt_wavelevel_persistence_save, bt_wavelevel_persistence_load,
+	  bt_wavelevel_persistence_interface_init, bt_wavelevel_init,
+	  bt_wavelevel_class_init):
+	* src/lib/core/wavetable.c (bt_wavetable_class_init):
+	* src/lib/core/wire.c (parent_class, bt_wire_class_init):
+	* src/lib/ic/abs-range-control.c (btic_abs_range_control_class_init):
+	* src/lib/ic/control.c (btic_control_class_init):
+	* src/lib/ic/device.c (btic_device_class_init):
+	* src/lib/ic/input-device.c (btic_input_device_class_init):
+	* src/lib/ic/midi-device.c (btic_midi_device_class_init):
+	* src/lib/ic/registry.c (btic_registry_class_init):
+	* src/lib/ic/trigger-control.c (btic_trigger_control_class_init):
+	* src/ui/cmd/cmd-application.c (bt_cmd_application_class_init):
+	* src/ui/edit/edit-application.c (bt_edit_application_class_init):
+	* src/ui/edit/interaction-controller-menu.c
+	  (bt_interaction_controller_menu_class_init):
+	* src/ui/edit/machine-canvas-item.c
+	  (bt_machine_canvas_item_class_init):
+	* src/ui/edit/machine-menu.c (bt_machine_menu_class_init):
+	* src/ui/edit/machine-preferences-dialog.c
+	  (bt_machine_preferences_dialog_class_init):
+	* src/ui/edit/machine-preset-properties-dialog.c
+	  (bt_machine_preset_properties_dialog_class_init):
+	* src/ui/edit/machine-properties-dialog.c
+	  (bt_machine_properties_dialog_class_init):
+	* src/ui/edit/main-menu.c (bt_main_menu_class_init):
+	* src/ui/edit/main-page-info.c (dispose_has_run, on_page_switched_idle,
+	  bt_main_page_info_init_ui, bt_main_page_info_finalize,
+	  bt_main_page_info_init, bt_main_page_info_class_init):
+	* src/ui/edit/main-page-machines.c (dispose_has_run, toolbar, canvas,
+	  vadjustment, grid, zoom, zoom_out, context_menu, grid_density_menu,
+	  grid_density_group, grid_density, new_wire_dst, properties, mouse_y,
+	  update_machines_zoom, machine_view_refresh,
+	  bt_main_page_machines_draw_grid, bt_main_page_machines_add_wire,
+	  bt_main_page_machines_get_machine_canvas_item_at,
+	  bt_main_page_machines_check_wire, on_machine_added,
+	  on_toolbar_zoom_fit_clicked, on_vadjustment_changed,
+	  on_hadjustment_changed, on_canvas_event, on_toolbar_style_changed,
+	  bt_main_page_machines_init_grid_density_menu,
+	  bt_main_page_machines_init_ui,
+	  bt_main_page_machines_remove_machine_item,
+	  bt_main_page_machines_remove_wire_item,
+	  bt_main_page_machines_wire_volume_popup,
+	  bt_main_page_machines_dispose, bt_main_page_machines_init,
+	  bt_main_page_machines_class_init):
+	* src/ui/edit/main-page-patterns.c (bt_main_page_patterns_class_init):
+	* src/ui/edit/main-page-sequence.c (bt_main_page_sequence_class_init):
+	* src/ui/edit/main-page-waves.c (bt_main_page_waves_class_init):
+	* src/ui/edit/main-pages.c (dispose_has_run, bt_main_pages_init_tab,
+	  bt_main_pages_init_ui, bt_main_pages_finalize, bt_main_pages_init,
+	  bt_main_pages_class_init):
+	* src/ui/edit/main-statusbar.c (bt_main_statusbar_class_init):
+	* src/ui/edit/main-toolbar.c (bt_main_toolbar_class_init):
+	* src/ui/edit/main-window.c (dispose_has_run, statusbar,
+	  on_song_unsaved_changed, on_window_dnd_drop, bt_main_window_init_ui,
+	  bt_main_window_new, bt_main_window_check_quit,
+	  bt_main_window_open_song, bt_main_window_save_song_as,
+	  bt_main_window_init, bt_main_window_class_init):
+	* src/ui/edit/missing-framework-elements-dialog.c
+	  (bt_missing_framework_elements_dialog_class_init):
+	* src/ui/edit/pattern-properties-dialog.c
+	  (bt_pattern_properties_dialog_class_init):
+	* src/ui/edit/pattern-view.c (dispose_has_run, play_pos, row_height,
+	  parent_class, bt_pattern_view_realize, bt_pattern_view_unrealize,
+	  bt_pattern_view_expose_event, bt_pattern_view_dispose,
+	  bt_pattern_view_finalize, bt_pattern_view_init,
+	  bt_pattern_view_class_init):
+	* src/ui/edit/playback-controller-socket.c
+	  (client_cmd_parse_and_process,
+	  bt_playback_controller_socket_class_init):
+	* src/ui/edit/sequence-view.c (dispose_has_run, play_pos, loop_end,
+	  row_height, loop_pos_dash_list, bt_sequence_view_unrealize,
+	  bt_sequence_view_expose_event, bt_sequence_view_dispose,
+	  bt_sequence_view_finalize, bt_sequence_view_init,
+	  bt_sequence_view_class_init):
+	* src/ui/edit/settings-dialog.c (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c
+	  (bt_settings_page_audiodevices_class_init):
+	* src/ui/edit/settings-page-interaction-controller.c
+	  (bt_settings_page_interaction_controller_class_init):
+	* src/ui/edit/settings-page-playback-controller.c
+	  (bt_settings_page_playback_controller_class_init):
+	* src/ui/edit/wire-analysis-dialog.c
+	  (bt_wire_analysis_dialog_class_init):
+	* src/ui/edit/wire-canvas-item.c (dispose_has_run, wire, h, dst,
+	  triangle, context_menu, analysis_dialog, on_machine_removed,
+	  on_wire_position_changed, on_context_menu_disconnect_activate,
+	  on_context_menu_analysis_activate, bt_wire_canvas_item_new,
+	  bt_wire_canvas_item_dispose, bt_wire_canvas_item_realize,
+	  bt_wire_canvas_item_event, bt_wire_canvas_item_class_init):
+	  Make property strings static.
+
 2007-05-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c

@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.11 2007-04-19 17:55:31 ensonic Exp $
+/* $Id: input-device.c,v 1.12 2007-05-07 14:45:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -493,7 +493,7 @@ static void btic_input_device_class_init(BtIcInputDeviceClass * const klass) {
                                      "devnode prop",
                                      "device node path",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_input_device_get_type(void) {

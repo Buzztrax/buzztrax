@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.248 2007-05-02 20:27:39 ensonic Exp $
+/* $Id: machine.c,v 1.249 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2608,28 +2608,28 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                   g_param_spec_pointer("properties",
                                      "properties prop",
                                      "list of machine properties",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
                                      "song object, the machine belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_ID,
                                   g_param_spec_string("id",
                                      "id contruct prop",
                                      "machine identifier",
                                      "unamed machine", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PLUGIN_NAME,
                                   g_param_spec_string("plugin-name",
                                      "plugin-name construct prop",
                                      "the name of the gst plugin for the machine",
                                      "unamed machine", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICES,
                                   g_param_spec_ulong("voices",
@@ -2638,7 +2638,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_GLOBAL_PARAMS,
                                   g_param_spec_ulong("global-params",
@@ -2647,7 +2647,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_VOICE_PARAMS,
                                   g_param_spec_ulong("voice-params",
@@ -2656,48 +2656,48 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_MACHINE,
                                   g_param_spec_object("machine",
                                      "machine element prop",
                                      "the machine element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_INPUT_LEVEL,
                                   g_param_spec_object("input-level",
                                      "input-level prop",
                                      "the input-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_INPUT_GAIN,
                                   g_param_spec_object("input-gain",
                                      "input-gain prop",
                                      "the input-gain element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_OUTPUT_LEVEL,
                                   g_param_spec_object("output-level",
                                      "output-level prop",
                                      "the output-level element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_OUTPUT_GAIN,
                                   g_param_spec_object("output-gain",
                                      "output-gain prop",
                                      "the output-gain element, if any",
                                      GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PATTERNS,
                                   g_param_spec_pointer("patterns",
                                      "pattern list prop",
                                      "a copy of the list of patterns",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_STATE,
                                   g_param_spec_enum("state",
@@ -2705,7 +2705,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
                                      "the current state of this machine",
                                      BT_TYPE_MACHINE_STATE,  /* enum type */
                                      BT_MACHINE_STATE_NORMAL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_machine_get_type(void) {

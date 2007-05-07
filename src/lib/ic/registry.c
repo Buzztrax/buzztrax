@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.9 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: registry.c,v 1.10 2007-05-07 14:45:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -330,7 +330,7 @@ static void btic_registry_class_init(BtIcRegistryClass * const klass) {
                                   g_param_spec_pointer("devices",
                                      "device list prop",
                                      "A copy of the list of control devices",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_registry_get_type(void) {

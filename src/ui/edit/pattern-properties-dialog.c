@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.20 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.21 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -334,14 +334,14 @@ static void bt_pattern_properties_dialog_class_init(BtPatternPropertiesDialogCla
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_PROPERTIES_DIALOG_PATTERN,
                                   g_param_spec_object("pattern",
                                      "pattern construct prop",
                                      "Set pattern object, the dialog handles",
                                      BT_TYPE_PATTERN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

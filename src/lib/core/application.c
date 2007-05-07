@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.63 2007-03-02 13:17:13 ensonic Exp $
+/* $Id: application.c,v 1.64 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -34,9 +34,9 @@
  * </informalexample>
  *
  * Another module the application base class maintains is a settings instance (see
- * #BtSettings), that manages application preferences. 
- */ 
- 
+ * #BtSettings), that manages application preferences.
+ */
+
 #define BT_CORE
 #define BT_APPLICATION_C
 
@@ -50,7 +50,7 @@ enum {
 struct _BtApplicationPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the main gstreamer container element */
   GstElement *bin;
   /* a reference to the buzztard settings object */
@@ -174,7 +174,7 @@ static void bt_application_finalize(GObject * const object) {
 
 static void bt_application_init(const GTypeInstance * const instance, gconstpointer const g_class) {
   BtApplication * const self = BT_APPLICATION(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_APPLICATION, BtApplicationPrivate);
   self->priv->bin = gst_pipeline_new("song");
   g_assert(GST_IS_ELEMENT(self->priv->bin));
@@ -184,7 +184,7 @@ static void bt_application_init(const GTypeInstance * const instance, gconstpoin
   //gst_pipeline_set_auto_flush_bus(GST_PIPELINE(self->priv->bin),FALSE);
   // if we enable this we get lots of diagnostics
   //g_signal_connect (self->priv->bin, "deep_notify", G_CALLBACK(gst_object_default_deep_notify), NULL);
-  
+
   self->priv->settings=bt_settings_new();
   g_assert(BT_IS_SETTINGS(self->priv->settings));
 }
@@ -205,14 +205,14 @@ static void bt_application_class_init(BtApplicationClass * const klass) {
                                      "bin ro prop",
                                      "applications top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,APPLICATION_SETTINGS,
                                   g_param_spec_object("settings",
                                      "settings ro prop",
                                      "applications configuration settings",
                                      BT_TYPE_SETTINGS, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_application_get_type(void) {

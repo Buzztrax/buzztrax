@@ -1,4 +1,4 @@
-/* $Id: main-statusbar.c,v 1.57 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: main-statusbar.c,v 1.58 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -443,14 +443,14 @@ static void bt_main_statusbar_class_init(BtMainStatusbarClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_STATUSBAR_STATUS,
                                   g_param_spec_string("status",
                                      "status prop",
                                      "main status text",
                                      BT_MAIN_STATUSBAR_DEFAULT, /* default value */
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_statusbar_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.45 2007-03-25 14:18:33 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.46 2007-05-07 14:45:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,7 +25,7 @@
  *
  * Provides volume control on the wires, as well as a menu to disconnect wires
  * and to launch the analyzer screen.
- */ 
+ */
 
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C
@@ -50,7 +50,7 @@ enum {
 struct _BtWireCanvasItemPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
   /* the machine page we are on */
@@ -58,22 +58,22 @@ struct _BtWireCanvasItemPrivate {
 
   /* the underlying wire */
   BtWire *wire;
-  
+
   /* end-points of the wire, relative to the group x,y pos */
   gdouble w,h;
-  
+
   /* source and dst machine canvas item */
   BtMachineCanvasItem *src,*dst;
-  
+
   /* the graphcal components */
   GnomeCanvasItem *line,*triangle;
-  
+
   /* wire context_menu */
   GtkMenu *context_menu;
-  
+
   /* the analysis dialog */
   GtkWidget *analysis_dialog;
-  
+
   /* interaction state */
   gboolean dragging,moved;
   gdouble offx,offy,dragx,dragy;
@@ -169,15 +169,15 @@ static void on_wire_analysis_dialog_destroy(GtkWidget *widget, gpointer user_dat
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *src,*dst;
-  
+
   g_assert(user_data);
   g_return_if_fail(BT_IS_MACHINE(machine));
-  
+
   GST_INFO("machine %p,machine->ref_ct=%d has been removed",machine,G_OBJECT(machine)->ref_count);
 
   g_object_get(self->priv->src,"machine",&src,NULL);
   g_object_get(self->priv->dst,"machine",&dst,NULL);
-  
+
   GST_INFO("... machine %p,machine->ref_ct=%d has been removed, checking wire %p->%p",machine,G_OBJECT(machine)->ref_count,src,dst);
   if((src==machine) || (dst==machine)) {
     GST_INFO("the machine, this wire is connected to, has been removed");
@@ -196,10 +196,10 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
 static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtMachine *machine;
-  GHashTable *properties;  
+  GHashTable *properties;
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GnomeCanvasPoints *points;
-  
+
   //GST_INFO("wire pos has changed : machine_item=%p, user_data=%p",machine_item,user_data);
 
   g_object_get(self->priv->src,"machine",&machine,NULL);
@@ -212,7 +212,7 @@ static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer
   g_object_unref(machine);
 
   //GST_INFO("  set new coords: %+5.1f,%+5.1f %+5.1f,%+5.1f",pos_xs,pos_ys,pos_xe,pos_ye);
-  
+
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self),
                       "x", pos_xs,
                       "y", pos_ys,
@@ -224,7 +224,7 @@ static void on_wire_position_changed(BtMachineCanvasItem *machine_item, gpointer
   wire_set_line_points(points,self->priv->w,self->priv->h);
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->line),"points",points,NULL);
   gnome_canvas_points_free(points);
-  
+
   points=gnome_canvas_points_new(3);
   wire_set_triangle_points(points,self->priv->w,self->priv->h);
   gnome_canvas_item_set(GNOME_CANVAS_ITEM(self->priv->triangle),"points",points,NULL);
@@ -235,23 +235,23 @@ static void on_context_menu_disconnect_activate(GtkMenuItem *menuitem,gpointer u
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
   BtSong *song;
   BtSetup *setup;
-  
+
   g_assert(user_data);
   GST_INFO("context_menu disconnect item selected");
-    
+
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   bt_setup_remove_wire(setup,self->priv->wire);
   bt_main_page_machines_remove_wire_item(self->priv->main_page_machines,self);
-    
+
   g_object_try_unref(setup);
   g_object_try_unref(song);
 }
 
 static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(user_data);
-  
+
   g_assert(user_data);
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
@@ -293,7 +293,7 @@ BtWireCanvasItem *bt_wire_canvas_item_new(const BtMainPageMachines *main_page_ma
   g_object_get(G_OBJECT(main_page_machines),"app",&app,"canvas",&canvas,NULL);
   g_object_get(G_OBJECT(app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-  
+
   w=(pos_xe-pos_xs);
   h=(pos_ye-pos_ys);
   /* @todo: if we clip agains BT_WIRE_MAX_EXTEND here, the wire will look bad */
@@ -451,10 +451,10 @@ static void bt_wire_canvas_item_dispose(GObject *object) {
   if(self->priv->analysis_dialog) {
     gtk_widget_destroy(self->priv->analysis_dialog);
   }
-  
+
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
-  GST_DEBUG("  chaining up");  
+  GST_DEBUG("  chaining up");
   G_OBJECT_CLASS(parent_class)->dispose(object);
   GST_DEBUG("  done");
 }
@@ -476,10 +476,10 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
 static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
   GnomeCanvasPoints *points;
-  
+
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
-  
+
   GST_DEBUG("realize for wire occured, wire=%p : w=%f,h=%f",self->priv->wire,self->priv->w,self->priv->h);
 
   points=gnome_canvas_points_new(2);
@@ -491,11 +491,11 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            "width-pixels", 1,
                            NULL);
   gnome_canvas_points_free(points);
-  
+
   // set up polygon
   points=gnome_canvas_points_new(3);
   wire_set_triangle_points(points,self->priv->w,self->priv->h);
-  
+
   self->priv->triangle=gnome_canvas_item_new(GNOME_CANVAS_GROUP(citem),
                            GNOME_TYPE_CANVAS_POLYGON,
                            "points", points,
@@ -512,7 +512,7 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
   gboolean res=FALSE;
 
   //GST_DEBUG("event for wire occured");
-  
+
   switch(event->type) {
     case GDK_BUTTON_PRESS:
       GST_DEBUG("GDK_BUTTON_PRESS: %d",event->button.button);
@@ -596,8 +596,8 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
-  
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",
                                      "machines-page contruct prop",
@@ -606,7 +606,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_WIRE,
                                   g_param_spec_object("wire",
@@ -616,7 +616,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
    g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_W,
                                   g_param_spec_double("w",
@@ -625,7 +625,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      -BT_WIRE_MAX_EXTEND,
                                      BT_WIRE_MAX_EXTEND,
                                      1.0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
    g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_H,
                                   g_param_spec_double("h",
@@ -634,7 +634,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
                                      -BT_WIRE_MAX_EXTEND,
                                      BT_WIRE_MAX_EXTEND,
                                      1.0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_SRC,
                                   g_param_spec_object("src",
@@ -644,7 +644,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_CANVAS_ITEM_DST,
                                   g_param_spec_object("dst",
@@ -654,7 +654,7 @@ static void bt_wire_canvas_item_class_init(BtWireCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wire_canvas_item_get_type(void) {

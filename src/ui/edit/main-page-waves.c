@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.46 2007-03-18 19:23:46 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.47 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -694,7 +694,7 @@ static void bt_main_page_waves_class_init(BtMainPageWavesClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_waves_get_type(void) {

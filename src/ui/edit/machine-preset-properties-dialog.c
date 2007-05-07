@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.6 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.7 2007-05-07 14:45:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -326,26 +326,26 @@ static void bt_machine_preset_properties_dialog_class_init(BtMachinePresetProper
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_MACHINE,
                                   g_param_spec_object("machine",
                                      "machine construct prop",
                                      "Set machine object, the dialog handles",
                                      GST_TYPE_ELEMENT, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_NAME,
                                   g_param_spec_pointer("name",
                                      "name-pointer prop",
                                      "address of preset name",
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_PRESET_PROPERTIES_DIALOG_COMMENT,
                                   g_param_spec_pointer("comment",
                                      "comment-pointer prop",
                                      "address of preset comment",
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_machine_preset_properties_dialog_get_type(void) {

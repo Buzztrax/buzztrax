@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.4 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: midi-device.c,v 1.5 2007-05-07 14:45:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -174,7 +174,7 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
                                      "devnode prop",
                                      "device node path",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_midi_device_get_type(void) {

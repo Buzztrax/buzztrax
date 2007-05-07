@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.36 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: settings.c,v 1.37 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -180,28 +180,28 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "audiosink prop",
                                      "audio output gstreamer element",
                                      "autoaudiosink", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TOOLBAR_HIDE,
                                   g_param_spec_boolean("toolbar-hide",
                                      "toolbar-hide",
                                      "hide main toolbar",
                                      FALSE, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_MENU_TABS_HIDE,
                                   g_param_spec_boolean("tabs-hide",
                                      "tabs-hide",
                                      "hide main page tabs",
                                      FALSE, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY,
                                   g_param_spec_string("grid-density",
                                      "grid-density prop",
                                      "machine view grid detail level",
                                      "low", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_NEWS_SEEN,
                                   g_param_spec_uint("news-seen",
@@ -210,14 +210,14 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      0,
                                      G_MAXUINT,
                                      0, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_MISSING_MACHINES,
                                   g_param_spec_string("missing-machines",
                                      "missing-machines prop",
                                      "list of missing machines to ignore",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   // playback controller
   g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
@@ -225,7 +225,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "coherence-upnp-active",
                                      "activate Coherence UPnP based playback controller",
                                      FALSE, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
                                   g_param_spec_uint("coherence-upnp-port",
@@ -234,7 +234,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      0,
                                      G_MAXUINT,
                                      7654, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
   // system settings
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,
@@ -242,14 +242,14 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "system-audiosink prop",
                                      "system audio output gstreamer element",
                                      "autoaudiosink", /* default value */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_TOOLBAR_STYLE,
                                   g_param_spec_string("toolbar-style",
                                      "toolbar-style prop",
                                      "system tolbar style",
                                      "both", /* default value */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_settings_get_type(void) {

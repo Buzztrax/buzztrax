@@ -1,4 +1,4 @@
-/* $Id: wave.c,v 1.27 2007-03-13 22:38:11 ensonic Exp $
+/* $Id: wave.c,v 1.28 2007-05-07 14:45:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,7 +23,7 @@
  * @short_description: one #BtWavetable entry that keeps a list of #BtWavelevels
  *
  * Represents one instrument. Contains one or more #BtWavelevels.
- */ 
+ */
 /* @todo: save sample file length and/or md5sum in file:
  * - if we miss files, we can do a file-system search and use the details to verify
  * - when loading, we might also use the details as a sanity check
@@ -53,16 +53,16 @@ enum {
 struct _BtWavePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the song the wave belongs to */
   G_POINTER_ALIAS(BtSong *,song);
 
   /* each wave has an index number, the list of waves can have empty slots */
-  gulong index;  
+  gulong index;
   /* the name of the wave and the the sample file */
   gchar *name;
   gchar *uri;
-  
+
   GList *wavelevels;    // each entry points to a BtWavelevel
 };
 
@@ -115,14 +115,14 @@ Error:
  * @self: the wavetable to add the new wavelevel to
  * @wavelevel: the new wavelevel instance
  *
- * Add the supplied wavelevel to the wave. This is automatically done by 
+ * Add the supplied wavelevel to the wave. This is automatically done by
  * #bt_wavelevel_new().
  *
  * Returns: %TRUE for success, %FALSE otheriwse
  */
 gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * const wavelevel) {
   gboolean ret=FALSE;
-  
+
   g_assert(BT_IS_WAVE(self));
   g_assert(BT_IS_WAVELEVEL(wavelevel));
 
@@ -133,7 +133,7 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
     bt_song_set_unsaved(self->priv->song,TRUE);
   }
   else {
-    GST_WARNING("trying to add wavelevel again"); 
+    GST_WARNING("trying to add wavelevel again");
   }
   return ret;
 }
@@ -144,7 +144,7 @@ gboolean bt_wave_add_wavelevel(const BtWave * const self, const BtWavelevel * co
  *
  * Will check the URI and if valid load the wavedata.
  *
- * Returns: %TRUE if the wavedata could be loaded 
+ * Returns: %TRUE if the wavedata could be loaded
  */
 gboolean bt_wave_load_from_uri(const BtWave * const self) {
   gboolean res=TRUE;
@@ -152,9 +152,9 @@ gboolean bt_wave_load_from_uri(const BtWave * const self) {
   GnomeVFSURI * const uri=gnome_vfs_uri_new(self->priv->uri);
   // check if the url is valid
   if(!gnome_vfs_uri_exists(uri)) goto invalid_uri;
-    
+
   // @todo: load wave-data (into wavelevels)
-  
+
 done:
   gnome_vfs_uri_unref(uri);
   return(res);
@@ -171,14 +171,14 @@ static xmlNodePtr bt_wave_persistence_save(const BtPersistence * const persisten
   const BtWave * const self = BT_WAVE(persistence);
   xmlNodePtr node=NULL;
   xmlNodePtr child_node;
-  
+
   GST_DEBUG("PERSISTENCE::wave");
 
   if((node=xmlNewChild(parent_node,NULL,XML_CHAR_PTR("wave"),NULL))) {
     xmlNewProp(node,XML_CHAR_PTR("index"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(self->priv->index)));
     xmlNewProp(node,XML_CHAR_PTR("name"),XML_CHAR_PTR(self->priv->name));
     xmlNewProp(node,XML_CHAR_PTR("uri"),XML_CHAR_PTR(self->priv->uri));
-    
+
     // save wavelevels
     if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("wavelevels"),NULL))) {
       bt_persistence_save_list(self->priv->wavelevels,node);
@@ -191,7 +191,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   const BtWave * const self = BT_WAVE(persistence);
   xmlNodePtr child_node;
   gboolean res=FALSE;
-  
+
   GST_DEBUG("PERSISTENCE::wave");
   g_assert(node);
 
@@ -203,7 +203,7 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   xmlFree(index_str);
   xmlFree(name);
   xmlFree(uri);
-  
+
   for(child_node=node->children;child_node;child_node=child_node->next) {
     if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"wavelevel\0",10))) {
       BtWavelevel * const wave_level=BT_WAVELEVEL(g_object_new(BT_TYPE_WAVELEVEL,NULL));
@@ -215,13 +215,13 @@ static gboolean bt_wave_persistence_load(const BtPersistence * const persistence
   }
   // try to load wavedata
   res=bt_wave_load_from_uri(self);
-  
+
   return(res);
 }
 
 static void bt_wave_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
   BtPersistenceInterface * const iface = g_iface;
-  
+
   iface->load = bt_wave_persistence_load;
   iface->save = bt_wave_persistence_save;
 }
@@ -344,7 +344,7 @@ static void bt_wave_finalize(GObject * const object) {
 
 static void bt_wave_init(GTypeInstance * const instance, gconstpointer const g_class) {
   BtWave * const self = BT_WAVE(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WAVE, BtWavePrivate);
 }
 
@@ -364,13 +364,13 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      "song contruct prop",
                                      "Set song object, the wave belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_WAVELEVELS,
                                   g_param_spec_pointer("wavelevels",
                                      "wavelevels list prop",
                                      "A copy of the list of wavelevels",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_INDEX,
                                   g_param_spec_ulong("index",
@@ -379,21 +379,21 @@ static void bt_wave_class_init(BtWaveClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "The name of the wave",
                                      "unamed wave", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVE_URI,
                                   g_param_spec_string("uri",
                                      "uri prop",
                                      "The uri of the wave",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wave_get_type(void) {

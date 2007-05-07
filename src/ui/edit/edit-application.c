@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.101 2007-05-02 19:35:02 ensonic Exp $
+/* $Id: edit-application.c,v 1.102 2007-05-07 14:45:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -833,21 +833,21 @@ static void bt_edit_application_class_init(BtEditApplicationClass *klass) {
                                      "song construct prop",
                                      "the song object, the wire belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_MAIN_WINDOW,
                                   g_param_spec_object("main-window",
                                      "main window prop",
                                      "the main window of this application",
                                      BT_TYPE_MAIN_WINDOW, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,EDIT_APPLICATION_IC_REGISTRY,
                                   g_param_spec_object("ic-registry",
                                      "ic registry prop",
                                      "the interaction controller registry of this application",
                                      BTIC_TYPE_REGISTRY, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_edit_application_get_type(void) {

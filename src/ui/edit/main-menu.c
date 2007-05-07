@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.68 2007-03-19 22:27:54 ensonic Exp $
+/* $Id: main-menu.c,v 1.69 2007-05-07 14:45:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -706,7 +706,7 @@ static void bt_main_menu_class_init(BtMainMenuClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the menu belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_menu_get_type(void) {

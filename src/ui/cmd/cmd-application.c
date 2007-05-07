@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.91 2007-04-24 19:36:09 ensonic Exp $
+/* $Id: cmd-application.c,v 1.92 2007-05-07 14:45:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -631,7 +631,7 @@ static void bt_cmd_application_class_init(BtCmdApplicationClass *klass) {
                                      "quiet prop",
                                      "tell wheter the app should do output or not",
                                      FALSE,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

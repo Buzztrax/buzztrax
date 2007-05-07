@@ -1,4 +1,4 @@
-/* $Id: wavetable.c,v 1.29 2007-04-19 17:55:31 ensonic Exp $
+/* $Id: wavetable.c,v 1.30 2007-05-07 14:45:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -362,19 +362,19 @@ static void bt_wavetable_class_init(BtWavetableClass * const klass) {
                                      "song contruct prop",
                                      "Set song object, the wavetable belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVETABLE_WAVES,
                                   g_param_spec_pointer("waves",
                                      "waves list prop",
                                      "A copy of the list of waves",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WAVETABLE_MISSING_WAVES,
                                   g_param_spec_pointer("missing-waves",
                                      "missing-waves list prop",
                                      "The list of missing waves, don't change",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wavetable_get_type(void) {

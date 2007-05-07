@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.105 2007-04-29 17:32:58 ensonic Exp $
+/* $Id: wire.c,v 1.106 2007-05-07 14:45:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -94,6 +94,16 @@ struct _BtWirePrivate {
 };
 
 static GObjectClass *parent_class=NULL;
+
+/* @todo:
+G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
+  G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
+    bt_wire_persistence_interface_init));
+
+  * replace parent_class with bt_wire_parent_class and remove parent_class init
+    from bt_wire_class_init, remove parent_class
+  * remove bt_wire_get_type
+*/
 
 //-- helper methods
 
@@ -821,21 +831,21 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      "song construct prop",
                                      "the song object, the wire belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_SRC,
                                   g_param_spec_object("src",
                                      "src ro prop",
                                      "src machine object, the wire links to",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_DST,
                                   g_param_spec_object("dst",
                                      "dst ro prop",
                                      "dst machine object, the wire links to",
                                      BT_TYPE_MACHINE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_GAIN,
                                   g_param_spec_double("gain",
@@ -844,13 +854,13 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      0.0,
                                      4.0,
                                      1.0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_ANALYZERS,
                                   g_param_spec_pointer("analyzers",
                                      "analyzers prop",
                                      "list of wire analyzers",
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_wire_get_type(void) {
@@ -878,3 +888,4 @@ GType bt_wire_get_type(void) {
   }
   return type;
 }
+

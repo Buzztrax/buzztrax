@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.183 2007-05-03 20:32:18 ensonic Exp $
+/* $Id: song.c,v 1.184 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1442,56 +1442,56 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      "app contruct prop",
                                      "set application object, the song belongs to",
                                      BT_TYPE_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_BIN,
                                   g_param_spec_object("bin",
                                      "bin construct prop",
                                      "songs top-level GstElement container",
                                      GST_TYPE_BIN, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_MASTER,
                                   g_param_spec_object("master",
                                      "master prop",
                                      "songs audio_sink",
                                      BT_TYPE_SINK_MACHINE, /* object type */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_SONG_INFO,
                                   g_param_spec_object("song-info",
                                      "song-info prop",
                                      "songs metadata sub object",
                                      BT_TYPE_SONG_INFO, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_SEQUENCE,
                                   g_param_spec_object("sequence",
                                      "sequence prop",
                                      "songs sequence sub object",
                                      BT_TYPE_SEQUENCE, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_SETUP,
                                   g_param_spec_object("setup",
                                      "setup prop",
                                      "songs setup sub object",
                                      BT_TYPE_SETUP, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_WAVETABLE,
                                   g_param_spec_object("wavetable",
                                      "wavetable prop",
                                      "songs wavetable sub object",
                                      BT_TYPE_WAVETABLE, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_UNSAVED,
                                   g_param_spec_boolean("unsaved",
                                      "unsaved prop",
                                      "tell wheter the current state of the song has been saved",
                                      TRUE,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_PLAY_POS,
                                   g_param_spec_ulong("play-pos",
@@ -1500,14 +1500,14 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      0,
                                      G_MAXLONG,  // loop-positions are LONG as well
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_IS_PLAYING,
                                   g_param_spec_boolean("is-playing",
                                      "is-playing prop",
                                      "tell wheter the song is playing right now or not",
                                      FALSE,
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 /**

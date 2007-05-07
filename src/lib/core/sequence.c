@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.136 2007-04-27 08:40:42 ensonic Exp $
+/* $Id: sequence.c,v 1.137 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1495,7 +1495,7 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                      "song contruct prop",
                                      "Set song object, the sequence belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_LENGTH,
                                   g_param_spec_ulong("length",
@@ -1504,7 +1504,7 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                      0,
                                      G_MAXLONG,  // loop-pos are LONG as well
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_TRACKS,
                                   g_param_spec_ulong("tracks",
@@ -1513,14 +1513,14 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_LOOP,
                                   g_param_spec_boolean("loop",
                                      "loop prop",
                                      "is loop activated",
                                      FALSE,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_LOOP_START,
                                   g_param_spec_long("loop-start",
@@ -1529,7 +1529,7 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                      -1,
                                      G_MAXLONG,
                                      -1,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SEQUENCE_LOOP_END,
                                   g_param_spec_long("loop-end",
@@ -1538,7 +1538,7 @@ static void bt_sequence_class_init(BtSequenceClass * const klass) {
                                      -1,
                                      G_MAXLONG,
                                      -1,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.87 2007-04-19 20:39:19 ensonic Exp $
+/* $Id: core.h,v 1.88 2007-05-07 14:45:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -318,6 +318,15 @@ sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 #ifndef GST_HAVE_GLIB_2_8
 #define G_OPTION_FLAG_NO_ARG 0
 #endif
+
+#ifndef GST_HAVE_GLIB_2_8
+#define	G_PARAM_STATIC_STRINGS 0
+#else
+#ifndef G_PARAM_STATIC_STRINGS
+#define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
+#endif
+#endif
+
 
 #ifndef BT_CORE_C
   extern GOptionGroup *bt_init_get_option_group(void);

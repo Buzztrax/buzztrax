@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.83 2007-04-24 06:53:39 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.84 2007-05-07 14:45:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1011,7 +1011,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",
@@ -1021,7 +1021,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_MACHINE,
                                   g_param_spec_object("machine",
@@ -1031,7 +1031,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
 #ifndef GNOME_CANVAS_BROKEN_PROPERTIES
                                      G_PARAM_CONSTRUCT_ONLY |
 #endif
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MACHINE_CANVAS_ITEM_ZOOM,
                                   g_param_spec_double("zoom",
@@ -1040,7 +1040,7 @@ static void bt_machine_canvas_item_class_init(BtMachineCanvasItemClass *klass) {
                                      0.0,
                                      100.0,
                                      1.0,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_machine_canvas_item_get_type(void) {

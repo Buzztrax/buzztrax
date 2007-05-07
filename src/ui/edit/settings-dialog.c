@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.38 2007-05-02 19:35:02 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.39 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -378,7 +378,7 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

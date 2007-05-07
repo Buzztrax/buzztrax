@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.168 2007-05-03 18:46:02 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.169 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2843,7 +2843,7 @@ static void bt_main_page_sequence_class_init(BtMainPageSequenceClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_sequence_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.34 2007-05-03 20:32:18 ensonic Exp $
+/* $Id: sink-bin.c,v 1.35 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -764,7 +764,7 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
                                      "mode of operation",
                                      BT_TYPE_SINK_BIN_MODE,  /* enum type */
                                      BT_SINK_BIN_MODE_PLAY, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SINK_BIN_RECORD_FORMAT,
                                   g_param_spec_enum("record-format",
@@ -772,14 +772,14 @@ static void bt_sink_bin_class_init(BtSinkBinClass * const klass) {
                                      "format to use when in record mode",
                                      BT_TYPE_SINK_BIN_RECORD_FORMAT,  /* enum type */
                                      BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SINK_BIN_RECORD_FILE_NAME,
                                   g_param_spec_string("record-file-name",
                                      "record-file-name contruct prop",
                                      "the file-name to use for recording",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_sink_bin_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: abs-range-control.c,v 1.1 2007-04-11 18:31:07 ensonic Exp $
+/* $Id: abs-range-control.c,v 1.2 2007-05-07 14:45:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -183,7 +183,7 @@ static void btic_abs_range_control_class_init(BtIcAbsRangeControlClass * const k
                                      G_MINLONG,
                                      G_MAXLONG,
                                      0, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,ABS_RANGE_CONTROL_MIN,
                                   g_param_spec_long("min",
@@ -192,7 +192,7 @@ static void btic_abs_range_control_class_init(BtIcAbsRangeControlClass * const k
                                      G_MINLONG,
                                      G_MAXLONG,
                                      G_MINLONG, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,ABS_RANGE_CONTROL_MAX,
                                   g_param_spec_long("max",
@@ -201,7 +201,7 @@ static void btic_abs_range_control_class_init(BtIcAbsRangeControlClass * const k
                                      G_MINLONG,
                                      G_MAXLONG,
                                      G_MAXLONG, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,ABS_RANGE_CONTROL_DEF,
                                   g_param_spec_long("def",
@@ -210,7 +210,7 @@ static void btic_abs_range_control_class_init(BtIcAbsRangeControlClass * const k
                                      G_MINLONG,
                                      G_MAXLONG,
                                      0, /* default value */
-                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_abs_range_control_get_type(void) {

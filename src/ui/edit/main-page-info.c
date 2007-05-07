@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.50 2007-03-25 14:18:32 ensonic Exp $
+/* $Id: main-page-info.c,v 1.51 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -32,7 +32,7 @@
  *   song created, song last changed
  * - add choice for metre (in german -> takt): beats (beats = bars / tpb)
  */
- 
+
 #define BT_EDIT
 #define BT_MAIN_PAGE_INFO_C
 
@@ -46,10 +46,10 @@ enum {
 struct _BtMainPageInfoPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* name, genre, author of the song */
   GtkEntry *name,*genre,*author;
 
@@ -66,11 +66,11 @@ static GtkVBoxClass *parent_class=NULL;
 
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
-  
+
   gtk_widget_grab_focus(GTK_WIDGET(self->priv->info));
   return(FALSE);
 }
-  
+
 static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
 
   if(page_num==BT_MAIN_PAGES_INFO_PAGE) {
@@ -287,11 +287,11 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   GtkWidget *scrolledwindow;
   GtkAdjustment *spin_adjustment;
   gchar *str;
-  
+
   GST_DEBUG("!!!! self=%p",self);
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("song information"));
-  
+
   // first row of vbox
   frame=gtk_frame_new(NULL);
   label=gtk_label_new(NULL);
@@ -303,7 +303,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
   gtk_container_set_border_width(GTK_CONTAINER(frame),6);
   gtk_widget_set_name(frame,_("song meta data"));
   gtk_box_pack_start(GTK_BOX(self),frame,FALSE,TRUE,0);
-  
+
   box=gtk_hbox_new(FALSE,6);
   gtk_container_add(GTK_CONTAINER(frame),box);
 
@@ -365,7 +365,7 @@ static gboolean bt_main_page_info_init_ui(const BtMainPageInfo *self,const BtMai
 
   // @idea have another field with subticks (GstController parameter smoothing)
   // @idea show tick and subtick interval as time (s:ms)
-  
+
   gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
   // second row of hbox
@@ -495,13 +495,13 @@ static void bt_main_page_info_dispose(GObject *object) {
 
 static void bt_main_page_info_finalize(GObject *object) {
   //BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
-  
+
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
 
 static void bt_main_page_info_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_INFO, BtMainPageInfoPrivate);
 }
 
@@ -510,7 +510,7 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageInfoPrivate));
-  
+
   gobject_class->set_property = bt_main_page_info_set_property;
   gobject_class->get_property = bt_main_page_info_get_property;
   gobject_class->dispose      = bt_main_page_info_dispose;
@@ -521,7 +521,7 @@ static void bt_main_page_info_class_init(BtMainPageInfoClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_info_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.37 2007-03-13 22:38:13 ensonic Exp $
+/* $Id: main-pages.c,v 1.38 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,7 +26,7 @@
  * This class implements the notebook widgets to manage the sub-pages:
  * #tMainPageMachines, #BtMainPagePatterns, #BtMainPageSequence,
  * #BtMainPageWaves and #BtMainPageInfo.
- */ 
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGES_C
@@ -46,10 +46,10 @@ enum {
 struct _BtMainPagesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* the machines tab */
   BtMainPageMachines *machines_page;
   /* the patterns tab */
@@ -78,40 +78,40 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
 
   image=gtk_image_new_from_filename(icon);
   gtk_widget_show(image);
-  
+
   box=gtk_hbox_new(FALSE,6);
   gtk_widget_show(box);
   //gtk_box_pack_start(GTK_BOX(box),image,FALSE,FALSE,0);
   //gtk_box_pack_start(GTK_BOX(box),label,TRUE,FALSE,0);
   gtk_container_add(GTK_CONTAINER(box),image);
   gtk_container_add(GTK_CONTAINER(box),label);
-  
+
   event_box=gtk_event_box_new();
   gtk_container_add(GTK_CONTAINER(event_box),box);
-  
+
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),index),event_box);
   gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,tip,NULL);
 }
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   GtkTooltips *tips;
-  
+
   tips=gtk_tooltips_new();
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
-  
+
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINES_PAGE,_("machines"),"tab_machines.png",_("machines used in the song and their wires"));
-  
+
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
   bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERNS_PAGE,_("patterns"),"tab_patterns.png",_("event pattern editor"));
-  
+
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
@@ -234,7 +234,7 @@ static void bt_main_pages_dispose(GObject *object) {
 
 static void bt_main_pages_finalize(GObject *object) {
   //BtMainPages *self = BT_MAIN_PAGES(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -242,7 +242,7 @@ static void bt_main_pages_finalize(GObject *object) {
 
 static void bt_main_pages_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPages *self = BT_MAIN_PAGES(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGES, BtMainPagesPrivate);
 }
 
@@ -262,42 +262,42 @@ static void bt_main_pages_class_init(BtMainPagesClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_MACHINES_PAGE,
                                   g_param_spec_object("machines-page",
                                      "machines page prop",
                                      "the machines view page",
                                      BT_TYPE_MAIN_PAGE_MACHINES, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_PATTERNS_PAGE,
                                   g_param_spec_object("patterns-page",
                                      "patterns page prop",
                                      "the patterns view page",
                                      BT_TYPE_MAIN_PAGE_PATTERNS, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_SEQUENCE_PAGE,
                                   g_param_spec_object("sequence-page",
                                      "sequence page prop",
                                      "the sequence view page",
                                      BT_TYPE_MAIN_PAGE_SEQUENCE, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_WAVES_PAGE,
                                   g_param_spec_object("waves-page",
                                      "waves page prop",
                                      "the waves view page",
                                      BT_TYPE_MAIN_PAGE_WAVES, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGES_INFO_PAGE,
                                   g_param_spec_object("info-page",
                                      "info page prop",
                                      "the info view page",
                                      BT_TYPE_MAIN_PAGE_INFO, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_pages_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.14 2007-03-18 19:23:46 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.15 2007-05-07 14:45:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -603,14 +603,14 @@ static void bt_wire_analysis_dialog_class_init(BtWireAnalysisDialogClass *klass)
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_ANALYSIS_DIALOG_WIRE,
                                   g_param_spec_object("wire",
                                      "wire construct prop",
                                      "Set wire object, the dialog handles",
                                      BT_TYPE_WIRE, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

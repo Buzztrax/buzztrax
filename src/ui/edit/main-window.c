@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.88 2007-03-25 14:18:32 ensonic Exp $
+/* $Id: main-window.c,v 1.89 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
  *
  * The main window class is a container for the #BtMainMenu, the #BtMainToolbar,
  * the #BtMainStatusbar and the #BtMainPages tabbed notebook.
- */ 
+ */
 
 #define BT_EDIT
 #define BT_MAIN_WINDOW_C
@@ -42,7 +42,7 @@ enum {
 struct _BtMainWindowPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
@@ -54,7 +54,7 @@ struct _BtMainWindowPrivate {
   BtMainPages *pages;
   /* the statusbar of the window */
   BtMainStatusbar *statusbar;
-  
+
   /* the keyboard shortcut table for the window */
   GtkAccelGroup *accel_group;
 };
@@ -98,7 +98,7 @@ static void on_song_unsaved_changed(const BtSong *song,GParamSpec *arg,gpointer 
   gboolean unsaved;
 
   g_assert(user_data);
-  
+
   g_object_get(G_OBJECT(song),"song-info",&song_info,"unsaved",&unsaved,NULL);
   // compose title
   g_object_get(G_OBJECT(song_info),"name",&name,NULL);
@@ -144,7 +144,7 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
   if(i) {
     gchar *file_name=g_strndup((gchar *)selection_data->data,i);
     gboolean res=TRUE;
-    
+
     if(!bt_edit_application_load_song(self->priv->app,file_name)) {
       gchar *msg=g_strdup_printf(_("An error occured while trying to load the song from file '%s'"),file_name);
       bt_dialog_message(self,_("Can't load song"),_("Can't load song"),msg);
@@ -156,7 +156,7 @@ static void on_window_dnd_drop(GtkWidget *widget, GdkDragContext *dc, gint x, gi
   }
 }
 
-/* just for testing 
+/* just for testing
 static gboolean on_window_event(GtkWidget *widget, GdkEvent  *event, gpointer user_data) {
   if(event->type==GDK_BUTTON_PRESS) {
     GdkEventButton *e=(GdkEventButton*)event;
@@ -175,11 +175,11 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GtkWidget *box;
   GdkPixbuf *window_icon;
   GError *error = NULL;
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
-  
+
   self->priv->accel_group=gtk_accel_group_new();
-  
+
   // create and set window icon
   if(!(window_icon=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",16,0,&error))) {
     GST_WARNING("Couldn't load buzztard 16x16 icon: %s", error->message);
@@ -194,7 +194,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   //gtk_window_set_default_size(GTK_WINDOW(self),800,600);
   // this is deprecated
   //gtk_widget_set_usize(GTK_WIDGET(self), 800,600);
-  
+
   /* @todo: restore pos & size
    * - setup.properties or bt_settings?
    * - call
@@ -202,13 +202,13 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
    *   gtk_window_resize(GTK_WINDOW(self),w,h);
    */
   gtk_window_resize(GTK_WINDOW(self),800,600);
-  
+
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(self),box);
 
   GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
-  
+
   // add the menu-bar
   self->priv->menu=bt_main_menu_new(self->priv->app,self->priv->accel_group);
 #ifndef USE_HILDON
@@ -238,11 +238,11 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   g_signal_connect(G_OBJECT(self), "drag-data-received", G_CALLBACK(on_window_dnd_drop),(gpointer)self);
 
   GST_INFO("content created, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
-  
+
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self),"delete-event", G_CALLBACK(on_window_delete_event),(gpointer)self);
   g_signal_connect(G_OBJECT(self),"destroy",      G_CALLBACK(on_window_destroy),(gpointer)self);
-  /* just for testing 
+  /* just for testing
   g_signal_connect(G_OBJECT(self),"event",G_CALLBACK(on_window_event),(gpointer)self);
   */
 
@@ -271,7 +271,7 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   g_object_get(G_OBJECT(app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
   g_object_unref(settings);
-  
+
   if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
     goto Error;
   }
@@ -327,7 +327,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   gboolean res=TRUE;
   gboolean unsaved=FALSE;
   BtSong *song;
-  
+
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
     g_object_get(song,"unsaved",&unsaved,NULL);
@@ -336,7 +336,7 @@ gboolean bt_main_window_check_quit(const BtMainWindow *self) {
   if(unsaved) {
     res=bt_dialog_question(self,_("Really quit ?"),_("Really quit ?"),_("All unsaved changes will be lost then."));
   }
-  
+
   return(res);
 }
 
@@ -382,7 +382,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
 				      NULL);
   gint result;
   gchar *file_name=NULL;
-    
+
   // set a default songs folder
   gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   result=gtk_dialog_run(GTK_DIALOG(dialog));
@@ -397,7 +397,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
       break;
     default:
       GST_WARNING("unhandled response code = %d",result);
-  } 
+  }
   gtk_widget_destroy(dialog);
   // load after destoying the dialog, otherwise it stays open all time
   if(file_name) {
@@ -460,7 +460,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 				      NULL);
   gint result;
   char *file_name=NULL,*file_path;
-    
+
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
@@ -489,7 +489,7 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   if(file_name) {
     FILE *file;
     gboolean cont=TRUE;
-    
+
     if((file=fopen(file_name,"rb"))) {
       GST_INFO("file already exists");
       // it already exists, ask the user what to do (do not save, choose new name, overwrite song)
@@ -606,7 +606,7 @@ static void bt_main_window_finalize(GObject *object) {
 
 static void bt_main_window_init(GTypeInstance *instance, gpointer g_class) {
   BtMainWindow *self = BT_MAIN_WINDOW(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_WINDOW, BtMainWindowPrivate);
 }
 
@@ -615,7 +615,7 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainWindowPrivate));
-  
+
   gobject_class->set_property = bt_main_window_set_property;
   gobject_class->get_property = bt_main_window_get_property;
   gobject_class->dispose      = bt_main_window_dispose;
@@ -626,28 +626,28 @@ static void bt_main_window_class_init(BtMainWindowClass *klass) {
                                      "app construct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_TOOLBAR,
                                   g_param_spec_object("toolbar",
                                      "toolbar prop",
                                      "Get the tool bar",
                                      BT_TYPE_MAIN_TOOLBAR, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_STATUSBAR,
                                   g_param_spec_object("statusbar",
                                      "statusbar prop",
                                      "Get the status bar",
                                      BT_TYPE_MAIN_STATUSBAR, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_WINDOW_PAGES,
                                   g_param_spec_object("pages",
                                      "pages prop",
                                      "Get the pages widget",
                                      BT_TYPE_MAIN_PAGES, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_window_get_type(void) {

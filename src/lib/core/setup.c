@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.109 2007-04-19 17:55:31 ensonic Exp $
+/* $Id: setup.c,v 1.110 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -894,32 +894,32 @@ static void bt_setup_class_init(BtSetupClass * const klass) {
                                   g_param_spec_pointer("properties",
                                      "properties prop",
                                      "list of setup properties",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETUP_SONG,
                                   g_param_spec_object("song",
                                      "song contruct prop",
                                      "Set song object, the setup belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETUP_MACHINES,
                                   g_param_spec_pointer("machines",
                                      "machine list prop",
                                      "A copy of the list of machines",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETUP_WIRES,
                                   g_param_spec_pointer("wires",
                                      "wire list prop",
                                      "A copy of the list of wires",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SETUP_MISSING_MACHINES,
                                   g_param_spec_pointer("missing-machines",
                                      "missing-machines list prop",
                                      "The list of missing machines, don't change",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_setup_get_type(void) {

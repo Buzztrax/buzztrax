@@ -1,4 +1,4 @@
-/* $Id: pattern-view.c,v 1.8 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: pattern-view.c,v 1.9 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,8 +25,8 @@
  *
  * This widget derives from the #GtkTreeView to additionaly draw play-position
  * bars.
- */ 
- 
+ */
+
 #define BT_EDIT
 #define BT_PATTERN_VIEW_C
 
@@ -42,16 +42,16 @@ enum {
 struct _BtPatternViewPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
-  
+
   /* position of playing pointer from 0.0 ... 1.0 */
   gdouble play_pos;
 
   /* number of visible rows, the height of one row */
   gulong visible_rows,row_height;
-  
+
   /* cache some ressources */
   GdkWindow *window;
   GdkGC *play_pos_gc;
@@ -69,9 +69,9 @@ static void bt_pattern_view_invalidate(const BtPatternView *self, gdouble old_po
   gdouble h=(gdouble)(self->priv->visible_rows*self->priv->row_height);
   gint y;
 
-  y=(gint)(old_pos*h);  
+  y=(gint)(old_pos*h);
   gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
-  y=(gint)(new_pos*h);  
+  y=(gint)(new_pos*h);
   gtk_widget_queue_draw_area(GTK_WIDGET(self),0,y-1,GTK_WIDGET(self)->allocation.width,y+1);
 }
 #endif
@@ -116,7 +116,7 @@ static void bt_pattern_view_realize(GtkWidget *widget) {
   // allocation graphical contexts for drawing the overlay lines
   self->priv->play_pos_gc=gdk_gc_new(self->priv->window);
   gdk_gc_set_rgb_fg_color(self->priv->play_pos_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_PLAYLINE));
-  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);  
+  gdk_gc_set_line_attributes(self->priv->play_pos_gc,2,GDK_LINE_SOLID,GDK_CAP_BUTT,GDK_JOIN_MITER);
 }
 
 static void bt_pattern_view_unrealize(GtkWidget *widget) {
@@ -126,17 +126,17 @@ static void bt_pattern_view_unrealize(GtkWidget *widget) {
   if(GTK_WIDGET_CLASS(parent_class)->unrealize) {
     (GTK_WIDGET_CLASS(parent_class)->unrealize)(widget);
   }
-  
+
   g_object_unref(self->priv->play_pos_gc);
-  self->priv->play_pos_gc=NULL; 
+  self->priv->play_pos_gc=NULL;
 }
 
 static gboolean bt_pattern_view_expose_event(GtkWidget *widget,GdkEventExpose *event) {
   BtPatternView *self = BT_PATTERN_VIEW(widget);
 
-  //GST_INFO("!!!! self=%p",self);  
+  //GST_INFO("!!!! self=%p",self);
   //if(!GTK_WIDGET_REALIZED(self)) return FALSE;
-  
+
   // let the parent handle its expose
   if(GTK_WIDGET_CLASS(parent_class)->expose_event) {
     (GTK_WIDGET_CLASS(parent_class)->expose_event)(widget,event);
@@ -160,7 +160,7 @@ static gboolean bt_pattern_view_expose_event(GtkWidget *widget,GdkEventExpose *e
       gtk_tree_view_get_background_area(GTK_TREE_VIEW(widget),path,NULL,&br);
       self->priv->row_height=br.height;
       gtk_tree_path_free(path);
-      GST_INFO("view=%p, cell background visible rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height); 
+      GST_INFO("view=%p, cell background visible rect: %d x %d, %d x %d",widget,br.x,br.y,br.width,br.height);
     }
 
     gtk_tree_view_get_visible_rect(GTK_TREE_VIEW(widget),&vr);
@@ -238,7 +238,7 @@ static void bt_pattern_view_dispose(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
   g_object_try_weak_unref(self->priv->app);
-  
+
   g_object_try_unref(self->priv->play_pos_gc);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
@@ -246,7 +246,7 @@ static void bt_pattern_view_dispose(GObject *object) {
 
 static void bt_pattern_view_finalize(GObject *object) {
   //BtPatternView *self = BT_PATTERN_VIEW(object);
-  
+
   //GST_DEBUG("!!!! self=%p",self);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
@@ -254,7 +254,7 @@ static void bt_pattern_view_finalize(GObject *object) {
 
 static void bt_pattern_view_init(GTypeInstance *instance, gpointer g_class) {
   BtPatternView *self = BT_PATTERN_VIEW(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_PATTERN_VIEW, BtPatternViewPrivate);
 }
 
@@ -269,7 +269,7 @@ static void bt_pattern_view_class_init(BtPatternViewClass *klass) {
   gobject_class->get_property = bt_pattern_view_get_property;
   gobject_class->dispose      = bt_pattern_view_dispose;
   gobject_class->finalize     = bt_pattern_view_finalize;
-  
+
   // override some gtkwidget methods
   gtkwidget_class->realize = bt_pattern_view_realize;
   gtkwidget_class->unrealize = bt_pattern_view_unrealize;
@@ -280,7 +280,7 @@ static void bt_pattern_view_class_init(BtPatternViewClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_VIEW_PLAY_POSITION,
                                   g_param_spec_double("play-position",
@@ -289,7 +289,7 @@ static void bt_pattern_view_class_init(BtPatternViewClass *klass) {
                                      0.0,
                                      1.0,
                                      0.0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,PATTERN_VIEW_VISIBLE_ROWS,
                                   g_param_spec_ulong("visible-rows",
@@ -298,7 +298,7 @@ static void bt_pattern_view_class_init(BtPatternViewClass *klass) {
                                      0,
                                      G_MAXULONG,
                                      0,
-                                     G_PARAM_WRITABLE));
+                                     G_PARAM_WRITABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_pattern_view_get_type(void) {

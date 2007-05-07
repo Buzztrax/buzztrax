@@ -1,4 +1,4 @@
-/* $Id: song-info.c,v 1.68 2007-04-19 17:55:31 ensonic Exp $
+/* $Id: song-info.c,v 1.69 2007-05-07 14:45:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -461,48 +461,48 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                      "song contruct prop",
                                      "song object, the song-info belongs to",
                                      BT_TYPE_SONG, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_TAGLIST,
                                   g_param_spec_pointer("taglist",
                                      "songs taglist",
                                      "songs meta data as a taglist",
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "file name prop",
                                      "songs file name",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_INFO,
                                   g_param_spec_string("info",
                                      "info prop",
                                      "songs freeform info",
                                      "comment me!", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "songs name",
                                      "unnamed", /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_GENRE,
                                   g_param_spec_string("genre",
                                      "genre prop",
                                      "songs genre",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_AUTHOR,
                                   g_param_spec_string("author",
                                      "author prop",
                                      "songs author",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_BPM,
                                   g_param_spec_ulong("bpm",
@@ -511,7 +511,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                      1,
                                      1000,
                                      125,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_TPB,
                                   g_param_spec_ulong("tpb",
@@ -520,7 +520,7 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                      1,
                                      128,
                                      4,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_BARS,
                                   g_param_spec_ulong("bars",
@@ -529,21 +529,21 @@ static void bt_song_info_class_init(BtSongInfoClass * const klass) {
                                      1,
                                      64,
                                      16,
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_CREATE_DTS,
                                   g_param_spec_string("create-dts",
                                      "creation dts prop",
                                      "song creation date time stamp",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,SONG_INFO_CHANGE_DTS,
                                   g_param_spec_string("change-dts",
                                      "changed dts prop",
                                      "song changed date time stamp",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_song_info_get_type(void) {

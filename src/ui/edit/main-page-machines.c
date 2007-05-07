@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.104 2007-04-24 07:17:03 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.105 2007-05-07 14:45:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,7 @@
  * @see_also: #BtSetup
  *
  * Displays the machine setup on a canvas.
- */ 
+ */
 
 #define BT_EDIT
 #define BT_MAIN_PAGE_MACHINES_C
@@ -39,33 +39,33 @@ enum {
 struct _BtMainPageMachinesPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
-  
+
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
   /* the toolbar widget */
   GtkWidget *toolbar;
-  
+
   /* canvas for machine view */
   GnomeCanvas *canvas;
   GtkAdjustment *hadjustment,*vadjustment;
   /* canvas background grid */
   GnomeCanvasItem *grid;
-  
+
   /* the zoomration in pixels/per unit */
   gdouble zoom;
   /* zomm in/out widgets */
   GtkWidget *zoom_in,*zoom_out;
-  
+
   /* canvas context_menu */
   GtkMenu *context_menu;
-  
+
   /* grid density menu */
   GtkMenu *grid_density_menu;
   GSList *grid_density_group;
   /* grid density */
   gulong grid_density;
-  
+
   /* we probably need a list of canvas items that we have drawn, so that we can
    * easily clear them later
    */
@@ -83,13 +83,13 @@ struct _BtMainPageMachinesPrivate {
   GnomeCanvasItem *new_wire;
   GnomeCanvasPoints *new_wire_points;
   BtMachineCanvasItem *new_wire_src,*new_wire_dst;
-  
+
   /* cached setup properties */
   GHashTable *properties;
 
   /* mouse coodinates on context menu invokation (used for placing machines there */
   gdouble mouse_x,mouse_y;
-  
+
   /* volume popup slider */
   BtVolumePopup *vol_popup;
   GtkObject *vol_popup_adj;
@@ -142,9 +142,9 @@ static void update_machine_zoom(gpointer key,gpointer value,gpointer user_data) 
 
 static void update_machines_zoom(const BtMainPageMachines *self) {
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
-  
+
   g_hash_table_insert(self->priv->properties,g_strdup("zoom"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,self->priv->zoom)));
-  
+
   g_hash_table_foreach(self->priv->machines,update_machine_zoom,&self->priv->zoom);
   gtk_widget_set_sensitive(self->priv->zoom_out,(self->priv->zoom>0.4));
   gtk_widget_set_sensitive(self->priv->zoom_in,(self->priv->zoom<3.0));
@@ -182,9 +182,9 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
   gdouble pos_xs,pos_ys,pos_xe,pos_ye;
   GList *node,*list;
   gchar *prop;
-  
+
   machine_view_clear(self);
-  
+
   // update view
   g_object_get(G_OBJECT(setup),"properties",&self->priv->properties,NULL);
   if((prop=(gchar *)g_hash_table_lookup(self->priv->properties,"zoom"))) {
@@ -237,19 +237,19 @@ static void bt_main_page_machines_draw_grid(const BtMainPageMachines *self) {
   GnomeCanvasPoints *points;
   gdouble s,step;
   gulong color;
-  
+
   GST_INFO("redrawing grid : density=%d  canvas=%p",self->priv->grid_density,self->priv->canvas);
-  
+
   // delete old grid-item and generate a new one (pushing it to bottom)
   if(self->priv->grid) gtk_object_destroy(GTK_OBJECT(self->priv->grid));
   self->priv->grid=gnome_canvas_item_new(gnome_canvas_root(self->priv->canvas),
                            GNOME_TYPE_CANVAS_GROUP,"x",0,0,"y",0,0,NULL);
   gnome_canvas_item_lower_to_bottom(self->priv->grid);
-  
+
   if(!self->priv->grid_density) return;
-  
+
   points=gnome_canvas_points_new(2);
-  
+
   // low=1->2, mid=2->4, high=3->8
   step=(MACHINE_VIEW_ZOOM_X+MACHINE_VIEW_ZOOM_X)/(gdouble)(1<<self->priv->grid_density);
   for(s=-(MACHINE_VIEW_ZOOM_X*MACHINE_VIEW_GRID_FC);s<=(MACHINE_VIEW_ZOOM_X*MACHINE_VIEW_GRID_FC);s+=step) {
@@ -292,7 +292,7 @@ static void bt_main_page_machines_add_wire(const BtMainPageMachines *self) {
 
   g_assert(self->priv->new_wire_src);
   g_assert(self->priv->new_wire_dst);
-  
+
   g_object_get(self->priv->app,"song",&song,NULL);
   g_object_get(song,"setup",&setup,NULL);
   g_object_get(self->priv->new_wire_src,"machine",&src_machine,NULL);
@@ -319,7 +319,7 @@ static BtMachineCanvasItem *bt_main_page_machines_get_machine_canvas_item_at(con
   GnomeCanvasItem *ci,*pci;
 
   //GST_DEBUG("is there a machine at pos ?");
-  
+
   if((ci=gnome_canvas_get_item_at(self->priv->canvas,mouse_x,mouse_y))) {
     g_object_get(G_OBJECT(ci),"parent",&pci,NULL);
     if(BT_IS_MACHINE_CANVAS_ITEM(pci)) {
@@ -337,9 +337,9 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
   BtSetup *setup;
   BtWire *wire1=NULL,*wire2=NULL;
   BtMachine *src_machine,*dst_machine;
-  
+
   GST_INFO("can we link to it ?");
-  
+
   g_assert(self->priv->new_wire_src);
   g_assert(self->priv->new_wire_dst);
 
@@ -347,7 +347,7 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
   g_object_get(song,"setup",&setup,NULL);
   g_object_get(self->priv->new_wire_src,"machine",&src_machine,NULL);
   g_object_get(self->priv->new_wire_dst,"machine",&dst_machine,NULL);
-  
+
   // if the citem->machine is a sink/processor-machine
   if(BT_IS_SINK_MACHINE(dst_machine) || BT_IS_PROCESSOR_MACHINE(dst_machine)) {
     // check if these machines are not yet connected
@@ -375,7 +375,7 @@ static gboolean bt_main_page_machines_check_wire(const BtMainPageMachines *self)
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   GHashTable *properties;
-  
+
   g_assert(user_data);
   GST_INFO("new machine %p,ref_count=%d has been added",machine,G_OBJECT(machine)->ref_count);
 
@@ -459,7 +459,7 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   ms=2*MACHINE_VIEW_MACHINE_SIZE_Y;
   ma_ys-=ms;ma_ye+=ms;
   ma_yd=(ma_ye-ma_ys);
-  
+
   g_object_get(G_OBJECT(self->priv->hadjustment),/*"lower",&pg_xs,"value",&pg_x,"upper",&pg_xe,*/"page-size",&pg_xl,NULL);
   g_object_get(G_OBJECT(self->priv->vadjustment),/*"lower",&pg_ys,"value",&pg_y,"upper",&pg_ye,*/"page-size",&pg_yl,NULL);
   /*
@@ -484,7 +484,7 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
   c_y=(MACHINE_VIEW_ZOOM_Y+ma_ys)*self->priv->zoom-((pg_yl-(ma_yd*self->priv->zoom))/2.0);
   gtk_adjustment_set_value(self->priv->hadjustment,c_x);
   gtk_adjustment_set_value(self->priv->vadjustment,c_y);
-  
+
   GST_INFO("toolbar zoom_fit event occurred: zoom = %lf, center x/y = %+6.4lf,%+6.4lf",self->priv->zoom,c_x,c_y);
   update_machines_zoom(self);
 }
@@ -590,18 +590,18 @@ static void on_vadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
   gdouble val=gtk_adjustment_get_value(adjustment);
-  
+
   //GST_INFO("ypos: %lf",val);
-  g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));  
+  g_hash_table_insert(self->priv->properties,g_strdup("ypos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
 }
 
 static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gchar str[G_ASCII_DTOSTR_BUF_SIZE];
   gdouble val=gtk_adjustment_get_value(adjustment);
-  
+
   //GST_INFO("xpos: %lf",val);
-  g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));  
+  g_hash_table_insert(self->priv->properties,g_strdup("xpos"),g_strdup(g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val)));
 }
 
 
@@ -612,7 +612,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
   gdouble mouse_x,mouse_y;
   gchar *color;
   BtMachine *machine;
-  
+
   //if(!GTK_WIDGET_REALIZED(canvas)) return(res);
   //GST_INFO("canvas event received: type=%d", event->type);
 
@@ -627,7 +627,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
       }
       */
-    
+
       // store mouse coordinates, so that we can later place a newly added machine there
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
       if(!(ci=gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y))) {
@@ -724,7 +724,7 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
 static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gchar *toolbar_style;
-  
+
   g_object_get(G_OBJECT(settings),"toolbar-style",&toolbar_style,NULL);
   if(!BT_IS_STRING(toolbar_style)) return;
 
@@ -781,8 +781,8 @@ static void bt_main_page_machines_init_main_context_menu(const BtMainPageMachine
 
 static void bt_main_page_machines_init_grid_density_menu(const BtMainPageMachines *self) {
   GtkWidget *menu_item;
-  
-  // create grid-density menu with grid-density={off,low,mid,high}  
+
+  // create grid-density menu with grid-density={off,low,mid,high}
   self->priv->grid_density_menu=GTK_MENU(gtk_menu_new());
 
   menu_item=gtk_radio_menu_item_new_with_label(self->priv->grid_density_group,_("Off"));
@@ -822,12 +822,12 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gchar *density;
 
   GST_DEBUG("!!!! self=%p",self);
-  
+
   gtk_widget_set_name(GTK_WIDGET(self),_("machine view"));
-  
+
   tips=gtk_tooltips_new();
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
-  
+
   g_object_get(G_OBJECT(settings),"grid-density",&density,NULL);
   if(!strcmp(density,"off")) self->priv->grid_density=0;
   else if(!strcmp(density,"low")) self->priv->grid_density=1;
@@ -843,7 +843,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   // add toolbar
   self->priv->toolbar=gtk_toolbar_new();
   gtk_widget_set_name(self->priv->toolbar,_("machine view tool bar"));
- 
+
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ZOOM_FIT));
   gtk_widget_set_name(tool_item,_("Zoom Fit"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Zoom in/out so that everything is visible"),NULL);
@@ -884,7 +884,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   // generate an antialiased canvas
   gtk_widget_push_colormap(gdk_rgb_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new_aa());
-  /* the non antialisaed (and faster) version 
+  /* the non antialisaed (and faster) version
   gtk_widget_push_colormap(gdk_imlib_get_colormap());
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
   */
@@ -896,7 +896,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
      MACHINE_VIEW_ZOOM_X, MACHINE_VIEW_ZOOM_Y);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
-  
+
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->canvas));
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
   bt_main_page_machines_draw_grid(self);
@@ -904,7 +904,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
-  
+
   self->priv->vadjustment=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   g_signal_connect(G_OBJECT(self->priv->vadjustment),"value-changed",G_CALLBACK(on_vadjustment_changed),(gpointer)self);
   self->priv->hadjustment=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
@@ -963,9 +963,9 @@ Error:
  */
 void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, BtMachineCanvasItem *item) {
   BtMachine *machine;
-  
+
   GST_INFO("now removing machine-item : %p",item);
-  
+
   g_object_get(G_OBJECT(item),"machine",&machine,NULL);
   g_hash_table_remove(self->priv->machines,machine);
   gtk_object_destroy(GTK_OBJECT(item));
@@ -983,9 +983,9 @@ void bt_main_page_machines_remove_machine_item(const BtMainPageMachines *self, B
  */
 void bt_main_page_machines_remove_wire_item(const BtMainPageMachines *self, BtWireCanvasItem *item) {
   BtWire *wire;
-  
+
   GST_INFO("now removing machine-item : %p",item);
-  
+
   g_object_get(G_OBJECT(item),"wire",&wire,NULL);
   g_hash_table_remove(self->priv->wires,wire);
   gtk_object_destroy(GTK_OBJECT(item));
@@ -1009,7 +1009,7 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   GtkWidget *popup=GTK_WIDGET(self->priv->vol_popup);
   BtMainWindow *main_window;
   gdouble gain;
-  
+
   g_object_get(self->priv->app,"main-window",&main_window,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self->priv->vol_popup),GTK_WINDOW(main_window));
   g_object_try_unref(main_window);
@@ -1018,7 +1018,7 @@ gboolean bt_main_page_machines_wire_volume_popup(const BtMainPageMachines *self,
   /* set initial value */
   g_object_get(G_OBJECT(wire),"gain",&gain,NULL);
   gtk_adjustment_set_value(GTK_ADJUSTMENT(self->priv->vol_popup_adj),gain);
-  
+
   /* @todo: show directly over mouse-pos (check: bacon_volume_button_press) */
   gtk_window_move(GTK_WINDOW(popup),xpos,ypos);
   bt_volume_popup_show(self->priv->vol_popup);
@@ -1078,7 +1078,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
 
-  GST_DEBUG("!!!! self=%p",self);  
+  GST_DEBUG("!!!! self=%p",self);
   if(self->priv->vol_popup) {
     GST_DEBUG("  unrefing popup");
     bt_volume_popup_hide(self->priv->vol_popup);
@@ -1090,7 +1090,7 @@ static void bt_main_page_machines_dispose(GObject *object) {
   //g_hash_table_foreach_remove(self->priv->wires,canvas_item_destroy,NULL);
   g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
   g_object_try_weak_unref(self->priv->app);
-  
+
   gtk_object_destroy(GTK_OBJECT(self->priv->grid_density_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
 
@@ -1110,12 +1110,12 @@ static void bt_main_page_machines_finalize(GObject *object) {
 
 static void bt_main_page_machines_init(GTypeInstance *instance, gpointer g_class) {
   BtMainPageMachines *self = BT_MAIN_PAGE_MACHINES(instance);
-  
+
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MAIN_PAGE_MACHINES, BtMainPageMachinesPrivate);
 
   self->priv->zoom=MACHINE_VIEW_ZOOM_FC;
   self->priv->grid_density=1;
-  
+
   self->priv->machines=g_hash_table_new(g_direct_hash,g_direct_equal);
   self->priv->wires=g_hash_table_new(g_direct_hash,g_direct_equal);
 
@@ -1128,7 +1128,7 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtMainPageMachinesPrivate));
-  
+
   gobject_class->set_property = bt_main_page_machines_set_property;
   gobject_class->get_property = bt_main_page_machines_get_property;
   gobject_class->dispose      = bt_main_page_machines_dispose;
@@ -1139,14 +1139,14 @@ static void bt_main_page_machines_class_init(BtMainPageMachinesClass *klass) {
                                      "app contruct prop",
                                      "Set application object, the window belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,MAIN_PAGE_MACHINES_CANVAS,
                                   g_param_spec_object("canvas",
                                      "canvas prop",
                                      "Get the machine canvas",
                                      GNOME_TYPE_CANVAS, /* object type */
-                                     G_PARAM_READABLE));
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_main_page_machines_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: control.c,v 1.1 2007-04-04 18:47:43 ensonic Exp $
+/* $Id: control.c,v 1.2 2007-05-07 14:45:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -150,14 +150,14 @@ static void btic_control_class_init(BtIcControlClass * const klass) {
                                      "device prop",
                                      "parent device object",
                                      BTIC_TYPE_DEVICE, /* object type */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,CONTROL_NAME,
                                   g_param_spec_string("name",
                                      "name prop",
                                      "device name",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY));
+                                     G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY|G_PARAM_STATIC_STRINGS));
 }
 
 GType btic_control_get_type(void) {

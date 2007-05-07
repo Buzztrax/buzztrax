@@ -1,4 +1,4 @@
-/* $Id: settings-page-playback-controller.c,v 1.3 2007-03-27 13:53:21 ensonic Exp $
+/* $Id: settings-page-playback-controller.c,v 1.4 2007-05-07 14:45:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -257,7 +257,7 @@ static void bt_settings_page_playback_controller_class_init(BtSettingsPagePlayba
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 

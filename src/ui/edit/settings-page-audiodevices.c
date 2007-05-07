@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.32 2007-03-25 14:18:33 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.33 2007-05-07 14:45:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -282,7 +282,7 @@ static void bt_settings_page_audiodevices_class_init(BtSettingsPageAudiodevicesC
                                      "app construct prop",
                                      "Set application object, the dialog belongs to",
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
-                                     G_PARAM_CONSTRUCT_ONLY |G_PARAM_READWRITE));
+                                     G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
 }
 
