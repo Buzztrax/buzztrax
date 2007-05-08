@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.249 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: machine.c,v 1.250 2007-05-08 20:51:53 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -73,10 +73,6 @@
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
  *
  * @todo: when using the tee, we need queue elements after
- */
-/* some info about dynamic linking
- * block, flush (peer-pad), unlink, unblock
- * remove request pad on adder (gst_element_remove_pad)
  */
 
 #define BT_CORE
@@ -597,7 +593,6 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
     }
   }
 }
-
 
 /*
  * bt_machine_get_property_meta_value:
@@ -1285,6 +1280,91 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
   g_return_val_if_fail(BT_IS_MACHINE(self),FALSE);
 
   return(self->src_elem==self->priv->machines[PART_SPREADER]);
+}
+
+/*
+ * bt_machine_renegotiate_adder_format:
+ * @self: the machine
+ * @pad_caps: new caps to add to caps filter
+ *
+ */
+void bt_machine_renegotiate_adder_format(const BtMachine * const self, GstCaps *pad_caps) {
+#if 0
+  GstCaps *target_caps,*new_caps;
+  GstStructure *ns;
+  gboolean channels,width,depth,name=FALSE;
+  const gchar *p_name;
+
+  /* @todo: add capsfilter, add fmt_data */
+
+  GST_INFO("caps negotiated for pad %p, %" GST_PTR_FORMAT, pad, pad_caps);
+
+  g_object_get(fmt_data->fmtflt,"caps",&target_caps,NULL);
+  if(!target_caps || !gst_caps_get_size(target_caps)) {
+    GstStructure *ps;
+    GST_INFO("no target caps yet, setting pad caps");
+
+    /* limmit range by what we got */
+    if((ps=gst_caps_get_structure(pad_caps,0))) {
+      channels=gst_structure_get_int(ps,"channels",&fmt_data->channels);
+      width=gst_structure_get_int(ps,"width",&fmt_data->width);
+      depth=gst_structure_get_int(ps,"depth",&fmt_data->depth);
+
+      p_name=gst_structure_get_name(ps);
+      if(!strcmp(p_name,"audio/x-raw-int")) fmt_data->type=0;
+      else if(!strcmp(p_name,"audio/x-raw-float")) fmt_data->type=1;
+
+      new_caps=gst_caps_make_writable(pad_caps);
+    }
+  }
+  else {
+    GstStructure *ps;
+    GST_INFO("target caps %d, pad caps %d",gst_caps_get_size(target_caps),gst_caps_get_size(pad_caps));
+
+    /* max limmit range by what we just got and what we previously set */
+    ps=gst_caps_get_structure(pad_caps,0);
+    if((ps=gst_caps_get_structure(pad_caps,0))) {
+      gint p_channels,p_width,p_depth;
+
+      channels=gst_structure_get_int(ps,"channels",&p_channels);
+      GST_INFO("target channels %d, pad channels %d",fmt_data->channels,p_channels);
+      fmt_data->channels=MAX(fmt_data->channels,p_channels);
+      width=gst_structure_get_int(ps,"width",&p_width);
+      GST_INFO("target width %d, pad width %d",fmt_data->width,p_width);
+      fmt_data->width=MAX(fmt_data->width,p_width);
+      depth=gst_structure_get_int(ps,"depth",&p_depth);
+      GST_INFO("target depth %d, pad depth %d",fmt_data->depth,p_depth);
+      fmt_data->depth=MAX(fmt_data->depth,p_depth);
+
+      p_name=gst_structure_get_name(ps);
+      if(!strcmp(p_name,"audio/x-raw-float")) {
+        if(fmt_data->type<1) {
+          fmt_data->type=1;
+          name=TRUE;
+        }
+      }
+
+      new_caps=gst_caps_make_writable(target_caps);
+    }
+    gst_caps_unref(pad_caps);
+  }
+  ns=gst_caps_get_structure(new_caps,0);
+  if(name)
+    gst_structure_set_name(ns,p_name);
+  if(channels)
+    gst_structure_set(ns,"channels",GST_TYPE_INT_RANGE,fmt_data->channels,8,NULL);
+  if(width)
+    gst_structure_set(ns,"width",GST_TYPE_INT_RANGE,fmt_data->width,32,NULL);
+  if(depth)
+    gst_structure_set(ns,"depth",GST_TYPE_INT_RANGE,fmt_data->depth,32,NULL);
+
+  GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
+
+  g_object_set(fmt_data->fmtflt,"caps",new_caps,NULL);
+  gst_caps_unref(new_caps);
+
+#endif
+  gst_caps_unref(pad_caps);
 }
 
 // pattern handling

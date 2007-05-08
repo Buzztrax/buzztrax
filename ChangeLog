@@ -1,3 +1,21 @@
+2007-05-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	* design/gst/fmtnego.c (SINK_NAME, SRC_NAME, WAIT_LENGTH, FmtData,
+	  fmtflt, type, channels, width, depth, message_received,
+	  on_format_negotiated, main):
+	  Format negotiation example.
+
+	* src/lib/core/libbtcore/machine-methods.h (BT_MACHINE_METHODS_H):
+	* src/lib/core/libbtcore/machine.h (parent, dst_elem,
+	  pattern_removed_event):
+	* src/lib/core/machine.c (bt_machine_resize_voices,
+	  bt_machine_has_active_spreader, bt_machine_renegotiate_adder_format):
+	* src/lib/core/wire.c (parent_class, on_format_negotiated,
+	  bt_wire_link_machines, bt_wire_get_src_peer_pad,
+	  bt_wire_unlink_machines, bt_wire_connect):
+	  fix pad leak, prepare for pad-negotation
+
 2007-05-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/dynlink.c (main):
@@ -121,7 +139,6 @@
 	  bt_wire_canvas_item_event, bt_wire_canvas_item_class_init):
 	  Make property strings static.
 
->>>>>>> 1.257
 2007-05-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c

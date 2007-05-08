@@ -1,4 +1,4 @@
-/* $Id: machine.h,v 1.27 2006-12-15 06:46:34 ensonic Exp $
+/* $Id: machine.h,v 1.28 2007-05-08 20:51:53 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,7 +47,8 @@ typedef struct _BtMachinePrivate BtMachinePrivate;
 struct _BtMachine {
   const GObject parent;
 
-  /* convinience pointers (accessed alot by the wire object) */
+  /* convinience pointers to first and last GstElement in local chain.
+   * (accessed a lot by the wire object) */
   GstElement *dst_elem;
   GstElement *src_elem;
 
@@ -63,7 +64,7 @@ struct _BtMachineClass {
   /* signal callbacks */
   void (*pattern_added_event)(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer const user_data);
   void (*pattern_removed_event)(const BtMachine * const machine, const BtPattern * const pattern, gconstpointer const user_data);
-  
+
   /*< public >*/
   /* virtual methods for subclasses */
   gboolean (*check_type)(const BtMachine * const machine, const gulong pad_src_ct, const gulong pad_sink_ct);

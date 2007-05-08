@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.106 2007-05-07 14:45:34 ensonic Exp $
+/* $Id: wire.c,v 1.107 2007-05-08 20:51:53 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -104,6 +104,12 @@ G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
     from bt_wire_class_init, remove parent_class
   * remove bt_wire_get_type
 */
+
+//-- signal handler
+
+static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_data) {
+  bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),gst_pad_get_negotiated_caps(pad));
+}
 
 //-- helper methods
 
@@ -310,6 +316,14 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   return(res);
 }
 
+/*
+ * bt_wire_get_src_peer_pad:
+ * @elem: a gstreamer element
+ *
+ * Get the peer pad connected to the given elements first source pad.
+ *
+ * Returns: the pad or %NULL
+ */
 static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
   GstIterator *it;
   gboolean done=FALSE;
@@ -340,7 +354,6 @@ static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
   gst_iterator_free(it);
   return(peer_pad);
 }
-
 
 /*
  * bt_wire_unlink_machines:
@@ -382,6 +395,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
       // remove request-pad
       GST_DEBUG("releasing request pad for dst-adder");
       gst_element_release_request_pad(self->priv->dst->dst_elem,dst_pad);
+      gst_object_unref(dst_pad);
     }
   }
   if(machines[PART_CONVERT]) {
@@ -426,6 +440,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
   const GstElement *old_peer;
+  GstPad *sink_pad;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -504,8 +519,15 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   if(!bt_wire_link_machines(self)) {
     GST_ERROR("linking machines failed");goto Error;
   }
-  res=TRUE;
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
+
+  // needed for the adder format negotiation
+  if((sink_pad=gst_element_get_pad(self->priv->machines[PART_DST],"sink"))) {
+    g_signal_connect(sink_pad,"notify::caps",G_CALLBACK(on_format_negotiated),(gpointer)&self->priv->dst);
+  }
+  gst_object_unref(sink_pad);
+
+  res=TRUE;
 
 Error:
   g_object_try_unref(setup);
