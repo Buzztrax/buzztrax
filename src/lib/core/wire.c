@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.107 2007-05-08 20:51:53 ensonic Exp $
+/* $Id: wire.c,v 1.108 2007-05-09 12:50:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -93,16 +93,14 @@ struct _BtWirePrivate {
   GList *analyzers;
 };
 
-static GObjectClass *parent_class=NULL;
+static GObjectClass *bt_wire_parent_class=NULL;
 
-/* @todo:
+/* this actualy produces two more relocations
+static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data);
+
 G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
   G_IMPLEMENT_INTERFACE (BT_TYPE_PERSISTENCE,
     bt_wire_persistence_interface_init));
-
-  * replace parent_class with bt_wire_parent_class and remove parent_class init
-    from bt_wire_class_init, remove parent_class
-  * remove bt_wire_get_type
 */
 
 //-- signal handler
@@ -819,7 +817,7 @@ static void bt_wire_dispose(GObject * const object) {
     self->priv->src,(self->priv->src?(G_OBJECT(self->priv->src))->ref_count:-1));
   g_object_try_unref(self->priv->src);
 
-  G_OBJECT_CLASS(parent_class)->dispose(object);
+  G_OBJECT_CLASS(bt_wire_parent_class)->dispose(object);
 }
 
 static void bt_wire_finalize(GObject * const object) {
@@ -827,12 +825,10 @@ static void bt_wire_finalize(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-  G_OBJECT_CLASS(parent_class)->finalize(object);
+  G_OBJECT_CLASS(bt_wire_parent_class)->finalize(object);
 }
 
-static void bt_wire_init(GTypeInstance * const instance, gpointer const g_class) {
-  BtWire * const self = BT_WIRE(instance);
-
+static void bt_wire_init(BtWire *self) {
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->gain = 1.0;
 }
@@ -840,7 +836,7 @@ static void bt_wire_init(GTypeInstance * const instance, gpointer const g_class)
 static void bt_wire_class_init(BtWireClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
 
-  parent_class=g_type_class_peek_parent(klass);
+  bt_wire_parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
 
   gobject_class->set_property = bt_wire_set_property;

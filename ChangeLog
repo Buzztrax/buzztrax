@@ -1,3 +1,19 @@
+2007-05-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/core.h (BT_CORE_H):
+	* src/lib/core/libbtcore/tools.h (BT_TOOLS_H):
+	* src/lib/core/machine.c (bt_machine_add_input_element,
+	  bt_machine_add_output_element):
+	* src/lib/core/tools.c (bt_gst_registry_class_filter,
+	  bt_gst_registry_get_element_names_matching_all_categories,
+	  bt_gst_element_factory_can_sink_media_type, bt_gst_check_elements,
+	  bt_gst_check_core_elements, bt_gst_element_dbg_pads, g_try_malloc0,
+	  bt_cpu_load_init, bt_cpu_load_get_current):
+	* src/lib/core/wire.c (bt_wire_parent_class, bt_wire_dispose,
+	  bt_wire_finalize, bt_wire_init, bt_wire_class_init):
+	  do not pollute gst_ namespace
+
 2007-05-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* ChangeLog:

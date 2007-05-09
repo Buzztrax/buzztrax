@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.88 2007-05-07 14:45:36 ensonic Exp $
+/* $Id: core.h,v 1.89 2007-05-09 12:50:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,7 +23,7 @@
 #define BT_CORE_H
 
 // @todo: whats that?!
-#undef GST_DISABLE_GST_DEBUG
+//#undef GST_DISABLE_GST_DEBUG
 
 #include "config.h"
 

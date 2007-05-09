@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.34 2007-02-01 20:44:50 ensonic Exp $
+/* $Id: tools.c,v 1.35 2007-05-09 12:50:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -18,7 +18,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
- 
+
 #define BT_CORE
 #define BT_TOOLS_C
 #include <libbtcore/core.h>
@@ -28,7 +28,7 @@
 static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, gpointer user_data) {
   const gchar ** categories=(const gchar **)user_data;
   gboolean res=FALSE;
-  
+
   if(GST_IS_ELEMENT_FACTORY(feature)) {
     const gchar *klass=gst_element_factory_get_klass(GST_ELEMENT_FACTORY(feature));
     res=TRUE;
@@ -53,14 +53,14 @@ static gboolean bt_gst_registry_class_filter(GstPluginFeature * const feature, g
 GList *bt_gst_registry_get_element_names_matching_all_categories(const gchar *class_filter) {
   const GList *node;
   GList *res=NULL;
-  
+
   g_return_val_if_fail(BT_IS_STRING(class_filter),NULL);
 
   GST_DEBUG("run filter for categories: %s",class_filter);
-  
+
   gchar **categories=g_strsplit(class_filter,"/",0);
   GList * const list=gst_default_registry_feature_filter(bt_gst_registry_class_filter,FALSE,(gpointer)categories);
-  
+
   GST_DEBUG("filtering done");
 
   for(node=list;node;node=g_list_next(node)) {
@@ -88,9 +88,9 @@ gboolean bt_gst_element_factory_can_sink_media_type(GstElementFactory *factory,c
   GstCaps *caps;
   guint i,size;
   const GstStructure *s;
-  
+
   g_assert(GST_IS_ELEMENT_FACTORY(factory));
-  
+
   for(node=(GList *)gst_element_factory_get_static_pad_templates(factory);node;node=g_list_next(node)) {
     tmpl=node->data;
     if(tmpl->direction==GST_PAD_SINK) {
@@ -125,9 +125,9 @@ GList *bt_gst_check_elements(GList *list) {
   GList *res=NULL,*node;
   GstRegistry *registry;
   GstPluginFeature*feature;
-  
+
   registry=gst_registry_get_default();
-  
+
   for(node=list;node;node=g_list_next(node)) {
     if((feature=gst_registry_lookup_feature(registry,(const gchar *)node->data))) {
       gst_object_unref(feature);
@@ -136,7 +136,7 @@ GList *bt_gst_check_elements(GList *list) {
       res=g_list_prepend(res,node->data);
     }
   }
-  
+
   return(res);
 }
 
@@ -151,7 +151,7 @@ static gboolean core_elements_checked=FALSE;
 GList *bt_gst_check_core_elements(void) {
   static GList *core_elements=NULL;
   static GList *res=NULL;
-  
+
   if(!core_elements) {
     core_elements=g_list_prepend(core_elements,"volume");
     core_elements=g_list_prepend(core_elements,"tee");
@@ -171,13 +171,13 @@ GList *bt_gst_check_core_elements(void) {
 //-- debugging
 
 /**
- * gst_element_dbg_pads:
+ * bt_gst_element_dbg_pads:
  * @elem: a #GstElement
  *
  * Write out a list of pads for the given element
  *
  */
-void gst_element_dbg_pads(GstElement * const elem) {
+void bt_gst_element_dbg_pads(GstElement * const elem) {
   GstIterator *it;
   GstPad * const pad;
   GstPadDirection dir;
@@ -237,7 +237,7 @@ gpointer g_try_malloc0( const gulong n_bytes ) {
  *
  * Call g_type_parent() as long as it returns a parent.
  *
- * Returns: the super parent type, aka base type. 
+ * Returns: the super parent type, aka base type.
  */
 GType bt_g_type_get_base_type(GType type) {
   GType base;
@@ -258,7 +258,7 @@ static GstClockTime treal_last=G_GINT64_CONSTANT(0),tuser_last=G_GINT64_CONSTANT
  */
 static void GST_GNUC_CONSTRUCTOR bt_cpu_load_init(void) {
   struct timeval now;
-    
+
   gettimeofday(&now,NULL);
   treal_last=GST_TIMEVAL_TO_TIME(now);
   //clk=sysconf(_SC_CLK_TCK);
@@ -277,7 +277,7 @@ guint bt_cpu_load_get_current(void) {
   GstClockTime tnow,treal,tuser,tsys;
   struct timeval now;
   guint cpuload;
-  
+
   gettimeofday(&now,NULL);
   tnow=GST_TIMEVAL_TO_TIME(now);
   treal=tnow-treal_last;

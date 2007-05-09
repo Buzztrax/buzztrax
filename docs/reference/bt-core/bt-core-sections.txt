@@ -1,4 +1,4 @@
-# $Id: bt-core-sections.txt,v 1.85 2007-04-19 17:55:27 ensonic Exp $
+# $Id: bt-core-sections.txt,v 1.86 2007-05-09 12:50:28 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -576,6 +576,7 @@ bt_gst_registry_get_element_names_matching_all_categories
 bt_gst_check_elements
 bt_gst_check_core_elements
 bt_gst_element_factory_can_sink_media_type
+bt_gst_element_dbg_pads
 bt_g_type_get_base_type
 bt_cpu_load_get_current
 bt_init_get_option_group
@@ -595,7 +596,6 @@ g_try_new
 g_try_new0
 G_OPTION_FLAG_NO_ARG
 # gstreamer extras
-gst_element_dbg_pads
 # gettext extras
 _
 N_

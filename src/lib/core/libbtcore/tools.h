@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.19 2007-02-01 20:44:50 ensonic Exp $
+/* $Id: tools.h,v 1.20 2007-05-09 12:50:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,7 +33,7 @@ extern GList *bt_gst_check_elements(GList *list);
 extern GList *bt_gst_check_core_elements(void);
 
 //-- debugging
-extern void gst_element_dbg_pads(GstElement * const elem);
+extern void bt_gst_element_dbg_pads(GstElement * const elem);
 
 //-- glib compat & helper
 #ifndef HAVE_GLIB_2_8
