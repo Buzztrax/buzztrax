@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.108 2007-05-09 12:50:28 ensonic Exp $
+/* $Id: wire.c,v 1.109 2007-05-13 19:42:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -106,7 +106,10 @@ G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
 //-- signal handler
 
 static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_data) {
-  bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),gst_pad_get_negotiated_caps(pad));
+  /* this does not work yet, gstreamer seems to not yet provide a way to double
+   * renegotiation
+  bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),pad);
+  */
 }
 
 //-- helper methods
@@ -250,8 +253,10 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
    * sugnal is linked, this is downgraded).
    * Right now we need to do this, because of http://bugzilla.gnome.org/show_bug.cgi?id=418982
    */
+  /*
   if(!gst_element_link_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL)) {
     gst_element_unlink_many(src->src_elem, machines[PART_TEE], machines[PART_GAIN], dst->dst_elem, NULL);
+  */
     if(!machines[PART_CONVERT]) {
       bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
       g_assert(machines[PART_CONVERT]!=NULL);
@@ -305,12 +310,13 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
       machines[PART_DST]=machines[PART_CONVERT];
       GST_DEBUG("  wire okay with convert");
     }
-  }
+  /*}
   else {
     machines[PART_SRC]=machines[PART_TEE];
     machines[PART_DST]=machines[PART_GAIN];
     GST_DEBUG("  wire okay");
   }
+  */
   return(res);
 }
 
@@ -520,10 +526,15 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   // needed for the adder format negotiation
-  if((sink_pad=gst_element_get_pad(self->priv->machines[PART_DST],"sink"))) {
-    g_signal_connect(sink_pad,"notify::caps",G_CALLBACK(on_format_negotiated),(gpointer)&self->priv->dst);
+  if((sink_pad=gst_element_get_pad(self->priv->machines[PART_SRC],"sink"))) {
+    //GstCaps *pad_caps;
+
+    g_signal_connect(sink_pad,"notify::caps",G_CALLBACK(on_format_negotiated),(gpointer)self->priv->dst);
+    gst_object_unref(sink_pad);
+    //sink_pad=NULL;
+    //bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),gst_pad_get_negotiated_caps(pad));
+
   }
-  gst_object_unref(sink_pad);
 
   res=TRUE;
 

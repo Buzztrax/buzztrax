@@ -1,14 +1,16 @@
-/** $Id: fmtnego.c,v 1.2 2007-05-08 20:51:53 ensonic Exp $
+/** $Id: fmtnego.c,v 1.3 2007-05-13 19:42:59 ensonic Exp $
  * test dynamic format negotiation (http://bugzilla.gnome.org/show_bug.cgi?id=418982)
+ *
+ * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` fmtnego.c -o fmtnego
+ * GST_DEBUG="*:2,adder:3,audioconvert:3,default*:3" ./fmtnego
+ * GST_DEBUG="*:2,default*:3" ./fmtnego
+ *
  * gst-launch audiotestsrc freq=100 ! audioconvert ! adder name=m ! audioconvert ! alsasink audiotestsrc freq=1000 ! audiopanorama panorama=0.5 ! audioconvert ! m.
  *
  * src1 -> conv1 \
  *                + mix -> caps-filter -> conv3 -> sink
  * src2 -> conv2 /
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` fmtnego.c -o fmtnego
- * GST_DEBUG="*:2,adder:3,audioconvert:3,default*:3" ./fmtnego
- * GST_DEBUG="*:2,default*:3" ./fmtnego
  */
 
 #include <stdio.h>
@@ -55,10 +57,10 @@ static void on_format_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data)
   struct FmtData *fmt_data=(struct FmtData *)user_data;
 
   if((pad_caps=gst_pad_get_negotiated_caps(pad))) {
-    GstCaps *target_caps,*new_caps;
+    GstCaps *target_caps,*new_caps=NULL;
     GstStructure *ns;
     gboolean channels,width,depth,name=FALSE;
-    const gchar *p_name;
+    const gchar *p_name=NULL;
 
     GST_INFO("caps negotiated for pad %p, %" GST_PTR_FORMAT, pad, pad_caps);
 
@@ -79,13 +81,15 @@ static void on_format_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data)
 
         new_caps=gst_caps_make_writable(pad_caps);
       }
+      else {
+        gst_caps_unref(pad_caps);
+      }
     }
     else {
       GstStructure *ps;
       GST_INFO("target caps %d, pad caps %d",gst_caps_get_size(target_caps),gst_caps_get_size(pad_caps));
 
       /* max limmit range by what we just got and what we previously set */
-      ps=gst_caps_get_structure(pad_caps,0);
       if((ps=gst_caps_get_structure(pad_caps,0))) {
         gint p_channels,p_width,p_depth;
 
@@ -111,20 +115,22 @@ static void on_format_negotiated(GstPad *pad,GParamSpec *arg,gpointer user_data)
       }
       gst_caps_unref(pad_caps);
     }
-    ns=gst_caps_get_structure(new_caps,0);
-    if(name)
-      gst_structure_set_name(ns,p_name);
-    if(channels)
-      gst_structure_set(ns,"channels",GST_TYPE_INT_RANGE,fmt_data->channels,8,NULL);
-    if(width)
-      gst_structure_set(ns,"width",GST_TYPE_INT_RANGE,fmt_data->width,32,NULL);
-    if(depth)
-      gst_structure_set(ns,"depth",GST_TYPE_INT_RANGE,fmt_data->depth,32,NULL);
+    if(new_caps) {
+      ns=gst_caps_get_structure(new_caps,0);
+      if(name)
+        gst_structure_set_name(ns,p_name);
+      if(channels)
+        gst_structure_set(ns,"channels",GST_TYPE_INT_RANGE,fmt_data->channels,8,NULL);
+      if(width)
+        gst_structure_set(ns,"width",GST_TYPE_INT_RANGE,fmt_data->width,32,NULL);
+      if(depth)
+        gst_structure_set(ns,"depth",GST_TYPE_INT_RANGE,fmt_data->depth,32,NULL);
 
-    GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
+      GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
 
-    g_object_set(fmt_data->fmtflt,"caps",new_caps,NULL);
-    gst_caps_unref(new_caps);
+      g_object_set(fmt_data->fmtflt,"caps",new_caps,NULL);
+      gst_caps_unref(new_caps);
+    }
   }
 }
 

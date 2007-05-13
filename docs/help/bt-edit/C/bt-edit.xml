@@ -201,6 +201,15 @@
       The menu bar gives you access to file operations, standard editing function,
       settings and help.
     </para>
+
+    <para>
+      The <keyword>File</keyword> menu allows to start a new song, load and save
+      songs, as well as end the program. Songs need other ressources in order to
+      be played. These are the sound-generators and effects that are used and
+      eventually digital audiosamples. When loading a song &app; checks if all
+      needed ressources are available and if not lists them in one dialog
+      (FIXME: document and link).
+    </para>
   </sect2>
 
   <sect2 id="bt-edit-main-toolbar">

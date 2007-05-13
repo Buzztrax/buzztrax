@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.121 2007-05-07 14:45:46 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.122 2007-05-13 19:42:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -503,6 +503,11 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       }
     }
   }
+  else if(event->keyval<0x100) {
+    // @todo: do pattern editing depending on type
+    // need bt_main_page_pattern_get_current_pos(self,&row,&param)
+    //
+  }
   return(res);
 }
 
@@ -893,6 +898,24 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     ix=PATTERN_TABLE_PRE_CT;
     for(j=0;j<global_params;j++) {
       // @todo: use specific cell-renderers by type
+      // bt_machine_get_global_param_type, bt_machine_is_global_param_trigger
+
+      /*
+       we could also connect to
+       "editing-started"
+            void        user_function      (GtkCellRenderer *renderer,
+                                            GtkCellEditable *editable,
+                                            gchar           *path,
+                                            gpointer         user_data)
+       and then for the 'editable' (which is a GtkEntry) listen to the
+       "key-release-event"
+            gboolean    user_function      (GtkWidget   *widget,
+                                            GdkEventKey *event,
+                                            gpointer     user_data)
+       there we map the key to the note,
+         gtk_entry_set_text(GTK_ENTRY(widget),note_text);
+         gtk_cell_editable_editing_done(GTK_CELL_EDITABLE(widget));
+       */
 
       renderer=gtk_cell_renderer_text_new();
       g_object_set(G_OBJECT(renderer),

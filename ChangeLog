@@ -1,3 +1,27 @@
+2007-05-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/fmtnego.c: (on_format_negotiated):
+	  Minor fix.
+	* design/gui/treeview/treeview.c: (destroy), (init), (done),
+	(main):
+	  New example for treeview experiments.
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Write more about the emnu commands.
+
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_activate_adder),
+	(bt_machine_renegotiate_adder_format),
+	(bt_machine_persistence_load):
+	* src/lib/core/song.c: (bt_song_stop):
+	* src/lib/core/wire.c: (on_format_negotiated),
+	(bt_wire_link_machines), (bt_wire_connect):
+	  Disable negotiation hack for now.
+
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event), (pattern_table_refresh):
+	  Idea about key-handling in pattern.
+
 2007-05-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

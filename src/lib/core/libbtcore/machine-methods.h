@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.46 2007-05-08 20:51:53 ensonic Exp $
+/* $Id: machine-methods.h,v 1.47 2007-05-13 19:42:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,7 +35,7 @@ extern gboolean bt_machine_has_active_adder(const BtMachine * const self);
 extern gboolean bt_machine_activate_spreader(BtMachine * const self);
 extern gboolean bt_machine_has_active_spreader(const BtMachine * const self);
 
-extern void bt_machine_renegotiate_adder_format(const BtMachine * const self, GstCaps *pad_caps);
+extern void bt_machine_renegotiate_adder_format(const BtMachine * const self, GstPad *pad);
 
 // pattern handling
 
