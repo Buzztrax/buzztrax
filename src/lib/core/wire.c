@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.109 2007-05-13 19:42:59 ensonic Exp $
+/* $Id: wire.c,v 1.110 2007-05-14 19:59:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -105,12 +105,14 @@ G_DEFINE_TYPE_WITH_CODE (BtWire, bt_wire, G_TYPE_OBJECT,
 
 //-- signal handler
 
+#if 0
 static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_data) {
   /* this does not work yet, gstreamer seems to not yet provide a way to double
    * renegotiation
   bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),pad);
   */
 }
+#endif
 
 //-- helper methods
 
@@ -444,7 +446,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   BtMachine * const src=self->priv->src;
   BtMachine * const dst=self->priv->dst;
   const GstElement *old_peer;
-  GstPad *sink_pad;
+  //GstPad *sink_pad;
 
   g_assert(BT_IS_WIRE(self));
 
@@ -526,15 +528,13 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   // needed for the adder format negotiation
+#if 0
   if((sink_pad=gst_element_get_pad(self->priv->machines[PART_SRC],"sink"))) {
-    //GstCaps *pad_caps;
-
     g_signal_connect(sink_pad,"notify::caps",G_CALLBACK(on_format_negotiated),(gpointer)self->priv->dst);
     gst_object_unref(sink_pad);
-    //sink_pad=NULL;
-    //bt_machine_renegotiate_adder_format(BT_MACHINE(user_data),gst_pad_get_negotiated_caps(pad));
-
   }
+#endif
+  //bt_machine_renegotiate_adder_format(self->priv->dst);
 
   res=TRUE;
 
@@ -797,6 +797,8 @@ static void bt_wire_dispose(GObject * const object) {
     );
 
     bt_wire_unlink_machines(self); // removes helper elements if in use
+    //bt_machine_renegotiate_adder_format(self->priv->dst);
+
     if(self->priv->machines[PART_TEE]) {
       GST_DEBUG("  removing machine \"%s\" from bin, obj->ref_count=%d",gst_element_get_name(self->priv->machines[PART_TEE]),(G_OBJECT(self->priv->machines[PART_TEE]))->ref_count);
       if((res=gst_element_set_state(self->priv->machines[PART_TEE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)

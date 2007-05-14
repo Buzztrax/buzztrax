@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.110 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: setup.c,v 1.111 2007-05-14 19:59:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -214,6 +214,8 @@ gboolean bt_setup_add_wire(const BtSetup * const self, const BtWire * const wire
     if((!other_wire1) && (!other_wire2)) {
       ret=TRUE;
       self->priv->wires=g_list_append(self->priv->wires,g_object_ref(G_OBJECT(wire)));
+      bt_machine_renegotiate_adder_format(dst);
+
       g_signal_emit(G_OBJECT(self),signals[WIRE_ADDED_EVENT], 0, wire);
       bt_song_set_unsaved(self->priv->song,TRUE);
       GST_DEBUG("added wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
@@ -268,7 +270,16 @@ void bt_setup_remove_wire(const BtSetup * const self, const BtWire * const wire)
   GST_DEBUG("trying to remove wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
 
   if(g_list_find(self->priv->wires,wire)) {
+    BtMachine *dst;
+
     self->priv->wires=g_list_remove(self->priv->wires,wire);
+
+    g_object_get(G_OBJECT(wire),"dst",&dst,NULL);
+    if(dst) {
+      bt_machine_renegotiate_adder_format(dst);
+      g_object_unref(dst);
+    }
+
     GST_DEBUG("removing wire: %p,ref_count=%d",wire,G_OBJECT(wire)->ref_count);
     g_signal_emit(G_OBJECT(self),signals[WIRE_REMOVED_EVENT], 0, wire);
     g_object_unref(G_OBJECT(wire));

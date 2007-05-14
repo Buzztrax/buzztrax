@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.252 2007-05-13 19:42:59 ensonic Exp $
+/* $Id: machine.c,v 1.253 2007-05-14 19:59:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1291,6 +1291,135 @@ gboolean bt_machine_has_active_spreader(const BtMachine * const self) {
   return(self->src_elem==self->priv->machines[PART_SPREADER]);
 }
 
+static guint get_int_value(GstStructure *str,gchar *name) {
+  const GValue *v;
+  guint res=0;
+
+  if((v=gst_structure_get_value(str,name))) {
+    if(G_VALUE_HOLDS_INT(v))
+      res = g_value_get_int(v);
+    else if(GST_VALUE_HOLDS_INT_RANGE(v))
+      res = gst_value_get_int_range_min(v);
+  }
+  return(res);
+}
+
+/*
+ * bt_machine_renegotiate_adder_format:
+ * @self: the machine
+ *
+ *
+ */
+void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
+  BtSetup *setup;
+  BtWire *wire;
+  BtMachine *src;
+  GList *wires,*node;
+
+  /* do nothing if we don't have and adder & capsfilter or not caps */
+  if(!self->priv->machines[PART_CAPS_FILTER]) return;
+
+  g_object_get(self->priv->song,"setup",&setup,NULL);
+  if(!setup) return;
+
+  if((wires=bt_setup_get_wires_by_dst_machine(setup,self))) {
+    GstPad *pad;
+    GstCaps *pad_caps,*new_caps;
+    const GstCaps *pad_tmpl_caps=NULL,*caps;
+    GstStructure *ps,*ns;
+    guint size,i;
+    gint p_format,n_format=0;
+    gint p_width,n_width=8;
+    gint p_depth,n_depth=8;
+    gint p_channels,n_channels=1;
+    gint singnednes_signed_ct=0,signedness_unsigned_ct=0,p_signedness;
+    const gchar *p_name;
+    const gchar *fmt_names[]={
+      "audio/x-raw-int",
+      "audio/x-raw-float"
+    };
+
+    for(node=wires;node;node=g_list_next(node)) {
+      wire=BT_WIRE(node->data);
+      g_object_get(wire,"src",&src,NULL);
+      GST_INFO("testing wire.src %p.%p", wire,src);
+
+      if((pad=gst_element_get_pad(src->priv->machines[PART_MACHINE],"src"))) {
+        if((pad_caps=gst_pad_get_negotiated_caps(pad)) ||
+          (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
+
+          caps=pad_caps?pad_caps:pad_tmpl_caps;
+          GST_INFO("checking caps %" GST_PTR_FORMAT, caps);
+
+          size=gst_caps_get_size(caps);
+          for(i=0;i<size;i++) {
+            ps=gst_caps_get_structure(caps,i);
+            p_name=gst_structure_get_name(ps);
+            if(!strcmp(p_name,fmt_names[0])) p_format=0;
+            else if(!strcmp(p_name,fmt_names[1])) p_format=1;
+            else {
+              GST_WARNING("unsupported format: %s",p_name);
+              continue;
+            }
+
+            if(p_format>=n_format) {
+              n_format=p_format;
+              // check width/depth
+              p_width=get_int_value(ps,"width");
+              if(p_width>n_width) n_width=p_width;
+              if(n_format==0) {
+                p_depth=get_int_value(ps,"depth");
+                if(p_depth>n_depth) n_width=p_depth;
+              }
+            }
+            // check channels
+            p_channels=get_int_value(ps,"channels");
+            if(p_channels>n_channels) n_channels=p_channels;
+            if(p_format==0) {
+              // check signedness
+              if(gst_structure_get_int(ps,"signedness",&p_signedness)) {
+                if(p_signedness) singnednes_signed_ct++;
+                else signedness_unsigned_ct++;
+              }
+            }
+          }
+          if(pad_caps) gst_caps_unref(pad_caps);
+        }
+        else {
+          GST_WARNING("No caps on pad?");
+        }
+        gst_object_unref(pad);
+      }
+      g_object_unref(src);
+      g_object_unref(wire);
+    }
+    g_list_free(wires);
+
+    // what about rate, endianness and signed
+    ns=gst_structure_new(fmt_names[n_format],
+      "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
+      NULL);
+    gst_structure_set(ns,
+      "channels",GST_TYPE_INT_RANGE,n_channels,8,
+      "width",GST_TYPE_INT_RANGE,n_width,32,
+      "signedness",G_TYPE_INT,G_BYTE_ORDER,
+      NULL);
+    if(n_format==0) {
+      gst_structure_set(ns,
+        "depth",GST_TYPE_INT_RANGE,n_depth,32,
+        "signedness",G_TYPE_INT,(singnednes_signed_ct>=signedness_unsigned_ct),
+        NULL);
+    }
+    new_caps=gst_caps_new_full(ns,NULL);
+
+    GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
+
+    g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
+  }
+  g_object_unref(setup);
+}
+
+#if 0
 /*
  * bt_machine_renegotiate_adder_format:
  * @self: the machine
@@ -1438,6 +1567,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self, GstPad *p
 
   }
 }
+#endif
 
 // pattern handling
 
