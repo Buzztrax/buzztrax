@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.253 2007-05-14 19:59:07 ensonic Exp $
+/* $Id: machine.c,v 1.254 2007-05-15 21:04:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1308,7 +1308,8 @@ static guint get_int_value(GstStructure *str,gchar *name) {
  * bt_machine_renegotiate_adder_format:
  * @self: the machine
  *
- *
+ * Analyze the format on all machines linking to this one and determine a common
+ * format for mixing.
  */
 void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   BtSetup *setup;
@@ -1345,6 +1346,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       GST_INFO("testing wire.src %p.%p", wire,src);
 
       if((pad=gst_element_get_pad(src->priv->machines[PART_MACHINE],"src"))) {
+        // @todo: only check template caps?
         if((pad_caps=gst_pad_get_negotiated_caps(pad)) ||
           (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
 
@@ -1395,6 +1397,11 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     }
     g_list_free(wires);
 
+    /* @todo:
+     * need to keep min/max_channels.
+     * if min_channels<max_channels reiterate wire.src and add panorama elements
+     */
+
     // what about rate, endianness and signed
     ns=gst_structure_new(fmt_names[n_format],
       "rate", GST_TYPE_INT_RANGE, 1, G_MAXINT,
@@ -1418,156 +1425,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
   }
   g_object_unref(setup);
 }
-
-#if 0
-/*
- * bt_machine_renegotiate_adder_format:
- * @self: the machine
- * @pad_caps: new caps to add to caps filter
- *
- *
- */
-void bt_machine_renegotiate_adder_format(const BtMachine * const self, GstPad *pad) {
-  GstCaps *pad_caps;
-  GstStructure *ps;
-
-  /* do nothing if we don't have and adder & capsfilter or not caps */
-  if(!self->priv->machines[PART_CAPS_FILTER]) return;
-  if(!(pad_caps=gst_pad_get_negotiated_caps(pad))) return;
-
-  GST_INFO("negotiated caps %" GST_PTR_FORMAT, pad_caps);
-
-  if((ps=gst_caps_get_structure(pad_caps,0))) {
-    GstCaps *target_caps,*new_caps;
-    GstStructure *ns;
-    gboolean channels,width,depth,name=FALSE;
-    const gchar *p_name;
-
-    g_object_get(self->priv->machines[PART_CAPS_FILTER],"caps",&target_caps,NULL);
-
-    if(!target_caps || !gst_caps_get_size(target_caps)) {
-      GST_INFO("no target caps yet, setting pad caps");
-
-      /* limmit range by what we got */
-      channels=gst_structure_get_int(ps,"channels",&self->priv->channels);
-      width=gst_structure_get_int(ps,"width",&self->priv->width);
-      depth=gst_structure_get_int(ps,"depth",&self->priv->depth);
-
-      p_name=gst_structure_get_name(ps);
-      if(!strcmp(p_name,"audio/x-raw-int")) self->priv->format=0;
-      else if(!strcmp(p_name,"audio/x-raw-float")) self->priv->format=1;
-
-      new_caps=gst_caps_make_writable(pad_caps);
-    }
-    else {
-      gint p_channels,p_width,p_depth;
-      GST_INFO("target caps %d, pad caps %d",gst_caps_get_size(target_caps),gst_caps_get_size(pad_caps));
-
-      /* max limmit range by what we just got and what we previously set */
-      channels=gst_structure_get_int(ps,"channels",&p_channels);
-      GST_INFO("target channels %d, pad channels %d",self->priv->channels,p_channels);
-      self->priv->channels=MAX(self->priv->channels,p_channels);
-      width=gst_structure_get_int(ps,"width",&p_width);
-      GST_INFO("target width %d, pad width %d",self->priv->width,p_width);
-      self->priv->width=MAX(self->priv->width,p_width);
-      depth=gst_structure_get_int(ps,"depth",&p_depth);
-      GST_INFO("target depth %d, pad depth %d",self->priv->depth,p_depth);
-      self->priv->depth=MAX(self->priv->depth,p_depth);
-
-      p_name=gst_structure_get_name(ps);
-      if(!strcmp(p_name,"audio/x-raw-float")) {
-        if(self->priv->format<1) {
-          self->priv->format=1;
-          name=TRUE;
-        }
-      }
-      new_caps=gst_caps_make_writable(target_caps);
-      gst_caps_unref(pad_caps);
-    }
-    ns=gst_caps_get_structure(new_caps,0);
-    if(name)
-      gst_structure_set_name(ns,p_name);
-    if(channels)
-      gst_structure_set(ns,"channels",GST_TYPE_INT_RANGE,self->priv->channels,8,NULL);
-    if(width)
-      gst_structure_set(ns,"width",GST_TYPE_INT_RANGE,self->priv->width,32,NULL);
-    if(depth)
-      gst_structure_set(ns,"depth",GST_TYPE_INT_RANGE,self->priv->depth,32,NULL);
-
-    GST_INFO("set new caps %" GST_PTR_FORMAT, new_caps);
-
-    g_object_set(self->priv->machines[PART_CAPS_FILTER],"caps",new_caps,NULL);
-
-    /* if first link is mono, the mixer is negotiated to mono
-     * intersect will be empty (channels 1,2-8)
-     */
-#if 0
-    {
-      GstPad *src_pad;
-
-      if((src_pad=gst_element_get_pad(self->priv->machines[PART_ADDER],"src"))) {
-        gst_pad_set_caps(src_pad,NULL);
-        gst_object_unref(src_pad);
-      }
-    }
-#endif
-#if 0
-    {
-      /* renegotiate all src-peers of adder (except pad) */
-      GstPad *sink_pad,*src_pad;
-      GstCaps *mix_caps,*dst_caps=NULL;
-
-      src_pad=gst_element_get_pad(self->priv->machines[PART_ADDER],"src");
-      if((mix_caps=gst_pad_get_negotiated_caps(src_pad))) {
-        GST_INFO("mix has caps %" GST_PTR_FORMAT, mix_caps);
-        dst_caps=gst_caps_intersect(mix_caps,new_caps);
-        gst_caps_unref(mix_caps);
-      }
-      else {
-        GST_WARNING("no negotiated caps on mixer");
-      }
-      gst_object_unref(src_pad);
-      if (dst_caps) {
-        GstIterator *it;
-        gboolean done=FALSE;
-        gpointer item;
-
-        GST_INFO("trying to renegotiate to caps %" GST_PTR_FORMAT, dst_caps);
-
-        it=gst_element_iterate_sink_pads(self->priv->machines[PART_ADDER]);
-
-        while (!done) {
-          switch (gst_iterator_next (it, &item)) {
-            case GST_ITERATOR_OK:
-              if((sink_pad=GST_PAD(item))!=pad) {
-                gst_pad_set_caps(sink_pad,dst_caps);
-              }
-              gst_object_unref(sink_pad);
-              break;
-            case GST_ITERATOR_RESYNC:
-              gst_iterator_resync(it);
-              break;
-            case GST_ITERATOR_ERROR:
-              done=TRUE;
-              break;
-            case GST_ITERATOR_DONE:
-              done=TRUE;
-              break;
-          }
-        }
-        gst_iterator_free(it);
-        gst_caps_unref(dst_caps);
-      }
-    }
-#endif
-    gst_caps_unref(new_caps);
-  }
-  else {
-    gst_caps_unref(pad_caps);
-
-  }
-}
-#endif
 
 // pattern handling
 

@@ -1,3 +1,9 @@
+2007-05-16  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c (get_int_value,
+	  bt_machine_renegotiate_adder_format):
+	  Add two more @todo: comments.
+
 2007-05-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/libbtcore/machine-methods.h:
