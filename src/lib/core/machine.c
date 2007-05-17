@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.254 2007-05-15 21:04:45 ensonic Exp $
+/* $Id: machine.c,v 1.255 2007-05-17 18:18:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1657,18 +1657,6 @@ glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar
   g_assert(((found && (ret>=0)) || ((ret==-1) && ((error && *error) || !error))));
   return(ret);
 }
-
-
-/**
- * bt_machine_get_voice_dparam:
- * @self: the machine to search for the voice param
- * @voice: the voice index
- * @index: the offset in the list of voice params
- *
- * Retrieves the voice GstDParam
- *
- * Returns: the requested voice GstDParam
- */
 
 /**
  * bt_machine_get_global_param_spec:

@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.110 2007-05-14 19:59:07 ensonic Exp $
+/* $Id: wire.c,v 1.111 2007-05-17 18:18:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -117,6 +117,67 @@ static void on_format_negotiated(GstPad *pad, GParamSpec *arg, gpointer user_dat
 //-- helper methods
 
 /*
+ * bt_wire_get_peer_pad:
+ * @elem: a gstreamer element
+ *
+ * Get the peer pad connected to the first pad in the given iter.
+ *
+ * Returns: the pad or %NULL
+ */
+static GstPad *bt_wire_get_peer_pad(GstIterator *it) {
+  gboolean done=FALSE;
+  gpointer item;
+  GstPad *pad,*peer_pad=NULL;
+
+  while (!done) {
+    switch (gst_iterator_next (it, &item)) {
+      case GST_ITERATOR_OK:
+        pad=GST_PAD(item);
+        peer_pad=gst_pad_get_peer(pad);
+        done=TRUE;
+        gst_object_unref(pad);
+        break;
+      case GST_ITERATOR_RESYNC:
+        gst_iterator_resync(it);
+        break;
+      case GST_ITERATOR_ERROR:
+        done=TRUE;
+        break;
+      case GST_ITERATOR_DONE:
+        done=TRUE;
+        break;
+    }
+  }
+  gst_iterator_free(it);
+  return(peer_pad);
+}
+
+
+/*
+ * bt_wire_get_src_peer_pad:
+ * @elem: a gstreamer element
+ *
+ * Get the peer pad connected to the given elements first source pad.
+ *
+ * Returns: the pad or %NULL
+ */
+static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
+  return(bt_wire_get_peer_pad(gst_element_iterate_src_pads(elem)));
+}
+
+/*
+ * bt_wire_get_sink_peer_pad:
+ * @elem: a gstreamer element
+ *
+ * Get the peer pad connected to the given elements first sink pad.
+ *
+ * Returns: the pad or %NULL
+ */
+static GstPad *bt_wire_get_sink_peer_pad(GstElement * const elem) {
+  return(bt_wire_get_peer_pad(gst_element_iterate_sink_pads(elem)));
+}
+
+/*
  * bt_wire_make_internal_element:
  * @self: the wire
  * @part: which internal element to create
@@ -180,11 +241,15 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
   const GList* node;
   GstElement *prev,*next;
+  GstPad *src_pad=NULL;
   GstStateChangeReturn state_ret;
 
   if(!self->priv->analyzers) return;
 
   GST_INFO("remove analyzers (%d elements)",g_list_length(self->priv->analyzers));
+
+  src_pad=bt_wire_get_sink_peer_pad(GST_ELEMENT(self->priv->analyzers->data));
+
   prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
@@ -200,6 +265,12 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
     if(!(res=gst_bin_remove(self->priv->bin,next))) {
       GST_INFO("cannot remove element '%s' from bin",gst_element_get_name(next));
     }
+  }
+  if(src_pad) {
+    // remove request-pad
+    GST_INFO("releasing request pad for tee");
+    gst_element_release_request_pad(self->priv->machines[PART_TEE],src_pad);
+    gst_object_unref(src_pad);
   }
 }
 
@@ -323,45 +394,6 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
 }
 
 /*
- * bt_wire_get_src_peer_pad:
- * @elem: a gstreamer element
- *
- * Get the peer pad connected to the given elements first source pad.
- *
- * Returns: the pad or %NULL
- */
-static GstPad *bt_wire_get_src_peer_pad(GstElement * const elem) {
-  GstIterator *it;
-  gboolean done=FALSE;
-  gpointer item;
-  GstPad *pad,*peer_pad=NULL;
-
-  it=gst_element_iterate_src_pads(elem);
-
-  while (!done) {
-    switch (gst_iterator_next (it, &item)) {
-      case GST_ITERATOR_OK:
-        pad=GST_PAD(item);
-        peer_pad=gst_pad_get_peer(pad);
-        done=TRUE;
-        gst_object_unref(pad);
-        break;
-      case GST_ITERATOR_RESYNC:
-        gst_iterator_resync(it);
-        break;
-      case GST_ITERATOR_ERROR:
-        done=TRUE;
-        break;
-      case GST_ITERATOR_DONE:
-        done=TRUE;
-        break;
-    }
-  }
-  gst_iterator_free(it);
-  return(peer_pad);
-}
-
-/*
  * bt_wire_unlink_machines:
  * @self: the wire that should be used for this connection
  *
@@ -376,7 +408,9 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
 
   // check if wire has been properly initialized
   if(self->priv->src->src_elem && self->priv->dst->dst_elem && machines[PART_TEE] && machines[PART_GAIN]) {
-    GstPad *dst_pad=NULL;
+    GstPad *dst_pad=NULL,*src_pad=NULL;
+
+    src_pad=bt_wire_get_sink_peer_pad(machines[PART_TEE]);
 
     GST_DEBUG("unlink machines '%s' -> '%s'",GST_OBJECT_NAME(self->priv->src->src_elem),GST_OBJECT_NAME(self->priv->dst->dst_elem));
     /*if(machines[PART_CONVERT] && machines[PART_SCALE]) {
@@ -397,11 +431,19 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
       dst_pad=bt_wire_get_src_peer_pad(machines[PART_GAIN]);
       gst_element_unlink_many(self->priv->src->src_elem, machines[PART_TEE], machines[PART_GAIN], self->priv->dst->dst_elem, NULL);
     }
+    GST_DEBUG("request pads: adder %s,%s  tee %s,%s",
+      GST_DEBUG_PAD_NAME(dst_pad),GST_DEBUG_PAD_NAME(src_pad));
     if(dst_pad && bt_machine_has_active_adder(self->priv->dst)) {
       // remove request-pad
-      GST_DEBUG("releasing request pad for dst-adder");
+      GST_INFO("releasing request pad for dst-adder");
       gst_element_release_request_pad(self->priv->dst->dst_elem,dst_pad);
       gst_object_unref(dst_pad);
+    }
+    if(src_pad && bt_machine_has_active_spreader(self->priv->src)) {
+      // remove request-pad
+      GST_INFO("releasing request pad for src-spreader");
+      gst_element_release_request_pad(self->priv->src->src_elem,src_pad);
+      gst_object_unref(src_pad);
     }
   }
   if(machines[PART_CONVERT]) {
