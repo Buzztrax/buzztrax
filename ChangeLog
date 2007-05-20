@@ -1,3 +1,23 @@
+2007-05-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/core/machine.c: (bt_machine_renegotiate_adder_format),
+	(bt_machine_set_property):
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
+	(pattern_view_get_current_pos),
+	(on_pattern_table_cursor_changed_idle),
+	(on_pattern_table_key_release_event):
+	* src/ui/edit/main-page-sequence-methods.h:
+	* src/ui/edit/main-page-sequence.c: (sequence_view_get_cursor_pos),
+	(sequence_view_get_current_pos), (on_bars_menu_changed),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event):
+	  Make two methods static. Rewrite treeview cursor navigation and
+	  selection.
+	* src/lib/core/wire.c:
+	  Add todo: about adding queue elements.
+
 2007-05-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c (bt_machine_get_voice_param_index):

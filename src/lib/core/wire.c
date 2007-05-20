@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.111 2007-05-17 18:18:40 ensonic Exp $
+/* $Id: wire.c,v 1.112 2007-05-20 18:35:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -57,6 +57,7 @@ enum {
 typedef enum {
   /* source element in the wire for convinience */
   PART_SRC=0,
+  /* @todo: what about having a queue here to avoid blocking when src has a spreader */
   /* used to link analyzers */
   PART_TEE,
   /* volume-control element */

@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence-methods.h,v 1.8 2006-09-03 13:34:34 ensonic Exp $
+/* $Id: main-page-sequence-methods.h,v 1.9 2007-05-20 18:35:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -29,7 +29,6 @@
 extern BtMainPageSequence *bt_main_page_sequence_new(const BtEditApplication *app,const BtMainPages *pages);
 
 extern BtMachine *bt_main_page_sequence_get_current_machine(const BtMainPageSequence *self);
-extern gboolean bt_main_page_sequence_get_current_pos(const BtMainPageSequence *self,gulong *time,gulong *track);
 
 extern void bt_main_page_sequence_cut_selection(const BtMainPageSequence *self);
 extern void bt_main_page_sequence_copy_selection(const BtMainPageSequence *self);

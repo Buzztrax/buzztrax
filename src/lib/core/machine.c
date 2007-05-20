@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.255 2007-05-17 18:18:40 ensonic Exp $
+/* $Id: machine.c,v 1.256 2007-05-20 18:35:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -117,13 +117,14 @@ typedef enum {
   /* the elements to control and analyse the current input signal */
   PART_INPUT_LEVEL,
   PART_INPUT_GAIN,
-  /* the buffer frames convert element is needed for machines that require fixed with buffers */
-  //PART_BUFFER_FRAMES_CONVERT,
   /* the gstreamer element that produces/processes the signal */
   PART_MACHINE,
   /* the elements to control and analyse the current output signal */
   PART_OUTPUT_LEVEL,
   PART_OUTPUT_GAIN,
+  /* if next element has more channels, spread signal
+  PART_OUTPUT_PANORAMA,
+  */
   /* utillity elements to allow multiple outputs */
   PART_SPREADER,
   /* how many elements are used */
@@ -1304,7 +1305,7 @@ static guint get_int_value(GstStructure *str,gchar *name) {
   return(res);
 }
 
-/*
+/**
  * bt_machine_renegotiate_adder_format:
  * @self: the machine
  *
@@ -1334,6 +1335,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     gint p_depth,n_depth=8;
     gint p_channels,n_channels=1;
     gint singnednes_signed_ct=0,signedness_unsigned_ct=0,p_signedness;
+    gboolean adjust_channels=FALSE;
     const gchar *p_name;
     const gchar *fmt_names[]={
       "audio/x-raw-int",
@@ -1343,7 +1345,6 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
     for(node=wires;node;node=g_list_next(node)) {
       wire=BT_WIRE(node->data);
       g_object_get(wire,"src",&src,NULL);
-      GST_INFO("testing wire.src %p.%p", wire,src);
 
       if((pad=gst_element_get_pad(src->priv->machines[PART_MACHINE],"src"))) {
         // @todo: only check template caps?
@@ -1377,6 +1378,7 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
             // check channels
             p_channels=get_int_value(ps,"channels");
             if(p_channels>n_channels) n_channels=p_channels;
+            else adjust_channels=TRUE;
             if(p_format==0) {
               // check signedness
               if(gst_structure_get_int(ps,"signedness",&p_signedness)) {
@@ -1395,12 +1397,54 @@ void bt_machine_renegotiate_adder_format(const BtMachine * const self) {
       g_object_unref(src);
       g_object_unref(wire);
     }
+    /* @todo add panorama elements
+    if(adjust_channels) {
+      gint m_channels;
+      const GValue *v;
+
+      for(node=wires;node;node=g_list_next(node)) {
+        wire=BT_WIRE(node->data);
+        g_object_get(wire,"src",&src,NULL);
+
+        // check max-channels
+        m_channels=0;
+        if((pad=gst_element_get_pad(src->priv->machines[PART_MACHINE],"src"))) {
+          // @todo: only check template caps?
+          if((pad_caps=gst_pad_get_negotiated_caps(pad)) ||
+            (pad_tmpl_caps=gst_pad_get_pad_template_caps(pad))) {
+
+            caps=pad_caps?pad_caps:pad_tmpl_caps;
+            GST_INFO("checking caps %" GST_PTR_FORMAT, caps);
+
+            size=gst_caps_get_size(caps);
+            for(i=0;i<size;i++) {
+              ps=gst_caps_get_structure(caps,i);
+              if((v=gst_structure_get_value(ps,"channels"))) {
+                if(G_VALUE_HOLDS_INT(v))
+                  p_channels = g_value_get_int(v);
+                else if(GST_VALUE_HOLDS_INT_RANGE(v))
+                  p_channels = gst_value_get_int_range_max(v);
+              }
+              if(p_channels>m_channels) m_channels=p_channels;
+            }
+            if(pad_caps) gst_caps_unref(pad_caps);
+          }
+          gst_object_unref(pad);
+        }
+        if(m_channels<n_channels) {
+          bt_machine_activate_panorama(src);
+        }
+        else {
+          bt_machine_deactivate_panorama(src);
+        }
+
+        g_object_unref(src);
+        g_object_unref(wire);
+      }
+    }
+    */
     g_list_free(wires);
 
-    /* @todo:
-     * need to keep min/max_channels.
-     * if min_channels<max_channels reiterate wire.src and add panorama elements
-     */
 
     // what about rate, endianness and signed
     ns=gst_structure_new(fmt_names[n_format],
@@ -2484,10 +2528,7 @@ static void bt_machine_get_property(GObject * const object, const guint property
 }
 
 /* sets the given properties for this object */
-static void bt_machine_set_property(GObject * const object,
-                              const guint property_id,
-                              const GValue * const value,
-                              GParamSpec * const pspec)
+static void bt_machine_set_property(GObject * const object, const guint property_id, const GValue * const value, GParamSpec * const pspec)
 {
   const BtMachine * const self = BT_MACHINE(object);
 
