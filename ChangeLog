@@ -1,3 +1,8 @@
+2007-05-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c (pattern_table_refresh):
+	  More design for pattern edit key handlers.
+
 2007-05-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

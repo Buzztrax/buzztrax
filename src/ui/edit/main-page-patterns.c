@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.123 2007-05-20 18:35:33 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.124 2007-05-21 20:32:41 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -951,7 +951,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     store_types=(GType *)g_new(GType *,col_ct);
     store_types[0]=G_TYPE_LONG;
     for(i=1;i<col_ct;i++) {
-      // @todo: use specific type depedning on parameter
+      // @todo: use specific type depending on parameter
       store_types[i]=G_TYPE_STRING;
     }
     store=gtk_list_store_newv(col_ct,store_types);
@@ -998,24 +998,33 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     ix=PATTERN_TABLE_PRE_CT;
     for(j=0;j<global_params;j++) {
       // @todo: use specific cell-renderers by type
-      // bt_machine_get_global_param_type, bt_machine_is_global_param_trigger
-
       /*
-       we could also connect to
-       "editing-started"
+      type=bt_machine_get_global_param_type(machine,j);
+      trigger=bt_machine_is_global_param_trigger(machine,j);
+      if(trigger) {
+        if(type==G_TYPE_STRING) {
+        }
+        else if (type==G_TYPE_BOOLEAN) {
+        }
+      }
+      else {
+      }
+
+      we could also connect to
+      "editing-started"
             void        user_function      (GtkCellRenderer *renderer,
                                             GtkCellEditable *editable,
                                             gchar           *path,
                                             gpointer         user_data)
-       and then for the 'editable' (which is a GtkEntry) listen to the
-       "key-release-event"
+      and then for the 'editable' (which is a GtkEntry) listen to the
+      "key-release-event"
             gboolean    user_function      (GtkWidget   *widget,
                                             GdkEventKey *event,
                                             gpointer     user_data)
-       there we map the key to the note,
-         gtk_entry_set_text(GTK_ENTRY(widget),note_text);
-         gtk_cell_editable_editing_done(GTK_CELL_EDITABLE(widget));
-       */
+      there we map the key to the note,
+        gtk_entry_set_text(GTK_ENTRY(widget),note_text);
+        gtk_cell_editable_editing_done(GTK_CELL_EDITABLE(widget));
+      */
 
       renderer=gtk_cell_renderer_text_new();
       g_object_set(G_OBJECT(renderer),
@@ -1056,6 +1065,10 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     }
     for(j=0;j<voices;j++) {
       for(k=0;k<voice_params;k++) {
+        // @todo: use specific cell-renderers by type
+        // type=bt_machine_get_voice_param_type(machine,k);
+        // trigger=bt_machine_is_voice_param_trigger(machine,k);
+
         renderer=gtk_cell_renderer_text_new();
         g_object_set(G_OBJECT(renderer),
           //"mode",GTK_CELL_RENDERER_MODE_ACTIVATABLE,
