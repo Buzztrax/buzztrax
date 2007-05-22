@@ -1,3 +1,13 @@
+2007-05-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c (column_keymode,
+	  PATTERN_TABLE_PRE_CT, PATTERN_KEYMODE_NOTE, PATTERN_KEYMODE_BOOL,
+	  PATTERN_KEYMODE_NUMBER, pattern_table_refresh,
+	  bt_main_page_patterns_finalize):
+	* src/ui/edit/main-page-sequence.c (sequence_table_refresh):
+	  Fix array size bug (just worked by coincidence). Prepare keymode
+	  handling for pattern editing.
+
 2007-05-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c (pattern_table_refresh):

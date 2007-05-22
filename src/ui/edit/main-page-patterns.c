@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.124 2007-05-21 20:32:41 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.125 2007-05-22 20:02:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -101,6 +101,8 @@ struct _BtMainPagePatternsPrivate {
   /* the pattern that is currently shown */
   BtPattern *pattern;
 
+  guint *column_keymode;
+
   /* signal handler ids */
   gint pattern_length_changed,pattern_voices_changed;
   gint pattern_menu_changed;
@@ -123,6 +125,12 @@ enum {
 enum {
   PATTERN_TABLE_POS=0,
   PATTERN_TABLE_PRE_CT
+};
+
+enum {
+  PATTERN_KEYMODE_NOTE=0,
+  PATTERN_KEYMODE_BOOL,
+  PATTERN_KEYMODE_NUMBER
 };
 
 typedef enum {
@@ -933,6 +941,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   gchar *str;
   //GParamSpec *pspec;
   GtkTreeViewColumn *tree_col;
+  GType type;
+  gboolean trigger;
 
   GST_INFO("refresh pattern table");
   g_assert(GTK_IS_TREE_VIEW(self->priv->pattern_table));
@@ -948,7 +958,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     // build model
     GST_DEBUG("  build model");
     col_ct=1+global_params+voices*voice_params;
-    store_types=(GType *)g_new(GType *,col_ct);
+    store_types=(GType *)g_new(GType,col_ct);
     store_types[0]=G_TYPE_LONG;
     for(i=1;i<col_ct;i++) {
       // @todo: use specific type depending on parameter
@@ -956,6 +966,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     }
     store=gtk_list_store_newv(col_ct,store_types);
     g_free(store_types);
+    // edit modes
+    g_free(self->priv->column_keymode);
+    self->priv->column_keymode=(guint *)g_new(guint,col_ct);
     // add events
     for(i=0;i<number_of_ticks;i++) {
       ix=PATTERN_TABLE_PRE_CT;
@@ -998,18 +1011,20 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     ix=PATTERN_TABLE_PRE_CT;
     for(j=0;j<global_params;j++) {
       // @todo: use specific cell-renderers by type
-      /*
       type=bt_machine_get_global_param_type(machine,j);
       trigger=bt_machine_is_global_param_trigger(machine,j);
       if(trigger) {
         if(type==G_TYPE_STRING) {
+          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
         }
         else if (type==G_TYPE_BOOLEAN) {
+          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
         }
       }
       else {
+        self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
       }
-
+      /*
       we could also connect to
       "editing-started"
             void        user_function      (GtkCellRenderer *renderer,
@@ -2039,7 +2054,9 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 }
 
 static void bt_main_page_patterns_finalize(GObject *object) {
-  //BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
+  BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
+
+  g_free(self->priv->column_keymode);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }

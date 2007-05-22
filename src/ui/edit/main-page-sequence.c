@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.170 2007-05-20 18:35:33 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.171 2007-05-22 20:02:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -862,7 +862,7 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   // build model
   GST_DEBUG("  build model");
   col_ct=(SEQUENCE_TABLE_PRE_CT+track_ct);
-  store_types=(GType *)g_new(GType *,col_ct);
+  store_types=(GType *)g_new(GType,col_ct);
   // for background color columns
   store_types[SEQUENCE_TABLE_SOURCE_BG   ]=GDK_TYPE_COLOR;
   store_types[SEQUENCE_TABLE_PROCESSOR_BG]=GDK_TYPE_COLOR;
