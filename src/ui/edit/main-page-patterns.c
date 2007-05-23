@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.125 2007-05-22 20:02:45 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.126 2007-05-23 20:11:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -444,6 +444,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
     g_object_unref(machine);
 
     // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
+#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
     switch(event->keyval) {
       case GDK_Up:
         if(self->priv->cursor_row>0) {
@@ -470,6 +471,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       g_list_free(columns);
       gtk_tree_path_free(path);
     }
+#endif
 
     if(modifier==GDK_SHIFT_MASK) {
       GtkTreePath *path=NULL;

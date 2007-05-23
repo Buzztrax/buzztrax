@@ -1,3 +1,12 @@
+2007-05-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_key_release_event):
+	  Make the gtk+ workaround conditional.
+
 2007-05-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c (column_keymode,

@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.98 2007-05-02 19:35:02 ensonic Exp $
+dnl $Id: configure.ac,v 1.99 2007-05-23 20:11:27 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -294,6 +294,28 @@ AC_MSG_CHECKING([glib version >= 2.10])
 if pkg-config --atleast-version=2.10 glib-2.0; then
   AC_MSG_RESULT(yes)
   AC_DEFINE(HAVE_GLIB_2_10, [1], [Define to 1 if we can use API new in glib-2.10])
+else
+  AC_MSG_RESULT(no)
+fi
+
+AC_MSG_CHECKING([gtk+ version >= 2.10])
+if pkg-config --atleast-version=2.10 gtk+-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GTK_2_10, [1], [Define to 1 if we can use API new in gtk-2.10])
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([gtk+ version >= 2.10.7])
+if pkg-config --atleast-version=2.10.7 gtk+-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GTK_2_10_7, [1], [Define to 1 if we can use API new in gtk-2.10.7])
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([gtk+ version >= 2.12])
+if pkg-config --atleast-version=2.12 gtk+-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GTK_2_12, [1], [Define to 1 if we can use API new in gtk-2.12])
 else
   AC_MSG_RESULT(no)
 fi
