@@ -1,3 +1,21 @@
+2007-06-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  write news and add items for next news
+
+	* src/lib/core/machine.c (bt_machine_init_interfaces,
+	  bt_machine_get_voice_param_spec):
+	  warn for voices=0 and fix get_voice_param_spec impl.
+
+	* src/ui/edit/main-page-patterns.c (on_pattern_table_key_release_event,
+	  on_pattern_global_cell_edited, on_pattern_voice_cell_edited,
+	  pattern_table_refresh):
+	  pattern editing improvments (notes and boolean)
+
+	* src/ui/edit/main-page-sequence.c
+	  (on_sequence_table_key_release_event):
+	  reflow the code a bit
+
 2007-05-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
@@ -76,7 +94,7 @@
 	  New example for treeview experiments.
 
 	* docs/help/bt-edit/C/bt-edit.xml:
-	  Write more about the emnu commands.
+	  Write more about the menu commands.
 
 	* src/lib/core/libbtcore/machine-methods.h:
 	* src/lib/core/machine.c: (bt_machine_activate_adder),

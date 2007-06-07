@@ -1,3 +1,26 @@
+2007/07 ========================================================================
+
+* bt-edit: editing improvments
+* bsl: work on reading bmx<1.2 files
+
+2007/06 ========================================================================
+
+Right after releasing 0.2 I hammered CVS with more changes. I fixed a long
+standing bug, when request-pads in adder and tee where not handled correctly.
+After disconnecting some elements the song never played again. I also added code
+to guide format negotiation when using adder - it needs a caps-filter afterwards
+that enforces audioconverts after all incoming source to the same format.
+
+In bt-edit I totally rewrote the fake-selection handling in the pattern and
+sequence view. I also added a gtk+-version dependent workaround for the cursor
+navigation bug. Right now I work on improving the editing in the pattern view.
+
+It was a short month as I also was on holiday in Germany. I rearrange the
+release schedule [1] a bit and hope to release another version this summer. It
+will improve stability and have some more code cleanups.
+
+[1] http://www.buzztard.org/index.php/Roadmap
+
 2007/05 ========================================================================
 
 Lots of commit and bug tracker activity this month. As we're heading for the 0.2

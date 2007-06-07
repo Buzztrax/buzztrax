@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.172 2007-05-23 20:11:28 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.173 2007-06-07 19:10:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1957,9 +1957,10 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_PRE_CT+col,str,-1);
             // move cursor down & set cell focus
             self->priv->cursor_row+=self->priv->bars;
-            cpath=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1);
-            gtk_tree_view_set_cursor(self->priv->sequence_table,cpath,column,FALSE);
-            if(cpath) gtk_tree_path_free(cpath);
+            if((cpath=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
+              gtk_tree_view_set_cursor(self->priv->sequence_table,cpath,column,FALSE);
+              gtk_tree_path_free(cpath);
+            }
 
             if(pattern_usage_changed) {
               pattern_list_refresh(self);

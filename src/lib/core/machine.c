@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.256 2007-05-20 18:35:33 ensonic Exp $
+/* $Id: machine.c,v 1.257 2007-06-07 19:10:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -770,7 +770,13 @@ Error:
 static void bt_machine_init_interfaces(const BtMachine * const self) {
   // initialize child-proxy iface properties
   if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
-    g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
+    if(!self->priv->voices) {
+      GST_WARNING("voices==0");
+      //g_object_get(self->priv->machines[PART_MACHINE],"children",&self->priv->voices,NULL);
+    }
+    else {
+      g_object_set(self->priv->machines[PART_MACHINE],"children",self->priv->voices,NULL);
+    }
     GST_INFO("  child proxy iface initialized");
   }
   // initialize tempo iface properties
@@ -1731,13 +1737,21 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const
  * Returns: the #GParamSpec for the requested voice param
  */
 GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const gulong index) {
+  GstObject *voice_child;
+  GParamSpec *pspec=NULL;
+
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
   g_return_val_if_fail(index<self->priv->voice_params,NULL);
 
-  return(g_object_class_find_property(
-    G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
-    self->priv->voice_names[index])
-  );
+  GST_INFO("    voice-param %d '%s'",index,self->priv->voice_names[index]);
+
+  if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),0))) {
+    pspec=g_object_class_find_property(
+      G_OBJECT_CLASS(GST_OBJECT_GET_CLASS(voice_child)),
+      self->priv->voice_names[index]);
+    g_object_unref(voice_child);
+  }
+  return(pspec);
 }
 
 /**
