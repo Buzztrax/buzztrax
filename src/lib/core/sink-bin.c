@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.35 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: sink-bin.c,v 1.36 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -158,6 +158,9 @@ GType bt_sink_bin_record_format_get_type(void) {
       { BT_SINK_BIN_RECORD_FORMAT_WAV,        "BT_SINK_BIN_RECORD_FORMAT_WAV",        "wav" },
       { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   "BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC",   "ogg flac" },
       { BT_SINK_BIN_RECORD_FORMAT_RAW,        "BT_SINK_BIN_RECORD_FORMAT_RAW",        "raw" },
+      /*
+      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,   "BT_SINK_BIN_RECORD_FORMAT_MP4_AAC",   "mp4 aac" },
+      */
       { 0, NULL, NULL},
     };
     type = g_enum_register_static("BtSinkBinMRecordFormat", values);

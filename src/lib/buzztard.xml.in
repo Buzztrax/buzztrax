@@ -8,5 +8,6 @@
       <match type="string" value="(bzt-version)" offset="0:64"/>
     </magic>
     <comment>BZT song</comment>
+    <!--desktop:can-edit-with>bt-edit.desktop</desktop:can-edit-with-->
   </mime-type>
 </mime-info>

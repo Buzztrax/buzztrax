@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.48 2007-05-14 19:59:07 ensonic Exp $
+/* $Id: machine-methods.h,v 1.49 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -53,6 +53,12 @@ extern gboolean bt_machine_has_patterns(const BtMachine * const self);
 
 extern gboolean bt_machine_is_polyphonic(const BtMachine * const self);
 
+extern gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const gulong index);
+extern gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const gulong index);
+
+extern gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const gulong index, GValue * const value);
+extern gboolean bt_machine_is_voice_param_no_value(const BtMachine *const self, const gulong index, GValue * const value);
+
 extern glong bt_machine_get_global_param_index(const BtMachine * const self, const gchar * const name, GError **error);
 extern glong bt_machine_get_voice_param_index(const BtMachine * const self, const gchar * const name, GError **error);
 
@@ -76,12 +82,6 @@ extern GValue *bt_machine_get_voice_param_min_value(const BtMachine * const self
 
 extern GValue *bt_machine_get_global_param_max_value(const BtMachine * const self, const gulong index);
 extern GValue *bt_machine_get_voice_param_max_value(const BtMachine * const self, const gulong index);
-
-extern gboolean bt_machine_is_global_param_trigger(const BtMachine * const self, const gulong index);
-extern gboolean bt_machine_is_voice_param_trigger(const BtMachine * const self, const gulong index);
-
-extern gboolean bt_machine_is_global_param_no_value(const BtMachine * const self, const gulong index, GValue * const value);
-extern gboolean bt_machine_is_voice_param_no_value(const BtMachine *const self, const gulong index, GValue * const value);
 
 extern gchar *bt_machine_describe_global_param_value(const BtMachine * const self, const gulong index, GValue * const event);
 extern gchar *bt_machine_describe_voice_param_value(const BtMachine * const self, const gulong index, GValue * const event);

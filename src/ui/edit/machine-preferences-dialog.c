@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.33 2007-05-07 14:45:45 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.34 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -89,11 +89,21 @@ static void on_double_entry_property_notify(const GstElement *machine,GParamSpec
 
 static void on_combobox_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   GtkWidget *widget=GTK_WIDGET(user_data);
-  gint value;
+  gint value=0,ivalue,nvalue;
+  GtkTreeModel *store;
+  GtkTreeIter iter;
 
   g_assert(user_data);
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
+  store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
+  gtk_tree_model_get_iter_first(store,&iter);
+  do {
+    gtk_tree_model_get(store,&iter,0,&ivalue,-1);
+    if(ivalue==nvalue) break;
+    value++;
+  } while(gtk_tree_model_iter_next(store,&iter));
+
   //gdk_threads_enter();
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
   //gdk_threads_leave();
@@ -137,12 +147,18 @@ static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_da
   GstElement *machine=GST_ELEMENT(user_data);
   gint value;
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(combobox));
+  GtkTreeModel *store;
+  GtkTreeIter iter;
 
   g_assert(user_data);
 
   GST_INFO("preferences value change received for: '%s'",name);
-  value=gtk_combo_box_get_active(combobox);
-  g_object_set(machine,name,value,NULL);
+  //value=gtk_combo_box_get_active(combobox);
+  store=gtk_combo_box_get_model(combobox);
+  if(gtk_combo_box_get_active_iter(combobox,&iter)) {
+    gtk_tree_model_get(store,&iter,0,&value,-1);
+    g_object_set(machine,name,value,NULL);
+  }
 }
 
 /*
@@ -389,17 +405,31 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
             GEnumClass *enum_class=enum_property->enum_class;
             GEnumValue *enum_value;
+            GtkCellRenderer *renderer;
+            GtkListStore *store;
+            GtkTreeIter iter;
             gint value;
 
-            widget1=gtk_combo_box_new_text();
+            widget1=gtk_combo_box_new();
             GST_INFO("enum range: %d, %d",enum_class->minimum,enum_class->maximum);
-            // @todo: need a real model and store value in one (invisible) column for sparse enums
+            // need a real model because of sparse enums
+            store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
             for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
               if((enum_value=g_enum_get_value(enum_class, value))) {
                 //GST_INFO("enum value: %d, '%s', '%s'",enum_value->value,enum_value->value_name,enum_value->value_nick);
-                gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+                //gtk_combo_box_append_text(GTK_COMBO_BOX(widget1),enum_value->value_nick);
+                gtk_list_store_append(store,&iter);
+                gtk_list_store_set(store,&iter,
+                  0,enum_value->value,
+                  1,enum_value->value_nick,
+                  -1);
               }
             }
+            renderer=gtk_cell_renderer_text_new();
+            gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget1),renderer,TRUE);
+            gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget1),renderer,"text",1,NULL);
+            gtk_combo_box_set_model(GTK_COMBO_BOX(widget1),GTK_TREE_MODEL(store));
+
             g_object_get(machine,property->name,&value,NULL);
             gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
             signal_name=g_strdup_printf("notify::%s",property->name);

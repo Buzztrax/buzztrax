@@ -1,3 +1,65 @@
+2007-06-28  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	* buzztard.doap:
+	* configure.ac:
+	* design/gui/treeview/treeview.c: (gst_trigger_switch_get_type),
+	(selection_cell_data_function), (init):
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/buzztard.keys.in:
+	* src/lib/buzztard.xml.in:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c: (bt_machine_resize_voices),
+	(bt_machine_get_property_meta_value),
+	(bt_machine_init_global_params), (bt_machine_init_voice_params),
+	(bt_machine_is_global_param_trigger),
+	(bt_machine_is_voice_param_trigger),
+	(bt_machine_is_global_param_no_value),
+	(bt_machine_is_voice_param_no_value),
+	(bt_machine_get_voice_param_spec),
+	(bt_machine_set_global_param_no_value),
+	(bt_machine_set_voice_param_no_value),
+	(bt_machine_get_param_min_value), (bt_machine_get_param_max_value),
+	(bt_machine_describe_global_param_value),
+	(bt_machine_describe_voice_param_value),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value),
+	(bt_machine_persistence_load):
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_record_format_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_update_filename):
+	* src/lib/core/song.c: (bt_song_write_to_lowlevel_dot_file):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.desktop.in.in:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-preferences-dialog.c:
+	(on_combobox_property_notify), (on_combobox_property_changed),
+	(bt_machine_preferences_dialog_init_ui):
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_uint_range_global_property_format_value),
+	(on_uint_range_voice_property_format_value),
+	(on_button_press_event), (on_button_release_event),
+	(on_double_range_button_press_event),
+	(on_uint_range_property_changed),
+	(on_uint_range_button_press_event),
+	(on_combobox_property_notify_idle), (on_combobox_property_changed),
+	(on_checkbox_button_press_event), (make_checkbox_widget),
+	(make_int_range_widget), (make_uint_range_widget),
+	(make_double_range_widget), (make_combobox_widget),
+	(bt_machine_properties_dialog_init_ui):
+	* src/ui/edit/main-page-patterns.c:
+	(generic_selection_cell_data_function),
+	(enum_selection_cell_data_function),
+	(on_pattern_table_key_release_event), (pattern_table_refresh):
+	* src/ui/edit/main-page-sequence.c: (on_bars_menu_changed),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event):
+	  Use triggerswitch from gst-buzztard (unfortunately using enums and
+	  controller requires gstreamer cvs (>0.10.13)). Some first changes for
+	  new controller api. 
+
 2007-06-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
@@ -3696,7 +3758,6 @@
 
 	* src/ui/edit/main-page-info.c: (on_song_changed):
           block signal handlers to avoid trigger change-events on init
-
 
 2006-08-26  Stefan Kost  <ensonic@users.sf.net>
 

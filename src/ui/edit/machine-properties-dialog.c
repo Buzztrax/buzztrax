@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.76 2007-05-07 14:45:45 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.77 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -201,9 +201,11 @@ static gchar* on_uint_range_global_property_format_value(GtkScale *scale, gdoubl
   if(!(str=bt_machine_describe_global_param_value(machine,index,&uint_value))) {
     static gchar _str[10];
 
+    //GST_INFO("direct global value %d '%s'",index,str);
     g_sprintf(_str,"%u",(guint)value);
     str=_str;
   }
+  //GST_INFO("global value %d '%s'",index,str);
   return(str);
 }
 
@@ -219,9 +221,11 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   if(!(str=bt_machine_describe_voice_param_value(machine,index,&uint_value))) {
     static gchar _str[10];
 
+    //GST_INFO("direct voice value %d '%s'",index,str);
     g_sprintf(_str,"%u",(guint)value);
     str=_str;
   }
+  //GST_INFO("voice value %d '%s'",index,str);
   return(str);
 }
 
@@ -279,6 +283,36 @@ static void free_control_data(BtControlData *data) {
   g_signal_handlers_disconnect_matched(G_OBJECT(data->control),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)data);
 
   g_free(data);
+}
+
+static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+#ifdef HAVE_GST_CONTROLLER_NEW
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+
+  if(event->button == 1 && event->type == GDK_BUTTON_PRESS) {
+    GstController *ctrl;
+    if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
+      gst_controller_set_property_disabled(ctrl,(gchar *)property_name,TRUE);
+    }
+  }
+#endif
+  return(FALSE);
+}
+
+static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
+#ifdef HAVE_GST_CONTROLLER_NEW
+  GstObject *param_parent=GST_OBJECT(user_data);
+  const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
+
+  if(event->button == 1 && event->type == GDK_BUTTON_RELEASE) {
+    GstController *ctrl;
+    if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
+      gst_controller_set_property_disabled(ctrl,(gchar *)property_name,FALSE);
+    }
+  }
+#endif
+  return(FALSE);
 }
 
 
@@ -356,6 +390,7 @@ static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventBu
   gboolean res=FALSE;
 
   GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  on_button_press_event(widget,event,user_data);
   /* Ignore double-clicks and triple-clicks */
   if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
     GtkMenu *menu;
@@ -513,7 +548,7 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   gdouble value=gtk_range_get_value(range);
 
   g_assert(user_data);
-  //GST_INFO("property value change received");
+  GST_INFO("property value change received");
 
   g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_uint_range_property_notify,(gpointer)range);
   g_object_set(param_parent,name,(guint)value,NULL);
@@ -553,8 +588,9 @@ static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButt
   gboolean res=FALSE;
 
   GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  on_button_press_event(widget,event,user_data);
   /* Ignore double-clicks and triple-clicks */
-  if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
+  if(event->button == 3 && event->type == GDK_BUTTON_PRESS) {
     GtkMenu *menu;
     // show context menu
     menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
@@ -567,17 +603,26 @@ static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButt
   return(res);
 }
 
-
 static gboolean on_combobox_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;
   const GstElement *machine=data->machine;
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
-  gint value;
+  gint value=0,ivalue,nvalue;
+  GtkTreeModel *store;
+  GtkTreeIter iter;
 
   //GST_INFO("property value notify received : %s ",property->name);
 
-  g_object_get(G_OBJECT(machine),property->name,&value,NULL);
+  g_object_get(G_OBJECT(machine),property->name,&nvalue,NULL);
+  store=gtk_combo_box_get_model(GTK_COMBO_BOX(widget));
+  gtk_tree_model_get_iter_first(store,&iter);
+  do {
+    gtk_tree_model_get(store,&iter,0,&ivalue,-1);
+    if(ivalue==nvalue) break;
+    value++;
+  } while(gtk_tree_model_iter_next(store,&iter));
+
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_changed,(gpointer)machine);
@@ -595,15 +640,21 @@ static void on_combobox_property_notify(const GstElement *machine,GParamSpec *pr
 static void on_combobox_property_changed(GtkComboBox *combobox, gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(combobox));
+  GtkTreeModel *store;
+  GtkTreeIter iter;
   gint value;
 
   g_assert(user_data);
   //GST_INFO("property value change received");
 
   value=gtk_combo_box_get_active(combobox);
-  g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
-  g_object_set(param_parent,name,value,NULL);
-  g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
+  store=gtk_combo_box_get_model(combobox);
+  if(gtk_combo_box_get_active_iter(combobox,&iter)) {
+    gtk_tree_model_get(store,&iter,0,&value,-1);
+    g_signal_handlers_block_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
+    g_object_set(param_parent,name,value,NULL);
+    g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_combobox_property_notify,(gpointer)combobox);
+  }
 }
 
 
@@ -668,6 +719,7 @@ static gboolean on_checkbox_button_press_event(GtkWidget *widget, GdkEventButton
   gboolean res=FALSE;
 
   GST_INFO("button_press : button 0x%x, type 0x%d",event->button,event->type);
+  on_button_press_event(widget,event,user_data);
   /* Ignore double-clicks and triple-clicks */
   if (event->button == 3 && event->type == GDK_BUTTON_PRESS) {
     GtkMenu *menu;
@@ -934,6 +986,7 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self, Gs
   g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
 
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_checkbox_button_press_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);
 }
@@ -964,6 +1017,8 @@ static GtkWidget *make_int_range_widget(const BtMachinePropertiesDialog *self, G
   else {
     g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_int_range_voice_property_format_value), (gpointer)self->priv->machine);
   }
+  //g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_int_range_button_press_event), (gpointer)machine);
+  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
 
@@ -997,6 +1052,7 @@ static GtkWidget *make_uint_range_widget(const BtMachinePropertiesDialog *self, 
     g_signal_connect(G_OBJECT(widget),"format-value",G_CALLBACK(on_uint_range_voice_property_format_value), (gpointer)self->priv->machine);
   }
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_uint_range_button_press_event), (gpointer)machine);
+  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
@@ -1058,6 +1114,7 @@ static GtkWidget *make_double_range_widget(const BtMachinePropertiesDialog *self
   //g_signal_connect(G_OBJECT(widget), "format-value", G_CALLBACK(on_double_range_global_property_format_value), (gpointer)machine);
 
   g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_double_range_button_press_event), (gpointer)machine);
+  g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   g_signal_emit_by_name(G_OBJECT(widget),"value-changed");
   return(widget);
@@ -1069,15 +1126,29 @@ static GtkWidget *make_combobox_widget(const BtMachinePropertiesDialog *self, Gs
   GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
   GEnumClass *enum_class=enum_property->enum_class;
   GEnumValue *enum_value;
+  GtkCellRenderer *renderer;
+  GtkListStore *store;
+  GtkTreeIter iter;
   gint value;
 
-  widget=gtk_combo_box_new_text();
-  // @todo: need a real model and store value in one (invisible) column for sparse enums
+  widget=gtk_combo_box_new();
+  // need a real model because of sparse enums
+  store=gtk_list_store_new(2,G_TYPE_ULONG,G_TYPE_STRING);
   for(value=enum_class->minimum;value<=enum_class->maximum;value++) {
     if((enum_value=g_enum_get_value(enum_class, value))) {
-      gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+      //gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+      gtk_list_store_append(store,&iter);
+      gtk_list_store_set(store,&iter,
+        0,enum_value->value,
+        1,enum_value->value_nick,
+        -1);
     }
   }
+  renderer=gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(widget),renderer,TRUE);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(widget),renderer,"text",1,NULL);
+  gtk_combo_box_set_model(GTK_COMBO_BOX(widget),GTK_TREE_MODEL(store));
+
   g_object_get(machine,property->name,&value,NULL);
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),value);
   gtk_widget_set_name(GTK_WIDGET(widget),property->name);
@@ -1389,8 +1460,12 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 
       params=voice_params;
       for(i=0;i<voice_params;i++) {
-        if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) params--;
+        if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
+          GST_INFO("skipping voice param %d",i);
+          params--;
+        }
       }
+      GST_INFO("creating ui for %d/%d params",params,voice_params);
       for(j=0;j<voices;j++) {
         name=g_strdup_printf(_("voice %lu properties"),j+1);
         expander=gtk_expander_new(name);
@@ -1404,7 +1479,10 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
 
         for(i=0,k=0;i<voice_params;i++) {
-          if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) continue;
+          if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
+            GST_INFO("skipping voice param %d",i);
+            continue;
+          }
 
           property=bt_machine_get_voice_param_spec(self->priv->machine,i);
           GST_INFO("voice property %p has name '%s','%s'",property,property->name,bt_machine_get_voice_param_name(self->priv->machine,i));

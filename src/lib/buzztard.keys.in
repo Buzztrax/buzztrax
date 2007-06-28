@@ -6,7 +6,7 @@ audio/x-bzt
   default_component_id=buzztard
   icon_filename=buzztard-audio-x-bzt
   open=bt-cmd --command=play --input-file %f
-  view=bt-edit --command=load --input-file &f
+  view=bt-edit --command=load --input-file %f
   _category=Audio
   _description=Buzztard Song File
-  
+

@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.99 2007-05-23 20:11:27 ensonic Exp $
+dnl $Id: configure.ac,v 1.100 2007-06-28 20:02:00 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -325,6 +325,17 @@ dnl AC_CHECK_LIB( gtk-x11-2.0, gtk_tree_view_column_set_wrap_header_widget, \
 dnl   AC_DEFINE(HAVE_GTK_TREE_VIEW_COLUMN_PATCH, [1], [Define to 1 if we have the pending gtk+ patch applied]) \
 dnl )
 
+dnl check for cvs gstreamer additions
+ac_cflags_save="$CFLAGS"
+ac_ldflags_save="$LDFLAGS"
+CFLAGS="$CFLAGS $BASE_DEPS_CFLAGS"
+LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
+AC_CHECK_LIB( gstcontroller-0.10, gst_controller_set_property_disabled, \
+  AC_DEFINE(HAVE_GST_CONTROLLER_NEW, [1], [Define to 1 if we have the new gst controller features]) \
+)
+CFLAGS="$ac_cflags_save"
+LDFLAGS="$ac_ldflags_save"
+
 dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 
@@ -380,8 +391,9 @@ BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
 BT_LIBS='-lbtcore -lm $COVERAGE_LIBS'
 
-dnl check for mimetype utilities
+dnl check for desktop and mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)
+AC_PATH_PROG(UPDATE_DESKTOP_DATABASE, update-desktop-database)
 
 dnl Substitutes
 

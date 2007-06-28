@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.173 2007-06-07 19:10:55 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.174 2007-06-28 20:02:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1537,7 +1537,9 @@ static void on_bars_menu_changed(GtkComboBox *combo_box,gpointer user_data) {
     if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
       gtk_tree_model_filter_refilter(filtered_store);
     }
-    gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+    if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+      gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+    }
   }
 }
 
@@ -1617,7 +1619,9 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
         gtk_tree_model_filter_refilter(filtered_store);
       }
       gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-      gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+      if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+        gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+      }
     }
     gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,column,FALSE,1.0,0.0);
     gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
@@ -1638,6 +1642,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   gulong row,track;
 
   g_assert(user_data);
+  if(!GTK_WIDGET_REALIZED(self->priv->sequence_table)) return(FALSE);
 
   GST_DEBUG("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
 

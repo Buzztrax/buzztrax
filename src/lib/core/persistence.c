@@ -1,4 +1,4 @@
-/* $Id: persistence.c,v 1.18 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: persistence.c,v 1.19 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -221,8 +221,19 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       g_value_set_string(gvalue,svalue);
     } break;
     case G_TYPE_ENUM: {
-      const gint val=svalue?atoi(svalue):0;
-      g_value_set_enum(gvalue,val);
+      // @todo: use enum-values
+      GEnumClass *enum_class=g_type_class_peek_static(G_VALUE_TYPE(gvalue));
+      GEnumValue *enum_value=g_enum_get_value_by_name(enum_class,svalue);
+      GST_INFO("'%s', %p, %p, [%s]",G_VALUE_TYPE_NAME(gvalue), enum_class,enum_value,svalue);
+      if(enum_value) {
+        GST_INFO("-> %d",enum_value->value);
+        g_value_set_enum(gvalue,enum_value->value);
+      }
+      else if(svalue && isdigit(*svalue)) {
+        // legacy
+        const gint val=atoi(svalue);
+        g_value_set_enum(gvalue,val);
+      }
     } break;
     case G_TYPE_INT: {
       const gint val=svalue?atoi(svalue):0;
@@ -284,9 +295,15 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
     case G_TYPE_STRING:
       res=g_value_dup_string(gvalue);
       break;
-    case G_TYPE_ENUM:
+    case G_TYPE_ENUM: {
+      // @todo: use enum-values
+      GEnumClass *enum_class=g_type_class_peek_static(G_VALUE_TYPE(gvalue));
+      GEnumValue *enum_value=g_enum_get_value(enum_class,g_value_get_enum(gvalue));
+      res=g_strdup_printf("%s",enum_value->value_name);
+      /*
       res=g_strdup_printf("%d",g_value_get_enum(gvalue));
-      break;
+      */
+    } break;
     case G_TYPE_INT:
       res=g_strdup_printf("%d",g_value_get_int(gvalue));
       break;

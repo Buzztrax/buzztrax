@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.89 2007-05-09 12:50:28 ensonic Exp $
+/* $Id: core.h,v 1.90 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,6 +28,7 @@
 #include "config.h"
 
 //-- ansi c
+#include <ctype.h>
 #include <dirent.h>
 #define __USE_ISOC99 /* for isinf() and co. */
 #include <math.h>

@@ -64,10 +64,15 @@ desktop_in_files = bt-edit.desktop.in
 desktop_DATA = bt-edit.desktop
 @INTLTOOL_DESKTOP_RULE@
 
+CLEANFILES = bt-edit.desktop
 EXTRA_DIST = $(desktop_DATA)
 
-clean-local:
-	rm -f bt-edit.desktop
+# update desktop database
+install-data-hook:
+	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
+uninstal-local: uninstall-sharedmimepackageDATA
+	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(sharedmimedir)";
+
 
 .PHONY: help todo stats splint
 

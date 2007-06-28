@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.68 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: song-io.c,v 1.69 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -155,7 +155,7 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
 
   g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
   // file_name is last part from file_path
-  file_name=g_strrstr(file_path,G_DIR_SEPARATOR_S);
+  file_name=strrchr(file_path,G_DIR_SEPARATOR);
   if(file_name) {
     file_name++;
   }

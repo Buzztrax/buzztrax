@@ -10,3 +10,4 @@ Terminal=0
 Icon=@prefix@/share/buzztard/pixmaps/buzztard
 DocPath=buzztard/buzztard.xml
 Categories=Gnome;Gtk;Audio;Sequencer
+MimeType=audio/x-bzt

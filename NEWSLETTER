@@ -1,7 +1,8 @@
 2007/07 ========================================================================
 
 * bt-edit: editing improvments
-* bsl: work on reading bmx<1.2 files
+* bsl: allow reading bmx<1.2 files
+* bml: more api emulated
 
 2007/06 ========================================================================
 

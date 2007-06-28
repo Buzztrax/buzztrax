@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.185 2007-05-13 19:42:59 ensonic Exp $
+/* $Id: song.c,v 1.186 2007-06-28 20:02:01 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,7 +35,7 @@
 #include <libbtcore/core.h>
 
 // if a state change not happens within this time, cancel playback
-#define BT_SONG_STATE_CHANGE_TIMEOUT (3*1000)
+#define BT_SONG_STATE_CHANGE_TIMEOUT (5*1000)
 
 //-- signal ids
 
@@ -1065,6 +1065,7 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
     while (!elements_done) {
       switch (gst_iterator_next (element_iter, (gpointer)&element)) {
         case GST_ITERATOR_OK:
+          element_name=g_strcanon(g_strdup(GST_OBJECT_NAME(element)), G_CSET_A_2_Z G_CSET_a_2_z G_CSET_DIGITS "-_", '_');
           fprintf(out,
             "  subgraph cluster_%s {\n"
             "    fontname=\"Arial\";\n"
@@ -1072,7 +1073,8 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
             "    style=filled;\n"
             "    label=\"<%s>\\n%s\";\n"
             "    color=black\n\n",
-            GST_OBJECT_NAME(element),G_OBJECT_TYPE_NAME(element),GST_OBJECT_NAME(element));
+            element_name,G_OBJECT_TYPE_NAME(element),GST_OBJECT_NAME(element));
+          g_free(element_name);
 
           pad_iter=gst_element_iterate_pads(element);
           pads_done=FALSE;

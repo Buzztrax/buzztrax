@@ -37,7 +37,17 @@
 
   <release>
     <Version>
+     <revision>0.2</revision>
+     <branch>HEAD</branch>
+     <name>Sunrise</name>
+     <created>2007-05-03</created>
+     <file-release rdf:resource="http://downloads.sourceforge.net/buzztard/buzztard-0.2.0.tar.gz" />
+    </Version>
+  </release>
+  <release>
+    <Version>
      <revision>0.1</revision>
+     <branch>HEAD</branch>
      <name>Genesis</name>
      <created>2006-10-30</created>
      <file-release rdf:resource="http://downloads.sourceforge.net/buzztard/buzztard-0.1.0.tar.gz" />

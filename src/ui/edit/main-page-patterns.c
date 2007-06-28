@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.127 2007-06-07 19:10:55 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.128 2007-06-28 20:02:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -147,7 +147,7 @@ static GQuark voice_index_quark=0;
 
 //-- tree cell data functions
 
-static void selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+static void generic_selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gulong row,column;
   GdkColor *bg_col=NULL;
@@ -175,6 +175,44 @@ static void selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer
     "text",str,
      NULL);
   g_free(str);
+}
+
+static void enum_selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  gulong row,column;
+  GdkColor *bg_col=NULL;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+  gchar *str1=NULL;
+  const gchar *str2=NULL;
+
+  column=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(col),column_index_quark));
+
+  gtk_tree_model_get(model,iter,
+    PATTERN_TABLE_POS,&row,
+    PATTERN_TABLE_PRE_CT+column,&str1,
+    -1);
+
+  //GST_INFO("col/row: %3d/%3d <-> %3d/%3d",column,row,self->priv->cursor_column,self->priv->cursor_row);
+
+  if((column==self->priv->cursor_column) && (row==self->priv->cursor_row)) {
+    bg_col=self->priv->cursor_bg;
+  }
+  else if((column>=self->priv->selection_start_column) && (column<=self->priv->selection_end_column) &&
+    (row>=self->priv->selection_start_row) && (row<=self->priv->selection_end_row)
+  ) {
+    bg_col=(row&1)?self->priv->selection_bg2:self->priv->selection_bg1;
+  }
+  //enum_class=g_type_class_peek_static(gtk_tree_model_get_column_type(model,PATTERN_TABLE_PRE_CT+column));
+  enum_class=g_type_class_peek_static(BT_TYPE_TRIGGER_SWITCH);
+  if(BT_IS_STRING(str1) && (enum_value=g_enum_get_value(enum_class, atoi(str1)))) {
+    str2=enum_value->value_nick;
+  }
+  g_free(str1);
+  g_object_set(G_OBJECT(renderer),
+    "background-gdk",bg_col,
+    "text",str2,
+     NULL);
 }
 
 //-- tree model helper
@@ -411,6 +449,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
 
   g_assert(user_data);
+  if(!GTK_WIDGET_REALIZED(self->priv->pattern_table)) return(FALSE);
 
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x",event->state,event->keyval,event->hardware_keycode);
   /*
@@ -615,7 +654,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       }
     }
   }
-  else if(event->keyval<0x100) {
+  else {
     gulong tick,param;
 
     if(pattern_view_get_current_pos(self,&tick,&param)) {
@@ -639,13 +678,30 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
             case GDK_n: str="a-1";break;
             case GDK_j: str="a#1";break;
             case GDK_m: str="h-1";break;
+            case GDK_q: str="c-2";break;
+            case GDK_2: str="c#2";break;
+            case GDK_w: str="d-2";break;
+            case GDK_3: str="d#2";break;
+            case GDK_e: str="e-2";break;
+            case GDK_r: str="f-2";break;
+            case GDK_5: str="f#2";break;
+            case GDK_t: str="g-2";break;
+            case GDK_6: str="g#2";break;
+            case GDK_z: str="a-2";break;
+            case GDK_7: str="a#2";break;
+            case GDK_u: str="h-2";break;
+            case GDK_i: str="c-3";break;
+            case GDK_9: str="c#2";break;
+            case GDK_o: str="d-3";break;
+            case GDK_0: str="d#3";break;
+            case GDK_p: str="e-3";break;
           }
           break;
         case PATTERN_KEYMODE_BOOL:
           switch(event->keyval) {
             case GDK_Delete:
             case GDK_BackSpace:
-              str="";
+              str="0";
               break;
             case GDK_Insert:
               str="1";
@@ -1035,6 +1091,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   GType type;
   gboolean trigger;
   GtkCellRendererMode cell_edit_mode;
+  GtkTreeCellDataFunc cell_data_func;
 
   GST_INFO("refresh pattern table");
   g_assert(GTK_IS_TREE_VIEW(self->priv->pattern_table));
@@ -1106,13 +1163,32 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       type=bt_machine_get_global_param_type(machine,j);
       trigger=bt_machine_is_global_param_trigger(machine,j);
       cell_edit_mode=GTK_CELL_RENDERER_MODE_EDITABLE;
+      cell_data_func=generic_selection_cell_data_function;
       if(trigger) {
-        cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
         if(type==G_TYPE_STRING) {
+          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
           self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
         }
-        else if (type==G_TYPE_BOOLEAN) {
+        else if(type==G_TYPE_BOOLEAN) {
+          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
           self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
+        }
+        else if(type==BT_TYPE_TRIGGER_SWITCH) {
+          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
+          cell_data_func=enum_selection_cell_data_function;
+          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
+
+        }
+        /*
+        else if(type==BT_TYPE_TRIGGER_NOTE) {
+          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
+          cell_data_func=enum_selection_cell_data_function
+          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
+
+        }
+        */
+        else {
+          self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
         }
       }
       else {
@@ -1167,7 +1243,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
           NULL);
         g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(j));
         gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-        gtk_tree_view_column_set_cell_data_func(tree_col, renderer, selection_cell_data_function, (gpointer)self, NULL);
+        // @todo: also connect to different cell data function, depending on type
+        gtk_tree_view_column_set_cell_data_func(tree_col, renderer, cell_data_func, (gpointer)self, NULL);
       }
       else GST_WARNING("can't create treeview column");
       ix++;
@@ -1178,13 +1255,24 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         type=bt_machine_get_voice_param_type(machine,k);
         trigger=bt_machine_is_voice_param_trigger(machine,k);
         cell_edit_mode=GTK_CELL_RENDERER_MODE_EDITABLE;
+        cell_data_func=generic_selection_cell_data_function;
         if(trigger) {
-          cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
           if(type==G_TYPE_STRING) {
+            cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
             self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NOTE;
           }
-          else if (type==G_TYPE_BOOLEAN) {
+          else if(type==G_TYPE_BOOLEAN) {
+            cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
             self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
+          }
+          else if(type==BT_TYPE_TRIGGER_SWITCH) {
+            cell_edit_mode=GTK_CELL_RENDERER_MODE_ACTIVATABLE;
+            cell_data_func=enum_selection_cell_data_function;
+            self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_BOOL;
+
+          }
+          else {
+            self->priv->column_keymode[ix-PATTERN_TABLE_PRE_CT]=PATTERN_KEYMODE_NUMBER;
           }
         }
         else {
@@ -1225,7 +1313,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
             NULL);
           g_object_set_qdata(G_OBJECT(tree_col),column_index_quark,GUINT_TO_POINTER(ix-PATTERN_TABLE_PRE_CT));
           gtk_tree_view_append_column(self->priv->pattern_table,tree_col);
-          gtk_tree_view_column_set_cell_data_func(tree_col, renderer, selection_cell_data_function, (gpointer)self, NULL);
+          gtk_tree_view_column_set_cell_data_func(tree_col, renderer, cell_data_func, (gpointer)self, NULL);
         }
         else GST_WARNING("can't create treeview column");
         ix++;
