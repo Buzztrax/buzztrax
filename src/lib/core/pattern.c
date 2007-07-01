@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.98 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: pattern.c,v 1.99 2007-07-01 20:06:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -545,34 +545,43 @@ GValue *bt_pattern_get_voice_event_data(const BtPattern * const self, const gulo
  * Returns: %TRUE for success
  */
 gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong tick, const gulong param, const gchar * const value) {
+  gboolean res=FALSE;
   GValue *event;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
   if((event=bt_pattern_get_global_event_data(self,tick,param))) {
-    if(!G_IS_VALUE(event)) {
-      bt_pattern_init_global_event(self,event,param);
-    }
-    if(bt_persistence_set_value(event,value)) {
-      bt_song_set_unsaved(self->priv->song,TRUE);
-      if(bt_machine_is_global_param_no_value(self->priv->machine,param,event)) {
-        g_value_unset(event);
+    if(value) {
+      if(!G_IS_VALUE(event)) {
+        bt_pattern_init_global_event(self,event,param);
+      }
+      if(bt_persistence_set_value(event,value)) {
+        if(bt_machine_is_global_param_no_value(self->priv->machine,param,event)) {
+          g_value_unset(event);
+        }
+        res=TRUE;
       }
       else {
-        // notify others that the data has been changed
-        g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
-        return(TRUE);
+        GST_INFO("failed to set GValue for cell at tick=%lu, param=%lu",tick,param);
       }
     }
     else {
-      GST_INFO("failed to set GValue for cell at tick=%lu, param=%lu",tick,param);
+      if(G_IS_VALUE(event)) {
+        g_value_unset(event);
+      }
+      res=TRUE;
+    }
+    if(res) {
+      // notify others that the data has been changed
+      g_signal_emit(G_OBJECT(self),signals[GLOBAL_PARAM_CHANGED_EVENT],0,tick,param);
+      bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
   else {
     GST_DEBUG("no GValue found for cell at tick=%lu, param=%lu",tick,param);
   }
-  return(FALSE);
+  return(res);
 }
 
 /**
@@ -588,35 +597,43 @@ gboolean bt_pattern_set_global_event(const BtPattern * const self, const gulong 
  * Returns: %TRUE for success
  */
 gboolean bt_pattern_set_voice_event(const BtPattern * const self, const gulong tick, const gulong voice, const gulong param, const gchar * const value) {
+  gboolean res=FALSE;
+  GValue *event;
 
   g_return_val_if_fail(BT_IS_PATTERN(self),FALSE);
   g_return_val_if_fail(tick<self->priv->length,FALSE);
 
-  GValue * const event=bt_pattern_get_voice_event_data(self,tick,voice,param);
-
-  if(event) {
-    if(!G_IS_VALUE(event)) {
-      bt_pattern_init_voice_event(self,event,param);
-    }
-    if(bt_persistence_set_value(event,value)) {
-      bt_song_set_unsaved(self->priv->song,TRUE);
-      if(bt_machine_is_voice_param_no_value(self->priv->machine,param,event)) {
-        g_value_unset(event);
+  if((event=bt_pattern_get_voice_event_data(self,tick,voice,param))) {
+    if(value) {
+      if(!G_IS_VALUE(event)) {
+        bt_pattern_init_voice_event(self,event,param);
+      }
+      if(bt_persistence_set_value(event,value)) {
+        if(bt_machine_is_voice_param_no_value(self->priv->machine,param,event)) {
+          g_value_unset(event);
+        }
+        res=TRUE;
       }
       else {
-        // notify others that the data has been changed
-        g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
-        return(TRUE);
+        GST_INFO("failed to set GValue for cell at tick=%lu, voice=%lu, param=%lu",tick,voice,param);
       }
     }
     else {
-      GST_INFO("failed to set GValue for cell at tick=%lu, voice=%lu, param=%lu",tick,voice,param);
+      if(G_IS_VALUE(event)) {
+        g_value_unset(event);
+      }
+      res=TRUE;
+    }
+    if(res) {
+      // notify others that the data has been changed
+      g_signal_emit(G_OBJECT(self),signals[VOICE_PARAM_CHANGED_EVENT],0,tick,voice,param);
+      bt_song_set_unsaved(self->priv->song,TRUE);
     }
   }
   else {
     GST_DEBUG("no GValue found for cell at tick=%lu, voice=%lu, param=%lu",tick,voice,param);
   }
-  return(FALSE);
+  return(res);
 }
 
 /**

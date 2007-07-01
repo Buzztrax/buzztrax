@@ -1,6 +1,23 @@
 2007-07-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_activate_controller),
+	(bt_machine_deactivate_controller), (bt_machine_resize_voices),
+	(bt_machine_get_voice_param_spec),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value), (bt_machine_dispose):
+	* src/lib/core/pattern.c: (bt_pattern_set_global_event),
+	(bt_pattern_set_voice_event):
+	* src/lib/core/sequence.c:
+	(bt_sequence_repair_global_damage_entry),
+	(bt_sequence_repair_voice_damage_entry):
+	* src/ui/edit/main-page-patterns.c:
+	(on_pattern_table_key_release_event):
+	  Fix some crashers when removing used-patterns. Implement deleting
+	  pattern event using '.' and space.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_activate_controller),
 	(bt_machine_global_controller_change_value),
 	(bt_machine_voice_controller_change_value):
 	  Quick fix + todo. More needed.

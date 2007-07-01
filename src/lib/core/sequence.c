@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.137 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: sequence.c,v 1.138 2007-07-01 20:06:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -474,7 +474,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
   const gulong tick=GPOINTER_TO_UINT(key);
   glong i,j;
   GValue *value=NULL,*cur_value;
-  BtPattern *pattern=NULL;
+  BtPattern *pattern;
 
   GST_DEBUG("repair global damage entry for tick=%5d",tick);
 
@@ -483,6 +483,7 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
     // track uses the same machine
     if(self->priv->machines[i]==machine) {
       // go from tick position upwards to find pattern for track
+      pattern=NULL;
       for(j=tick;j>=0;j--) {
         if((pattern=bt_sequence_get_pattern(self,j,i))) break;
       }
@@ -496,10 +497,10 @@ static gboolean bt_sequence_repair_global_damage_entry(gpointer key,gpointer _va
     }
   }
   // set controller value
-  if(value) {
+  //if(value) {
     const GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
     bt_machine_global_controller_change_value(machine,param,timestamp,value);
-  }
+  //}
   return(TRUE);
 }
 
@@ -516,9 +517,9 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
   const gulong param=GPOINTER_TO_UINT(hash_params[2]);
   const gulong voice=GPOINTER_TO_UINT(hash_params[3]);
   const gulong tick=GPOINTER_TO_UINT(key);
-  gulong i,j;
+  glong i,j;
   GValue *value=NULL,*cur_value;
-  BtPattern *pattern=NULL;
+  BtPattern *pattern;
 
   GST_DEBUG("repair voice damage entry for tick=%5d",tick);
 
@@ -527,6 +528,7 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
     // track uses the same machine
     if(self->priv->machines[i]==machine) {
       // go from tick position upwards to find pattern for track
+      pattern=NULL;
       for(j=tick;j>=0;j--) {
         if((pattern=bt_sequence_get_pattern(self,j,i))) break;
       }
@@ -539,10 +541,10 @@ static gboolean bt_sequence_repair_voice_damage_entry(gpointer key,gpointer _val
     }
   }
   // set controller value
-  if(value) {
+  //if(value) {
     const GstClockTime timestamp=bt_sequence_get_bar_time(self)*tick;
     bt_machine_voice_controller_change_value(machine,param,voice,timestamp,value);
-  }
+  //}
   return(TRUE);
 }
 

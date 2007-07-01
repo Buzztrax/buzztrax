@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.128 2007-06-28 20:02:02 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.129 2007-07-01 20:06:00 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -452,11 +452,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   if(!GTK_WIDGET_REALIZED(self->priv->pattern_table)) return(FALSE);
 
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x",event->state,event->keyval,event->hardware_keycode);
-  /*
-  if(event->keyval==GDK_space || event->keyval == GDK_period) {
-    // @todo: clear cell
-  }
-  */
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
     if(modifier==GDK_CONTROL_MASK) {
       BtMainWindow *main_window;
@@ -659,57 +654,64 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
     if(pattern_view_get_current_pos(self,&tick,&param)) {
       gchar *str=NULL;
+      gboolean changed=FALSE;
 
-      switch(self->priv->column_keymode[param]) {
-        case PATTERN_KEYMODE_NOTE:
-          /* @todo: map more keys to notes */
-          /* @todo: handle y<->z of key-layouts (event->hardware_keycode) */
-          /* @todo: handle h/b variation in notes */
-          switch(event->keyval) {
-            case GDK_y: str="c-1";break;
-            case GDK_s: str="c#1";break;
-            case GDK_x: str="d-1";break;
-            case GDK_d: str="d#1";break;
-            case GDK_c: str="e-1";break;
-            case GDK_v: str="f-1";break;
-            case GDK_g: str="f#1";break;
-            case GDK_b: str="g-1";break;
-            case GDK_h: str="g#1";break;
-            case GDK_n: str="a-1";break;
-            case GDK_j: str="a#1";break;
-            case GDK_m: str="h-1";break;
-            case GDK_q: str="c-2";break;
-            case GDK_2: str="c#2";break;
-            case GDK_w: str="d-2";break;
-            case GDK_3: str="d#2";break;
-            case GDK_e: str="e-2";break;
-            case GDK_r: str="f-2";break;
-            case GDK_5: str="f#2";break;
-            case GDK_t: str="g-2";break;
-            case GDK_6: str="g#2";break;
-            case GDK_z: str="a-2";break;
-            case GDK_7: str="a#2";break;
-            case GDK_u: str="h-2";break;
-            case GDK_i: str="c-3";break;
-            case GDK_9: str="c#2";break;
-            case GDK_o: str="d-3";break;
-            case GDK_0: str="d#3";break;
-            case GDK_p: str="e-3";break;
-          }
-          break;
-        case PATTERN_KEYMODE_BOOL:
-          switch(event->keyval) {
-            case GDK_Delete:
-            case GDK_BackSpace:
-              str="0";
-              break;
-            case GDK_Insert:
-              str="1";
-              break;
-          }
-          break;
+      if(event->keyval==GDK_space || event->keyval == GDK_period) {
+        changed=TRUE;
       }
-      if(str) {
+      else {
+        switch(self->priv->column_keymode[param]) {
+          case PATTERN_KEYMODE_NOTE:
+            /* @todo: map more keys to notes */
+            /* @todo: handle y<->z of key-layouts (event->hardware_keycode) */
+            /* @todo: handle h/b variation in notes */
+            switch(event->keyval) {
+              case GDK_y: str="c-1";break;
+              case GDK_s: str="c#1";break;
+              case GDK_x: str="d-1";break;
+              case GDK_d: str="d#1";break;
+              case GDK_c: str="e-1";break;
+              case GDK_v: str="f-1";break;
+              case GDK_g: str="f#1";break;
+              case GDK_b: str="g-1";break;
+              case GDK_h: str="g#1";break;
+              case GDK_n: str="a-1";break;
+              case GDK_j: str="a#1";break;
+              case GDK_m: str="h-1";break;
+              case GDK_q: str="c-2";break;
+              case GDK_2: str="c#2";break;
+              case GDK_w: str="d-2";break;
+              case GDK_3: str="d#2";break;
+              case GDK_e: str="e-2";break;
+              case GDK_r: str="f-2";break;
+              case GDK_5: str="f#2";break;
+              case GDK_t: str="g-2";break;
+              case GDK_6: str="g#2";break;
+              case GDK_z: str="a-2";break;
+              case GDK_7: str="a#2";break;
+              case GDK_u: str="h-2";break;
+              case GDK_i: str="c-3";break;
+              case GDK_9: str="c#2";break;
+              case GDK_o: str="d-3";break;
+              case GDK_0: str="d#3";break;
+              case GDK_p: str="e-3";break;
+            }
+            break;
+          case PATTERN_KEYMODE_BOOL:
+            switch(event->keyval) {
+              case GDK_Delete:
+              case GDK_BackSpace:
+                str="0";
+                break;
+              case GDK_Insert:
+                str="1";
+                break;
+            }
+            break;
+        }
+        if(str) changed=TRUE;
+      }
+      if(changed) {
         GtkTreeModel *store;
         GtkTreePath *path;
         GtkTreeViewColumn *column;
