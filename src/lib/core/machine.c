@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.259 2007-07-01 11:56:15 ensonic Exp $
+/* $Id: machine.c,v 1.260 2007-07-01 12:51:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -546,6 +546,13 @@ static GstController *bt_machine_activate_controller(GObject *param_parent,gchar
   if((ctrl=gst_object_control_properties(param_parent, param_name, NULL))) {
 #ifdef HAVE_GST_CONTROLLER_NEW
     // @TODO: use new API for the control-source
+/*
+    GstInterpolationControlSource *cs;
+
+    cs = gst_interpolation_control_source_new ();
+    gst_controller_set_control_source (ctrl, param_name, GST_CONTROL_SOURCE (cs));
+    gst_interpolation_control_source_set_interpolation_mode (cs,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
+*/
 #endif
     // set interpolation mode depending on param type
     gst_controller_set_interpolation_mode(ctrl,param_name,is_trigger?GST_INTERPOLATE_TRIGGER:GST_INTERPOLATE_NONE);
@@ -2216,6 +2223,7 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
   param_parent=GST_OBJECT(self->priv->machines[PART_MACHINE]);
 
   if(value) {
+    // @TODO: this needs to check if the property is controlled
     if(!self->priv->global_controller) {
       GstController *ctrl=bt_machine_activate_controller(G_OBJECT(param_parent), self->priv->global_names[param], bt_machine_is_global_param_trigger(self,param));
 
@@ -2223,7 +2231,15 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       self->priv->global_controller=ctrl;
     }
     //GST_DEBUG("%s global controller change: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+
+#ifdef HAVE_GST_CONTROLLER_NEW
+/*
+    gst_interpolation_control_source_set(self->priv->global_control_source[param],timestamp,value);
+*/
+#else
+#endif
     gst_controller_set(self->priv->global_controller,self->priv->global_names[param],timestamp,value);
+
   }
   else {
     GList *values;
@@ -2267,7 +2283,8 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   param_parent=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),voice);
 
   if(value) {
-    if(!self->priv->global_controller) {
+    // @TODO: this needs to check if the property is controlled
+    if(!self->priv->voice_controllers[voice]) {
       GstController *ctrl=bt_machine_activate_controller(G_OBJECT(param_parent), self->priv->voice_names[param], bt_machine_is_voice_param_trigger(self,param));
 
       g_object_try_unref(self->priv->voice_controllers[voice]);

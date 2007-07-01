@@ -1,5 +1,12 @@
 2007-07-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c: (bt_machine_activate_controller),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	  Quick fix + todo. More needed.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* tests/lib/core/t-core.c: (START_TEST), (bt_core_test_case):
 	  Add a test.
 
