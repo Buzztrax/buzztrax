@@ -1,5 +1,10 @@
 2007-07-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/lib/core/t-core.c: (START_TEST), (bt_core_test_case):
+	  Add a test.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/Makefile.am:
 	* src/lib/ic/Makefile.am:

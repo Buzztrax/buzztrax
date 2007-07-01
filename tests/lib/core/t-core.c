@@ -1,4 +1,4 @@
-/* $Id: t-core.c,v 1.11 2007-04-04 13:43:59 ensonic Exp $
+/* $Id: t-core.c,v 1.12 2007-07-01 12:34:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,7 +26,7 @@
 
 //-- tests
 
-// test if the normal init call works with commandline arguments
+// test if the normal init call works with commandline arguments (no args)
 START_TEST(test_btcore_init0) {
   bt_init(&test_argc,&test_argvptr);
 }
@@ -38,10 +38,49 @@ START_TEST(test_btcore_init1) {
 }
 END_TEST
 
+// test if the normal init call works with commandline arguments
+START_TEST(test_btcore_init2) {
+  // this shadows the global vars of the same name
+  gint test_argc=2;
+  gchar *test_argv[test_argc];
+  gchar **test_argvptr;
+
+  test_argv[0]="check_buzzard";
+  test_argv[1]="--bt-version";
+  test_argvptr=test_argv;
+
+  bt_init(&test_argc,&test_argvptr);
+}
+END_TEST
+
+/*
+ * Test nonsense args.
+ *
+ * This unfortunately exits the test app.
+ */
+#ifdef __CHECK_DISABLED__
+// test if the normal init call works with commandline arguments
+START_TEST(test_btcore_init3) {
+  // this shadows the global vars of the same name
+  gint test_argc=2;
+  gchar *test_argv[test_argc];
+  gchar **test_argvptr;
+
+  test_argv[0]="check_buzzard";
+  test_argv[1]="--bt-non-sense";
+  test_argvptr=test_argv;
+
+  bt_init(&test_argc,&test_argvptr);
+}
+END_TEST
+#endif
+
 TCase *bt_core_test_case(void) {
   TCase *tc = tcase_create("BtCoreTests");
 
   tcase_add_test(tc,test_btcore_init0);
   tcase_add_test(tc,test_btcore_init1);
+  tcase_add_test(tc,test_btcore_init2);
+  //tcase_add_test(tc,test_btcore_init3);
   return(tc);
 }
