@@ -1,9 +1,9 @@
-## $Id: Makefile.am,v 1.9 2007-04-11 18:31:07 ensonic Exp $
+## $Id: Makefile.am,v 1.10 2007-07-01 12:14:47 ensonic Exp $
 
 SUBDIRS = . libbtic
 
 lib_LTLIBRARIES = libbtic.la
-libbtic_la_LIBADD = -lm $(BASE_DEPS_LIBS)
+libbtic_la_LIBADD = -lm $(BASE_DEPS_LIBS) $(BT_LIBS)
 libbtic_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtic_la_SOURCES = \
 	ic.c libbtic/ic.h \

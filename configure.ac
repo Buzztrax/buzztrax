@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.100 2007-06-28 20:02:00 ensonic Exp $
+dnl $Id: configure.ac,v 1.101 2007-07-01 12:14:46 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -89,10 +89,6 @@ fi
 dnl Initialise gettext
 AM_GNU_GETTEXT_VERSION(0.12.1)
 AM_GNU_GETTEXT([external])
-
-dnl i18n -- ALL_LINGUAS seems to be not neccesary anymore
-dnl ALL_LINGUAS="de"
-dnl ALL_LINGUAS="`cat "$srcdir/po/LINGUAS" | grep -v '^#'`"
 localedir='${datadir}/locale'
 AC_SUBST(localedir)
 GETTEXT_PACKAGE="buzztard-$BT_MAJORMINOR"
@@ -389,7 +385,7 @@ BT_INCLUDEDIR='-I${includedir}/libbtcore -I${includedir}'
 dnl -Wl,--as-needed # can be put into CFLAGS to drop all unused libs
 BT_CFLAGS="$DEBUG_CFLAGS $COVERAGE_CFLAGS $BT_DISABLE_DEPRECATED"
 BT_LIBDIR='-L${libdir}'
-BT_LIBS='-lbtcore -lm $COVERAGE_LIBS'
+BT_LIBS="$COVERAGE_LIBS"
 
 dnl check for desktop and mimetype utilities
 AC_PATH_PROG(UPDATE_MIME_DATABASE, update-mime-database)

@@ -2,7 +2,7 @@
 
 bin_PROGRAMS=bt-cmd
 
-bt_cmd_LDADD = $(BASE_DEPS_LIBS) \
+bt_cmd_LDADD = $(BASE_DEPS_LIBS) $(BT_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	libbtcmd.la
 bt_cmd_SOURCES= \

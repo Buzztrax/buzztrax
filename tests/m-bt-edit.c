@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.26 2007-03-17 22:50:22 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.27 2007-07-01 12:14:47 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,6 +31,7 @@
 
 GST_DEBUG_CATEGORY(GST_CAT_DEFAULT);
 GST_DEBUG_CATEGORY_EXTERN(bt_core_debug);
+GST_DEBUG_CATEGORY_EXTERN(bt_ic_debug);
 GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_edit_application_suite(void);
@@ -60,6 +61,7 @@ void bt_edit_setup(void) {
   gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_ic_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);

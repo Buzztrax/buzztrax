@@ -1,5 +1,16 @@
 2007-07-01  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/ic/Makefile.am:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* tests/Makefile.am:
+	* tests/m-bt-edit.c: (bt_edit_setup):
+	  Build fixes for coverage analysis. Fixes #1745546.
+
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_activate_controller),
 	(bt_machine_deactivate_controller), (bt_machine_resize_voices),
 	(bt_machine_init_global_params),
