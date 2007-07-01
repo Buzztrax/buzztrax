@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.77 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.78 2007-07-01 11:56:16 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -602,6 +602,7 @@ static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButt
   }
   return(res);
 }
+
 
 static gboolean on_combobox_property_notify_idle(gpointer _data) {
   BtNotifyIdleData *data=(BtNotifyIdleData *)_data;

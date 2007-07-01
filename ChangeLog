@@ -1,3 +1,13 @@
+2007-07-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_activate_controller),
+	(bt_machine_deactivate_controller), (bt_machine_resize_voices),
+	(bt_machine_init_global_params),
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	* src/ui/edit/machine-properties-dialog.c:
+	  Only params under control if they have control-changes.
+
 2007-06-28  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
