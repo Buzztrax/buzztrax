@@ -1,7 +1,7 @@
-## $Id: Makefile.am,v 1.33 2007-03-06 21:58:51 ensonic Exp $
+## $Id: Makefile.am,v 1.34 2007-07-02 11:23:30 ensonic Exp $
 
 noinst_LTLIBRARIES = libbtcore-check.la
-libbtcore_check_la_LIBADD = -lm $(BASE_DEPS_LIBS)
+libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
 libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-core.c t-core.c \
 	s-machine.c e-machine.c t-machine.c \

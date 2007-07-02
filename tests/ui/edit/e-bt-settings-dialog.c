@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.13 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.14 2007-07-02 11:23:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -51,6 +51,7 @@ BT_START_TEST(test_create_dialog) {
 
   // create, show and destroy dialog
   dialog=GTK_WIDGET(bt_settings_dialog_new(app));
+  fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));

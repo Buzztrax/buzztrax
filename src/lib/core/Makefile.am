@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.40 2007-07-01 12:14:47 ensonic Exp $
+## $Id: Makefile.am,v 1.41 2007-07-02 11:23:28 ensonic Exp $
 
 SUBDIRS = . libbtcore
 
@@ -12,7 +12,7 @@ endif
 BUILT_SOURCES = marshal.h marshal.c
 
 lib_LTLIBRARIES = libbtcore.la
-libbtcore_la_LIBADD = -lm $(BASE_DEPS_LIBS) $(BT_LIBS) -lgstaudio-0.10
+libbtcore_la_LIBADD = $(BASE_DEPS_LIBS) $(BT_LIBS) -lgstaudio-0.10
 libbtcore_la_LDFLAGS = -version-info @BT_VERSION_INFO@
 libbtcore_la_SOURCES = \
 	core.c libbtcore/core.h \

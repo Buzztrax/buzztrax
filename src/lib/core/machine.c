@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.261 2007-07-01 20:06:00 ensonic Exp $
+/* $Id: machine.c,v 1.262 2007-07-02 11:23:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -642,7 +642,7 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
   gconstpointer const qdata=g_param_spec_get_qdata(property,key);
   GType base_type=bt_g_type_get_base_type(property->value_type);
 
-  // can it be that qdata is NULL if the value is NULL
+  // it can be that qdata is NULL if the value is NULL
   //if(!qdata) {
   //  GST_WARNING("no property metadata for '%s'",property->name);
   //  return(FALSE);
@@ -671,8 +671,11 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
       }
       break;
     default:
-      GST_WARNING("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-      res=FALSE;
+      if(qdata) {
+        GST_WARNING("unsupported GType for param %s",property->name);
+        //GST_WARNING("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+        res=FALSE;
+      }
   }
   return(res);
 }

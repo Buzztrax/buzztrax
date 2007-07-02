@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.84 2007-05-07 14:45:45 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.85 2007-07-02 11:23:29 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -376,7 +376,7 @@ static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_
   msg=g_strdup_printf(_("Delete machine '%s'"),id);
   g_free(id);
 
-  if(bt_dialog_question(main_window,_("Delete machine..."),msg,_("There is no undo for this."))) {
+  if(bt_dialog_question(main_window,_("Delete machine ..."),msg,_("There is no undo for this."))) {
     BtSong *song;
     BtSetup *setup;
 

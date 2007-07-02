@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.101 2007-07-01 12:14:46 ensonic Exp $
+dnl $Id: configure.ac,v 1.102 2007-07-02 11:23:27 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -163,6 +163,7 @@ else
   COVERAGE_LIBS=""
 fi
 
+
 dnl valgrind integration for tests
 AC_MSG_CHECKING(where Valgrind is installed on your system)
 AC_ARG_WITH([valgrind],
@@ -190,6 +191,7 @@ if test $ac_cv_use_valgrind != no; then
    fi
 fi
 AC_SUBST(VALGRIND_CFLAGS)dnl
+
 
 dnl define custom path for desktop files
 AC_MSG_CHECKING(where to install desktop files)

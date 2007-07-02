@@ -1,3 +1,27 @@
+2007-07-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/machine.c: (bt_machine_get_property_meta_value):
+	* src/lib/ic/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.desktop.in.in:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_delete_activate):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	* tests/bt-check.c: (check_setup_test_server):
+	* tests/lib/core/Makefile.am:
+	* tests/m-bt-cmd.c: (bt_cmd_setup), (bt_cmd_teardown):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	* tests/ui/cmd/Makefile.am:
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(BT_START_TEST):
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+	  More test fixes and some build improvments.
+
 2007-07-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_activate_controller),

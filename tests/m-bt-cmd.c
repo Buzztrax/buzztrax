@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.15 2007-03-06 21:58:51 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.16 2007-07-02 11:23:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,6 +40,7 @@ gchar **test_argvptr;
 /* common setup and teardown code */
 void bt_cmd_setup(void) {
   bt_init(&test_argc,&test_argvptr);
+
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   GST_DEBUG_CATEGORY_INIT(bt_cmd_debug, "bt-cmd", 0, "music production environment / command ui");
   // set this to e.g. DEBUG to see more from gst in the log
@@ -50,9 +51,13 @@ void bt_cmd_setup(void) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
+
+  GST_INFO("================================================================================");
 }
 
 void bt_cmd_teardown(void) {
+  GST_INFO("................................................................................");
+  GST_INFO("::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
 }
 
 /* start the test run */

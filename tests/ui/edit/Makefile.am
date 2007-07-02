@@ -1,7 +1,7 @@
 ## Makefile.am for tests/ui/edit
 
 noinst_LTLIBRARIES = libbt-edit-check.la
-libbt_edit_check_la_LIBADD = -lm $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) \
+libbt_edit_check_la_LIBADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) \
 	$(top_builddir)/src/ui/edit/libbtedit.la
 libbt_edit_check_la_SOURCES = m-bt-edit.h \
 	s-bt-edit-application.c e-bt-edit-application.c \

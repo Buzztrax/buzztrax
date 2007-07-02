@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.34 2007-03-28 08:33:35 ensonic Exp $
+/* $Id: bt-check.c,v 1.35 2007-07-02 11:23:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -755,10 +755,10 @@ void check_setup_test_server(void) {
     display_number=-1;
     GST_WARNING("no free display number found");
   }
-	else {
+  else {
     g_setenv("DISPLAY",display_name,TRUE);
-		GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
-	}
+    GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
+  }
 #endif
 }
 

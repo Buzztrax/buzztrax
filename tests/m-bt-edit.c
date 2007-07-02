@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.27 2007-07-01 12:14:47 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.28 2007-07-02 11:23:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -53,16 +53,19 @@ void bt_edit_setup(void) {
   gtk_init(&test_argc,&test_argvptr);
   add_pixmap_directory(".."G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
 
-  setup_log_capture();
+  ///setup_log_capture();
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
-  g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
+  ///g_log_set_always_fatal(G_LOG_LEVEL_ERROR);
 
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
   GST_DEBUG_CATEGORY_INIT(bt_edit_debug, "bt-edit", 0, "music production environment / editor ui");
-  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING); // set this to e.g. DEBUG to see more from gst in the log
+   // set this to e.g. DEBUG to see more from gst in the log
+  gst_debug_set_threshold_for_name("GST_*",GST_LEVEL_WARNING);
   gst_debug_set_threshold_for_name("bt-*",GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_core_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_ic_debug,GST_LEVEL_DEBUG);
   gst_debug_category_set_threshold(bt_edit_debug,GST_LEVEL_DEBUG);
+  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
 
@@ -97,12 +100,14 @@ int main(int argc, char **argv) {
   test_argv[1]=test_arg1;
   test_argvptr=test_argv;
 
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
-  gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
-  //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
+  //GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-check", 0, "music production environment / unit tests");
+  ///gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
+  g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
 
   check_setup_test_server();
   gtk_init(&test_argc,&test_argvptr);
+  //bt_init(&test_argc,&test_argvptr);
+  //btic_init(&test_argc,&test_argvptr);
 
   sr=srunner_create(bt_edit_application_suite());
   srunner_add_suite(sr, bt_machine_preset_properties_dialog_suite());

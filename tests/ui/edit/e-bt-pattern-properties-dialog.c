@@ -1,4 +1,4 @@
-/* $Id: e-bt-pattern-properties-dialog.c,v 1.8 2006-08-24 20:00:55 ensonic Exp $
+/* $Id: e-bt-pattern-properties-dialog.c,v 1.9 2007-07-02 11:23:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -66,6 +66,7 @@ BT_START_TEST(test_create_dialog) {
 
   // create, show and destroy dialog
   dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(app,pattern));
+  fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));

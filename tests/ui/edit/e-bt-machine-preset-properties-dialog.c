@@ -1,4 +1,4 @@
-/* $Id: e-bt-machine-preset-properties-dialog.c,v 1.2 2007-01-15 21:43:50 ensonic Exp $
+/* $Id: e-bt-machine-preset-properties-dialog.c,v 1.3 2007-07-02 11:23:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,6 +47,7 @@ BT_START_TEST(test_create_dialog) {
 
   // create, show and destroy dialog
   dialog=GTK_WIDGET(bt_machine_preset_properties_dialog_new(app,NULL,&name,&comment));
+  fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));

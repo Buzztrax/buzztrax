@@ -71,7 +71,7 @@ EXTRA_DIST = $(desktop_DATA)
 install-data-hook:
 	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
 uninstal-local: uninstall-sharedmimepackageDATA
-	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(sharedmimedir)";
+	test -z "$(UPDATE_DESKTOP_DATABASE)" || $(UPDATE_DESKTOP_DATABASE) "$(DESTDIR)$(desktopdir)";
 
 
 .PHONY: help todo stats splint
