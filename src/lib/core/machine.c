@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.262 2007-07-02 11:23:28 ensonic Exp $
+/* $Id: machine.c,v 1.263 2007-07-04 19:41:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2257,11 +2257,12 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
       g_object_try_unref(self->priv->global_controller);
       self->priv->global_controller=ctrl;
     }
-    GST_INFO("%s set global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+    //GST_INFO("%s set global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
 #ifdef HAVE_GST_CONTROLLER_NEW
-    cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]);
-    gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
-    g_object_unref(cs);
+    if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]))) {
+      gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
+      g_object_unref(cs);
+    }
 #else
     gst_controller_set(self->priv->global_controller,self->priv->global_names[param],timestamp,value);
 #endif
@@ -2270,11 +2271,12 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     GList *values;
     gboolean remove=TRUE;
 
-    GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+    //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
 #ifdef HAVE_GST_CONTROLLER_NEW
-    cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]);
-    gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-    g_object_unref(cs);
+    if((cs=gst_controller_get_control_source(self->priv->global_controller,self->priv->global_names[param]))) {
+      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
+      g_object_unref(cs);
+    }
 #else
     gst_controller_unset(self->priv->global_controller,self->priv->global_names[param],timestamp);
 #endif
@@ -2282,7 +2284,11 @@ void bt_machine_global_controller_change_value(const BtMachine * const self, con
     // check if the property is not having control points anymore
     if((values=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[param]))) {
       if(g_list_length(values)>0) {
-        GST_INFO("still %d voice control changes",g_list_length(values));
+        GstTimedValue *tv=(GstTimedValue *)values->data;
+        gchar *str=g_strdup_value_contents(&tv->value);
+        // irks - this is the default value at ts=0
+        GST_INFO("still %d global control change(s): %"GST_TIME_FORMAT",%s",g_list_length(values),GST_TIME_ARGS(tv->timestamp),str);
+        g_free(str);
         remove=FALSE;
       }
       g_list_free(values);
@@ -2335,11 +2341,12 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
       g_object_try_unref(self->priv->voice_controllers[voice]);
       self->priv->voice_controllers[voice]=ctrl;
     }
-    GST_INFO("%s set voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,self->priv->voice_names[param]);
+    //GST_INFO("%s set voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,self->priv->voice_names[param]);
 #ifdef HAVE_GST_CONTROLLER_NEW
-    cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]);
-    gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
-    g_object_unref(cs);
+    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+      gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
+      g_object_unref(cs);
+    }
 #else
     gst_controller_set(self->priv->voice_controllers[voice],self->priv->voice_names[param],timestamp,value);
 #endif
@@ -2348,11 +2355,12 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
     GList *values;
     gboolean remove=TRUE;
 
-    GST_INFO("%s unset voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,self->priv->voice_names[param]);
+    //GST_INFO("%s unset voice controller: %"GST_TIME_FORMAT" voice %d, param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),voice,param,self->priv->voice_names[param]);
 #ifdef HAVE_GST_CONTROLLER_NEW
-    cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]);
-    gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
-    g_object_unref(cs);
+    if((cs=gst_controller_get_control_source(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
+      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
+      g_object_unref(cs);
+    }
 #else
     gst_controller_unset(self->priv->voice_controllers[voice],self->priv->voice_names[param],timestamp);
 #endif
@@ -2360,7 +2368,11 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
     // check if the property is not having control points anymore
     if((values=(GList *)gst_controller_get_all(self->priv->voice_controllers[voice],self->priv->voice_names[param]))) {
       if(g_list_length(values)>0) {
-        GST_INFO("still %d voice control changes",g_list_length(values));
+        GstTimedValue *tv=(GstTimedValue *)values->data;
+        gchar *str=g_strdup_value_contents(&tv->value);
+        // irks - this is the default value at ts=0
+        GST_INFO("still %d voice control change(s): %"GST_TIME_FORMAT",%s",g_list_length(values),GST_TIME_ARGS(tv->timestamp),str);
+        g_free(str);
         remove=FALSE;
       }
       g_list_free(values);

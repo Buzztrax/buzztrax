@@ -1,5 +1,16 @@
 2007-07-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	(bt_machine_global_controller_change_value),
+	(bt_machine_voice_controller_change_value):
+	* src/lib/core/sequence.c:
+	(bt_sequence_get_number_of_pattern_uses),
+	(bt_sequence_set_pattern):
+	* src/ui/edit/pattern-properties-dialog.c: (on_name_changed):
+	  Lower debug level again.
+
+2007-07-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
 	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited):
 	* src/ui/edit/main-page-sequence.c: (sequence_view_get_cursor_pos),

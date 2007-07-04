@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.138 2007-07-01 20:06:00 ensonic Exp $
+/* $Id: sequence.c,v 1.139 2007-07-04 19:41:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -343,7 +343,7 @@ static gulong bt_sequence_get_number_of_pattern_uses(const BtSequence * const se
     }
   }
   g_object_unref(machine);
-  GST_INFO("get pattern uses = %d",res);
+  //GST_INFO("get pattern uses = %d",res);
   return(res);
 }
 
@@ -970,7 +970,7 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
 
   const gulong index=time*self->priv->tracks+track;
 
-  GST_INFO("set pattern from %p to %p for time %d, track %d",
+  GST_DEBUG("set pattern from %p to %p for time %d, track %d",
     self->priv->patterns[index],pattern,time,track);
 
   // take out the old pattern

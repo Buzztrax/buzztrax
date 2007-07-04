@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.23 2007-07-04 12:42:22 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.24 2007-07-04 19:41:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -70,6 +70,7 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
 
   g_assert(user_data);
+  GST_DEBUG("change name");
   // assure uniqueness of the entered data
   id=g_strdup_printf("%s %s",self->priv->machine_id,name);
   pattern=bt_machine_get_pattern_by_id(self->priv->machine,id);
