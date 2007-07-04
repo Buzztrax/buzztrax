@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.129 2007-07-01 20:06:00 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.130 2007-07-04 12:42:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -252,6 +252,8 @@ static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *
   gboolean res=FALSE;
   GtkTreeModel *store;
   GtkTreeIter iter;
+  
+  g_return_val_if_fail(path,FALSE);
 
   if((store=gtk_tree_view_get_model(tree_view))) {
     if(gtk_tree_model_get_iter(GTK_TREE_MODEL(store),&iter,path)) {
@@ -860,20 +862,27 @@ static void on_pattern_global_cell_edited(GtkCellRendererText *cellrenderertext,
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
   GtkTreeIter iter;
-
-  store=gtk_tree_view_get_model(self->priv->pattern_table);
-  if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
-    gulong param,tick;
-
-    param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
-    gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
-
-    GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
-    // store the changed text in the model and pattern
-    gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
-    bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(new_text)?new_text:NULL));
-
-    // @todo: move cursor down & set cell focus
+  
+  if((store=gtk_tree_view_get_model(self->priv->pattern_table))) {
+    if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
+      gulong param,tick;
+  
+      param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
+      gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
+  
+      GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
+      // store the changed text in the model and pattern
+      gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
+      bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(new_text)?new_text:NULL));
+  
+      // @todo: move cursor down & set cell focus
+    }
+    else {
+      GST_INFO("No iter for path");
+    }
+  }
+  else {
+    GST_WARNING("Can't get tree-model");
   }
 }
 
@@ -882,27 +891,34 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
   GtkTreeModel *store;
   GtkTreeIter iter;
 
-  store=gtk_tree_view_get_model(self->priv->pattern_table);
-  if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
-    BtMachine *machine;
-    gulong voice,param,tick;
-    gulong ix,global_params,voice_params;
-
-    voice=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),voice_index_quark));
-    param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
-    gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
-    GST_INFO("%p, voice cell edited path='%s', content='%s', voice=%lu, param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),voice,param,tick);
-    // store the changed text in the model and pattern
-    g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
-    g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-
-    ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
-    gtk_list_store_set(GTK_LIST_STORE(store),&iter,ix+param,g_strdup(new_text),-1);
-    bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,(BT_IS_STRING(new_text)?new_text:NULL));
-
-    g_object_unref(machine);
-
-    // @todo: move cursor down & set cell focus
+  if((store=gtk_tree_view_get_model(self->priv->pattern_table))) {
+    if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
+      BtMachine *machine;
+      gulong voice,param,tick;
+      gulong ix,global_params,voice_params;
+  
+      voice=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),voice_index_quark));
+      param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
+      gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
+      GST_INFO("%p, voice cell edited path='%s', content='%s', voice=%lu, param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),voice,param,tick);
+      // store the changed text in the model and pattern
+      g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+      g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+  
+      ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
+      gtk_list_store_set(GTK_LIST_STORE(store),&iter,ix+param,g_strdup(new_text),-1);
+      bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,(BT_IS_STRING(new_text)?new_text:NULL));
+  
+      g_object_unref(machine);
+  
+      // @todo: move cursor down & set cell focus
+    }
+    else {
+      GST_INFO("No iter for path");
+    }
+  }
+  else {
+    GST_WARNING("Can't get tree-model");
   }
 }
 

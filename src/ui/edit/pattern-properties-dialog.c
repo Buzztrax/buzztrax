@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.22 2007-07-02 11:23:29 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.23 2007-07-04 12:42:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -185,7 +185,7 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
     g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_voices_changed), (gpointer)self);
   }
   else {
-    //gtk_widget_set_sensitive(widget,FALSE);
+    gtk_widget_set_sensitive(widget,FALSE);
   }
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   GST_INFO("dialog done");

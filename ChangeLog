@@ -1,3 +1,16 @@
+2007-07-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited):
+	* src/ui/edit/main-page-sequence.c: (sequence_view_get_cursor_pos),
+	(sequence_view_get_current_pos),
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_button_press_event),
+	(bt_main_page_sequence_delete_selection):
+	* src/ui/edit/pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_init_ui):
+	  Finally fix one ui test crasher.
+
 2007-07-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

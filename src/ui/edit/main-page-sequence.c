@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.174 2007-06-28 20:02:02 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.175 2007-07-04 12:42:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -321,6 +321,8 @@ static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath 
   GtkTreeModelFilter *filtered_store;
   GtkTreeIter iter,filter_iter;
 
+  g_return_val_if_fail(path,FALSE);
+
   if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(tree_view)))
     && (store=gtk_tree_model_filter_get_model(filtered_store))
   )  {
@@ -368,28 +370,6 @@ static gboolean sequence_view_get_current_pos(const BtMainPageSequence *self,gul
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
   if(column && path) {
     res=sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,track,time);
-#if 0
-    GtkTreeModel *store;
-    GtkTreeIter iter;
-    GList *columns=gtk_tree_view_get_columns(self->priv->sequence_table);
-    glong col=g_list_index(columns,(gpointer)column);
-
-    g_list_free(columns);
-    // get iter from path
-    store=gtk_tree_view_get_model(self->priv->sequence_table);
-    if(gtk_tree_model_get_iter(store,&iter,path)) {
-      gulong row;
-      // get pos from iter and then the timeline
-      gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&row,-1);
-      GST_INFO("  found active cell at %d,%d",col-1,row);
-      if(time) *time=row;
-      if(track) *track=col-1;
-      res=TRUE;
-    }
-    else {
-      GST_INFO("No focus row for cursor on col=%d",col);
-    }
-#endif
   }
   else {
     GST_INFO("No cursor pos, column=%p, path=%p",column,path);
@@ -1581,50 +1561,55 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   //GST_INFO("sequence_table cursor has changed : self=%p",user_data);
 
   gtk_tree_view_get_cursor(self->priv->sequence_table,&path,&column);
-  if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
-    gulong lastbar;
-
-    GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
-    self->priv->cursor_row=cursor_row;
-    GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
-    if(cursor_column!=self->priv->cursor_column) {
-      self->priv->cursor_column=cursor_column;
-      pattern_list_refresh(self);
+  if(column && path) {
+    if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
+      gulong lastbar;
+  
+      GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
+      self->priv->cursor_row=cursor_row;
+      GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
+      if(cursor_column!=self->priv->cursor_column) {
+        self->priv->cursor_column=cursor_column;
+        pattern_list_refresh(self);
+      }
+      GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+  
+      // calculate the last visible row from step-filter and scroll-filter
+      lastbar=self->priv->row_filter_pos-1-((self->priv->row_filter_pos-1)%self->priv->bars);
+  
+      // do we need to extend sequence?
+      if( cursor_row >= lastbar ) {
+        GtkTreeModelFilter *filtered_store;
+  
+        self->priv->row_filter_pos += self->priv->bars;
+        if( self->priv->row_filter_pos > self->priv->list_length ) {
+          BtSong *song;
+  
+          g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  
+          self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
+          sequence_table_refresh(self,song);
+          sequence_model_recolorize(self);
+          // this got invalidated by _refresh()
+          column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
+  
+          g_object_unref(song);
+        }
+  
+        if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
+          gtk_tree_model_filter_refilter(filtered_store);
+        }
+        gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
+        if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
+          gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
+        }
+      }
+      gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,column,FALSE,1.0,0.0);
+      gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
     }
-    GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
-
-    // calculate the last visible row from step-filter and scroll-filter
-    lastbar=self->priv->row_filter_pos-1-((self->priv->row_filter_pos-1)%self->priv->bars);
-
-    // do we need to extend sequence?
-    if( cursor_row >= lastbar ) {
-      GtkTreeModelFilter *filtered_store;
-
-      self->priv->row_filter_pos += self->priv->bars;
-      if( self->priv->row_filter_pos > self->priv->list_length ) {
-        BtSong *song;
-
-        g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-
-        self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
-        sequence_table_refresh(self,song);
-        sequence_model_recolorize(self);
-        // this got invalidated by _refresh()
-        column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
-
-        g_object_unref(song);
-      }
-
-      if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
-        gtk_tree_model_filter_refilter(filtered_store);
-      }
-      gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
-      if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) {
-        gtk_widget_grab_focus(GTK_WIDGET(self->priv->sequence_table));
-      }
-    }
-    gtk_tree_view_scroll_to_cell(self->priv->sequence_table,path,column,FALSE,1.0,0.0);
-    gtk_widget_queue_draw(GTK_WIDGET(self->priv->sequence_table));
+  }
+  else {
+    GST_INFO("No cursor pos, column=%p, path=%p",column,path);
   }
   if(path) gtk_tree_path_free(path);
 
@@ -2025,6 +2010,7 @@ static gboolean on_sequence_table_button_press_event(GtkWidget *widget,GdkEventB
       // determine sequence position from mouse coordinates
       if(gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),event->x,event->y,&path,&column,NULL,NULL)) {
         gulong track,row;
+
         if(sequence_view_get_cursor_pos(GTK_TREE_VIEW(widget),path,column,&track,&row)) {
           GST_INFO("  left click to column %d, row %d",track,row);
           if(widget==GTK_WIDGET(self->priv->sequence_pos_table)) {
@@ -2728,7 +2714,6 @@ void bt_main_page_sequence_delete_selection(const BtMainPageSequence *self) {
 
       if(gtk_tree_model_get_iter(store,&iter,path)) {
         glong i,j;
-
 
         for(i=selection_start_row;i<=selection_end_row;i++) {
           for(j=selection_start_column-1;j<selection_end_column;j++) {
