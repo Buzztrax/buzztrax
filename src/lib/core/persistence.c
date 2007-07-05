@@ -1,4 +1,4 @@
-/* $Id: persistence.c,v 1.19 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: persistence.c,v 1.20 2007-07-05 21:07:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -221,17 +221,17 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       g_value_set_string(gvalue,svalue);
     } break;
     case G_TYPE_ENUM: {
-      // @todo: use enum-values
       GEnumClass *enum_class=g_type_class_peek_static(G_VALUE_TYPE(gvalue));
-      GEnumValue *enum_value=g_enum_get_value_by_name(enum_class,svalue);
-      GST_INFO("'%s', %p, %p, [%s]",G_VALUE_TYPE_NAME(gvalue), enum_class,enum_value,svalue);
+      GEnumValue *enum_value=g_enum_get_value_by_nick(enum_class,svalue);
+      GST_DEBUG("'%s', %p, %p, [%s]",G_VALUE_TYPE_NAME(gvalue),enum_class,enum_value,svalue);
       if(enum_value) {
-        GST_INFO("-> %d",enum_value->value);
+        //GST_INFO("-> %d",enum_value->value);
         g_value_set_enum(gvalue,enum_value->value);
       }
       else if(svalue && isdigit(*svalue)) {
         // legacy
         const gint val=atoi(svalue);
+        //GST_INFO("-> %d",val);
         g_value_set_enum(gvalue,val);
       }
     } break;
@@ -296,13 +296,17 @@ gchar *bt_persistence_get_value(GValue * const gvalue) {
       res=g_value_dup_string(gvalue);
       break;
     case G_TYPE_ENUM: {
-      // @todo: use enum-values
       GEnumClass *enum_class=g_type_class_peek_static(G_VALUE_TYPE(gvalue));
       GEnumValue *enum_value=g_enum_get_value(enum_class,g_value_get_enum(gvalue));
-      res=g_strdup_printf("%s",enum_value->value_name);
-      /*
-      res=g_strdup_printf("%d",g_value_get_enum(gvalue));
-      */
+      if(enum_value) {
+        res=g_strdup_printf("%s",enum_value->value_nick);
+        //GST_INFO("-> %s",res);
+      }
+      else {
+        // legacy
+        res=g_strdup_printf("%d",g_value_get_enum(gvalue));
+        //GST_INFO("-> %s",res);
+      }
     } break;
     case G_TYPE_INT:
       res=g_strdup_printf("%d",g_value_get_int(gvalue));

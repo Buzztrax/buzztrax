@@ -1,3 +1,16 @@
+2007-07-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/persistence.c: (bt_persistence_set_value),
+	(bt_persistence_get_value):
+	  Better enum mapping.
+	
+	* src/ui/edit/machine-properties-dialog.c: (make_checkbox_widget):
+	  Fix assertion.
+	
+	* tests/bt-check.c: (check_setup_test_server),
+	(check_make_widget_screenshot):
+	  More attempts to make screenshots work on opensuse.
+
 2007-07-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c:

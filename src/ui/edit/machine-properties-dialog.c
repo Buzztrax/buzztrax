@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.78 2007-07-01 11:56:16 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.79 2007-07-05 21:07:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -986,7 +986,7 @@ static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self, Gs
   g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_checkbox_property_notify), (gpointer)widget);
   g_signal_connect(G_OBJECT(widget), "toggled", G_CALLBACK(on_checkbox_property_toggled), (gpointer)machine);
 
-  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_checkbox_button_press_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(widget),"button-press-event",G_CALLBACK(on_checkbox_button_press_event), (gpointer)machine);
   g_signal_connect(G_OBJECT(widget),"button-release-event",G_CALLBACK(on_button_release_event), (gpointer)machine);
 
   return(widget);

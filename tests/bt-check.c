@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.35 2007-07-02 11:23:30 ensonic Exp $
+/* $Id: bt-check.c,v 1.36 2007-07-05 21:07:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -678,6 +678,7 @@ void check_setup_test_server(void) {
     /*"-fp","/usr/share/fonts/misc",*/
     /*"-reset",
     "-terminate",*/
+    /* 32 bit does not work */
     "-screen","0","1024x786x24",
     "-render",
     NULL
@@ -895,6 +896,10 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   if(!GTK_WIDGET_VISIBLE(widget)) {
     gtk_widget_show_all(widget);
   }
+  if(GTK_IS_WINDOW(widget)) {
+    gtk_window_present(GTK_WINDOW(widget));
+    //gtk_window_move(GTK_WINDOW(widget),30,30);
+  }
   gtk_widget_queue_draw(widget);
   while(gtk_events_pending()) gtk_main_iteration();
 
@@ -906,8 +911,9 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   }
 
   gdk_window_get_geometry(window,&wx,&wy,&ww,&wh,NULL);
-  pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,ww,wh);
-  gdk_pixbuf_get_from_drawable(pixbuf,window,colormap,0,0,0,0,ww,wh);
+  //pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,ww,wh);
+  //gdk_pixbuf_get_from_drawable(pixbuf,window,colormap,0,0,0,0,ww,wh);
+  pixbuf = gdk_pixbuf_get_from_drawable(NULL,window,colormap,0,0,0,0,ww,wh);
   scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
   gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
 
