@@ -1,8 +1,11 @@
 2007/07 ========================================================================
 
-* bt-edit: editing improvments
+* bt-edit: editing improvments (triggers, notes, base-ocatve)
 * bsl: allow reading bmx<1.2 files
 * bml: more api emulated
+* gstbml: blacklist support
+* test fixes
+* porting for new GstController control-source API
 
 2007/06 ========================================================================
 

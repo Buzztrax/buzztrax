@@ -1,5 +1,24 @@
 2007-07-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Prepare overdue newsletter.
+
+	* src/lib/core/machine.c: (bt_machine_get_pattern_by_index):
+	  Fix assertion that should be none.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(bt_machine_properties_dialog_init_ui):
+          Add TODO comments for dynamic voice handling in dialog.
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_cursor_pos),
+	(on_pattern_table_key_release_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited),
+	(on_base_octave_menu_changed), (bt_main_page_patterns_init_ui),
+	(bt_main_page_patterns_init):
+	  Add base octave handling.
+
+2007-07-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/persistence.c: (bt_persistence_set_value),
 	(bt_persistence_get_value):
 	  Better enum mapping.

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.263 2007-07-04 19:41:22 ensonic Exp $
+/* $Id: machine.c,v 1.264 2007-07-06 20:34:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1589,10 +1589,13 @@ BtPattern *bt_machine_get_pattern_by_id(const BtMachine * const self,const gchar
  * Returns: #BtPattern instance or %NULL if not found
  */
 BtPattern *bt_machine_get_pattern_by_index(const BtMachine * const self, const gulong index) {
+  BtPattern *pattern=NULL;
   g_return_val_if_fail(BT_IS_MACHINE(self),NULL);
-  g_return_val_if_fail(index<g_list_length(self->priv->patterns),NULL);
 
-  return(g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index))));
+  if(index<g_list_length(self->priv->patterns)) {
+    pattern=g_object_ref(BT_PATTERN(g_list_nth_data(self->priv->patterns,(guint)index)));
+  }
+  return(pattern);
 }
 
 /**

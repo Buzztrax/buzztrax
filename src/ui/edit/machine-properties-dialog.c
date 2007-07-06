@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.79 2007-07-05 21:07:35 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.80 2007-07-06 20:34:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1334,6 +1334,12 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gtk_box_pack_start(GTK_BOX(param_box),self->priv->main_toolbar,FALSE,FALSE,0);
 
   GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,voices);
+
+  /* @todo: need to listen to (machine,notify::voices) #1749283
+   * this needs
+   * - moving the code to add a voice to a separate function
+   * - keeping a reference to the vbox in self
+   */
 
   if(global_params+voices*voice_params) {
     // machine controls inside a scrolled window

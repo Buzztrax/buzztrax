@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.130 2007-07-04 12:42:22 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.131 2007-07-06 20:34:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -97,6 +97,9 @@ struct _BtMainPagePatternsPrivate {
   /* selection first cell */
   glong selection_column;
   glong selection_row;
+
+  /* octave menu */
+  guint base_octave;
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
@@ -252,7 +255,7 @@ static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *
   gboolean res=FALSE;
   GtkTreeModel *store;
   GtkTreeIter iter;
-  
+
   g_return_val_if_fail(path,FALSE);
 
   if((store=gtk_tree_view_get_model(tree_view))) {
@@ -656,6 +659,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
     if(pattern_view_get_current_pos(self,&tick,&param)) {
       gchar *str=NULL;
+      gchar oct_str[4];
       gboolean changed=FALSE;
 
       if(event->keyval==GDK_space || event->keyval == GDK_period) {
@@ -664,39 +668,45 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       else {
         switch(self->priv->column_keymode[param]) {
           case PATTERN_KEYMODE_NOTE:
-            /* @todo: map more keys to notes */
             /* @todo: handle y<->z of key-layouts (event->hardware_keycode) */
             /* @todo: handle h/b variation in notes */
             switch(event->keyval) {
-              case GDK_y: str="c-1";break;
-              case GDK_s: str="c#1";break;
-              case GDK_x: str="d-1";break;
-              case GDK_d: str="d#1";break;
-              case GDK_c: str="e-1";break;
-              case GDK_v: str="f-1";break;
-              case GDK_g: str="f#1";break;
-              case GDK_b: str="g-1";break;
-              case GDK_h: str="g#1";break;
-              case GDK_n: str="a-1";break;
-              case GDK_j: str="a#1";break;
-              case GDK_m: str="h-1";break;
-              case GDK_q: str="c-2";break;
-              case GDK_2: str="c#2";break;
-              case GDK_w: str="d-2";break;
-              case GDK_3: str="d#2";break;
-              case GDK_e: str="e-2";break;
-              case GDK_r: str="f-2";break;
-              case GDK_5: str="f#2";break;
-              case GDK_t: str="g-2";break;
-              case GDK_6: str="g#2";break;
-              case GDK_z: str="a-2";break;
-              case GDK_7: str="a#2";break;
-              case GDK_u: str="h-2";break;
-              case GDK_i: str="c-3";break;
+              case GDK_y: str="c-0";break;
+              case GDK_s: str="c#0";break;
+              case GDK_x: str="d-0";break;
+              case GDK_d: str="d#0";break;
+              case GDK_c: str="e-0";break;
+              case GDK_v: str="f-0";break;
+              case GDK_g: str="f#0";break;
+              case GDK_b: str="g-0";break;
+              case GDK_h: str="g#0";break;
+              case GDK_n: str="a-0";break;
+              case GDK_j: str="a#0";break;
+              case GDK_m: str="h-0";break;
+              case GDK_q: str="c-1";break;
+              case GDK_2: str="c#1";break;
+              case GDK_w: str="d-1";break;
+              case GDK_3: str="d#1";break;
+              case GDK_e: str="e-1";break;
+              case GDK_r: str="f-1";break;
+              case GDK_5: str="f#1";break;
+              case GDK_t: str="g-1";break;
+              case GDK_6: str="g#1";break;
+              case GDK_z: str="a-1";break;
+              case GDK_7: str="a#1";break;
+              case GDK_u: str="h-1";break;
+              case GDK_i: str="c-2";break;
               case GDK_9: str="c#2";break;
-              case GDK_o: str="d-3";break;
-              case GDK_0: str="d#3";break;
-              case GDK_p: str="e-3";break;
+              case GDK_o: str="d-2";break;
+              case GDK_0: str="d#2";break;
+              case GDK_p: str="e-2";break;
+            }
+            if(str) {
+              oct_str[0]=str[0];
+              oct_str[1]=str[1];
+              oct_str[2]=(gchar)(((guint)str[2])+self->priv->base_octave);
+              oct_str[3]='\0';
+              str=oct_str;
             }
             break;
           case PATTERN_KEYMODE_BOOL:
@@ -862,19 +872,19 @@ static void on_pattern_global_cell_edited(GtkCellRendererText *cellrenderertext,
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
   GtkTreeIter iter;
-  
+
   if((store=gtk_tree_view_get_model(self->priv->pattern_table))) {
     if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
       gulong param,tick;
-  
+
       param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
       gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
-  
+
       GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
       // store the changed text in the model and pattern
       gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
       bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(new_text)?new_text:NULL));
-  
+
       // @todo: move cursor down & set cell focus
     }
     else {
@@ -896,7 +906,7 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
       BtMachine *machine;
       gulong voice,param,tick;
       gulong ix,global_params,voice_params;
-  
+
       voice=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),voice_index_quark));
       param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
       gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
@@ -904,13 +914,13 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
       // store the changed text in the model and pattern
       g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
       g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-  
+
       ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
       gtk_list_store_set(GTK_LIST_STORE(store),&iter,ix+param,g_strdup(new_text),-1);
       bt_pattern_set_voice_event(self->priv->pattern,tick,voice,param,(BT_IS_STRING(new_text)?new_text:NULL));
-  
+
       g_object_unref(machine);
-  
+
       // @todo: move cursor down & set cell focus
     }
     else {
@@ -1497,6 +1507,17 @@ static void on_pattern_menu_changed(GtkComboBox *menu, gpointer user_data) {
   }
 }
 
+static void on_base_octave_menu_changed(GtkComboBox *menu, gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+
+  g_assert(user_data);
+
+  self->priv->base_octave=gtk_combo_box_get_active(self->priv->base_octave_menu);
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  }
+}
+
 static void on_machine_added(BtSetup *setup,BtMachine *machine,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreeModel *store;
@@ -1926,10 +1947,10 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
     sprintf(oct_str,"%1d",i);
     gtk_combo_box_append_text(self->priv->base_octave_menu,oct_str);
   }
-  gtk_combo_box_set_active(self->priv->base_octave_menu,3);
+  gtk_combo_box_set_active(self->priv->base_octave_menu,self->priv->base_octave);
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Octave")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->base_octave_menu),TRUE,TRUE,2);
-  //g_signal_connect(G_OBJECT(self->priv->base_octave_menu), "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->base_octave_menu), "changed", G_CALLBACK(on_base_octave_menu_changed), (gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_item_new());
   gtk_widget_set_name(tool_item,_("Octave"));
@@ -2286,6 +2307,8 @@ static void bt_main_page_patterns_init(GTypeInstance *instance, gpointer g_class
   self->priv->selection_start_row=-1;
   self->priv->selection_end_column=-1;
   self->priv->selection_end_row=-1;
+
+  self->priv->base_octave=2;
 }
 
 static void bt_main_page_patterns_class_init(BtMainPagePatternsClass *klass) {
