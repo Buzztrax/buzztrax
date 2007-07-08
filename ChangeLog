@@ -1,3 +1,11 @@
+2007-07-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_set_cursor_pos),
+	(on_pattern_table_key_release_event),
+	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited):
+	  Fix handling of cursor_down after edit on last pattern row. Also
+	  refactor for better reuse. Fixes #1749732.
+
 2007-07-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

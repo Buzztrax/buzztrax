@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.131 2007-07-06 20:34:10 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.132 2007-07-08 11:14:04 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -280,6 +280,26 @@ static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *
   return(res);
 }
 
+static gboolean pattern_view_set_cursor_pos(BtMainPagePatterns *self) {
+  GtkTreePath *path;
+
+  if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
+    GtkTreeViewColumn *column;
+    GList *columns;
+
+    columns=gtk_tree_view_get_columns(self->priv->pattern_table);
+    column=GTK_TREE_VIEW_COLUMN(g_list_nth_data(columns,self->priv->cursor_column));
+    gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
+    if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+      gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+    }
+    g_list_free(columns);
+    gtk_tree_path_free(path);
+    return TRUE;
+  }
+  return FALSE;
+}
+
 /*
  * pattern_get_current_pos:
  * @self: the pattern subpage
@@ -497,30 +517,18 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
         }
         break;
       case GDK_Down:
-        if(self->priv->cursor_row<(length-1)) {
+        if((self->priv->cursor_row+1)<length) {
           self->priv->cursor_row++;
           changed=TRUE;
         }
         break;
     }
     if(changed) {
-      GtkTreePath *path;
-      GtkTreeViewColumn *column;
-      GList *columns;
-
-      path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1);
-      columns=gtk_tree_view_get_columns(self->priv->pattern_table);
-      column=GTK_TREE_VIEW_COLUMN(g_list_nth_data(columns,self->priv->cursor_column));
-      gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-      g_list_free(columns);
-      gtk_tree_path_free(path);
+      pattern_view_set_cursor_pos(self);
     }
 #endif
 
     if(modifier==GDK_SHIFT_MASK) {
-      GtkTreePath *path=NULL;
-      GtkTreeViewColumn *column;
-      GList *columns=NULL;
       gboolean select=FALSE;
 
       GST_INFO("handling selection");
@@ -579,12 +587,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           if(self->priv->cursor_column>=0) {
             // move cursor
             self->priv->cursor_column--;
-            path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1);
-            columns=gtk_tree_view_get_columns(self->priv->pattern_table);
-            column=g_list_nth_data(columns,self->priv->cursor_column);
-            // set cell focus
-            gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-            gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+            pattern_view_set_cursor_pos(self);
             GST_INFO("left : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
             if(self->priv->selection_start_column==-1) {
               GST_INFO("left : new selection");
@@ -611,12 +614,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           if(self->priv->cursor_column<=column_ct) {
             // move cursor
             self->priv->cursor_column++;
-            path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1);
-            columns=gtk_tree_view_get_columns(self->priv->pattern_table);
-            column=g_list_nth_data(columns,self->priv->cursor_column);
-            // set cell focus
-            gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-            gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+            pattern_view_set_cursor_pos(self);
             GST_INFO("right: %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
             if(self->priv->selection_end_column==-1) {
               GST_INFO("right: new selection");
@@ -640,8 +638,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           }
           break;
       }
-      if(path) gtk_tree_path_free(path);
-      if(columns) g_list_free(columns);
       if(select) {
         gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
         res=TRUE;
@@ -726,7 +722,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       if(changed) {
         GtkTreeModel *store;
         GtkTreePath *path;
-        GtkTreeViewColumn *column;
         BtMachine *machine;
         gulong length,voices,global_params,voice_params;
 
@@ -736,7 +731,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
         // change model and pattern
         store=gtk_tree_view_get_model(self->priv->pattern_table);
-        gtk_tree_view_get_cursor(self->priv->pattern_table,&path,&column);
+        gtk_tree_view_get_cursor(self->priv->pattern_table,&path,NULL);
         if(path) {
           GtkTreeIter iter;
 
@@ -762,12 +757,10 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
           gtk_tree_path_free(path);
         }
         // move cursor down & set cell focus
-        if(self->priv->cursor_row<=length) {
+        if((self->priv->cursor_row+1)<length) {
+          GST_INFO("  move cursor down (row=%d/%d)",self->priv->cursor_row,length);
           self->priv->cursor_row++;
-          if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
-            gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-            gtk_tree_path_free(path);
-          }
+          pattern_view_set_cursor_pos(self);
         }
       }
 
@@ -876,16 +869,23 @@ static void on_pattern_global_cell_edited(GtkCellRendererText *cellrenderertext,
   if((store=gtk_tree_view_get_model(self->priv->pattern_table))) {
     if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
       gulong param,tick;
+      gulong length;
 
       param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
       gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
 
       GST_INFO("%p : global cell edited: path='%s', content='%s', param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),param,tick);
       // store the changed text in the model and pattern
+      g_object_get(G_OBJECT(self->priv->pattern),"length",&length,NULL);
       gtk_list_store_set(GTK_LIST_STORE(store),&iter,PATTERN_TABLE_PRE_CT+param,g_strdup(new_text),-1);
       bt_pattern_set_global_event(self->priv->pattern,tick,param,(BT_IS_STRING(new_text)?new_text:NULL));
 
-      // @todo: move cursor down & set cell focus
+      // move cursor down & set cell focus
+      if((self->priv->cursor_row+1)<length) {
+        GST_INFO("  move cursor down (row=%d/%d)",self->priv->cursor_row,length);
+        self->priv->cursor_row++;
+        pattern_view_set_cursor_pos(self);
+      }
     }
     else {
       GST_INFO("No iter for path");
@@ -905,14 +905,14 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
     if(gtk_tree_model_get_iter_from_string(store,&iter,path_string)) {
       BtMachine *machine;
       gulong voice,param,tick;
-      gulong ix,global_params,voice_params;
+      gulong ix,length,global_params,voice_params;
 
       voice=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),voice_index_quark));
       param=GPOINTER_TO_UINT(g_object_get_qdata(G_OBJECT(cellrenderertext),column_index_quark));
       gtk_tree_model_get(store,&iter,PATTERN_TABLE_POS,&tick,-1);
       GST_INFO("%p, voice cell edited path='%s', content='%s', voice=%lu, param=%lu, tick=%lu",self->priv->pattern,path_string,safe_string(new_text),voice,param,tick);
       // store the changed text in the model and pattern
-      g_object_get(G_OBJECT(self->priv->pattern),"machine",&machine,NULL);
+      g_object_get(G_OBJECT(self->priv->pattern),"length",&length,"machine",&machine,NULL);
       g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
 
       ix=PATTERN_TABLE_PRE_CT+global_params+(voice*voice_params);
@@ -921,7 +921,12 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
 
       g_object_unref(machine);
 
-      // @todo: move cursor down & set cell focus
+      // move cursor down & set cell focus
+      if((self->priv->cursor_row+1)<length) {
+        GST_INFO("  move cursor down (row=%d/%d)",self->priv->cursor_row,length);
+        self->priv->cursor_row++;
+        pattern_view_set_cursor_pos(self);
+      }
     }
     else {
       GST_INFO("No iter for path");
