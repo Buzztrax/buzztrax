@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.80 2007-07-06 20:34:09 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.81 2007-07-08 13:04:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -50,6 +50,7 @@ struct _BtMachinePropertiesDialogPrivate {
 
   /* the underlying machine */
   BtMachine *machine;
+  gulong voices;
 
   GtkWidget *main_toolbar,*preset_toolbar;
   GtkWidget *preset_box;
@@ -967,6 +968,28 @@ static void on_box_size_request(GtkWidget *widget,GtkRequisition *requisition,gp
   gtk_widget_set_size_request(parent,width,height + 2);
 }
 
+static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  gulong i,new_voices;
+
+  g_object_get(G_OBJECT(machine),"voices",&new_voices,NULL);
+
+  GST_INFO("voices changed: %d -> %d",self->priv->voices,new_voices);
+
+  if(new_voices>self->priv->voices) {
+    for(i=self->priv->voices;i<new_voices;i++) {
+      // @todo: add ui for voice
+    }
+  }
+  else {
+    for(i=new_voices;i<self->priv->voices;i++) {
+      // @todo: remove ui for voice
+    }
+  }
+
+  //self->priv->voices=new_voices;
+}
+
 //-- helper methods
 
 static GtkWidget *make_checkbox_widget(const BtMachinePropertiesDialog *self, GstObject *machine,GParamSpec *property) {
@@ -1250,7 +1273,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GtkTooltips *tips=gtk_tooltips_new();
   gchar *id,*title;
   GdkPixbuf *window_icon=NULL;
-  gulong i,k,global_params,voices,voice_params,params;
+  gulong i,k,global_params,voice_params,params;
   GParamSpec *property;
   GValue *range_min,*range_max;
   GType param_type,base_type;
@@ -1275,7 +1298,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     "id",&id,
     "global-params",&global_params,
     "voice-params",&voice_params,
-    "voices",&voices,
+    "voices",&self->priv->voices,
     "machine",&machine,
     NULL);
   title=g_strdup_printf(_("%s properties"),id);
@@ -1333,15 +1356,16 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
 
   gtk_box_pack_start(GTK_BOX(param_box),self->priv->main_toolbar,FALSE,FALSE,0);
 
-  GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,voices);
+  GST_INFO("machine has %d global properties, %d voice properties and %d voices",global_params,voice_params,self->priv->voices);
 
   /* @todo: need to listen to (machine,notify::voices) #1749283
    * this needs
    * - moving the code to add a voice to a separate function
    * - keeping a reference to the vbox in self
    */
+  g_signal_connect(G_OBJECT(self->priv->machine),"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);
 
-  if(global_params+voices*voice_params) {
+  if(global_params+self->priv->voices*voice_params) {
     // machine controls inside a scrolled window
     scrolled_window=gtk_scrolled_window_new(NULL,NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
@@ -1460,7 +1484,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         GST_INFO("all global params skipped");
       }
     }
-    if(voices*voice_params) {
+    if(self->priv->voices*voice_params) {
       gulong j;
       gchar *name;
       GstObject *machine_voice;
@@ -1473,14 +1497,17 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
         }
       }
       GST_INFO("creating ui for %d/%d params",params,voice_params);
-      for(j=0;j<voices;j++) {
+      for(j=0;j<self->priv->voices;j++) {
+        machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
+        if(!machine_voice) {
+          GST_WARNING("Cannot get voice child for voice %d",j);
+        }
+
         name=g_strdup_printf(_("voice %lu properties"),j+1);
         expander=gtk_expander_new(name);
         gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
         g_free(name);
         gtk_box_pack_start(GTK_BOX(vbox),expander,TRUE,TRUE,0);
-
-        machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
 
         // add voice machine controls into the table
         table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
@@ -1671,7 +1698,7 @@ static void bt_machine_properties_dialog_set_property(GObject      *object,
 static void bt_machine_properties_dialog_dispose(GObject *object) {
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(object);
 
-  gulong j,voices;
+  gulong j;
   GstElement *machine;
   GstObject *machine_voice;
 
@@ -1681,13 +1708,13 @@ static void bt_machine_properties_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   // disconnect all handlers that are connected to params
-  g_object_get(self->priv->machine,"machine",&machine,"voices",&voices,NULL);
+  g_object_get(self->priv->machine,"machine",&machine,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_uint_range_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_checkbox_property_notify,NULL);
   g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_combobox_property_notify,NULL);
-  for(j=0;j<voices;j++) {
+  for(j=0;j<self->priv->voices;j++) {
     machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_double_range_property_notify,NULL);
     g_signal_handlers_disconnect_matched(machine_voice,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_int_range_property_notify,NULL);

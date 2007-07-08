@@ -1,5 +1,12 @@
 2007-07-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_machine_voices_notify), (bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_dispose):
+	 We need to handle voices dynamically here (#1749283). Fix crash for now.
+
+2007-07-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-page-patterns.c: (pattern_view_set_cursor_pos),
 	(on_pattern_table_key_release_event),
 	(on_pattern_global_cell_edited), (on_pattern_voice_cell_edited):
