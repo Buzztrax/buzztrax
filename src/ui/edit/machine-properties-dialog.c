@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.81 2007-07-08 13:04:38 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.82 2007-07-09 21:08:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -56,6 +56,8 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *preset_box;
   GtkWidget *preset_list;
   GtkTooltips *preset_tips;
+
+  GtkWidget *param_group_box;
 
   GHashTable *control_data; // each entry points to BtControlData
 };
@@ -1266,7 +1268,7 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
 
 static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDialog *self) {
   BtMainWindow *main_window;
-  GtkWidget *param_box,*vbox,*hbox;
+  GtkWidget *param_box,*hbox;
   GtkWidget *expander,*label,*table,*scrolled_window;
   GtkWidget *widget1,*widget2;
   GtkWidget *tool_item;
@@ -1365,248 +1367,243 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
    */
   g_signal_connect(G_OBJECT(self->priv->machine),"notify::voices",G_CALLBACK(on_machine_voices_notify),(gpointer)self);
 
-  if(global_params+self->priv->voices*voice_params) {
-    // machine controls inside a scrolled window
-    scrolled_window=gtk_scrolled_window_new(NULL,NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
-    vbox=gtk_vbox_new(FALSE,0);
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),vbox);
-    gtk_box_pack_start(GTK_BOX(param_box),scrolled_window,TRUE,TRUE,0);
-    g_signal_connect(G_OBJECT(vbox),"size-request",G_CALLBACK(on_box_size_request),(gpointer)scrolled_window);
+  // machine controls inside a scrolled window
+  scrolled_window=gtk_scrolled_window_new(NULL,NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
+  self->priv->param_group_box=gtk_vbox_new(FALSE,0);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),self->priv->param_group_box);
+  gtk_box_pack_start(GTK_BOX(param_box),scrolled_window,TRUE,TRUE,0);
+  g_signal_connect(G_OBJECT(self->priv->param_group_box),"size-request",G_CALLBACK(on_box_size_request),(gpointer)scrolled_window);
 
-    if(global_params) {
-      // determine params to be skipped
-      params=global_params;
-      for(i=0;i<global_params;i++) {
-        if(bt_machine_is_global_param_trigger(self->priv->machine,i)) params--;
-        else {
-          if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) params--;
-        }
-      }
-      if(params) {
-        expander=gtk_expander_new(_("global properties"));
-        gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
-        gtk_box_pack_start(GTK_BOX(vbox),expander,TRUE,TRUE,0);
-
-        // add global machine controls into the table
-        table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
-
-        for(i=0,k=0;i<global_params;i++) {
-          if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
-          if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
-          property=bt_machine_get_global_param_spec(self->priv->machine,i);
-          GST_INFO("global property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
-          // get name
-          label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
-          gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-          gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-
-          param_type=bt_machine_get_global_param_type(self->priv->machine,i);
-          while((base_type=g_type_parent(param_type))) param_type=base_type;
-          GST_INFO("... base type is : %s",g_type_name(param_type));
-
-          range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
-          range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);
-          // DEBUG
-          if(range_min && range_max) {
-            gchar *str_min=g_strdup_value_contents(range_min);
-            gchar *str_max=g_strdup_value_contents(range_max);
-            GST_INFO("... has range : %s ... %s",str_min,str_max);
-            g_free(str_min);g_free(str_max);
-          }
-          // DEBUG
-
-          // implement widget types
-          switch(param_type) {
-            case G_TYPE_STRING:
-              widget1=gtk_label_new("string");
-              widget2=NULL;
-              break;
-            case G_TYPE_BOOLEAN:
-              widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
-              widget2=NULL;
-              break;
-            case G_TYPE_INT:
-              widget2=gtk_label_new(NULL);
-              widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-             break;
-            case G_TYPE_UINT:
-              widget2=gtk_label_new(NULL);
-              widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_FLOAT:
-              widget2=gtk_label_new(NULL);
-              widget1=make_float_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_DOUBLE:
-              widget2=gtk_label_new(NULL);
-              widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_ENUM:
-              widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
-              widget2=NULL;
-              break;
-            default: {
-              gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-              widget1=gtk_label_new(str);g_free(str);
-              widget2=NULL;
-            }
-          }
-          if(range_min) { g_free(range_min);range_min=NULL; }
-          if(range_max) { g_free(range_max);range_max=NULL; }
-
-          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
-          if(!widget2) {
-            gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-          }
-          else {
-            gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
-            gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-            /* @todo how can we avoid the wobble here?
-             * hack would be to set some 'good' default size
-             * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
-             */
-            gtk_widget_set_size_request(widget2,50,-1);
-            if(GTK_IS_LABEL(widget2)) {
-              gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
-              gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
-            }
-            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-          }
-          k++;
-        }
-        // eat remaning space
-        //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-        gtk_container_add(GTK_CONTAINER(expander),table);
-      }
+  if(global_params) {
+    // determine params to be skipped
+    params=global_params;
+    for(i=0;i<global_params;i++) {
+      if(bt_machine_is_global_param_trigger(self->priv->machine,i)) params--;
       else {
-        GST_INFO("all global params skipped");
+        if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) params--;
       }
     }
-    if(self->priv->voices*voice_params) {
-      gulong j;
-      gchar *name;
-      GstObject *machine_voice;
+    if(params) {
+      expander=gtk_expander_new(_("global properties"));
+      gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
+      gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
 
-      params=voice_params;
-      for(i=0;i<voice_params;i++) {
-        if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
-          GST_INFO("skipping voice param %d",i);
-          params--;
+      // add global machine controls into the table
+      table=gtk_table_new(/*rows=*/params+1,/*columns=*/3,/*homogenous=*/FALSE);
+
+      for(i=0,k=0;i<global_params;i++) {
+        if(bt_machine_is_global_param_trigger(self->priv->machine,i)) continue;
+        if(voice_params && bt_machine_get_voice_param_index(self->priv->machine,bt_machine_get_global_param_name(self->priv->machine,i),NULL)>-1) continue;
+        property=bt_machine_get_global_param_spec(self->priv->machine,i);
+        GST_INFO("global property %p has name '%s','%s'",property,property->name,bt_machine_get_global_param_name(self->priv->machine,i));
+        // get name
+        label=gtk_label_new((gchar *)bt_machine_get_global_param_name(self->priv->machine,i));
+        gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+        gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+
+        param_type=bt_machine_get_global_param_type(self->priv->machine,i);
+        while((base_type=g_type_parent(param_type))) param_type=base_type;
+        GST_INFO("... base type is : %s",g_type_name(param_type));
+
+        range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
+        range_max=bt_machine_get_global_param_max_value(self->priv->machine,i);
+        // DEBUG
+        if(range_min && range_max) {
+          gchar *str_min=g_strdup_value_contents(range_min);
+          gchar *str_max=g_strdup_value_contents(range_max);
+          GST_INFO("... has range : %s ... %s",str_min,str_max);
+          g_free(str_min);g_free(str_max);
         }
+        // DEBUG
+
+        // implement widget types
+        switch(param_type) {
+          case G_TYPE_STRING:
+            widget1=gtk_label_new("string");
+            widget2=NULL;
+            break;
+          case G_TYPE_BOOLEAN:
+            widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
+            widget2=NULL;
+            break;
+          case G_TYPE_INT:
+            widget2=gtk_label_new(NULL);
+            widget1=make_int_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+           break;
+          case G_TYPE_UINT:
+            widget2=gtk_label_new(NULL);
+            widget1=make_uint_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_FLOAT:
+            widget2=gtk_label_new(NULL);
+            widget1=make_float_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_DOUBLE:
+            widget2=gtk_label_new(NULL);
+            widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_ENUM:
+            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=NULL;
+            break;
+          default: {
+            gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+            widget1=gtk_label_new(str);g_free(str);
+            widget2=NULL;
+          }
+        }
+        if(range_min) { g_free(range_min);range_min=NULL; }
+        if(range_max) { g_free(range_max);range_max=NULL; }
+
+        gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+        if(!widget2) {
+          gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        }
+        else {
+          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+          gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          /* @todo how can we avoid the wobble here?
+           * hack would be to set some 'good' default size
+           * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+           */
+          gtk_widget_set_size_request(widget2,50,-1);
+          if(GTK_IS_LABEL(widget2)) {
+            gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+          }
+          gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+        }
+        k++;
       }
-      GST_INFO("creating ui for %d/%d params",params,voice_params);
-      for(j=0;j<self->priv->voices;j++) {
-        machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
-        if(!machine_voice) {
-          GST_WARNING("Cannot get voice child for voice %d",j);
-        }
-
-        name=g_strdup_printf(_("voice %lu properties"),j+1);
-        expander=gtk_expander_new(name);
-        gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
-        g_free(name);
-        gtk_box_pack_start(GTK_BOX(vbox),expander,TRUE,TRUE,0);
-
-        // add voice machine controls into the table
-        table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
-
-        for(i=0,k=0;i<voice_params;i++) {
-          if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
-            GST_INFO("skipping voice param %d",i);
-            continue;
-          }
-
-          property=bt_machine_get_voice_param_spec(self->priv->machine,i);
-          GST_INFO("voice property %p has name '%s','%s'",property,property->name,bt_machine_get_voice_param_name(self->priv->machine,i));
-          // get name
-          label=gtk_label_new((gchar *)bt_machine_get_voice_param_name(self->priv->machine,i));
-          gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
-          gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-
-          param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
-          while((base_type=g_type_parent(param_type))) param_type=base_type;
-          GST_INFO("... base typoe is : %s",g_type_name(param_type));
-
-          range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
-          range_max=bt_machine_get_voice_param_max_value(self->priv->machine,i);
-          // DEBUG
-          if(range_min && range_max) {
-            gchar *str_min=g_strdup_value_contents(range_min);
-            gchar *str_max=g_strdup_value_contents(range_max);
-            GST_INFO("... has range : %s ... %s",str_min,str_max);
-            g_free(str_min);g_free(str_max);
-          }
-          // DEBUG
-
-          // implement widget types
-          switch(param_type) {
-            case G_TYPE_STRING:
-              widget1=gtk_label_new("string");
-              widget2=NULL;
-              break;
-            case G_TYPE_BOOLEAN:
-              widget1=make_checkbox_widget(self,machine_voice,property);
-              widget2=NULL;
-              break;
-            case G_TYPE_INT:
-              widget2=gtk_label_new(NULL);
-              widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_UINT:
-              widget2=gtk_label_new(NULL);
-              widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_FLOAT:
-              widget2=gtk_label_new(NULL);
-              widget1=make_float_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_DOUBLE:
-              widget2=gtk_label_new(NULL);
-              widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
-              break;
-            case G_TYPE_ENUM:
-              widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
-              widget2=NULL;
-              break;
-            default: {
-              gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
-              widget1=gtk_label_new(str);g_free(str);
-              widget2=NULL;
-            }
-          }
-          if(range_min) { g_free(range_min);range_min=NULL; }
-          if(range_max) { g_free(range_max);range_max=NULL; }
-
-          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
-          if(!widget2) {
-            gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-          }
-          else {
-            gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
-            gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-            /* @todo how can we avoid the wobble here?
-             * hack would be to set some 'good' default size
-             * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
-             */
-            gtk_widget_set_size_request(widget2,50,-1);
-            if(GTK_IS_LABEL(widget2)) {
-              gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
-              gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
-            }
-            gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
-          }
-          k++;
-        }
-        // eat remaning space
-        //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
-        gtk_container_add(GTK_CONTAINER(expander),table);
-      }
+      // eat remaning space
+      //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+      gtk_container_add(GTK_CONTAINER(expander),table);
+    }
+    else {
+      GST_INFO("all global params skipped");
     }
   }
-  else {
-    gtk_container_add(GTK_CONTAINER(param_box),gtk_label_new(_("machine has no params")));
+  if(self->priv->voices*voice_params) {
+    gulong j;
+    gchar *name;
+    GstObject *machine_voice;
+
+    params=voice_params;
+    for(i=0;i<voice_params;i++) {
+      if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
+        GST_INFO("skipping voice param %d",i);
+        params--;
+      }
+    }
+    GST_INFO("creating ui for %d/%d params",params,voice_params);
+    for(j=0;j<self->priv->voices;j++) {
+      machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),j);
+      if(!machine_voice) {
+        GST_WARNING("Cannot get voice child for voice %d",j);
+      }
+
+      name=g_strdup_printf(_("voice %lu properties"),j+1);
+      expander=gtk_expander_new(name);
+      gtk_expander_set_expanded(GTK_EXPANDER(expander),TRUE);
+      g_free(name);
+      gtk_box_pack_start(GTK_BOX(self->priv->param_group_box),expander,TRUE,TRUE,0);
+
+      // add voice machine controls into the table
+      table=gtk_table_new(/*rows=*/params+1,/*columns=*/2,/*homogenous=*/FALSE);
+
+      for(i=0,k=0;i<voice_params;i++) {
+        if(bt_machine_is_voice_param_trigger(self->priv->machine,i)) {
+          GST_INFO("skipping voice param %d",i);
+          continue;
+        }
+
+        property=bt_machine_get_voice_param_spec(self->priv->machine,i);
+        GST_INFO("voice property %p has name '%s','%s'",property,property->name,bt_machine_get_voice_param_name(self->priv->machine,i));
+        // get name
+        label=gtk_label_new((gchar *)bt_machine_get_voice_param_name(self->priv->machine,i));
+        gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+        gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+
+        param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
+        while((base_type=g_type_parent(param_type))) param_type=base_type;
+        GST_INFO("... base typoe is : %s",g_type_name(param_type));
+
+        range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
+        range_max=bt_machine_get_voice_param_max_value(self->priv->machine,i);
+        // DEBUG
+        if(range_min && range_max) {
+          gchar *str_min=g_strdup_value_contents(range_min);
+          gchar *str_max=g_strdup_value_contents(range_max);
+          GST_INFO("... has range : %s ... %s",str_min,str_max);
+          g_free(str_min);g_free(str_max);
+        }
+        // DEBUG
+
+        // implement widget types
+        switch(param_type) {
+          case G_TYPE_STRING:
+            widget1=gtk_label_new("string");
+            widget2=NULL;
+            break;
+          case G_TYPE_BOOLEAN:
+            widget1=make_checkbox_widget(self,machine_voice,property);
+            widget2=NULL;
+            break;
+          case G_TYPE_INT:
+            widget2=gtk_label_new(NULL);
+            widget1=make_int_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_UINT:
+            widget2=gtk_label_new(NULL);
+            widget1=make_uint_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_FLOAT:
+            widget2=gtk_label_new(NULL);
+            widget1=make_float_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_DOUBLE:
+            widget2=gtk_label_new(NULL);
+            widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
+            break;
+          case G_TYPE_ENUM:
+            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+            widget2=NULL;
+            break;
+          default: {
+            gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
+            widget1=gtk_label_new(str);g_free(str);
+            widget2=NULL;
+          }
+        }
+        if(range_min) { g_free(range_min);range_min=NULL; }
+        if(range_max) { g_free(range_max);range_max=NULL; }
+
+        gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+        if(!widget2) {
+          gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+        }
+        else {
+          gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+          gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+          /* @todo how can we avoid the wobble here?
+           * hack would be to set some 'good' default size
+           * if we use GTK_FILL|GTK_EXPAND than it uses too much space (same as widget1)
+           */
+          gtk_widget_set_size_request(widget2,50,-1);
+          if(GTK_IS_LABEL(widget2)) {
+            gtk_label_set_ellipsize(GTK_LABEL(widget2),PANGO_ELLIPSIZE_END);
+            gtk_misc_set_alignment(GTK_MISC(widget2),0.0,0.5);
+          }
+          gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
+        }
+        k++;
+      }
+      // eat remaning space
+      //gtk_table_attach(GTK_TABLE(table),gtk_label_new(" "), 0, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
+      gtk_container_add(GTK_CONTAINER(expander),table);
+    }
   }
   gtk_container_add(GTK_CONTAINER(self),hbox);
 
