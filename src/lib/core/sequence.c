@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.139 2007-07-04 19:41:22 ensonic Exp $
+/* $Id: sequence.c,v 1.140 2007-07-10 20:49:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1088,7 +1088,7 @@ gulong bt_sequence_limit_play_pos(const BtSequence * const self, gulong play_pos
   return(play_pos);
 }
 
-/*
+/**
  * bt_sequence_is_pattern_used:
  * @self: the sequence to check for pattern use
  * @pattern: the pattern to check for

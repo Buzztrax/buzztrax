@@ -1,4 +1,4 @@
-/* $Id: abs-range-control.c,v 1.2 2007-05-07 14:45:38 ensonic Exp $
+/* $Id: abs-range-control.c,v 1.3 2007-07-10 20:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -57,6 +57,9 @@ static GObjectClass *parent_class=NULL;
  * btic_abs_range_control_new:
  * @device: the device it belongs to
  * @name: human readable name
+ * @min: minimum value
+ * @max: maximum value
+ * @def: default value
  *
  * Create a new instance
  *

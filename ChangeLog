@@ -1,6 +1,21 @@
 2007-07-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
+	  Run spellchecker.
+
+	* src/lib/core/sequence.c:
+	* src/lib/ic/abs-range-control.c:
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	  Docu fixes.
+
+	* src/ui/edit/machine-properties-dialog.c: (make_global_param_box),
+	(make_voice_param_box), (on_machine_voices_notify),
+	(bt_machine_properties_dialog_init_ui):
+	  Handle voices dynamically. Fixes #1749283.
+
+2007-07-10  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
 	  Write the news.
 	
 	* src/lib/core/machine.c:

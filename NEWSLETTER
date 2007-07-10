@@ -2,21 +2,21 @@
 
 2007/07 ========================================================================
 
-This month the ui (bt-edit) got improved. Editing pattern became useable - I
+This month the ui (bt-edit) got improved. Editing pattern became usable - I
 advance the cursor, triggers and notes can be editing as usual in a tracker. The
 base-octave setting is implemented.
 
 I also worked on the buzz song importer. One goal I set myself is to be able to
-load and play some of the song initialy shipped with buzz. Right now I try my
+load and play some of the song initially shipped with buzz. Right now I try my
 luck on Aenathron.bmx. The song is just 34 kbytes, but plays for more that 5
 minutes. Geonik's primifun causes some headache for me as it imports a zillion
 windows libs, thus I removed it from the song for now. To be able to load the 
-song I had to add support for old (< version 1.2) songs. The song load, but only
-produces cracks and pops so far :(.
+song I had to add support for old (< version 1.2) songs. The song loads, but
+only produces cracks and pops so far :(.
 
 Experimenting with loading various buzz songs also help to improve the machine
-compatibillity. More machine start to work. I have improved the logging in the
-emulation module. the GStreamer buzzmachine wrapepr go blacklist support to
+compatibility. More machine start to work. I have improved the logging in the
+emulation module. the GStreamer buzzmachine wrapper go blacklist support to
 disable those that are known to crash.
 
 Unfortunately the recent changes need GStreamer form CVS again. One bug was a
@@ -24,11 +24,11 @@ silly copy'n'paste of mine, the other one got fixed by master-hacker Wim Taymans
 
 What else? More test work has been done. For release 0.3 I'd like to improve the
 test coverage. Also kudos to Sebastian Dröge - Google summer of Code student. He
-did a great job on the GstController improvments. We now have arbitrary control-
-source support with backwards compatibillity to the old limmited API. A control-
+did a great job on the GstController improvements. We now have arbitrary control-
+source support with backwards compatibility to the old limited API. A control-
 source provides a time variant signal that modifies a GstElement parameter.
 Right now there is a interpolation source, that provides a envelope and
-triggers. Planned next is a LFO (low frequency oszillator).
+triggers. Planned next is a LFO (low frequency oscillator).
 
 2007/06 ========================================================================
 

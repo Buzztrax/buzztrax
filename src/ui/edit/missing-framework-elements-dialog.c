@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.3 2007-05-07 14:45:46 ensonic Exp $
+/* $Id: missing-framework-elements-dialog.c,v 1.4 2007-07-10 20:49:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -211,6 +211,12 @@ Error:
 
 //-- methods
 
+/**
+ * bt_missing_framework_elements_dialog_apply:
+ * @self: the dialog which settings to apply
+ *
+ * Makes the dialog settings effective.
+ */
 void bt_missing_framework_elements_dialog_apply(const BtMissingFrameworkElementsDialog *self) {
 
   if(self->priv->ignore_button && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(self->priv->ignore_button))) {
