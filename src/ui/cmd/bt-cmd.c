@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.38 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.39 2007-07-10 09:05:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 
   // init libraries
   ctx = g_option_context_new(NULL);
-  g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
+  g_option_context_add_main_entries(ctx, options, PACKAGE_NAME);
   bt_init_add_option_groups(ctx);
   if(!g_option_context_parse(ctx, &argc, &argv, &err)) {
     g_print("Error initializing: %s\n", safe_string(err->message));
