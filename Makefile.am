@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.67 2007-03-18 12:08:02 ensonic Exp $
+## $Id: Makefile.am,v 1.68 2007-07-11 20:41:30 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -136,7 +136,9 @@ coverage::
 	mkdir -p ./coverage
 	lcov --directory . --zerocounters
 	-$(MAKE) check
-	lcov --directory ./src --capture --output-file ./coverage/$(PACKAGE).info
+	lcov --directory ./src --capture --output-file ./coverage/$(PACKAGE)_tmp.info
+	lcov --extract ./coverage/$(PACKAGE)_tmp.info "*buzztard/src*" -o ./coverage/$(PACKAGE).info
+	$(RM) ./coverage/$(PACKAGE)_tmp.info
 	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
 endif
 

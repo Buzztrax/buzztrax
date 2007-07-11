@@ -1,3 +1,12 @@
+2007-07-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* tests/Makefile.am:
+	* tests/bt-cmd-cli.sh:
+	* tests/bt-edit-cli.sh:
+	* tests/ui/cmd/e-bt-cmd-application.c:
+	  Test the cli of the end-user applications.
+
 2007-07-10  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.46 2007-07-01 12:14:47 ensonic Exp $
+## $Id: Makefile.am,v 1.47 2007-07-11 20:41:30 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -11,6 +11,8 @@ endif
 TESTS = \
   $(TESTS_BIN) \
   bt-cmd-info.sh \
+  bt-cmd-cli.sh \
+  bt-edit-cli.sh \
   gtkdoccomplete.sh \
   povalid.sh \
   xmlvalid.sh

@@ -1,4 +1,4 @@
-/* $Id: e-bt-cmd-application.c,v 1.11 2007-03-28 08:33:35 ensonic Exp $
+/* $Id: e-bt-cmd-application.c,v 1.12 2007-07-11 20:41:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -46,7 +46,6 @@ BT_START_TEST(test_create_app) {
   g_object_checked_unref(app);
 }
 BT_END_TEST
-
 
 // postive test, this test should not fail
 BT_START_TEST(test_play1) {
