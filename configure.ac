@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.102 2007-07-02 11:23:27 ensonic Exp $
+dnl $Id: configure.ac,v 1.103 2007-07-12 11:49:20 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -339,12 +339,9 @@ BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"
 
 dnl test for availability of check unittest package (with a relative new function)
 dnl @todo: if we configure without --enable-debug most tests wont work
-AC_CHECK_HEADER( check.h, \
-  AC_CHECK_LIB( check, tcase_set_timeout, \
-    AM_CONDITIONAL(BUILD_CHECK_TESTS, true), \
-    AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
-  ), \
-  AM_CONDITIONAL(BUILD_CHECK_TESTS, false) \
+PKG_CHECK_MODULES(CHECK, check >= 0.9.2,
+  AM_CONDITIONAL(BUILD_CHECK_TESTS, true),
+  AM_CONDITIONAL(BUILD_CHECK_TESTS, false)
 )
 
 dnl Check for gtk-doc.

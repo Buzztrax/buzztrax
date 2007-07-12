@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.265 2007-07-10 09:05:40 ensonic Exp $
+/* $Id: machine.c,v 1.266 2007-07-12 11:49:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2486,7 +2486,6 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
         g_object_unref(cs);
       }
       if(list) {
-
 #else
       if((list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]))) {
 #endif

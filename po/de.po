@@ -108,11 +108,11 @@ msgstr "Ausgabedateiname"
 
 #: ../src/ui/edit/edit-application.c:116
 msgid "-> You will not see any level-meters."
-msgstr "-> Sie werden keinen Pegelanzeigen sehen"
+msgstr "-> Sie werden keinen Pegelanzeigen sehen."
 
 #: ../src/ui/edit/edit-application.c:123
 msgid "-> You will not see the frequency spectrum in the analyzer window."
-msgstr "-> Sie werden kein Frequenzspektum im Analysefenster sehen"
+msgstr "-> Sie werden kein Frequenzspektum im Analysefenster sehen."
 
 #. @todo: move to new class
 #: ../src/ui/edit/edit-application.c:389 ../src/ui/edit/edit-application.c:403
@@ -209,7 +209,7 @@ msgstr ""
 
 #: ../src/ui/edit/machine-actions.c:90
 msgid "About ..."
-msgstr "Über"
+msgstr "Über ..."
 
 #. @todo: move to new class
 #: ../src/ui/edit/machine-canvas-item.c:316
@@ -229,7 +229,7 @@ msgstr "Gerät '%s' entfernen"
 
 #: ../src/ui/edit/machine-canvas-item.c:379
 msgid "Delete machine..."
-msgstr "Gerät entfernen"
+msgstr "Gerät entfernen ..."
 
 #: ../src/ui/edit/machine-canvas-item.c:379
 #: ../src/ui/edit/main-page-patterns.c:1411
@@ -976,7 +976,7 @@ msgstr "gespeichert"
 #: ../src/ui/edit/main-window.c:149
 #, c-format
 msgid "An error occured while trying to load the song from file '%s'"
-msgstr "Beim Laden des Songs '%s' trat ein Fehler auf: %s"
+msgstr "Beim Laden des Songs '%s' trat ein Fehler auf"
 
 #: ../src/ui/edit/main-window.c:150 ../src/ui/edit/main-window.c:406
 msgid "Can't load song"
@@ -1006,7 +1006,7 @@ msgstr "Öffnen"
 #: ../src/ui/edit/main-window.c:405
 #, c-format
 msgid "An error occured while loading the song from file '%s'"
-msgstr "Beim Laden des Songs '%s' trat ein Fehler auf: %s"
+msgstr "Beim Laden des Songs '%s' trat ein Fehler auf"
 
 #: ../src/ui/edit/main-window.c:433
 #, c-format

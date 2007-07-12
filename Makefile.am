@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.68 2007-07-11 20:41:30 ensonic Exp $
+## $Id: Makefile.am,v 1.69 2007-07-12 11:49:19 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -19,8 +19,8 @@ songdata_DATA = \
 	tests/songs/buzz8.xml \
 	tests/songs/buzz9.xml \
 	tests/songs/combi1.xml \
-    tests/songs/combi2.xml \
-    tests/songs/combi3.xml \
+	tests/songs/combi2.xml \
+	tests/songs/combi3.xml \
 	tests/songs/example.xml \
 	tests/songs/melo1.xml \
 	tests/songs/melo2.xml \
@@ -41,9 +41,9 @@ pixmapdata_DATA = \
 	pixmaps/menu_processor_machine.png \
 	pixmaps/menu_sink_machine.png \
 	pixmaps/menu_source_machine.png \
-  pixmaps/prefs-audio-card.png \
-  pixmaps/prefs-input-gaming.png \
-  pixmaps/prefs-input-keyboard.png \
+	pixmaps/prefs-audio-card.png \
+	pixmaps/prefs-input-gaming.png \
+	pixmaps/prefs-input-keyboard.png \
 	pixmaps/stock_media-fwd.png \
 	pixmaps/stock_media-pause.png \
 	pixmaps/stock_media-play.png \

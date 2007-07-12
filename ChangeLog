@@ -1,3 +1,18 @@
+2007-07-12  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* src/lib/core/machine.c:
+	  Formatting.
+
+	* configure.ac:
+	  Use pkg-config to locate check.
+
+	* po/de.po:
+	  Updated strings.
+	  
+	* tests/songs/test-simple1.xml:
+	  Make test song shorter.
+
 2007-07-11  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:

@@ -9,7 +9,7 @@
     <info>what a lovely tune</info>
     <name>test simple 1</name>
     <genre>dark-wave</genre>
-    <bpm>100</bpm>
+    <bpm>160</bpm>
     <tpb>8</tpb>
     <bars>16</bars>
     <create-dts>2005-09-20T22:10:56Z</create-dts>
@@ -52,7 +52,7 @@
     </wires>
   </setup>
 
-  <sequence length="16" tracks="1">
+  <sequence length="8" tracks="1">
     <labels>
       <label time="0" name="start"/>
       <!--label time="1" name="end"/-->
