@@ -1,5 +1,21 @@
 2007-07-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-machine-properties-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_machine_properties_dialog_example_case):
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	(test_setup), (test_teardown), (BT_START_TEST),
+	(bt_missing_framework_elements_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-properties-dialog.c:
+	(bt_machine_properties_dialog_suite):
+	* tests/ui/edit/s-bt-missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_suite):
+	  Add two more UI tests (one is failing right now).
+
+2007-07-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* src/lib/core/machine.c:
 	  Formatting.
