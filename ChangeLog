@@ -1,3 +1,9 @@
+2007-07-13  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_get_property_meta_value),
+	(bt_machine_init_global_params), (bt_machine_init_voice_params):
+	  Use new property meta flag to only check those where they are set.
+
 2007-07-12  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/m-bt-edit.c: (main):

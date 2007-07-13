@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.266 2007-07-12 11:49:20 ensonic Exp $
+/* $Id: machine.c,v 1.267 2007-07-13 18:54:37 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -640,44 +640,49 @@ static void bt_machine_resize_voices(const BtMachine * const self, const gulong 
  * Returns: %TRUE if it could get the value
  */
 static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamSpec * const property, const GQuark key) {
-  gboolean res=TRUE;
-  gconstpointer const qdata=g_param_spec_get_qdata(property,key);
-  GType base_type=bt_g_type_get_base_type(property->value_type);
+  gboolean res=FALSE;
+  gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
 
-  // it can be that qdata is NULL if the value is NULL
-  //if(!qdata) {
-  //  GST_WARNING("no property metadata for '%s'",property->name);
-  //  return(FALSE);
-  //}
+  if(has_meta) {
+    gconstpointer const qdata=g_param_spec_get_qdata(property,key);
+    GType base_type=bt_g_type_get_base_type(property->value_type);
 
-  g_value_init(value,property->value_type);
-  switch(base_type) {
-    case G_TYPE_BOOLEAN:
-      g_value_set_boolean(value,GPOINTER_TO_INT(qdata));
-      break;
-    case G_TYPE_INT:
-      g_value_set_int(value,GPOINTER_TO_INT(qdata));
-      break;
-    case G_TYPE_UINT:
-      g_value_set_uint(value,GPOINTER_TO_UINT(qdata));
-      break;
-    case G_TYPE_ENUM:
-      g_value_set_enum(value,GPOINTER_TO_INT(qdata));
-      break;
-    case G_TYPE_STRING:
-      if(qdata) {
-        g_value_set_string(value,qdata);
-      }
-      else {
-        g_value_set_string(value,"");
-      }
-      break;
-    default:
-      if(qdata) {
-        GST_WARNING("unsupported GType for param %s",property->name);
-        //GST_WARNING("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
-        res=FALSE;
-      }
+    // it can be that qdata is NULL if the value is NULL
+    //if(!qdata) {
+    //  GST_WARNING("no property metadata for '%s'",property->name);
+    //  return(FALSE);
+    //}
+
+    res=TRUE;
+    g_value_init(value,property->value_type);
+    switch(base_type) {
+      case G_TYPE_BOOLEAN:
+        g_value_set_boolean(value,GPOINTER_TO_INT(qdata));
+        break;
+      case G_TYPE_INT:
+        g_value_set_int(value,GPOINTER_TO_INT(qdata));
+        break;
+      case G_TYPE_UINT:
+        g_value_set_uint(value,GPOINTER_TO_UINT(qdata));
+        break;
+      case G_TYPE_ENUM:
+        g_value_set_enum(value,GPOINTER_TO_INT(qdata));
+        break;
+      case G_TYPE_STRING:
+        if(qdata) {
+          g_value_set_string(value,qdata);
+        }
+        else {
+          g_value_set_string(value,"");
+        }
+        break;
+      default:
+        if(qdata) {
+          GST_WARNING("unsupported GType for param %s",property->name);
+          //GST_WARNING("unsupported GType=%d:'%s'",property->value_type,G_VALUE_TYPE_NAME(property->value_type));
+          res=FALSE;
+        }
+    }
   }
   return(res);
 }
@@ -939,9 +944,13 @@ static void bt_machine_init_global_params(const BtMachine * const self) {
         self->priv->global_types[j]=property->value_type;
         self->priv->global_flags[j]=GST_PROPERTY_META_STATE;
         if(GST_IS_PROPERTY_META(self->priv->machines[PART_MACHINE])) {
-          self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-          if(!(bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val))) {
-            GST_WARNING("    can't get no-val property-meta for global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
+          gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
+
+          if(has_meta) {
+            self->priv->global_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+            if(!(bt_machine_get_property_meta_value(&self->priv->global_no_val[j],property,gst_property_meta_quark_no_val))) {
+              GST_WARNING("    can't get no-val property-meta for global_param [%d/%d] \"%s\"",j,self->priv->global_params,property->name);
+            }
           }
         }
         // bind param to machines global controller (possibly returns ref to existing)
@@ -988,9 +997,13 @@ static void bt_machine_init_voice_params(const BtMachine * const self) {
             self->priv->voice_types[j]=property->value_type;
             self->priv->voice_flags[j]=GST_PROPERTY_META_STATE;
             if(GST_IS_PROPERTY_META(voice_child)) {
-              self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
-              if(!(bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val))) {
-                GST_WARNING("    can't get no-val property-meta for voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
+              gconstpointer const has_meta=g_param_spec_get_qdata(property,gst_property_meta_quark);
+
+              if(has_meta) {
+                self->priv->voice_flags[j]=GPOINTER_TO_INT(g_param_spec_get_qdata(property,gst_property_meta_quark_flags));
+                if(!(bt_machine_get_property_meta_value(&self->priv->voice_no_val[j],property,gst_property_meta_quark_no_val))) {
+                  GST_WARNING("    can't get no-val property-meta for voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
+                }
               }
             }
             GST_DEBUG("    added voice_param [%d/%d] \"%s\"",j,self->priv->voice_params,property->name);
