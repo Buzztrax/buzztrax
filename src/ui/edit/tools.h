@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.8 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: tools.h,v 1.9 2007-07-13 20:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,7 @@
 
 #ifndef BT_EDIT_TOOLS_H
 #define BT_EDIT_TOOLS_H
- 
+
 /* pixmap/buf helpers */
 extern void add_pixmap_directory(const gchar *directory);
 extern GtkWidget *gtk_image_new_from_filename(const gchar *filename);
@@ -32,9 +32,11 @@ extern void bt_dialog_message(const BtMainWindow *self,const gchar *title,const 
 extern gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message);
 
 /* gdk thread locking helpers */
+#if 0 /* unused */
 extern void bt_threads_init(void);
 extern void gdk_threads_try_enter(void);
 extern void gdk_threads_try_leave(void);
+#endif
 
 /* gtk toolbar helper */
 extern GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name);

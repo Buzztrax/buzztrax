@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.33 2007-05-07 14:45:47 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.34 2007-07-13 20:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -81,6 +81,8 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
   gboolean can_int_caps,can_float_caps;
   //GstCaps *int_caps=gst_caps_from_string(GST_AUDIO_INT_PAD_TEMPLATE_CAPS);
   //GstCaps *float_caps=gst_caps_from_string(GST_AUDIO_FLOAT_PAD_TEMPLATE_CAPS);
+
+  gtk_widget_set_name(GTK_WIDGET(self),_("audio device settings"));
 
   // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);

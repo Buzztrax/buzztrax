@@ -1,4 +1,4 @@
-/* $Id: settings-page-interaction-controller.c,v 1.3 2007-05-07 14:45:47 ensonic Exp $
+/* $Id: settings-page-interaction-controller.c,v 1.4 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -105,6 +105,8 @@ static gboolean bt_settings_page_interaction_controller_init_ui(const BtSettings
   GtkCellRenderer *renderer;
   BtIcRegistry *ic_registry;
   gchar *str;
+
+  gtk_widget_set_name(GTK_WIDGET(self),_("interaction controller settings"));
 
   // add setting widgets
   spacer=gtk_label_new("    ");

@@ -1,4 +1,4 @@
-/* $Id: e-bt-edit-application.c,v 1.19 2007-02-26 08:59:46 ensonic Exp $
+/* $Id: e-bt-edit-application.c,v 1.20 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -74,7 +74,7 @@ BT_START_TEST(test_create_app) {
   GST_INFO("mainlevel is %d",gtk_main_level());
   while(g_main_context_pending(NULL)) g_main_context_iteration(NULL,FALSE);
   // after this loop the window should be gone
-  
+
   // version 2 (makes the window visible :( )
   g_timeout_add(2000,timeout,main_window);
   gtk_main();
@@ -82,10 +82,10 @@ BT_START_TEST(test_create_app) {
   // version 3 (does not work)
   g_object_checked_unref(main_window);
   */
-  
+
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  g_object_checked_unref(app);  
+  g_object_checked_unref(app);
 }
 BT_END_TEST
 
@@ -113,7 +113,7 @@ BT_START_TEST(test_new1) {
   fail_unless(unsaved == FALSE, NULL);
   g_object_unref(song);
   GST_INFO("song created");
-  
+
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
@@ -124,7 +124,7 @@ BT_START_TEST(test_new1) {
   while(gtk_events_pending()) gtk_main_iteration();
   //GST_INFO("mainlevel is %d",gtk_main_level());
   //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
-  
+
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);
@@ -141,7 +141,7 @@ BT_START_TEST(test_load1) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
-  
+
   bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
@@ -168,7 +168,52 @@ BT_START_TEST(test_load1) {
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);
-  
+
+}
+BT_END_TEST
+
+// load a song and play it
+BT_START_TEST(test_load_and_play1) {
+  BtEditApplication *app;
+  BtMainWindow *main_window;
+  BtSong *song;
+  gboolean unsaved;
+  gboolean playing;
+
+  app=bt_edit_application_new();
+  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
+  fail_unless(app != NULL, NULL);
+
+  bt_edit_application_load_song(app, check_get_test_song_path("test-simple1.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  // song should be unchanged
+  g_object_get(song,"unsaved",&unsaved,NULL);
+  fail_unless(unsaved == FALSE, NULL);
+  GST_INFO("song loaded");
+
+  // get window
+  g_object_get(app,"main-window",&main_window,NULL);
+  fail_unless(main_window != NULL, NULL);
+
+  playing=bt_song_play(song);
+  fail_unless(playing == TRUE, NULL);
+
+  while(gtk_events_pending()) gtk_main_iteration();
+  bt_song_stop(song);
+
+  // close window
+  g_object_unref(main_window);
+  gtk_widget_destroy(GTK_WIDGET(main_window));
+  while(gtk_events_pending()) gtk_main_iteration();
+  //GST_INFO("mainlevel is %d",gtk_main_level());
+  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
+
+  g_object_unref(song);
+  // free application
+  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_checked_unref(app);
+
 }
 BT_END_TEST
 
@@ -185,7 +230,7 @@ BT_START_TEST(test_tabs1) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
-  
+
   bt_edit_application_load_song(app,check_get_test_song_path("melo3.xml"));
   g_object_get(app,"song",&song,NULL);
   fail_unless(song != NULL, NULL);
@@ -195,7 +240,7 @@ BT_START_TEST(test_tabs1) {
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
- 
+
   // view all tabs
   g_object_get(G_OBJECT(main_window),"pages",&pages,NULL);
   children=gtk_container_get_children(GTK_CONTAINER(pages));
@@ -211,7 +256,7 @@ BT_START_TEST(test_tabs1) {
   }
   g_list_free(children);
   g_object_unref(pages);
-  
+
   // close window
   g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
@@ -222,16 +267,17 @@ BT_START_TEST(test_tabs1) {
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);
-  
+
 }
 BT_END_TEST
 
 TCase *bt_edit_application_example_case(void) {
   TCase *tc = tcase_create("BtEditApplicationExamples");
-  
+
   tcase_add_test(tc,test_create_app);
   tcase_add_test(tc,test_new1);
   tcase_add_test(tc,test_load1);
+  tcase_add_test(tc,test_load_and_play1);
   tcase_add_test(tc,test_tabs1);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

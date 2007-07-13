@@ -1,7 +1,7 @@
-/* $Id: e-bt-settings-dialog.c,v 1.15 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: e-bt-wire-analysis-dialog.c,v 1.1 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
- * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -33,54 +33,45 @@ static void test_teardown(void) {
   bt_edit_teardown();
 }
 
+//-- helper
+
 //-- tests
 
-// create app and then unconditionally destroy window
-BT_START_TEST(test_create_dialog) {
+// load a song and show machine properties dialog
+BT_START_TEST(test_wire_analysis_dialog) {
   BtEditApplication *app;
   BtMainWindow *main_window;
+  BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
+  BtWire *wire;
   GtkWidget *dialog;
-//#if 0
-  GtkNotebook *pages;
-  GtkWidget *child;
-  GList *children;
-  guint i,num_pages;
-//#endif
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
 
+  bt_edit_application_load_song(app, check_get_test_song_path("melo3.xml"));
+  g_object_get(app,"song",&song,NULL);
+  fail_unless(song != NULL, NULL);
+  g_object_get(song,"setup",&setup,NULL);
+  machine=bt_setup_get_machine_by_id(setup,"beep1");
+  fail_unless(machine != NULL, NULL);
+  wire=bt_setup_get_wire_by_src_machine(setup,machine);
+  fail_unless(wire != NULL, NULL);
+
+  GST_INFO("song loaded");
+
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
 
-  // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_settings_dialog_new(app));
+  dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(app,wire));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
-  // leave out that line! (modal dialog)
-  //gtk_dialog_run(GTK_DIALOG(dialog));
 
   // make screenshot
-  //check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
-
-  // @todo: need to snapshot the other pages (needs api)
-//#if 0
-  g_object_get(G_OBJECT(dialog),"pages",&pages,NULL);
-  children=gtk_container_get_children(GTK_CONTAINER(pages));
-  num_pages=g_list_length(children);
-  for(i=0;i<num_pages;i++) {
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
-    child=GTK_WIDGET(g_list_nth_data(children,i));
-
-    // make screenshot
-    check_make_widget_screenshot(GTK_WIDGET(pages),gtk_widget_get_name(child));
-    while(gtk_events_pending()) gtk_main_iteration();
-  }
-  g_list_free(children);
-  g_object_unref(pages);
-//#endif
+  check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
 
   gtk_widget_destroy(dialog);
 
@@ -88,20 +79,28 @@ BT_START_TEST(test_create_dialog) {
   g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
+  //GST_INFO("mainlevel is %d",gtk_main_level());
+  //while(g_main_context_pending(NULL)) g_main_context_iteration(/*context=*/NULL,/*may_block=*/FALSE);
 
+  // free objects
+  g_object_unref(wire);
+  g_object_unref(machine);
+  g_object_unref(setup);
+  g_object_unref(song);
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
   g_object_checked_unref(app);
+
 }
 BT_END_TEST
 
-TCase *bt_settings_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtSettingsDialogExamples");
+TCase *bt_wire_analysis_dialog_example_case(void) {
+  TCase *tc = tcase_create("BtWireAnalysisDialogExamples");
 
-  tcase_add_test(tc,test_create_dialog);
-  // we *must* use a checked fixture, as only this runns in the same context
+  tcase_add_test(tc,test_wire_analysis_dialog);
+  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
-  // we need to disable the default timeout of 3 seconds a little
+  // we need to disable the default timeout of 3 seconds
   tcase_set_timeout(tc, 0);
   return(tc);
 }

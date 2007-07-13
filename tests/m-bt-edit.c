@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.29 2007-07-12 20:15:16 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.30 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,11 +35,13 @@ GST_DEBUG_CATEGORY_EXTERN(bt_ic_debug);
 GST_DEBUG_CATEGORY_EXTERN(bt_edit_debug);
 
 extern Suite *bt_edit_application_suite(void);
-extern Suite *bt_machine_properties_dialog_suite(void);
 extern Suite *bt_machine_preset_properties_dialog_suite(void);
+extern Suite *bt_machine_preferences_dialog_suite(void);
+extern Suite *bt_machine_properties_dialog_suite(void);
 extern Suite *bt_missing_framework_elements_dialog_suite(void);
 extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
+extern Suite *bt_wire_analysis_dialog_suite(void);
 
 gint test_argc=2;
 gchar test_arg0[]="check_buzzard";
@@ -112,11 +114,13 @@ int main(int argc, char **argv) {
   //btic_init(&test_argc,&test_argvptr);
 
   sr=srunner_create(bt_edit_application_suite());
-  srunner_add_suite(sr, bt_machine_properties_dialog_suite());
   srunner_add_suite(sr, bt_machine_preset_properties_dialog_suite());
+  srunner_add_suite(sr, bt_machine_preferences_dialog_suite());
+  srunner_add_suite(sr, bt_machine_properties_dialog_suite());
   srunner_add_suite(sr, bt_missing_framework_elements_dialog_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());
+  srunner_add_suite(sr, bt_wire_analysis_dialog_suite());
   //srunner_set_fork_status(sr,CK_NOFORK);
   srunner_run_all(sr,CK_NORMAL);
   nf=srunner_ntests_failed(sr);

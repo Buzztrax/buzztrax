@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.15 2007-05-07 14:45:47 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.16 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -172,10 +172,90 @@ static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpoint
 }
 #endif
 
+/*
+ * on_wire_analyzer_redraw:
+ * @user_data: conatins the self pointer
+ *
+ * Called as idle function to repaint the analyzers. Data is gathered by
+ * on_wire_analyzer_change()
+ */
+static gboolean on_wire_analyzer_redraw(gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+
+  if(!self->priv->peak_gc) return(TRUE);
+
+  //GST_DEBUG("redraw analyzers");
+  // draw levels
+  if (self->priv->level_drawingarea) {
+    GdkRectangle rect = { 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT };
+    GtkWidget *da=self->priv->level_drawingarea;
+    gint middle=LEVEL_WIDTH>>1;
+
+    gdk_window_begin_paint_rect (da->window, &rect);
+    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
+    //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms[i]*10.0), (gint)(peak[i]*10.0));
+    /* DEBUG
+      if((self->priv->rms[0]<self->priv->min_rms) && !isinf(self->priv->rms[0])) {
+        GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
+        self->priv->min_rms=self->priv->rms[0];
+      }
+      if((self->priv->rms[0]>self->priv->max_rms) && !isinf(self->priv->rms[0])) {
+        GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
+        self->priv->max_rms=self->priv->rms[0];
+      }
+      if((self->priv->peak[0]<self->priv->min_peak) && !isinf(self->priv->peak[0])) {
+        GST_DEBUG("levels: peak=%7.4lf",self->priv->peak[0]);
+        self->priv->min_peak=self->priv->peak[0];
+      }
+      if((self->priv->peak[0]>self->priv->max_peak) && !isinf(self->priv->peak[0])) {
+        GST_DEBUG("levels: peak=%7.4lf",self->priv->peak[0]);
+        self->priv->max_peak=self->priv->peak[0];
+      }
+    // DEBUG */
+    // use RMS or peak or both?
+    gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, middle-self->priv->rms[0], 0, self->priv->rms[0]+self->priv->rms[1], LEVEL_HEIGHT);
+    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, middle-self->priv->peak[0], 0, 2, LEVEL_HEIGHT);
+    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, (middle-1)+self->priv->peak[1], 0, 2, LEVEL_HEIGHT);
+    gdk_window_end_paint (da->window);
+    /* @todo: if stereo draw pan-meter (L-R, R-L) */
+  }
+
+  // draw spectrum
+  if (self->priv->spectrum_drawingarea) {
+    gint i;
+    GdkRectangle rect = { 0, 0, SPECT_WIDTH, SPECT_HEIGHT };
+    GtkWidget *da=self->priv->spectrum_drawingarea;
+
+    gdk_window_begin_paint_rect (da->window, &rect);
+    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, SPECT_BANDS, SPECT_HEIGHT);
+    for (i = 0; i < SPECT_BANDS; i++) {
+      gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, SPECT_HEIGHT - self->priv->spect[i], 1, self->priv->spect[i]);
+    }
+    gdk_window_end_paint (da->window);
+  }
+  return(TRUE);
+}
+
+static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+
+  GST_DEBUG("dialog realize");
+  self->priv->peak_gc=gdk_gc_new(GTK_WIDGET(self)->window);
+  gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
+}
+
+static gboolean bt_wire_analysis_dialog_expose(GtkWidget *widget,GdkEventExpose *event,gpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+
+  on_wire_analyzer_redraw((gpointer)self);
+  return(TRUE);
+}
+
 static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer user_data) {
   BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
   const GstStructure *structure=gst_message_get_structure(message);
   const gchar *name = gst_structure_get_name(structure);
+  gboolean change=FALSE;
 
   g_assert(user_data);
 
@@ -208,6 +288,7 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
         }
         break;
     }
+    change=TRUE;
   }
   else if(!strcmp(name,"spectrum")) {
     const GValue *list;
@@ -221,76 +302,13 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
       value = gst_value_list_get_value (list, i);
       self->priv->spect[i] = g_value_get_uchar (value);
     }
-  }
-}
-
-/*
- * on_wire_analyzer_redraw:
- * @user_data: conatins the self pointer
- *
- * Called as idle function to repaint the analyzers. Data is gathered by
- * on_wire_analyzer_change()
- */
-static gboolean on_wire_analyzer_redraw(gpointer user_data) {
-  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-
-  //GST_DEBUG("redraw analyzers");
-  // draw levels
-  if (self->priv->level_drawingarea) {
-    GdkRectangle rect = { 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT };
-    GtkWidget *da=self->priv->level_drawingarea;
-    gint middle=LEVEL_WIDTH>>1;
-
-    gdk_window_begin_paint_rect (da->window, &rect);
-    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
-    //gtk_vumeter_set_levels(self->priv->vumeter[i], (gint)(rms[i]*10.0), (gint)(peak[i]*10.0));
-    /* DEBUG
-    if((self->priv->rms[0]<self->priv->min_rms) && !isinf(self->priv->rms[0])) {
-      GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
-      self->priv->min_rms=self->priv->rms[0];
-    }
-    if((self->priv->rms[0]>self->priv->max_rms) && !isinf(self->priv->rms[0])) {
-      GST_DEBUG("levels: rms=%7.4lf",self->priv->rms[0]);
-      self->priv->max_rms=self->priv->rms[0];
-    }
-    if((self->priv->peak[0]<self->priv->min_peak) && !isinf(self->priv->peak[0])) {
-      GST_DEBUG("levels: peak=%7.4lf",self->priv->peak[0]);
-      self->priv->min_peak=self->priv->peak[0];
-    }
-    if((self->priv->peak[0]>self->priv->max_peak) && !isinf(self->priv->peak[0])) {
-      GST_DEBUG("levels: peak=%7.4lf",self->priv->peak[0]);
-      self->priv->max_peak=self->priv->peak[0];
-    }
-    // DEBUG */
-    // use RMS or peak or both?
-    gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, middle-self->priv->rms[0], 0, self->priv->rms[0]+self->priv->rms[1], LEVEL_HEIGHT);
-    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, middle-self->priv->peak[0], 0, 2, LEVEL_HEIGHT);
-    gdk_draw_rectangle (da->window, self->priv->peak_gc, TRUE, (middle-1)+self->priv->peak[1], 0, 2, LEVEL_HEIGHT);
-    gdk_window_end_paint (da->window);
-    /* @todo: if stereo draw pan-meter (L-R, R-L) */
+    change=TRUE;
   }
 
-  // draw spectrum
-  if (self->priv->spectrum_drawingarea) {
-    gint i;
-    GdkRectangle rect = { 0, 0, SPECT_WIDTH, SPECT_HEIGHT };
-    GtkWidget *da=self->priv->spectrum_drawingarea;
-
-    gdk_window_begin_paint_rect (da->window, &rect);
-    gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, SPECT_BANDS, SPECT_HEIGHT);
-    for (i = 0; i < SPECT_BANDS; i++) {
-      gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, SPECT_HEIGHT - self->priv->spect[i], 1, self->priv->spect[i]);
-    }
-    gdk_window_end_paint (da->window);
+  if(!self->priv->paint_handler_id && change) {
+    // add idle-handler that redraws gfx
+    self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,on_wire_analyzer_redraw,(gpointer)self,NULL);
   }
-  return(TRUE);
-}
-
-static void bt_wire_analysis_dialog_realize(GtkWidget *widget,gpointer user_data) {
-  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-
-  self->priv->peak_gc=gdk_gc_new(GTK_WIDGET(self)->window);
-  gdk_gc_set_rgb_fg_color(self->priv->peak_gc,bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_ANALYZER_PEAK));
 }
 
 //-- helper methods
@@ -330,6 +348,8 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   GtkWidget *vbox, *hbox;
   GtkWidget *ruler;
   GtkWidgetClass *ruler_class;
+
+  gtk_widget_set_name(GTK_WIDGET(self),_("wire analysis"));
 
   g_object_get(self->priv->app,"main-window",&main_window,"song",&song,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));
@@ -435,10 +455,10 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gst_object_unref(bus);
   gst_object_unref(bin);
 
-  // add idle-handler that redraws gfx
-  self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,on_wire_analyzer_redraw,(gpointer)self,NULL);
   // allocate visual ressources after the window has been realized
   g_signal_connect(G_OBJECT(self),"realize",G_CALLBACK(bt_wire_analysis_dialog_realize),(gpointer)self);
+  // redraw when needed
+  g_signal_connect(G_OBJECT(self),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_expose),(gpointer)self);
 
   g_object_try_unref(song);
   g_object_try_unref(main_window);
@@ -539,9 +559,11 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   GST_DEBUG("levels: peak=%7.4lf .. %7.4lf",self->priv->min_peak,self->priv->max_peak);
   // DEBUG */
 
+  if(self->priv->paint_handler_id) {
+    g_source_remove(self->priv->paint_handler_id);
+  }
   g_object_try_unref(self->priv->peak_gc);
 
-  g_source_remove(self->priv->paint_handler_id);
   // @todo: remove
   //bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change,(gpointer)self);
 

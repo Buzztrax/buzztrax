@@ -1,5 +1,48 @@
 2007-07-13  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Remember changes.
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/tools.c: (bt_dialog_message), (bt_dialog_question),
+	(gtk_toolbar_get_style_from_string):
+	* src/ui/edit/tools.h:
+	  Disable dead code.
+	  
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_init_ui),
+	(bt_settings_dialog_get_property), (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_init_ui):
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(bt_settings_page_interaction_controller_init_ui):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(bt_settings_page_playback_controller_init_ui):
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_redraw),
+	(bt_wire_analysis_dialog_realize),
+	(bt_wire_analysis_dialog_expose), (on_wire_analyzer_change),
+	(bt_wire_analysis_dialog_init_ui),
+	(bt_wire_analysis_dialog_dispose):
+	* tests/bt-check.c: (check_setup_test_display):
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-edit-application.c: (BT_START_TEST),
+	(bt_edit_application_example_case):
+	* tests/ui/edit/e-bt-machine-preferences-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_machine_preferences_dialog_example_case):
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_wire_analysis_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-preferences-dialog.c:
+	(bt_machine_preferences_dialog_suite):
+	* tests/ui/edit/s-bt-wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_suite):
+	  More dialog tests: setting pages, wire analysis, machine preferences.
+	  Make wire-analysis not spin CPU.
+
+2007-07-13  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c: (bt_machine_get_property_meta_value),
 	(bt_machine_init_global_params), (bt_machine_init_voice_params):
 	  Use new property meta flag to only check those where they are set.

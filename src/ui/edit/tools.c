@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.15 2006-09-06 20:17:40 ensonic Exp $
+/* $Id: tools.c,v 1.16 2007-07-13 20:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -21,7 +21,7 @@
 
 #define BT_EDIT
 #define BT_TOOLS_C
- 
+
 #include "bt-edit.h"
 
 static GList *pixmaps_directories = NULL;
@@ -130,9 +130,9 @@ GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
  */
 void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *headline,const gchar *message) {
   GtkWidget *label,*icon,*box;
-  gchar *str; 
+  gchar *str;
   GtkWidget *dialog;
-  
+
   g_return_if_fail(BT_IS_MAIN_WINDOW(self));
   g_return_if_fail(BT_IS_STRING(title));
   g_return_if_fail(BT_IS_STRING(headline));
@@ -150,7 +150,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   // @todo: when to use GTK_STOCK_DIALOG_WARNING ?
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
-  
+
   // @idea if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
@@ -159,7 +159,7 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
   gtk_widget_show_all(dialog);
-                                                  
+
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
 }
@@ -178,14 +178,14 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   gboolean result=FALSE;
   gint answer;
   GtkWidget *label,*icon,*box;
-  gchar *str; 
+  gchar *str;
   GtkWidget *dialog;
 
   g_return_val_if_fail(BT_IS_MAIN_WINDOW(self),FALSE);
   g_return_val_if_fail(BT_IS_STRING(title),FALSE);
   g_return_val_if_fail(BT_IS_STRING(headline),FALSE);
   g_return_val_if_fail(BT_IS_STRING(message),FALSE);
-  
+
   dialog = gtk_dialog_new_with_buttons(title,
                                         GTK_WINDOW(self),
                                         GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -198,7 +198,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
 
   icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
   gtk_container_add(GTK_CONTAINER(box),icon);
-  
+
   // @idea if headline is NULL use title ?
   label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
@@ -207,7 +207,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
   gtk_widget_show_all(dialog);
-                                                  
+
   answer=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(answer) {
     case GTK_RESPONSE_ACCEPT:
@@ -226,7 +226,7 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
 
 // gdk thread locking helpers
 // idea is from rythmbox sources
-
+#if 0 /* unused */
 static GThread *main_thread = NULL;
 
 /**
@@ -269,6 +269,7 @@ void gdk_threads_try_enter(void) {
 void gdk_threads_try_leave(void) {
   if (!bt_threads_in_main_thread()) gdk_threads_leave();
 }
+#endif
 
 
 // gtk toolbar helper
@@ -284,7 +285,7 @@ void gdk_threads_try_leave(void) {
 GtkToolbarStyle gtk_toolbar_get_style_from_string(const gchar *style_name) {
 
   g_return_val_if_fail(style_name,GTK_TOOLBAR_BOTH);
-  
+
   if (!strcmp(style_name,"icons")) {
     return(GTK_TOOLBAR_ICONS);
   }

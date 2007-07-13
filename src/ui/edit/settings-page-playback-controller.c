@@ -1,4 +1,4 @@
-/* $Id: settings-page-playback-controller.c,v 1.4 2007-05-07 14:45:47 ensonic Exp $
+/* $Id: settings-page-playback-controller.c,v 1.5 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -92,6 +92,8 @@ static gboolean bt_settings_page_playback_controller_init_ui(const BtSettingsPag
   gboolean active;
   guint port;
   gchar *str;
+
+  gtk_widget_set_name(GTK_WIDGET(self),_("playback controller settings"));
 
   // get settings
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);

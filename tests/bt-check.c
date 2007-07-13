@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.36 2007-07-05 21:07:35 ensonic Exp $
+/* $Id: bt-check.c,v 1.37 2007-07-13 20:53:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -789,13 +789,14 @@ void check_setup_test_display(void) {
 
       if((test_display = gdk_display_open(display_name))) {
         GdkScreen *test_screen;
-        GtkSettings *test_settings;
 
         if((test_screen = gdk_display_get_default_screen(test_display))) {
+          GtkSettings *test_settings;
           //gdk_threads_enter();
           if((test_settings = gtk_settings_get_for_screen(test_screen))) {
             g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
             gtk_rc_reparse_all_for_settings(test_settings,TRUE);
+            //gtk_rc_reset_styles(test_settings);
             GST_INFO("theme switched ");
             //g_object_unref(test_settings);
           }

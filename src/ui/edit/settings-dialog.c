@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.39 2007-05-07 14:45:46 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.40 2007-07-13 20:53:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,6 +33,7 @@
 
 enum {
   SETTINGS_DIALOG_APP=1,
+  SETTINGS_DIALOG_PAGES
 };
 
 enum {
@@ -230,6 +231,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // add notebook page #4
   page=gtk_vbox_new(FALSE,0);
+  gtk_widget_set_name(GTK_WIDGET(page),_("color settings"));
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
@@ -238,6 +240,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // add notebook page #5
   page=gtk_vbox_new(FALSE,0);
+  gtk_widget_set_name(GTK_WIDGET(page),_("keyboard shortcut settings"));
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 5 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
@@ -246,6 +249,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
 
   // add notebook page #6
   page=gtk_vbox_new(FALSE,0);
+  gtk_widget_set_name(GTK_WIDGET(page),_("directory settings"));
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 6 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
@@ -309,6 +313,9 @@ static void bt_settings_dialog_get_property(GObject      *object,
   switch (property_id) {
     case SETTINGS_DIALOG_APP: {
       g_value_set_object(value, self->priv->app);
+    } break;
+    case SETTINGS_DIALOG_PAGES: {
+      g_value_set_object(value, self->priv->settings_pages);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -380,6 +387,12 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
+  g_object_class_install_property(gobject_class,SETTINGS_DIALOG_PAGES,
+                                  g_param_spec_object("pages",
+                                     "pages prop",
+                                     "Get the pages widget",
+                                     GTK_TYPE_NOTEBOOK, /* object type */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_settings_dialog_get_type(void) {
