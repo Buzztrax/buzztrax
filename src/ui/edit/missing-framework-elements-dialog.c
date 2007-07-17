@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.4 2007-07-10 20:49:39 ensonic Exp $
+/* $Id: missing-framework-elements-dialog.c,v 1.5 2007-07-17 15:27:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -131,12 +131,15 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   g_free(str);
   gtk_container_add(GTK_CONTAINER(vbox),label);
   if(self->priv->core_elements) {
+    GST_DEBUG("%d missing core elements",g_list_length(self->priv->core_elements));
     make_listview(vbox,self->priv->core_elements,_("The elements listed below are missing from you installation, but are required."));
   }
   if(self->priv->edit_elements) {
     BtSettings *settings;
     gchar *machine_ignore_list;
     GList *edit_elements=NULL;
+
+    GST_DEBUG("%d missing edit elements",g_list_length(self->priv->edit_elements));
 
     g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
     g_object_get(G_OBJECT(settings),"missing-machines",&machine_ignore_list,NULL);
@@ -148,10 +151,13 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
 
       for(node=self->priv->edit_elements;node;node=g_list_next(node)) {
         name=(gchar *)(node->data);
-        if((name[0]!='-') && (!strstr(machine_ignore_list,name))) {
+        // if this is the message ("starts with "->") or is not in the ignored list, append
+        // @todo: if all elements between two messages are ignored, drop the message too
+        if((name[0]=='-') || (!strstr(machine_ignore_list,name))) {
           edit_elements=g_list_append(edit_elements,node->data);
         }
       }
+      GST_DEBUG("filtered to %d missing edit elements",g_list_length(edit_elements));
     }
     else {
       edit_elements=self->priv->edit_elements;

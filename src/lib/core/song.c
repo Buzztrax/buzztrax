@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.186 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: song.c,v 1.187 2007-07-17 15:27:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1072,7 +1072,7 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
             "    fontsize=\"9\";\n"
             "    style=filled;\n"
             "    label=\"<%s>\\n%s\";\n"
-            "    color=black\n\n",
+            "    color=black;\n\n",
             element_name,G_OBJECT_TYPE_NAME(element),GST_OBJECT_NAME(element));
           g_free(element_name);
 
@@ -1125,9 +1125,9 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
                       if(GST_CAPS_IS_SIMPLE(caps)) {
                         structure=gst_caps_get_structure(caps,0);
                         src_media=gst_structure_get_name(structure);
-                        gst_caps_unref(caps);
                       }
                       else src_media="!";
+                      gst_caps_unref(caps);
                       //src_media=gst_caps_to_string(caps);
                       //needs to be formatted/filtered and freed later
                     }
@@ -1136,9 +1136,9 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
                       if(GST_CAPS_IS_SIMPLE(caps)) {
                         structure=gst_caps_get_structure(caps,0);
                         dst_media=gst_structure_get_name(structure);
-                        gst_caps_unref(caps);
                       }
                       else dst_media="!";
+                      gst_caps_unref(caps);
                     }
                     else dst_media="?";
 

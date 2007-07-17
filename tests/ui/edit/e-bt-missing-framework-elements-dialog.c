@@ -1,4 +1,4 @@
-/* $Id: e-bt-missing-framework-elements-dialog.c,v 1.1 2007-07-12 20:15:16 ensonic Exp $
+/* $Id: e-bt-missing-framework-elements-dialog.c,v 1.2 2007-07-17 15:27:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -83,8 +83,9 @@ BT_START_TEST(test_create_dialog) {
   g_object_get(app,"main-window",&main_window,NULL);
   fail_unless(main_window != NULL, NULL);
 
-  missing_elements=g_list_prepend(NULL,_("-> You will not see any level-meters."));
-  missing_elements=g_list_prepend(missing_elements,"level");
+  // add a space here, so that it cannot be filtered
+  missing_elements=g_list_append(missing_elements,"level ");
+  missing_elements=g_list_append(missing_elements,"-> You will not see any level-meters");
 
   // create, show and destroy dialog
   dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(app,NULL,missing_elements));
