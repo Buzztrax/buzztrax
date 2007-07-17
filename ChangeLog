@@ -1,5 +1,12 @@
 2007-07-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_init_ui):
+	  Skip messages if all elemnts for that are already confirmed (and thus
+	  hidden).
+
+2007-07-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song.c: (bt_song_write_to_lowlevel_dot_file):
 	  Better dot generation.
 

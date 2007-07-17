@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.5 2007-07-17 15:27:42 ensonic Exp $
+/* $Id: missing-framework-elements-dialog.c,v 1.6 2007-07-17 19:18:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -148,13 +148,21 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
     if(machine_ignore_list) {
       GList *node;
       gchar *name;
+      gboolean have_elements=FALSE;
 
       for(node=self->priv->edit_elements;node;node=g_list_next(node)) {
         name=(gchar *)(node->data);
         // if this is the message ("starts with "->") or is not in the ignored list, append
-        // @todo: if all elements between two messages are ignored, drop the message too
-        if((name[0]=='-') || (!strstr(machine_ignore_list,name))) {
+        if(name[0]=='-') {
+          // if all elements between two messages are ignored, drop the message too
+          if(have_elements) {
+            edit_elements=g_list_append(edit_elements,node->data);
+            have_elements=FALSE;
+          }
+        }
+        else if(!strstr(machine_ignore_list,name)) {
           edit_elements=g_list_append(edit_elements,node->data);
+          have_elements=TRUE;
         }
       }
       GST_DEBUG("filtered to %d missing edit elements",g_list_length(edit_elements));
