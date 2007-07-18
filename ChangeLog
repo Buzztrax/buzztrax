@@ -1,3 +1,28 @@
+2007-07-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h (BT_EDIT_H):
+	* src/ui/edit/main-menu.c (on_menu_render_activate,
+	  bt_main_menu_init_ui):
+	* src/ui/edit/render-dialog-methods.h (BT_RENDER_DIALOG_METHODS_H):
+	* src/ui/edit/render-dialog.c (BT_EDIT, BT_RENDER_DIALOG_C,
+	  RENDER_DIALOG_APP, _BtRenderDialogPrivate, dispose_has_run,
+	  parent_class, bt_render_dialog_init_ui, bt_render_dialog_new,
+	  bt_render_dialog_get_property, bt_render_dialog_set_property,
+	  bt_render_dialog_dispose, bt_render_dialog_finalize,
+	  bt_render_dialog_init, bt_render_dialog_class_init,
+	  bt_render_dialog_get_type):
+	* src/ui/edit/render-dialog.h (BT_RENDER_DIALOG_H,
+	  BT_TYPE_RENDER_DIALOG, BT_RENDER_DIALOG, BT_RENDER_DIALOG_CLASS,
+	  BT_IS_RENDER_DIALOG, BT_IS_RENDER_DIALOG_CLASS,
+	  BT_RENDER_DIALOG_GET_CLASS, BtRenderDialog, BtRenderDialogClass,
+	  BtRenderDialogPrivate, _BtRenderDialog, parent, priv,
+	  _BtRenderDialogClass, parent):
+	  Prepare new dialog.
+	  
+	* src/ui/edit/settings-dialog.c:
+	  Some thoughts abot cleaning this up for better testability.
+
 2007-07-17  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/missing-framework-elements-dialog.c:

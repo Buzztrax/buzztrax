@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.40 2007-07-13 20:53:21 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.41 2007-07-18 14:32:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,15 @@
  * @see_also: #BtSettings
  *
  * Provides UI to access the #BtSettings.
+ */
+
+/* @todo: export current-page
+ * - remove pages-property
+ * - add current-page property instead
+ * - export SETTINGS_PAGE_ as enum
+ * - when setting current-page change treeview selection
+ *   gtk_tree_selection_select_path()
+ * 
  */
 
 #define BT_EDIT
@@ -289,7 +298,6 @@ BtSettingsDialog *bt_settings_dialog_new(const BtEditApplication *app) {
   if(!bt_settings_dialog_init_ui(self)) {
     goto Error;
   }
-  gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
   g_object_try_unref(self);

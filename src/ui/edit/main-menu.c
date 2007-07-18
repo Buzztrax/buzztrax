@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.69 2007-05-07 14:45:45 ensonic Exp $
+/* $Id: main-menu.c,v 1.70 2007-07-18 14:32:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -101,6 +101,22 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
   bt_main_window_save_song_as(main_window);
   g_object_try_unref(main_window);
 }
+
+static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  GtkWidget *dialog;
+
+  g_assert(user_data);
+
+  GST_INFO("menu render event occurred");
+  dialog=GTK_WIDGET(bt_render_dialog_new(self->priv->app));
+
+  gtk_widget_show_all(dialog);
+
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
+}
+
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   gboolean cont;
@@ -455,6 +471,16 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
   gtk_widget_set_name(subitem,_("Save as"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_saveas_activate),(gpointer)self);
+
+  subitem=gtk_separator_menu_item_new();
+  gtk_widget_set_name(subitem,_("separator"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_RECORD,accel_group);
+  gtk_widget_set_name(subitem,_("Render"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_render_activate),(gpointer)self);
 
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));
