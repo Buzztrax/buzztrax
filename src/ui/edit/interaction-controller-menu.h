@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.h,v 1.1 2007-03-19 22:27:54 ensonic Exp $
+/* $Id: interaction-controller-menu.h,v 1.2 2007-07-18 18:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -70,6 +70,8 @@ typedef enum {
 } BtInteractionControllerMenuType;
 
 #define BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE (bt_interaction_controller_menu_type_get_type())
+
+GType bt_interaction_controller_menu_type_get_type(void) G_GNUC_CONST;
 
 /* used by INTERACTION_CONTROLLER_MENU_TYPE */
 GType bt_interaction_controller_menu_get_type(void) G_GNUC_CONST;

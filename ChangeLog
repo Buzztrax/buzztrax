@@ -1,5 +1,16 @@
 2007-07-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-menu.h:
+	* src/ui/edit/settings-dialog.c: (bt_settings_page_get_type),
+	(on_settings_list_cursor_changed), (bt_settings_dialog_init_ui),
+	(bt_settings_dialog_get_property),
+	(bt_settings_dialog_set_property), (bt_settings_dialog_class_init):
+	* src/ui/edit/settings-dialog.h:
+	* tests/ui/edit/e-bt-settings-dialog.c: (BT_START_TEST):
+	  Refactor for testing.
+
+2007-07-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h (BT_EDIT_H):
 	* src/ui/edit/main-menu.c (on_menu_render_activate,

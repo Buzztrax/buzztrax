@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.h,v 1.6 2007-03-06 21:58:51 ensonic Exp $
+/* $Id: settings-dialog.h,v 1.7 2007-07-18 18:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,15 +45,39 @@ typedef struct _BtSettingsDialogPrivate BtSettingsDialogPrivate;
  */
 struct _BtSettingsDialog {
   GtkDialog parent;
-  
+
   /*< private >*/
   BtSettingsDialogPrivate *priv;
 };
 /* structure of the settings-dialog class */
 struct _BtSettingsDialogClass {
   GtkDialogClass parent;
-  
+
 };
+
+/**
+ * BtSettingsPageType:
+ * @BT_SETTINGS_PAGE_AUDIO_DEVICES: audio devices
+ * @BT_SETTINGS_PAGE_INTERACTION_CONTROLLER: interaction controller
+ * @BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER: playback controller
+ * @BT_SETTINGS_PAGE_COLORS: colors
+ * @BT_SETTINGS_PAGE_SHORTCUTS: shortcuts
+ * @BT_SETTINGS_PAGE_DIRECTORIES: directories
+ *
+ * Ids for the setting pages.
+ */
+typedef enum {
+  BT_SETTINGS_PAGE_AUDIO_DEVICES=0,
+  BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
+  BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
+  BT_SETTINGS_PAGE_COLORS,
+  BT_SETTINGS_PAGE_SHORTCUTS,
+  BT_SETTINGS_PAGE_DIRECTORIES
+} BtSettingsPage;
+
+#define BT_TYPE_SETTINGS_PAGE (bt_settings_page_get_type())
+
+GType bt_settings_page_get_type(void) G_GNUC_CONST;
 
 /* used by SETTINGS_DIALOG_TYPE */
 GType bt_settings_dialog_get_type(void) G_GNUC_CONST;

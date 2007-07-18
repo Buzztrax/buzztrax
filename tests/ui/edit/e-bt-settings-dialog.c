@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.15 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.16 2007-07-18 18:19:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -40,12 +40,9 @@ BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
   BtMainWindow *main_window;
   GtkWidget *dialog;
-//#if 0
-  GtkNotebook *pages;
-  GtkWidget *child;
-  GList *children;
-  guint i,num_pages;
-//#endif
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+  guint i;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
@@ -62,25 +59,17 @@ BT_START_TEST(test_create_dialog) {
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));
 
-  // make screenshot
-  //check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
+  // snapshot all dialog pages
+  enum_class=g_type_class_peek_static(BT_TYPE_SETTINGS_PAGE);
+  for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
+    if((enum_value=g_enum_get_value(enum_class,i))) {
+      g_object_set(G_OBJECT(dialog),"page",i,NULL);
 
-  // @todo: need to snapshot the other pages (needs api)
-//#if 0
-  g_object_get(G_OBJECT(dialog),"pages",&pages,NULL);
-  children=gtk_container_get_children(GTK_CONTAINER(pages));
-  num_pages=g_list_length(children);
-  for(i=0;i<num_pages;i++) {
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),i);
-    child=GTK_WIDGET(g_list_nth_data(children,i));
-
-    // make screenshot
-    check_make_widget_screenshot(GTK_WIDGET(pages),gtk_widget_get_name(child));
-    while(gtk_events_pending()) gtk_main_iteration();
+      // make screenshot
+      check_make_widget_screenshot(GTK_WIDGET(dialog),enum_value->value_nick);
+      while(gtk_events_pending()) gtk_main_iteration();
+    }
   }
-  g_list_free(children);
-  g_object_unref(pages);
-//#endif
 
   gtk_widget_destroy(dialog);
 

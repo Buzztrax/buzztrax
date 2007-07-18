@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.41 2007-07-18 14:32:14 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.42 2007-07-18 18:19:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,15 +26,6 @@
  * Provides UI to access the #BtSettings.
  */
 
-/* @todo: export current-page
- * - remove pages-property
- * - add current-page property instead
- * - export SETTINGS_PAGE_ as enum
- * - when setting current-page change treeview selection
- *   gtk_tree_selection_select_path()
- * 
- */
-
 #define BT_EDIT
 #define BT_SETTINGS_DIALOG_C
 
@@ -42,16 +33,7 @@
 
 enum {
   SETTINGS_DIALOG_APP=1,
-  SETTINGS_DIALOG_PAGES
-};
-
-enum {
-  SETTINGS_PAGE_AUDIO_DEVICES=0,
-  SETTINGS_PAGE_INTERACTION_CONTROLLER,
-  SETTINGS_PAGE_PLAYBACK_CONTROLLER,
-  SETTINGS_PAGE_COLORS,
-  SETTINGS_PAGE_SHORTCUTS,
-  SETTINGS_PAGE_DIRECTORIES
+  SETTINGS_DIALOG_PAGE
 };
 
 enum {
@@ -68,6 +50,9 @@ struct _BtSettingsDialogPrivate {
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
+  /* current page */
+  BtSettingsPage page;
+
   /* the list of settings pages */
   GtkTreeView *settings_list;
 
@@ -81,6 +66,25 @@ struct _BtSettingsDialogPrivate {
 };
 
 static GtkDialogClass *parent_class=NULL;
+
+//-- enums
+
+GType bt_settings_page_get_type(void) {
+  static GType type = 0;
+  if(G_UNLIKELY(type==0)) {
+    static const GEnumValue values[] = {
+      { BT_SETTINGS_PAGE_AUDIO_DEVICES,   "BT_SETTINGS_PAGE_AUDIO_DEVICES",   "audio devices" },
+      { BT_SETTINGS_PAGE_INTERACTION_CONTROLLER, "BT_SETTINGS_PAGE_INTERACTION_CONTROLLER", "interaction controller" },
+      { BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,   "BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER",   "playback controller" },
+      { BT_SETTINGS_PAGE_COLORS,   "BT_SETTINGS_PAGE_COLORS",   "colors" },
+      { BT_SETTINGS_PAGE_SHORTCUTS,   "BT_SETTINGS_PAGE_SHORTCUTS",   "shortcuts" },
+      { BT_SETTINGS_PAGE_DIRECTORIES,   "BT_SETTINGS_PAGE_DIRECTORIES",   "directories" },
+      { 0, NULL, NULL},
+    };
+    type = g_enum_register_static("BtSettingsPage", values);
+  }
+  return type;
+}
 
 //-- event handler
 
@@ -100,6 +104,8 @@ void on_settings_list_cursor_changed(GtkTreeView *treeview,gpointer user_data) {
     gtk_tree_model_get(model,&iter,COL_ID,&id,-1);
     GST_INFO("selected entry id %d",id);
     gtk_notebook_set_current_page(self->priv->settings_pages,id);
+    self->priv->page=id;
+    g_object_notify(G_OBJECT(self),"page");
   }
 }
 
@@ -168,42 +174,42 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Audio Devices"),
-    COL_ID,SETTINGS_PAGE_AUDIO_DEVICES,
+    COL_ID,BT_SETTINGS_PAGE_AUDIO_DEVICES,
     COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-audio-card.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Interaction Controller"),
-    COL_ID,SETTINGS_PAGE_INTERACTION_CONTROLLER,
+    COL_ID,BT_SETTINGS_PAGE_INTERACTION_CONTROLLER,
     COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-input-gaming.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Playback Controller"),
-    COL_ID,SETTINGS_PAGE_PLAYBACK_CONTROLLER,
+    COL_ID,BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER,
     COL_ICON_PIXBUF,NULL,
     COL_ICON_STOCK_ID,GTK_STOCK_MEDIA_PLAY,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Colors"),
-    COL_ID,SETTINGS_PAGE_COLORS,
+    COL_ID,BT_SETTINGS_PAGE_COLORS,
     COL_ICON_PIXBUF,NULL,
     COL_ICON_STOCK_ID,GTK_STOCK_SELECT_COLOR,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Shortcuts"),
-    COL_ID,SETTINGS_PAGE_SHORTCUTS,
+    COL_ID,BT_SETTINGS_PAGE_SHORTCUTS,
     COL_ICON_PIXBUF,gdk_pixbuf_new_from_filename("prefs-input-keyboard.png"),
     COL_ICON_STOCK_ID,NULL,
     -1);
   gtk_list_store_append(store, &tree_iter);
   gtk_list_store_set(store,&tree_iter,
     COL_LABEL,_("Directories"),
-    COL_ID,SETTINGS_PAGE_DIRECTORIES,
+    COL_ID,BT_SETTINGS_PAGE_DIRECTORIES,
     COL_ICON_PIXBUF,NULL
     ,COL_ICON_STOCK_ID,GTK_STOCK_DIRECTORY,
     -1);
@@ -221,21 +227,21 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   self->priv->audiodevices_page=bt_settings_page_audiodevices_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->audiodevices_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_AUDIO_DEVICES),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_AUDIO_DEVICES),
   gtk_label_new(_("Audio Devices")));
 
   // add interaction controller page
   self->priv->interaction_controller_page=bt_settings_page_interaction_controller_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->interaction_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_INTERACTION_CONTROLLER),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_INTERACTION_CONTROLLER),
   gtk_label_new(_("Interaction Controller")));
 
   // add playback controller page
   self->priv->playback_controller_page=bt_settings_page_playback_controller_new(self->priv->app);
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->playback_controller_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_PLAYBACK_CONTROLLER),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER),
   gtk_label_new(_("Playback Controller")));
 
   // add notebook page #4
@@ -244,7 +250,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 4 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_COLORS),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_COLORS),
   gtk_label_new(_("Colors")));
 
   // add notebook page #5
@@ -253,7 +259,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 5 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_SHORTCUTS),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_SHORTCUTS),
   gtk_label_new(_("Shortcuts")));
 
   // add notebook page #6
@@ -262,7 +268,7 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 6 yet"));
   gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
-  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),SETTINGS_PAGE_DIRECTORIES),
+  gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_DIRECTORIES),
   gtk_label_new(_("Directories")));
 
   /* @todo more settings
@@ -322,8 +328,8 @@ static void bt_settings_dialog_get_property(GObject      *object,
     case SETTINGS_DIALOG_APP: {
       g_value_set_object(value, self->priv->app);
     } break;
-    case SETTINGS_DIALOG_PAGES: {
-      g_value_set_object(value, self->priv->settings_pages);
+    case SETTINGS_DIALOG_PAGE: {
+      g_value_set_enum(value, self->priv->page);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -345,6 +351,22 @@ static void bt_settings_dialog_set_property(GObject      *object,
       self->priv->app = BT_EDIT_APPLICATION(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->app);
       //GST_DEBUG("set the app for settings_dialog: %p",self->priv->app);
+    } break;
+    case SETTINGS_DIALOG_PAGE: {
+      BtSettingsPage old_page=self->priv->page;
+
+      self->priv->page=g_value_get_enum(value);
+      if(self->priv->page!=old_page) {
+        GtkTreeSelection *selection;
+        GtkTreePath *path;
+
+        // switch page
+        selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->settings_list));
+        if((path=gtk_tree_path_new_from_indices(self->priv->page,-1))) {
+          gtk_tree_selection_select_path(selection,path);
+          gtk_tree_path_free(path);
+        }
+      }
     } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -395,12 +417,13 @@ static void bt_settings_dialog_class_init(BtSettingsDialogClass *klass) {
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,SETTINGS_DIALOG_PAGES,
-                                  g_param_spec_object("pages",
-                                     "pages prop",
-                                     "Get the pages widget",
-                                     GTK_TYPE_NOTEBOOK, /* object type */
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property(gobject_class,SETTINGS_DIALOG_PAGE,
+                                  g_param_spec_enum("page",
+                                     "page prop",
+                                     "Current settings page",
+                                     BT_TYPE_SETTINGS_PAGE, /* object type */
+                                     BT_SETTINGS_PAGE_AUDIO_DEVICES,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_settings_dialog_get_type(void) {
