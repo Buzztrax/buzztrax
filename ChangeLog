@@ -1,5 +1,10 @@
 2007-07-18  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui):
+	  Turn box into table.
+
+2007-07-18  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/interaction-controller-menu.h:
 	* src/ui/edit/settings-dialog.c: (bt_settings_page_get_type),
 	(on_settings_list_cursor_changed), (bt_settings_dialog_init_ui),

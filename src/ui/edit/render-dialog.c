@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.1 2007-07-18 14:32:10 ensonic Exp $
+/* $Id: render-dialog.c,v 1.2 2007-07-18 20:30:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -49,7 +49,7 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
-  GtkWidget *box;
+  GtkWidget *box,*label,*table;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("song rendering"));
 
@@ -62,8 +62,16 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
                           NULL);
 
   // add widgets to the dialog content area
-  box=gtk_hbox_new(FALSE,12);
+  box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
+  gtk_box_set_spacing(GTK_BOX(box),12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
+
+  table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+  gtk_container_add(GTK_CONTAINER(box),table);
+
+  label=gtk_label_new(_("filename"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   /* @todo: add widgets
   - choose format
@@ -73,10 +81,9 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
     - one clip per track
   - write project file
     - none, jokosher, ...
-  
+
   */
 
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(self)->vbox),box);
   return(TRUE);
 }
 
