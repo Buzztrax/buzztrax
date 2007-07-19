@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.85 2007-07-02 11:23:29 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.86 2007-07-19 13:23:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1047,13 +1047,13 @@ GType bt_machine_canvas_item_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtMachineCanvasItemClass),
+      sizeof(BtMachineCanvasItemClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_machine_canvas_item_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtMachineCanvasItem),
+      sizeof(BtMachineCanvasItem),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_machine_canvas_item_init, // instance_init
       NULL // value_table

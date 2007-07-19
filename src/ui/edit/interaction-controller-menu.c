@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.6 2007-05-07 14:45:45 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.7 2007-07-19 13:23:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -350,13 +350,13 @@ GType bt_interaction_controller_menu_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtInteractionControllerMenuClass),
+      sizeof(BtInteractionControllerMenuClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_interaction_controller_menu_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtInteractionControllerMenu),
+      sizeof(BtInteractionControllerMenu),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_interaction_controller_menu_init, // instance_init
       NULL // value_table

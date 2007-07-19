@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.90 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: core.h,v 1.91 2007-07-19 13:23:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -141,18 +141,6 @@
 //-- defines for workarounds ---------------------------------------------------
 
 /**
- * G_ABS_STRUCT_OFFSET:
- * @struct_type: a structure type, e.g. GtkWidget.
- * @member: a field in the structure, e.g. window.
- *
- * Returns the offset, in bytes, of a member of a struct.
- *
- * Returns: the offset of member from the start of struct_type.
- */
-#define G_ABS_STRUCT_OFFSET(struct_type, member)    \
-    ((guint) ((guint8*) &((struct_type*) 0)->member))
-
-/**
  * XML_CHAR_PTR:
  * @str: the string to cast
  *
@@ -203,15 +191,6 @@
  * such as _get_property(), _set_property(), _dispose().
  */
 #define return_if_disposed() if(self->priv->dispose_has_run) return
-
-/**
- * G_STRUCT_SIZE:
- * @s: struct name
- *
- * Applies the sizeof operator to a struct and casts the result for use in
- * GTypeInfo definitions.
- */
-#define G_STRUCT_SIZE(s) (guint16)sizeof(s)
 
 /**
  * BT_IS_STRING:

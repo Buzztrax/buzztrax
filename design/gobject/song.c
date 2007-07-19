@@ -102,7 +102,7 @@ static void bt_song_class_init(BtSongClass *klass) {
   klass->play_signal_id = g_signal_new("play",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtSongClass,play_event),
+                                        (guint)G_STRUCT_OFFSET(BtSongClass,play_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__VOID,

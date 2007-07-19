@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.75 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: sink-machine.c,v 1.76 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -231,13 +231,13 @@ GType bt_sink_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtSinkMachineClass),
+      sizeof(BtSinkMachineClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_sink_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtSinkMachine),
+      sizeof(BtSinkMachine),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_sink_machine_init, // instance_init
       NULL // value_table

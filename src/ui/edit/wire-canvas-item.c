@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.46 2007-05-07 14:45:47 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.47 2007-07-19 13:23:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -661,13 +661,13 @@ GType bt_wire_canvas_item_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtWireCanvasItemClass),
+      sizeof(BtWireCanvasItemClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_wire_canvas_item_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtWireCanvasItem),
+      sizeof(BtWireCanvasItem),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_wire_canvas_item_init, // instance_init
       NULL // value_table

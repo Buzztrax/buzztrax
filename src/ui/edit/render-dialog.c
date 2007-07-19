@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.2 2007-07-18 20:30:09 ensonic Exp $
+/* $Id: render-dialog.c,v 1.3 2007-07-19 13:23:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -49,7 +49,10 @@ static GtkDialogClass *parent_class=NULL;
 //-- helper methods
 
 static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
-  GtkWidget *box,*label,*table;
+  GtkWidget *box,*label,*widget,*table;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+  guint i;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("song rendering"));
 
@@ -69,19 +72,37 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
 
-  label=gtk_label_new(_("filename"));
+  label=gtk_label_new(_("Select a folder"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
 
+  widget=gtk_file_chooser_button_new (_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+  //gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (button), "/etc");
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  
+  label=gtk_label_new(_("Select a format"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  
+  // query supported formats from sinkbin
+  widget=gtk_combo_box_new_text();
+  enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
+  for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
+    if((enum_value=g_enum_get_value(enum_class,i))) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+    }
+  }
+  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),0);
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  
   /* @todo: add widgets
-  - choose format
-  - choose filename
-  - choose mode
-    - mixdown
-    - one clip per track
-  - write project file
-    - none, jokosher, ...
-
+    o choose filename/basename
+    * choose format
+    o choose mode
+      o mixdown
+      o one clip per track
+    o write project file
+      o none, jokosher, ...
   */
 
   return(TRUE);
@@ -206,13 +227,13 @@ GType bt_render_dialog_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtRenderDialogClass),
+      sizeof(BtRenderDialogClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_render_dialog_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtRenderDialog),
+      sizeof(BtRenderDialog),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_render_dialog_init, // instance_init
       NULL // value_table

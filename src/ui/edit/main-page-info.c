@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.51 2007-05-07 14:45:46 ensonic Exp $
+/* $Id: main-page-info.c,v 1.52 2007-07-19 13:23:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -528,13 +528,13 @@ GType bt_main_page_info_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtMainPageInfoClass),
+      sizeof(BtMainPageInfoClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_page_info_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtMainPageInfo),
+      sizeof(BtMainPageInfo),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_main_page_info_init, // instance_init
       NULL // value_table

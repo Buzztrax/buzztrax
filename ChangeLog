@@ -1,3 +1,74 @@
+2007-07-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gobject/song.c: (bt_song_class_init):
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c: (bt_pattern_class_init),
+	(bt_pattern_get_type):
+	* src/lib/core/persistence-location.c:
+	(bt_persistence_location_get_type):
+	* src/lib/core/persistence-selection.c:
+	(bt_persistence_selection_get_type):
+	* src/lib/core/plainfile-settings.c:
+	(bt_plainfile_settings_get_type):
+	* src/lib/core/processor-machine.c:
+	(bt_processor_machine_get_type):
+	* src/lib/core/sequence.c: (bt_sequence_get_type):
+	* src/lib/core/settings.c: (bt_settings_get_type):
+	* src/lib/core/setup.c: (bt_setup_class_init), (bt_setup_get_type):
+	* src/lib/core/sink-bin.c: (bt_sink_bin_get_type):
+	* src/lib/core/sink-machine.c: (bt_sink_machine_get_type):
+	* src/lib/core/song-info.c: (bt_song_info_get_type):
+	* src/lib/core/song-io-native.c: (bt_song_io_native_get_type):
+	* src/lib/core/song-io.c: (bt_song_io_get_type):
+	* src/lib/core/song.c: (bt_song_get_type):
+	* src/lib/core/source-machine.c: (bt_source_machine_get_type):
+	* src/lib/core/wave.c: (bt_wave_get_type):
+	* src/lib/core/wavelevel.c: (bt_wavelevel_get_type):
+	* src/lib/core/wavetable.c: (bt_wavetable_get_type):
+	* src/lib/core/wire.c: (bt_wire_get_type):
+	* src/ui/cmd/cmd-application.c: (bt_cmd_application_get_type):
+	* src/ui/edit/bt-edit.c: (usage):
+	* src/ui/edit/edit-application.c: (bt_edit_application_get_type):
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_get_type):
+	* src/ui/edit/machine-canvas-item.c:
+	(bt_machine_canvas_item_get_type):
+	* src/ui/edit/machine-menu.c: (bt_machine_menu_get_type):
+	* src/ui/edit/main-menu.c: (bt_main_menu_get_type):
+	* src/ui/edit/main-page-info.c: (bt_main_page_info_get_type):
+	* src/ui/edit/main-page-machines.c:
+	(bt_main_page_machines_get_type):
+	* src/ui/edit/main-page-patterns.c:
+	(bt_main_page_patterns_get_type):
+	* src/ui/edit/main-page-sequence.c:
+	(bt_main_page_sequence_get_type):
+	* src/ui/edit/main-pages.c: (bt_main_pages_get_type):
+	* src/ui/edit/main-statusbar.c: (bt_main_statusbar_get_type):
+	* src/ui/edit/main-toolbar.c: (bt_main_toolbar_get_type):
+	* src/ui/edit/main-window.c: (bt_main_window_get_type):
+	* src/ui/edit/pattern-view.c: (bt_pattern_view_get_type):
+	* src/ui/edit/playback-controller-socket.c:
+	(bt_playback_controller_socket_get_type):
+	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui),
+	(bt_render_dialog_get_type):
+	* src/ui/edit/sequence-view.c: (bt_sequence_view_get_type):
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_get_type):
+	* src/ui/edit/settings-page-audiodevices.c:
+	(bt_settings_page_audiodevices_get_type):
+	* src/ui/edit/settings-page-interaction-controller.c:
+	(bt_settings_page_interaction_controller_get_type):
+	* src/ui/edit/settings-page-playback-controller.c:
+	(bt_settings_page_playback_controller_get_type):
+	* src/ui/edit/ui-ressources.c: (bt_ui_ressources_get_type):
+	* src/ui/edit/wire-canvas-item.c: (bt_wire_canvas_item_get_type):
+	* tests/bt-test-plugin.c: (bt_test_mono_source_get_type),
+	(bt_test_poly_source_get_type):
+	* tests/bt-test-settings.c: (bt_test_settings_get_type):
+	  Remove G_STRUCT_SIZE and G_ABS_STRUCT_OFFSET (was splint tuning and
+	  clobbering glib namespace).
+
 2007-07-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui):

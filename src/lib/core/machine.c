@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.267 2007-07-13 18:54:37 ensonic Exp $
+/* $Id: machine.c,v 1.268 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2983,7 +2983,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   signals[PATTERN_ADDED_EVENT] = g_signal_new("pattern-added",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtMachineClass,pattern_added_event),
+                                        (guint)G_STRUCT_OFFSET(BtMachineClass,pattern_added_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__OBJECT,
@@ -3002,7 +3002,7 @@ static void bt_machine_class_init(BtMachineClass * const klass) {
   signals[PATTERN_REMOVED_EVENT] = g_signal_new("pattern-removed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtMachineClass,pattern_removed_event),
+                                        (guint)G_STRUCT_OFFSET(BtMachineClass,pattern_removed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         g_cclosure_marshal_VOID__OBJECT,
@@ -3119,13 +3119,13 @@ GType bt_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtMachineClass),
+      sizeof(BtMachineClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtMachine),
+      sizeof(BtMachine),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_machine_init, // instance_init
       NULL // value_table

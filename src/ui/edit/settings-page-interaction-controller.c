@@ -1,4 +1,4 @@
-/* $Id: settings-page-interaction-controller.c,v 1.4 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: settings-page-interaction-controller.c,v 1.5 2007-07-19 13:23:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -291,13 +291,13 @@ GType bt_settings_page_interaction_controller_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtSettingsPageInteractionControllerClass),
+      sizeof(BtSettingsPageInteractionControllerClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_settings_page_interaction_controller_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtSettingsPageInteractionController),
+      sizeof(BtSettingsPageInteractionController),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_settings_page_interaction_controller_init, // instance_init
       NULL // value_table

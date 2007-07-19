@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.43 2007-01-22 21:00:58 ensonic Exp $
+/* $Id: source-machine.c,v 1.44 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -228,13 +228,13 @@ GType bt_source_machine_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtSourceMachineClass),
+      sizeof(BtSourceMachineClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_source_machine_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtSourceMachine),
+      sizeof(BtSourceMachine),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_source_machine_init, // instance_init
       NULL // value_table

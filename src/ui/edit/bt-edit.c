@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.40 2007-03-20 23:22:58 ensonic Exp $
+/* $Id: bt-edit.c,v 1.41 2007-07-19 13:23:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -46,6 +46,7 @@
 static void usage(int argc, char **argv, GOptionContext *ctx) {
   //poptPrintUsage(context,stdout,0);
   //poptFreeContext(context);
+  //g_option_context_get_help() in future glib
   //exit(0);
 }
 

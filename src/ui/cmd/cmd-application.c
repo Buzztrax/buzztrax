@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.92 2007-05-07 14:45:43 ensonic Exp $
+/* $Id: cmd-application.c,v 1.93 2007-07-19 13:23:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -639,13 +639,13 @@ GType bt_cmd_application_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtCmdApplicationClass),
+      sizeof(BtCmdApplicationClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_cmd_application_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtCmdApplication),
+      sizeof(BtCmdApplication),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_cmd_application_init, // instance_init
       NULL // value_table

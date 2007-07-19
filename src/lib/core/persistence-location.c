@@ -1,4 +1,4 @@
-/* $Id: persistence-location.c,v 1.4 2007-03-11 20:19:19 ensonic Exp $
+/* $Id: persistence-location.c,v 1.5 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -36,13 +36,13 @@ GType bt_persistence_location_get_type(void) {
   static GType type = 0;
   if (type == 0) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtPersistenceLocationClass),
+      sizeof(BtPersistenceLocationClass),
       NULL, // base_init
       NULL, // base_finalize
       NULL, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtPersistenceLocation),
+      sizeof(BtPersistenceLocation),
       0,   // n_preallocs
       NULL, // instance_init
       NULL // value_table

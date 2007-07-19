@@ -1,4 +1,4 @@
-/* $Id: plainfile-settings.c,v 1.22 2007-01-22 21:00:57 ensonic Exp $
+/* $Id: plainfile-settings.c,v 1.23 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -163,13 +163,13 @@ GType bt_plainfile_settings_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtPlainfileSettingsClass),
+      sizeof(BtPlainfileSettingsClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_plainfile_settings_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtPlainfileSettings),
+      sizeof(BtPlainfileSettings),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_plainfile_settings_init, // instance_init
       NULL // value_table

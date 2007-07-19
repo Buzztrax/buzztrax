@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.99 2007-07-01 20:06:00 ensonic Exp $
+/* $Id: pattern.c,v 1.100 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1129,7 +1129,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   signals[GLOBAL_PARAM_CHANGED_EVENT] = g_signal_new("global-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtPatternClass,global_param_changed_event),
+                                        (guint)G_STRUCT_OFFSET(BtPatternClass,global_param_changed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         bt_marshal_VOID__ULONG_ULONG,
@@ -1150,7 +1150,7 @@ static void bt_pattern_class_init(BtPatternClass * const klass) {
   signals[VOICE_PARAM_CHANGED_EVENT] = g_signal_new("voice-param-changed",
                                         G_TYPE_FROM_CLASS(klass),
                                         G_SIGNAL_RUN_LAST | G_SIGNAL_NO_RECURSE | G_SIGNAL_NO_HOOKS,
-                                        G_ABS_STRUCT_OFFSET(BtPatternClass,voice_param_changed_event),
+                                        (guint)G_STRUCT_OFFSET(BtPatternClass,voice_param_changed_event),
                                         NULL, // accumulator
                                         NULL, // acc data
                                         bt_marshal_VOID__ULONG_ULONG_ULONG,
@@ -1218,13 +1218,13 @@ GType bt_pattern_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtPatternClass),
+      sizeof(BtPatternClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_pattern_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtPattern),
+      sizeof(BtPattern),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_pattern_init, // instance_init
       NULL // value_table

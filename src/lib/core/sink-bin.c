@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.36 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: sink-bin.c,v 1.37 2007-07-19 13:23:06 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -794,13 +794,13 @@ GType bt_sink_bin_get_type(void) {
       NULL                /* interface_data */
     };
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtSinkBinClass),
+      sizeof(BtSinkBinClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_sink_bin_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtSinkBin),
+      sizeof(BtSinkBin),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_sink_bin_init, // instance_init
       NULL // value_table

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.118 2007-05-07 16:34:33 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.119 2007-07-19 13:23:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -769,13 +769,13 @@ GType bt_main_toolbar_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {
     const GTypeInfo info = {
-      G_STRUCT_SIZE(BtMainToolbarClass),
+      sizeof(BtMainToolbarClass),
       NULL, // base_init
       NULL, // base_finalize
       (GClassInitFunc)bt_main_toolbar_class_init, // class_init
       NULL, // class_finalize
       NULL, // class_data
-      G_STRUCT_SIZE(BtMainToolbar),
+      sizeof(BtMainToolbar),
       0,   // n_preallocs
       (GInstanceInitFunc)bt_main_toolbar_init, // instance_init
       NULL // value_table
