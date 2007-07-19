@@ -1,5 +1,46 @@
 2007-07-19  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/gconf-settings.c: (bt_gconf_settings_init):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c:
+	(bt_edit_application_check_missing),
+	(bt_edit_application_load_song), (bt_edit_application_show_about):
+	* src/ui/edit/main-menu.c: (on_menu_render_activate),
+	(on_menu_settings_activate):
+	* src/ui/edit/main-page-patterns.c:
+	(on_context_menu_pattern_new_activate),
+	(on_context_menu_pattern_properties_activate),
+	(on_context_menu_pattern_copy_activate):
+	* src/ui/edit/missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_init_ui):
+	* src/ui/edit/missing-song-elements-dialog-methods.h:
+	* src/ui/edit/missing-song-elements-dialog.c: (make_listview),
+	(bt_missing_song_elements_dialog_init_ui),
+	(bt_missing_song_elements_dialog_new),
+	(bt_missing_song_elements_dialog_get_property),
+	(bt_missing_song_elements_dialog_set_property),
+	(bt_missing_song_elements_dialog_dispose),
+	(bt_missing_song_elements_dialog_finalize),
+	(bt_missing_song_elements_dialog_init),
+	(bt_missing_song_elements_dialog_class_init),
+	(bt_missing_song_elements_dialog_get_type):
+	* src/ui/edit/missing-song-elements-dialog.h:
+	* src/ui/edit/tools.c:
+	* tests/Makefile.am:
+	* tests/m-bt-cmd.c: (bt_cmd_setup), (main):
+	* tests/m-bt-edit.c: (bt_edit_setup), (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_missing_song_elements_dialog_example_case):
+	* tests/ui/edit/s-bt-missing-song-elements-dialog.c:
+	(bt_missing_song_elements_dialog_suite):
+	  Make more dialogs transient. Factor out the missing-song-elements
+	  dialog and add test for it. Make ui tests use out test settings.
+
+2007-07-19  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gobject/song.c: (bt_song_class_init):
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/core.h:

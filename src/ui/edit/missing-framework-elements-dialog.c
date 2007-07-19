@@ -1,4 +1,4 @@
-/* $Id: missing-framework-elements-dialog.c,v 1.6 2007-07-17 19:18:54 ensonic Exp $
+/* $Id: missing-framework-elements-dialog.c,v 1.7 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -98,7 +98,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   gboolean res=TRUE;
   //GdkPixbuf *window_icon=NULL;
 
-  gtk_widget_set_name(GTK_WIDGET(self),_("missing GStreamer elements"));
+  gtk_widget_set_name(GTK_WIDGET(self),_("Missing GStreamer elements"));
 
   // create and set window icon
   /*
@@ -108,7 +108,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
   */
 
   // set a title
-  gtk_window_set_title(GTK_WINDOW(self),_("missing GStreamer elements"));
+  gtk_window_set_title(GTK_WINDOW(self),_("Missing GStreamer elements"));
 
     // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
@@ -125,7 +125,7 @@ static gboolean bt_missing_framework_elements_dialog_init_ui(const BtMissingFram
 
   vbox=gtk_vbox_new(FALSE,6);
   label=gtk_label_new(NULL);
-  str=g_strdup_printf("<big><b>%s</b></big>",_("missing GStreamer elements"));
+  str=g_strdup_printf("<big><b>%s</b></big>",_("Missing GStreamer elements"));
   gtk_label_set_markup(GTK_LABEL(label),str);
   gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
   g_free(str);

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.47 2007-07-11 20:41:30 ensonic Exp $
+## $Id: Makefile.am,v 1.48 2007-07-19 20:39:05 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -17,9 +17,11 @@ TESTS = \
   povalid.sh \
   xmlvalid.sh
 
-# prevent endless loops
+# prevent endless loops and give debug feedback
 TESTS_ENVIRONMENT = \
-	ulimit -St20;
+	ulimit -St20; GCONF_DEBUG_TRACE_CLIENT=1
+# adding this can help debug gconfd
+#    GCONF_DEBUG_TRACE_CLIENT=1
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)

@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.16 2007-07-13 20:53:21 ensonic Exp $
+/* $Id: tools.c,v 1.17 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -118,6 +118,8 @@ GdkPixbuf *gdk_pixbuf_new_from_filename(const gchar *filename) {
 
 
 // @todo use GtkMessageDialog for the next two
+// @todo: make dialog methods virtual methods in edit-application, so that we
+//        can override them for testing
 
 /**
  * bt_dialog_message:

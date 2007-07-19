@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.71 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: main-menu.c,v 1.72 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -109,12 +109,17 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   g_assert(user_data);
 
   GST_INFO("menu render event occurred");
-  dialog=GTK_WIDGET(bt_render_dialog_new(self->priv->app));
+  if((dialog=GTK_WIDGET(bt_render_dialog_new(self->priv->app)))) {
+    BtMainWindow *main_window;
 
-  gtk_widget_show_all(dialog);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+    g_object_try_unref(main_window);
+    gtk_widget_show_all(dialog);
 
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+  }
 }
 
 
@@ -232,12 +237,17 @@ static void on_menu_settings_activate(GtkMenuItem *menuitem,gpointer user_data) 
   g_assert(user_data);
 
   GST_INFO("menu settings event occurred");
-  dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app));
+  if((dialog=GTK_WIDGET(bt_settings_dialog_new(self->priv->app)))) {
+    BtMainWindow *main_window;
 
-  gtk_widget_show_all(dialog);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+    g_object_try_unref(main_window);
+    gtk_widget_show_all(dialog);
 
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+  }
 }
 
 static void on_menu_view_toolbar_toggled(GtkMenuItem *menuitem,gpointer user_data) {

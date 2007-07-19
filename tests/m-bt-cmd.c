@@ -1,4 +1,4 @@
-/* $Id: m-bt-cmd.c,v 1.16 2007-07-02 11:23:30 ensonic Exp $
+/* $Id: m-bt-cmd.c,v 1.17 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -22,7 +22,7 @@
  */
 
 #define BT_CHECK
- 
+
 #include "bt-check.h"
 #include "../src/ui/cmd/bt-cmd.h"
 
@@ -52,6 +52,9 @@ void bt_cmd_setup(void) {
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
 
+  // use our dummy settings
+  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
+
   GST_INFO("================================================================================");
 }
 
@@ -62,7 +65,7 @@ void bt_cmd_teardown(void) {
 
 /* start the test run */
 int main(int argc, char **argv) {
-  int nf; 
+  int nf;
   SRunner *sr;
 
   // initialize as soon as possible
@@ -74,10 +77,10 @@ int main(int argc, char **argv) {
   setup_log_capture();
   test_argv[0]=test_arg0;
   test_argvptr=test_argv;
-  
+
   //g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_WARNING|G_LOG_LEVEL_CRITICAL);
   g_log_set_always_fatal(g_log_set_always_fatal(G_LOG_FATAL_MASK)|G_LOG_LEVEL_CRITICAL);
-  
+
   sr=srunner_create(bt_cmd_application_suite());
   // this make tracing errors with gdb easier
   //srunner_set_fork_status(sr,CK_NOFORK);
@@ -85,5 +88,5 @@ int main(int argc, char **argv) {
   nf=srunner_ntests_failed(sr);
   srunner_free(sr);
 
-  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE; 
+  return(nf==0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

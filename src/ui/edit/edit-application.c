@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.103 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: edit-application.c,v 1.104 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -151,7 +151,6 @@ static gboolean bt_edit_application_check_missing(const BtEditApplication *self)
       gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
       gtk_widget_show_all(dialog);
 
-      GST_INFO("showing dialog");
       gtk_dialog_run(GTK_DIALOG(dialog));
       bt_missing_framework_elements_dialog_apply(BT_MISSING_FRAMEWORK_ELEMENTS_DIALOG(dialog));
       gtk_widget_destroy(dialog);
@@ -352,9 +351,6 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     // create new song
     if((song=bt_song_new(BT_APPLICATION(self)))) {
 
-      // free previous song
-      //g_object_set(G_OBJECT(self),"song",NULL,NULL);
-
       if(bt_song_io_load(loader,song)) {
         BtSetup *setup;
         BtWavetable *wavetable;
@@ -381,104 +377,15 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
             g_object_get(G_OBJECT(wavetable),"missing-waves",&missing_waves,NULL);
             // tell about missing machines and/or missing waves
             if(missing_machines || missing_waves) {
-              GtkWidget *label,*icon,*hbox,*vbox;
-              gchar *str;
               GtkWidget *dialog;
 
-              // @todo: move to new class
-              dialog = gtk_dialog_new_with_buttons(_("Missing elements in song"),
-                                                    GTK_WINDOW(self->priv->main_window),
-                                                    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                                    GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                                                    NULL);
+              if((dialog=GTK_WIDGET(bt_missing_song_elements_dialog_new(self,missing_machines,missing_waves)))) {
+                gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(self->priv->main_window));
+                gtk_widget_show_all(dialog);
 
-              hbox=gtk_hbox_new(FALSE,12);
-              gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
-
-              icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_WARNING,GTK_ICON_SIZE_DIALOG);
-              gtk_container_add(GTK_CONTAINER(hbox),icon);
-
-              vbox=gtk_vbox_new(FALSE,6);
-              label=gtk_label_new(NULL);
-              str=g_strdup_printf("<big><b>%s</b></big>",_("Missing elements in song"));
-              gtk_label_set_markup(GTK_LABEL(label),str);
-              gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
-              g_free(str);
-              gtk_container_add(GTK_CONTAINER(vbox),label);
-              if(missing_machines) {
-                GList *node;
-                GtkWidget *missing_list, *missing_list_view;
-                gchar *missing_text,*ptr;
-                gint length=0;
-
-                label=gtk_label_new(_("The machines listed below are missing or failed to load."));
-                gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
-                gtk_container_add(GTK_CONTAINER(vbox),label);
-
-                for(node=missing_machines;node;node=g_list_next(node)) {
-                  length+=2+strlen((gchar *)(node->data));
-                }
-                ptr=missing_text=g_malloc(length);
-                for(node=missing_machines;node;node=g_list_next(node)) {
-                  length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
-                  ptr=&ptr[length];
-                }
-
-                missing_list = gtk_text_view_new();
-                gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
-                gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
-                gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(missing_list), GTK_WRAP_WORD);
-                gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
-                gtk_widget_show(missing_list);
-                g_free(missing_text);
-
-                missing_list_view = gtk_scrolled_window_new(NULL, NULL);
-                gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
-                gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-                gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
-                gtk_widget_show(missing_list_view);
-                gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
+                gtk_dialog_run(GTK_DIALOG(dialog));
+                gtk_widget_destroy(dialog);
               }
-              if(missing_waves) {
-                GList *node;
-                GtkWidget *missing_list, *missing_list_view;
-                gchar *missing_text,*ptr;
-                gint length=0;
-
-                label=gtk_label_new(_("The waves listed below are missing or failed to load."));
-                gtk_misc_set_alignment(GTK_MISC(label),0.0,0.5);
-                gtk_container_add(GTK_CONTAINER(vbox),label);
-
-                for(node=missing_waves;node;node=g_list_next(node)) {
-                  length+=2+strlen((gchar *)(node->data));
-                }
-                ptr=missing_text=g_malloc(length);
-                for(node=missing_waves;node;node=g_list_next(node)) {
-                  length=g_sprintf(ptr,"%s\n",(gchar *)(node->data));
-                  ptr=&ptr[length];
-                }
-
-                missing_list = gtk_text_view_new();
-                gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(missing_list), FALSE);
-                gtk_text_view_set_editable(GTK_TEXT_VIEW(missing_list), FALSE);
-                gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(missing_list), GTK_WRAP_WORD);
-                gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(missing_list)),missing_text,-1);
-                gtk_widget_show(missing_list);
-                g_free(missing_text);
-
-                missing_list_view = gtk_scrolled_window_new(NULL, NULL);
-                gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (missing_list_view), GTK_SHADOW_IN);
-                gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (missing_list_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-                gtk_container_add(GTK_CONTAINER(missing_list_view), missing_list);
-                gtk_widget_show(missing_list_view);
-                gtk_container_add(GTK_CONTAINER(vbox),missing_list_view);
-              }
-              gtk_container_add(GTK_CONTAINER(hbox),vbox);
-              gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
-              gtk_widget_show_all(dialog);
-
-              gtk_dialog_run(GTK_DIALOG(dialog));
-              gtk_widget_destroy(dialog);
             }
           }
           else {
@@ -631,7 +538,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
   }
   */
 
-  /* use GtkAboutDialog */
+  // @todo: move to new class
   dialog = gtk_about_dialog_new();
   g_object_set(dialog,
     "authors",authors,

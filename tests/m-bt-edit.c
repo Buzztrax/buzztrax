@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.30 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.31 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -39,6 +39,7 @@ extern Suite *bt_machine_preset_properties_dialog_suite(void);
 extern Suite *bt_machine_preferences_dialog_suite(void);
 extern Suite *bt_machine_properties_dialog_suite(void);
 extern Suite *bt_missing_framework_elements_dialog_suite(void);
+extern Suite *bt_missing_song_elements_dialog_suite(void);
 extern Suite *bt_pattern_properties_dialog_suite(void);
 extern Suite *bt_settings_dialog_suite(void);
 extern Suite *bt_wire_analysis_dialog_suite(void);
@@ -72,6 +73,9 @@ void bt_edit_setup(void) {
   gst_debug_category_set_threshold(bt_check_debug,GST_LEVEL_DEBUG);
   // no ansi color codes in logfiles please
   gst_debug_set_colored(FALSE);
+
+  // use our dummy settings
+  bt_settings_set_factory((BtSettingsFactory)bt_test_settings_new);
 
   check_setup_test_display();
 
@@ -118,6 +122,7 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_machine_preferences_dialog_suite());
   srunner_add_suite(sr, bt_machine_properties_dialog_suite());
   srunner_add_suite(sr, bt_missing_framework_elements_dialog_suite());
+  srunner_add_suite(sr, bt_missing_song_elements_dialog_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
   srunner_add_suite(sr, bt_settings_dialog_suite());
   srunner_add_suite(sr, bt_wire_analysis_dialog_suite());

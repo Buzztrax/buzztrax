@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.36 2007-03-25 14:18:30 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.37 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -294,6 +294,7 @@ static void bt_gconf_settings_init(GTypeInstance * const instance, gconstpointer
   self->priv->client=gconf_client_get_default();
   gconf_client_set_error_handling(self->priv->client,GCONF_CLIENT_HANDLE_UNRETURNED);
   // register the config cache
+  GST_DEBUG("listening to settings");
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GSTREAMER,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_GNOME,GCONF_CLIENT_PRELOAD_ONELEVEL,NULL);
   gconf_client_add_dir(self->priv->client,BT_GCONF_PATH_BUZZTARD,GCONF_CLIENT_PRELOAD_RECURSIVE,NULL);

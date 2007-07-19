@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.133 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.134 2007-07-19 20:39:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1725,21 +1725,22 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
   pattern=bt_pattern_new(song, id, name, bars, machine);
 
   // pattern_properties
-  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
-  gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-  gtk_widget_show_all(dialog);
+  if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+    gtk_widget_show_all(dialog);
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-    bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+      bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
 
-    GST_INFO("new pattern added : %p",pattern);
-    pattern_menu_refresh(self,machine);
-    context_menu_refresh(self,machine);
+      GST_INFO("new pattern added : %p",pattern);
+      pattern_menu_refresh(self,machine);
+      context_menu_refresh(self,machine);
+    }
+    else {
+      bt_machine_remove_pattern(machine,pattern);
+    }
+    gtk_widget_destroy(dialog);
   }
-  else {
-    bt_machine_remove_pattern(machine,pattern);
-  }
-  gtk_widget_destroy(dialog);
 
   // free ressources
   g_free(mid);
@@ -1764,13 +1765,19 @@ static void on_context_menu_pattern_properties_activate(GtkMenuItem *menuitem,gp
   g_return_if_fail(pattern);
 
   // pattern_properties
-  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
-  gtk_widget_show_all(dialog);
+  if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
+    BtMainWindow *main_window;
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-    bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+    g_object_unref(main_window);
+    gtk_widget_show_all(dialog);
+
+    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+      bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+    }
+    gtk_widget_destroy(dialog);
   }
-  gtk_widget_destroy(dialog);
   g_object_unref(pattern);
 }
 
@@ -1837,20 +1844,26 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
   g_return_if_fail(pattern);
 
   // pattern_properties
-  dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern));
-  gtk_widget_show_all(dialog);
+  if((dialog=GTK_WIDGET(bt_pattern_properties_dialog_new(self->priv->app,pattern)))) {
+    BtMainWindow *main_window;
 
-  if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
-    bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+    g_object_unref(main_window);
+    gtk_widget_show_all(dialog);
 
-    GST_INFO("new pattern added : %p",pattern);
-    pattern_menu_refresh(self,machine);
-    context_menu_refresh(self,machine);
+    if(gtk_dialog_run(GTK_DIALOG(dialog))==GTK_RESPONSE_ACCEPT) {
+      bt_pattern_properties_dialog_apply(BT_PATTERN_PROPERTIES_DIALOG(dialog));
+
+      GST_INFO("new pattern added : %p",pattern);
+      pattern_menu_refresh(self,machine);
+      context_menu_refresh(self,machine);
+    }
+    else {
+      bt_machine_remove_pattern(machine,pattern);
+    }
+    gtk_widget_destroy(dialog);
   }
-  else {
-    bt_machine_remove_pattern(machine,pattern);
-  }
-  gtk_widget_destroy(dialog);
 
   g_object_unref(pattern);
   g_object_unref(machine);
