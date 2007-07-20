@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.39 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: main-pages.c,v 1.40 2007-07-20 14:56:52 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -66,6 +66,66 @@ static GtkNotebookClass *parent_class=NULL;
 
 //-- event handler
 
+static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointer user_data) {
+  BtMainPages *self=BT_MAIN_PAGES(user_data);
+  BtSong *song;
+  BtSetup *setup;
+  GHashTable *properties;
+  gchar *prop;
+
+  g_assert(user_data);
+
+  GST_INFO("song has changed : app=%p, self=%p",app,self);
+  // get song from app
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!song) {
+    return;
+  }
+
+  // restore page
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(setup),"properties",&properties,NULL);
+  if((prop=(gchar *)g_hash_table_lookup(properties,"active-page"))) {
+    guint page=atoi(prop);
+    
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(self),page);
+    GST_INFO("reactivate page %d",page);
+  }
+
+  // release the reference
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
+  GST_INFO("song has changed done");
+}
+
+static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  BtMainPages *self=BT_MAIN_PAGES(user_data);
+  BtSong *song;
+  BtSetup *setup;
+  GHashTable *properties;
+  gchar *prop;
+
+  g_assert(user_data);
+
+  GST_INFO("page has switched : self=%p, page=%d",self,page_num);
+  // get objects
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!song) {
+    return;
+  }
+  
+  // remember page
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(setup),"properties",&properties,NULL);
+  prop=g_strdup_printf("%u",page_num);
+  g_hash_table_insert(properties,g_strdup("active-page"),prop);
+
+  // release the reference
+  g_object_try_unref(setup);
+  g_object_try_unref(song);
+  GST_INFO("page-switched done");
+}
+
 //-- helper methods
 
 static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,guint index,gchar *str,gchar *icon,gchar *tip) {
@@ -130,6 +190,10 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   // @idea add widgets for machine help view
   // GTK_STOCK_HELP icon
   // embed mozilla/gtk-html
+  
+  // register event handlers
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 
   GST_DEBUG("  done");
   return(TRUE);
@@ -227,6 +291,9 @@ static void bt_main_pages_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+  
+  g_signal_handlers_disconnect_matched(self->priv->app,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_changed,NULL);
+
   g_object_try_weak_unref(self->priv->app);
   // this disposes the pages for us
   G_OBJECT_CLASS(parent_class)->dispose(object);

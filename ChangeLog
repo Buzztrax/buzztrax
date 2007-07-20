@@ -1,5 +1,12 @@
 2007-07-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-machines.c: (machine_view_refresh):
+	* src/ui/edit/main-pages.c: (on_song_changed), (on_page_switched),
+	(bt_main_pages_init_ui), (bt_main_pages_dispose):
+	  Prepare remembering active tab for song.
+
+2007-07-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/bt-edit.h:
 	* src/ui/edit/machine-canvas-item.c:

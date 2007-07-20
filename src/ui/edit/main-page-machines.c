@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.106 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.107 2007-07-20 14:56:52 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -208,6 +208,8 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
     // draw machine
     machine_item_new(self,machine,pos_x,pos_y);
+    // @todo: get "properties-window-state" and if set,
+    // get xpos, ypos and open window
   }
   g_list_free(list);
 
@@ -227,6 +229,8 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     wire_item_new(self,wire,pos_xs,pos_ys,pos_xe,pos_ye,src_machine_item,dst_machine_item);
     g_object_try_unref(src_machine);
     g_object_try_unref(dst_machine);
+    // @todo: get "analyzer-window-state" and if set,
+    // get xpos, ypos and open window
   }
   g_list_free(list);
   gnome_canvas_item_lower_to_bottom(self->priv->grid);
