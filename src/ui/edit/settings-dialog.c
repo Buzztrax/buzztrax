@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.43 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.44 2007-07-20 07:58:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -361,10 +361,12 @@ static void bt_settings_dialog_set_property(GObject      *object,
         GtkTreePath *path;
 
         // switch page
-        selection=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->settings_list));
+        selection=gtk_tree_view_get_selection(self->priv->settings_list);
         if((path=gtk_tree_path_new_from_indices(self->priv->page,-1))) {
           gtk_tree_selection_select_path(selection,path);
+          gtk_tree_view_set_cursor(self->priv->settings_list,path,NULL,FALSE);
           gtk_tree_path_free(path);
+          on_settings_list_cursor_changed(self->priv->settings_list,(gpointer)self);
         }
       }
     } break;

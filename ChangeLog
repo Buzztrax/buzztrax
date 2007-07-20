@@ -1,3 +1,33 @@
+2007-07-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/POTFILES.in:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/about-dialog-methods.h:
+	* src/ui/edit/about-dialog.c: (on_about_dialog_url_clicked),
+	(bt_about_dialog_init_ui), (bt_about_dialog_new),
+	(bt_about_dialog_get_property), (bt_about_dialog_set_property),
+	(bt_about_dialog_dispose), (bt_about_dialog_finalize),
+	(bt_about_dialog_init), (bt_about_dialog_class_init),
+	(bt_about_dialog_get_type):
+	* src/ui/edit/about-dialog.h:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/edit-application.c: (bt_edit_application_show_about):
+	* src/ui/edit/main-menu.c: (on_menu_render_activate):
+	* src/ui/edit/pattern-properties-dialog.h:
+	* src/ui/edit/render-dialog.c: (bt_render_dialog_init_ui):
+	* src/ui/edit/render-dialog.h:
+	* src/ui/edit/settings-dialog.c: (bt_settings_dialog_set_property):
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-about-dialog.c: (test_setup), (test_teardown),
+	(BT_START_TEST), (bt_about_dialog_example_case):
+	* tests/ui/edit/e-bt-render-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST), (bt_render_dialog_example_case):
+	* tests/ui/edit/s-bt-about-dialog.c: (bt_about_dialog_suite):
+	* tests/ui/edit/s-bt-render-dialog.c: (bt_render_dialog_suite):
+	  About dialog factored out. Tests added for about dialog and renderer
+	  dialog. Fix switchin pages in settings dialog.
+
 2007-07-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/gconf-settings.c: (bt_gconf_settings_init):

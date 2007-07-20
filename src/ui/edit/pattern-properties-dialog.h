@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.h,v 1.4 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: pattern-properties-dialog.h,v 1.5 2007-07-20 07:58:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,7 +41,7 @@ typedef struct _BtPatternPropertiesDialogPrivate BtPatternPropertiesDialogPrivat
 /**
  * BtPatternPropertiesDialog:
  *
- * the root window for the editor application
+ * the pattern settings dialog
  */
 struct _BtPatternPropertiesDialog {
   GtkDialog parent;

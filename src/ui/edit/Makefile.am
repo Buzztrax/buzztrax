@@ -11,6 +11,7 @@ bt_edit_SOURCES= \
 
 noinst_LTLIBRARIES      = libbtedit.la
 libbtedit_la_SOURCES   = \
+	about-dialog.c about-dialog.h about-dialog-methods.h \
 	edit-application.c edit-application.h edit-application-methods.h \
 	interaction-controller-menu.c interaction-controller-menu.h interaction-controller-menu-methods.h \
 	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\

@@ -9,6 +9,7 @@ src/lib/core/song-info.c
 src/lib/ic/ic.c
 src/ui/cmd/bt-cmd.c
 src/ui/cmd/cmd-application.c
+src/ui/edit/about-dialog.c
 src/ui/edit/bt-edit.c
 src/ui/edit/bt-edit.desktop
 src/ui/edit/edit-application.c
@@ -31,6 +32,7 @@ src/ui/edit/main-toolbar.c
 src/ui/edit/main-window.c
 src/ui/edit/missing-framework-elements-dialog.c
 src/ui/edit/pattern-properties-dialog.c
+src/ui/edit/render-dialog.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
 src/ui/edit/settings-page-interaction-controller.c

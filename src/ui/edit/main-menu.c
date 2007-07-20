@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.72 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: main-menu.c,v 1.73 2007-07-20 07:58:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -111,13 +111,18 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   GST_INFO("menu render event occurred");
   if((dialog=GTK_WIDGET(bt_render_dialog_new(self->priv->app)))) {
     BtMainWindow *main_window;
+    gint answer;
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
     gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
     g_object_try_unref(main_window);
     gtk_widget_show_all(dialog);
-
-    gtk_dialog_run(GTK_DIALOG(dialog));
+    answer=gtk_dialog_run(GTK_DIALOG(dialog));
+    if(answer==GTK_RESPONSE_ACCEPT) {
+      // @todo: get settings from dialog
+      // @todo: run song rendering
+      
+    }
     gtk_widget_destroy(dialog);
   }
 }

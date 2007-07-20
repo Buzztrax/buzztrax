@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.104 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: edit-application.c,v 1.105 2007-07-20 07:58:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -200,10 +200,6 @@ static gboolean bt_edit_application_run_ui(const BtEditApplication *self) {
 
   GST_INFO("application.run_ui finished : %d",res);
   return(res);
-}
-
-static void on_about_dialog_url_clicked(GtkAboutDialog *about, const gchar *link, gpointer user_data) {
-  gnome_vfs_url_show(link);
 }
 
 //-- constructor methods
@@ -513,92 +509,19 @@ gboolean bt_edit_application_load_and_run(const BtEditApplication *self, const g
  * Shows the applications about window
  */
 void bt_edit_application_show_about(const BtEditApplication *self) {
-  GtkWidget *dialog,*news,*news_view;
-  static const gchar *authors[] = {
-    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
-    "Thomas 'waffel' Wabner <waffel@users.sf.net>",
-    "Patric Schmitz  <berzerka@users.sf.net>",
-    NULL
-  };
-  static const gchar *documenters[] = {
-    "Stefan 'ensonic' Kost <ensonic@users.sf.net>",
-    NULL
-  };
+  GtkWidget *dialog;
 
   GST_INFO("menu about event occurred");
 
-  /* we can get logo via icon name, so this here is just for educational purpose
-  GdkPixbuf *logo;
-  GError *error = NULL;
-  logo=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",48,0,&error);
-  //logo = gdk_pixbuf_new_from_file(DATADIR""G_DIR_SEPARATOR_S"icons"G_DIR_SEPARATOR_S"hicolor"G_DIR_SEPARATOR_S"48x48"G_DIR_SEPARATOR_S"apps"G_DIR_SEPARATOR_S""PACKAGE".png",&error);
-  if(!logo) {
-    GST_WARNING("Couldn't load icon: %s", error->message);
-    g_error_free(error);
+  if((dialog=GTK_WIDGET(bt_about_dialog_new(self)))) {
+    // set parent relationship
+    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
+    gtk_widget_show_all(GTK_WIDGET(dialog));
+  
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
   }
-  */
-
-  // @todo: move to new class
-  dialog = gtk_about_dialog_new();
-  g_object_set(dialog,
-    "authors",authors,
-    "comments",_("Music production environment"),
-    "copyright",_("Copyright \xc2\xa9 2003-2007 Buzztard developer team"),
-    "documenters", documenters,
-    /* http://www.gnu.org/licenses/lgpl.html, http://www.gnu.de/lgpl-ger.html */
-    "license", _(
-      "This package is free software; you can redistribute it and/or "
-      "modify it under the terms of the GNU Library General Public "
-      "License as published by the Free Software Foundation; either "
-      "version 2 of the License, or (at your option) any later version."
-      "\n\n"
-      "This package is distributed in the hope that it will be useful, "
-      "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-      "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU "
-      "Library General Public License for more details."
-      "\n\n"
-      "You should have received a copy of the GNU Library General Public "
-      "License along with this package; if not, write to the "
-      "Free Software Foundation, Inc., 59 Temple Place - Suite 330, "
-      "Boston, MA 02111-1307, USA."
-    ),
-    "logo-icon-name",PACKAGE_NAME,
-    "version", PACKAGE_VERSION,
-    "website","http://www.buzztard.org",
-    "wrap-license",TRUE,
-    NULL);
-
-  // install hooks for hyper-links
-  gtk_about_dialog_set_email_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
-  gtk_about_dialog_set_url_hook(on_about_dialog_url_clicked, (gpointer)self, NULL);
-
-  // add the NEWS directly below copyright
-  news = gtk_text_view_new();
-  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(news), FALSE);
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(news), FALSE);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(news), GTK_WRAP_WORD);
-  gtk_text_buffer_set_text(gtk_text_view_get_buffer(GTK_TEXT_VIEW(news)),
-    _("This version has lots of UI usability improvements, bug fixes, "
-      "more instant apply settings and introduces some interactivity features "
-      "(interaction controller and upnp playback controller)."
-    ),-1);
-  //gtk_widget_show(news);
-
-  news_view = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW (news_view), GTK_SHADOW_IN);
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (news_view), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_container_add(GTK_CONTAINER(news_view), news);
-  //gtk_widget_show(news_view);
-  gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), news_view, TRUE, TRUE, 0);
-
-  // set parent relationship
-  gtk_dialog_set_has_separator(GTK_DIALOG(dialog), TRUE);
-  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
-  gtk_widget_show_all(GTK_WIDGET(dialog));
-  gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
-
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
 }
 
 //-- wrapper

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.50 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: bt-edit.h,v 1.51 2007-07-20 07:58:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,6 +48,7 @@
 #include <hildon-widgets/hildon-program.h>
 #endif
 
+#include "about-dialog-methods.h"
 #include "edit-application-methods.h"
 #include "interaction-controller-menu-methods.h"
 #include "machine-canvas-item-methods.h"

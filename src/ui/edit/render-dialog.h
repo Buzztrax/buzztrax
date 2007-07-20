@@ -1,4 +1,4 @@
-/* $Id: render-dialog.h,v 1.1 2007-07-18 14:32:14 ensonic Exp $
+/* $Id: render-dialog.h,v 1.2 2007-07-20 07:58:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -41,7 +41,7 @@ typedef struct _BtRenderDialogPrivate BtRenderDialogPrivate;
 /**
  * BtRenderDialog:
  *
- * the root window for the editor application
+ * the song rendering dialog for the editor application
  */
 struct _BtRenderDialog {
   GtkDialog parent;

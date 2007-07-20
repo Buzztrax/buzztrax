@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.3 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: render-dialog.c,v 1.4 2007-07-20 07:58:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -23,6 +23,9 @@
  * @short_description: class for the editor render dialog
  *
  * Provides UI to access the song recording
+ */
+/* @todo: need readable properties for the settings
+ * 
  */
 
 #define BT_EDIT
@@ -69,10 +72,10 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_box_set_spacing(GTK_BOX(box),12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
-  table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
+  table=gtk_table_new(/*rows=*/5,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
 
-  label=gtk_label_new(_("Select a folder"));
+  label=gtk_label_new(_("Folder"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
 
@@ -80,9 +83,19 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   //gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (button), "/etc");
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   
-  label=gtk_label_new(_("Select a format"));
+  
+  label=gtk_label_new(_("Filename"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
+  
+  // query supported formats from sinkbin
+  widget=gtk_entry_new();
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  
+  
+  label=gtk_label_new(_("Format"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
   
   // query supported formats from sinkbin
   widget=gtk_combo_box_new_text();
@@ -93,14 +106,21 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
     }
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),0);
-  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
   
-  /* @todo: add widgets
-    o choose filename/basename
-    * choose format
-    o choose mode
-      o mixdown
-      o one clip per track
+  
+  label=gtk_label_new(_("Mode"));
+  gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
+  gtk_table_attach(GTK_TABLE(table),label, 0, 1, 3, 4, GTK_SHRINK,GTK_SHRINK, 2,1);
+  
+  // query supported formats from sinkbin
+  widget=gtk_combo_box_new_text();
+  gtk_combo_box_append_text(GTK_COMBO_BOX(widget),_("Mixdown"));
+  gtk_combo_box_append_text(GTK_COMBO_BOX(widget),_("Single tracks"));
+  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),0);
+  gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
+  
+  /* @todo: add widgets and callbacks
     o write project file
       o none, jokosher, ...
   */
