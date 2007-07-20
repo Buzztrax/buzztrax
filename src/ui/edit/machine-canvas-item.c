@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.86 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.87 2007-07-20 13:49:23 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -300,66 +300,25 @@ static void on_context_menu_preferences_activate(GtkMenuItem *menuitem,gpointer 
 
 static void on_context_menu_rename_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMachineCanvasItem *self=BT_MACHINE_CANVAS_ITEM(user_data);
-  BtMainWindow *main_window;
-  gint answer;
-  GtkWidget *label,*entry,*icon,*hbox,*vbox;
-  gchar *str,*id;
   GtkWidget *dialog;
 
   g_assert(user_data);
   GST_INFO("context_menu rename event occurred");
 
-  g_object_get(self->priv->app,"main-window",&main_window,NULL);
-  g_object_get(self->priv->machine,"id",&id,NULL);
+  if((dialog=GTK_WIDGET(bt_machine_rename_dialog_new(self->priv->app,self->priv->machine)))) {
+    BtMainWindow *main_window;
+    gint answer;
 
-  // @todo: move to new class
-  dialog = gtk_dialog_new_with_buttons(_("Rename ..."),
-                                        GTK_WINDOW(main_window),
-                                        GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-                                        GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
-                                        GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
-                                        NULL);
-
-  gtk_dialog_set_default_response(GTK_DIALOG(dialog),GTK_RESPONSE_ACCEPT);
-
-  hbox=gtk_hbox_new(FALSE,12);
-  gtk_container_set_border_width(GTK_CONTAINER(hbox),6);
-
-  icon=gtk_image_new_from_stock(GTK_STOCK_DIALOG_QUESTION,GTK_ICON_SIZE_DIALOG);
-  gtk_container_add(GTK_CONTAINER(hbox),icon);
-
-  vbox=gtk_vbox_new(FALSE,12);
-  gtk_container_set_border_width(GTK_CONTAINER(vbox),0);
-
-  label=gtk_label_new(NULL);
-  str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",_("Rename ..."),_("choose a new name for the machine"));
-  gtk_label_set_markup(GTK_LABEL(label),str);
-  g_free(str);
-  gtk_container_add(GTK_CONTAINER(vbox),label);
-  entry=gtk_entry_new();
-  gtk_entry_set_text(GTK_ENTRY(entry),id);g_free(id);
-  gtk_entry_set_activates_default(GTK_ENTRY(entry),TRUE);
-  gtk_container_add(GTK_CONTAINER(vbox),entry);
-  gtk_container_add(GTK_CONTAINER(hbox),vbox);
-  gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),hbox);
-  gtk_widget_show_all(dialog);
-
-  answer=gtk_dialog_run(GTK_DIALOG(dialog));
-  switch(answer) {
-    case GTK_RESPONSE_ACCEPT:
-      id=(gchar *)gtk_entry_get_text(GTK_ENTRY(entry));
-      GST_INFO("set new name : \"%s\"",id);
-      g_object_set(self->priv->machine,"id",g_strdup(id),NULL);
-      break;
-    case GTK_RESPONSE_REJECT:
-      GST_INFO("do nothing");
-      break;
-    default:
-      GST_WARNING("unhandled response code = %d",answer);
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
+    g_object_try_unref(main_window);
+    gtk_widget_show_all(dialog);
+    answer=gtk_dialog_run(GTK_DIALOG(dialog));
+    if(answer==GTK_RESPONSE_ACCEPT) {
+      bt_machine_rename_dialog_apply(BT_MACHINE_RENAME_DIALOG(dialog));
+    }
+    gtk_widget_destroy(dialog);
   }
-  gtk_widget_destroy(dialog);
-
-  g_object_try_unref(main_window);
 }
 
 static void on_context_menu_delete_activate(GtkMenuItem *menuitem,gpointer user_data) {

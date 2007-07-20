@@ -1,7 +1,7 @@
-/* $Id: e-bt-missing-framework-elements-dialog.c,v 1.3 2007-07-20 13:49:26 ensonic Exp $
+/* $Id: e-bt-machine-rename-dialog.c,v 1.1 2007-07-20 13:49:26 ensonic Exp $
  *
  * Buzztard
- * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
+ * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -36,84 +36,57 @@ static void test_teardown(void) {
 //-- tests
 
 // create app and then unconditionally destroy window
-BT_START_TEST(test_create_empty_dialog) {
-  BtEditApplication *app;
-  BtMainWindow *main_window;
-  GtkWidget *dialog;
-
-  app=bt_edit_application_new();
-  GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
-  fail_unless(app != NULL, NULL);
-
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
-
-  // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(app,NULL,NULL));
-  fail_unless(dialog!=NULL, NULL);
-  gtk_widget_show_all(dialog);
-  // leave out that line! (modal dialog)
-  //gtk_dialog_run(GTK_DIALOG(dialog));
-
-  gtk_widget_destroy(dialog);
-
-  // close window
-  g_object_unref(main_window);
-  gtk_widget_destroy(GTK_WIDGET(main_window));
-  while(gtk_events_pending()) gtk_main_iteration();
-
-  // free application
-  GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
-  g_object_checked_unref(app);
-}
-BT_END_TEST
-
 BT_START_TEST(test_create_dialog) {
   BtEditApplication *app;
   BtMainWindow *main_window;
+  BtSong *song;
+  BtMachine *machine;
   GtkWidget *dialog;
-  GList *missing_elements=NULL;
 
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
 
-  // get window
-  g_object_get(app,"main-window",&main_window,NULL);
-  fail_unless(main_window != NULL, NULL);
+  // create a new song
+  bt_edit_application_new_song(app);
 
-  // add a space here, so that it cannot be filtered
-  missing_elements=g_list_append(missing_elements,"level ");
-  missing_elements=g_list_append(missing_elements,"-> You will not see any level-meters");
+  // get window and close it
+  g_object_get(app,"main-window",&main_window,"song",&song,NULL);
+  fail_unless(main_window != NULL, NULL);
+  fail_unless(song != NULL, NULL);
+
+  // create a source machine
+  machine=BT_MACHINE(bt_source_machine_new(song,"gen","buzztard-test-mono-source",0));
+  fail_unless(machine!=NULL, NULL);
 
   // create, show and destroy dialog
-  dialog=GTK_WIDGET(bt_missing_framework_elements_dialog_new(app,NULL,missing_elements));
+  dialog=GTK_WIDGET(bt_machine_rename_dialog_new(app,machine));
   fail_unless(dialog!=NULL, NULL);
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));
-
+  
   // make screenshot
   check_make_widget_screenshot(GTK_WIDGET(dialog),NULL);
-
+  
   gtk_widget_destroy(dialog);
-
+  
   // close window
   g_object_unref(main_window);
   gtk_widget_destroy(GTK_WIDGET(main_window));
   while(gtk_events_pending()) gtk_main_iteration();
-
+  
   // free application
   GST_INFO("app->ref_ct=%d",G_OBJECT(app)->ref_count);
+  g_object_unref(machine);
+  g_object_unref(song);
   g_object_checked_unref(app);
 }
 BT_END_TEST
 
-TCase *bt_missing_framework_elements_dialog_example_case(void) {
-  TCase *tc = tcase_create("BtMissingFrameworkElementsDialogExamples");
-
-  tcase_add_test(tc,test_create_empty_dialog);
+TCase *bt_machine_rename_dialog_example_case(void) {
+  TCase *tc = tcase_create("BtMachineRenameDialogExamples");
+  
   tcase_add_test(tc,test_create_dialog);
   // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);

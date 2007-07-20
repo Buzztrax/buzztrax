@@ -20,6 +20,7 @@ libbtedit_la_SOURCES   = \
 	machine-preset-properties-dialog.c machine-preset-properties-dialog.h machine-preset-properties-dialog-methods.h \
 	machine-properties-dialog.c machine-properties-dialog.h machine-properties-dialog-methods.h \
 	machine-preferences-dialog.c machine-preferences-dialog.h machine-preferences-dialog-methods.h \
+	machine-rename-dialog.c machine-rename-dialog.h machine-rename-dialog-methods.h \
 	main-window.c main-window.h main-window-methods.h \
 	main-menu.c main-menu.h main-menu-methods.h \
 	main-toolbar.c main-toolbar.h main-toolbar-methods.h \

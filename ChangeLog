@@ -1,5 +1,61 @@
 2007-07-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/machine-canvas-item.c:
+	(on_context_menu_rename_activate):
+	* src/ui/edit/machine-rename-dialog-methods.h:
+	* src/ui/edit/machine-rename-dialog.c: (on_name_changed),
+	(bt_machine_rename_dialog_init_ui), (bt_machine_rename_dialog_new),
+	(bt_machine_rename_dialog_apply),
+	(bt_machine_rename_dialog_get_property),
+	(bt_machine_rename_dialog_set_property),
+	(bt_machine_rename_dialog_dispose),
+	(bt_machine_rename_dialog_finalize),
+	(bt_machine_rename_dialog_init),
+	(bt_machine_rename_dialog_class_init),
+	(bt_machine_rename_dialog_get_type):
+	* src/ui/edit/machine-rename-dialog.h:
+	  Another dialog factored out.
+
+	* src/ui/edit/pattern-properties-dialog.c: (on_name_changed),
+	(bt_pattern_properties_dialog_init_ui):
+	  Simplify validation.
+
+	* src/ui/edit/wire-analysis-dialog.c: (on_wire_analyzer_change):
+	  Lower prioriy.
+
+	* tests/bt-check.c: (check_make_widget_screenshot):
+	  Add more ideas.
+
+	* tests/bt-test-settings.c: (bt_test_settings_get_property):
+	  Add new settings.
+
+	* tests/m-bt-edit.c: (main):
+	* tests/ui/edit/Makefile.am:
+	* tests/ui/edit/e-bt-about-dialog.c:
+	(bt_about_dialog_example_case):
+	* tests/ui/edit/e-bt-machine-preset-properties-dialog.c:
+	(bt_machine_preset_properties_dialog_example_case):
+	* tests/ui/edit/e-bt-machine-rename-dialog.c: (test_setup),
+	(test_teardown), (BT_START_TEST),
+	(bt_machine_rename_dialog_example_case):
+	* tests/ui/edit/e-bt-missing-framework-elements-dialog.c:
+	(bt_missing_framework_elements_dialog_example_case):
+	* tests/ui/edit/e-bt-missing-song-elements-dialog.c:
+	(bt_missing_song_elements_dialog_example_case):
+	* tests/ui/edit/e-bt-pattern-properties-dialog.c:
+	(bt_pattern_properties_dialog_example_case):
+	* tests/ui/edit/e-bt-render-dialog.c:
+	(bt_render_dialog_example_case):
+	* tests/ui/edit/e-bt-settings-dialog.c:
+	(bt_settings_dialog_example_case):
+	* tests/ui/edit/s-bt-machine-rename-dialog.c:
+	(bt_machine_rename_dialog_suite):
+	  New test. Comment typo fixes.
+
+2007-07-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/POTFILES.in:
 	* src/ui/edit/Makefile.am:
 	* src/ui/edit/about-dialog-methods.h:

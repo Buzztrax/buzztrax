@@ -1,4 +1,4 @@
-/* $Id: pattern-properties-dialog.c,v 1.24 2007-07-04 19:41:22 ensonic Exp $
+/* $Id: pattern-properties-dialog.c,v 1.25 2007-07-20 13:49:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,21 +68,26 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtPattern *pattern;
   gchar *id;
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
+  gboolean unique=FALSE;
 
   g_assert(user_data);
   GST_DEBUG("change name");
   // assure uniqueness of the entered data
-  id=g_strdup_printf("%s %s",self->priv->machine_id,name);
-  pattern=bt_machine_get_pattern_by_id(self->priv->machine,id);
-  if(!(*name) || (pattern && (pattern!=self->priv->pattern))) {
-    GST_INFO("not unique '%s'",id);
-    gtk_widget_set_sensitive(self->priv->okay_button,FALSE);
+  if(*name) {
+    id=g_strdup_printf("%s %s",self->priv->machine_id,name);
+    if((pattern=bt_machine_get_pattern_by_id(self->priv->machine,id))) {
+      if(pattern==self->priv->pattern) {
+        unique=TRUE;
+      }
+      g_object_unref(pattern);
+    }
+    else {
+      unique=TRUE;
+    }
+    g_free(id);
   }
-  else {
-    GST_INFO("unique    '%s'",id);
-    gtk_widget_set_sensitive(self->priv->okay_button,TRUE);
-  }
-  g_free(id);
+  GST_INFO("%s""unique '%s'",(unique?"not ":""),name);
+  gtk_widget_set_sensitive(self->priv->okay_button,unique);
   // update field
   g_free(self->priv->name);
   self->priv->name=g_strdup(name);
@@ -111,7 +116,7 @@ static void on_voices_changed(GtkSpinButton *spinbutton,gpointer user_data) {
 static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDialog *self) {
   GtkWidget *box,*label,*widget,*table;
   GtkAdjustment *spin_adjustment;
-  gchar *name,*title,*length_str;
+  gchar *title,*length_str;
   //GdkPixbuf *window_icon=NULL;
   GList *buttons;
 
@@ -124,11 +129,14 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
   }
   */
 
+  // get dialog data
+  g_object_get(self->priv->pattern,"name",&self->priv->name,"length",&self->priv->length,"voices",&self->priv->voices,"machine",&self->priv->machine,NULL);
+  g_object_get(self->priv->machine,"id",&self->priv->machine_id,NULL);
+
   // set a title
-  g_object_get(self->priv->pattern,"name",&name,NULL);
-  title=g_strdup_printf(_("%s properties"),name);
+  title=g_strdup_printf(_("%s properties"),self->priv->name);
   gtk_window_set_title(GTK_WINDOW(self),title);
-  g_free(name);g_free(title);
+  g_free(title);
 
     // add dialog commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
@@ -151,9 +159,6 @@ static gboolean bt_pattern_properties_dialog_init_ui(const BtPatternPropertiesDi
 
   table=gtk_table_new(/*rows=*/3,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
-
-  g_object_get(G_OBJECT(self->priv->pattern),"name",&self->priv->name,"length",&self->priv->length,"voices",&self->priv->voices,"machine",&self->priv->machine,NULL);
-  g_object_get(G_OBJECT(self->priv->machine),"id",&self->priv->machine_id,NULL);
 
   // GtkEntry : pattern name
   label=gtk_label_new(_("name"));

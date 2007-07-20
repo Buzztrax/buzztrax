@@ -1,4 +1,4 @@
-/* $Id: e-bt-pattern-properties-dialog.c,v 1.9 2007-07-02 11:23:31 ensonic Exp $
+/* $Id: e-bt-pattern-properties-dialog.c,v 1.10 2007-07-20 13:49:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -94,7 +94,7 @@ TCase *bt_pattern_properties_dialog_example_case(void) {
   TCase *tc = tcase_create("BtPatternPropertiesDialogExamples");
   
   tcase_add_test(tc,test_create_dialog);
-  // we *must* use a checked fixture, as only this runns in the same context
+  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   // we need to disable the default timeout of 3 seconds a little
   tcase_set_timeout(tc, 0);

@@ -1,4 +1,4 @@
-/* $Id: e-bt-settings-dialog.c,v 1.16 2007-07-18 18:19:21 ensonic Exp $
+/* $Id: e-bt-settings-dialog.c,v 1.17 2007-07-20 13:49:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -88,7 +88,7 @@ TCase *bt_settings_dialog_example_case(void) {
   TCase *tc = tcase_create("BtSettingsDialogExamples");
 
   tcase_add_test(tc,test_create_dialog);
-  // we *must* use a checked fixture, as only this runns in the same context
+  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   // we need to disable the default timeout of 3 seconds a little
   tcase_set_timeout(tc, 0);

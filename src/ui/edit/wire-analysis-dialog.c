@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.16 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.17 2007-07-20 13:49:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -307,7 +307,7 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
 
   if(!self->priv->paint_handler_id && change) {
     // add idle-handler that redraws gfx
-    self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_DEFAULT_IDLE,on_wire_analyzer_redraw,(gpointer)self,NULL);
+    self->priv->paint_handler_id=g_idle_add_full(G_PRIORITY_LOW,on_wire_analyzer_redraw,(gpointer)self,NULL);
   }
 }
 

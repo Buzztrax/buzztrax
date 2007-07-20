@@ -1,4 +1,4 @@
-/* $Id: bt-test-settings.c,v 1.4 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: bt-test-settings.c,v 1.5 2007-07-20 13:49:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -80,7 +80,9 @@ static void bt_test_settings_get_property(GObject      * const object,
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
     case BT_SETTINGS_NEWS_SEEN:
-    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+    case BT_SETTINGS_MISSING_MACHINES:
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
+    {
       if(prop) {
         g_value_set_string(value, g_value_get_string(prop));
       }
@@ -89,7 +91,9 @@ static void bt_test_settings_get_property(GObject      * const object,
       }
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
-    case BT_SETTINGS_MENU_TABS_HIDE: {
+    case BT_SETTINGS_MENU_TABS_HIDE:
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE:
+    {
       if(prop) {
         g_value_set_boolean(value, g_value_get_boolean(prop));
       }
@@ -97,6 +101,15 @@ static void bt_test_settings_get_property(GObject      * const object,
         g_value_set_boolean(value, ((GParamSpecBoolean *)pspec)->default_value);
       }
     } break; 
+    case BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT:
+    {
+      if(prop) {
+        g_value_set_uint(value, g_value_get_uint(prop));
+      }
+      else {
+        g_value_set_uint(value, ((GParamSpecUInt *)pspec)->default_value);
+      }
+    } break;
     default: {
       G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
     } break;

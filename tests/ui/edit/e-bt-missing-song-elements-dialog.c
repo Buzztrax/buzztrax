@@ -1,4 +1,4 @@
-/* $Id: e-bt-missing-song-elements-dialog.c,v 1.1 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: e-bt-missing-song-elements-dialog.c,v 1.2 2007-07-20 13:49:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -116,7 +116,7 @@ TCase *bt_missing_song_elements_dialog_example_case(void) {
 
   tcase_add_test(tc,test_create_empty_dialog);
   tcase_add_test(tc,test_create_dialog);
-  // we *must* use a checked fixture, as only this runns in the same context
+  // we *must* use a checked fixture, as only this runs in the same context
   tcase_add_checked_fixture(tc, test_setup, test_teardown);
   // we need to disable the default timeout of 3 seconds a little
   tcase_set_timeout(tc, 0);

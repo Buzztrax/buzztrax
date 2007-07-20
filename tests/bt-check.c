@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.37 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: bt-check.c,v 1.38 2007-07-20 13:49:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -881,8 +881,10 @@ void check_shutdown_test_server(void) {
 /*
  * check_make_widget_screenshot:
  * @widget: a #GtkWidget to screenshoot
+ * @name: filename or NULL.
  *
- *
+ * Captures the given widget as png files. The filename is built from tmpdir,
+ * application-name, widget-name and give @name.
  */
 void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   GdkColormap *colormap=gdk_colormap_get_system();
@@ -905,11 +907,15 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   while(gtk_events_pending()) gtk_main_iteration();
 
   if(!name) {
-    filename=g_strdup_printf("/tmp/%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget));
+    filename=g_strdup_printf("%s"G_DIR_SEPARATOR_S"%s_%s.png",
+      g_get_tmp_dir(),g_get_prgname(),gtk_widget_get_name(widget));
   }
   else {
-    filename=g_strdup_printf("/tmp/%s_%s_%s.png",g_get_prgname(),gtk_widget_get_name(widget),name);
+    filename=g_strdup_printf("%s"G_DIR_SEPARATOR_S"%s_%s_%s.png",
+      g_get_tmp_dir(),g_get_prgname(),gtk_widget_get_name(widget),name);
   }
+  /* @todo: if file exists, make backup */
+  /* @todo: remember all names to build an index.html with a table and all images */
 
   gdk_window_get_geometry(window,&wx,&wy,&ww,&wh,NULL);
   //pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB,FALSE,8,ww,wh);
@@ -917,6 +923,12 @@ void check_make_widget_screenshot(GtkWidget *widget, const gchar *name) {
   pixbuf = gdk_pixbuf_get_from_drawable(NULL,window,colormap,0,0,0,0,ww,wh);
   scaled_pixbuf = gdk_pixbuf_scale_simple(pixbuf,ww*0.75, wh*0.75, GDK_INTERP_HYPER);
   gdk_pixbuf_save(scaled_pixbuf,filename,"png",NULL,NULL);
+  
+  /* @todo: create diff images
+   * load old image and subtract pixels
+   * - should we use the backup or a reference picture?
+   * - should we return a boolean for detected pixel changes?
+   */
 
   /* @todo: add shadow to screenshots
   // see: http://developer.gnome.org/doc/books/WGA/graphics-gdk-pixbuf.html

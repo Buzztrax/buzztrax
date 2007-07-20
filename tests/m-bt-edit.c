@@ -1,4 +1,4 @@
-/* $Id: m-bt-edit.c,v 1.32 2007-07-20 07:58:20 ensonic Exp $
+/* $Id: m-bt-edit.c,v 1.33 2007-07-20 13:49:26 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -39,6 +39,7 @@ extern Suite *bt_edit_application_suite(void);
 extern Suite *bt_machine_preset_properties_dialog_suite(void);
 extern Suite *bt_machine_preferences_dialog_suite(void);
 extern Suite *bt_machine_properties_dialog_suite(void);
+extern Suite *bt_machine_rename_dialog_suite(void);
 extern Suite *bt_missing_framework_elements_dialog_suite(void);
 extern Suite *bt_missing_song_elements_dialog_suite(void);
 extern Suite *bt_pattern_properties_dialog_suite(void);
@@ -124,6 +125,7 @@ int main(int argc, char **argv) {
   srunner_add_suite(sr, bt_machine_preset_properties_dialog_suite());
   srunner_add_suite(sr, bt_machine_preferences_dialog_suite());
   srunner_add_suite(sr, bt_machine_properties_dialog_suite());
+  srunner_add_suite(sr, bt_machine_rename_dialog_suite());
   srunner_add_suite(sr, bt_missing_framework_elements_dialog_suite());
   srunner_add_suite(sr, bt_missing_song_elements_dialog_suite());
   srunner_add_suite(sr, bt_pattern_properties_dialog_suite());
