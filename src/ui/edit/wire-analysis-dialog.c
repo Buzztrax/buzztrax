@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.17 2007-07-20 13:49:25 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.18 2007-07-22 19:16:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -101,76 +101,6 @@ struct _BtWireAnalysisDialogPrivate {
 static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
-
-/*
- * on_wire_analyzer_change:
- *
- * #GstBus handler that listens for new data from analyzers and stores them away
- * for on_wire_analyzer_redraw().
- */
-#if 0
-static gboolean on_wire_analyzer_change(GstBus *bus, GstMessage *message, gpointer user_data) {
-  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
-  gboolean res=FALSE;
-  g_assert(user_data);
-
-  switch(GST_MESSAGE_TYPE(message)) {
-    case GST_MESSAGE_ELEMENT: {
-      const GstStructure *structure=gst_message_get_structure(message);
-      const gchar *name = gst_structure_get_name(structure);
-
-      if(!strcmp(name,"level")) {
-        const GValue *l_rms,*l_peak;
-        guint i;
-        gdouble val;
-
-        //GST_INFO("get level data");
-        l_rms=(GValue *)gst_structure_get_value(structure, "rms");
-        l_peak=(GValue *)gst_structure_get_value(structure, "peak");
-        //l_decay=(GValue *)gst_structure_get_value(structure, "decay");
-        // size of list is number of channels
-        // we use -120db as the minimum db value
-        switch(gst_value_list_get_size(l_rms)) {
-          case 1:
-              val=g_value_get_double(gst_value_list_get_value(l_rms,0));
-              self->priv->rms[0]=isinf(val)?0.0:120.0+val;
-              self->priv->rms[1]=self->priv->rms[0];
-              val=g_value_get_double(gst_value_list_get_value(l_peak,0));
-              self->priv->peak[0]=isinf(val)?0.0:120.0+val;
-              self->priv->peak[1]=self->priv->peak[0];
-            break;
-          case 2:
-            for(i=0;i<2;i++) {
-              val=g_value_get_double(gst_value_list_get_value(l_rms,i));
-              self->priv->rms[i]=isinf(val)?0.0:120.0+val;
-              val=g_value_get_double(gst_value_list_get_value(l_peak,i));
-              self->priv->peak[i]=isinf(val)?0.0:120.0+val;
-            }
-            break;
-        }
-        res=TRUE;
-      }
-      else if(!strcmp(name,"spectrum")) {
-        const GValue *list;
-        const GValue *value;
-        guint i;
-
-        //GST_INFO("get spectrum data");
-        list = gst_structure_get_value (structure, "spectrum");
-        // SPECT_BANDS=gst_value_list_get_size(list)
-        for (i = 0; i < SPECT_BANDS; ++i) {
-          value = gst_value_list_get_value (list, i);
-          self->priv->spect[i] = g_value_get_uchar (value);
-        }
-      }
-    } break;
-    default:
-      //GST_INFO("received bus message: type=%s",gst_message_type_get_name(GST_MESSAGE_TYPE(message)));
-      break;
-  }
-  return(res);
-}
-#endif
 
 /*
  * on_wire_analyzer_redraw:
@@ -311,6 +241,26 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
   }
 }
 
+static void on_wire_analyzer_state_changed(const GstBus * const bus, GstMessage *message, gconstpointer user_data) {
+  BtWireAnalysisDialog *self=BT_WIRE_ANALYSIS_DIALOG(user_data);
+
+  if(GST_IS_PIPELINE(GST_MESSAGE_SRC(message))) {
+    GstState oldstate,newstate,pending;
+
+    gst_message_parse_state_changed(message,&oldstate,&newstate,&pending);
+    switch(GST_STATE_TRANSITION(oldstate,newstate)) {
+      case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+        if(self->priv->paint_handler_id) {
+          g_source_remove(self->priv->paint_handler_id);
+          self->priv->paint_handler_id=0;
+        }
+        break;
+      default:
+        break;
+    }
+  }
+}
+
 //-- helper methods
 
 /*
@@ -336,7 +286,6 @@ Error:
   return(res);
 }
 
-
 static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self) {
   BtMainWindow *main_window;
   BtMachine *src_machine,*dst_machine;
@@ -347,7 +296,6 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   //GdkPixbuf *window_icon=NULL;
   GtkWidget *vbox, *hbox;
   GtkWidget *ruler;
-  GtkWidgetClass *ruler_class;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("wire analysis"));
 
@@ -386,9 +334,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
   ruler=gtk_hruler_new();
   gtk_ruler_set_range(GTK_RULER(ruler),0.0,/*srat/20.0*/2205.0,-10.0,15.0);
-  //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
-  ruler_class=GTK_WIDGET_GET_CLASS(ruler);
-  ruler_class->motion_notify_event = NULL;
+  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
 
@@ -405,15 +351,13 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   ruler=gtk_hruler_new();
   gtk_ruler_set_range(GTK_RULER(ruler),100.0,0.0,-10.0,15.0);
   //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
-  ruler_class=GTK_WIDGET_GET_CLASS(ruler);
-  ruler_class->motion_notify_event = NULL;
+  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   ruler=gtk_hruler_new();
   gtk_ruler_set_range(GTK_RULER(ruler),0.0,100.0,-10.0,15.0);
   //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
-  ruler_class=GTK_WIDGET_GET_CLASS(ruler);
-  ruler_class->motion_notify_event = NULL;
+  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -434,24 +378,24 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   // create spectrum analyzer
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_SPECTRUM,"spectrum")) return(FALSE);
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
-      "bands", SPECT_BANDS, "threshold", -70, "message", TRUE,
+      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
+      "bands", SPECT_BANDS, "threshold", -70,
       NULL);
   // create level meter
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) return(FALSE);
   g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]),
-      "interval",(GstClockTime)(0.1*GST_SECOND),"message",TRUE,
-      "peak-ttl",(GstClockTime)(0.2*GST_SECOND),"peak-falloff", 20.0,
+      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
+      "peak-ttl",(GstClockTime)(0.50*GST_SECOND),"peak-falloff", 20.0,
       NULL);
   // create queue
   if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_QUEUE,"queue")) return(FALSE);
 
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",self->priv->analyzers_list,NULL);
 
-  // @todo: remove
-  //bt_application_add_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change,(gpointer)self);
   g_object_get(G_OBJECT(song),"bin", &bin, NULL);
   bus=gst_element_get_bus(GST_ELEMENT(bin));
   g_signal_connect(bus, "message::element", G_CALLBACK(on_wire_analyzer_change), (gpointer)self);
+  g_signal_connect(bus, "message::state-changed", G_CALLBACK(on_wire_analyzer_state_changed), (gpointer)self);
   gst_object_unref(bus);
   gst_object_unref(bin);
 

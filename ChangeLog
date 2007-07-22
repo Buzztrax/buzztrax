@@ -1,3 +1,17 @@
+2007-07-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c: (bt_machine_enable_input_level):
+	* src/ui/edit/wire-analysis-dialog.c:
+	(on_wire_analyzer_state_changed),
+	(bt_wire_analysis_dialog_init_ui):
+	  Make anayzer intervals the same. Disabled redraw when song pauses.
+
+	* src/ui/edit/render-dialog.c: (on_filename_changed),
+	(on_folder_changed), (bt_render_dialog_init_ui),
+	(bt_render_dialog_get_property), (bt_render_dialog_finalize),
+	(bt_render_dialog_class_init):
+	  Add properties to get the values.
+
 2007-07-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-machines.c: (machine_view_refresh):
