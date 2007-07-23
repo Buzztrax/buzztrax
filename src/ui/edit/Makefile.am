@@ -38,6 +38,7 @@ libbtedit_la_SOURCES   = \
 	playback-controller-socket.c playback-controller-socket.h playback-controller-socket-methods.h \
 	sequence-view.c sequence-view.h sequence-view-methods.h \
 	render-dialog.c render-dialog.h render-dialog-methods.h \
+	render-progress.c render-progress.h render-progress-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
 	settings-page-interaction-controller.c settings-page-interaction-controller.h settings-page-interaction-controller-methods.h \

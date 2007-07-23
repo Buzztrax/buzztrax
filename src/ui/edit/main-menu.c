@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.73 2007-07-20 07:58:15 ensonic Exp $
+/* $Id: main-menu.c,v 1.74 2007-07-23 18:49:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -104,26 +104,31 @@ static void on_menu_saveas_activate(GtkMenuItem *menuitem,gpointer user_data) {
 
 static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
   BtMainMenu *self=BT_MAIN_MENU(user_data);
-  GtkWidget *dialog;
+  GtkWidget *settings,*progress;
 
   g_assert(user_data);
 
   GST_INFO("menu render event occurred");
-  if((dialog=GTK_WIDGET(bt_render_dialog_new(self->priv->app)))) {
+  if((settings=GTK_WIDGET(bt_render_dialog_new(self->priv->app)))) {
     BtMainWindow *main_window;
     gint answer;
 
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_set_transient_for(GTK_WINDOW(dialog),GTK_WINDOW(main_window));
-    g_object_try_unref(main_window);
-    gtk_widget_show_all(dialog);
-    answer=gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_window_set_transient_for(GTK_WINDOW(settings),GTK_WINDOW(main_window));
+    gtk_widget_show_all(settings);
+    answer=gtk_dialog_run(GTK_DIALOG(settings));
     if(answer==GTK_RESPONSE_ACCEPT) {
-      // @todo: get settings from dialog
-      // @todo: run song rendering
-      
+      gtk_widget_hide_all(settings);
+      if((progress=GTK_WIDGET(bt_render_progress_new(self->priv->app,BT_RENDER_DIALOG(settings))))) {
+        gtk_window_set_transient_for(GTK_WINDOW(progress),GTK_WINDOW(main_window));
+        gtk_widget_show_all(progress);
+        // run song rendering
+        bt_render_progress_run(BT_RENDER_PROGRESS(progress));
+        gtk_widget_destroy(progress);
+      }
     }
-    gtk_widget_destroy(dialog);
+    gtk_widget_destroy(settings);
+    g_object_try_unref(main_window);
   }
 }
 

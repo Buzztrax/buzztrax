@@ -1,3 +1,23 @@
+2007-07-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Write news.
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-menu.c: (on_menu_render_activate):
+	* src/ui/edit/render-dialog.c: (on_format_menu_changed),
+	(bt_render_dialog_init_ui), (bt_render_dialog_get_property):
+	* src/ui/edit/render-progress-methods.h:
+	* src/ui/edit/render-progress.c: (bt_render_progress_init_ui),
+	(bt_render_progress_new), (bt_render_progress_run),
+	(bt_render_progress_get_property),
+	(bt_render_progress_set_property), (bt_render_progress_dispose),
+	(bt_render_progress_finalize), (bt_render_progress_init),
+	(bt_render_progress_class_init), (bt_render_progress_get_type):
+	* src/ui/edit/render-progress.h:
+	  Prepare next dialog and data passing.
+
 2007-07-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/machine.c: (bt_machine_enable_input_level):

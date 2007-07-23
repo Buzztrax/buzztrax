@@ -1,7 +1,13 @@
 2007/08 ========================================================================
 
+I will stop writinh in the plural form. The fact is that buzztard is mostly a
+one-man project. I spend alot of time in the project, but that seems to be not
+enough to get the project end-user ready (at least it will take time).
+
 bugfixes
+more dialogs refactored to extra classes
 more tests, better coverage and more ui screenshots
+song rendering ui started
 
 2007/07 ========================================================================
 

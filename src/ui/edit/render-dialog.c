@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.5 2007-07-22 19:16:38 ensonic Exp $
+/* $Id: render-dialog.c,v 1.6 2007-07-23 18:49:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,12 +45,12 @@ struct _BtRenderDialogPrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
 
+  /* the application */
+  G_POINTER_ALIAS(BtEditApplication *,app);
+
   /* dialog data */
   gchar *folder,*filename;
   BtSinkBinRecordFormat format;
-
-  /* the application */
-  G_POINTER_ALIAS(BtEditApplication *,app);
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -73,6 +73,13 @@ static void on_folder_changed(GtkFileChooser *chooser,gpointer user_data) {
 
   GST_WARNING("folder changed '%s'",self->priv->folder);
 }
+
+static void on_format_menu_changed(GtkComboBox *menu, gpointer user_data) {
+  BtRenderDialog *self=BT_RENDER_DIALOG(user_data);
+
+  self->priv->format=gtk_combo_box_get_active(menu);
+}
+
 
 //-- helper methods
 
@@ -133,7 +140,7 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
     }
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(widget),BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS);
-  //g_signal_connect(G_OBJECT(widget),...
+  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_format_menu_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 2, 3, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
 
@@ -207,7 +214,7 @@ static void bt_render_dialog_get_property(GObject      *object,
       g_value_set_string(value, self->priv->filename);
     } break;
     case RENDER_DIALOG_FORMAT: {
-      g_value_set_enum(value, 1);
+      g_value_set_enum(value, self->priv->format);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
