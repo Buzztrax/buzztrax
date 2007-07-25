@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.6 2007-07-23 18:49:24 ensonic Exp $
+/* $Id: render-dialog.c,v 1.7 2007-07-25 18:55:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,7 +25,7 @@
  * Provides UI to access the song recording
  */
 /* @todo: need readable properties for the settings
- *
+ * - folder + file_name should be combined when read
  */
 
 #define BT_EDIT

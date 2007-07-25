@@ -1,3 +1,10 @@
+2007-07-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c: (on_song_play_pos_notify),
+	(on_song_is_playing_notify), (bt_render_progress_run):
+	  Configure the sink-bin for rendering. Drive progressbar.
+
 2007-07-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:

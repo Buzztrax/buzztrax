@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.1 2007-07-23 18:49:24 ensonic Exp $
+/* $Id: render-progress.c,v 1.2 2007-07-25 18:55:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,6 +52,32 @@ struct _BtRenderProgressPrivate {
 static GtkProgressClass *parent_class=NULL;
 
 //-- event handler
+
+static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  BtRenderProgress *self=BT_RENDER_PROGRESS(user_data);
+  BtSequence *sequence;
+  gulong pos,length;
+
+  g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
+  g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+
+  gtk_progress_bar_set_fraction(self->priv->track_progress,(gdouble)length/(gdouble)pos);
+  // @todo: show time
+  //gtk_progress_bar_set_text(self->priv->track_progress,str);
+
+  g_object_unref(sequence);
+}
+
+static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
+  //BtRenderProgress *self=BT_RENDER_PROGRESS(user_data);
+  gboolean is_playing;
+
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  if(!is_playing) {
+    GST_INFO("stopped");
+    //gtk_main_quit();
+  }
+}
 
 //-- helper methods
 
@@ -112,20 +138,49 @@ Error:
 //-- methods
 
 void bt_render_progress_run(const BtRenderProgress *self) {
-  // @todo: run rendering
-#if 0
   BtSong *song;
+  BtSetup *setup;
+  BtMachine *machine;
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
-  g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
-  // get length
+  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
-  bt_song_play(song);
-  gtk_dialog_run(GTK_DIALOG(self));
+  // lookup the audio-sink machine and change mode
+  if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
+    gchar *file_name=NULL;
+    BtSinkBinRecordFormat format;
+    BtSinkBin *sink_bin;
 
+    g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
+    g_object_get(G_OBJECT(self->priv->settings),"format",&format,NULL);
+
+    //file_name=g_strdup_printf("%s""%s",folder,filename);
+
+    // @todo eventually have a method for the sink bin to only update once after the changes
+    g_object_set(sink_bin,
+      "mode",BT_SINK_BIN_MODE_RECORD,
+      "record-format",format,
+      "record-file-name",file_name,
+      NULL);
+
+    g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
+    g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
+
+    bt_song_play(song);
+    gtk_dialog_run(GTK_DIALOG(self));
+
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
+    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
+
+    g_object_set(sink_bin,
+      "mode",BT_SINK_BIN_MODE_PLAY,
+      NULL);
+
+    gst_object_unref(sink_bin);
+    g_object_unref(machine);
+  }
+  g_object_unref(setup);
   g_object_unref(song);
-#endif
 }
 
 //-- wrapper
