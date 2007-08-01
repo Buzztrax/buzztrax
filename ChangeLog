@@ -1,3 +1,10 @@
+2007-08-01  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	  Use pwd instead of hardcoded path.
+	* tests/bt-check.c: (check_setup_test_display):
+	  Add some comments about the problems we face.
+
 2007-07-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/render-dialog.c:

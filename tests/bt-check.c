@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.38 2007-07-20 13:49:25 ensonic Exp $
+/* $Id: bt-check.c,v 1.39 2007-08-01 17:11:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -794,8 +794,12 @@ void check_setup_test_display(void) {
           GtkSettings *test_settings;
           //gdk_threads_enter();
           if((test_settings = gtk_settings_get_for_screen(test_screen))) {
-            g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
-            gtk_rc_reparse_all_for_settings(test_settings,TRUE);
+            /* Is there a bug in gtk+? None of this reliable creates a working
+             * theme setup
+              */
+            //g_object_set(test_settings,"gtk-theme-name",theme_name,NULL);
+            g_object_set(test_settings,"gtk-theme-name",NULL,NULL);
+            //gtk_rc_reparse_all_for_settings(test_settings,TRUE);
             //gtk_rc_reset_styles(test_settings);
             GST_INFO("theme switched ");
             //g_object_unref(test_settings);
