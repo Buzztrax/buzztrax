@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.10 2007-05-07 14:45:40 ensonic Exp $
+/* $Id: registry.c,v 1.11 2007-08-02 15:20:42 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -114,8 +114,16 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
       libhal_free_string(devnode);
     }
+    else if(!strcmp(cap[n],"input")) {
+	devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
+	      
+	GST_INFO("input device added: product=%s, devnode=%s", name,devnode);
+	// create device
+	device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+	libhal_free_string(devnode);
+    }
     else {
-      GST_INFO("  unknown device added: name=%s",name);
+      GST_INFO("unknown device found, not added: name=%s",name);
     }
     if(device) {
       // add devices to our list and trigger notify

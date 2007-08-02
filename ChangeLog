@@ -1,3 +1,8 @@
+2007-08-02  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/ic/registry.c: (on_device_added):
+	  made generic "input" devices be used as btic-devices
+
 2007-08-01  Stefan Kost  <ensonic@users.sf.net>
 
 	* Makefile.am:
