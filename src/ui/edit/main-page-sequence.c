@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.176 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.177 2007-08-03 21:08:16 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1564,7 +1564,7 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
   if(column && path) {
     if(sequence_view_get_cursor_pos(self->priv->sequence_table,path,column,&cursor_column,&cursor_row)) {
       gulong lastbar;
-  
+
       GST_INFO("new row = %3d <-> old row = %3d",cursor_row,self->priv->cursor_row);
       self->priv->cursor_row=cursor_row;
       GST_INFO("new col = %3d <-> old col = %3d",cursor_column,self->priv->cursor_column);
@@ -1573,29 +1573,29 @@ static gboolean on_sequence_table_cursor_changed_idle(gpointer user_data) {
         pattern_list_refresh(self);
       }
       GST_INFO("cursor has changed: %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
-  
+
       // calculate the last visible row from step-filter and scroll-filter
       lastbar=self->priv->row_filter_pos-1-((self->priv->row_filter_pos-1)%self->priv->bars);
-  
+
       // do we need to extend sequence?
       if( cursor_row >= lastbar ) {
         GtkTreeModelFilter *filtered_store;
-  
+
         self->priv->row_filter_pos += self->priv->bars;
         if( self->priv->row_filter_pos > self->priv->list_length ) {
           BtSong *song;
-  
+
           g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
-  
+
           self->priv->list_length+=SEQUENCE_ROW_ADDITION_INTERVAL;
           sequence_table_refresh(self,song);
           sequence_model_recolorize(self);
           // this got invalidated by _refresh()
           column=gtk_tree_view_get_column(self->priv->sequence_table,cursor_column);
-  
+
           g_object_unref(song);
         }
-  
+
         if((filtered_store=GTK_TREE_MODEL_FILTER(gtk_tree_view_get_model(self->priv->sequence_table)))) {
           gtk_tree_model_filter_refilter(filtered_store);
         }
@@ -1678,10 +1678,12 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 
         gtk_notebook_set_current_page(GTK_NOTEBOOK(pages),BT_MAIN_PAGES_PATTERNS_PAGE);
         if((pattern=bt_sequence_get_pattern(sequence,row,track-1))) {
+          GST_INFO("show pattern");
           bt_main_page_patterns_show_pattern(patterns_page,pattern);
           g_object_unref(pattern);
         }
         else if((machine=bt_main_page_sequence_get_current_machine(self))) {
+          GST_INFO("show machine");
           bt_main_page_patterns_show_machine(patterns_page,machine);
           g_object_unref(machine);
         }

@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.11 2007-07-02 11:23:30 ensonic Exp $
+## $Id: Makefile.am,v 1.12 2007-08-03 21:08:16 ensonic Exp $
 
 noinst_LTLIBRARIES = libbt-cmd-check.la
 libbt_cmd_check_la_LIBADD = $(BASE_DEPS_LIBS) \
@@ -8,6 +8,7 @@ libbt_cmd_check_la_SOURCES = m-bt-cmd.h \
 
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \
@@ -16,7 +17,7 @@ INCLUDES = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
-.PHONY: splint 
+.PHONY: splint
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbt_cmd_check_la_SOURCES)

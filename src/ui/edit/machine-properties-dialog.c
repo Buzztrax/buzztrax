@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.83 2007-07-10 20:49:39 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.84 2007-08-03 21:08:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -26,13 +26,13 @@
  * A dialog to configure dynamic settings of a #BtMachine. The dialog also
  * allows to editing and manage presets for machines that support them.
  */
-/* @todo: move/associate self->priv->control_data to/with BtMachine
- * right now controllers get disconnected when closing this dialog :/
- */
+
 #define BT_EDIT
 #define BT_MACHINE_PROPERTIES_DIALOG_C
 
 #include "bt-edit.h"
+
+#define USE_NEW_BTIC 1
 
 //-- property ids
 
@@ -58,8 +58,6 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkTooltips *preset_tips;
 
   GtkWidget *param_group_box;
-
-  GHashTable *control_data; // each entry points to BtControlData
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -85,14 +83,6 @@ typedef struct {
   data->machine=machine; \
   data->property=property; \
   data->user_data=user_data;
-
-
-typedef struct {
-  const BtIcControl *control;
-  GstObject *object;
-  gchar *property_name;
-  GParamSpec *pspec;
-} BtControlData;
 
 //-- event handler helper
 
@@ -146,6 +136,35 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   GST_INFO("rebuilt preset list");
 }
 
+// interaction control helper
+
+static void on_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  BtIcControl *control;
+  GstObject *object;
+  gchar *property_name;
+
+  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
+  //GST_INFO("control selected: %p",control);
+  object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
+  property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
+
+  bt_machine_bind_parameter_control(self->priv->machine,object,property_name,control);
+  g_object_unref(control);
+}
+
+#if 0
+static void on_control_unbind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
+  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
+  GstObject *object;
+  gchar *property_name;
+
+  object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
+  property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
+
+  bt_machine_unbind_parameter_control(self->priv->machine,object,property_name);
+}
+#endif
 
 //-- event handler
 
@@ -232,62 +251,6 @@ static gchar* on_uint_range_voice_property_format_value(GtkScale *scale, gdouble
   return(str);
 }
 
-
-static BtControlData *make_control_data(const BtMachinePropertiesDialog *self,const BtInteractionControllerMenu *menu,const BtIcControl *control) {
-  BtControlData *data;
-  GstObject *object;
-  gchar *property_name;
-  GParamSpec *pspec;
-  BtIcDevice *device;
-  gboolean new_data=FALSE;
-
-  object=g_object_get_qdata(G_OBJECT(menu),control_object_quark);
-  property_name=g_object_get_qdata(G_OBJECT(menu),control_property_quark);
-  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
-
-  GST_INFO("make control data for param (%p): %s",pspec,property_name);
-
-  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
-  if(!data) {
-    new_data=TRUE;
-    data=g_new(BtControlData,1);
-    data->object=object;
-    data->property_name=property_name;
-    data->pspec=pspec;
-  }
-  else {
-    // stop the old device
-    g_object_get(G_OBJECT(data->control),"device",&device,NULL);
-    btic_device_stop(device);
-    g_object_unref(device);
-  }
-  data->control=control;
-  // start the new device
-  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
-  btic_device_start(device);
-  g_object_unref(device);
-
-  if(new_data) {
-    g_hash_table_insert(self->priv->control_data,(gpointer)pspec,(gpointer)data);
-  }
-
-  return(data);
-}
-
-static void free_control_data(BtControlData *data) {
-  BtIcDevice *device;
-
-  // stop the device
-  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
-  btic_device_stop(device);
-  g_object_unref(device);
-
-  // disconnect the handler
-  g_signal_handlers_disconnect_matched(G_OBJECT(data->control),G_SIGNAL_MATCH_DATA,0,0,NULL,NULL,(gpointer)data);
-
-  g_free(data);
-}
-
 static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
 #ifdef HAVE_GST_CONTROLLER_NEW
   GstObject *param_parent=GST_OBJECT(user_data);
@@ -364,28 +327,6 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   gtk_label_set_text(label,str);
 }
 
-static void on_double_range_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
-  GParamSpecDouble *pspec=(GParamSpecDouble *)data->pspec;
-  glong svalue,min,max;
-  gdouble dvalue;
-
-  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
-  dvalue=pspec->minimum+((svalue-min)*((pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
-  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
-  GST_INFO("setting %s value %lf",data->property_name,dvalue);
-  g_object_set(data->object,data->property_name,dvalue,NULL);
-}
-
-static void on_double_range_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  BtIcControl *control;
-
-  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
-  GST_INFO("control selected: %p",control);
-  g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_double_range_control_notify),(gpointer)make_control_data(self,menu,control));
-}
-
 static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
@@ -401,7 +342,7 @@ static gboolean on_double_range_button_press_event(GtkWidget *widget, GdkEventBu
     menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
     g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
     g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
-    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_double_range_control_bind),(gpointer)self);
+    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
     gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
@@ -564,26 +505,6 @@ static void on_uint_range_property_changed(GtkRange *range,gpointer user_data) {
   }
 }
 
-static void on_uint_range_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
-  GParamSpecUInt *pspec=(GParamSpecUInt *)data->pspec;
-  glong svalue,min,max;
-  guint dvalue;
-
-  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
-  dvalue=pspec->minimum+(guint)((svalue-min)*((gdouble)(pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
-  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
-  g_object_set(data->object,data->property_name,dvalue,NULL);
-}
-
-static void on_uint_range_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  BtIcControl *control;
-
-  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
-  g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_uint_range_control_notify),(gpointer)make_control_data(self,menu,control));
-}
-
 static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
@@ -599,7 +520,7 @@ static gboolean on_uint_range_button_press_event(GtkWidget *widget, GdkEventButt
     menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_RANGE_MENU));
     g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
     g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
-    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_uint_range_control_bind),(gpointer)self);
+    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
     gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
@@ -700,22 +621,6 @@ static void on_checkbox_property_toggled(GtkToggleButton *togglebutton, gpointer
   g_signal_handlers_unblock_matched(param_parent,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_checkbox_property_notify,(gpointer)togglebutton);
 }
 
-static void on_checkbox_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
-  BtControlData *data=(BtControlData *)(user_data);
-  gboolean value;
-
-  g_object_get(G_OBJECT(data->control),"value",&value,NULL);
-  g_object_set(data->object,data->property_name,value,NULL);
-}
-
-static void on_checkbox_control_bind(const BtInteractionControllerMenu *menu,GParamSpec *arg,gpointer user_data) {
-  BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
-  BtIcControl *control;
-
-  g_object_get(G_OBJECT(menu),"selected-control",&control,NULL);
-  g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_checkbox_control_notify),(gpointer)make_control_data(self,menu,control));
-}
-
 static gboolean on_checkbox_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
@@ -731,7 +636,7 @@ static gboolean on_checkbox_button_press_event(GtkWidget *widget, GdkEventButton
     menu=GTK_MENU(bt_interaction_controller_menu_new(self->priv->app,BT_INTERACTION_CONTROLLER_TRIGGER_MENU));
     g_object_set_qdata(G_OBJECT(menu),control_object_quark,(gpointer)param_parent);
     g_object_set_qdata(G_OBJECT(menu),control_property_quark,(gpointer)property_name);
-    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_checkbox_control_bind),(gpointer)self);
+    g_signal_connect(G_OBJECT(menu),"notify::selected-control",G_CALLBACK(on_control_bind),(gpointer)self);
     gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
@@ -1173,7 +1078,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
   GtkTooltips *tips=gtk_tooltips_new();
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType param_type,base_type;
+  GType param_type;
   gulong i,k,params;
 
   // determine params to be skipped
@@ -1201,8 +1106,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
-      param_type=bt_machine_get_global_param_type(self->priv->machine,i);
-      while((base_type=g_type_parent(param_type))) param_type=base_type;
+      param_type=bt_g_type_get_base_type(bt_machine_get_global_param_type(self->priv->machine,i));
       GST_INFO("... base type is : %s",g_type_name(param_type));
 
       range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
@@ -1292,7 +1196,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   GtkTooltips *tips=gtk_tooltips_new();
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType param_type,base_type;
+  GType param_type;
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
@@ -1331,8 +1235,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
-      param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
-      while((base_type=g_type_parent(param_type))) param_type=base_type;
+      param_type=bt_g_type_get_base_type(bt_machine_get_voice_param_type(self->priv->machine,i));
       GST_INFO("... base typoe is : %s",g_type_name(param_type));
 
       range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
@@ -1781,7 +1684,9 @@ static void bt_machine_properties_dialog_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+#ifndef USE_NEW_BTIC
   g_hash_table_destroy(self->priv->control_data);
+#endif
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
@@ -1793,7 +1698,9 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
 
+#ifndef USE_NEW_BTIC
   self->priv->control_data=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,(GDestroyNotify)free_control_data);
+#endif
 }
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {

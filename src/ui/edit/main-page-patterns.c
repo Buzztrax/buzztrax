@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.134 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.135 2007-08-03 21:08:16 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -316,6 +316,8 @@ static gboolean pattern_view_get_current_pos(const BtMainPagePatterns *self,gulo
   gboolean res=FALSE;
   GtkTreePath *path;
   GtkTreeViewColumn *column;
+
+  if(!self->priv->pattern) return(FALSE);
 
   //GST_INFO("get active pattern cell");
 

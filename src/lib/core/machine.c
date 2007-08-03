@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.269 2007-07-22 19:16:38 ensonic Exp $
+/* $Id: machine.c,v 1.270 2007-08-03 21:08:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -84,6 +84,7 @@
 #define BT_MACHINE_C
 
 #include <libbtcore/core.h>
+#include <libbtic/ic.h>
 
 //-- signal ids
 
@@ -183,10 +184,20 @@ struct _BtMachinePrivate {
   gint width;
   gint depth;
 
+  /* realtime control (bt-ic) */
+  GHashTable *control_data; // each entry points to BtMachineData
+
   /* public fields are
   GstElement *dst_elem,*src_elem;
   */
 };
+
+typedef struct {
+  const BtIcControl *control;
+  GstObject *object;
+  GParamSpec *pspec;
+  gulong handler_id;
+} BtControlData;
 
 static GQuark error_domain=0;
 
@@ -2425,6 +2436,138 @@ void bt_machine_voice_controller_change_value(const BtMachine * const self, cons
   }
 }
 
+//-- interaction control
+
+static void free_control_data(BtControlData *data) {
+  BtIcDevice *device;
+
+  // stop the device
+  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+  btic_device_stop(device);
+  g_object_unref(device);
+
+  // disconnect the handler
+  g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
+  g_object_unref(G_OBJECT(data->control));
+
+  g_free(data);
+}
+
+//#if 0
+static void on_boolean_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  gboolean value;
+
+  g_object_get(G_OBJECT(data->control),"value",&value,NULL);
+  g_object_set(data->object,data->pspec->name,value,NULL);
+}
+
+static void on_uint_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  GParamSpecUInt *pspec=(GParamSpecUInt *)data->pspec;
+  glong svalue,min,max;
+  guint dvalue;
+
+  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  dvalue=pspec->minimum+(guint)((svalue-min)*((gdouble)(pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
+  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
+  g_object_set(data->object,data->pspec->name,dvalue,NULL);
+}
+
+static void on_double_control_notify(const BtIcControl *control,GParamSpec *arg,gpointer user_data) {
+  BtControlData *data=(BtControlData *)(user_data);
+  GParamSpecDouble *pspec=(GParamSpecDouble *)data->pspec;
+  glong svalue,min,max;
+  gdouble dvalue;
+
+  g_object_get(G_OBJECT(data->control),"value",&svalue,"min",&min,"max",&max,NULL);
+  dvalue=pspec->minimum+((svalue-min)*((pspec->maximum-pspec->minimum)/(gdouble)(max-min)));
+  dvalue=CLAMP(dvalue,pspec->minimum,pspec->maximum);
+  //GST_INFO("setting %s value %lf",data->pspec->name,dvalue);
+  g_object_set(data->object,data->pspec->name,dvalue,NULL);
+}
+
+/**
+ * bt_machine_bind_parameter_control:
+ * @self: machine
+ * @object: child object (global or voice child)
+ * @property_name: name of the parameter
+ * @control: interaction control object
+ *
+ * Connect the interaction control object to the give parameter. Changes of the
+ * control-value are mapped into a change of the parameter.
+ */
+void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control) {
+  BtControlData *data;
+  GParamSpec *pspec;
+  BtIcDevice *device;
+  gboolean new_data=FALSE;
+
+  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+
+  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
+  if(!data) {
+    new_data=TRUE;
+    data=g_new(BtControlData,1);
+    data->object=object;
+    data->pspec=pspec;
+  }
+  else {
+    // stop the old device
+    g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+    btic_device_stop(device);
+    g_object_unref(device);
+    // disconnect old signal handler
+    g_signal_handler_disconnect((gpointer)data->control,data->handler_id);
+    g_object_unref(G_OBJECT(data->control));
+  }
+  data->control=g_object_ref(control);
+  // start the new device
+  g_object_get(G_OBJECT(data->control),"device",&device,NULL);
+  btic_device_start(device);
+  g_object_unref(device);
+  // connect signal handler
+  switch(bt_g_type_get_base_type(pspec->value_type)) {
+    case G_TYPE_BOOLEAN:
+      data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_boolean_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_UINT:
+      data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_uint_control_notify),(gpointer)data);
+      break;
+    case G_TYPE_DOUBLE:
+      data->handler_id=g_signal_connect(G_OBJECT(control),"notify::value",G_CALLBACK(on_double_control_notify),(gpointer)data);
+      break;
+    default:
+      GST_WARNING("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(pspec));
+      break;
+  }
+
+  if(new_data) {
+    g_hash_table_insert(self->priv->control_data,(gpointer)pspec,(gpointer)data);
+  }
+}
+
+/**
+ * bt_machine_unbind_parameter_control:
+ * @self: machine
+ * @object: child object (global or voice child)
+ * @property_name: name of the parameter
+ *
+ * Disconnect the interaction control object from the give parameter.
+ */
+void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name) {
+  BtControlData *data;
+  GParamSpec *pspec;
+
+  pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
+
+  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
+  if(data) {
+    free_control_data(data);
+  }
+}
+//#endif
+
 //-- debug helper
 
 GList *bt_machine_get_element_list(const BtMachine * const self) {
@@ -2826,6 +2969,9 @@ static void bt_machine_dispose(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p,%s, song=%p",self,self->priv->id,self->priv->song);
 
+  // shut down interaction control setup
+  g_hash_table_destroy(self->priv->control_data);
+
   // disconnect notify handlers
   if(self->priv->song) {
     BtSongInfo *song_info;
@@ -2954,6 +3100,8 @@ static void bt_machine_init(GTypeInstance * const instance, gconstpointer g_clas
   // default is no voice, only global params
   //self->priv->voices=1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+
+  self->priv->control_data=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,(GDestroyNotify)free_control_data);
 
   GST_DEBUG("!!!! self=%p",self);
 }

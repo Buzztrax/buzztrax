@@ -1,3 +1,39 @@
+2007-08-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/Makefile.am:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c: (free_control_data),
+	(on_boolean_control_notify), (on_uint_control_notify),
+	(on_double_control_notify), (bt_machine_bind_parameter_control),
+	(bt_machine_unbind_parameter_control):
+	* src/lib/ic/libbtic/ic.h:
+	* src/ui/cmd/Makefile.am:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/interaction-controller-menu.c:
+	(bt_interaction_controller_menu_init_ui):
+	* src/ui/edit/machine-properties-dialog.c: (on_control_bind),
+	(on_control_unbind), (on_double_range_button_press_event),
+	(on_uint_range_button_press_event),
+	(on_checkbox_button_press_event), (make_global_param_box),
+	(make_voice_param_box), (bt_machine_properties_dialog_finalize),
+	(bt_machine_properties_dialog_init):
+	* tests/lib/core/Makefile.am:
+	* tests/ui/cmd/Makefile.am:
+	  Refactor the interaction controller assignments from dialog to machine
+	  and simplify the code.
+
+	* src/ui/edit/main-page-patterns.c: (pattern_view_get_current_pos):
+	* src/ui/edit/main-page-sequence.c:
+	(on_sequence_table_cursor_changed_idle),
+	(on_sequence_table_key_release_event):
+	  Fix crasher when switching to pattern-page with no pattern.
+
 2007-08-02  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/lib/ic/registry.c: (on_device_added):

@@ -58,12 +58,14 @@ expand_content_files=
 # signals and properties.
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
 	-I$(top_srcdir)/src/ui/cmd \
 	-I$(top_builddir) \
 	$(BASE_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 GTKDOC_LIBS = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
+	$(top_builddir)/src/lib/ic/libbtic.la \
 	$(top_builddir)/src/ui/cmd/libbtcmd.la \
 	$(BASE_DEPS_LIBS)
 

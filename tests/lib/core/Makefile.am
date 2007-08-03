@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.34 2007-07-02 11:23:30 ensonic Exp $
+## $Id: Makefile.am,v 1.35 2007-08-03 21:08:16 ensonic Exp $
 
 noinst_LTLIBRARIES = libbtcore-check.la
 libbtcore_check_la_LIBADD = $(BASE_DEPS_LIBS)
@@ -20,6 +20,7 @@ libbtcore_check_la_SOURCES = m-bt-core.h \
 	s-settings.c t-settings.c
 
 INCLUDES = \
+	-I$(top_srcdir)/src/lib/ic \
 	-I$(top_srcdir)/src/lib/core \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
@@ -29,7 +30,7 @@ INCLUDES = \
 	$(GUI_DEPS_CFLAGS) \
 	$(BT_CFLAGS)
 
-.PHONY: splint 
+.PHONY: splint
 
 splint::
 	splint +posixlib -weak -I$(top_builddir) $(INCLUDES) $(libbtcore_check_la_SOURCES)

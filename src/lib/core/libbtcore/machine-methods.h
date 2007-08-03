@@ -1,4 +1,4 @@
-/* $Id: machine-methods.h,v 1.49 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: machine-methods.h,v 1.50 2007-08-03 21:08:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,6 +24,8 @@
 
 #include "machine.h"
 #include "pattern.h"
+
+#include <libbtic/ic.h>
 
 extern gboolean bt_machine_enable_input_level(BtMachine * const self);
 extern gboolean bt_machine_enable_output_level(BtMachine * const self);
@@ -90,6 +92,10 @@ extern gchar *bt_machine_describe_voice_param_value(const BtMachine * const self
 
 extern void bt_machine_global_controller_change_value(const BtMachine * const self, const gulong param, const GstClockTime timestamp, GValue * const value);
 extern void bt_machine_voice_controller_change_value(const BtMachine * const self, const gulong param, const gulong voice,  const GstClockTime timestamp, GValue * const value);
+
+//-- interaction control
+extern void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *object, const gchar *property_name, BtIcControl *control);
+extern void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name);
 
 // debug helper
 

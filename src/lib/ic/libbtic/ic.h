@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.7 2007-04-11 18:31:07 ensonic Exp $
+/* $Id: ic.h,v 1.8 2007-08-03 21:08:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,6 +45,8 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gprintf.h>
+//-- gstreamer
+#include <gst/gst.h>
 //-- i18n
 #ifndef _
 #ifdef ENABLE_NLS
@@ -84,7 +86,7 @@
 #endif
 
 //-- libbtcore
-#include "libbtcore/core.h"
+#include "libbtcore/tools.h"
 
 //-- libbtic
 // method prototype includes do include the data defs themself

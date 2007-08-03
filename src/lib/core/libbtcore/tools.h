@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.20 2007-05-09 12:50:28 ensonic Exp $
+/* $Id: tools.h,v 1.21 2007-08-03 21:08:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -38,7 +38,14 @@ extern void bt_gst_element_dbg_pads(GstElement * const elem);
 //-- glib compat & helper
 #ifndef HAVE_GLIB_2_8
 extern gpointer g_try_malloc0(const gulong n_bytes);
+#endif // !HAVE_GLIB_2_8
 
+extern GType bt_g_type_get_base_type(const GType type);
+
+#endif // !BT_TOOLS_C
+
+//-- glib compat & helper
+#ifndef HAVE_GLIB_2_8
 #define g_try_new(struct_type, n_structs) \
   g_try_malloc(sizeof(struct_type)*n_structs)
 
@@ -46,12 +53,134 @@ extern gpointer g_try_malloc0(const gulong n_bytes);
   g_try_malloc0(sizeof(struct_type)*n_structs)
 #endif // !HAVE_GLIB_2_8
 
-extern GType bt_g_type_get_base_type(const GType type);
+/**
+ * return_if_disposed:
+ * @a: return value or nothing
+ *
+ * checks <code>self->priv->dispose_has_run</code> and
+ * if true returns with the supplied arg.
+ * This macro is handy to use at the start of all class routines
+ * such as _get_property(), _set_property(), _dispose().
+ */
+#define return_if_disposed() if(self->priv->dispose_has_run) return
+
+/**
+ * BT_IS_STRING:
+ * @a: string pointer
+ *
+ * checks if the supplied string pointer is not %NULL and contains not just '\0'
+ */
+#define BT_IS_STRING(a) (a && *a)
+
+/**
+ * safe_string:
+ * @a: string pointer
+ *
+ * passed the supplied string through or return an empty string when it is NULL
+ *
+ * Returns: the given string or an empty string in the case of a NULL argument
+ */
+#define safe_string(a) ((gchar *)(a)?(gchar *)(a):"")
+
+/**
+ * g_object_try_ref:
+ * @obj: the object to reference
+ *
+ * If the supplied object is not %NULL then reference it via
+ * g_object_ref().
+ *
+ * Returns: the referenced object or %NULL
+ */
+#define g_object_try_ref(obj) (obj)?g_object_ref(obj):NULL
+
+/**
+ * g_object_try_unref:
+ * @obj: the object to release the reference
+ *
+ * If the supplied object is not %NULL then release the reference via
+ * g_object_unref().
+ */
+#define g_object_try_unref(obj) if(obj) g_object_unref(obj)
+
+/*
+GCC 4.1 introduced this crazy warning that complains about casting between
+different pointer types. The question is why this includes void* ?
+Sadly they don't gave tips how they belive to get rid of the warning.
+
+#define bt_type_pun_to_gpointer(val) \
+  (((union { gpointer __a; __typeof__((val)) __b; }){__b:(val)}).__a)
+*/
+
+/**
+ * g_object_try_weak_ref:
+ * @obj: the object to reference
+ *
+ * If the supplied object is not %NULL then reference it via
+ * g_object_add_weak_pointer().
+ */
+#define g_object_try_weak_ref(obj) if(obj) g_object_add_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
+/*
+#define g_object_try_weak_ref(obj) \
+  if(obj) { \
+    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
+    GST_DEBUG("  reffing : %p",ptr); \
+    g_object_add_weak_pointer(G_OBJECT(obj),ptr); \
+  }
+*/
+
+/**
+ * g_object_try_weak_unref:
+ * @obj: the object to release the reference
+ *
+ * If the supplied object is not %NULL then release the reference via
+ * g_object_remove_weak_pointer().
+ */
+#define g_object_try_weak_unref(obj) if(obj) g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&obj##_ptr);
+/*
+#define g_object_try_weak_unref(obj) \
+  if(obj) { \
+    gpointer *ptr=&bt_type_pun_to_gpointer(obj); \
+    GST_DEBUG("  unreffing : %p",ptr); \
+    g_object_remove_weak_pointer(G_OBJECT(obj),(gpointer *)&bt_type_pun_to_gpointer(obj)); \
+  }
+*/
+
+/**
+ * G_POINTER_ALIAS:
+ * @type: the type
+ * @var: the variable name
+ *
+ * Defines a anonymous union to handle gcc-4.1s type punning warning that one
+ * gets when using e.g. g_object_try_weak_ref()
+ */
+#define G_POINTER_ALIAS(type,var) \
+union { \
+  type var; \
+  gconstpointer var##_ptr; \
+}
+
+/*
+@idea g_alloca_printf
+
+#define g_alloca_printf(str,format,...) \
+sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
+*/
+
+// workaround for glib<2.8
+#ifndef GST_HAVE_GLIB_2_8
+#define G_OPTION_FLAG_NO_ARG 0
+#endif
+
+#ifndef GST_HAVE_GLIB_2_8
+#define	G_PARAM_STATIC_STRINGS 0
+#else
+#ifndef G_PARAM_STATIC_STRINGS
+#define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
+#endif
+#endif
 
 //-- cpu load monitoring
 
 extern guint bt_cpu_load_get_current(void);
-
-#endif // !BT_TOOLS_C
 
 #endif // !BT_TOOLS_H

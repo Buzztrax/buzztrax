@@ -4,7 +4,7 @@ bin_PROGRAMS=bt-edit
 
 bt_edit_LDADD = $(BASE_DEPS_LIBS) $(GUI_DEPS_LIBS) $(BT_LIBS) \
 	$(top_builddir)/src/lib/core/libbtcore.la \
-  $(top_builddir)/src/lib/ic/libbtic.la \
+	$(top_builddir)/src/lib/ic/libbtic.la \
 	libbtedit.la
 bt_edit_SOURCES= \
 	bt-edit.c bt-edit.h

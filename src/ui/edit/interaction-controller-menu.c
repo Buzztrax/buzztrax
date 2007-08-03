@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.7 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.8 2007-08-03 21:08:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -173,7 +173,6 @@ static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionContro
 
   gtk_widget_set_name(GTK_WIDGET(self),_("interaction controller menu"));
 
-  // generators
   menu_item=gtk_image_menu_item_new_with_label(_("Bind controller"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
@@ -186,11 +185,11 @@ static gboolean bt_interaction_controller_menu_init_ui(const BtInteractionContro
 
   bt_interaction_controller_menu_init_device_menu(self,submenu);
 
-  // effects
   menu_item=gtk_image_menu_item_new_with_label(_("Unbind all controllers"));
   gtk_menu_shell_append(GTK_MENU_SHELL(self),menu_item);
   image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  //g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_bind_activated),(gpointer)control);
   gtk_widget_show(menu_item);
 
   return(TRUE);

@@ -14,6 +14,7 @@ libbtcmd_la_SOURCES   =	\
 
 INCLUDES = \
 	-I$(top_srcdir)/src/lib/core \
+	-I$(top_srcdir)/src/lib/ic \
 	-DLOCALEDIR=\"$(localedir)\" \
 	-DLIBDIR=\"$(libdir)\" \
 	-DDATADIR=\"$(datadir)\" \

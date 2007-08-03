@@ -1,6 +1,6 @@
-SUBDIRS = core ic
+SUBDIRS = ic core
 
-.PHONY: splint 
+.PHONY: splint
 
 # install .applications files
 dotapplicationsdir = $(datadir)/application-registry
