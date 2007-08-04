@@ -1,5 +1,15 @@
 2007-08-04  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/machine-methods.h:
+	* src/lib/core/machine.c:
+	* src/ui/edit/interaction-controller-menu.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Implement 'unbind' and 'unbind-all' menu-actions for interaction
+	  controllers.
+
+2007-08-04  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-core/bt-core-sections.txt:

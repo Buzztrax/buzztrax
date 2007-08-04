@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.270 2007-08-03 21:08:14 ensonic Exp $
+/* $Id: machine.c,v 1.271 2007-08-04 18:24:05 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2556,17 +2556,21 @@ void bt_machine_bind_parameter_control(const BtMachine * const self, GstObject *
  * Disconnect the interaction control object from the give parameter.
  */
 void bt_machine_unbind_parameter_control(const BtMachine * const self, GstObject *object, const char *property_name) {
-  BtControlData *data;
   GParamSpec *pspec;
 
   pspec=g_object_class_find_property(G_OBJECT_GET_CLASS(object),property_name);
-
-  data=(BtControlData *)g_hash_table_lookup(self->priv->control_data,(gpointer)pspec);
-  if(data) {
-    free_control_data(data);
-  }
+  g_hash_table_remove(self->priv->control_data,(gpointer)pspec);
 }
-//#endif
+
+/**
+ * bt_machine_unbind_parameter_controls:
+ * @self: machine
+ *
+ * Disconnect all interaction controls.
+ */
+void bt_machine_unbind_parameter_controls(const BtMachine * const self) {
+  g_hash_table_remove_all(self->priv->control_data);
+}
 
 //-- debug helper
 
