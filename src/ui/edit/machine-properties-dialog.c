@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.85 2007-08-04 18:24:06 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.86 2007-08-05 19:19:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1655,10 +1655,6 @@ static void bt_machine_properties_dialog_finalize(GObject *object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
-#ifndef USE_NEW_BTIC
-  g_hash_table_destroy(self->priv->control_data);
-#endif
-
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
   }
@@ -1668,10 +1664,6 @@ static void bt_machine_properties_dialog_init(GTypeInstance *instance, gpointer 
   BtMachinePropertiesDialog *self = BT_MACHINE_PROPERTIES_DIALOG(instance);
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_MACHINE_PROPERTIES_DIALOG, BtMachinePropertiesDialogPrivate);
-
-#ifndef USE_NEW_BTIC
-  self->priv->control_data=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,(GDestroyNotify)free_control_data);
-#endif
 }
 
 static void bt_machine_properties_dialog_class_init(BtMachinePropertiesDialogClass *klass) {

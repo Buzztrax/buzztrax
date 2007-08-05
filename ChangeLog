@@ -1,3 +1,16 @@
+2007-08-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  More details
+
+	* src/lib/core/machine.c:
+	* src/lib/ic/registry.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Save and load controller assignments with the song.
+	
+	* tests/Makefile.am:
+	  Libc memory allocator testing idea.
+
 2007-08-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-core/bt-core-sections.txt:

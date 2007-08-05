@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.271 2007-08-04 18:24:05 ensonic Exp $
+/* $Id: machine.c,v 1.272 2007-08-05 19:19:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2665,6 +2665,17 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
 
 //-- io interface
 
+/*
+ * persistence_save_control_data_entries:
+ *
+ * Save single controller assignments.
+ */
+static void persistence_collect_control_data_entries(gpointer const key, gpointer const value, gpointer const user_data) {
+  GList **list=(GList **)user_data;
+
+  *list=g_list_prepend(*list,value);
+}
+
 static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persistence, const xmlNodePtr const parent_node, const BtPersistenceSelection * const selection) {
   const BtMachine * const self = BT_MACHINE(persistence);
   GstObject *machine,*machine_voice;
@@ -2722,6 +2733,57 @@ static xmlNodePtr bt_machine_persistence_save(const BtPersistence * const persis
       bt_persistence_save_list(self->priv->patterns,child_node);
     }
     else goto Error;
+    if(g_hash_table_size(self->priv->control_data)) {
+      if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("interaction-controllers"),NULL))) {
+        GList *list=NULL,*lnode;
+        BtControlData *data;
+        BtIcDevice *device;
+        gchar *device_name,*control_name;
+        xmlNodePtr sub_node;
+
+        g_hash_table_foreach(self->priv->control_data,persistence_collect_control_data_entries,(gpointer)&list);
+
+        for(lnode=list;lnode;lnode=g_list_next(lnode)) {
+          data=(BtControlData *)lnode->data;
+
+          g_object_get(G_OBJECT(data->control),"device",&device,"name",&control_name,NULL);
+          g_object_get(G_OBJECT(device),"name",&device_name,NULL);
+          g_object_unref(device);
+
+          sub_node=xmlNewChild(child_node,NULL,XML_CHAR_PTR("interaction-controller"),NULL);
+          // we need global or voiceXX here
+          if(data->object==(GstObject *)self->priv->machines[PART_MACHINE]) {
+            xmlNewProp(sub_node,XML_CHAR_PTR("global"),XML_CHAR_PTR("0"));
+          }
+          else {
+            if(GST_IS_CHILD_BIN(self->priv->machines[PART_MACHINE])) {
+              GstObject *voice_child;
+              gulong i;
+              gboolean found=FALSE;
+
+              for(i=0;i<self->priv->voices;i++) {
+                if((voice_child=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(self->priv->machines[PART_MACHINE]),i))) {
+                  if(data->object==voice_child) {
+                    xmlNewProp(sub_node,XML_CHAR_PTR("voice"),XML_CHAR_PTR(bt_persistence_strfmt_ulong(i)));
+                    found=TRUE;
+                  }
+                  g_object_unref(voice_child);
+                  if(found) break;
+                }
+              }
+            }
+          }
+          xmlNewProp(sub_node,XML_CHAR_PTR("parameter"),XML_CHAR_PTR(data->pspec->name));
+          xmlNewProp(sub_node,XML_CHAR_PTR("device"),XML_CHAR_PTR(device_name));
+          xmlNewProp(sub_node,XML_CHAR_PTR("control"),XML_CHAR_PTR(control_name));
+
+          g_free(device_name);
+          g_free(control_name);
+        }
+        g_list_free(list);
+      }
+      else goto Error;
+    }
   }
 Error:
   return(node);
@@ -2730,7 +2792,7 @@ Error:
 static gboolean bt_machine_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   BtMachine * const self = BT_MACHINE(persistence);
   gboolean res=FALSE;
-  xmlChar *id,*name,*voice_str,*value_str;
+  xmlChar *id,*name,*global_str,*voice_str,*value_str;
   xmlNodePtr child_node;
   GValue value={0,};
   glong param,voice;
@@ -2814,6 +2876,71 @@ static gboolean bt_machine_persistence_load(const BtPersistence * const persiste
             g_object_unref(pattern);
           }
         }
+      }
+      else if(!strncmp((gchar *)node->name,"interaction-controllers\0",24)) {
+        BtIcRegistry *registry;
+        BtIcDevice *device;
+        BtIcControl *control;
+        GList *lnode,*devices,*controls;
+        gchar *name;
+        xmlChar *device_str,*control_str,*property_name;
+        gboolean found;
+
+        registry=btic_registry_new();
+        g_object_get(G_OBJECT(registry),"devices",&devices,NULL);
+
+        for(child_node=node->children;child_node;child_node=child_node->next) {
+          if((!xmlNodeIsText(child_node)) && (!strncmp((char *)child_node->name,"interaction-controller\0",23))) {
+            control=NULL;
+
+            if((device_str=xmlGetProp(child_node,XML_CHAR_PTR("device")))) {
+              found=FALSE;
+              for(lnode=devices;lnode;lnode=g_list_next(lnode)) {
+                device=BTIC_DEVICE(lnode->data);
+                g_object_get(G_OBJECT(device),"name",&name,NULL);
+                if(!strcmp(name,(gchar *)device_str))
+                  found=TRUE;
+                g_free(name);
+                if(found) break;
+              }
+              if(found) {
+                if((control_str=xmlGetProp(child_node,XML_CHAR_PTR("control")))) {
+                  found=FALSE;
+                  g_object_get(G_OBJECT(device),"controls",&controls,NULL);
+                  for(lnode=controls;lnode;lnode=g_list_next(lnode)) {
+                    control=BTIC_CONTROL(lnode->data);
+                    g_object_get(G_OBJECT(control),"name",&name,NULL);
+                    if(!strcmp(name,(gchar *)control_str))
+                      found=TRUE;
+                    g_free(name);
+                    if(found) break;
+                  }
+                  g_list_free(controls);
+                  if(found) {
+                    if((property_name=xmlGetProp(child_node,XML_CHAR_PTR("parameter")))) {
+                      if((global_str=xmlGetProp(child_node,XML_CHAR_PTR("global")))) {
+                        bt_machine_bind_parameter_control(self,machine,(gchar*)property_name,control);
+                        xmlFree(global_str);
+                      }
+                      else {
+                        if((voice_str=xmlGetProp(child_node,XML_CHAR_PTR("voice")))) {
+                          voice=atol((char *)voice_str);
+                          machine_voice=gst_child_proxy_get_child_by_index(GST_CHILD_PROXY(machine),voice);
+                          bt_machine_bind_parameter_control(self,machine_voice,(gchar*)property_name,control);
+                          xmlFree(voice_str);
+                        }
+                      }
+                      xmlFree(property_name);
+                    }
+                  }
+                  xmlFree(control_str);
+                }
+              }
+              xmlFree(device_str);
+            }
+          }
+        }
+        g_list_free(devices);
       }
     }
   }

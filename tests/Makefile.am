@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.48 2007-07-19 20:39:05 ensonic Exp $
+## $Id: Makefile.am,v 1.49 2007-08-05 19:19:15 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -19,9 +19,12 @@ TESTS = \
 
 # prevent endless loops and give debug feedback
 TESTS_ENVIRONMENT = \
-	ulimit -St20; GCONF_DEBUG_TRACE_CLIENT=1
+	ulimit -St20;
 # adding this can help debug gconfd
 #    GCONF_DEBUG_TRACE_CLIENT=1
+#
+# http://www.cynapses.org/tmp/gcc/malloc_perturb
+#    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)

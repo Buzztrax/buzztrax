@@ -1,12 +1,17 @@
 2007/08 ========================================================================
 
-I will stop writinh in the plural form. The fact is that buzztard is mostly a
+I will stop writing in the plural form. The fact is that buzztard is mostly a
 one-man project. I spend alot of time in the project, but that seems to be not
 enough to get the project end-user ready (at least it will take time).
 
 bugfixes
+interaction controllers refactored
+- do not disappear when closing the machine dialog
+- unbind and unbind-all commands
+- saved with the song
 more dialogs refactored to extra classes
 more tests, better coverage and more ui screenshots
+active tab saved with the song and restored after loading
 song rendering ui started
 
 2007/07 ========================================================================
@@ -19,7 +24,7 @@ I also worked on the buzz song importer. One goal I set myself is to be able to
 load and play some of the song initially shipped with buzz. Right now I try my
 luck on Aenathron.bmx. The song is just 34 kbytes, but plays for more that 5
 minutes. Geonik's primifun causes some headache for me as it imports a zillion
-windows libs, thus I removed it from the song for now. To be able to load the 
+windows libs, thus I removed it from the song for now. To be able to load the
 song I had to add support for old (< version 1.2) songs. The song loads, but
 only produces cracks and pops so far :(.
 

@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.11 2007-08-02 15:20:42 berzerka Exp $
+/* $Id: registry.c,v 1.12 2007-08-05 19:19:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -116,7 +116,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
     }
     else if(!strcmp(cap[n],"input")) {
 	devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
-	      
+
 	GST_INFO("input device added: product=%s, devnode=%s", name,devnode);
 	// create device
 	device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
