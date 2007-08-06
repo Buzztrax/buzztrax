@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.h,v 1.7 2007-07-18 18:19:20 ensonic Exp $
+/* $Id: settings-dialog.h,v 1.8 2007-08-06 20:08:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -56,7 +56,7 @@ struct _BtSettingsDialogClass {
 };
 
 /**
- * BtSettingsPageType:
+ * BtSettingsPage:
  * @BT_SETTINGS_PAGE_AUDIO_DEVICES: audio devices
  * @BT_SETTINGS_PAGE_INTERACTION_CONTROLLER: interaction controller
  * @BT_SETTINGS_PAGE_PLAYBACK_CONTROLLER: playback controller

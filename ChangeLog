@@ -1,5 +1,22 @@
 2007-08-06  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/ui/edit/settings-dialog.h:
+	  Docs are clean again.
+
+	* po/de.po:
+	  Update.
+
+	* src/lib/ic/registry.c:
+	  Remove unused variable.
+
+	* tests/gtkdoccomplete.sh:
+	* tests/povalid.sh:
+	  More test scrip improvments.
+
+2007-08-06  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* docs/reference/bt-edit/bt-edit-sections.txt:
 	* docs/reference/bt-ic/bt-ic-sections.txt:

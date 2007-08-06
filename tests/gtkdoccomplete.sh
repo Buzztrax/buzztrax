@@ -1,4 +1,5 @@
 #!/bin/sh
+# $Id: gtkdoccomplete.sh,v 1.5 2007-08-06 20:08:32 ensonic Exp $
 
 res=0
 fails=0;
@@ -20,7 +21,6 @@ for dir in ../docs/reference/bt-*; do
     file=$dir/*-unused.txt;
     if [ -e $file ]; then
       lines=`wc -l $file | cut -f1 -d\ `
-      #if [ -s $file ]; then
       if [ $lines -gt 0 ]; then
         res=1
         fails=$((fails+1))
@@ -30,7 +30,6 @@ for dir in ../docs/reference/bt-*; do
     file=$dir/*-undeclared.txt;
     if [ -e $file ]; then
       lines=`wc -l $file | cut -f1 -d\ `
-      #if [ -s $file ]; then
       if [ $lines -gt 0 ]; then
         res=1
         fails=$((fails+1))

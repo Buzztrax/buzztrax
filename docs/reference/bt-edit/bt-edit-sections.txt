@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.37 2007-08-06 19:10:14 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.38 2007-08-06 20:08:32 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -10,6 +10,24 @@
 # </SECTION>
 
 <INCLUDE>"bt-edit.h"</INCLUDE>
+
+<SECTION>
+<FILE>btaboutdialog</FILE>
+<TITLE>BtAboutDialog</TITLE>
+BtAboutDialog
+bt_about_dialog_new
+<SUBSECTION Standard>
+BtAboutDialogClass
+BT_ABOUT_DIALOG
+BT_IS_ABOUT_DIALOG
+BT_TYPE_ABOUT_DIALOG
+BT_ABOUT_DIALOG_CLASS
+BT_IS_ABOUT_DIALOG_CLASS
+BT_ABOUT_DIALOG_GET_CLASS
+<SUBSECTION Private>
+bt_about_dialog_get_type
+BtAboutDialogPrivate
+</SECTION>
 
 <SECTION>
 <FILE>bteditapplication</FILE>
@@ -52,6 +70,7 @@ BT_TYPE_INTERACTION_CONTROLLER_MENU
 BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE
 <SUBSECTION Private>
 bt_interaction_controller_menu_get_type
+bt_interaction_controller_menu_type_get_type
 BtInteractionControllerMenuPrivate
 </SECTION>
 
@@ -153,6 +172,25 @@ BT_TYPE_MACHINE_PROPERTIES_DIALOG
 <SUBSECTION Private>
 bt_machine_properties_dialog_get_type
 BtMachinePropertiesDialogPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btmachinerenamedialog</FILE>
+<TITLE>BtMachineRenameDialog</TITLE>
+BtMachineRenameDialog
+bt_machine_rename_dialog_new
+bt_machine_rename_dialog_apply
+<SUBSECTION Standard>
+BtMachineRenameDialogClass
+BT_MACHINE_RENAME_DIALOG
+BT_IS_MACHINE_RENAME_DIALOG
+BT_TYPE_MACHINE_RENAME_DIALOG
+BT_MACHINE_RENAME_DIALOG_CLASS
+BT_IS_MACHINE_RENAME_DIALOG_CLASS
+BT_MACHINE_RENAME_DIALOG_GET_CLASS
+<SUBSECTION Private>
+bt_machine_rename_dialog_get_type
+BtMachineRenameDialogPrivate
 </SECTION>
 
 <SECTION>
@@ -384,6 +422,24 @@ BtMissingFrameworkElementsDialogPrivate
 </SECTION>
 
 <SECTION>
+<FILE>btmissingsongelementsdialog</FILE>
+<TITLE>BtMissingSongElementsDialog</TITLE>
+BtMissingSongElementsDialog
+bt_missing_song_elements_dialog_new
+<SUBSECTION Standard>
+BtMissingSongElementsDialogClass
+BT_MISSING_SONG_ELEMENTS_DIALOG
+BT_IS_MISSING_SONG_ELEMENTS_DIALOG
+BT_TYPE_MISSING_SONG_ELEMENTS_DIALOG
+BT_MISSING_SONG_ELEMENTS_DIALOG_CLASS
+BT_IS_MISSING_SONG_ELEMENTS_DIALOG_CLASS
+BT_MISSING_SONG_ELEMENTS_DIALOG_GET_CLASS
+<SUBSECTION Private>
+bt_missing_song_elements_dialog_get_type
+BtMissingSongElementsDialogPrivate
+</SECTION>
+
+<SECTION>
 <FILE>btpatternpropertiesdialog</FILE>
 <TITLE>BtPatternPropertiesDialog</TITLE>
 BtPatternPropertiesDialog
@@ -439,6 +495,44 @@ BtPlaybackControllerSocketPrivate
 </SECTION>
 
 <SECTION>
+<FILE>btrenderdialog</FILE>
+<TITLE>BtRenderDialog</TITLE>
+BtRenderDialog
+bt_render_dialog_new
+<SUBSECTION Standard>
+BtRenderDialogClass
+BT_RENDER_DIALOG
+BT_IS_RENDER_DIALOG
+BT_TYPE_RENDER_DIALOG
+BT_RENDER_DIALOG_CLASS
+BT_IS_RENDER_DIALOG_CLASS
+BT_RENDER_DIALOG_GET_CLASS
+<SUBSECTION Private>
+bt_render_dialog_get_type
+BtRenderDialogPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btrenderprogress</FILE>
+<TITLE>BtRenderProgress</TITLE>
+BtRenderProgress
+bt_render_progress_new
+bt_render_progress_run
+<SUBSECTION Standard>
+BtRenderProgressClass
+BT_RENDER_PROGRESS
+BT_IS_RENDER_PROGRESS
+BT_TYPE_RENDER_PROGRESS
+BT_RENDER_PROGRESS_CLASS
+BT_IS_RENDER_PROGRESS_CLASS
+BT_RENDER_PROGRESS_GET_CLASS
+<SUBSECTION Private>
+bt_render_progress_get_type
+BtRenderProgressPrivate
+</SECTION>
+
+
+<SECTION>
 <FILE>btsequenceview</FILE>
 <TITLE>BtSequenceView</TITLE>
 BtSequenceView
@@ -460,6 +554,7 @@ BtSequenceViewPrivate
 <FILE>btsettingsdialog</FILE>
 <TITLE>BtSettingsDialog</TITLE>
 BtSettingsDialog
+BtSettingsPage
 bt_settings_dialog_new
 <SUBSECTION Standard>
 BtSettingsDialogClass
@@ -469,8 +564,10 @@ BT_SETTINGS_DIALOG_CLASS
 BT_IS_SETTINGS_DIALOG_CLASS
 BT_SETTINGS_DIALOG_GET_CLASS
 BT_TYPE_SETTINGS_DIALOG
+BT_TYPE_SETTINGS_PAGE
 <SUBSECTION Private>
 bt_settings_dialog_get_type
+bt_settings_page_get_type
 BtSettingsDialogPrivate
 </SECTION>
 

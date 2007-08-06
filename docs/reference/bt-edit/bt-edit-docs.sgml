@@ -4,6 +4,7 @@
 <!ENTITY % version-entities SYSTEM "../../version.entities">
 %version-entities;
 <!ENTITY btedit SYSTEM "xml/btedit.xml">
+<!ENTITY BtAboutDialog SYSTEM "xml/btaboutdialog.xml">
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
 <!ENTITY BtInteractionControllerMenu SYSTEM "xml/btinteractioncontrollermenu.xml">
 <!ENTITY BtMachineActions SYSTEM "xml/btmachineactions.xml">
@@ -12,6 +13,7 @@
 <!ENTITY BtMachinePreferencesDialog SYSTEM "xml/btmachinepreferencesdialog.xml">
 <!ENTITY BtMachinePresetPropertiesDialog SYSTEM "xml/btmachinepresetpropertiesdialog.xml">
 <!ENTITY BtMachinePropertiesDialog SYSTEM "xml/btmachinepropertiesdialog.xml">
+<!ENTITY BtMachineRenameDialog SYSTEM "xml/btmachinerenamedialog.xml">
 <!ENTITY BtMainMenu SYSTEM "xml/btmainmenu.xml">
 <!ENTITY BtMainPageInfo SYSTEM "xml/btmainpageinfo.xml">
 <!ENTITY BtMainPageMachines SYSTEM "xml/btmainpagemachines.xml">
@@ -23,9 +25,12 @@
 <!ENTITY BtMainToolbar SYSTEM "xml/btmaintoolbar.xml">
 <!ENTITY BtMainWindow SYSTEM "xml/btmainwindow.xml">
 <!ENTITY BtMissingFrameworkElementsDialog SYSTEM "xml/btmissingframeworkelementsdialog.xml">
+<!ENTITY BtMissingSongElementsDialog SYSTEM "xml/btmissingsongelementsdialog.xml">
 <!ENTITY BtPatternPropertiesDialog SYSTEM "xml/btpatternpropertiesdialog.xml">
 <!ENTITY BtPatternView SYSTEM "xml/btpatternview.xml">
 <!ENTITY BtPlaybackControllerSocket SYSTEM "xml/btplaybackcontrollersocket.xml">
+<!ENTITY BtRenderDialog SYSTEM "xml/btrenderdialog.xml">
+<!ENTITY BtRenderProgress SYSTEM "xml/btrenderprogress.xml">
 <!ENTITY BtSequenceView SYSTEM "xml/btsequenceview.xml">
 <!ENTITY BtSettingsDialog SYSTEM "xml/btsettingsdialog.xml">
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
@@ -66,6 +71,7 @@
       before reading further.
     </para>
     &btedit;
+    &BtAboutDialog;
     &BtEditApplication;
     &BtInteractionControllerMenu;
     &BtMachineActions;
@@ -74,6 +80,7 @@
     &BtMachinePreferencesDialog;
     &BtMachinePresetPropertiesDialog;
     &BtMachinePropertiesDialog;
+    &BtMachineRenameDialog;
     &BtMainWindow;
     &BtMainMenu;
     &BtMainPageInfo;
@@ -88,6 +95,8 @@
     &BtPatternPropertiesDialog;
     &BtPatternView;
     &BtPlaybackControllerSocket;
+    &BtRenderDialog;
+    &BtRenderProgress;
     &BtSequenceView;
     &BtSettingsDialog;
     &BtSettingsPageAudiodevices;

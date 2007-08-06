@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.13 2007-08-06 15:21:29 berzerka Exp $
+/* $Id: registry.c,v 1.14 2007-08-06 20:08:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -62,7 +62,6 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   BtIcRegistry *self=BTIC_REGISTRY(singleton);
   gchar **cap;
   gchar *hal_category;
-  gchar **hal_type;
   gchar *temp,*parent_udi;
   gchar *name,*devnode,*type;
   size_t n;
@@ -109,6 +108,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       }
       libhal_free_string(type);
     }
+#if 0
     else if(!strcmp(cap[n],"input.joystick")) {
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
 
@@ -118,17 +118,18 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
       libhal_free_string(devnode);
     }
+#endif
     else if(!strcmp(cap[n],"input")) {
-	devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
+      devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
 
-	GST_INFO("input device added: product=%s, devnode=%s", name,devnode);
-	// create device
-	device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
-	libhal_free_string(devnode);
+      GST_INFO("input device added: product=%s, devnode=%s", name,devnode);
+      // create device
+      device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
+      libhal_free_string(devnode);
     }
   }
   libhal_free_string_array(cap);
-  
+
   // finished checking devices regarding capabilities, now checking category
   if(!strcmp(hal_category,"alsa"))
   {
@@ -136,7 +137,7 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
 
       if(!strcmp(alsatype,"midi")) {
 	  devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
-	  
+
 	  GST_INFO("midi device added: product=%s, devnode=%s", name,devnode);
 	  // create device
 	  device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
