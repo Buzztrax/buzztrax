@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.12 2007-08-05 19:19:12 ensonic Exp $
+/* $Id: registry.c,v 1.13 2007-08-06 15:21:29 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -61,6 +61,8 @@ static gpointer singleton=NULL;
 static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   BtIcRegistry *self=BTIC_REGISTRY(singleton);
   gchar **cap;
+  gchar *hal_category;
+  gchar **hal_type;
   gchar *temp,*parent_udi;
   gchar *name,*devnode,*type;
   size_t n;
@@ -69,9 +71,12 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   if(!(cap=libhal_device_get_property_strlist(ctx,udi,"info.capabilities",NULL))) {
     return;
   }
+  if(!(hal_category=libhal_device_get_property_string(ctx,udi,"info.category",NULL))) {
+      return;
+  }
+  name=libhal_device_get_property_string(ctx,udi,"info.product",NULL);
 
   for(n=0;cap[n];n++) {
-    name=libhal_device_get_property_string(ctx,udi,"info.product",NULL);
     // midi devices seem to appear only as oss under hal?
     // @todo: try alsa.sequencer
     if(!strcmp(cap[n],"alsa.sequencer")) {
@@ -105,7 +110,6 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
       libhal_free_string(type);
     }
     else if(!strcmp(cap[n],"input.joystick")) {
-    //else if(!strcmp(cap[n],"input")) {
       devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
 
       GST_INFO("input device added: product=%s, devnode=%s",
@@ -122,18 +126,35 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
 	device=BTIC_DEVICE(btic_input_device_new(udi,name,devnode));
 	libhal_free_string(devnode);
     }
-    else {
-      GST_INFO("unknown device found, not added: name=%s",name);
-    }
-    if(device) {
+  }
+  libhal_free_string_array(cap);
+  
+  // finished checking devices regarding capabilities, now checking category
+  if(!strcmp(hal_category,"alsa"))
+  {
+      gchar* alsatype = libhal_device_get_property_string(ctx,udi,"alsa.type",NULL);
+
+      if(!strcmp(alsatype,"midi")) {
+	  devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
+	  
+	  GST_INFO("midi device added: product=%s, devnode=%s", name,devnode);
+	  // create device
+	  device=BTIC_DEVICE(btic_midi_device_new(udi,name,devnode));
+	  libhal_free_string(devnode);
+      }
+  }
+
+  if(device) {
       // add devices to our list and trigger notify
       self->priv->devices=g_list_append(self->priv->devices,(gpointer)device);
       g_object_notify(G_OBJECT(self),"devices");
       device=NULL;
-    }
-    libhal_free_string(name);
   }
-  libhal_free_string_array(cap);
+  else
+      GST_INFO("unknown device found, not added: name=%s",name);
+
+  libhal_free_string(hal_category);
+  libhal_free_string(name);
 }
 
 static void on_device_removed(LibHalContext *ctx, const gchar *udi) {
@@ -296,21 +317,28 @@ static void btic_registry_init(const GTypeInstance * const instance, gconstpoint
   }
   // scan already plugged devices via hal
   if((devices=libhal_find_device_by_capability(self->priv->ctx,"input",&num_devices,&self->priv->dbus_error))) {
-    GST_INFO("%d input devices found, try adding",num_devices);
+    GST_INFO("%d input devices found, trying add..",num_devices);
+    for(i=0;i<num_devices;i++) {
+      on_device_added(self->priv->ctx,devices[i]);
+    }
+    libhal_free_string_array(devices);
+  }
+  if((devices=libhal_find_device_by_capability(self->priv->ctx,"alsa",&num_devices,&self->priv->dbus_error))) {
+    GST_INFO("%d alsa devices found, trying to add..",num_devices);
     for(i=0;i<num_devices;i++) {
       on_device_added(self->priv->ctx,devices[i]);
     }
     libhal_free_string_array(devices);
   }
   if((devices=libhal_find_device_by_capability(self->priv->ctx,"alsa.sequencer",&num_devices,&self->priv->dbus_error))) {
-    GST_INFO("%d alsa.sequencer devices found, try adding",num_devices);
+    GST_INFO("%d alsa.sequencer devices found, trying to add..",num_devices);
     for(i=0;i<num_devices;i++) {
       on_device_added(self->priv->ctx,devices[i]);
     }
     libhal_free_string_array(devices);
   }
   if((devices=libhal_find_device_by_capability(self->priv->ctx,"oss",&num_devices,&self->priv->dbus_error))) {
-    GST_INFO("%d oss devices found, try adding",num_devices);
+    GST_INFO("%d oss devices found, trying to add..",num_devices);
     for(i=0;i<num_devices;i++) {
       on_device_added(self->priv->ctx,devices[i]);
     }

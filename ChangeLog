@@ -1,3 +1,8 @@
+2007-08-06  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/ic/registry.c: (on_device_added), (btic_registry_init):
+	  Made devices of category 'alsa' and type 'midi' be recognized
+
 2007-08-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
