@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.2 2007-07-25 18:55:55 ensonic Exp $
+/* $Id: render-progress.c,v 1.3 2007-08-06 19:10:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,6 +47,7 @@ struct _BtRenderProgressPrivate {
 
   /* dialog widgets */
   GtkProgressBar *track_progress;
+  GtkLabel *info;
 };
 
 static GtkProgressClass *parent_class=NULL;
@@ -57,13 +58,34 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   BtRenderProgress *self=BT_RENDER_PROGRESS(user_data);
   BtSequence *sequence;
   gulong pos,length;
+  gdouble progress;
+  // the +4 is not really needed, but I get a stack smashing error on ubuntu without
+  gchar str[3+2*(2+2+3+3) + 4];
+  gulong msec1,sec1,min1,msec2,sec2,min2;
+  GstClockTime bar_time;
 
   g_object_get(G_OBJECT(song),"sequence",&sequence,"play-pos",&pos,NULL);
   g_object_get(G_OBJECT(sequence),"length",&length,NULL);
+  bar_time=bt_sequence_get_bar_time(sequence);
 
-  gtk_progress_bar_set_fraction(self->priv->track_progress,(gdouble)length/(gdouble)pos);
-  // @todo: show time
-  //gtk_progress_bar_set_text(self->priv->track_progress,str);
+  progress=(gdouble)pos/(gdouble)length;
+  if(progress>=1.0) {
+    progress=1.0;
+    bt_song_stop(song);
+  }
+  GST_INFO("progress %ld/%ld=%lf",pos,length,progress);
+
+  msec1=(gulong)((pos*bar_time)/G_USEC_PER_SEC);
+  min1=(gulong)(msec1/60000);msec1-=(min1*60000);
+  sec1=(gulong)(msec1/ 1000);msec1-=(sec1* 1000);
+  msec2=(gulong)((length*bar_time)/G_USEC_PER_SEC);
+  min2=(gulong)(msec2/60000);msec2-=(min2*60000);
+  sec2=(gulong)(msec2/ 1000);msec2-=(sec2* 1000);
+  // format
+  g_sprintf(str,"%02lu:%02lu.%03lu / %02lu:%02lu.%03lu",min1,sec1,msec1 ,min2,sec2,msec2);
+
+  gtk_progress_bar_set_fraction(self->priv->track_progress,progress);
+  gtk_progress_bar_set_text(self->priv->track_progress,str);
 
   g_object_unref(sequence);
 }
@@ -101,6 +123,9 @@ static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
 
   /* depending on mode, add one or two progress bars
   */
+
+  self->priv->info=GTK_LABEL(gtk_label_new(""));
+  gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->info),FALSE,FALSE,0);
 
   self->priv->track_progress=GTK_PROGRESS_BAR(gtk_progress_bar_new());
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->track_progress),FALSE,FALSE,0);
@@ -147,14 +172,21 @@ void bt_render_progress_run(const BtRenderProgress *self) {
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-    gchar *file_name=NULL;
+    gchar *file_name=NULL,*folder,*name;
     BtSinkBinRecordFormat format;
     BtSinkBin *sink_bin;
+    gchar *info;
 
     g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
-    g_object_get(G_OBJECT(self->priv->settings),"format",&format,NULL);
+    g_object_get(G_OBJECT(self->priv->settings),"format",&format,"folder",&folder,"file-name",&name,NULL);
 
-    //file_name=g_strdup_printf("%s""%s",folder,filename);
+    file_name=g_build_filename(folder,name,NULL);
+    g_free(folder);g_free(name);
+
+    GST_INFO("recording to '%s'",file_name);
+    info=g_strdup_printf(_("Recording to: %s"),file_name);
+    gtk_label_set_text(self->priv->info,info);
+    g_free(info);
 
     // @todo eventually have a method for the sink bin to only update once after the changes
     g_object_set(sink_bin,
@@ -176,6 +208,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       "mode",BT_SINK_BIN_MODE_PLAY,
       NULL);
 
+    g_free(file_name);
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }

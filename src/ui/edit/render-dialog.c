@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.7 2007-07-25 18:55:55 ensonic Exp $
+/* $Id: render-dialog.c,v 1.8 2007-08-06 19:10:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -296,8 +296,8 @@ static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,RENDER_DIALOG_FILENAME,
-                                  g_param_spec_string("filename",
-                                     "filename prop",
+                                  g_param_spec_string("file-name",
+                                     "file-name prop",
                                      "Get choosen filename",
                                      NULL,
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));

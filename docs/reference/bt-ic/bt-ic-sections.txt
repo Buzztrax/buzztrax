@@ -1,4 +1,4 @@
-# $Id: bt-ic-sections.txt,v 1.6 2007-04-15 18:47:44 ensonic Exp $
+# $Id: bt-ic-sections.txt,v 1.7 2007-08-06 19:10:16 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -53,6 +53,8 @@ BtIcDevice
 btic_device_add_control
 btic_device_start
 btic_device_stop
+btic_device_virtual_start
+btic_device_virtual_stop
 <SUBSECTION Standard>
 BtIcDeviceClass
 BTIC_DEVICE

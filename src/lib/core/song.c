@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.188 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: song.c,v 1.189 2007-08-06 19:10:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -445,7 +445,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // seek to start time
         GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
-          GST_WARNING("element failed to handle seek event");
+          GST_WARNING("bin failed to handle seek event");
         }
         // start playback
         res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);

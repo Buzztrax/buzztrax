@@ -1,3 +1,16 @@
+2007-08-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* tests/gtkdoccomplete.sh:
+	  Improve doc status reporting. Apply some doc fixes.
+
+	* src/lib/core/song.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-progress.c:
+	  Basic recording works form the ui.
+
 2007-08-06  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/lib/ic/registry.c: (on_device_added), (btic_registry_init):
