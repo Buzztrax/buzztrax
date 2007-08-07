@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtkdoccomplete.sh,v 1.5 2007-08-06 20:08:32 ensonic Exp $
+# $Id: gtkdoccomplete.sh,v 1.6 2007-08-07 13:36:32 ensonic Exp $
 
 res=0
 fails=0;
@@ -38,9 +38,11 @@ for dir in ../docs/reference/bt-*; do
     fi
   fi
 done
-rate=$((($checks-$fails)*100/$checks))
 echo
-echo -n "$rate%: Checks: $checks, Failures: $fails"
-echo -e -n $report
+if [ $checks -gt 0 ];then
+  rate=$((($checks-$fails)*100/$checks))
+  echo -n "$rate%: Checks: $checks, Failures: $fails"
+  echo -e -n $report
+fi
 
 exit $res

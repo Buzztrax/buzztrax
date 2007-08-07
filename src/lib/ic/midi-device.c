@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.5 2007-05-07 14:45:40 ensonic Exp $
+/* $Id: midi-device.c,v 1.6 2007-08-07 13:36:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,7 +24,11 @@
  *
  * Event handling for midi devices.
  */
-
+/*
+ * use sysex to get device ids
+ * http://www.borg.com/~jglatt/tech/midispec/identity.htm
+ * http://en.wikipedia.org/wiki/MIDI_Machine_Control#Identity_Request
+ */
 #define BTIC_CORE
 #define BTIC_MIDI_DEVICE_C
 
