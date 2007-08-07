@@ -1,5 +1,11 @@
 2007-08-07  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/gtkdoccomplete.sh:
+	* tests/povalid.sh:
+	  Even better scripts :)
+
+2007-08-07  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/ic/midi-device.c:
 	  Add links for midi device identification.
 

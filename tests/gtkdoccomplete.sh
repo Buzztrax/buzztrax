@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtkdoccomplete.sh,v 1.6 2007-08-07 13:36:32 ensonic Exp $
+# $Id: gtkdoccomplete.sh,v 1.7 2007-08-07 14:36:06 ensonic Exp $
 
 res=0
 fails=0;
@@ -11,11 +11,11 @@ for dir in ../docs/reference/bt-*; do
   file=$dir/*-undocumented.txt;
   if [ -e $file ]; then
     echo -n `basename $dir` ""
-    checks=$((checks+3))
+    checks=$(($checks+3))
 
     if [ `head -n1 $file | cut -d% -f1` -ne "100" ]; then
       res=1
-      fails=$((fails+1))
+      fails=$(($fails+1))
       report=$report`echo -n $file`":1:E: undocumented symbols\n"
     fi
     file=$dir/*-unused.txt;
@@ -23,7 +23,7 @@ for dir in ../docs/reference/bt-*; do
       lines=`wc -l $file | cut -f1 -d\ `
       if [ $lines -gt 0 ]; then
         res=1
-        fails=$((fails+1))
+        fails=$(($fails+1))
         report=$report`echo -n $file`":1:E: $lines unused documentation entries\n"
       fi
     fi
