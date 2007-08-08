@@ -1,4 +1,4 @@
-/* $Id: device.h,v 1.2 2007-04-15 18:47:45 ensonic Exp $
+/* $Id: device.h,v 1.3 2007-08-08 15:04:33 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -73,10 +73,21 @@ typedef gboolean (*btic_device_virtual_start)(gconstpointer self);
 typedef gboolean (*btic_device_virtual_stop)(gconstpointer self);
 
 /**
+ * btic_device_virtual_learn:
+ * @self: device instance
+ *
+ * Subclasses will override this methods with a function that implements a learn routine
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*btic_device_virtual_learn)(gconstpointer self);
+
+/**
  * BtIcDeviceClass:
  * @parent: parent class type
  * @start: virtual method for starting a devie
  * @stop: virtual method for stopping a device
+ * @learn: virtual method for a learn function
  *
  * buzztards interaction controller device class
  */
@@ -86,6 +97,7 @@ struct _BtIcDeviceClass {
   /* class methods */
   btic_device_virtual_start start;
   btic_device_virtual_stop stop;
+  btic_device_virtual_learn learn;
 };
 
 /* used by DEVICE_TYPE */

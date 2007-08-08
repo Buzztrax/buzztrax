@@ -1,4 +1,4 @@
-/* $Id: device.c,v 1.6 2007-05-07 14:45:40 ensonic Exp $
+/* $Id: device.c,v 1.7 2007-08-08 15:04:33 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -93,6 +93,10 @@ static gboolean btic_device_default_stop(gconstpointer self) {
   return(FALSE);  // this is a base class that can't do anything
 }
 
+static gboolean btic_device_default_learn(gconstpointer self) {
+  GST_ERROR("virtual method btic_device_learn(self=%p) called",self);
+  return(FALSE);  // this is a base class that can't do anything
+}
 //-- wrapper
 
 /**
@@ -134,6 +138,22 @@ gboolean btic_device_stop(const BtIcDevice *self) {
   if(self->priv->run_ct==0) {
     result=BTIC_DEVICE_GET_CLASS(self)->stop(self);
   }
+  return(result);
+}
+
+/**
+ * btic_device_learn:
+ * @self: device instance
+ *
+ * function implements a learn routine for the device. probably uses a popup dialog.
+ *
+ * Returns: %TRUE for success
+ */
+gboolean btic_device_learn(const BtIcDevice *self) {
+  gboolean result=FALSE;
+
+  result=BTIC_DEVICE_GET_CLASS(self)->learn(self);
+
   return(result);
 }
 
@@ -237,6 +257,7 @@ static void btic_device_class_init(BtIcDeviceClass * const klass) {
 
   klass->start = btic_device_default_start;
   klass->stop  = btic_device_default_stop;
+  klass->learn = btic_device_default_learn;
 
   g_object_class_install_property(gobject_class,DEVICE_UDI,
                                   g_param_spec_string("udi",

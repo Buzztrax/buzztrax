@@ -1,3 +1,10 @@
+2007-08-08  Patric Schmitz  <berzerka@users.sf.net>
+
+	* src/lib/ic/device.c: (btic_device_default_learn),
+	(btic_device_learn), (btic_device_class_init):
+	* src/lib/ic/libbtic/device.h:
+	  Added virtual 'learn' method to BtIcDevice base class
+
 2007-08-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* tests/gtkdoccomplete.sh:
