@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.87 2007-08-09 16:00:12 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.88 2007-08-09 19:50:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -651,7 +651,7 @@ static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
       GTK_WIDGET(self->priv->preset_box)->allocation.width,GTK_WIDGET(self->priv->preset_box)->allocation.height);
     // expand window
     gtk_window_resize(GTK_WINDOW(self),
-      GTK_WIDGET(self)->allocation.width+GTK_WIDGET(self->priv->preset_box)->allocation.width,
+      GTK_WIDGET(self)->allocation.width+(GTK_WIDGET(self->priv->preset_box)->allocation.width+12),
       GTK_WIDGET(self)->allocation.height);
 
     gtk_widget_show_all(self->priv->preset_box);
@@ -673,7 +673,7 @@ static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
     //gtk_widget_set_size_request(GTK_WIDGET(self),wsize.width-bsize.width,wsize.height);
     //gtk_window_resize(GTK_WINDOW(self),wsize.width-bsize.width,wsize.height);
     gtk_window_resize(GTK_WINDOW(self),
-      GTK_WIDGET(self)->allocation.width-GTK_WIDGET(self->priv->preset_box)->allocation.width,
+      GTK_WIDGET(self)->allocation.width-(GTK_WIDGET(self->priv->preset_box)->allocation.width+12),
       GTK_WIDGET(self)->allocation.height);
   }
 }

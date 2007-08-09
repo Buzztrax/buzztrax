@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.9 2007-08-04 18:24:06 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.10 2007-08-09 19:50:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -81,6 +81,25 @@ GType bt_interaction_controller_menu_type_get_type(void) {
 static void on_control_bind_activated(GtkMenuItem *menuitem, gpointer user_data) {
   BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(g_object_get_qdata(G_OBJECT(menuitem),widget_parent_quark));
   BtIcControl *control=BTIC_CONTROL(user_data);
+
+#if 0
+  GtkWidget *parent;
+
+  parent=gtk_widget_get_parent(gtk_widget_get_parent(GTK_WIDGET(menuitem)));
+  GST_WARNING("1.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
+  parent=gtk_widget_get_toplevel(GTK_WIDGET(menuitem));
+  GST_WARNING("2.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
+  //parent=gtk_menu_get_attach_widget(GTK_MENU(gtk_widget_get_toplevel(GTK_WIDGET(menuitem))));
+  //GST_WARNING("3.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
+  parent=gtk_menu_get_attach_widget(GTK_MENU(gtk_widget_get_parent(GTK_WIDGET(menuitem))));
+  GST_WARNING("3.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
+  parent=gtk_widget_get_parent(gtk_menu_get_attach_widget(GTK_MENU(gtk_widget_get_parent(GTK_WIDGET(menuitem)))));
+  GST_WARNING("4.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
+  parent=gtk_widget_get_parent(gtk_menu_get_attach_widget(GTK_MENU(
+    gtk_widget_get_parent(gtk_menu_get_attach_widget(GTK_MENU(
+    gtk_widget_get_parent(GTK_WIDGET(menuitem))))))));
+  GST_WARNING("5.) %p =? %p (%s)",self,parent,G_OBJECT_TYPE_NAME(parent));
+#endif
 
   g_object_set(self,"selected-control",control,NULL);
 }

@@ -1,5 +1,16 @@
 2007-08-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/interaction-controller-menu.c:
+	  Experiment with alternatives to avoid qdata for toplevel menu.
+
+	* src/ui/edit/machine-properties-dialog.c:
+	  Include box-spacing.
+
+	* src/ui/edit/render-progress.c:
+	  Do a final progress-bar update.
+
+2007-08-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/machine-properties-dialog.c:
 	(on_toolbar_show_hide_clicked),
 	(bt_machine_properties_dialog_init_ui),

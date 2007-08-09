@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.3 2007-08-06 19:10:20 ensonic Exp $
+/* $Id: render-progress.c,v 1.4 2007-08-09 19:50:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -97,6 +97,7 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   if(!is_playing) {
     GST_INFO("stopped");
+    on_song_play_pos_notify(song,NULL,user_data);
     //gtk_main_quit();
   }
 }
