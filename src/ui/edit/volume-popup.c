@@ -1,4 +1,4 @@
-/* $Id: volume-popup.c,v 1.9 2007-04-01 16:18:22 ensonic Exp $
+/* $Id: volume-popup.c,v 1.10 2007-08-09 16:00:12 ensonic Exp $
  *
  * GNOME Volume Applet
  * Copyright (C) 2004 Ronald Bultje <rbultje@ronald.bitfreak.net>
@@ -103,9 +103,9 @@ static gboolean
 cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
 {
   BtVolumePopup *self = BT_VOLUME_POPUP(data);
-  
+
   //if(!GTK_WIDGET_REALIZED(self)) return FALSE;
-  
+
   if (event->type == GDK_BUTTON_PRESS) {
     GdkEventButton *e;
     //GST_INFO("type=%4d, window=%p, send_event=%3d, time=%8d",event->type,event->window,event->send_event,event->time);
@@ -162,7 +162,7 @@ cb_dock_press (GtkWidget * widget, GdkEventButton * event, gpointer data)
  */
 GtkWidget *
 bt_volume_popup_new(GtkAdjustment *adj) {
-  GtkWidget *table, *button, *scale, *frame;
+  GtkWidget *table, *button, *scale, *frame,*ruler,*rbox,*pad;
   BtVolumePopup *self;
 
   self = g_object_new(BT_TYPE_VOLUME_POPUP, "type", GTK_WINDOW_POPUP, NULL);
@@ -170,38 +170,55 @@ bt_volume_popup_new(GtkAdjustment *adj) {
   frame = gtk_frame_new(NULL);
   gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
 
-  table = gtk_table_new(1,3, FALSE);
+  table = gtk_table_new(2,3, FALSE);
 
+  // using the icons from the volume applet would be nice
   button = gtk_button_new_with_label(_("+"));
   self->plus = GTK_BUTTON(button);
   gtk_button_set_relief(self->plus, GTK_RELIEF_NONE);
-  gtk_table_attach_defaults(GTK_TABLE(table), button, 0,1, 0,1);
+  gtk_table_attach_defaults(GTK_TABLE(table), button, 0,2, 0,1);
   g_signal_connect(button, "button-press-event", G_CALLBACK(cb_button_press), self);
   g_signal_connect(button, "button-release-event", G_CALLBACK(cb_button_release), self);
-  gtk_widget_show(button);
 
-  // @todo: add ruler ? */
   scale = gtk_vscale_new(adj);
   self->scale = GTK_RANGE(scale);
-  gtk_widget_set_size_request(scale, -1,100);
+  gtk_widget_set_size_request(scale, -1,150);
   gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
   gtk_range_set_inverted(self->scale, TRUE);
-  gtk_table_attach_defaults(GTK_TABLE(table), scale, 0,1, 1,2);
-  gtk_widget_show(scale);
+  gtk_table_attach_defaults(GTK_TABLE(table), scale, 1,2, 1,2);
+
+
+  // add ruler ?
+  rbox=gtk_vbox_new(FALSE,0);
+  gtk_table_attach_defaults(GTK_TABLE(table), rbox, 0,1, 1,2);
+  //gtk_widget_style_get(scale,"slider-length",slider_length,NULL);
+  pad=gtk_label_new("");
+  gtk_widget_set_size_request(pad,20,15);
+  gtk_box_pack_start(GTK_BOX(rbox),pad,FALSE,FALSE,0);
+
+  ruler=gtk_vruler_new();
+  // we use -0.1 instead of 0.0 because of:
+  // http://bugzilla.gnome.org/show_bug.cgi?id=465041
+  gtk_ruler_set_range(GTK_RULER(ruler),10.0,-0.1,1.0,10.0);
+  GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
+  gtk_box_pack_start(GTK_BOX(rbox),ruler,TRUE,TRUE,0);
+
+  pad=gtk_label_new("");
+  gtk_widget_set_size_request(pad,-1,15);
+  gtk_box_pack_start(GTK_BOX(rbox),pad,FALSE,FALSE,0);
+
 
   button = gtk_button_new_with_label(_("-"));
   self->minus = GTK_BUTTON(button);
   gtk_button_set_relief(self->minus, GTK_RELIEF_NONE);
-  gtk_table_attach_defaults(GTK_TABLE(table), button, 0,1, 2,3);
+  gtk_table_attach_defaults(GTK_TABLE(table), button, 0,2, 2,3);
   g_signal_connect(button, "button-press-event", G_CALLBACK(cb_button_press), self);
   g_signal_connect(button, "button-release-event", G_CALLBACK(cb_button_release), self);
-  gtk_widget_show(button);
 
   gtk_container_add(GTK_CONTAINER(frame), table);
-  gtk_widget_show(table);
 
   gtk_container_add(GTK_CONTAINER(self), frame);
-  gtk_widget_show(frame);
+  gtk_widget_show_all(frame);
 
   g_signal_connect(self, "button-press-event", G_CALLBACK (cb_dock_press), self);
 

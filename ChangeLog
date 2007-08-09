@@ -1,3 +1,20 @@
+2007-08-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
+	(on_toolbar_show_hide_clicked),
+	(bt_machine_properties_dialog_init_ui),
+	(bt_machine_properties_dialog_new):
+	  Have presets hidden by default and try to handle the window resizing a
+	  bit intelligent, when toggling the pane.
+
+	* src/ui/edit/volume-popup.c: (cb_dock_press),
+	(bt_volume_popup_new):
+	  Add a ruler.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	(bt_wire_analysis_dialog_init_ui):
+	  Tune the rulers a bit.
+
 2007-08-08  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/lib/ic/device.c: (btic_device_default_learn),

@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.18 2007-07-22 19:16:38 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.19 2007-08-09 16:00:13 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -333,7 +333,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   /* add scales for spectrum analyzer drawable */
   /* @todo: we need to use a gtk_table() and also add a vruler with levels */
   ruler=gtk_hruler_new();
-  gtk_ruler_set_range(GTK_RULER(ruler),0.0,/*srat/20.0*/2205.0,-10.0,15.0);
+  gtk_ruler_set_range(GTK_RULER(ruler),0.0,/*srat/20.0*/2205.0,-10.0,200.0);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
   gtk_box_pack_start(GTK_BOX(vbox), ruler, FALSE, FALSE,0);
@@ -349,13 +349,13 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   /* add scales for level meter */
   hbox = gtk_hbox_new(FALSE, 0);
   ruler=gtk_hruler_new();
-  gtk_ruler_set_range(GTK_RULER(ruler),100.0,0.0,-10.0,15.0);
+  gtk_ruler_set_range(GTK_RULER(ruler),100.0,0.0,-10.0,30.0);
   //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);
   gtk_box_pack_start(GTK_BOX(hbox), ruler, TRUE, TRUE, 0);
   ruler=gtk_hruler_new();
-  gtk_ruler_set_range(GTK_RULER(ruler),0.0,100.0,-10.0,15.0);
+  gtk_ruler_set_range(GTK_RULER(ruler),0.0,100.5,-10.0,30.0);
   //gtk_ruler_set_metric(GTK_RULER(ruler),&ruler_metrics[0]);
   GTK_RULER_GET_CLASS(ruler)->draw_pos = NULL;
   gtk_widget_set_size_request(GTK_WIDGET(ruler),-1,30);

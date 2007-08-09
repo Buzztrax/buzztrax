@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.86 2007-08-05 19:19:15 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.87 2007-08-09 16:00:12 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -646,10 +646,35 @@ static void on_toolbar_show_hide_clicked(GtkButton *button,gpointer user_data) {
   g_assert(user_data);
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
-    gtk_widget_show(self->priv->preset_box);
+    GST_DEBUG("win: %d,%d, box: %d,%d",
+      GTK_WIDGET(self)->allocation.width,GTK_WIDGET(self)->allocation.height,
+      GTK_WIDGET(self->priv->preset_box)->allocation.width,GTK_WIDGET(self->priv->preset_box)->allocation.height);
+    // expand window
+    gtk_window_resize(GTK_WINDOW(self),
+      GTK_WIDGET(self)->allocation.width+GTK_WIDGET(self->priv->preset_box)->allocation.width,
+      GTK_WIDGET(self)->allocation.height);
+
+    gtk_widget_show_all(self->priv->preset_box);
   }
   else {
+    /*
+    GtkRequisition wsize,bsize;
+
+    gtk_widget_size_request(GTK_WIDGET(self),&wsize);
+    gtk_widget_size_request(GTK_WIDGET(self->priv->preset_box),&bsize);
+    GST_WARNING("win: %d,%d, box: %d,%d",wsize.width,wsize.height,bsize.width,bsize.height);
+    */
+    GST_DEBUG("win: %d,%d, box: %d,%d",
+      GTK_WIDGET(self)->allocation.width,GTK_WIDGET(self)->allocation.height,
+      GTK_WIDGET(self->priv->preset_box)->allocation.width,GTK_WIDGET(self->priv->preset_box)->allocation.height);
+
     gtk_widget_hide(self->priv->preset_box);
+    // shrink window
+    //gtk_widget_set_size_request(GTK_WIDGET(self),wsize.width-bsize.width,wsize.height);
+    //gtk_window_resize(GTK_WINDOW(self),wsize.width-bsize.width,wsize.height);
+    gtk_window_resize(GTK_WINDOW(self),
+      GTK_WIDGET(self)->allocation.width-GTK_WIDGET(self->priv->preset_box)->allocation.width,
+      GTK_WIDGET(self)->allocation.height);
   }
 }
 
@@ -1462,7 +1487,7 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   // create preset pane
   if(GST_IS_PRESET(machine)) {
     if(bt_machine_properties_dialog_init_preset_box(self)) {
-      gtk_box_pack_end(GTK_BOX(hbox),self->priv->preset_box,TRUE,TRUE,0);
+      gtk_box_pack_end(GTK_BOX(hbox),self->priv->preset_box,FALSE,FALSE,0);
     }
   }
 
@@ -1493,7 +1518,9 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
     gtk_widget_set_sensitive(tool_item,FALSE);
   }
   else {
-    gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool_item),TRUE);
+    /* @todo: add settings for "show presets by default" */
+    gtk_widget_set_no_show_all(self->priv->preset_box,TRUE);
+    gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool_item),FALSE);
     g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_show_hide_clicked),(gpointer)self);
   }
 
@@ -1556,6 +1583,7 @@ BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtEditApplicat
     goto Error;
   }
   gtk_widget_show_all(GTK_WIDGET(self));
+  gtk_widget_set_no_show_all(self->priv->preset_box,FALSE);
   return(self);
 Error:
   g_object_try_unref(self);
