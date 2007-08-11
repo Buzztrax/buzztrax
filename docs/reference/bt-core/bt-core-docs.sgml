@@ -33,7 +33,10 @@
 <book id="index">
   <bookinfo>
     <title>Buzztard Bt-Core Reference Manual</title>
-    <releaseinfo>for Buzztard &BT_VERSION;</releaseinfo>
+    <releaseinfo>
+      for Buzztard &BT_VERSION;
+      <ulink role="online-location" url="http://www.buzztard.org/files/apidocs/bt-core/">http://www.buzztard.org/files/apidocs/bt-core/</ulink>.
+    </releaseinfo>
   </bookinfo>
 
   <preface>
@@ -83,7 +86,7 @@
       </listitem>
     </orderedlist>
   </chapter>
-  
+
   <chapter id="libbtcore">
     <title>Core Library Reference</title>
     <para>

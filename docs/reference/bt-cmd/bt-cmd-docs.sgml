@@ -11,7 +11,10 @@
 <book id="index">
   <bookinfo>
     <title>Buzztard Bt-Cmd Reference Manual</title>
-    <releaseinfo>for Buzztard &BT_VERSION;</releaseinfo>
+    <releaseinfo>
+      for Buzztard &BT_VERSION;
+      <ulink role="online-location" url="http://www.buzztard.org/files/apidocs/bt-cmd/">http://www.buzztard.org/files/apidocs/bt-cmd/</ulink>.
+    </releaseinfo>
   </bookinfo>
 
   <preface>

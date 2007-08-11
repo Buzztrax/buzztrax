@@ -1,5 +1,13 @@
 2007-08-11  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-cmd/bt-cmd-docs.sgml:
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	  Add online locations.
+
+2007-08-11  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/volume-popup.c:
 	  Remove +/- buttons, but add a value label above. We probably need to
 	  subsclass the scale - its buggy and ugly.
