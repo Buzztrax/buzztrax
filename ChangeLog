@@ -1,3 +1,9 @@
+2007-08-11  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/volume-popup.c:
+	  Remove +/- buttons, but add a value label above. We probably need to
+	  subsclass the scale - its buggy and ugly.
+
 2007-08-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/interaction-controller-menu.c:
