@@ -1,18 +1,30 @@
+2007/09 ========================================================================
+
+
+
 2007/08 ========================================================================
 
-I will stop writing in the plural form. The fact is that buzztard is mostly a
-one-man project. I spend alot of time in the project, but that seems to be not
-enough to get the project end-user ready (at least it will take time).
+Quite late this month. Our son was born on the 26 of July and this of course
+causes some priority shift. Be assure I won't abandon then project. Also
+berzerka is back and started hacking on midi control support. Speaking of this,
+I did a needed refactoring of the interaction-controller stuff. Controller
+assignments wont disappear when closing the dialog anymore and they are now also saved with the song and restored when loading. I also implemented unbind and
+unbind-all commands.
+One TODO item is greater ui state persistence [1]. When loading the song should
+appear as you left it. One more item for this is done, the active tab is saved.
+This is a relative easy one for people that would like to help.
 
-bugfixes
-interaction controllers refactored
-- do not disappear when closing the machine dialog
-- unbind and unbind-all commands
-- saved with the song
-more dialogs refactored to extra classes
-more tests, better coverage and more ui screenshots
-active tab saved with the song and restored after loading
-song rendering ui started
+Our testing buildbot is now again up and running. The system had a faulty
+battery, which made the clock run way too fast. In seconds the clock was minutes
+ahead. I used the occasion to refactor a lot of dialogs into separate classes.
+This allows to write some basic unit tests for those and do automated
+screenshots as well. Together with some more regular tests, this greatly
+increased test coverage. It of course uncovered bugs which we fixed.
+
+As a final step I started with song rendering ui. The ui is not perfect yet, but
+it starts to work. It looks like I can prepare a 0.3 quite soon. Yay!
+
+[1] http://www.buzztard.org/index.php/Ui_state_persistence
 
 2007/07 ========================================================================
 
