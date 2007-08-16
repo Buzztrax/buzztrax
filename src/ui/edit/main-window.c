@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.90 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: main-window.c,v 1.91 2007-08-16 08:25:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -78,6 +78,18 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
   GST_INFO("delete event occurred");
   // returning TRUE means, we don't want the window to be destroyed
   if(bt_main_window_check_quit(self)) {
+    /* @todo: remember window size
+    BtSettings *settings;
+    int x, y, w, h;
+    
+    g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+    gtk_window_get_position (GTK_WINDOW (self), &x, &y);
+    gtk_window_get_size (GTK_WINDOW (self), &w, &h);
+    
+    g_object_set(G_OBJECT(settings),"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
+    
+    g_object_try_unref(settings);
+    */
     res=FALSE;
   }
   return(res);
@@ -177,6 +189,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GError *error = NULL;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
+  gtk_window_set_role(GTK_WINDOW(self),"bt-edit::main");
 
   self->priv->accel_group=gtk_accel_group_new();
 
@@ -188,20 +201,6 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   else {
     gtk_window_set_icon(GTK_WINDOW(self),window_icon);
   }
-  // this enforces a minimum size
-  //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
-  // this causes a problem with resizing the sequence-view
-  //gtk_window_set_default_size(GTK_WINDOW(self),800,600);
-  // this is deprecated
-  //gtk_widget_set_usize(GTK_WIDGET(self), 800,600);
-
-  /* @todo: restore pos & size
-   * - setup.properties or bt_settings?
-   * - call
-   *   gtk_window_move(GTK_WINDOW(self),x,y);
-   *   gtk_window_resize(GTK_WINDOW(self),w,h);
-   */
-  gtk_window_resize(GTK_WINDOW(self),800,600);
 
   // create main layout container
   box=gtk_vbox_new(FALSE, 0);
@@ -265,11 +264,15 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
   BtMainWindow *self;
   BtSettings *settings;
   gboolean toolbar_hide,tabs_hide;
+  // int x, y, w, h;
 
   GST_INFO("creating a new window, app->ref_ct=%d",G_OBJECT(app)->ref_count);
   // eventualy hide the toolbar
   g_object_get(G_OBJECT(app),"settings",&settings,NULL);
-  g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
+  g_object_get(G_OBJECT(settings),
+    "toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,
+    //"window-xpos",&x,"window-ypos",&y,"window-width",&w,"window-height",&h,
+    NULL);
   g_object_unref(settings);
 
   if(!(self=BT_MAIN_WINDOW(g_object_new(BT_TYPE_MAIN_WINDOW,"app",app,"type",GTK_WINDOW_TOPLEVEL,NULL)))) {
@@ -281,6 +284,23 @@ BtMainWindow *bt_main_window_new(const BtEditApplication *app) {
     goto Error;
   }
   GST_INFO("new main_window layouted, app->ref_ct=%d",G_OBJECT(app)->ref_count);
+
+  // this enforces a minimum size
+  //gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
+  // this causes a problem with resizing the sequence-view
+  //gtk_window_set_default_size(GTK_WINDOW(self),800,600);
+  // this is deprecated
+  //gtk_widget_set_usize(GTK_WIDGET(self), 800,600);
+
+  gtk_window_resize(GTK_WINDOW(self),800,600);
+
+  /* @todo: use position from settings
+  if(w>0 && h>0) {
+    gtk_window_move (window, x, y);
+    gtk_window_set_default_size (window, w, h);
+  }
+  */
+
   gtk_widget_show_all(GTK_WIDGET(self));
   if(toolbar_hide) {
     gtk_widget_hide(GTK_WIDGET(self->priv->toolbar));

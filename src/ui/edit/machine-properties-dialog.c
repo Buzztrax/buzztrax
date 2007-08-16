@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.88 2007-08-09 19:50:25 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.89 2007-08-16 08:25:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -323,7 +323,7 @@ static gboolean on_double_range_property_notify_idle(gpointer _data) {
   GtkWidget *widget=GTK_WIDGET(data->user_data);
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
   gdouble value;
-  gchar str[30];
+  gchar str[100];
 
   //GST_INFO("property value notify received : %s ",property->name);
 
@@ -349,7 +349,7 @@ static void on_double_range_property_changed(GtkRange *range,gpointer user_data)
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
   gdouble value=gtk_range_get_value(range);
-  gchar str[30];
+  gchar str[100];
 
   g_assert(user_data);
   //GST_INFO("property value change received : %lf",value);
@@ -369,7 +369,7 @@ static gboolean on_float_range_property_notify_idle(gpointer _data) {
   GtkWidget *widget=GTK_WIDGET(data->user_data);
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
   gfloat value;
-  gchar str[30];
+  gchar str[100];
 
   //GST_INFO("property value notify received : %s ",property->name);
 
@@ -379,7 +379,6 @@ static gboolean on_float_range_property_notify_idle(gpointer _data) {
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_float_range_property_changed,(gpointer)machine);
   g_sprintf(str,"%f",value);
   gtk_label_set_text(label,str);
-
   return(FALSE);
 }
 
@@ -396,7 +395,7 @@ static void on_float_range_property_changed(GtkRange *range,gpointer user_data) 
   const gchar *name=gtk_widget_get_name(GTK_WIDGET(range));
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(range),widget_label_quark));
   gfloat value=gtk_range_get_value(range);
-  gchar str[30];
+  gchar str[100];
 
   g_assert(user_data);
   //GST_INFO("property value change received : %f",value);
@@ -968,7 +967,8 @@ static GtkWidget *make_float_range_widget(const BtMachinePropertiesDialog *self,
   gfloat value_max=g_value_get_float(range_max);
 
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
-  step=(value_max-value_min)/1024.0;
+  step=((gdouble)value_max-(gdouble)value_min)/1024.0;
+  //GST_WARNING("step = %f", step);
 
   widget=gtk_hscale_new_with_range(value_min,value_max,step);
   gtk_scale_set_draw_value(GTK_SCALE(widget),/*TRUE*/FALSE);
@@ -1583,7 +1583,9 @@ BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtEditApplicat
     goto Error;
   }
   gtk_widget_show_all(GTK_WIDGET(self));
-  gtk_widget_set_no_show_all(self->priv->preset_box,FALSE);
+  if(self->priv->preset_box) {
+    gtk_widget_set_no_show_all(self->priv->preset_box,FALSE);
+  }
   return(self);
 Error:
   g_object_try_unref(self);

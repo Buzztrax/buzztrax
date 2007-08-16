@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.34 2007-06-28 20:02:01 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.35 2007-08-16 08:25:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -432,6 +432,8 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
 
             g_object_get(machine,property->name,&value,NULL);
             gtk_combo_box_set_active(GTK_COMBO_BOX(widget1),value);
+            gtk_widget_set_name(GTK_WIDGET(widget1),property->name);
+            
             signal_name=g_strdup_printf("notify::%s",property->name);
             g_signal_connect(G_OBJECT(machine), signal_name, G_CALLBACK(on_combobox_property_notify), (gpointer)widget1);
             g_signal_connect(G_OBJECT(widget1), "changed", G_CALLBACK(on_combobox_property_changed), (gpointer)machine);

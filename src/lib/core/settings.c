@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.38 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: settings.c,v 1.39 2007-08-16 08:25:57 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -217,7 +217,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "missing-machines prop",
                                      "list of missing machines to ignore",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));                                     
 
   // playback controller
   g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
