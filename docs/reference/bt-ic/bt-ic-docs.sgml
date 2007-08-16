@@ -7,6 +7,7 @@
 <!ENTITY BtIcControl SYSTEM "xml/bticcontrol.xml">
 <!ENTITY BtIcDevice SYSTEM "xml/bticdevice.xml">
 <!ENTITY BtIcInputDevice SYSTEM "xml/bticinputdevice.xml">
+<!ENTITY BtIcLearn SYSTEM "xml/bticlearn.xml">
 <!ENTITY BtIcMidiDevice SYSTEM "xml/bticmididevice.xml">
 <!ENTITY BtIcRegistry SYSTEM "xml/bticregistry.xml">
 <!ENTITY BtIcTriggerControl SYSTEM "xml/btictriggercontrol.xml">
@@ -33,6 +34,7 @@
     &BtIcControl;
     &BtIcAbsRangeControl;
     &BtIcTriggerControl;
+    &BtIcLearn;
   </chapter>
 
   <chapter id="objecttree">

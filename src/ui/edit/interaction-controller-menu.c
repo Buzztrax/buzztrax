@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.10 2007-08-09 19:50:25 ensonic Exp $
+/* $Id: interaction-controller-menu.c,v 1.11 2007-08-16 12:34:43 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -104,6 +104,29 @@ static void on_control_bind_activated(GtkMenuItem *menuitem, gpointer user_data)
   g_object_set(self,"selected-control",control,NULL);
 }
 
+static void on_control_learn_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  //BtInteractionControllerMenu *self=BT_INTERACTION_CONTROLLER_MENU(g_object_get_qdata(G_OBJECT(menuitem),widget_parent_quark));
+  BtIcDevice *device=BTIC_DEVICE(user_data);
+  gchar *name;
+
+  g_object_get(device,"name",&name,NULL);
+
+  if( BTIC_IS_LEARN(device) ) // should not be required, for sanity
+  {
+    BtLearnDialog *dialog;
+
+    btic_learn_start(BTIC_LEARN(device));
+    
+    dialog=bt_learn_dialog_new(device);
+
+    gtk_widget_show_all(GTK_WIDGET(dialog));
+  }
+
+  GST_INFO( "learn function activated on device: %s", name );
+
+  g_free(name);
+}
+
 //-- helper methods
 
 static void bt_interaction_controller_menu_init_control_menu(const BtInteractionControllerMenu *self,GtkWidget *submenu,BtIcDevice *device) {
@@ -112,7 +135,18 @@ static void bt_interaction_controller_menu_init_control_menu(const BtInteraction
   GList *node,*list;
   gchar *str;
 
-  // get list of interaction devices
+  // add learn function entry for device which implement the BtIcLearn interface
+  if( BTIC_IS_LEARN(device) )
+  {
+    str = "Learn...";
+    menu_item=gtk_image_menu_item_new_with_label(str);
+    gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
+    g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
+    gtk_widget_show(menu_item);
+    g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_control_learn_activated),device);
+  }
+
+  // get list of controls per device
   g_object_get(device,"controls",&list,NULL);
   for(node=list;node;node=g_list_next(node)) {
     control=BTIC_CONTROL(node->data);

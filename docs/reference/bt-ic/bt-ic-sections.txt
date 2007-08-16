@@ -1,4 +1,4 @@
-# $Id: bt-ic-sections.txt,v 1.8 2007-08-16 11:07:46 ensonic Exp $
+# $Id: bt-ic-sections.txt,v 1.9 2007-08-16 12:34:42 berzerka Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -85,6 +85,23 @@ BTIC_INPUT_DEVICE_GET_CLASS
 <SUBSECTION Private>
 BtIcInputDevicePrivate
 btic_input_device_get_type
+</SECTION>
+
+<SECTION>
+<FILE>bticlearn</FILE>
+<TITLE>BtIcLearn</TITLE>
+BtIcLearn
+btic_learn_start
+btic_learn_stop
+btic_learn_register_learned_control
+<SUBSECTION Standard>
+BtIcLearnInterface
+BTIC_LEARN
+BTIC_IS_LEARN
+BTIC_TYPE_LEARN
+BTIC_LEARN_GET_INTERFACE
+<SUBSECTION Private>
+btic_learn_get_type
 </SECTION>
 
 <SECTION>

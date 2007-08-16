@@ -1,4 +1,4 @@
-/* $Id: ic.h,v 1.8 2007-08-03 21:08:15 ensonic Exp $
+/* $Id: ic.h,v 1.9 2007-08-16 12:34:42 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -98,6 +98,7 @@
 #include "input-device-methods.h"
 #include "midi-device-methods.h"
 #include "registry-methods.h"
+#include "learn-methods.h"
 
 #include "version.h"
 

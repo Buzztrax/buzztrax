@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.38 2007-08-06 20:08:32 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.39 2007-08-16 12:34:42 berzerka Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -72,6 +72,24 @@ BT_TYPE_INTERACTION_CONTROLLER_MENU_TYPE
 bt_interaction_controller_menu_get_type
 bt_interaction_controller_menu_type_get_type
 BtInteractionControllerMenuPrivate
+</SECTION>
+
+<SECTION>
+<FILE>btlearndialog</FILE>
+<TITLE>BtLearnDialog</TITLE>
+BtLearnDialog
+bt_learn_dialog_new
+<SUBSECTION Standard>
+BtLearnDialogClass
+BT_LEARN_DIALOG
+BT_IS_LEARN_DIALOG
+BT_LEARN_DIALOG_CLASS
+BT_IS_LEARN_DIALOG_CLASS
+BT_LEARN_DIALOG_GET_CLASS
+BT_TYPE_LEARN_DIALOG
+<SUBSECTION Private>
+bt_learn_dialog_get_type
+BtLearnDialogPrivate
 </SECTION>
 
 <SECTION>

@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.53 2007-07-23 18:49:24 ensonic Exp $
+/* $Id: bt-edit.h,v 1.54 2007-08-16 12:34:43 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -51,6 +51,7 @@
 #include "about-dialog-methods.h"
 #include "edit-application-methods.h"
 #include "interaction-controller-menu-methods.h"
+#include "learn-dialog-methods.h"
 #include "machine-canvas-item-methods.h"
 #include "machine-menu-methods.h"
 #include "machine-actions.h"

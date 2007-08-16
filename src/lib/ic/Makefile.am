@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.11 2007-07-02 11:23:28 ensonic Exp $
+## $Id: Makefile.am,v 1.12 2007-08-16 12:34:42 berzerka Exp $
 
 SUBDIRS = . libbtic
 
@@ -11,6 +11,7 @@ libbtic_la_SOURCES = \
 	registry.c libbtic/registry.h libbtic/registry-methods.h \
 	\
 	device.c libbtic/device.h libbtic/device-methods.h \
+	learn.c libbtic/learn.h libbtic/learn-methods.h \
 	input-device.c libbtic/input-device.h libbtic/input-device-methods.h \
 	midi-device.c libbtic/midi-device.h libbtic/midi-device-methods.h \
     \

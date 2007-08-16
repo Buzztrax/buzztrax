@@ -1,3 +1,52 @@
+2007-08-16  Patric Schmitz  <berzerka@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-docs.sgml:
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* docs/reference/bt-ic/bt-ic-docs.sgml:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* docs/reference/bt-ic/bt-ic.types:
+	  inserted the new classes into gtk-doc
+	* src/lib/ic/Makefile.am:
+	* src/lib/ic/device.c: (btic_device_class_init):
+	* src/lib/ic/input-device.c: (register_controls):
+	  made debug output print device-node
+	* src/lib/ic/learn.c: (btic_learn_default_start),
+	(btic_learn_default_stop),
+	(btic_learn_default_register_learned_control), (btic_learn_start),
+	(btic_learn_stop), (btic_learn_register_learned_control),
+	(btic_learn_base_init), (btic_learn_get_type):
+	  introduced the learn interface
+	* src/lib/ic/libbtic/device.h:
+	* src/lib/ic/libbtic/ic.h:
+	* src/lib/ic/libbtic/learn-methods.h:
+	* src/lib/ic/libbtic/learn.h:
+	* src/lib/ic/midi-device.c: (io_handler),
+	(btic_midi_device_learn_start), (btic_midi_device_learn_stop),
+	(btic_midi_device_register_learned_control),
+	(btic_midi_device_start), (btic_midi_device_stop),
+	(btic_midi_device_get_property), (btic_midi_device_set_property),
+	(btic_midi_device_finalize), (btic_midi_device_init),
+	(btic_midi_device_class_init), (btic_midi_device_interface_init),
+	(btic_midi_device_get_type):
+	  made midi device and functional and implemented learn interface
+	* src/lib/ic/registry.c: (on_device_added):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_control_learn_activated),
+	(bt_interaction_controller_menu_init_control_menu):
+	  added "Learn.." menu-entry for BtIcLearn devices
+	* src/ui/edit/learn-dialog-methods.h:
+	* src/ui/edit/learn-dialog.c: (notify_device_controlchange),
+	(on_dialog_response), (bt_learn_dialog_init_ui),
+	(bt_learn_dialog_new), (bt_learn_dialog_get_property),
+	(bt_learn_dialog_set_property), (bt_learn_dialog_dispose),
+	(bt_learn_dialog_finalize), (bt_learn_dialog_init),
+	(bt_learn_dialog_class_init), (bt_learn_dialog_get_type):
+	  implemented the learn popup-dialog
+	* src/ui/edit/learn-dialog.h:
+
 2007-08-16  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/reference/bt-ic/bt-ic-sections.txt:

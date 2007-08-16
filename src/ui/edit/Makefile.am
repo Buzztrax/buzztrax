@@ -14,6 +14,7 @@ libbtedit_la_SOURCES   = \
 	about-dialog.c about-dialog.h about-dialog-methods.h \
 	edit-application.c edit-application.h edit-application-methods.h \
 	interaction-controller-menu.c interaction-controller-menu.h interaction-controller-menu-methods.h \
+	learn-dialog.c learn-dialog.h learn-dialog-methods.h \
 	machine-canvas-item.c machine-canvas-item.h machine-canvas-item-methods.h\
 	machine-menu.c machine-menu.h machine-menu-methods.h \
 	machine-actions.c machine-actions.h \

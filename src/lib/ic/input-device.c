@@ -1,4 +1,4 @@
-/* $Id: input-device.c,v 1.12 2007-05-07 14:45:40 ensonic Exp $
+/* $Id: input-device.c,v 1.13 2007-08-16 12:34:42 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -229,7 +229,7 @@ static gboolean register_controls(const BtIcInputDevice * const self) {
   guint8 evtype_bitmask[EV_MAX/8 + 1];
 
   if ((fd = open(self->priv->devnode, O_RDONLY)) < 0) {
-    GST_WARNING("evdev open failed : %s",g_strerror(errno));
+    GST_WARNING("evdev open failed on device %s: %s",self->priv->devnode,g_strerror(errno));
     return(FALSE);
   }
   GST_INFO("openede device : %s",self->priv->devnode);

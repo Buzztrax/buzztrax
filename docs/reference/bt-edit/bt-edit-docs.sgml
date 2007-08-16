@@ -7,6 +7,7 @@
 <!ENTITY BtAboutDialog SYSTEM "xml/btaboutdialog.xml">
 <!ENTITY BtEditApplication SYSTEM "xml/bteditapplication.xml">
 <!ENTITY BtInteractionControllerMenu SYSTEM "xml/btinteractioncontrollermenu.xml">
+<!ENTITY BtLearnDialog SYSTEM "xml/btlearndialog.xml">
 <!ENTITY BtMachineActions SYSTEM "xml/btmachineactions.xml">
 <!ENTITY BtMachineCanvasItem SYSTEM "xml/btmachinecanvasitem.xml">
 <!ENTITY BtMachineMenu SYSTEM "xml/btmachinemenu.xml">
@@ -77,6 +78,7 @@
     &BtAboutDialog;
     &BtEditApplication;
     &BtInteractionControllerMenu;
+    &BtLearnDialog;
     &BtMachineActions;
     &BtMachineCanvasItem;
     &BtMachineMenu;

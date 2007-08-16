@@ -1,4 +1,4 @@
-/* $Id: registry.c,v 1.14 2007-08-06 20:08:32 ensonic Exp $
+/* $Id: registry.c,v 1.15 2007-08-16 12:34:42 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -134,9 +134,8 @@ static void on_device_added(LibHalContext *ctx, const gchar *udi) {
   if(!strcmp(hal_category,"alsa"))
   {
       gchar* alsatype = libhal_device_get_property_string(ctx,udi,"alsa.type",NULL);
-
       if(!strcmp(alsatype,"midi")) {
-	  devnode=libhal_device_get_property_string(ctx,udi,"input.device",NULL);
+	  devnode=libhal_device_get_property_string(ctx,udi,"linux.device_file",NULL);
 
 	  GST_INFO("midi device added: product=%s, devnode=%s", name,devnode);
 	  // create device

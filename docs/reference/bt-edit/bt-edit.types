@@ -4,6 +4,7 @@
 
 bt_edit_application_get_type
 bt_interaction_controller_menu_get_type
+bt_learn_dialog_get_type
 bt_machine_canvas_item_get_type
 bt_machine_preferences_dialog_get_type
 bt_machine_preset_properties_dialog_get_type
