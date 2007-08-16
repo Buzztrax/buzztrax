@@ -1,4 +1,4 @@
-/* $Id: missing-song-elements-dialog.c,v 1.1 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: missing-song-elements-dialog.c,v 1.2 2007-08-16 11:07:46 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -149,8 +149,8 @@ static gboolean bt_missing_song_elements_dialog_init_ui(const BtMissingSongEleme
 /**
  * bt_missing_song_elements_dialog_new:
  * @app: the application the dialog belongs to
- * @core_elements: list of missing core elements
- * @edit_elements: list of missing edit elements
+ * @machines: list of missing machine elements
+ * @waves: list of missing wave files
  *
  * Create a new instance
  *

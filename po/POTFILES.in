@@ -20,6 +20,7 @@ src/ui/edit/machine-menu.c
 src/ui/edit/machine-preset-properties-dialog.c
 src/ui/edit/machine-preferences-dialog.c
 src/ui/edit/machine-properties-dialog.c
+src/ui/edit/machine-rename-dialog.c
 src/ui/edit/main-menu.c
 src/ui/edit/main-page-info.c
 src/ui/edit/main-page-machines.c
@@ -31,8 +32,10 @@ src/ui/edit/main-statusbar.c
 src/ui/edit/main-toolbar.c
 src/ui/edit/main-window.c
 src/ui/edit/missing-framework-elements-dialog.c
+src/ui/edit/missing-song-elements-dialog.c
 src/ui/edit/pattern-properties-dialog.c
 src/ui/edit/render-dialog.c
+src/ui/edit/render-progress.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
 src/ui/edit/settings-page-interaction-controller.c

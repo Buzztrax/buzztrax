@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.2\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-08-06 22:41+0300\n"
+"POT-Creation-Date: 2007-08-16 13:47+0300\n"
 "PO-Revision-Date: 2007-05-02 21:55+0300\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -163,24 +163,24 @@ msgstr "-> Sie werden keinen Pegelanzeigen sehen."
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Sie werden kein Frequenzspektum im Analysefenster sehen."
 
-#: ../src/ui/edit/interaction-controller-menu.c:156
+#: ../src/ui/edit/interaction-controller-menu.c:175
 msgid "interaction controller menu"
 msgstr "Interaktionssteuerungsmenu"
 
-#: ../src/ui/edit/interaction-controller-menu.c:158
+#: ../src/ui/edit/interaction-controller-menu.c:177
 msgid "Bind controller"
 msgstr "Fernsteuerung anbinden"
 
-#: ../src/ui/edit/interaction-controller-menu.c:165
+#: ../src/ui/edit/interaction-controller-menu.c:184
 msgid "interaction controllers menu"
 msgstr "Interaktionssteuerung Menü"
 
-#: ../src/ui/edit/interaction-controller-menu.c:170
+#: ../src/ui/edit/interaction-controller-menu.c:189
 #, fuzzy
 msgid "Unbind controller"
 msgstr "Fernsteuerung anbinden"
 
-#: ../src/ui/edit/interaction-controller-menu.c:176
+#: ../src/ui/edit/interaction-controller-menu.c:195
 msgid "Unbind all controllers"
 msgstr "Alle Fernsteuerungen aufheben"
 
@@ -268,8 +268,10 @@ msgstr "Voreinstellungsname und -kommentar"
 #. columns=
 #. homogenous=
 #. GtkEntry : preset name
+#. GtkEntry : machine name
 #. GtkEntry : pattern name
 #: ../src/ui/edit/machine-preset-properties-dialog.c:136
+#: ../src/ui/edit/machine-rename-dialog.c:141
 #: ../src/ui/edit/main-page-info.c:317
 #: ../src/ui/edit/pattern-properties-dialog.c:164
 msgid "name"
@@ -285,61 +287,72 @@ msgstr "Kommentar"
 msgid "%s preferences"
 msgstr "%s Einstellungen"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:464
+#: ../src/ui/edit/machine-preferences-dialog.c:466
 msgid "no settings"
 msgstr "keine Einstellungen"
 
-#: ../src/ui/edit/machine-preferences-dialog.c:470
+#: ../src/ui/edit/machine-preferences-dialog.c:472
 msgid "machine has no preferences"
 msgstr "Gerät hat keine Einstellungen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1064
+#: ../src/ui/edit/machine-properties-dialog.c:1089
 msgid "global properties"
 msgstr "globale Eigenschaften"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1183
+#: ../src/ui/edit/machine-properties-dialog.c:1208
 #, c-format
 msgid "voice %lu properties"
 msgstr "Eigenschaften für Stimme %lu"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1349
+#: ../src/ui/edit/machine-properties-dialog.c:1374
 msgid "Add new preset"
 msgstr "Neue Voreinstellung hinzufügen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1354
+#: ../src/ui/edit/machine-properties-dialog.c:1379
 msgid "Remove preset"
 msgstr "Voreinstellung entfernen"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1359
+#: ../src/ui/edit/machine-properties-dialog.c:1384
 msgid "Edit preset name and comment"
 msgstr "Voreinstellungsnamen und -kommentar bearbeiten"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1364
+#: ../src/ui/edit/machine-properties-dialog.c:1389
 msgid "Generate and load random preset"
 msgstr "Zufällige Einstellung erzeugen und laden"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1389
+#: ../src/ui/edit/machine-properties-dialog.c:1414
 msgid "Preset"
 msgstr "Voreinstellung"
 
 #. set a title
-#: ../src/ui/edit/machine-properties-dialog.c:1446
+#: ../src/ui/edit/machine-properties-dialog.c:1471
 #: ../src/ui/edit/pattern-properties-dialog.c:137
 #, c-format
 msgid "%s properties"
 msgstr "%s Eigenschaften"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1473
+#: ../src/ui/edit/machine-properties-dialog.c:1498
 msgid "Info about this machine"
 msgstr "Information über diese Gerät"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1478
+#: ../src/ui/edit/machine-properties-dialog.c:1503
 msgid "Help for this machine"
 msgstr "Hilfe für diese Gerät"
 
-#: ../src/ui/edit/machine-properties-dialog.c:1490
+#: ../src/ui/edit/machine-properties-dialog.c:1515
 msgid "Show/Hide preset pane"
 msgstr "Voreinstellungen anzeigen/verstecken"
+
+#: ../src/ui/edit/machine-rename-dialog.c:99
+#, fuzzy
+msgid "machine rename"
+msgstr "Geräteansicht"
+
+#. set a title
+#: ../src/ui/edit/machine-rename-dialog.c:114
+#, fuzzy, c-format
+msgid "%s name"
+msgstr "Name"
 
 #: ../src/ui/edit/main-menu.c:455
 msgid "main menu"
@@ -589,7 +602,7 @@ msgid "Show background grid"
 msgstr "Raster anzeigen"
 
 #: ../src/ui/edit/main-page-patterns.c:1069
-#: ../src/ui/edit/main-page-sequence.c:669
+#: ../src/ui/edit/main-page-sequence.c:699
 msgid "Pos."
 msgstr "Pos."
 
@@ -660,74 +673,74 @@ msgstr "Fragment entfernen ..."
 msgid "Copy pattern ..."
 msgstr "Fragment kopieren ..."
 
-#: ../src/ui/edit/main-page-sequence.c:674
+#: ../src/ui/edit/main-page-sequence.c:704
 msgid "Ticks"
 msgstr "Ticks"
 
-#: ../src/ui/edit/main-page-sequence.c:675
+#: ../src/ui/edit/main-page-sequence.c:705
 msgid "Time"
 msgstr "Zeit"
 
-#: ../src/ui/edit/main-page-sequence.c:762
-#: ../src/ui/edit/main-page-sequence.c:789
+#: ../src/ui/edit/main-page-sequence.c:792
+#: ../src/ui/edit/main-page-sequence.c:819
 msgid "Labels"
 msgstr "Labels"
 
-#: ../src/ui/edit/main-page-sequence.c:1152
+#: ../src/ui/edit/main-page-sequence.c:1182
 msgid "  clear"
 msgstr "  löschen"
 
-#: ../src/ui/edit/main-page-sequence.c:1154
+#: ../src/ui/edit/main-page-sequence.c:1184
 msgid "  mute"
 msgstr "  stumm"
 
-#: ../src/ui/edit/main-page-sequence.c:1156
+#: ../src/ui/edit/main-page-sequence.c:1186
 msgid "  break"
 msgstr "  abbrechen"
 
-#: ../src/ui/edit/main-page-sequence.c:1159
+#: ../src/ui/edit/main-page-sequence.c:1189
 msgid "  thru"
 msgstr "  durchleiten"
 
-#: ../src/ui/edit/main-page-sequence.c:1165
+#: ../src/ui/edit/main-page-sequence.c:1195
 msgid "  solo"
 msgstr "  solo"
 
-#: ../src/ui/edit/main-page-sequence.c:2356
+#: ../src/ui/edit/main-page-sequence.c:2339
 msgid "sequence view"
 msgstr "Sequenzansicht"
 
-#: ../src/ui/edit/main-page-sequence.c:2362
+#: ../src/ui/edit/main-page-sequence.c:2345
 msgid "sequence view tool bar"
 msgstr "Sequenzansicht Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-sequence.c:2371
+#: ../src/ui/edit/main-page-sequence.c:2354
 msgid "Show every n-th line"
 msgstr "Jede n-te Zeile anzeigen"
 
-#: ../src/ui/edit/main-page-sequence.c:2376
-#: ../src/ui/edit/main-page-sequence.c:2380
+#: ../src/ui/edit/main-page-sequence.c:2359
+#: ../src/ui/edit/main-page-sequence.c:2363
 msgid "Steps"
 msgstr "Unterteilungen"
 
-#: ../src/ui/edit/main-page-sequence.c:2397
+#: ../src/ui/edit/main-page-sequence.c:2380
 msgid "Add track"
 msgstr "Spur hinzufügen"
 
 #. @idea should that be in the context menu of table headers?
-#: ../src/ui/edit/main-page-sequence.c:2404
+#: ../src/ui/edit/main-page-sequence.c:2387
 msgid "Remove track"
 msgstr "Spur entfernen"
 
-#: ../src/ui/edit/main-page-sequence.c:2453
+#: ../src/ui/edit/main-page-sequence.c:2436
 msgid "Browse to labels in the sequence"
 msgstr "Markierungen in der Sequenz anspringen"
 
-#: ../src/ui/edit/main-page-sequence.c:2520
+#: ../src/ui/edit/main-page-sequence.c:2503
 msgid "Key"
 msgstr "Taste"
 
-#: ../src/ui/edit/main-page-sequence.c:2534
+#: ../src/ui/edit/main-page-sequence.c:2517
 msgid "Patterns"
 msgstr "Fragmente"
 
@@ -949,80 +962,80 @@ msgid "Volume"
 msgstr "Lautstärke"
 
 #. we don't use PACKAGE_NAME = 'buzztard' for the window title
-#: ../src/ui/edit/main-window.c:106
+#: ../src/ui/edit/main-window.c:118
 msgid "unsaved"
 msgstr "ungespeichert"
 
-#: ../src/ui/edit/main-window.c:106
+#: ../src/ui/edit/main-window.c:118
 msgid "saved"
 msgstr "gespeichert"
 
-#: ../src/ui/edit/main-window.c:149
+#: ../src/ui/edit/main-window.c:161
 #, c-format
 msgid "An error occured while trying to load the song from file '%s'"
 msgstr "Beim Laden des Songs '%s' trat ein Fehler auf"
 
-#: ../src/ui/edit/main-window.c:150 ../src/ui/edit/main-window.c:406
+#: ../src/ui/edit/main-window.c:162 ../src/ui/edit/main-window.c:426
 msgid "Can't load song"
 msgstr "Kann song nicht laden"
 
-#: ../src/ui/edit/main-window.c:179
+#: ../src/ui/edit/main-window.c:191
 msgid "main window"
 msgstr "Geräteansicht"
 
-#: ../src/ui/edit/main-window.c:337
+#: ../src/ui/edit/main-window.c:357
 msgid "Really quit ?"
 msgstr "Wirklich beenden ?"
 
-#: ../src/ui/edit/main-window.c:337 ../src/ui/edit/main-window.c:361
+#: ../src/ui/edit/main-window.c:357 ../src/ui/edit/main-window.c:381
 msgid "All unsaved changes will be lost then."
 msgstr "Alle ungespeicherten Änderungen werden dann verloren gehen."
 
 #. @todo check http://developer.gnome.org/projects/gup/hig/2.0/windows-alert.html#alerts-confirmation
-#: ../src/ui/edit/main-window.c:361
+#: ../src/ui/edit/main-window.c:381
 msgid "New song ?"
 msgstr "Neuen Song ?"
 
-#: ../src/ui/edit/main-window.c:379
+#: ../src/ui/edit/main-window.c:399
 msgid "Open a song"
 msgstr "Öffnen"
 
-#: ../src/ui/edit/main-window.c:405
+#: ../src/ui/edit/main-window.c:425
 #, c-format
 msgid "An error occured while loading the song from file '%s'"
 msgstr "Beim Laden des Songs '%s' trat ein Fehler auf"
 
-#: ../src/ui/edit/main-window.c:433
+#: ../src/ui/edit/main-window.c:453
 #, c-format
 msgid "An error occured while saving the song to file '%s'."
 msgstr "Beim Speichern des Songs '%s' trat ein Fehler auf."
 
-#: ../src/ui/edit/main-window.c:434 ../src/ui/edit/main-window.c:508
-#: ../src/ui/edit/main-window.c:520
+#: ../src/ui/edit/main-window.c:454 ../src/ui/edit/main-window.c:528
+#: ../src/ui/edit/main-window.c:540
 msgid "Can't save song"
 msgstr "Kann Song nicht speichern"
 
-#: ../src/ui/edit/main-window.c:457
+#: ../src/ui/edit/main-window.c:477
 msgid "Save a song"
 msgstr "Song speichern"
 
 #. it already exists, ask the user what to do (do not save, choose new name, overwrite song)
-#: ../src/ui/edit/main-window.c:496
+#: ../src/ui/edit/main-window.c:516
 msgid "File already exists"
 msgstr "Datei existiert bereits"
 
-#: ../src/ui/edit/main-window.c:496
+#: ../src/ui/edit/main-window.c:516
 msgid "Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."
 msgstr ""
 "Wählen Sie 'Okay' um zu überscheiben oder 'Abbrechen' um den Song nicht zu "
 "speichern."
 
-#: ../src/ui/edit/main-window.c:507
+#: ../src/ui/edit/main-window.c:527
 #, c-format
 msgid "An error occured while trying to open the file '%s' for writing: %s"
 msgstr "Beim Öffnen des Songs '%s' zum Schreibzugriff trat ein Fehler auf: %s"
 
-#: ../src/ui/edit/main-window.c:519
+#: ../src/ui/edit/main-window.c:539
 #, c-format
 msgid "An error occured while trying to save the song to file '%s'."
 msgstr "Beim Speichern des Songs '%s' trat ein Fehler auf."
@@ -1061,6 +1074,30 @@ msgstr ""
 #: ../src/ui/edit/missing-framework-elements-dialog.c:177
 msgid "don't warn again"
 msgstr "Nicht nochmals warnen"
+
+#. GdkPixbuf *window_icon=NULL;
+#. create and set window icon
+#.
+#. if((window_icon=bt_ui_ressources_get_pixbuf_by_machine(self->priv->machine))) {
+#. gtk_window_set_icon(GTK_WINDOW(self),window_icon);
+#. }
+#.
+#. set a title
+#: ../src/ui/edit/missing-song-elements-dialog.c:101
+#: ../src/ui/edit/missing-song-elements-dialog.c:111
+#: ../src/ui/edit/missing-song-elements-dialog.c:128
+msgid "Missing elements in song"
+msgstr "Fehlende Elemente im Song"
+
+#: ../src/ui/edit/missing-song-elements-dialog.c:135
+msgid "The machines listed below are missing or failed to load."
+msgstr ""
+"Die im Folgenden angezeigten Geräte fehlen oder können nicht geladen werden."
+
+#: ../src/ui/edit/missing-song-elements-dialog.c:139
+msgid "The waves listed below are missing or failed to load."
+msgstr ""
+"Die im Folgenden angezeigten Samples fehlen oder können nicht geladen werden."
 
 #: ../src/ui/edit/pattern-properties-dialog.c:123
 msgid "pattern properties"
@@ -1111,6 +1148,16 @@ msgstr ""
 #, fuzzy
 msgid "Single tracks"
 msgstr "Neue Spur"
+
+#: ../src/ui/edit/render-progress.c:110 ../src/ui/edit/render-progress.c:112
+#, fuzzy
+msgid "song render progress"
+msgstr "Songinformationen"
+
+#: ../src/ui/edit/render-progress.c:188
+#, c-format
+msgid "Recording to: %s"
+msgstr ""
 
 #. gtk_widget_set_size_request(GTK_WIDGET(self),800,600);
 #: ../src/ui/edit/settings-dialog.c:140 ../src/ui/edit/settings-dialog.c:143
@@ -1209,14 +1256,6 @@ msgstr "Portnummer"
 msgid "Couldn't find pixmap file: %s"
 msgstr "Kann pixmap Datei nicht finden: %s"
 
-#: ../src/ui/edit/volume-popup.c:175
-msgid "+"
-msgstr "+"
-
-#: ../src/ui/edit/volume-popup.c:192
-msgid "-"
-msgstr "-"
-
 #: ../src/ui/edit/wire-analysis-dialog.c:300
 #, fuzzy
 msgid "wire analysis"
@@ -1235,18 +1274,11 @@ msgstr "Trennen"
 msgid "Signal Analysis ..."
 msgstr "Signal Analyse ..."
 
-#~ msgid "Missing elements in song"
-#~ msgstr "Fehlende Elemente im Song"
+#~ msgid "+"
+#~ msgstr "+"
 
-#~ msgid "The machines listed below are missing or failed to load."
-#~ msgstr ""
-#~ "Die im Folgenden angezeigten Geräte fehlen oder können nicht geladen "
-#~ "werden."
-
-#~ msgid "The waves listed below are missing or failed to load."
-#~ msgstr ""
-#~ "Die im Folgenden angezeigten Samples fehlen oder können nicht geladen "
-#~ "werden."
+#~ msgid "-"
+#~ msgstr "-"
 
 #~ msgid "choose a new name for the machine"
 #~ msgstr "Wähle einen neuen Namen für das Gerät"

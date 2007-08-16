@@ -1,5 +1,13 @@
 2007-08-16  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* po/POTFILES.in:
+	* po/de.po:
+	* src/ui/edit/missing-song-elements-dialog.c:
+	  Fix warnings/tests on buildbot.
+
+2007-08-16  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/settings.c:
 	  Add ideas.
 
