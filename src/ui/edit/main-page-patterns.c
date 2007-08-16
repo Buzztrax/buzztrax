@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.135 2007-08-03 21:08:16 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.136 2007-08-16 12:37:10 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -147,6 +147,9 @@ typedef enum {
 
 static GQuark column_index_quark=0;
 static GQuark voice_index_quark=0;
+
+static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer user_data);
+static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data);
 
 //-- tree cell data functions
 
@@ -496,6 +499,18 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       g_object_try_unref(pages);
       g_object_try_unref(main_window);
 
+      res=TRUE;
+    }
+  }
+  else if(event->keyval==GDK_KP_Add) {
+    if(modifier==GDK_CONTROL_MASK) {
+      on_context_menu_pattern_new_activate(NULL,self);
+      res=TRUE;
+    }
+  }
+  else if(event->keyval==GDK_KP_Subtract) {
+    if(modifier==GDK_CONTROL_MASK) {
+      on_context_menu_pattern_remove_activate(NULL,self);
       res=TRUE;
     }
   }
