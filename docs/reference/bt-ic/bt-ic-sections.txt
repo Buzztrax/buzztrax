@@ -1,4 +1,4 @@
-# $Id: bt-ic-sections.txt,v 1.9 2007-08-16 12:34:42 berzerka Exp $
+# $Id: bt-ic-sections.txt,v 1.10 2007-08-17 13:37:50 berzerka Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -94,6 +94,9 @@ BtIcLearn
 btic_learn_start
 btic_learn_stop
 btic_learn_register_learned_control
+btic_learn_virtual_start
+btic_learn_virtual_stop
+btic_learn_virtual_register_learned_control
 <SUBSECTION Standard>
 BtIcLearnInterface
 BTIC_LEARN

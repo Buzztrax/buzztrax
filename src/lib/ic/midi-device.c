@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.7 2007-08-16 12:34:42 berzerka Exp $
+/* $Id: midi-device.c,v 1.8 2007-08-17 13:37:50 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -163,7 +163,7 @@ static gboolean btic_midi_device_learn_stop(gconstpointer _self) {
 }
 
 static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _self,
-							      gchar *name)
+							      const gchar *name)
 {
   BtIcAbsRangeControl *control;
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
@@ -347,9 +347,9 @@ static void btic_midi_device_class_init(BtIcMidiDeviceClass * const klass) {
 static void btic_midi_device_interface_init (gpointer   g_iface, gpointer   iface_data)
 {
   BtIcLearnInterface *klass = (BtIcLearnInterface *)g_iface;
-  klass->learn_start = (gboolean (*) (const BtIcLearn * const self))btic_midi_device_learn_start;
-  klass->learn_stop  = (gboolean (*) (const BtIcLearn * const self))btic_midi_device_learn_stop;
-  klass->register_learned_control = (BtIcControl* (*) (const BtIcLearn * const self, const gchar *name))btic_midi_device_register_learned_control;
+  klass->learn_start = btic_midi_device_learn_start;
+  klass->learn_stop  = btic_midi_device_learn_stop;
+  klass->register_learned_control = btic_midi_device_register_learned_control;
 }
 
 GType btic_midi_device_get_type(void) {

@@ -1,3 +1,40 @@
+2007-08-17  Patric Schmitz  <berzerka@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* docs/reference/bt-edit/bt-edit.types:
+	* docs/reference/bt-ic/bt-ic-sections.txt:
+	* po/de.po:
+	* src/lib/ic/learn.c: (btic_learn_default_start),
+	(btic_learn_default_stop),
+	(btic_learn_default_register_learned_control):
+	* src/lib/ic/libbtic/learn.h:
+	* src/lib/ic/midi-device.c:
+	(btic_midi_device_register_learned_control),
+	(btic_midi_device_interface_init):
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/interaction-controller-learn-dialog-methods.h:
+	* src/ui/edit/interaction-controller-learn-dialog.c:
+	(notify_device_controlchange), (on_dialog_response),
+	(bt_interaction_controller_learn_dialog_init_ui),
+	(bt_interaction_controller_learn_dialog_new),
+	(bt_interaction_controller_learn_dialog_get_property),
+	(bt_interaction_controller_learn_dialog_set_property),
+	(bt_interaction_controller_learn_dialog_dispose),
+	(bt_interaction_controller_learn_dialog_finalize),
+	(bt_interaction_controller_learn_dialog_init),
+	(bt_interaction_controller_learn_dialog_class_init),
+	(bt_interaction_controller_learn_dialog_get_type):
+	* src/ui/edit/interaction-controller-learn-dialog.h:
+	* src/ui/edit/interaction-controller-menu.c:
+	(on_control_learn_activated),
+	(bt_interaction_controller_menu_init_control_menu):
+	* src/ui/edit/learn-dialog-methods.h:
+	* src/ui/edit/learn-dialog.c:
+	* src/ui/edit/learn-dialog.h:
+	  refactored learn-dialog -> interaction-controller-learn-dialog
+	  minor (mostly doc) fixes of the midi-device and learn implementation
+
 2007-08-16  Patric Schmitz  <berzerka@users.sf.net>
 
 	* src/ui/edit/main-page-patterns.c:

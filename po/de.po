@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buzztard 0.2\n"
 "Report-Msgid-Bugs-To: buzztard-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2007-08-16 13:47+0300\n"
+"POT-Creation-Date: 2007-08-17 15:29+0200\n"
 "PO-Revision-Date: 2007-05-02 21:55+0300\n"
 "Last-Translator: Stefan Kost <ensonic@users.sf.net>\n"
 "Language-Team: german <de@li.org>\n"
@@ -163,24 +163,28 @@ msgstr "-> Sie werden keinen Pegelanzeigen sehen."
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Sie werden kein Frequenzspektum im Analysefenster sehen."
 
-#: ../src/ui/edit/interaction-controller-menu.c:175
+#: ../src/ui/edit/interaction-controller-menu.c:141
+msgid "Learn..."
+msgstr ""
+
+#: ../src/ui/edit/interaction-controller-menu.c:208
 msgid "interaction controller menu"
 msgstr "Interaktionssteuerungsmenu"
 
-#: ../src/ui/edit/interaction-controller-menu.c:177
+#: ../src/ui/edit/interaction-controller-menu.c:210
 msgid "Bind controller"
 msgstr "Fernsteuerung anbinden"
 
-#: ../src/ui/edit/interaction-controller-menu.c:184
+#: ../src/ui/edit/interaction-controller-menu.c:217
 msgid "interaction controllers menu"
 msgstr "Interaktionssteuerung Menü"
 
-#: ../src/ui/edit/interaction-controller-menu.c:189
+#: ../src/ui/edit/interaction-controller-menu.c:222
 #, fuzzy
 msgid "Unbind controller"
 msgstr "Fernsteuerung anbinden"
 
-#: ../src/ui/edit/interaction-controller-menu.c:195
+#: ../src/ui/edit/interaction-controller-menu.c:228
 msgid "Unbind all controllers"
 msgstr "Alle Fernsteuerungen aufheben"
 
@@ -210,7 +214,7 @@ msgid "Delete machine ..."
 msgstr "Gerät entfernen ..."
 
 #: ../src/ui/edit/machine-canvas-item.c:338
-#: ../src/ui/edit/main-page-patterns.c:1811
+#: ../src/ui/edit/main-page-patterns.c:1826
 msgid "There is no undo for this."
 msgstr "Diese Änderung kann nicht zurückgenommen werden."
 
@@ -601,75 +605,75 @@ msgstr "Raster"
 msgid "Show background grid"
 msgstr "Raster anzeigen"
 
-#: ../src/ui/edit/main-page-patterns.c:1069
+#: ../src/ui/edit/main-page-patterns.c:1084
 #: ../src/ui/edit/main-page-sequence.c:699
 msgid "Pos."
 msgstr "Pos."
 
-#: ../src/ui/edit/main-page-patterns.c:1804
+#: ../src/ui/edit/main-page-patterns.c:1819
 #, c-format
 msgid "Delete used pattern '%s'"
 msgstr "Benutztes Fragment entfernen '%s'"
 
-#: ../src/ui/edit/main-page-patterns.c:1807
+#: ../src/ui/edit/main-page-patterns.c:1822
 #, c-format
 msgid "Delete unused pattern '%s'"
 msgstr "Unbenutztes Fragment entfernen '%s'"
 
-#: ../src/ui/edit/main-page-patterns.c:1811
+#: ../src/ui/edit/main-page-patterns.c:1826
 msgid "Delete pattern..."
 msgstr "Fragemnt entfernen ..."
 
-#: ../src/ui/edit/main-page-patterns.c:1889
+#: ../src/ui/edit/main-page-patterns.c:1904
 msgid "pattern view"
 msgstr "Fragmentansicht"
 
-#: ../src/ui/edit/main-page-patterns.c:1893
+#: ../src/ui/edit/main-page-patterns.c:1908
 msgid "pattern view tool bar"
 msgstr "Fragmentansichts-Werkzeugleiste"
 
-#: ../src/ui/edit/main-page-patterns.c:1910
-#: ../src/ui/edit/main-page-patterns.c:1914
+#: ../src/ui/edit/main-page-patterns.c:1925
+#: ../src/ui/edit/main-page-patterns.c:1929
 msgid "Machine"
 msgstr "Gerät"
 
-#: ../src/ui/edit/main-page-patterns.c:1933
-#: ../src/ui/edit/main-page-patterns.c:1938
+#: ../src/ui/edit/main-page-patterns.c:1948
+#: ../src/ui/edit/main-page-patterns.c:1953
 msgid "Pattern"
 msgstr "Fragment"
 
-#: ../src/ui/edit/main-page-patterns.c:1951
-#: ../src/ui/edit/main-page-patterns.c:1956
+#: ../src/ui/edit/main-page-patterns.c:1966
+#: ../src/ui/edit/main-page-patterns.c:1971
 #: ../src/ui/edit/main-page-waves.c:468
 msgid "Wave"
 msgstr "Wellenform"
 
-#: ../src/ui/edit/main-page-patterns.c:1971
-#: ../src/ui/edit/main-page-patterns.c:1976
+#: ../src/ui/edit/main-page-patterns.c:1986
+#: ../src/ui/edit/main-page-patterns.c:1991
 msgid "Octave"
 msgstr "Oktave"
 
-#: ../src/ui/edit/main-page-patterns.c:2040
+#: ../src/ui/edit/main-page-patterns.c:2055
 msgid "New track"
 msgstr "Neue Spur"
 
-#: ../src/ui/edit/main-page-patterns.c:2047
+#: ../src/ui/edit/main-page-patterns.c:2062
 msgid "Remove last track"
 msgstr "Letzte Spur entfernen"
 
-#: ../src/ui/edit/main-page-patterns.c:2059
+#: ../src/ui/edit/main-page-patterns.c:2074
 msgid "New pattern  ..."
 msgstr "Neues Fragment ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2066
+#: ../src/ui/edit/main-page-patterns.c:2081
 msgid "Pattern properties ..."
 msgstr "Fragmenteigenschaften ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2073
+#: ../src/ui/edit/main-page-patterns.c:2088
 msgid "Remove pattern ..."
 msgstr "Fragment entfernen ..."
 
-#: ../src/ui/edit/main-page-patterns.c:2080
+#: ../src/ui/edit/main-page-patterns.c:2095
 msgid "Copy pattern ..."
 msgstr "Fragment kopieren ..."
 

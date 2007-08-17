@@ -1,4 +1,4 @@
-/* $Id: learn.h,v 1.1 2007-08-16 12:34:42 berzerka Exp $
+/* $Id: learn.h,v 1.2 2007-08-17 13:37:50 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,12 +35,50 @@
 typedef struct _BtIcLearn BtIcLearn; /* dummy object */
 typedef struct _BtIcLearnInterface BtIcLearnInterface;
 
+/**
+ * btic_learn_virtual_start:
+ * @self: device instance
+ *
+ * Subclasses will override this methods with a function which enables the
+ * learning mode on this device.
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*btic_learn_virtual_start)(gconstpointer self);
+
+/**
+ * btic_learn_virtual_stop:
+ * @self: device instance
+ *
+ * Subclasses will override this methods with a function which disables the
+ * learning mode on this device.
+ *
+ * Returns: %TRUE for success
+ */
+typedef gboolean (*btic_learn_virtual_stop)(gconstpointer self);
+
+/**
+ * btic_learn_virtual_register_learned_control:
+ * @self: device instance
+ *
+ * Subclasses will override this methods with a function which registers
+ * the last control which was detected in learn mode.
+ *
+ * Returns: %TRUE for success
+ */
+typedef BtIcControl* (*btic_learn_virtual_register_learned_control)(gconstpointer self, const gchar *name);
+
+/**
+ * BtIcLearn:
+ *
+ * interface for devices which implement a learn-function
+ */
 struct _BtIcLearnInterface {
   const GTypeInterface parent;
 
-  gboolean (*learn_start)(const BtIcLearn * const self);
-  gboolean (*learn_stop)(const BtIcLearn * const self);
-  BtIcControl* (*register_learned_control)(const BtIcLearn * const self, const gchar *name);
+  btic_learn_virtual_start learn_start;
+  btic_learn_virtual_stop  learn_stop;
+  btic_learn_virtual_register_learned_control register_learned_control;
 };
 
 GType btic_learn_get_type(void) G_GNUC_CONST;

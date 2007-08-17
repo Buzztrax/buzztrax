@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-menu.c,v 1.11 2007-08-16 12:34:43 berzerka Exp $
+/* $Id: interaction-controller-menu.c,v 1.12 2007-08-17 13:37:50 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -113,11 +113,11 @@ static void on_control_learn_activated(GtkMenuItem *menuitem, gpointer user_data
 
   if( BTIC_IS_LEARN(device) ) // should not be required, for sanity
   {
-    BtLearnDialog *dialog;
+    BtInteractionControllerLearnDialog *dialog;
 
     btic_learn_start(BTIC_LEARN(device));
     
-    dialog=bt_learn_dialog_new(device);
+    dialog=bt_interaction_controller_learn_dialog_new(device);
 
     gtk_widget_show_all(GTK_WIDGET(dialog));
   }
@@ -138,8 +138,7 @@ static void bt_interaction_controller_menu_init_control_menu(const BtInteraction
   // add learn function entry for device which implement the BtIcLearn interface
   if( BTIC_IS_LEARN(device) )
   {
-    str = "Learn...";
-    menu_item=gtk_image_menu_item_new_with_label(str);
+    menu_item=gtk_image_menu_item_new_with_label(_("Learn..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menu_item);
     g_object_set_qdata(G_OBJECT(menu_item),widget_parent_quark,(gpointer)self);
     gtk_widget_show(menu_item);

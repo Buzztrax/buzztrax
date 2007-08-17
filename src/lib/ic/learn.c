@@ -1,4 +1,4 @@
-/* $Id: learn.c,v 1.1 2007-08-16 12:34:42 berzerka Exp $
+/* $Id: learn.c,v 1.2 2007-08-17 13:37:50 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -35,17 +35,17 @@
 
 //-- wrapper
 
-static gboolean btic_learn_default_start(const BtIcLearn * const self) {
+static gboolean btic_learn_default_start(gconstpointer self) {
   GST_ERROR("virtual method btic_learn_start(self=%p) called",self);
   return(FALSE);  // this is a base class that can't do anything
 }
 
-static gboolean btic_learn_default_stop(const BtIcLearn * const self) {
+static gboolean btic_learn_default_stop(gconstpointer self) {
   GST_ERROR("virtual method btic_learn_stop(self=%p) called",self);
   return(FALSE);  // this is a base class that can't do anything
 }
 
-static BtIcControl* btic_learn_default_register_learned_control(const BtIcLearn * const self, const gchar *name) {
+static BtIcControl* btic_learn_default_register_learned_control(gconstpointer self, const gchar *name) {
   GST_ERROR("virtual method btic_learn_register_learned_control(self=%p) called",self);
   return(NULL);  // this is a base class that can't do anything
 }
