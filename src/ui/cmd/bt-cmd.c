@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.39 2007-07-10 09:05:40 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.40 2007-08-20 13:53:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,6 +45,7 @@
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
   // @todo need a replacement for this
+  //g_option_context_get_help() in future glib
   //poptPrintUsage(context,stdout,0);
   //poptFreeContext(context);
   g_option_context_free(ctx);
@@ -82,10 +83,6 @@ int main(int argc, char **argv) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     exit(1);
   }
-  
-  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
-  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
-
   if(arg_version) {
     g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
     g_option_context_free(ctx);
@@ -93,6 +90,9 @@ int main(int argc, char **argv) {
   }
   if(!command) usage(argc, argv, ctx);
   
+  g_log_set_always_fatal(G_LOG_LEVEL_WARNING);
+  GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-cmd", 0, "music production environment / command ui");
+
   GST_INFO("starting: thread=%p, command=\"%s\" input=\"%s\" output=\"%s\"",
     g_thread_self(),command, input_file_name, output_file_name);
 

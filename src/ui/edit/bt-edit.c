@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.42 2007-08-20 10:15:21 ensonic Exp $
+/* $Id: bt-edit.c,v 1.43 2007-08-20 13:53:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,21 +44,20 @@
 #include "bt-edit.h"
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
+  // @todo need a replacement for this
+  //g_option_context_get_help() in future glib
   //poptPrintUsage(context,stdout,0);
   //poptFreeContext(context);
-  //g_option_context_get_help() in future glib
   //exit(0);
 }
 
 static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)
 {
-  gboolean ret=TRUE;
-  
   if (!strcmp (opt, "--version")) {
     g_printf("%s from "PACKAGE_STRING"\n", (gchar *)data);
     exit(0);
   }
-  return(ret);
+  return(TRUE);
 }
 
 int main(int argc, char **argv) {

@@ -1,5 +1,17 @@
 2007-08-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Some more cleanup for the last change.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Add more log comments to trace crash if user has not spectrum element.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Add todo comments.
+
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/core.c:
 	* src/ui/edit/bt-edit.c:
 	  Make --version work without initializing other libs.

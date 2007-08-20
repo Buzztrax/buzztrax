@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.136 2007-08-16 12:37:10 berzerka Exp $
+/* $Id: main-page-patterns.c,v 1.137 2007-08-20 13:53:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,8 +44,11 @@
  *   - Ctrl-<num> :  Stepping
  *     - set increment for cursor-down on edit
  * - copy gtk_cell_renderer_progress -> bt_cell_renderer_pattern_value
+ *   - limmit acceptable keys for value entries: http://www.gtk.org/faq/#AEN843
  * - add parameter info when inside cell
  * - move cursor down on edit
+ *
+ * - also do controller-assignments like in machine-property window
  */
 
 #define BT_EDIT

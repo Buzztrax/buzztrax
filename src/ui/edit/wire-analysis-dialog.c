@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.19 2007-08-09 16:00:13 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.20 2007-08-20 13:53:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -508,8 +508,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   }
   g_object_try_unref(self->priv->peak_gc);
 
-  // @todo: remove
-  //bt_application_remove_bus_watch(BT_APPLICATION(self->priv->app),on_wire_analyzer_change,(gpointer)self);
+  GST_DEBUG("!!!! removing signal handler");
 
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   if(song) {
@@ -524,6 +523,8 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
     gst_object_unref(bin);
     g_object_unref(song);
   }
+
+  GST_DEBUG("!!!! free analyzers");
 
   // this destroys the analyzers too
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
