@@ -1,4 +1,4 @@
-/* $Id: e-bt-wire-analysis-dialog.c,v 1.1 2007-07-13 20:53:22 ensonic Exp $
+/* $Id: e-bt-wire-analysis-dialog.c,v 1.2 2007-08-20 19:31:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -68,6 +68,7 @@ BT_START_TEST(test_wire_analysis_dialog) {
 
   dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(app,wire));
   fail_unless(dialog!=NULL, NULL);
+  GST_INFO("dialog created");
   gtk_widget_show_all(dialog);
 
   // make screenshot
