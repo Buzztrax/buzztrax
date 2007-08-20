@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.20 2007-08-20 13:53:14 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.21 2007-08-20 17:36:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -527,11 +527,15 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! free analyzers");
 
   // this destroys the analyzers too
-  g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
+  if (self->priv->wire) {
+    g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
+  }
   g_list_free(self->priv->analyzers_list);
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
+
+  GST_DEBUG("!!!! done");
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);
