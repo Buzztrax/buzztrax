@@ -1,3 +1,10 @@
+2007-08-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/core.c:
+	* src/ui/edit/bt-edit.c:
+	  Make --version work without initializing other libs.
+	  Hopefully fixes #1777461.
+
 2007-08-17  Patric Schmitz  <berzerka@users.sf.net>
 
 	* docs/reference/bt-edit/bt-edit-sections.txt:

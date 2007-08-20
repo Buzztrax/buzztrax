@@ -1,4 +1,4 @@
-/* $Id: core.c,v 1.35 2007-03-08 20:58:45 ensonic Exp $
+/* $Id: core.c,v 1.36 2007-08-20 10:15:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -138,16 +138,17 @@ Error:
   return(res);
 }
 
-static gboolean
-parse_goption_arg (const gchar * opt,
-    const gchar * arg, gpointer data, GError ** err)
+static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)
 {
   gboolean ret=TRUE;
   
   if (!strcmp (opt, "--bt-version")) {
     g_printf("libbtcore-%d.%d.%d from "PACKAGE_STRING"\n",BT_MAJOR_VERSION,BT_MINOR_VERSION,BT_MICRO_VERSION);
   }
-  else ret=FALSE;
+  else {
+    // @todo: need to set error here
+    ret=FALSE;
+  }
     
   return(ret);
 }

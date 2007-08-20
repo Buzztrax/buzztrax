@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.41 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: bt-edit.c,v 1.42 2007-08-20 10:15:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -50,19 +50,31 @@ static void usage(int argc, char **argv, GOptionContext *ctx) {
   //exit(0);
 }
 
+static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)
+{
+  gboolean ret=TRUE;
+  
+  if (!strcmp (opt, "--version")) {
+    g_printf("%s from "PACKAGE_STRING"\n", (gchar *)data);
+    exit(0);
+  }
+  return(ret);
+}
+
 int main(int argc, char **argv) {
   gboolean res=FALSE;
-  gboolean arg_version=FALSE;
+  //gboolean arg_version=FALSE;
   gchar *command=NULL,*input_file_name=NULL;
   BtEditApplication *app;
 #ifdef USE_GNOME
   GnomeProgram *gnome_app;
 #endif
   GOptionContext *ctx;
+  GOptionGroup *group;
   GError *err=NULL;
   
   GOptionEntry options[] = {
-    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_NONE,     &arg_version,     N_("Show version"),    NULL },
+    {"version",     '\0', G_OPTION_FLAG_NO_ARG, G_OPTION_ARG_CALLBACK, (gpointer)parse_goption_arg,     N_("Print the application version"),    NULL },
     {"command",     '\0', 0,                    G_OPTION_ARG_STRING,   &command,         N_("Command name"),    "{load}" },
     {"input-file",  '\0', 0,                    G_OPTION_ARG_FILENAME, &input_file_name, N_("Input file name"), N_("<songfile>") },
     {NULL}
@@ -78,7 +90,12 @@ int main(int argc, char **argv) {
 
   // init libraries
   ctx = g_option_context_new(NULL);
-  g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
+  //g_option_context_add_main_entries (ctx, options, PACKAGE_NAME);
+  group=g_option_group_new("main", _("bt-edit options"),_("Show bt-edit options"), argv[0], NULL);
+  g_option_group_add_entries(group, options);
+  g_option_group_set_translation_domain(group, PACKAGE_NAME);
+  g_option_context_set_main_group (ctx, group);
+  
   bt_init_add_option_groups(ctx);
   g_option_context_add_group(ctx, btic_init_get_option_group());
   g_option_context_add_group(ctx, gtk_get_option_group(TRUE));
@@ -87,10 +104,10 @@ int main(int argc, char **argv) {
     g_print("Error initializing: %s\n", safe_string(err->message));
     exit(1);
   }
-  if(arg_version) {
-    g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
-    exit(0);
-  }
+  //if(arg_version) {
+  //  g_printf("%s from "PACKAGE_STRING"\n",argv[0]);
+  //  exit(0);
+  //}
   GST_DEBUG_CATEGORY_INIT(GST_CAT_DEFAULT, "bt-edit", 0, "music production environment / editor ui");
   
   add_pixmap_directory(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"pixmaps"G_DIR_SEPARATOR_S);
