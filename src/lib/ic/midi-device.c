@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.8 2007-08-17 13:37:50 berzerka Exp $
+/* $Id: midi-device.c,v 1.9 2007-08-20 20:10:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -28,6 +28,10 @@
  * use sysex to get device ids
  * http://www.borg.com/~jglatt/tech/midispec/identity.htm
  * http://en.wikipedia.org/wiki/MIDI_Machine_Control#Identity_Request
+ *
+ * to test midi inputs
+ * amidi -l
+ * amidi -d -p hw:2,0,0
  */
 #define BTIC_CORE
 #define BTIC_MIDI_DEVICE_C
@@ -76,37 +80,48 @@ static gboolean io_handler(GIOChannel *channel,GIOCondition condition,gpointer u
   BtIcControl *control;
   GError *error=NULL;
   gsize bytes_read;
-  gchar midi_event[3];
+  guchar midi_event[3];
   gulong key;
   gboolean res=TRUE;
 
   if(condition & (G_IO_IN | G_IO_PRI)) {
-    do {
-      g_io_channel_read_chars(self->priv->io_channel, (gchar *)&midi_event, 3,&bytes_read,&error);
-      if(error) {
-	GST_WARNING("iochannel error when reading: %s",error->message);
-	g_error_free(error);
+    g_io_channel_read_chars(self->priv->io_channel, (gchar *)midi_event, 1, &bytes_read, &error);
+    if(error) {
+      GST_WARNING("iochannel error when reading: %s",error->message);
+      g_error_free(error);
+      //res=FALSE;
+    }
+    else {
+      //GST_DEBUG( "midi event: %2x %2x %2x", midi_event[0], midi_event[1], midi_event[2] );
+      if( midi_event[0] == 0xb0 ) { // control event
+        g_io_channel_read_chars(self->priv->io_channel, (gchar *)&midi_event[1], 2, &bytes_read, &error);
+        if(error) {
+          GST_WARNING("iochannel error when reading: %s",error->message);
+          g_error_free(error);
+          //res=FALSE;
+        }
+        else {
+          GST_DEBUG( "midi event: %02x %02x %02x", midi_event[0], midi_event[1], midi_event[2] );
+
+          key=(gulong)midi_event[1];
+
+          if( self->priv->learn_mode == TRUE ) {
+            if(self->priv->learn_key!=key) {
+              gchar control_change_string[18];
+
+              sprintf( control_change_string, "midi-control %ld", key );
+              self->priv->learn_key=key;
+              g_object_set(self,"device-controlchange",control_change_string,NULL);
+            }
+          }
+
+          if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
+            g_object_set(control,"value",midi_event[2],NULL);
+
+          }
+        }
       }
-      else {
-	GST_DEBUG( "midi event: %x %2x %2x", midi_event[0], midi_event[1], midi_event[2] );
-	if( (midi_event[0]&0x000000ff) == 176 ) { // control event
-	  key=(gulong)midi_event[1];
-	  
-	  if( self->priv->learn_mode == TRUE )
-	  {
-	    gchar control_change_string[16];
-	    sprintf( control_change_string, "midi-control %d", midi_event[1] );
-	    self->priv->learn_key=key;
-	    g_object_set(self,"device-controlchange",control_change_string,NULL);
-	  }
-	  
-	  if((control=(BtIcControl *)g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(key)))) {
-	    g_object_set(control,"value",midi_event[2],NULL);
-	    
-	  }
-	} 
-      }
-    } while(0);
+    }
   }
   if(condition & (G_IO_HUP | G_IO_ERR | G_IO_NVAL)) {
     res=FALSE;
@@ -149,7 +164,7 @@ static gboolean btic_midi_device_learn_start(gconstpointer _self) {
 
   self->priv->learn_mode=TRUE;
   btic_device_start(BTIC_DEVICE(self));
-  
+
   return(TRUE);
 }
 
@@ -167,7 +182,7 @@ static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _sel
 {
   BtIcAbsRangeControl *control;
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
-  
+
   GST_INFO("registering midi control as %s", name);
 
   control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
@@ -181,7 +196,7 @@ static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _sel
 static gboolean btic_midi_device_start(gconstpointer _self) {
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
   GError *error=NULL;
-  
+
   GST_INFO( "starting the midi device" );
 
   // start the io-loop
@@ -367,7 +382,7 @@ GType btic_midi_device_get_type(void) {
       (GInstanceInitFunc)btic_midi_device_init, // instance_init
       NULL // value_table
     };
-    
+
     static const GInterfaceInfo learn_info = {
       (GInterfaceInitFunc) btic_midi_device_interface_init,    /* interface_init */
       NULL,               /* interface_finalize */
