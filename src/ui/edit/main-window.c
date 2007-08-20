@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.91 2007-08-16 08:25:57 ensonic Exp $
+/* $Id: main-window.c,v 1.92 2007-08-20 20:23:35 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -81,13 +81,13 @@ static gboolean on_window_delete_event(GtkWidget *widget, GdkEvent *event, gpoin
     /* @todo: remember window size
     BtSettings *settings;
     int x, y, w, h;
-    
+
     g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
     gtk_window_get_position (GTK_WINDOW (self), &x, &y);
     gtk_window_get_size (GTK_WINDOW (self), &w, &h);
-    
+
     g_object_set(G_OBJECT(settings),"window-xpos",x,"window-ypos",y,"window-width",w,"window-height",h,NULL);
-    
+
     g_object_try_unref(settings);
     */
     res=FALSE;
@@ -479,13 +479,14 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
   gint result;
-  char *file_name=NULL,*file_path;
+  gchar *file_name=NULL,*file_path;
 
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
   // set a default file_name
+  // @todo: use g_build_filename()
   file_path=g_strconcat(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S,file_name,NULL);
   gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_path);
   GST_INFO("generated default path is %s",file_path);
