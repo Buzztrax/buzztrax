@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.21 2007-08-20 17:36:36 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.22 2007-08-20 19:59:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -296,6 +296,7 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   //GdkPixbuf *window_icon=NULL;
   GtkWidget *vbox, *hbox;
   GtkWidget *ruler;
+  gboolean res=TRUE;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("wire analysis"));
 
@@ -371,24 +372,36 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   gtk_container_add (GTK_CONTAINER (self), vbox);
 
   // create fakesink
-  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_FAKESINK,"fakesink")) return(FALSE);
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_FAKESINK,"fakesink")) {
+    res=FALSE;
+    goto Error;
+  }
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_FAKESINK]),
       "sync", FALSE, "qos", FALSE, "silent", TRUE,
       NULL);
   // create spectrum analyzer
-  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_SPECTRUM,"spectrum")) return(FALSE);
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_SPECTRUM,"spectrum")) {
+    res=FALSE;
+    goto Error;
+  }
   g_object_set (G_OBJECT(self->priv->analyzers[ANALYZER_SPECTRUM]),
-      "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
+      "interval",(GstClockTime)(0.5*GST_SECOND),"message",TRUE,
       "bands", SPECT_BANDS, "threshold", -70,
       NULL);
   // create level meter
-  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) return(FALSE);
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_LEVEL,"level")) {
+    res=FALSE;
+    goto Error;
+  }
   g_object_set(G_OBJECT(self->priv->analyzers[ANALYZER_LEVEL]),
       "interval",(GstClockTime)(0.25*GST_SECOND),"message",TRUE,
       "peak-ttl",(GstClockTime)(0.50*GST_SECOND),"peak-falloff", 20.0,
       NULL);
   // create queue
-  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_QUEUE,"queue")) return(FALSE);
+  if(!bt_wire_analysis_dialog_make_element(self,ANALYZER_QUEUE,"queue")) {
+    res=FALSE;
+    goto Error;
+  }
 
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",self->priv->analyzers_list,NULL);
 
@@ -404,9 +417,10 @@ static gboolean bt_wire_analysis_dialog_init_ui(const BtWireAnalysisDialog *self
   // redraw when needed
   g_signal_connect(G_OBJECT(self),"expose-event",G_CALLBACK(bt_wire_analysis_dialog_expose),(gpointer)self);
 
+Error:
   g_object_try_unref(song);
   g_object_try_unref(main_window);
-  return(TRUE);
+  return(res);
 }
 
 //-- constructor methods
@@ -505,6 +519,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
   if(self->priv->paint_handler_id) {
     g_source_remove(self->priv->paint_handler_id);
+    self->priv->paint_handler_id=0;
   }
   g_object_try_unref(self->priv->peak_gc);
 
@@ -519,6 +534,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 
     bus=gst_element_get_bus(GST_ELEMENT(bin));
     g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_analyzer_change,NULL);
+    g_signal_handlers_disconnect_matched(bus,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_wire_analyzer_state_changed,NULL);
     gst_object_unref(bus);
     gst_object_unref(bin);
     g_object_unref(song);
@@ -527,10 +543,7 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
   GST_DEBUG("!!!! free analyzers");
 
   // this destroys the analyzers too
-  if (self->priv->wire) {
-    g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
-  }
-  g_list_free(self->priv->analyzers_list);
+  g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
 
   g_object_try_unref(self->priv->app);
   g_object_try_unref(self->priv->wire);
@@ -543,9 +556,11 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
 }
 
 static void bt_wire_analysis_dialog_finalize(GObject *object) {
-  //BtWireAnalysisDialog *self = BT_WIRE_ANALYSIS_DIALOG(object);
+  BtWireAnalysisDialog *self = BT_WIRE_ANALYSIS_DIALOG(object);
 
-  //GST_DEBUG("!!!! self=%p",self);
+  GST_DEBUG("!!!! self=%p",self);
+
+  g_list_free(self->priv->analyzers_list);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);
