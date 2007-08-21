@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.138 2007-08-20 20:23:35 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.139 2007-08-21 19:55:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1488,6 +1488,8 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     // add local commands
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
     gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+    //gtk_widget_set_parent (GTK_WIDGET(self->priv->context_menu), GTK_WIDGET (main_window));
+    //gtk_menu_attach_to_widget(self->priv->context_menu, GTK_WIDGET (main_window),NULL);
     g_object_unref(main_window);
     // delay the pattern-table grab
     g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
@@ -1501,6 +1503,8 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       // remove local commands
       g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
       gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+      //gtk_widget_unparent (GTK_WIDGET(self->priv->context_menu));
+      //gtk_menu_detach(self->priv->context_menu);
       g_object_unref(main_window);
     }
   }
@@ -2069,9 +2073,20 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   GST_DEBUG("  before context menu",self);
 
   // generate the context menu
+  GtkWidget *mb=gtk_menu_bar_new();
+  gtk_widget_show(mb);
+  //gtk_container_add(GTK_CONTAINER(self),mb);
+  GtkWidget *mi=gtk_menu_item_new();
+  gtk_widget_show(mi);
+  gtk_container_add(GTK_CONTAINER(mb),mi);
+
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
   gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/PatternView/PatternContext");
+
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(mi),GTK_WIDGET(self->priv->context_menu));
+  g_object_ref(self->priv->context_menu);
+  gtk_menu_detach(self->priv->context_menu);
 
   self->priv->context_menu_track_add=gtk_image_menu_item_new_with_label(_("New track"));
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
@@ -2096,7 +2111,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   image=gtk_image_new_from_stock(GTK_STOCK_NEW,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/NewPattern");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/NewPattern", GDK_Insert, GDK_CONTROL_MASK|GDK_SHIFT_MASK);
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/NewPattern", GDK_P, GDK_CONTROL_MASK|GDK_SHIFT_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_new_activate),(gpointer)self);
