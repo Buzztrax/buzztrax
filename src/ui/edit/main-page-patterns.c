@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.139 2007-08-21 19:55:32 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.140 2007-08-22 13:37:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -79,9 +79,6 @@ struct _BtMainPagePatternsPrivate {
   /* the pattern table */
   GtkTreeView *pattern_pos_table;
   GtkTreeView *pattern_table;
-
-  /* page local commands */
-  GtkAccelGroup *accel_group;
 
   /* pattern context_menu */
   GtkMenu *context_menu;
@@ -1471,7 +1468,6 @@ static gboolean on_page_switched_idle(gpointer user_data) {
 
 static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
-  BtMainWindow *main_window;
   static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
@@ -1485,13 +1481,6 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       pattern_menu_refresh(self,machine);
       g_object_unref(machine);
     }
-    // add local commands
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-    //gtk_widget_set_parent (GTK_WIDGET(self->priv->context_menu), GTK_WIDGET (main_window));
-    //gtk_menu_attach_to_widget(self->priv->context_menu, GTK_WIDGET (main_window),NULL);
-    g_object_unref(main_window);
-    // delay the pattern-table grab
     g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
   }
   else {
@@ -1500,12 +1489,6 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       // only reset old
       GST_DEBUG("leave pattern page");
       pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
-      // remove local commands
-      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-      gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-      //gtk_widget_unparent (GTK_WIDGET(self->priv->context_menu));
-      //gtk_menu_detach(self->priv->context_menu);
-      g_object_unref(main_window);
     }
   }
   prev_page_num = page_num;
@@ -1915,15 +1898,13 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   GtkCellRenderer *renderer;
   GtkTreeSelection *tree_sel;
   GtkAdjustment *vadjust;
+  GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
   gint i;
   gchar oct_str[2];
 
   GST_DEBUG("!!!! self=%p",self);
 
   gtk_widget_set_name(GTK_WIDGET(self),_("pattern view"));
-
-  // page local commands
-  self->priv->accel_group=gtk_accel_group_new();
 
   // add toolbar
   toolbar=gtk_toolbar_new();
@@ -2081,7 +2062,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_container_add(GTK_CONTAINER(mb),mi);
 
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
-  gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
+  gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/PatternView/PatternContext");
 
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(mi),GTK_WIDGET(self->priv->context_menu));

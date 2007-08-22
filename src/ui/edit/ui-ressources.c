@@ -1,4 +1,4 @@
-/* $Id: ui-ressources.c,v 1.14 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: ui-ressources.c,v 1.15 2007-08-22 13:37:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,6 +45,9 @@ struct _BtUIRessourcesPrivate {
 
   /* colors */
   GdkColor colors[BT_UI_RES_COLOR_COUNT];
+  
+  /* the keyboard shortcut table for the window */
+  GtkAccelGroup *accel_group;
 };
 
 static GObjectClass *parent_class=NULL;
@@ -154,6 +157,8 @@ BtUIRessources *bt_ui_ressources_new(void) {
     if(!bt_ui_ressources_init_icons(BT_UI_RESSOURCES(singleton))) {
       goto Error;
     }
+    BT_UI_RESSOURCES(singleton)->priv->accel_group=gtk_accel_group_new();
+
     g_object_add_weak_pointer(G_OBJECT(singleton),&singleton);
   }
   else {
@@ -281,6 +286,19 @@ guint32 bt_ui_ressources_get_color_by_machine(const BtMachine *machine,BtUIResso
   return(color);
 }
 
+/**
+ * bt_ui_ressources_get_accel_group:
+ *
+ * All windows share one accelerator map.
+ *
+ * Returns: the shared keyboard accelerator map
+ */
+GtkAccelGroup *bt_ui_ressources_get_accel_group(void) {
+  BtUIRessources *ui_ressources=BT_UI_RESSOURCES(singleton);
+  
+  return(ui_ressources->priv->accel_group);
+}
+
 //-- wrapper
 
 //-- class internals
@@ -325,6 +343,8 @@ static void bt_ui_ressources_dispose(GObject *object) {
   g_object_try_unref(self->priv->source_machine_pixbuf);
   g_object_try_unref(self->priv->processor_machine_pixbuf);
   g_object_try_unref(self->priv->sink_machine_pixbuf);
+  
+  g_object_try_unref(self->priv->accel_group);
 
   if(G_OBJECT_CLASS(parent_class)->dispose) {
     (G_OBJECT_CLASS(parent_class)->dispose)(object);

@@ -1,4 +1,4 @@
-/* $Id: learn.h,v 1.2 2007-08-17 13:37:50 berzerka Exp $
+/* $Id: learn.h,v 1.3 2007-08-22 13:37:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -60,6 +60,7 @@ typedef gboolean (*btic_learn_virtual_stop)(gconstpointer self);
 /**
  * btic_learn_virtual_register_learned_control:
  * @self: device instance
+ * @name: the name under which to register the control
  *
  * Subclasses will override this methods with a function which registers
  * the last control which was detected in learn mode.

@@ -1,4 +1,4 @@
-/* $Id: ui-ressources-methods.h,v 1.3 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: ui-ressources-methods.h,v 1.4 2007-08-22 13:37:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -32,5 +32,7 @@ extern GtkWidget *bt_ui_ressources_get_image_by_machine_type(GType machine_type)
 
 extern GdkColor *bt_ui_ressources_get_gdk_color(BtUIRessourcesColors color_type);
 extern guint32 bt_ui_ressources_get_color_by_machine(const BtMachine *machine,BtUIRessourcesMachineColors color_type);
+
+extern GtkAccelGroup *bt_ui_ressources_get_accel_group(void);
 
 #endif // BT_UI_RESSOURCES_METHDOS_H

@@ -1,3 +1,16 @@
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-edit/bt-edit-sections.txt:
+	* src/lib/ic/libbtic/learn.h:
+	* src/ui/edit/main-menu-methods.h:
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-window.c:
+	* src/ui/edit/ui-ressources-methods.h:
+	* src/ui/edit/ui-ressources.c:
+	  Make docs clean. Add method to ui-ressources to get global accelerator
+	  map. Refactor code to use it.
+
 2007-08-22  Patric Schmitz  <berzerka@users.sf.net>
 
 	* docs/reference/bt-edit/bt-edit-docs.sgml:

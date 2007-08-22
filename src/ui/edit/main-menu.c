@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.74 2007-07-23 18:49:24 ensonic Exp $
+/* $Id: main-menu.c,v 1.75 2007-08-22 13:37:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -447,10 +447,11 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
 
 //-- helper methods
 
-static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel_group) {
+static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   GtkWidget *item,*menu,*subitem;
   BtSettings *settings;
   gboolean toolbar_hide,tabs_hide;
+  GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
 
   gtk_widget_set_name(GTK_WIDGET(self),_("main menu"));
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
@@ -645,20 +646,19 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self,GtkAccelGroup *accel
 /**
  * bt_main_menu_new:
  * @app: the application the menu belongs to
- * @accel_group: the main-windows accelerator group
  *
  * Create a new instance
  *
  * Returns: the new instance or %NULL in case of an error
  */
-BtMainMenu *bt_main_menu_new(const BtEditApplication *app,GtkAccelGroup *accel_group) {
+BtMainMenu *bt_main_menu_new(const BtEditApplication *app) {
   BtMainMenu *self;
 
   if(!(self=BT_MAIN_MENU(g_object_new(BT_TYPE_MAIN_MENU,"app",app,NULL)))) {
     goto Error;
   }
   // generate UI
-  if(!bt_main_menu_init_ui(self,accel_group)) {
+  if(!bt_main_menu_init_ui(self)) {
     goto Error;
   }
   return(self);

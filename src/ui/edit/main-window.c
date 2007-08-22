@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.92 2007-08-20 20:23:35 ensonic Exp $
+/* $Id: main-window.c,v 1.93 2007-08-22 13:37:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,9 +54,6 @@ struct _BtMainWindowPrivate {
   BtMainPages *pages;
   /* the statusbar of the window */
   BtMainStatusbar *statusbar;
-
-  /* the keyboard shortcut table for the window */
-  GtkAccelGroup *accel_group;
 };
 
 static GtkWindowClass *parent_class=NULL;
@@ -191,8 +188,6 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   gtk_widget_set_name(GTK_WIDGET(self),_("main window"));
   gtk_window_set_role(GTK_WINDOW(self),"bt-edit::main");
 
-  self->priv->accel_group=gtk_accel_group_new();
-
   // create and set window icon
   if(!(window_icon=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),"buzztard",16,0,&error))) {
     GST_WARNING("Couldn't load buzztard 16x16 icon: %s", error->message);
@@ -209,7 +204,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   GST_INFO("before creating content, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
 
   // add the menu-bar
-  self->priv->menu=bt_main_menu_new(self->priv->app,self->priv->accel_group);
+  self->priv->menu=bt_main_menu_new(self->priv->app);
 #ifndef USE_HILDON
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->menu),FALSE,FALSE,0);
 #else
@@ -229,7 +224,7 @@ static gboolean bt_main_window_init_ui(const BtMainWindow *self) {
   self->priv->statusbar=bt_main_statusbar_new(self->priv->app);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->statusbar),FALSE,FALSE,0);
 
-  gtk_window_add_accel_group(GTK_WINDOW(self),self->priv->accel_group);
+  gtk_window_add_accel_group(GTK_WINDOW(self),bt_ui_ressources_get_accel_group());
 
   gtk_drag_dest_set(GTK_WIDGET(self),
     (GtkDestDefaults) (GTK_DEST_DEFAULT_MOTION | GTK_DEST_DEFAULT_HIGHLIGHT | GTK_DEST_DEFAULT_DROP),

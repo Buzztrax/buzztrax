@@ -1,4 +1,4 @@
-/* $Id: main-menu-methods.h,v 1.2 2006-08-31 19:57:57 ensonic Exp $
+/* $Id: main-menu-methods.h,v 1.3 2007-08-22 13:37:08 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -25,6 +25,6 @@
 #include "main-menu.h"
 #include "edit-application.h"
 
-extern BtMainMenu *bt_main_menu_new(const BtEditApplication *app,GtkAccelGroup *accel_group);
+extern BtMainMenu *bt_main_menu_new(const BtEditApplication *app);
 
 #endif // BT_MAIN_MENU_METHDOS_H
