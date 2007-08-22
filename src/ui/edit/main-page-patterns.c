@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.140 2007-08-22 13:37:08 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.141 2007-08-22 20:28:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -79,6 +79,9 @@ struct _BtMainPagePatternsPrivate {
   /* the pattern table */
   GtkTreeView *pattern_pos_table;
   GtkTreeView *pattern_table;
+
+  /* local commands */
+  GtkAccelGroup *accel_group;
 
   /* pattern context_menu */
   GtkMenu *context_menu;
@@ -486,7 +489,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
 
   GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x",event->state,event->keyval,event->hardware_keycode);
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
-    if(modifier==GDK_CONTROL_MASK) {
+    if(modifier==GDK_SHIFT_MASK) {
       BtMainWindow *main_window;
       BtMainPages *pages;
       //BtMainPageSequence *sequence_page;
@@ -505,6 +508,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
+  /*
   else if(event->keyval==GDK_KP_Add) {
     if(modifier==GDK_CONTROL_MASK) {
       on_context_menu_pattern_new_activate(NULL,self);
@@ -517,6 +521,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
+  */
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     gboolean changed=FALSE;
     BtMachine *machine;
@@ -1468,6 +1473,7 @@ static gboolean on_page_switched_idle(gpointer user_data) {
 
 static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMainWindow *main_window;
   static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
@@ -1481,6 +1487,12 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       pattern_menu_refresh(self,machine);
       g_object_unref(machine);
     }
+    // add local commands
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+    // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
+    g_signal_emit_by_name (main_window, "keys-changed", 0);
+    g_object_unref(main_window);
     g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
   }
   else {
@@ -1489,7 +1501,10 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       // only reset old
       GST_DEBUG("leave pattern page");
       pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
-    }
+      // remove local commands
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+      g_object_unref(main_window);    }
   }
   prev_page_num = page_num;
 }
@@ -1898,7 +1913,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   GtkCellRenderer *renderer;
   GtkTreeSelection *tree_sel;
   GtkAdjustment *vadjust;
-  GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
   gint i;
   gchar oct_str[2];
 
@@ -2061,27 +2075,32 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_widget_show(mi);
   gtk_container_add(GTK_CONTAINER(mb),mi);
 
+  self->priv->accel_group=gtk_accel_group_new();
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
-  gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), accel_group);
+  gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/PatternView/PatternContext");
 
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(mi),GTK_WIDGET(self->priv->context_menu));
   g_object_ref(self->priv->context_menu);
   gtk_menu_detach(self->priv->context_menu);
 
-  self->priv->context_menu_track_add=gtk_image_menu_item_new_with_label(_("New track"));
+  self->priv->context_menu_track_add=menu_item=gtk_image_menu_item_new_with_label(_("New track"));
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_track_add),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_track_add);
-  gtk_widget_show(self->priv->context_menu_track_add);
-  g_signal_connect(G_OBJECT(self->priv->context_menu_track_add),"activate",G_CALLBACK(on_context_menu_track_add_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/AddTrack");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/AddTrack", GDK_plus, GDK_CONTROL_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_track_add_activate),(gpointer)self);
 
-  self->priv->context_menu_track_remove=gtk_image_menu_item_new_with_label(_("Remove last track"));
+  self->priv->context_menu_track_remove=menu_item=gtk_image_menu_item_new_with_label(_("Remove last track"));
   image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_track_remove),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_track_remove);
-  gtk_widget_show(self->priv->context_menu_track_remove);
-  g_signal_connect(G_OBJECT(self->priv->context_menu_track_remove),"activate",G_CALLBACK(on_context_menu_track_remove_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/RemoveTrack");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/RemoveTrack", GDK_minus, GDK_CONTROL_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_track_remove_activate),(gpointer)self);
 
   menu_item=gtk_separator_menu_item_new();
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
@@ -2092,31 +2111,37 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   image=gtk_image_new_from_stock(GTK_STOCK_NEW,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
   gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/NewPattern");
-  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/NewPattern", GDK_P, GDK_CONTROL_MASK|GDK_SHIFT_MASK);
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/NewPattern", GDK_Return, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_new_activate),(gpointer)self);
 
-  self->priv->context_menu_pattern_properties=gtk_image_menu_item_new_with_label(_("Pattern properties ..."));
+  self->priv->context_menu_pattern_properties=menu_item=gtk_image_menu_item_new_with_label(_("Pattern properties ..."));
   image=gtk_image_new_from_stock(GTK_STOCK_PROPERTIES,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_pattern_properties),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_pattern_properties);
-  gtk_widget_show(self->priv->context_menu_pattern_properties);
-  g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_properties),"activate",G_CALLBACK(on_context_menu_pattern_properties_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/PatternProperties");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/PatternProperties", GDK_BackSpace, GDK_CONTROL_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_properties_activate),(gpointer)self);
 
-  self->priv->context_menu_pattern_remove=gtk_image_menu_item_new_with_label(_("Remove pattern ..."));
+  self->priv->context_menu_pattern_remove=menu_item=gtk_image_menu_item_new_with_label(_("Remove pattern ..."));
   image=gtk_image_new_from_stock(GTK_STOCK_DELETE,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_pattern_remove),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_pattern_remove);
-  gtk_widget_show(self->priv->context_menu_pattern_remove);
-  g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_remove),"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/RemovePattern");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/RemovePattern", GDK_Delete, GDK_CONTROL_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_remove_activate),(gpointer)self);
 
-  self->priv->context_menu_pattern_copy=gtk_image_menu_item_new_with_label(_("Copy pattern ..."));
+  self->priv->context_menu_pattern_copy=menu_item=gtk_image_menu_item_new_with_label(_("Copy pattern ..."));
   image=gtk_image_new_from_stock(GTK_STOCK_COPY,GTK_ICON_SIZE_MENU);
-  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_pattern_copy),image);
-  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),self->priv->context_menu_pattern_copy);
-  gtk_widget_show(self->priv->context_menu_pattern_copy);
-  g_signal_connect(G_OBJECT(self->priv->context_menu_pattern_copy),"activate",G_CALLBACK(on_context_menu_pattern_copy_activate),(gpointer)self);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/PatternView/PatternContext/CopyPattern");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/PatternView/PatternContext/CopyPattern", GDK_Return, GDK_CONTROL_MASK|GDK_SHIFT_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_context_menu_pattern_copy_activate),(gpointer)self);
   // --
   // @todo solo, mute, bypass
   // --
@@ -2338,6 +2363,8 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->pattern_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->wavetable_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->base_octave_menu));
+
+  g_object_try_unref(self->priv->accel_group);
 
   G_OBJECT_CLASS(parent_class)->dispose(object);
 }

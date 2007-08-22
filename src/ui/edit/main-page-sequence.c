@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.178 2007-08-07 13:36:32 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.179 2007-08-22 20:28:59 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1672,7 +1672,7 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     else if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
       // first column is label
-      if((track>0) && (modifier==GDK_CONTROL_MASK)) {
+      if((track>0) && (modifier==GDK_SHIFT_MASK)) {
         BtMainWindow *main_window;
         BtMainPages *pages;
         BtMainPagePatterns *patterns_page;
