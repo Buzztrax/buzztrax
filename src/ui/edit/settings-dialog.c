@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.44 2007-07-20 07:58:17 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.45 2007-08-22 13:46:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -306,7 +306,7 @@ BtSettingsDialog *bt_settings_dialog_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 

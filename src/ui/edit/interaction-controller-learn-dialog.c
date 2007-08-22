@@ -1,4 +1,4 @@
-/* $Id: interaction-controller-learn-dialog.c,v 1.1 2007-08-17 13:37:50 berzerka Exp $
+/* $Id: interaction-controller-learn-dialog.c,v 1.2 2007-08-22 13:46:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -154,7 +154,7 @@ BtInteractionControllerLearnDialog *bt_interaction_controller_learn_dialog_new(B
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 

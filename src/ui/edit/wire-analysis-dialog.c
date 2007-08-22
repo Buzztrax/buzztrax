@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.22 2007-08-20 19:59:45 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.23 2007-08-22 13:46:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -448,7 +448,7 @@ BtWireAnalysisDialog *bt_wire_analysis_dialog_new(const BtEditApplication *app,c
   GST_DEBUG("dialog created and shown");
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 
@@ -540,9 +540,8 @@ static void bt_wire_analysis_dialog_dispose(GObject *object) {
     g_object_unref(song);
   }
 
-  GST_DEBUG("!!!! free analyzers");
-
   // this destroys the analyzers too
+  GST_DEBUG("!!!! free analyzers");
   g_object_set(G_OBJECT(self->priv->wire),"analyzers",NULL,NULL);
 
   g_object_try_unref(self->priv->app);
@@ -561,6 +560,8 @@ static void bt_wire_analysis_dialog_finalize(GObject *object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_list_free(self->priv->analyzers_list);
+
+  GST_DEBUG("!!!! done");
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);

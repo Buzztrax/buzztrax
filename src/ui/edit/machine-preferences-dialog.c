@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.35 2007-08-16 08:25:57 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.36 2007-08-22 13:46:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -501,7 +501,7 @@ BtMachinePreferencesDialog *bt_machine_preferences_dialog_new(const BtEditApplic
   gtk_widget_show_all(GTK_WIDGET(self));
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 

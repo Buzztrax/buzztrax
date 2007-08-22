@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.8 2007-08-06 19:10:20 ensonic Exp $
+/* $Id: render-dialog.c,v 1.9 2007-08-22 13:46:10 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -185,7 +185,7 @@ BtRenderDialog *bt_render_dialog_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 

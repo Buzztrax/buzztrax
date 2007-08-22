@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.89 2007-08-16 08:25:57 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.90 2007-08-22 13:46:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1588,7 +1588,7 @@ BtMachinePropertiesDialog *bt_machine_properties_dialog_new(const BtEditApplicat
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 

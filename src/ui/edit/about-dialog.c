@@ -1,4 +1,4 @@
-/* $Id: about-dialog.c,v 1.1 2007-07-20 07:58:11 ensonic Exp $
+/* $Id: about-dialog.c,v 1.2 2007-08-22 13:46:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -153,7 +153,7 @@ BtAboutDialog *bt_about_dialog_new(const BtEditApplication *app) {
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 

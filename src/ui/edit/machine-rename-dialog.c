@@ -1,4 +1,4 @@
-/* $Id: machine-rename-dialog.c,v 1.1 2007-07-20 13:49:24 ensonic Exp $
+/* $Id: machine-rename-dialog.c,v 1.2 2007-08-22 13:46:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -175,7 +175,7 @@ BtMachineRenameDialog *bt_machine_rename_dialog_new(const BtEditApplication *app
   }
   return(self);
 Error:
-  g_object_try_unref(self);
+  gtk_widget_destroy(GTK_WIDGET(self));
   return(NULL);
 }
 
