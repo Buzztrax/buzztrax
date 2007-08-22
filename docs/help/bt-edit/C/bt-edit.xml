@@ -105,7 +105,7 @@
     The main chapter of the help system is separated into these sections:
     <itemizedlist>
       <listitem><para><link linkend="bt-edit-main" endterm="bt-edit-main.title"/></para></listitem>
-      <listitem><para><link linkend="bt-edit-pref" endterm="bt-edit-prefs.title"/></para></listitem>
+      <listitem><para><link linkend="bt-edit-prefs" endterm="bt-edit-prefs.title"/></para></listitem>
       <listitem><para><link linkend="bt-edit-reference" endterm="bt-edit-reference.title"/></para></listitem>
     </itemizedlist>
   </para>
@@ -203,7 +203,7 @@
     </para>
 
     <para>
-      The <keyword>File</keyword> menu allows to start a new song, load and save
+      The <menuchoice><guimenu>File</guimenu></menuchoice> menu allows to start a new song, load and save
       songs, as well as end the program. Songs need other ressources in order to
       be played. These are the sound-generators and effects that are used and
       eventually digital audiosamples. When loading a song &app; checks if all

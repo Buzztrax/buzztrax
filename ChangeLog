@@ -1,3 +1,17 @@
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/Makefile.am:
+	  Testing new test ideas.
+
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Fix invalid xml.
+
+	* tests/xmlvalid.sh:
+	  Also test user docs. Allow to run standalone.
+
+	* tests/gtkdoccomplete.sh:
+	  Fix expression.
+
 2007-08-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gui/accelpopup.c:

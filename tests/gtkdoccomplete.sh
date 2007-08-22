@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtkdoccomplete.sh,v 1.7 2007-08-07 14:36:06 ensonic Exp $
+# $Id: gtkdoccomplete.sh,v 1.8 2007-08-22 06:22:50 ensonic Exp $
 
 res=0
 fails=0;
@@ -32,7 +32,7 @@ for dir in ../docs/reference/bt-*; do
       lines=`wc -l $file | cut -f1 -d\ `
       if [ $lines -gt 0 ]; then
         res=1
-        fails=$((fails+1))
+        fails=$(($fails+1))
         report=$report`echo -n $file`":1:E: $lines undeclared symbols\n"
       fi
     fi

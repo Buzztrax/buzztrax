@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.49 2007-08-05 19:19:15 ensonic Exp $
+## $Id: Makefile.am,v 1.50 2007-08-22 06:22:50 ensonic Exp $
 
 if BUILD_CHECK_TESTS
   SUBDIRS = lib ui
@@ -17,14 +17,17 @@ TESTS = \
   povalid.sh \
   xmlvalid.sh
 
-# prevent endless loops and give debug feedback
-TESTS_ENVIRONMENT = \
-	ulimit -St20;
+# prevent endless loops
+#   ulimit -St20;
+# 
 # adding this can help debug gconfd
 #    GCONF_DEBUG_TRACE_CLIENT=1
 #
 # http://www.cynapses.org/tmp/gcc/malloc_perturb
 #    MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+#
+TESTS_ENVIRONMENT = \
+	ulimit -St20;
 
 if BUILD_CHECK_TESTS
 noinst_PROGRAMS=$(TESTS_BIN)
