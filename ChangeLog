@@ -1,5 +1,10 @@
 2007-08-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gui/accelpopup.c:
+	  More complex version with a fix.
+
+2007-08-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/about-dialog.c:
 	* src/ui/edit/interaction-controller-learn-dialog.c:
 	* src/ui/edit/machine-preferences-dialog.c:
