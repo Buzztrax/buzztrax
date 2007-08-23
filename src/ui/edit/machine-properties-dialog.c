@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.90 2007-08-22 13:46:09 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.91 2007-08-23 15:56:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -56,6 +56,8 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkTooltips *preset_tips;
 
   GtkWidget *param_group_box;
+
+  //guint double_notify_source_id;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -322,10 +324,11 @@ static gboolean on_double_range_property_notify_idle(gpointer _data) {
   GParamSpec *property=data->property;
   GtkWidget *widget=GTK_WIDGET(data->user_data);
   GtkLabel *label=GTK_LABEL(g_object_get_qdata(G_OBJECT(widget),widget_label_quark));
+  //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(widget),widget_parent_quark);
   gdouble value;
   gchar str[100];
 
-  //GST_INFO("property value notify received : %s ",property->name);
+  GST_INFO("property value notify received : %s ",property->name);
 
   g_object_get(G_OBJECT(machine),property->name,&value,NULL);
   g_signal_handlers_block_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
@@ -333,14 +336,18 @@ static gboolean on_double_range_property_notify_idle(gpointer _data) {
   g_signal_handlers_unblock_matched(widget,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_double_range_property_changed,(gpointer)machine);
   g_sprintf(str,"%lf",value);
   gtk_label_set_text(label,str);
+  //self->priv->double_notify_source_id=0;
   return(FALSE);
 }
 
 static void on_double_range_property_notify(const GstElement *machine,GParamSpec *property,gpointer user_data) {
   BtNotifyIdleData *data;
+  //BtMachinePropertiesDialog *self=g_object_get_qdata(G_OBJECT(user_data),widget_parent_quark);
 
   g_assert(user_data);
   MAKE_NOTIFY_IDLE_DATA(data,machine,property,user_data);
+  //if (!self->priv->double_notify_source_id)
+  //  self->priv->double_notify_source_id=
   g_idle_add(on_double_range_property_notify_idle,(gpointer)data);
 }
 

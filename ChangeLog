@@ -1,5 +1,10 @@
 2007-08-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-properties-dialog.c:
+	  Comment how we could delay events.
+
+2007-08-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Handle new feature in spectrum element.
 
