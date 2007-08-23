@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.23 2007-08-22 13:46:10 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.24 2007-08-23 06:41:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -91,7 +91,7 @@ struct _BtWireAnalysisDialogPrivate {
 
   /* the analyzer results */
   gdouble rms[2], peak[2];
-  guchar spect[SPECT_BANDS];
+  gfloat spect[SPECT_BANDS];
 
   // DEBUG
   //gdouble min_rms,max_rms, min_peak,max_peak;
@@ -226,13 +226,23 @@ static void on_wire_analyzer_change(GstBus * bus, GstMessage * message, gpointer
     guint i;
 
     //GST_INFO("get spectrum data");
-    list = gst_structure_get_value (structure, "spectrum");
-    // SPECT_BANDS=gst_value_list_get_size(list)
-    for (i = 0; i < SPECT_BANDS; ++i) {
-      value = gst_value_list_get_value (list, i);
-      self->priv->spect[i] = g_value_get_uchar (value);
+    if((list = gst_structure_get_value (structure, "magnitude"))) {
+      for (i = 0; i < SPECT_BANDS; ++i) {
+        value = gst_value_list_get_value (list, i);
+        self->priv->spect[i] = g_value_get_float (value);
+      }
+      change=TRUE;
     }
-    change=TRUE;
+    else {
+      if((list = gst_structure_get_value (structure, "spectrum"))) {
+        // SPECT_BANDS=gst_value_list_get_size(list)
+        for (i = 0; i < SPECT_BANDS; ++i) {
+          value = gst_value_list_get_value (list, i);
+          self->priv->spect[i] = (gfloat)g_value_get_uchar (value);
+        }
+        change=TRUE;
+      }
+    }
   }
 
   if(!self->priv->paint_handler_id && change) {

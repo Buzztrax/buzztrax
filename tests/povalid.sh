@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: povalid.sh,v 1.7 2007-08-20 20:23:35 ensonic Exp $
+# $Id: povalid.sh,v 1.8 2007-08-23 06:41:22 ensonic Exp $
 # test po i18n files
 
 if [ -z $srcdir ]; then
@@ -35,7 +35,7 @@ fuzzy=0
 missing=0
 
 # we need to redirect to a file-descriptor to avoid a subshell
-LANG=C intltool-update -r 2>&1 | grep "translated messages" >&3
+exec 3< <(LANG=C intltool-update -r 2>&1 | grep "translated messages")
 while read line; do
   #echo "$line"
   n=`echo $line| cut -d\  -f5`
@@ -44,7 +44,7 @@ while read line; do
   missing=$(($missing+$n))
 done <&3
 if [ \( $fuzzy -gt 0 \) -o \( $missing -gt 0 \) ]; then
-  echo "fail"
+  #echo "fail"
   # we don't fail here
   #res=1
   fails=$(($fails+1))

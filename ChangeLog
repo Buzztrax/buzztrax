@@ -1,3 +1,14 @@
+2007-08-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Handle new feature in spectrum element.
+
+	* tests/povalid.sh:
+	  Fix "bad file descriptor" error.
+
+	* tests/ui/edit/e-bt-wire-analysis-dialog.c:
+	  Don't fail test if we can't create dialog.
+
 2007-08-22  Stefan Kost  <ensonic@users.sf.net>
 
 
