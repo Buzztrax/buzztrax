@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.52 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: main-page-info.c,v 1.53 2007-08-24 20:41:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -67,7 +67,9 @@ static GtkVBoxClass *parent_class=NULL;
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
 
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->info));
+  if(GTK_WIDGET_REALIZED(self->priv->info)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->info));
+  }
   return(FALSE);
 }
 
@@ -487,6 +489,9 @@ static void bt_main_page_info_dispose(GObject *object) {
   BtMainPageInfo *self = BT_MAIN_PAGE_INFO(object);
   return_if_disposed();
   self->priv->dispose_has_run = TRUE;
+
+  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
+  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
 
   g_object_try_weak_unref(self->priv->app);
 

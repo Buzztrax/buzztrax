@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.179 2007-08-22 20:28:59 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.180 2007-08-24 20:41:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -87,6 +87,9 @@ struct _BtMainPageSequencePrivate {
 
   /* position-table header label widget */
   GtkWidget *pos_header;
+
+  /* local commands */
+  GtkAccelGroup *accel_group;
 
   /* sequence context_menu */
   GtkMenu *context_menu;
@@ -504,14 +507,36 @@ static gboolean on_page_switched_idle(gpointer user_data) {
 }
 
 static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtMainWindow *main_window;
+  static gint prev_page_num=-1;
+
   if(page_num==BT_MAIN_PAGES_SEQUENCE_PAGE) {
     GST_DEBUG("enter sequence page");
+    // add local commands
+    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+    if(main_window) {
+      gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+      // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
+      g_signal_emit_by_name (main_window, "keys-changed", 0);
+      g_object_unref(main_window);
+    }
     // delay the sequence_table grab
     g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
   }
   else {
-    GST_DEBUG("leave sequence page");
+    // only do this if the page was BT_MAIN_PAGES_SEQUENCE_PAGE
+    if(prev_page_num == BT_MAIN_PAGES_SEQUENCE_PAGE) {
+      GST_DEBUG("leave sequence page");
+      // remove local commands
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      if(main_window) {
+        gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+        g_object_unref(main_window);
+      }
+    }
   }
+  prev_page_num = page_num;
 }
 
 static void on_machine_id_changed(BtMachine *machine,GParamSpec *arg,gpointer user_data) {
@@ -744,6 +769,9 @@ static void sequence_pos_table_init(const BtMainPageSequence *self) {
  */
 static void sequence_table_clear(const BtMainPageSequence *self) {
   GList *columns,*node;
+  BtSong *song;
+  BtSequence *sequence;
+  gulong number_of_tracks;
 
   // remove columns
   if((columns=gtk_tree_view_get_columns(self->priv->sequence_table))) {
@@ -751,6 +779,26 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
       gtk_tree_view_remove_column(self->priv->sequence_table,GTK_TREE_VIEW_COLUMN(node->data));
     }
     g_list_free(columns);
+  }
+
+  // disconnect signal handlers
+  // get song from app and then setup from song
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+
+  // change number of tracks
+  g_object_get(sequence,"tracks",&number_of_tracks,NULL);
+  if(number_of_tracks>0) {
+    BtMachine *machine;
+    guint i;
+
+    for(i=0;i<number_of_tracks;i++) {
+      machine=bt_sequence_get_machine(sequence,i);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
+      g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
+      g_object_try_unref(machine);
+    }
   }
 }
 
@@ -1422,6 +1470,14 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
     //GtkTreePath *path;
     //GtkTreeViewColumn *column;
     GList *columns;
+    BtMachine *machine;
+
+    machine=bt_sequence_get_machine(sequence,number_of_tracks-1);
+    // even though we can have multiple tracks per machine, we can disconnect them all, as we rebuild the treeview anyway
+    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_mute,NULL);
+    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_solo,NULL);
+    g_signal_handlers_disconnect_matched(machine,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_machine_state_changed_bypass,NULL);
+    g_object_try_unref(machine);
 
     bt_sequence_remove_track_by_ix(sequence,number_of_tracks-1);
 
@@ -2375,8 +2431,13 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   self->priv->sink_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT1);
   self->priv->sink_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SINK_MACHINE_BRIGHT2);
 
+  GST_DEBUG("  before context menu",self);
   // generate the context menu
+  self->priv->accel_group=gtk_accel_group_new();
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
+  gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
+  gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/SequenceView/SequenceContext");
+
   self->priv->context_menu_add=GTK_MENU_ITEM(gtk_image_menu_item_new_with_label(_("Add track")));
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(self->priv->context_menu_add),image);
@@ -2387,6 +2448,8 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   menu_item=gtk_image_menu_item_new_with_label(_("Remove track"));
   image=gtk_image_new_from_stock(GTK_STOCK_REMOVE,GTK_ICON_SIZE_MENU);
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/SequenceView/SequenceContext/RemoveTrack");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/SequenceView/SequenceContext/RemoveTrack", GDK_Delete, GDK_CONTROL_MASK);
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
@@ -2823,6 +2886,8 @@ static void bt_main_page_sequence_dispose(GObject *object) {
   gtk_object_destroy(GTK_OBJECT(self->priv->context_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->bars_menu));
   gtk_object_destroy(GTK_OBJECT(self->priv->label_menu));
+
+  g_object_try_unref(self->priv->accel_group);
 
   g_hash_table_destroy(self->priv->level_to_vumeter);
 

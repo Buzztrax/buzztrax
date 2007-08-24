@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.141 2007-08-22 20:28:59 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.142 2007-08-24 20:41:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -523,155 +523,157 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   }
   */
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
-    gboolean changed=FALSE;
-    BtMachine *machine;
-    gulong length,column_ct,voices,global_params,voice_params;
+    if(self->priv->pattern) {
+      gboolean changed=FALSE;
+      BtMachine *machine;
+      gulong length,column_ct,voices,global_params,voice_params;
 
-    g_object_get(G_OBJECT(self->priv->pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
-    g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
-    column_ct=global_params+voices*voice_params;
-    g_object_unref(machine);
+      g_object_get(G_OBJECT(self->priv->pattern),"length",&length,"voices",&voices,"machine",&machine,NULL);
+      g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+      column_ct=global_params+voices*voice_params;
+      g_object_unref(machine);
 
-    // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
+      // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
 #if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
-    switch(event->keyval) {
-      case GDK_Up:
-        if(self->priv->cursor_row>0) {
-          self->priv->cursor_row--;
-          changed=TRUE;
-        }
-        break;
-      case GDK_Down:
-        if((self->priv->cursor_row+1)<length) {
-          self->priv->cursor_row++;
-          changed=TRUE;
-        }
-        break;
-    }
-    if(changed) {
-      pattern_view_set_cursor_pos(self);
-    }
-#endif
-
-    if(modifier==GDK_SHIFT_MASK) {
-      gboolean select=FALSE;
-
-      GST_INFO("handling selection");
-
-      // handle selection
       switch(event->keyval) {
         case GDK_Up:
-          if((self->priv->cursor_row>=0) && changed) {
-            GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-            if(self->priv->selection_start_row==-1) {
-              GST_INFO("up   : new selection");
-              self->priv->selection_start_column=self->priv->cursor_column;
-              self->priv->selection_end_column=self->priv->cursor_column;
-              self->priv->selection_start_row=self->priv->cursor_row;
-              self->priv->selection_end_row=self->priv->cursor_row+1;
-            }
-            else {
-              if(self->priv->selection_start_row==(self->priv->cursor_row+1)) {
-                GST_INFO("up   : expand selection");
-                self->priv->selection_start_row-=1;
-              }
-              else {
-                GST_INFO("up   : shrink selection");
-                self->priv->selection_end_row-=1;
-              }
-            }
-            GST_INFO("up   : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-            select=TRUE;
+          if(self->priv->cursor_row>0) {
+            self->priv->cursor_row--;
+            changed=TRUE;
           }
           break;
         case GDK_Down:
-          if((self->priv->cursor_row<=length) && changed) {
-            GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-            if(self->priv->selection_end_row==-1) {
-              GST_INFO("down : new selection");
-              self->priv->selection_start_column=self->priv->cursor_column;
-              self->priv->selection_end_column=self->priv->cursor_column;
-              self->priv->selection_start_row=self->priv->cursor_row-1;
-              self->priv->selection_end_row=self->priv->cursor_row;
-            }
-            else {
-              if(self->priv->selection_end_row==(self->priv->cursor_row-1)) {
-                GST_INFO("down : expand selection");
-                self->priv->selection_end_row+=1;
-              }
-              else {
-                GST_INFO("down : shrink selection");
-                self->priv->selection_start_row+=1;
-              }
-            }
-            GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-            select=TRUE;
-          }
-          break;
-        case GDK_Left:
-          if(self->priv->cursor_column>=0) {
-            // move cursor
-            self->priv->cursor_column--;
-            pattern_view_set_cursor_pos(self);
-            GST_INFO("left : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-            if(self->priv->selection_start_column==-1) {
-              GST_INFO("left : new selection");
-              self->priv->selection_start_column=self->priv->cursor_column;
-              self->priv->selection_end_column=self->priv->cursor_column+1;
-              self->priv->selection_start_row=self->priv->cursor_row;
-              self->priv->selection_end_row=self->priv->cursor_row;
-            }
-            else {
-              if(self->priv->selection_start_column==(self->priv->cursor_column+1)) {
-                GST_INFO("left : expand selection");
-                self->priv->selection_start_column--;
-              }
-              else {
-                GST_INFO("left : shrink selection");
-                self->priv->selection_end_column--;
-              }
-            }
-            GST_INFO("left : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-            select=TRUE;
-          }
-          break;
-        case GDK_Right:
-          if(self->priv->cursor_column<=column_ct) {
-            // move cursor
-            self->priv->cursor_column++;
-            pattern_view_set_cursor_pos(self);
-            GST_INFO("right: %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-            if(self->priv->selection_end_column==-1) {
-              GST_INFO("right: new selection");
-              self->priv->selection_start_column=self->priv->cursor_column-1;
-              self->priv->selection_end_column=self->priv->cursor_column;
-              self->priv->selection_start_row=self->priv->cursor_row;
-              self->priv->selection_end_row=self->priv->cursor_row;
-            }
-            else {
-              if(self->priv->selection_end_column==(self->priv->cursor_column-1)) {
-                GST_INFO("right: expand selection");
-                self->priv->selection_end_column++;
-              }
-              else {
-                GST_INFO("right: shrink selection");
-                self->priv->selection_start_column++;
-              }
-            }
-            GST_INFO("right: %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-            select=TRUE;
+          if((self->priv->cursor_row+1)<length) {
+            self->priv->cursor_row++;
+            changed=TRUE;
           }
           break;
       }
-      if(select) {
-        gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
-        res=TRUE;
+      if(changed) {
+        pattern_view_set_cursor_pos(self);
       }
-    }
-    else {
-      if(self->priv->selection_start_column!=-1) {
-        self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
-        gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+#endif
+
+      if(modifier==GDK_SHIFT_MASK) {
+        gboolean select=FALSE;
+
+        GST_INFO("handling selection");
+
+        // handle selection
+        switch(event->keyval) {
+          case GDK_Up:
+            if((self->priv->cursor_row>=0) && changed) {
+              GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              if(self->priv->selection_start_row==-1) {
+                GST_INFO("up   : new selection");
+                self->priv->selection_start_column=self->priv->cursor_column;
+                self->priv->selection_end_column=self->priv->cursor_column;
+                self->priv->selection_start_row=self->priv->cursor_row;
+                self->priv->selection_end_row=self->priv->cursor_row+1;
+              }
+              else {
+                if(self->priv->selection_start_row==(self->priv->cursor_row+1)) {
+                  GST_INFO("up   : expand selection");
+                  self->priv->selection_start_row-=1;
+                }
+                else {
+                  GST_INFO("up   : shrink selection");
+                  self->priv->selection_end_row-=1;
+                }
+              }
+              GST_INFO("up   : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              select=TRUE;
+            }
+            break;
+          case GDK_Down:
+            if((self->priv->cursor_row<=length) && changed) {
+              GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              if(self->priv->selection_end_row==-1) {
+                GST_INFO("down : new selection");
+                self->priv->selection_start_column=self->priv->cursor_column;
+                self->priv->selection_end_column=self->priv->cursor_column;
+                self->priv->selection_start_row=self->priv->cursor_row-1;
+                self->priv->selection_end_row=self->priv->cursor_row;
+              }
+              else {
+                if(self->priv->selection_end_row==(self->priv->cursor_row-1)) {
+                  GST_INFO("down : expand selection");
+                  self->priv->selection_end_row+=1;
+                }
+                else {
+                  GST_INFO("down : shrink selection");
+                  self->priv->selection_start_row+=1;
+                }
+              }
+              GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              select=TRUE;
+            }
+            break;
+          case GDK_Left:
+            if(self->priv->cursor_column>=0) {
+              // move cursor
+              self->priv->cursor_column--;
+              pattern_view_set_cursor_pos(self);
+              GST_INFO("left : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              if(self->priv->selection_start_column==-1) {
+                GST_INFO("left : new selection");
+                self->priv->selection_start_column=self->priv->cursor_column;
+                self->priv->selection_end_column=self->priv->cursor_column+1;
+                self->priv->selection_start_row=self->priv->cursor_row;
+                self->priv->selection_end_row=self->priv->cursor_row;
+              }
+              else {
+                if(self->priv->selection_start_column==(self->priv->cursor_column+1)) {
+                  GST_INFO("left : expand selection");
+                  self->priv->selection_start_column--;
+                }
+                else {
+                  GST_INFO("left : shrink selection");
+                  self->priv->selection_end_column--;
+                }
+              }
+              GST_INFO("left : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              select=TRUE;
+            }
+            break;
+          case GDK_Right:
+            if(self->priv->cursor_column<=column_ct) {
+              // move cursor
+              self->priv->cursor_column++;
+              pattern_view_set_cursor_pos(self);
+              GST_INFO("right: %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+              if(self->priv->selection_end_column==-1) {
+                GST_INFO("right: new selection");
+                self->priv->selection_start_column=self->priv->cursor_column-1;
+                self->priv->selection_end_column=self->priv->cursor_column;
+                self->priv->selection_start_row=self->priv->cursor_row;
+                self->priv->selection_end_row=self->priv->cursor_row;
+              }
+              else {
+                if(self->priv->selection_end_column==(self->priv->cursor_column-1)) {
+                  GST_INFO("right: expand selection");
+                  self->priv->selection_end_column++;
+                }
+                else {
+                  GST_INFO("right: shrink selection");
+                  self->priv->selection_start_column++;
+                }
+              }
+              GST_INFO("right: %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+              select=TRUE;
+            }
+            break;
+        }
+        if(select) {
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+          res=TRUE;
+        }
+      }
+      else {
+        if(self->priv->selection_start_column!=-1) {
+          self->priv->selection_start_column=self->priv->selection_start_row=self->priv->selection_end_column=self->priv->selection_end_row=-1;
+          gtk_widget_queue_draw(GTK_WIDGET(self->priv->pattern_table));
+        }
       }
     }
   }
@@ -1489,10 +1491,13 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
     }
     // add local commands
     g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-    // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
-    g_signal_emit_by_name (main_window, "keys-changed", 0);
-    g_object_unref(main_window);
+    if(main_window) {
+      gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+      // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
+      g_signal_emit_by_name (main_window, "keys-changed", 0);
+      g_object_unref(main_window);
+    }
+    // delay the pattern_table grab
     g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
   }
   else {
@@ -1503,8 +1508,11 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
       pattern_view_update_column_description(self,UPDATE_COLUMN_POP);
       // remove local commands
       g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-      gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-      g_object_unref(main_window);    }
+      if(main_window) {
+        gtk_window_remove_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+        g_object_unref(main_window);
+      }
+    }
   }
   prev_page_num = page_num;
 }
@@ -1938,6 +1946,11 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,TRUE);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(self->priv->machine_menu),renderer,"text",MACHINE_MENU_LABEL,NULL);
   g_signal_connect(G_OBJECT(self->priv->machine_menu), "changed", G_CALLBACK(on_machine_menu_changed), (gpointer)self);
+  /*
+   * this won't work, as we can't pass anything to the event handler
+   * gtk_widget_add_accelerator(self->priv->machine_menu, "key-press-event", accel_group, GDK_Cursor_Up, GDK_CONTROL_MASK, 0);
+   * so, we need to subclass the combobox and add two signals: select-next, select-prev
+   */
 
   gtk_box_pack_start(GTK_BOX(box),gtk_label_new(_("Machine")),FALSE,FALSE,2);
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->machine_menu),TRUE,TRUE,2);
@@ -2064,25 +2077,12 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
   //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->pattern_pos_table,self->priv->pattern_table);
 
-
   GST_DEBUG("  before context menu",self);
-
   // generate the context menu
-  GtkWidget *mb=gtk_menu_bar_new();
-  gtk_widget_show(mb);
-  //gtk_container_add(GTK_CONTAINER(self),mb);
-  GtkWidget *mi=gtk_menu_item_new();
-  gtk_widget_show(mi);
-  gtk_container_add(GTK_CONTAINER(mb),mi);
-
   self->priv->accel_group=gtk_accel_group_new();
   self->priv->context_menu=GTK_MENU(gtk_menu_new());
   gtk_menu_set_accel_group(GTK_MENU(self->priv->context_menu), self->priv->accel_group);
   gtk_menu_set_accel_path(GTK_MENU(self->priv->context_menu),"<Buzztard-Main>/PatternView/PatternContext");
-
-  gtk_menu_item_set_submenu(GTK_MENU_ITEM(mi),GTK_WIDGET(self->priv->context_menu));
-  g_object_ref(self->priv->context_menu);
-  gtk_menu_detach(self->priv->context_menu);
 
   self->priv->context_menu_track_add=menu_item=gtk_image_menu_item_new_with_label(_("New track"));
   image=gtk_image_new_from_stock(GTK_STOCK_ADD,GTK_ICON_SIZE_MENU);
@@ -2353,6 +2353,10 @@ static void bt_main_page_patterns_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
+  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
+
   g_object_try_weak_unref(self->priv->app);
   GST_INFO("unref pattern: %p,refs=%d",
     self->priv->pattern,(self->priv->pattern?(G_OBJECT(self->priv->pattern))->ref_count:-1));
