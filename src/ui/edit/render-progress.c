@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.4 2007-08-09 19:50:25 ensonic Exp $
+/* $Id: render-progress.c,v 1.5 2007-08-24 20:36:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,6 +72,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   if(progress>=1.0) {
     progress=1.0;
     bt_song_stop(song);
+    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
   }
   GST_INFO("progress %ld/%ld=%lf",pos,length,progress);
 
@@ -97,12 +98,35 @@ static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointe
   g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
   if(!is_playing) {
     GST_INFO("stopped");
-    on_song_play_pos_notify(song,NULL,user_data);
-    //gtk_main_quit();
+    //on_song_play_pos_notify(song,NULL,user_data);
+    // gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
   }
 }
 
 //-- helper methods
+
+static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *song, BtSinkBin *sink_bin, gchar *file_name) {
+  gint result;
+  gchar *info;
+
+  g_object_set(sink_bin,"record-file-name",file_name,NULL);
+
+  GST_INFO("recording to '%s'",file_name);
+  info=g_strdup_printf(_("Recording to: %s"),file_name);
+  gtk_label_set_text(self->priv->info,info);
+  g_free(info);
+
+  bt_song_play(song);
+  result=gtk_dialog_run(GTK_DIALOG(self));
+  switch (result) {
+    case GTK_RESPONSE_ACCEPT:
+      return TRUE;
+    default:
+      bt_song_stop(song);
+      return FALSE;
+  }
+}
+
 
 static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
   GtkWidget *box;
@@ -163,6 +187,12 @@ Error:
 
 //-- methods
 
+/**
+ * bt_render_progress_run:
+ * @self: the progress-dialog
+ *
+ * Run the rendering and show the progress.
+ */
 void bt_render_progress_run(const BtRenderProgress *self) {
   BtSong *song;
   BtSetup *setup;
@@ -173,34 +203,46 @@ void bt_render_progress_run(const BtRenderProgress *self) {
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
-    gchar *file_name=NULL,*folder,*name;
+    gchar *file_name;
     BtSinkBinRecordFormat format;
+    BtRenderMode mode;
     BtSinkBin *sink_bin;
-    gchar *info;
 
     g_object_get(G_OBJECT(machine),"machine",&sink_bin,NULL);
-    g_object_get(G_OBJECT(self->priv->settings),"format",&format,"folder",&folder,"file-name",&name,NULL);
-
-    file_name=g_build_filename(folder,name,NULL);
-    g_free(folder);g_free(name);
-
-    GST_INFO("recording to '%s'",file_name);
-    info=g_strdup_printf(_("Recording to: %s"),file_name);
-    gtk_label_set_text(self->priv->info,info);
-    g_free(info);
-
-    // @todo eventually have a method for the sink bin to only update once after the changes
-    g_object_set(sink_bin,
-      "mode",BT_SINK_BIN_MODE_RECORD,
-      "record-format",format,
-      "record-file-name",file_name,
-      NULL);
+    g_object_get(G_OBJECT(self->priv->settings),"format",&format,"mode",&mode,"file-name",&file_name,NULL);
 
     g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
     g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
 
-    bt_song_play(song);
-    gtk_dialog_run(GTK_DIALOG(self));
+    g_object_set(sink_bin,
+      "mode",BT_SINK_BIN_MODE_RECORD,
+      "record-format",format,
+      NULL);
+
+    if(mode==BT_RENDER_MODE_MIXDOWN) {
+      bt_render_progress_record(self,song,sink_bin,file_name);
+    }
+    else {
+      GList *list,*node;
+      gchar *track_file_name;
+      guint track=0;
+      gboolean res;
+
+      list=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
+      for(node=list;node;node=g_list_next(node)) {
+        g_object_set(G_OBJECT(node->data),"state",BT_MACHINE_STATE_SOLO,NULL);
+
+        track_file_name=g_strdup_printf(file_name,track);
+        res=bt_render_progress_record(self,song,sink_bin,track_file_name);
+        g_free(track_file_name);
+
+        g_object_set(G_OBJECT(node->data),"state",BT_MACHINE_STATE_NORMAL,NULL);
+        if(!res) break;
+        track++;
+      }
+      g_list_free(list);
+    }
+
 
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);

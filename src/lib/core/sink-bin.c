@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.37 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: sink-bin.c,v 1.38 2007-08-24 20:36:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -153,13 +153,13 @@ GType bt_sink_bin_record_format_get_type(void) {
   static GType type = 0;
   if(G_UNLIKELY(type==0)) {
     static const GEnumValue values[] = {
-      { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, "BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS", "ogg vorbis" },
-      { BT_SINK_BIN_RECORD_FORMAT_MP3,        "BT_SINK_BIN_RECORD_FORMAT_MP3",        "mp3" },
-      { BT_SINK_BIN_RECORD_FORMAT_WAV,        "BT_SINK_BIN_RECORD_FORMAT_WAV",        "wav" },
-      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   "BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC",   "ogg flac" },
-      { BT_SINK_BIN_RECORD_FORMAT_RAW,        "BT_SINK_BIN_RECORD_FORMAT_RAW",        "raw" },
+      { BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, ".ogg", "ogg vorbis" },
+      { BT_SINK_BIN_RECORD_FORMAT_MP3,        ".mp3",        "mp3" },
+      { BT_SINK_BIN_RECORD_FORMAT_WAV,        ".wav",        "wav" },
+      { BT_SINK_BIN_RECORD_FORMAT_OGG_FLAC,   ".flac",   "ogg flac" },
+      { BT_SINK_BIN_RECORD_FORMAT_RAW,        ".raw",        "raw" },
       /*
-      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,   "BT_SINK_BIN_RECORD_FORMAT_MP4_AAC",   "mp4 aac" },
+      { BT_SINK_BIN_RECORD_FORMAT_MP4_AAC,   ".m4a",   "mp4 aac" },
       */
       { 0, NULL, NULL},
     };

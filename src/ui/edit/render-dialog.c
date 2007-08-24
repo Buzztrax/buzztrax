@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.9 2007-08-22 13:46:10 ensonic Exp $
+/* $Id: render-dialog.c,v 1.10 2007-08-24 20:36:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -24,8 +24,9 @@
  *
  * Provides UI to access the song recording
  */
-/* @todo: need readable properties for the settings
- * - folder + file_name should be combined when read
+/* @todo:
+ * - use chooserbutton to choose name too - no, it can not do save_as
+ * - use song-name based file-name by default
  */
 
 #define BT_EDIT
@@ -35,7 +36,6 @@
 
 enum {
   RENDER_DIALOG_APP=1,
-  RENDER_DIALOG_FOLDER,
   RENDER_DIALOG_FILENAME,
   RENDER_DIALOG_FORMAT,
   RENDER_DIALOG_MODE
@@ -48,22 +48,39 @@ struct _BtRenderDialogPrivate {
   /* the application */
   G_POINTER_ALIAS(BtEditApplication *,app);
 
+  /* dialog widgets */
+  GtkWidget *file_name_entry;
+  GtkWidget *format_menu;
+
   /* dialog data */
   gchar *folder,*filename;
   BtSinkBinRecordFormat format;
+  BtRenderMode mode;
 };
 
 static GtkDialogClass *parent_class=NULL;
 
-//-- event handler
 
-static void on_filename_changed(GtkEditable *editable,gpointer user_data) {
-  BtRenderDialog *self=BT_RENDER_DIALOG(user_data);
+static void on_format_menu_changed(GtkComboBox *menu, gpointer user_data);
 
-  g_assert(user_data);
-  g_free(self->priv->filename);
-  self->priv->filename=g_strdup(gtk_entry_get_text(GTK_ENTRY(editable)));
+
+//-- enums
+
+GType bt_render_mode_get_type(void) {
+  static GType type = 0;
+  if(G_UNLIKELY(type==0)) {
+    static const GEnumValue values[] = {
+      { BT_RENDER_MODE_MIXDOWN,       "BT_RENDER_MODE_MIXDOWN",       "mix to one track" },
+      { BT_RENDER_MODE_SINGLE_TRACKS, "BT_RENDER_MODE_SINGLE_TRACKS", "record one track for each source" },
+      { 0, NULL, NULL},
+    };
+    type = g_enum_register_static("BtRenderMode", values);
+  }
+  return type;
 }
+
+
+//-- event handler
 
 static void on_folder_changed(GtkFileChooser *chooser,gpointer user_data) {
   BtRenderDialog *self=BT_RENDER_DIALOG(user_data);
@@ -74,20 +91,120 @@ static void on_folder_changed(GtkFileChooser *chooser,gpointer user_data) {
   GST_WARNING("folder changed '%s'",self->priv->folder);
 }
 
+static void on_filename_changed(GtkEditable *editable,gpointer user_data) {
+  BtRenderDialog *self=BT_RENDER_DIALOG(user_data);
+
+  g_free(self->priv->filename);
+  self->priv->filename=g_strdup(gtk_entry_get_text(GTK_ENTRY(editable)));
+
+  // update format
+  if(self->priv->filename) {
+    GEnumClass *enum_class;
+    GEnumValue *enum_value;
+    guint i;
+
+    enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
+    for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
+      if((enum_value=g_enum_get_value(enum_class,i))) {
+        if(g_str_has_suffix(self->priv->filename,enum_value->value_name)) {
+          g_signal_handlers_block_matched(self->priv->format_menu,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_format_menu_changed,(gpointer)user_data);
+          gtk_combo_box_set_active(GTK_COMBO_BOX(self->priv->format_menu),i);
+          g_signal_handlers_unblock_matched(self->priv->format_menu,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_format_menu_changed,(gpointer)user_data);
+          break;
+        }
+      }
+    }
+  }
+}
+
 static void on_format_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtRenderDialog *self=BT_RENDER_DIALOG(user_data);
 
   self->priv->format=gtk_combo_box_get_active(menu);
+
+  // update filename
+  if(self->priv->filename) {
+    GEnumClass *enum_class;
+    GEnumValue *enum_value;
+    guint i;
+    gchar *fn=self->priv->filename;
+
+    enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
+    for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
+      if((enum_value=g_enum_get_value(enum_class,i))) {
+        if(g_str_has_suffix(fn,enum_value->value_name)) {
+          GST_INFO("found matching ext: %s",enum_value->value_name);
+          // replace this suffix, with the new
+          fn[strlen(fn)-strlen(enum_value->value_name)]='\0';
+          GST_INFO("cut fn to: %s",fn);
+          break;
+        }
+      }
+    }
+    enum_value=g_enum_get_value(enum_class,self->priv->format);
+    self->priv->filename=g_strdup_printf("%s%s",fn,enum_value->value_name);
+    GST_INFO("set new fn to: %s",self->priv->filename);
+    g_free(fn);
+    g_signal_handlers_block_matched(self->priv->file_name_entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_filename_changed,(gpointer)user_data);
+    gtk_entry_set_text(GTK_ENTRY(self->priv->file_name_entry), self->priv->filename);
+    g_signal_handlers_unblock_matched(self->priv->file_name_entry,G_SIGNAL_MATCH_FUNC|G_SIGNAL_MATCH_DATA,0,0,NULL,on_filename_changed,(gpointer)user_data);
+  }
+}
+
+static void on_mode_menu_changed(GtkComboBox *menu, gpointer user_data) {
+  BtRenderDialog *self=BT_RENDER_DIALOG(user_data);
+
+  self->priv->mode=gtk_combo_box_get_active(menu);
 }
 
 
 //-- helper methods
+
+static gchar *bt_render_dialog_make_file_name(const BtRenderDialog *self) {
+  gchar *file_name=g_build_filename(self->priv->folder,self->priv->filename,NULL);
+  gchar *track_str="";
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+
+  if(self->priv->mode==BT_RENDER_MODE_SINGLE_TRACKS) {
+    track_str=".%03u";
+  }
+
+  // add file suffix if not yet there
+  enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
+  enum_value=g_enum_get_value(enum_class,self->priv->format);
+  if(!g_str_has_suffix(file_name,enum_value->value_name)) {
+    gchar *tmp_file_name;
+
+    tmp_file_name=g_strdup_printf("%s%s%s",
+      file_name,track_str,enum_value->value_name);
+    g_free(file_name);
+    file_name=tmp_file_name;
+  }
+  else {
+    if(self->priv->mode==BT_RENDER_MODE_SINGLE_TRACKS) {
+      gchar *tmp_file_name;
+
+      file_name[strlen(file_name)-strlen(enum_value->value_name)]='\0';
+      tmp_file_name=g_strdup_printf("%s%s%s",
+        file_name,track_str,enum_value->value_name);
+      g_free(file_name);
+      file_name=tmp_file_name;
+    }
+  }
+  GST_INFO("record file template: '%s'",file_name);
+
+  return(file_name);
+}
 
 static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   GtkWidget *box,*label,*widget,*table;
   GEnumClass *enum_class;
   GEnumValue *enum_value;
   guint i;
+  BtSong *song;
+  BtSongInfo *song_info;
+  gchar *file_name=NULL,*ext;
 
   gtk_widget_set_name(GTK_WIDGET(self),_("song rendering"));
 
@@ -112,7 +229,7 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-  //gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (button), "/etc");
+  //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (button), "/etc");
   g_signal_connect(G_OBJECT(widget), "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
@@ -121,8 +238,19 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 1, 2, GTK_SHRINK,GTK_SHRINK, 2,1);
 
-  // query supported formats from sinkbin
-  widget=gtk_entry_new();
+  // set deault name
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
+  g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+  // cut off extension from file_name
+  if((ext=strchr(file_name,'.'))) *ext='\0';
+  self->priv->filename=g_strdup_printf("%s.ogg",file_name);
+  g_free(file_name);
+  g_object_try_unref(song_info);
+  g_object_try_unref(song);
+
+  self->priv->file_name_entry=widget=gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY (widget), self->priv->filename);
   g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_filename_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 1, 2, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
@@ -132,7 +260,7 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 2, 3, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   // query supported formats from sinkbin
-  widget=gtk_combo_box_new_text();
+  self->priv->format_menu=widget=gtk_combo_box_new_text();
   enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
   for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
     if((enum_value=g_enum_get_value(enum_class,i))) {
@@ -150,12 +278,17 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
 
   // query supported formats from sinkbin
   widget=gtk_combo_box_new_text();
-  gtk_combo_box_append_text(GTK_COMBO_BOX(widget),_("Mixdown"));
-  gtk_combo_box_append_text(GTK_COMBO_BOX(widget),_("Single tracks"));
-  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),0);
+  enum_class=g_type_class_peek_static(BT_TYPE_RENDER_MODE);
+  for(i=enum_class->minimum;i<=enum_class->maximum;i++) {
+    if((enum_value=g_enum_get_value(enum_class,i))) {
+      gtk_combo_box_append_text(GTK_COMBO_BOX(widget),enum_value->value_nick);
+    }
+  }
+  gtk_combo_box_set_active(GTK_COMBO_BOX(widget),BT_RENDER_MODE_MIXDOWN);
+  g_signal_connect(G_OBJECT(widget), "changed", G_CALLBACK(on_mode_menu_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 3, 4, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
-  /* @todo: add widgets and callbacks
+  /* @todo: add more widgets
     o write project file
       o none, jokosher, ...
   */
@@ -207,14 +340,16 @@ static void bt_render_dialog_get_property(GObject      *object,
     case RENDER_DIALOG_APP: {
       g_value_set_object(value, self->priv->app);
     } break;
-    case RENDER_DIALOG_FOLDER: {
-      g_value_set_string(value, self->priv->folder);
-    } break;
     case RENDER_DIALOG_FILENAME: {
-      g_value_set_string(value, self->priv->filename);
+      gchar *file_name=bt_render_dialog_make_file_name(self);
+      g_value_set_string(value, file_name);
+      g_free(file_name);
     } break;
     case RENDER_DIALOG_FORMAT: {
       g_value_set_enum(value, self->priv->format);
+    } break;
+    case RENDER_DIALOG_MODE: {
+      g_value_set_enum(value, self->priv->mode);
     } break;
     default: {
        G_OBJECT_WARN_INVALID_PROPERTY_ID(object,property_id,pspec);
@@ -288,13 +423,6 @@ static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
                                      BT_TYPE_EDIT_APPLICATION, /* object type */
                                      G_PARAM_CONSTRUCT_ONLY|G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property(gobject_class,RENDER_DIALOG_FOLDER,
-                                  g_param_spec_string("folder",
-                                     "folder prop",
-                                     "Get choosen folder",
-                                     NULL,
-                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
-
   g_object_class_install_property(gobject_class,RENDER_DIALOG_FILENAME,
                                   g_param_spec_string("file-name",
                                      "file-name prop",
@@ -309,7 +437,14 @@ static void bt_render_dialog_class_init(BtRenderDialogClass *klass) {
                                      BT_TYPE_SINK_BIN_RECORD_FORMAT,  /* enum type */
                                      BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS, /* default value */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
-  // @todo: add mode
+
+  g_object_class_install_property(gobject_class,RENDER_DIALOG_MODE,
+                                  g_param_spec_enum("mode",
+                                     "format mode",
+                                     "render-mode to use",
+                                     BT_TYPE_RENDER_MODE,  /* enum type */
+                                     BT_RENDER_MODE_MIXDOWN, /* default value */
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
 GType bt_render_dialog_get_type(void) {

@@ -1,4 +1,4 @@
-/* $Id: render-dialog.h,v 1.2 2007-07-20 07:58:17 ensonic Exp $
+/* $Id: render-dialog.h,v 1.3 2007-08-24 20:36:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,17 +45,34 @@ typedef struct _BtRenderDialogPrivate BtRenderDialogPrivate;
  */
 struct _BtRenderDialog {
   GtkDialog parent;
-  
+
   /*< private >*/
   BtRenderDialogPrivate *priv;
 };
 /* structure of the render-dialog class */
 struct _BtRenderDialogClass {
   GtkDialogClass parent;
-  
+
 };
+
+#define BT_TYPE_RENDER_MODE       (bt_render_mode_get_type())
+
+/**
+ * BtRenderMode:
+ * @BT_RENDER_MODE_MIXDOWN: mix to one track
+ * @BT_RENDER_MODE_SINGLE_TRACKS: record one track for each source
+ *
+ * Different modes of operation for the #BtSong rendering.
+ */
+typedef enum {
+  BT_RENDER_MODE_MIXDOWN=0,
+  BT_RENDER_MODE_SINGLE_TRACKS,
+} BtRenderMode;
+
 
 /* used by RENDER_DIALOG_TYPE */
 GType bt_render_dialog_get_type(void) G_GNUC_CONST;
+/* used by RENDER_MODE_TYPE */
+GType bt_render_mode_get_type(void) G_GNUC_CONST;
 
 #endif // BT_RENDER_DIALOG_H

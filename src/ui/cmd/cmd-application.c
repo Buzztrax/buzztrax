@@ -1,4 +1,4 @@
-/* $Id: cmd-application.c,v 1.93 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: cmd-application.c,v 1.94 2007-08-24 20:36:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -146,10 +146,25 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
   BtSinkBin *sink_bin;
   BtSinkBinRecordFormat format;
   gchar *lc_file_name,*file_name=NULL;
+  GEnumClass *enum_class;
+  GEnumValue *enum_value;
+  guint i;
+  gboolean matched=FALSE;
 
   g_object_get(G_OBJECT(song),"setup",&setup,NULL);
 
   lc_file_name=g_ascii_strdown(output_file_name,-1);
+
+  enum_class=g_type_class_peek_static(BT_TYPE_SINK_BIN_RECORD_FORMAT);
+  for(i=enum_class->minimum;(!matched && i<=enum_class->maximum);i++) {
+    if((enum_value=g_enum_get_value(enum_class,i))) {
+      if(g_str_has_suffix(lc_file_name,enum_value->value_name)) {
+        format=i;matched=TRUE;
+      }
+    }
+  }
+  if(!matched) {
+#if 0
   if(g_str_has_suffix(lc_file_name,".ogg")) {
     format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
   }
@@ -166,6 +181,7 @@ static gboolean bt_cmd_application_prepare_encoding(const BtCmdApplication *self
     format=BT_SINK_BIN_RECORD_FORMAT_RAW;
   }
   else {
+#endif
     GST_WARNING("unknown file-format extension, using ogg vorbis");
     format=BT_SINK_BIN_RECORD_FORMAT_OGG_VORBIS;
     file_name=g_strdup_printf("%s.ogg",output_file_name);

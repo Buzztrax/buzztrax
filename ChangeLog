@@ -1,3 +1,13 @@
+2007-08-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	* src/ui/cmd/cmd-application.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/render-dialog.h:
+	* src/ui/edit/render-progress.c:
+	  Implement much more of the recording. Made choosing filename + format
+	  more comfortable.
+
 2007-08-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:
