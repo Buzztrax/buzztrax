@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.105 2007-07-20 07:58:14 ensonic Exp $
+/* $Id: edit-application.c,v 1.106 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -518,7 +518,7 @@ void bt_edit_application_show_about(const BtEditApplication *self) {
     gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(self->priv->main_window));
     gtk_window_set_destroy_with_parent(GTK_WINDOW(dialog), TRUE);
     gtk_widget_show_all(GTK_WIDGET(dialog));
-  
+
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
   }
@@ -571,7 +571,12 @@ static void bt_edit_application_set_property(GObject      *object,
       // DEBUG
 
       if(self->priv->song) {
-        GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+        if(G_OBJECT(self->priv->song)->ref_count>1) {
+          GST_WARNING("old song->ref_ct=%d !",G_OBJECT(self->priv->song)->ref_count);
+        }
+        else {
+          GST_INFO("old song->ref_ct=%d",G_OBJECT(self->priv->song)->ref_count);
+        }
         g_object_unref(self->priv->song);
         // DEBUG - if new song is NULL, it should be empty now
 #if 0

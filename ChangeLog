@@ -1,3 +1,24 @@
+2007-08-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	  Fix solo.
+
+	* src/lib/core/song.c:
+	  Activate song-graph dump, on error.
+
+	* src/ui/edit/edit-application.c:
+	* src/ui/edit/main-menu.c:
+	  Accelerators for tab-switching.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Fix ref-count regression.
+
+	* src/ui/edit/main-toolbar.c:
+	  Try accelerators.
+	  
+	* src/ui/edit/render-dialog.c:
+	  Some todos.
+
 2007-08-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-page-info.c:

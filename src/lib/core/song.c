@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.189 2007-08-06 19:10:20 ensonic Exp $
+/* $Id: song.c,v 1.190 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -271,9 +271,9 @@ static gboolean bt_song_is_playable(const BtSong * const self) {
     }
     else {
       GST_WARNING ("checked %u elementes and %u pads, not all linked",element_ct, pad_ct);
+      bt_song_write_to_lowlevel_dot_file(self);
     }
   }
-  //bt_song_write_to_lowlevel_dot_file(self);
 
   // unconnected sources will throw an bus-error-message
   // unconnected effects don't harm

@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.119 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.120 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -519,6 +519,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkTooltips *tips;
   GtkWidget *box;
   gulong i;
+  //GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
 
   tips=gtk_tooltips_new();
   gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
@@ -551,6 +552,9 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play this song"),NULL);
+  //gtk_widget_set_accel_path (tool_item, "<Buzztard-Main>/MainToolbar/Play",accel_group);
+  //gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F5, 0);
+  //gtk_widget_add_accelerator(tool_item, "clicked", accel_group, GDK_F5, 0, GTK_ACCEL_VISIBLE);
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
   self->priv->play_button=tool_item;
@@ -558,6 +562,9 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP));
   gtk_widget_set_name(tool_item,_("Stop"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of this song"),NULL);
+  //gtk_widget_set_accel_path (tool_item, "<Buzztard-Main>/MainToolbar/Play",accel_group);
+  //gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F8, 0);
+  //gtk_widget_add_accelerator(tool_item, "clicked", accel_group, GDK_F8, 0, GTK_ACCEL_VISIBLE);
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);

@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.10 2007-08-24 20:36:17 ensonic Exp $
+/* $Id: render-dialog.c,v 1.11 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -88,7 +88,7 @@ static void on_folder_changed(GtkFileChooser *chooser,gpointer user_data) {
   g_free(self->priv->folder);
   self->priv->folder=gtk_file_chooser_get_current_folder(chooser);
 
-  GST_WARNING("folder changed '%s'",self->priv->folder);
+  GST_DEBUG("folder changed '%s'",self->priv->folder);
 }
 
 static void on_filename_changed(GtkEditable *editable,gpointer user_data) {

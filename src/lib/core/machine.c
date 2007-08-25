@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.272 2007-08-05 19:19:12 ensonic Exp $
+/* $Id: machine.c,v 1.273 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -308,12 +308,13 @@ static GstElement *bt_machine_get_source_peer(GstElement * const elem) {
 static gboolean bt_machine_set_mute(const BtMachine * const self,const BtSetup * const setup) {
   const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
 
-  if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
+  //if(self->priv->state==BT_MACHINE_STATE_MUTE) return(TRUE);
 
   if(self->priv->machines[part]) {
     g_object_set(self->priv->machines[part],"mute",TRUE,NULL);
     return(TRUE);
   }
+  GST_WARNING("can't mute element '%s'",self->priv->id);
   return(FALSE);
 }
 
@@ -323,12 +324,13 @@ static gboolean bt_machine_set_mute(const BtMachine * const self,const BtSetup *
 static gboolean bt_machine_unset_mute(const BtMachine *const self, const BtSetup * const setup) {
   const BtMachinePart part=BT_IS_SINK_MACHINE(self)?PART_INPUT_GAIN:PART_OUTPUT_GAIN;
 
-  if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
+  //if(self->priv->state!=BT_MACHINE_STATE_MUTE) return(TRUE);
 
   if(self->priv->machines[part]) {
     g_object_set(self->priv->machines[part],"mute",FALSE,NULL);
     return(TRUE);
   }
+  GST_WARNING("can't unmute element '%s'",self->priv->id);
   return(FALSE);
 }
 

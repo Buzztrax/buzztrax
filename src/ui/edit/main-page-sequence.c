@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.180 2007-08-24 20:41:48 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.181 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -800,6 +800,8 @@ static void sequence_table_clear(const BtMainPageSequence *self) {
       g_object_try_unref(machine);
     }
   }
+  g_object_unref(sequence);
+  g_object_unref(song);
 }
 
 static void remove_container_widget(GtkWidget *widget,gpointer user_data) {

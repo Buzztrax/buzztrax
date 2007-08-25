@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.75 2007-08-22 13:37:08 ensonic Exp $
+/* $Id: main-menu.c,v 1.76 2007-08-25 18:54:25 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -457,6 +457,7 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(G_OBJECT(settings),"toolbar-hide",&toolbar_hide,"tabs-hide",&tabs_hide,NULL);
   g_object_unref(settings);
+  //gtk_menu_set_accel_path(GTK_MENU(self),"<Buzztard-Main>/MainMenu");
 
   //-- file menu
   item=gtk_menu_item_new_with_mnemonic(_("_File"));
@@ -560,6 +561,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   menu=gtk_menu_new();
   gtk_widget_set_name(menu,_("view menu"));
   gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+  gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
+  gtk_menu_set_accel_path(GTK_MENU(menu),"<Buzztard-Main>/MainMenu/View");
 
   subitem=gtk_check_menu_item_new_with_mnemonic(_("Toolbar"));
   gtk_widget_set_name(subitem,_("Toolbar"));
@@ -585,30 +588,40 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to machine view"));
   gtk_widget_set_name(subitem,_("Machine view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_machines.png"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/MachineView");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/MachineView", GDK_F3, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_machine_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to pattern view"));
   gtk_widget_set_name(subitem,_("Pattern view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_patterns.png"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/PatternView");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/PatternView", GDK_F2, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_pattern_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to sequence view"));
   gtk_widget_set_name(subitem,_("Sequence view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_sequence.png"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/SequenceView");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/SequenceView", GDK_F4, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_sequence_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to wave table view"));
   gtk_widget_set_name(subitem,_("Wave table view"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_waves.png"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/WaveteableView");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/WaveteableView", GDK_F9, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_waves_view_activate),(gpointer)self);
 
   subitem=gtk_image_menu_item_new_with_mnemonic(_("Go to song information"));
   gtk_widget_set_name(subitem,_("Song information"));
   gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(subitem),gtk_image_new_from_filename("tab_info.png"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/View/InfoView");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/View/InfoView", GDK_F10, 0);
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_info_view_activate),(gpointer)self);
 
