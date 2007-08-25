@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.5 2007-08-24 20:36:17 ensonic Exp $
+/* $Id: render-progress.c,v 1.6 2007-08-25 20:38:21 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -72,7 +72,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   if(progress>=1.0) {
     progress=1.0;
     bt_song_stop(song);
-    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
+    gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_REJECT);
   }
   GST_INFO("progress %ld/%ld=%lf",pos,length,progress);
 
@@ -91,23 +91,11 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   g_object_unref(sequence);
 }
 
-static void on_song_is_playing_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
-  //BtRenderProgress *self=BT_RENDER_PROGRESS(user_data);
-  gboolean is_playing;
-
-  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
-  if(!is_playing) {
-    GST_INFO("stopped");
-    //on_song_play_pos_notify(song,NULL,user_data);
-    // gtk_dialog_response(GTK_DIALOG(self),GTK_RESPONSE_ACCEPT);
-  }
-}
-
 //-- helper methods
 
 static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *song, BtSinkBin *sink_bin, gchar *file_name) {
-  gint result;
   gchar *info;
+  gboolean is_playing;
 
   g_object_set(sink_bin,"record-file-name",file_name,NULL);
 
@@ -117,13 +105,14 @@ static gboolean bt_render_progress_record(const BtRenderProgress *self, BtSong *
   g_free(info);
 
   bt_song_play(song);
-  result=gtk_dialog_run(GTK_DIALOG(self));
-  switch (result) {
-    case GTK_RESPONSE_ACCEPT:
-      return TRUE;
-    default:
-      bt_song_stop(song);
-      return FALSE;
+  gtk_dialog_run(GTK_DIALOG(self));
+  g_object_get(G_OBJECT(song),"is-playing",&is_playing,NULL);
+  if(!is_playing) {
+    return(TRUE);
+  }
+  else {
+    bt_song_stop(song);
+    return FALSE;
   }
 }
 
@@ -137,17 +126,16 @@ static gboolean bt_render_progress_init_ui(const BtRenderProgress *self) {
 
   // add progress commision widgets (okay, cancel)
   gtk_dialog_add_buttons(GTK_DIALOG(self),
-                          GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
                           GTK_STOCK_CANCEL,GTK_RESPONSE_REJECT,
                           NULL);
+
+  gtk_dialog_set_default_response(GTK_DIALOG(self),GTK_RESPONSE_REJECT);
 
   // add widgets to the progress content area
   box=GTK_DIALOG(self)->vbox;  //gtk_vbox_new(FALSE,12);
   gtk_box_set_spacing(GTK_BOX(box),12);
   gtk_container_set_border_width(GTK_CONTAINER(box),6);
 
-  /* depending on mode, add one or two progress bars
-  */
 
   self->priv->info=GTK_LABEL(gtk_label_new(""));
   gtk_box_pack_start(GTK_BOX(box),GTK_WIDGET(self->priv->info),FALSE,FALSE,0);
@@ -196,10 +184,12 @@ Error:
 void bt_render_progress_run(const BtRenderProgress *self) {
   BtSong *song;
   BtSetup *setup;
+  BtSongInfo *song_info;
   BtMachine *machine;
+  gboolean unsaved;
 
   g_object_get(self->priv->app,"song",&song,NULL);
-  g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+  g_object_get(G_OBJECT(song),"setup",&setup,"song-info",&song_info,"unsaved",&unsaved,NULL);
 
   // lookup the audio-sink machine and change mode
   if((machine=bt_setup_get_machine_by_type(setup,BT_TYPE_SINK_MACHINE))) {
@@ -212,7 +202,6 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     g_object_get(G_OBJECT(self->priv->settings),"format",&format,"mode",&mode,"file-name",&file_name,NULL);
 
     g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_song_play_pos_notify), (gpointer)self);
-    g_signal_connect(G_OBJECT(song), "notify::is-playing", G_CALLBACK(on_song_is_playing_notify), (gpointer)self);
 
     g_object_set(sink_bin,
       "mode",BT_SINK_BIN_MODE_RECORD,
@@ -223,28 +212,40 @@ void bt_render_progress_run(const BtRenderProgress *self) {
       bt_render_progress_record(self,song,sink_bin,file_name);
     }
     else {
+      BtMachine *machine;
       GList *list,*node;
       gchar *track_file_name;
+      gchar *song_name,*track_name,*id;
       guint track=0;
       gboolean res;
 
+      g_object_get(G_OBJECT(song_info),"name",&song_name,NULL);
+
       list=bt_setup_get_machines_by_type(setup,BT_TYPE_SOURCE_MACHINE);
       for(node=list;node;node=g_list_next(node)) {
-        g_object_set(G_OBJECT(node->data),"state",BT_MACHINE_STATE_SOLO,NULL);
+        machine=BT_MACHINE(node->data);
+        g_object_set(G_OBJECT(machine),"state",BT_MACHINE_STATE_SOLO,NULL);
+
+        g_object_get(G_OBJECT(machine),"id",&id,NULL);
+        track_name=g_strdup_printf("%s : %s",song_name,id);
+        g_object_set(G_OBJECT(song_info),"name",track_name,NULL);
+        g_free(track_name);
+        g_free(id);
 
         track_file_name=g_strdup_printf(file_name,track);
         res=bt_render_progress_record(self,song,sink_bin,track_file_name);
         g_free(track_file_name);
 
-        g_object_set(G_OBJECT(node->data),"state",BT_MACHINE_STATE_NORMAL,NULL);
+        g_object_set(G_OBJECT(machine),"state",BT_MACHINE_STATE_NORMAL,NULL);
         if(!res) break;
         track++;
       }
+      g_object_set(G_OBJECT(song_info),"name",song_name,NULL);
       g_list_free(list);
+      g_free(song_name);
+      bt_song_set_unsaved(song,unsaved);
     }
 
-
-    g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_is_playing_notify,NULL);
     g_signal_handlers_disconnect_matched(song,G_SIGNAL_MATCH_FUNC,0,0,NULL,on_song_play_pos_notify,NULL);
 
     g_object_set(sink_bin,
@@ -255,6 +256,7 @@ void bt_render_progress_run(const BtRenderProgress *self) {
     gst_object_unref(sink_bin);
     g_object_unref(machine);
   }
+  g_object_try_unref(song_info);
   g_object_unref(setup);
   g_object_unref(song);
 }

@@ -1,5 +1,11 @@
 2007-08-25  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/render-progress.c:
+	  Restore song-unsaved state. Add track-name to tags. Remove okay button
+	  from progress dialog.
+
+2007-08-25  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	  Fix solo.
 
