@@ -1,4 +1,4 @@
-/* $Id: settings-dialog.c,v 1.45 2007-08-22 13:46:10 ensonic Exp $
+/* $Id: settings-dialog.c,v 1.46 2007-08-27 20:17:49 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -63,6 +63,7 @@ struct _BtSettingsDialogPrivate {
   BtSettingsPageAudiodevices *audiodevices_page;
   BtSettingsPageInteractionController *interaction_controller_page;
   BtSettingsPagePlaybackController *playback_controller_page;
+  BtSettingsPageDirectories *directories_page;
 };
 
 static GtkDialogClass *parent_class=NULL;
@@ -263,10 +264,8 @@ static gboolean bt_settings_dialog_init_ui(const BtSettingsDialog *self) {
   gtk_label_new(_("Shortcuts")));
 
   // add notebook page #6
-  page=gtk_vbox_new(FALSE,0);
-  gtk_widget_set_name(GTK_WIDGET(page),_("directory settings"));
-  gtk_container_add(GTK_CONTAINER(page),gtk_label_new("no settings on page 6 yet"));
-  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),page);
+  self->priv->directories_page=bt_settings_page_directories_new(self->priv->app);
+  gtk_container_add(GTK_CONTAINER(self->priv->settings_pages),GTK_WIDGET(self->priv->directories_page));
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self->priv->settings_pages),
   gtk_notebook_get_nth_page(GTK_NOTEBOOK(self->priv->settings_pages),BT_SETTINGS_PAGE_DIRECTORIES),
   gtk_label_new(_("Directories")));

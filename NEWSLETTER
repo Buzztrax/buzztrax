@@ -1,8 +1,17 @@
 2007/09 ========================================================================
 
+The first big change this month came from berzerka. He wrote midi support for
+the interaction controller subsystem. That required some extension of the
+classes, specificly adding a learn mechanism. That is you click a machine
+property, select learn, touch the midi-controller and done.
+
+One important requirement for a power tool, is having keyboard shortcuts for
+almost everything.
+
 * keyboard shortcuts
-* midi control
 * single/multi-track rendering ui
+* bugfixing
+* waffel installed gishi media wiki extension for syntax highlighting
 
 2007/08 ========================================================================
 

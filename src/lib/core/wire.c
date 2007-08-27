@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.113 2007-07-19 13:23:07 ensonic Exp $
+/* $Id: wire.c,v 1.114 2007-08-27 20:17:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -211,6 +211,11 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
   const GList* node;
   GstElement *prev,*next;
+#if 0
+  BtSequence *sequence;
+  gboolean is_playing;
+  gulong play_pos;
+#endif
 
   if(!self->priv->analyzers) return;
 
@@ -225,11 +230,58 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
     if(!(res=gst_element_link(prev,next))) {
       GST_INFO("cannot link elements \"%s\" -> \"%s\"",gst_element_get_name(prev),gst_element_get_name(next));
     }
+    prev=next;
+  }
+#if 0
+  g_object_get(self->priv->song,"is-playing",&is_playing,"play-pos",&play_pos,"sequence",&sequence,NULL);
+  if(is_playing) {
+    GstEvent *event;
+    gboolean loop;
+    glong loop_end,length;
+
+    g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
+    const GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
+
+    if (loop) {
+      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
+          GST_SEEK_TYPE_SET, (GstClockTime)play_pos*bar_time,
+          GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+0)*bar_time);
+    }
+    else {
+      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
+          GST_SEEK_FLAG_FLUSH,
+          GST_SEEK_TYPE_SET, (GstClockTime)play_pos*bar_time,
+          GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
+    }
+
+    for(node=self->priv->analyzers;node;node=g_list_next(node)) {
+      next=GST_ELEMENT(node->data);
+      if(gst_element_set_state(next,GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
+        GST_INFO("cannot go to paused state for elements \"%s\"",gst_element_get_name(next));
+      }
+    }
+    GST_INFO("sending seek to wire-analyzers");
+    next=GST_ELEMENT(self->priv->analyzers->data);
+    if(!(gst_element_send_event(next,event))) {
+      GST_WARNING("wire-analyzers failed to handle seek event");
+    }
+    for(node=self->priv->analyzers;node;node=g_list_next(node)) {
+      next=GST_ELEMENT(node->data);
+      if(gst_element_set_state(next,GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
+        GST_INFO("cannot go to playing state for elements \"%s\"",gst_element_get_name(next));
+      }
+    }
+  }
+  g_object_unref(sequence);
+#else
+  for(node=self->priv->analyzers;node;node=g_list_next(node)) {
+    next=GST_ELEMENT(node->data);
     if(!(gst_element_sync_state_with_parent(next))) {
       GST_INFO("cannot sync state for elements \"%s\"",gst_element_get_name(next));
     }
-    prev=next;
   }
+#endif
 }
 
 /*

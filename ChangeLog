@@ -1,3 +1,27 @@
+2007-08-27  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  More newsletter writing.
+
+	* buzztard.schemas.in:
+	* src/lib/core/gconf-settings.c:
+	* src/lib/core/libbtcore/settings-private.h:
+	* src/lib/core/settings.c:
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-waves.c:
+	* src/ui/edit/render-dialog.c:
+	* src/ui/edit/settings-dialog.c:
+	* src/ui/edit/settings-page-directories-methods.h:
+	* src/ui/edit/settings-page-directories.c:
+	* src/ui/edit/settings-page-directories.h:
+	  Add new default directory settings. Use them for wavespage and for
+	  recording.
+
+	* src/lib/core/song.c:
+	* src/lib/core/wire.c:
+	  Some more comments and experiments.
+
 2007-08-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/render-progress.c:

@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.190 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: song.c,v 1.191 2007-08-27 20:17:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -115,6 +115,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
 
   GST_INFO("loop %d? %ld, length %ld, bar_time %"G_GINT64_FORMAT,loop,loop_end,length,bar_time);
 
+  // we need to flush, otheriwse mixing goes out of sync */
   if (loop) {
     event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,

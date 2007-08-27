@@ -1,4 +1,4 @@
-/* $Id: main-page-waves.c,v 1.47 2007-05-07 14:45:46 ensonic Exp $
+/* $Id: main-page-waves.c,v 1.48 2007-08-27 20:17:49 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -237,6 +237,15 @@ static void on_toolbar_style_changed(const BtSettings *settings,GParamSpec *arg,
   g_free(toolbar_style);
 }
 
+static void on_default_sample_folder_changed(const BtSettings *settings,GParamSpec *arg,gpointer user_data) {
+  BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
+  gchar *sample_folder;
+
+  g_object_get(G_OBJECT(settings),"sample-folder",&sample_folder,NULL);
+  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (self->priv->file_chooser), sample_folder);
+  g_free(sample_folder);
+}
+
 static void on_browser_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
   BtMainPageWaves *self=BT_MAIN_PAGE_WAVES(user_data);
   gchar *uri;
@@ -415,6 +424,8 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
 
   tips=gtk_tooltips_new();
 
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  
   // vpane
   vpaned=gtk_vpaned_new();
   gtk_container_add(GTK_CONTAINER(self),vpaned);
@@ -502,17 +513,6 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   // this causes warning on gtk 2.x
   // Gtk-CRITICAL **: gtk_file_system_path_is_local: assertion `path != NULL' failed
   self->priv->file_chooser=gtk_file_chooser_widget_new(GTK_FILE_CHOOSER_ACTION_OPEN);
-  /* this does not help :(
-  {
-    gchar *current_dir,*current_dir_uri;
-
-    current_dir = g_get_current_dir ();
-    current_dir_uri = g_filename_to_uri (current_dir, NULL, NULL);
-    g_free(current_dir);
-    gtk_file_chooser_set_current_folder_uri(GTK_FILE_CHOOSER(self->priv->file_chooser),current_dir_uri);
-    g_free(current_dir_uri);
-  }
-  */
   g_signal_connect(G_OBJECT(self->priv->file_chooser),"file-activated",G_CALLBACK(on_file_chooser_load_sample),(gpointer)self);
   //g_signal_connect(G_OBJECT(self->priv->file_chooser),"update-preview",G_CALLBACK(on_file_chooser_info_sample),(gpointer)self);
   gtk_box_pack_start(GTK_BOX(box),self->priv->file_chooser,TRUE,TRUE,6);
@@ -560,10 +560,12 @@ static gboolean bt_main_page_waves_init_ui(const BtMainPageWaves *self,const BtM
   g_signal_connect(G_OBJECT(self->priv->waves_list),"cursor-changed",G_CALLBACK(on_waves_list_cursor_changed),(gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
 
-  // let settings control toolbar style
-  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  // let settings control toolbar style and listen to other settings changes
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
+  on_default_sample_folder_changed(settings,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(settings), "notify::sample-folder", G_CALLBACK(on_default_sample_folder_changed), (gpointer)self);
+
   g_object_unref(settings);
 
   GST_DEBUG("  done");

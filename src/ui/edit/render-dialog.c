@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.11 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: render-dialog.c,v 1.12 2007-08-27 20:17:49 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -198,6 +198,7 @@ static gchar *bt_render_dialog_make_file_name(const BtRenderDialog *self) {
 }
 
 static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
+  BtSettings *settings;
   GtkWidget *box,*label,*widget,*table;
   GEnumClass *enum_class;
   GEnumValue *enum_value;
@@ -205,6 +206,11 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   BtSong *song;
   BtSongInfo *song_info;
   gchar *file_name=NULL,*ext;
+  
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(settings,"record-folder",&self->priv->folder,NULL);
+  g_object_unref(settings);
+  
 
   gtk_widget_set_name(GTK_WIDGET(self),_("song rendering"));
 
@@ -224,12 +230,13 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   table=gtk_table_new(/*rows=*/5,/*columns=*/2,/*homogenous=*/FALSE);
   gtk_container_add(GTK_CONTAINER(box),table);
 
+
   label=gtk_label_new(_("Folder"));
   gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
   gtk_table_attach(GTK_TABLE(table),label, 0, 1, 0, 1, GTK_SHRINK,GTK_SHRINK, 2,1);
 
   widget=gtk_file_chooser_button_new(_("Select a folder"), GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
-  //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (button), "/etc");
+  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER (widget), self->priv->folder);
   g_signal_connect(G_OBJECT(widget), "selection-changed", G_CALLBACK(on_folder_changed), (gpointer)self);
   gtk_table_attach(GTK_TABLE(table),widget, 1, 2, 0, 1, GTK_FILL|GTK_EXPAND,GTK_FILL|GTK_EXPAND, 2,1);
 
@@ -242,10 +249,15 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
-  // cut off extension from file_name
-  if((ext=strchr(file_name,'.'))) *ext='\0';
-  self->priv->filename=g_strdup_printf("%s.ogg",file_name);
-  g_free(file_name);
+  if(file_name) {
+    // cut off extension from file_name
+    if((ext=strchr(file_name,'.'))) *ext='\0';
+    self->priv->filename=g_strdup_printf("%s.ogg",file_name);
+    g_free(file_name);
+  }
+  else {
+    self->priv->filename=g_strdup_printf(".ogg");
+  }
   g_object_try_unref(song_info);
   g_object_try_unref(song);
 

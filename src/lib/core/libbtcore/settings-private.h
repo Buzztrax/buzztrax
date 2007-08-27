@@ -1,4 +1,4 @@
-/* $Id: settings-private.h,v 1.13 2007-03-25 14:18:31 ensonic Exp $
+/* $Id: settings-private.h,v 1.14 2007-08-27 20:17:49 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,6 +33,9 @@ enum {
   BT_SETTINGS_MISSING_MACHINES,
   BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
   BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_PORT,
+  BT_SETTINGS_FOLDER_SONG,
+  BT_SETTINGS_FOLDER_RECORD,
+  BT_SETTINGS_FOLDER_SAMPLE,
   /* @todo additional application settings
   */
   BT_SETTINGS_SYSTEM_AUDIOSINK,

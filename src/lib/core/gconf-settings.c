@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.37 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.38 2007-08-27 20:17:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -163,6 +163,43 @@ static void bt_gconf_settings_get_property(GObject      * const object,
       GST_DEBUG("application reads playback-controller/coherence-upnp-port gconf_settings : '%u'",prop);
       g_value_set_uint(value, prop);
     } break;
+    /* directory settings */
+    case BT_SETTINGS_FOLDER_SONG: {
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/song-folder",NULL);
+      if(prop) {
+        GST_DEBUG("application reads song-folder gconf_settings : '%s'",prop);
+        g_value_set_string(value, prop);
+        g_free(prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] song-folder gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
+        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+      }
+    } break;   
+    case BT_SETTINGS_FOLDER_RECORD: {
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/record-folder",NULL);
+      if(prop) {
+        GST_DEBUG("application reads record-folder gconf_settings : '%s'",prop);
+        g_value_set_string(value, prop);
+        g_free(prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] record-folder gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
+        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+      }
+    } break;   
+    case BT_SETTINGS_FOLDER_SAMPLE: {
+      gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-folder",NULL);
+      if(prop) {
+        GST_DEBUG("application reads sample-folder gconf_settings : '%s'",prop);
+        g_value_set_string(value, prop);
+        g_free(prop);
+      }
+      else {
+        GST_DEBUG("application reads [def] sample-folder gconf_settings : '%s'",((GParamSpecString *)pspec)->default_value);
+        g_value_set_string(value, ((GParamSpecString *)pspec)->default_value);
+      }
+    } break;   
     /* system settings */
     case BT_SETTINGS_SYSTEM_AUDIOSINK: {
       gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_GSTREAMER"/audiosink",NULL);
@@ -249,6 +286,31 @@ static void bt_gconf_settings_set_property(GObject      * const object,
       guint prop=g_value_get_uint(value);
       GST_DEBUG("application writes playback-controller/coherence-upnp-port gconf_settings : %u",prop);
       gconf_ret=gconf_client_set_int(self->priv->client,BT_GCONF_PATH_BUZZTARD"/playback-controller/coherence-upnp-port",prop,NULL);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    /* directory settings */
+    case BT_SETTINGS_FOLDER_SONG: {
+      gboolean gconf_ret=FALSE;
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes song-folder gconf_settings : %s",prop);
+      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/song-folder",prop,NULL);
+      g_free(prop);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_FOLDER_RECORD: {
+      gboolean gconf_ret=FALSE;
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes record-folder gconf_settings : %s",prop);
+      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/record-folder",prop,NULL);
+      g_free(prop);
+      g_return_if_fail(gconf_ret == TRUE);
+    } break;
+    case BT_SETTINGS_FOLDER_SAMPLE: {
+      gboolean gconf_ret=FALSE;
+      gchar *prop=g_value_dup_string(value);
+      GST_DEBUG("application writes sample-folder gconf_settings : %s",prop);
+      gconf_ret=gconf_client_set_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-folder",prop,NULL);
+      g_free(prop);
       g_return_if_fail(gconf_ret == TRUE);
     } break;
     /* system settings */

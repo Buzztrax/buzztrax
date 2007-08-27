@@ -95,5 +95,46 @@
         <long>The port number for the communication with the coherence backend.</long>
       </locale>
     </schema>
+    <!-- directory settings -->
+    <schema>
+      <key>/schemas/apps/buzztard/song-folder</key>
+      <applyto>/apps/buzztard/song-folder</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default></default>
+        <short>Default directory for songs</short>
+        <long>
+          Default directory for filechoosers, when loading existing or saving new songs.
+        </long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/record-folder</key>
+      <applyto>/apps/buzztard/record-folder</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default></default>
+        <short>Default directory for recordings</short>
+        <long>
+          Default directory song recordings.
+        </long>
+      </locale>
+    </schema>
+    <schema>
+      <key>/schemas/apps/buzztard/sample-folder</key>
+      <applyto>/apps/buzztard/sample-folder</applyto>
+      <owner>buzztard</owner>
+      <type>string</type>
+      <locale name="C">
+        <default></default>
+        <short>Default directory for digital waveforms</short>
+        <long>
+          Default directory for the sample browser in the wavetable view.
+        </long>
+      </locale>
+    </schema>
+    
   </schemalist>
 </gconfschemafile>

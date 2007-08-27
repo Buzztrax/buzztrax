@@ -42,6 +42,7 @@ libbtedit_la_SOURCES   = \
 	render-progress.c render-progress.h render-progress-methods.h \
 	settings-dialog.c settings-dialog.h settings-dialog-methods.h \
 	settings-page-audiodevices.c settings-page-audiodevices.h settings-page-audiodevices-methods.h \
+	settings-page-directories.c settings-page-directories.h settings-page-directories-methods.h \
 	settings-page-interaction-controller.c settings-page-interaction-controller.h settings-page-interaction-controller-methods.h \
 	settings-page-playback-controller.c settings-page-playback-controller.h settings-page-playback-controller-methods.h \
 	tools.c tools.h \

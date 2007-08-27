@@ -1,4 +1,4 @@
-/* $Id: settings.c,v 1.39 2007-08-16 08:25:57 ensonic Exp $
+/* $Id: settings.c,v 1.40 2007-08-27 20:17:48 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -217,7 +217,7 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      "missing-machines prop",
                                      "list of missing machines to ignore",
                                      NULL, /* default value */
-                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));                                     
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   // playback controller
   g_object_class_install_property(gobject_class,BT_SETTINGS_PLAYBACK_CONTROLLER_COHERENCE_UPNP_ACTIVE,
@@ -235,8 +235,30 @@ static void bt_settings_class_init(BtSettingsClass * const klass) {
                                      G_MAXUINT,
                                      7654, /* default value */
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
-  // system settings
 
+  // directory settings
+  g_object_class_install_property(gobject_class,BT_SETTINGS_FOLDER_SONG,
+                                  g_param_spec_string("song-folder",
+                                     "song-folder prop",
+                                     "default directory for songs",
+                                     g_get_home_dir(), /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,BT_SETTINGS_FOLDER_RECORD,
+                                  g_param_spec_string("record-folder",
+                                     "record-folder prop",
+                                     "default directory for recordings",
+                                     g_get_home_dir(), /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  
+  g_object_class_install_property(gobject_class,BT_SETTINGS_FOLDER_SAMPLE,
+                                  g_param_spec_string("sample-folder",
+                                     "sample-folder prop",
+                                     "default directory for sample-waveforms",
+                                     g_get_home_dir(), /* default value */
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+  
+  // system settings
   g_object_class_install_property(gobject_class,BT_SETTINGS_SYSTEM_AUDIOSINK,
                                   g_param_spec_string("system-audiosink",
                                      "system-audiosink prop",
