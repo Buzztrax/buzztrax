@@ -1,5 +1,10 @@
 2007-08-29  Stefan Kost  <ensonic@users.sf.net>
 
+	* po/de.po:
+	  Update strings.
+
+2007-08-29  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/main-window.c:
 	  Use song-folder friom settings.
 

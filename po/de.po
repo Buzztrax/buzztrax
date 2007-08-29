@@ -163,7 +163,7 @@ msgstr "-> Sie werden keinen Pegelanzeigen sehen."
 msgid "-> You will not see the frequency spectrum in the analyzer window."
 msgstr "-> Sie werden kein Frequenzspektum im Analysefenster sehen."
 
-#: ../src/ui/edit/interaction-controller-menu.c:141
+#: ../src/ui/edit/interaction-controller-menu.c:175
 msgid "Learn..."
 msgstr ""
 
@@ -1117,38 +1117,38 @@ msgstr "Länge"
 msgid "voices"
 msgstr "Stimmen"
 
-#: ../src/ui/edit/render-dialog.c:92 ../src/ui/edit/render-dialog.c:94
+#: ../src/ui/edit/render-dialog.c:94 ../src/ui/edit/render-dialog.c:96
 #, fuzzy
 msgid "song rendering"
 msgstr "Songinformationen"
 
-#: ../src/ui/edit/render-dialog.c:110
+#: ../src/ui/edit/render-dialog.c:112
 msgid "Folder"
 msgstr ""
 
-#: ../src/ui/edit/render-dialog.c:114
+#: ../src/ui/edit/render-dialog.c:116
 msgid "Select a folder"
 msgstr ""
 
-#: ../src/ui/edit/render-dialog.c:120
+#: ../src/ui/edit/render-dialog.c:122
 #, fuzzy
 msgid "Filename"
 msgstr "Name"
 
-#: ../src/ui/edit/render-dialog.c:130
+#: ../src/ui/edit/render-dialog.c:132
 #, fuzzy
 msgid "Format"
 msgstr "normal"
 
-#: ../src/ui/edit/render-dialog.c:147
+#: ../src/ui/edit/render-dialog.c:149
 msgid "Mode"
 msgstr ""
 
-#: ../src/ui/edit/render-dialog.c:153
+#: ../src/ui/edit/render-dialog.c:155
 msgid "Mixdown"
 msgstr ""
 
-#: ../src/ui/edit/render-dialog.c:154
+#: ../src/ui/edit/render-dialog.c:156
 #, fuzzy
 msgid "Single tracks"
 msgstr "Neue Spur"
