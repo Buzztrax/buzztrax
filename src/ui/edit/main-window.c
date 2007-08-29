@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.93 2007-08-22 13:37:08 ensonic Exp $
+/* $Id: main-window.c,v 1.94 2007-08-29 20:19:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -391,15 +391,22 @@ void bt_main_window_new_song(const BtMainWindow *self) {
  * be loaded and the ui will be refreshed upon success.
  */
 void bt_main_window_open_song(const BtMainWindow *self) {
+  BtSettings *settings;
   GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Open a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_OPEN,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
 				      NULL);
   gint result;
-  gchar *file_name=NULL;
+  gchar *folder_name,*file_name=NULL;
 
   // set a default songs folder
-  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
+  //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
+  g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
+  g_object_get(settings,"song-folder",&folder_name,NULL);
+  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),folder_name);
+  g_free(folder_name);
+  g_object_unref(settings);
+ 
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -467,6 +474,7 @@ void bt_main_window_save_song(const BtMainWindow *self) {
  * the song under.
  */
 void bt_main_window_save_song_as(const BtMainWindow *self) {
+  BtSettings *settings;
   BtSong *song;
   BtSongInfo *song_info;
   GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -474,19 +482,24 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
   gint result;
-  gchar *file_name=NULL,*file_path;
+  gchar *folder_name,*file_name=NULL,*file_path;
 
   // get songs file-name
-  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+  g_object_get(settings,"song-folder",&folder_name,NULL);
   // set a default file_name
-  // @todo: use g_build_filename()
-  file_path=g_strconcat(DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S,file_name,NULL);
-  gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_path);
+  file_path=g_build_filename(folder_name,file_name,NULL);
   GST_INFO("generated default path is %s",file_path);
+  gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_path);
   g_free(file_name);file_name=NULL;
   g_free(file_path);
+  g_free(folder_name);
+  g_object_unref(settings);
+  g_object_unref(song_info);
+  g_object_unref(song);
+
   result=gtk_dialog_run(GTK_DIALOG(dialog));
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -539,8 +552,6 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     }
     g_free(file_name);
   }
-  g_object_try_unref(song_info);
-  g_object_try_unref(song);
 }
 
 //-- wrapper

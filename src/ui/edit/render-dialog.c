@@ -1,4 +1,4 @@
-/* $Id: render-dialog.c,v 1.12 2007-08-27 20:17:49 ensonic Exp $
+/* $Id: render-dialog.c,v 1.13 2007-08-29 20:19:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -207,10 +207,13 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
   BtSongInfo *song_info;
   gchar *file_name=NULL,*ext;
   
+  GST_DEBUG("prepare render dialog");
+  
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"record-folder",&self->priv->folder,NULL);
   g_object_unref(settings);
-  
+
+  GST_DEBUG("read settings");
 
   gtk_widget_set_name(GTK_WIDGET(self),_("song rendering"));
 
@@ -305,6 +308,8 @@ static gboolean bt_render_dialog_init_ui(const BtRenderDialog *self) {
       o none, jokosher, ...
   */
 
+  GST_DEBUG("done");
+  
   return(TRUE);
 }
 
