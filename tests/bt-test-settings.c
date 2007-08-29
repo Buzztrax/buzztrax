@@ -1,4 +1,4 @@
-/* $Id: bt-test-settings.c,v 1.5 2007-07-20 13:49:25 ensonic Exp $
+/* $Id: bt-test-settings.c,v 1.6 2007-08-29 14:48:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -82,6 +82,9 @@ static void bt_test_settings_get_property(GObject      * const object,
     case BT_SETTINGS_NEWS_SEEN:
     case BT_SETTINGS_MISSING_MACHINES:
     case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
+    case BT_SETTINGS_FOLDER_SONG:
+    case BT_SETTINGS_FOLDER_RECORD:
+    case BT_SETTINGS_FOLDER_SAMPLE:
     {
       if(prop) {
         g_value_set_string(value, g_value_get_string(prop));
@@ -131,7 +134,11 @@ static void bt_test_settings_set_property(GObject      * const object,
     case BT_SETTINGS_SYSTEM_AUDIOSINK:
     case BT_SETTINGS_MACHINE_VIEW_GRID_DENSITY:
     case BT_SETTINGS_NEWS_SEEN:
-    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE: {
+    case BT_SETTINGS_SYSTEM_TOOLBAR_STYLE:
+    case BT_SETTINGS_FOLDER_SONG:
+    case BT_SETTINGS_FOLDER_RECORD:
+    case BT_SETTINGS_FOLDER_SAMPLE:
+    {
       if(!prop) {
         prop=self->priv->settings[property_id]=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_STRING);
@@ -139,7 +146,8 @@ static void bt_test_settings_set_property(GObject      * const object,
       g_value_set_string(prop, g_value_dup_string(value));
     } break;
     case BT_SETTINGS_MENU_TOOLBAR_HIDE:
-    case BT_SETTINGS_MENU_TABS_HIDE: {
+    case BT_SETTINGS_MENU_TABS_HIDE:
+    {
       if(!prop) {
         prop=self->priv->settings[property_id]=g_new0(GValue,1);
         g_value_init(prop,G_TYPE_BOOLEAN);

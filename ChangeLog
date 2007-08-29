@@ -1,3 +1,8 @@
+2007-08-29  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/bt-test-settings.c:
+	  Also updating test settings.
+
 2007-08-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
