@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.120 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.121 2007-08-30 15:35:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -193,11 +193,13 @@ static void on_toolbar_play_clicked(GtkButton *button, gpointer user_data) {
   BtMainToolbar *self=BT_MAIN_TOOLBAR(user_data);
 
   g_assert(user_data);
+  
+  GST_WARNING("toolbar play event occurred");
 
   if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(button))) {
     BtSong *song;
 
-    GST_INFO("toolbar play event occurred");
+    GST_INFO("toolbar play activated");
 
     // get song from app and start playback
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
@@ -217,7 +219,7 @@ static void on_toolbar_stop_clicked(GtkButton *button, gpointer user_data) {
 
   g_assert(user_data);
 
-  GST_INFO("toolbar stop event occurred");
+  GST_WARNING("toolbar stop event occurred");
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
   bt_song_stop(song);
@@ -519,7 +521,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   GtkTooltips *tips;
   GtkWidget *box;
   gulong i;
-  //GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
+  GtkAccelGroup *accel_group=bt_ui_ressources_get_accel_group();
 
   tips=gtk_tooltips_new();
   gtk_widget_set_name(GTK_WIDGET(self),_("main tool bar"));
@@ -552,9 +554,20 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY));
   gtk_widget_set_name(tool_item,_("Play"));
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Play this song"),NULL);
+  // this yields: gtk_widget_set_accel_path: assertion `GTK_WIDGET_GET_CLASS (widget)->activate_signal != 0' failed 
   //gtk_widget_set_accel_path (tool_item, "<Buzztard-Main>/MainToolbar/Play",accel_group);
   //gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F5, 0);
-  //gtk_widget_add_accelerator(tool_item, "clicked", accel_group, GDK_F5, 0, GTK_ACCEL_VISIBLE);
+  // this in turn does not toggle the togle button :/ -> we should check GtkAction
+  //gtk_widget_add_accelerator(tool_item, "clicked", accel_group, GDK_F5, 0, 0);
+#if 1
+  GtkActionGroup *action_group;
+  GtkAction *action;
+
+  action_group=gtk_action_group_new("MainToolbar");
+  action=gtk_action_new (_("Play"),_("Play"),_("Play this song"),GTK_STOCK_MEDIA_PLAY);
+  gtk_action_group_add_action_with_accel(action_group, action, "F5");
+  gtk_action_connect_proxy(action,tool_item);
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_play_clicked),(gpointer)self);
   self->priv->play_button=tool_item;
@@ -564,7 +577,7 @@ static gboolean bt_main_toolbar_init_ui(const BtMainToolbar *self) {
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Stop playback of this song"),NULL);
   //gtk_widget_set_accel_path (tool_item, "<Buzztard-Main>/MainToolbar/Play",accel_group);
   //gtk_accel_map_add_entry ("<Buzztard-Main>/MainToolbar/Play", GDK_F8, 0);
-  //gtk_widget_add_accelerator(tool_item, "clicked", accel_group, GDK_F8, 0, GTK_ACCEL_VISIBLE);
+  gtk_widget_add_accelerator(tool_item, "clicked", accel_group, GDK_F8, 0, 0);
   gtk_toolbar_insert(GTK_TOOLBAR(self),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_stop_clicked),(gpointer)self);
   gtk_widget_set_sensitive(tool_item,FALSE);
