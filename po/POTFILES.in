@@ -38,6 +38,7 @@ src/ui/edit/render-dialog.c
 src/ui/edit/render-progress.c
 src/ui/edit/settings-dialog.c
 src/ui/edit/settings-page-audiodevices.c
+src/ui/edit/settings-page-directories.c
 src/ui/edit/settings-page-interaction-controller.c
 src/ui/edit/settings-page-playback-controller.c
 src/ui/edit/tools.c

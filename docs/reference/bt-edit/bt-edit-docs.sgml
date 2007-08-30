@@ -37,6 +37,7 @@
 <!ENTITY BtSettingsPageAudiodevices SYSTEM "xml/btsettingspageaudiodevices.xml">
 <!ENTITY BtSettingsPageInteractionController SYSTEM "xml/btsettingspageinteractioncontroller.xml">
 <!ENTITY BtSettingsPagePlaybackController SYSTEM "xml/btsettingspageplaybackcontroller.xml">
+<!ENTITY BtSettingsPageDirectories SYSTEM "xml/btsettingspagedirectories.xml">
 <!ENTITY BtUIRessources SYSTEM "xml/btuiressources.xml">
 <!ENTITY BtVolumePopup SYSTEM "xml/btvolumepopup.xml">
 <!ENTITY BtWireCanvasItem SYSTEM "xml/btwirecanvasitem.xml">
@@ -107,6 +108,7 @@
     &BtSettingsPageAudiodevices;
     &BtSettingsPageInteractionController;
     &BtSettingsPagePlaybackController;
+    &BtSettingsPageDirectories;
     &BtUIRessources;
     &BtWireCanvasItem;
     &BtVolumePopup;

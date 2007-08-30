@@ -1,4 +1,4 @@
-# $Id: bt-edit-sections.txt,v 1.41 2007-08-22 13:37:07 ensonic Exp $
+# $Id: bt-edit-sections.txt,v 1.42 2007-08-30 08:57:56 ensonic Exp $
 # :mode=html:
 
 # please add section in the alpahbetical order using the following template
@@ -642,6 +642,29 @@ BT_TYPE_SETTINGS_PAGE_PLAYBACK_CONTROLLER
 bt_settings_page_playback_controller_get_type
 BtSettingsPagePlaybackControllerPrivate
 </SECTION>
+
+
+<SECTION>
+<FILE>btsettingspagedirectories</FILE>
+<TITLE>BtSettingsPageDirectories</TITLE>
+BtSettingsPageDirectories
+BtRenderMode
+bt_settings_page_directories_new
+<SUBSECTION Standard>
+BtSettingsPageDirectoriesClass
+BT_SETTINGS_PAGE_DIRECTORIES
+BT_IS_SETTINGS_PAGE_DIRECTORIES
+BT_SETTINGS_PAGE_DIRECTORIES_CLASS
+BT_IS_SETTINGS_PAGE_DIRECTORIES_CLASS
+BT_SETTINGS_PAGE_DIRECTORIES_GET_CLASS
+BT_TYPE_SETTINGS_PAGE_DIRECTORIES
+BT_TYPE_RENDER_MODE
+<SUBSECTION Private>
+bt_settings_page_directories_get_type
+bt_render_mode_get_type
+BtSettingsPageDirectoriesPrivate
+</SECTION>
+
 
 <SECTION>
 <FILE>btuiressources</FILE>
