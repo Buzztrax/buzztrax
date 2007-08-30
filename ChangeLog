@@ -1,3 +1,8 @@
+2007-08-30  Stefan Kost  <ensonic@users.sf.net>
+
+	* tests/ui/edit/e-bt-render-dialog.c:
+	  Create song, to fix the failing test.
+
 2007-08-29  Stefan Kost  <ensonic@users.sf.net>
 
 	* po/de.po:

@@ -1,4 +1,4 @@
-/* $Id: e-bt-render-dialog.c,v 1.2 2007-07-20 13:49:27 ensonic Exp $
+/* $Id: e-bt-render-dialog.c,v 1.3 2007-08-30 07:22:24 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,6 +44,9 @@ BT_START_TEST(test_create_dialog) {
   app=bt_edit_application_new();
   GST_INFO("back in test app=%p, app->ref_ct=%d",app,G_OBJECT(app)->ref_count);
   fail_unless(app != NULL, NULL);
+
+  // create a new song
+  bt_edit_application_new_song(app);
 
   // get window
   g_object_get(app,"main-window",&main_window,NULL);
