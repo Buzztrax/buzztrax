@@ -1,3 +1,8 @@
+2007-08-31  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/ic/libbtic/Makefile.am:
+	  Add missing files to install.
+
 2007-08-30  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/main-toolbar.c:
