@@ -1,3 +1,9 @@
+2007-09-02  Patric Schmitz  <berzerka@users.sourceforge.net>
+
+	* src/lib/ic/midi-device.c:
+	(btic_midi_device_register_learned_control):
+	  register control only if it hasnt already been learned
+
 2007-09-02  Stefan Kost  <ensonic@users.sf.net>
 
 	* autogen.sh:

@@ -1,4 +1,4 @@
-/* $Id: midi-device.c,v 1.9 2007-08-20 20:10:43 ensonic Exp $
+/* $Id: midi-device.c,v 1.10 2007-09-02 18:53:16 berzerka Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -180,15 +180,17 @@ static gboolean btic_midi_device_learn_stop(gconstpointer _self) {
 static BtIcControl* btic_midi_device_register_learned_control(gconstpointer _self,
 							      const gchar *name)
 {
-  BtIcAbsRangeControl *control;
+  BtIcAbsRangeControl *control=NULL;
   BtIcMidiDevice *self=BTIC_MIDI_DEVICE(_self);
 
   GST_INFO("registering midi control as %s", name);
 
-  control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
-            0, 127, 0);
-
-  g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key),(gpointer)control);
+  if( g_hash_table_lookup(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key)) == NULL )
+  {
+    control = btic_abs_range_control_new(BTIC_DEVICE(self),name,
+					 0, 127, 0);
+    g_hash_table_insert(self->priv->controls,GUINT_TO_POINTER(self->priv->learn_key),(gpointer)control);
+  }
 
   return(BTIC_CONTROL(control));
 }
