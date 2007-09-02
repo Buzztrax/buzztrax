@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.114 2007-08-27 20:17:48 ensonic Exp $
+/* $Id: wire.c,v 1.115 2007-09-02 18:44:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -662,26 +662,7 @@ BtWire *bt_wire_new(const BtSong * const song, const BtMachine * const src_machi
 
   GST_INFO("create wire between %p and %p",src_machine,dst_machine);
 
-  BtWire * const self=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL));
-  if(!self) {
-    goto Error;
-  }
-  if(!bt_wire_connect(self)) {
-    goto Error;
-  }
-  {
-    BtSetup * const setup;
-
-    // add the wire to the setup of the song
-    g_object_get(G_OBJECT(song),"setup",&setup,NULL);
-    g_assert(setup!=NULL);
-    bt_setup_add_wire(setup,self);
-    g_object_unref(setup);
-  }
-  return(self);
-Error:
-  g_object_try_unref(self);
-  return(NULL);
+  return(BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",song,"src",src_machine,"dst",dst_machine,NULL)));
 }
 
 //-- methods
@@ -764,6 +745,7 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   const BtWire * const self = BT_WIRE(persistence);
   BtSetup * const setup;
   xmlChar *id, *gain;
+  gboolean res=FALSE;
 
   GST_DEBUG("PERSISTENCE::wire");
   g_assert(node);
@@ -786,9 +768,13 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
   }
   // @todo: handle pan
 
+  // this is simillar to the code in the constructor
+  if(bt_wire_connect(self)) {
+    bt_setup_add_wire(setup,self);
+    res=TRUE;
+  }
   g_object_unref(setup);
-
-  return(bt_wire_connect(self));
+  return(res);
 }
 
 static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {
@@ -801,6 +787,30 @@ static void bt_wire_persistence_interface_init(gpointer const g_iface, gpointer 
 //-- wrapper
 
 //-- class internals
+
+static GObject* bt_wire_constructor(GType type, guint n_construct_properties, GObjectConstructParam *construct_properties) {
+  BtWire * const self=BT_WIRE(G_OBJECT_CLASS(bt_wire_parent_class)->constructor(type,n_construct_properties,construct_properties));
+  
+  GST_INFO("wire constructor, self->priv=%p, between %p and %p",self->priv,self->priv->src,self->priv->dst);
+  if(self->priv->src && self->priv->dst) {
+    if(!bt_wire_connect(self)) {
+      goto Error;
+    }
+    {
+      BtSetup * const setup;
+  
+      // add the wire to the setup of the song
+      g_object_get(G_OBJECT(self->priv->song),"setup",&setup,NULL);
+      g_assert(setup!=NULL);
+      bt_setup_add_wire(setup,self);
+      g_object_unref(setup);
+    }
+  }
+  return(G_OBJECT(self));
+Error:
+  g_object_try_unref(self);
+  return(NULL);
+}
 
 /* returns a property for the given property_id for this object */
 static void bt_wire_get_property(GObject      * const object,
@@ -937,6 +947,7 @@ static void bt_wire_finalize(GObject * const object) {
 }
 
 static void bt_wire_init(BtWire *self) {
+  GST_INFO("wire init, no priv data yet");
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->gain = 1.0;
 }
@@ -947,6 +958,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   bt_wire_parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtWirePrivate));
 
+  gobject_class->constructor  = bt_wire_constructor;
   gobject_class->set_property = bt_wire_set_property;
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;

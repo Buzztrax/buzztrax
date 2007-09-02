@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.112 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: setup.c,v 1.113 2007-09-02 18:44:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -627,6 +627,7 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
               if(type) {
                 BtMachine * const machine=BT_MACHINE(g_object_new(type,"song",self->priv->song,NULL));
                 if(bt_persistence_load(BT_PERSISTENCE(machine),child_node,NULL)) {
+                  // @todo: move to bt_machine_persistence_load
                   bt_setup_add_machine(self,machine);
                 }
                 else {
@@ -650,9 +651,7 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
             BtWire * const wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
-            if(bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL)) {
-              bt_setup_add_wire(self,wire);
-            }
+            bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL);
             g_object_unref(wire);
           }
         }

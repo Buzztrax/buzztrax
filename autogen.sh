@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autogen.sh,v 1.8 2007-01-26 15:53:56 ensonic Exp $
+# $Id: autogen.sh,v 1.9 2007-09-02 18:44:38 ensonic Exp $
 # Run this to generate all the initial makefiles, etc.
 
 DIE=0
@@ -45,8 +45,8 @@ version_check ()
   if test ! -z "$MICRO"; then VERSION=$VERSION.$MICRO; else MICRO=0; fi
 
   debug "major $MAJOR minor $MINOR micro $MICRO"
-  
-  for SUGGESTION in $PKG_PATH; do 
+
+  for SUGGESTION in $PKG_PATH; do
     COMMAND="$SUGGESTION"
 
     # don't check if asked not to
@@ -62,7 +62,7 @@ version_check ()
     }
 
     debug "checking version with $COMMAND"
-    ($COMMAND --version) < /dev/null > /dev/null 2>&1 || 
+    ($COMMAND --version) < /dev/null > /dev/null 2>&1 ||
     {
       echo "not found."
       continue
@@ -117,10 +117,12 @@ version_check ()
     fi
   done
 
-  echo "not found !"
-  echo "You must have $PACKAGE installed to compile $package."
-  echo "Download the appropriate package for your distribution,"
-  echo "or get the source tarball at $URL"
+  if test ! -z "$URL"; then
+    echo "not found !"
+    echo "You must have $PACKAGE installed to compile $package."
+    echo "Download the appropriate package for your distribution,"
+    echo "or get the source tarball at $URL"
+  fi
   return 1;
 }
 
@@ -310,6 +312,8 @@ CONFIGURE_DEF_OPT='--enable-maintainer-mode --enable-compile-warnings --enable-d
 
 autogen_options $@
 
+have_gtkdoc_1_9=0
+
 echo -n "+ check for build tools"
 if test ! -z "$NOCHECK"; then echo ": skipped version checks"; else  echo; fi
 version_check "autoconf" "$AUTOCONF autoconf autoconf-2.54 autoconf-2.53 autoconf-2.52" \
@@ -318,8 +322,11 @@ version_check "automake" "$AUTOMAKE automake automake-1.7 automake17 automake-1.
               "ftp://ftp.gnu.org/pub/gnu/automake/" 1 6 || DIE=1
 version_check "autopoint" "autopoint" \
               "ftp://ftp.gnu.org/pub/gnu/gettext/" 0 12 1 || DIE=1
+version_check "gtkdocize" "" "" 1 9 && have_gtkdoc_1_9=1
+if test "x$have_gtkdoc_1_9" = "x0"; then
 version_check "gtkdocize" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/gtk-doc/" 1 4
+fi
 version_check "intltoolize" "" \
               "ftp://ftp.gnome.org/pub/gnome/sources/intltool/" 0 1 5 || DIE=1
 version_check "libtoolize" "libtoolize" \
@@ -358,7 +365,11 @@ tool_run "$aclocal" "$ACLOCAL_FLAGS"
 tool_run "$intltoolize" "--copy --force --automake"
 tool_run "$libtoolize" "--copy --force"
 if test -n "$gtkdocize"; then
-  tool_run "$gtkdocize" "--copy"
+  if test "x$have_gtkdoc_1_9" = "x0"; then
+    tool_run "$gtkdocize" "--copy"
+  else
+    tool_run "$gtkdocize" "--copy --flavour no-tmpl"
+  fi
 else
   echo "EXTRA_DIST = " > gtk-doc.make
 fi
@@ -382,11 +393,10 @@ test ! -z "$CONFIGURE_DEF_OPT" && echo "  ./configure default flags: $CONFIGURE_
 test ! -z "$CONFIGURE_EXT_OPT" && echo "  ./configure external flags: $CONFIGURE_EXT_OPT"
 echo
 
-echo ./configure $@
-./configure $@ || {
+echo ./configure $CONFIGURE_DEF_OPT $CONFIGURE_EXT_OPT
+./configure $CONFIGURE_DEF_OPT $CONFIGURE_EXT_OPT || {
         echo "  configure failed"
         exit 1
 }
 
-echo "Now type 'make' to build."
-
+echo "Now type 'make' to compile $package."

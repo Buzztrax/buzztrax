@@ -1,4 +1,4 @@
-/* $Id: render-progress.c,v 1.6 2007-08-25 20:38:21 ensonic Exp $
+/* $Id: render-progress.c,v 1.7 2007-09-02 18:44:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -85,8 +85,7 @@ static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer 
   // format
   g_sprintf(str,"%02lu:%02lu.%03lu / %02lu:%02lu.%03lu",min1,sec1,msec1 ,min2,sec2,msec2);
 
-  gtk_progress_bar_set_fraction(self->priv->track_progress,progress);
-  gtk_progress_bar_set_text(self->priv->track_progress,str);
+  g_object_set(self->priv->track_progress,"fraction",progress,"text",str,NULL);
 
   g_object_unref(sequence);
 }

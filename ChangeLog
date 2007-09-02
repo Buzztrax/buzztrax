@@ -1,5 +1,21 @@
 2007-09-02  Stefan Kost  <ensonic@users.sf.net>
 
+	* autogen.sh:
+	  Sync with other modules.
+
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Example of how to refactor bt_xxx_new to have no side effects.
+
+	* src/ui/edit/render-progress.c:
+	  Set multiple settings at once.
+
+	* src/ui/edit/tools.c:
+	* src/ui/edit/tools.h:
+	  Remove unused code. Make messages in dialogs selectable.
+
+2007-09-02  Stefan Kost  <ensonic@users.sf.net>
+
 	* design/gui/acceltoolbar.c:
 	  Add another test app.
 

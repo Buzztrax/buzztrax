@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.17 2007-07-19 20:39:05 ensonic Exp $
+/* $Id: tools.c,v 1.18 2007-09-02 18:44:38 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -154,9 +154,11 @@ void bt_dialog_message(const BtMainWindow *self,const gchar *title,const gchar *
   gtk_container_add(GTK_CONTAINER(box),icon);
 
   // @idea if headline is NULL use title ?
-  label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
-  gtk_label_set_markup(GTK_LABEL(label),str);
+  label=g_object_new(GTK_TYPE_LABEL,
+    "use-markup",TRUE,"selectable",TRUE,"wrap",TRUE,
+    "label",str,
+    NULL);
   g_free(str);
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
@@ -202,9 +204,11 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   gtk_container_add(GTK_CONTAINER(box),icon);
 
   // @idea if headline is NULL use title ?
-  label=gtk_label_new(NULL);
   str=g_strdup_printf("<big><b>%s</b></big>\n\n%s",headline,message);
-  gtk_label_set_markup(GTK_LABEL(label),str);
+  label=g_object_new(GTK_TYPE_LABEL,
+    "use-markup",TRUE,"selectable",TRUE,"wrap",TRUE,
+    "label",str,
+    NULL);
   g_free(str);
   gtk_container_add(GTK_CONTAINER(box),label);
   gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),box);
@@ -225,53 +229,6 @@ gboolean bt_dialog_question(const BtMainWindow *self,const gchar *title,const gc
   GST_INFO("bt_dialog_question(\"%s\") = %d",title,result);
   return(result);
 }
-
-// gdk thread locking helpers
-// idea is from rythmbox sources
-#if 0 /* unused */
-static GThread *main_thread = NULL;
-
-/**
- * bt_threads_init:
- *
- * Initialises gdk thread locking helpers. Do call this together like in:
- * <informalexample><programlisting language="c">
- * if(!g_thread_supported()) {  // are g_threads() already initialized
- *    g_thread_init(NULL);
- *    gdk_threads_init();
- *    bt_threads_init();
- *  }</programlisting>
- * </informalexample>
- */
-void bt_threads_init(void) {
-  main_thread=g_thread_self();
-}
-
-static gboolean bt_threads_in_main_thread(void) {
-  return(main_thread==g_thread_self());
-}
-
-/**
- * gdk_threads_try_enter:
- *
- * Use this instead of gdk_threads_enter(). This methods avoids lockups that
- * happen when calling gdk_threads_enter() twice from the same thread.
- * To unlock use that matching gdk_threads_try_leave().
- */
-void gdk_threads_try_enter(void) {
-  if(!bt_threads_in_main_thread())  gdk_threads_enter();
-}
-
-/**
- * gdk_threads_try_leave:
- *
- * Use this instead of gdk_threads_leave(). This methods matches
- * gdk_threads_try_enter().
- */
-void gdk_threads_try_leave(void) {
-  if (!bt_threads_in_main_thread()) gdk_threads_leave();
-}
-#endif
 
 
 // gtk toolbar helper
