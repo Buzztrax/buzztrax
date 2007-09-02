@@ -1,3 +1,8 @@
+2007-09-02  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gui/acceltoolbar.c:
+	  Add another test app.
+
 2007-08-31  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/ic/libbtic/Makefile.am:
