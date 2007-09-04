@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.38 2007-08-24 20:36:17 ensonic Exp $
+/* $Id: sink-bin.c,v 1.39 2007-09-04 14:36:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -126,8 +126,6 @@ static void bt_sink_bin_tempo_change_tempo(GstTempo *tempo, glong beats_per_minu
 
 static void bt_sink_bin_tempo_interface_init(gpointer g_iface, gpointer iface_data) {
   GstTempoInterface *iface = g_iface;
-
-  GST_INFO("initializing iface");
 
   iface->change_tempo = bt_sink_bin_tempo_change_tempo;
 }

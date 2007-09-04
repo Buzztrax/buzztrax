@@ -1,3 +1,8 @@
+2007-09-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/sink-bin.c:
+	  Remove early debug log (no category yet).
+
 2007-09-02  Patric Schmitz  <berzerka@users.sourceforge.net>
 
 	* src/lib/ic/midi-device.c:
