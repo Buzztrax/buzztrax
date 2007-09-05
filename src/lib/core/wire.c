@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.115 2007-09-02 18:44:38 ensonic Exp $
+/* $Id: wire.c,v 1.116 2007-09-05 04:57:34 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -210,78 +210,47 @@ Error:
 static void bt_wire_activate_analyzers(const BtWire * const self) {
   gboolean res=TRUE;
   const GList* node;
-  GstElement *prev,*next;
-#if 0
-  BtSequence *sequence;
-  gboolean is_playing;
-  gulong play_pos;
-#endif
+  GstElement *prev=NULL,*next;
+  GstPad *tee_src,*analyzer_sink;
 
   if(!self->priv->analyzers) return;
 
   GST_INFO("add analyzers (%d elements)",g_list_length(self->priv->analyzers));
-  prev=self->priv->machines[PART_TEE];
+  // do final link afterwards
+  //prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
 
     if(!(res=gst_bin_add(self->priv->bin,next))) {
       GST_INFO("cannot add element \"%s\" to bin",gst_element_get_name(next));
     }
-    if(!(res=gst_element_link(prev,next))) {
-      GST_INFO("cannot link elements \"%s\" -> \"%s\"",gst_element_get_name(prev),gst_element_get_name(next));
+    if(prev) {
+      if(!(res=gst_element_link(prev,next))) {
+        GST_INFO("cannot link elements \"%s\" -> \"%s\"",gst_element_get_name(prev),gst_element_get_name(next));
+      }
     }
     prev=next;
   }
-#if 0
-  g_object_get(self->priv->song,"is-playing",&is_playing,"play-pos",&play_pos,"sequence",&sequence,NULL);
-  if(is_playing) {
-    GstEvent *event;
-    gboolean loop;
-    glong loop_end,length;
-
-    g_object_get(sequence,"loop",&loop,"loop-end",&loop_end,"length",&length,NULL);
-    const GstClockTime bar_time=bt_sequence_get_bar_time(sequence);
-
-    if (loop) {
-      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, (GstClockTime)play_pos*bar_time,
-          GST_SEEK_TYPE_SET, (GstClockTime)(loop_end+0)*bar_time);
-    }
-    else {
-      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH,
-          GST_SEEK_TYPE_SET, (GstClockTime)play_pos*bar_time,
-          GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
-    }
-
-    for(node=self->priv->analyzers;node;node=g_list_next(node)) {
-      next=GST_ELEMENT(node->data);
-      if(gst_element_set_state(next,GST_STATE_PAUSED)==GST_STATE_CHANGE_FAILURE) {
-        GST_INFO("cannot go to paused state for elements \"%s\"",gst_element_get_name(next));
-      }
-    }
-    GST_INFO("sending seek to wire-analyzers");
-    next=GST_ELEMENT(self->priv->analyzers->data);
-    if(!(gst_element_send_event(next,event))) {
-      GST_WARNING("wire-analyzers failed to handle seek event");
-    }
-    for(node=self->priv->analyzers;node;node=g_list_next(node)) {
-      next=GST_ELEMENT(node->data);
-      if(gst_element_set_state(next,GST_STATE_PLAYING)==GST_STATE_CHANGE_FAILURE) {
-        GST_INFO("cannot go to playing state for elements \"%s\"",gst_element_get_name(next));
-      }
-    }
-  }
-  g_object_unref(sequence);
-#else
+  GST_INFO("blocking");
+  // blocking tee.src
+  tee_src=gst_element_get_request_pad(self->priv->machines[PART_TEE],"src%d");
+  analyzer_sink=gst_element_get_static_pad(GST_ELEMENT(self->priv->analyzers->data),"sink");
+  gst_pad_set_blocked(tee_src,TRUE);
+  GST_INFO("sync state");
   for(node=self->priv->analyzers;node;node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
     if(!(gst_element_sync_state_with_parent(next))) {
       GST_INFO("cannot sync state for elements \"%s\"",gst_element_get_name(next));
     }
+  }  
+  GST_INFO("linking to tee");
+  if(GST_PAD_LINK_FAILED(gst_pad_link(tee_src,analyzer_sink))) {
+  //if(!(res=gst_element_link(self->priv->machines[PART_TEE],GST_ELEMENT(self->priv->analyzers->data)))) {
+    GST_INFO("cannot link analyzers to tee");
   }
-#endif
+  gst_pad_set_blocked(tee_src,FALSE);
+  gst_object_unref(analyzer_sink);
+  GST_INFO("add analyzers done");
 }
 
 /*
@@ -301,8 +270,11 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
 
   GST_INFO("remove analyzers (%d elements)",g_list_length(self->priv->analyzers));
 
-  src_pad=bt_wire_get_sink_peer_pad(GST_ELEMENT(self->priv->analyzers->data));
-
+  if((src_pad=bt_wire_get_sink_peer_pad(GST_ELEMENT(self->priv->analyzers->data)))) {
+    // block src_pad (off tee)
+    gst_pad_set_blocked(src_pad,TRUE);
+  }
+  
   prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
@@ -320,6 +292,7 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
     }
   }
   if(src_pad) {
+    gst_pad_set_blocked(src_pad,FALSE);
     // remove request-pad
     GST_INFO("releasing request pad for tee");
     gst_element_release_request_pad(self->priv->machines[PART_TEE],src_pad);
