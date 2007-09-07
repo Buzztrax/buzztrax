@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.181 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.182 2007-09-07 20:58:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1759,6 +1759,9 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
 
         res=TRUE;
       }
+    }
+    else if(event->keyval==GDK_Menu) {
+      gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());   
     }
     else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
       gboolean changed=FALSE;

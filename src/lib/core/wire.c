@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.116 2007-09-05 04:57:34 ensonic Exp $
+/* $Id: wire.c,v 1.117 2007-09-07 20:58:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -217,7 +217,6 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
 
   GST_INFO("add analyzers (%d elements)",g_list_length(self->priv->analyzers));
   // do final link afterwards
-  //prev=self->priv->machines[PART_TEE];
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
 
@@ -231,8 +230,7 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
     }
     prev=next;
   }
-  GST_INFO("blocking");
-  // blocking tee.src
+  GST_INFO("blocking tee.src");
   tee_src=gst_element_get_request_pad(self->priv->machines[PART_TEE],"src%d");
   analyzer_sink=gst_element_get_static_pad(GST_ELEMENT(self->priv->analyzers->data),"sink");
   gst_pad_set_blocked(tee_src,TRUE);

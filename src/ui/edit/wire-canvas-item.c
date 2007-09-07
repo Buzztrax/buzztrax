@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.47 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.48 2007-09-07 20:58:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -534,6 +534,18 @@ static gboolean bt_wire_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *even
       break;
     case GDK_BUTTON_RELEASE:
       GST_DEBUG("GDK_BUTTON_RELEASE: %d",event->button.button);
+      break;
+    case GDK_KEY_RELEASE:
+      GST_DEBUG("GDK_KEY_RELEASE: %d",event->key.keyval);
+      switch(event->key.keyval) {
+        case GDK_Menu:
+          // show context menu
+          gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+          res=TRUE;
+          break;
+        default:
+          break;
+      }
       break;
     default:
       break;

@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.87 2007-07-20 13:49:23 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.88 2007-09-07 20:58:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -29,8 +29,6 @@
 /* @todo more graphics:
  * - add level meter widgets
  * - machine apperance
- *   - have a shaded title bar
- *   - move the machine title to top (over the shaded bar)
  *   - use bold shaded M,S,B for mute, solo, bypass and
  *     make the click rectangle shaded borderless (just add a divider for the title bar)
  */
@@ -900,6 +898,18 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
               break;
           }
         }
+      }
+      break;
+    case GDK_KEY_RELEASE:
+      GST_DEBUG("GDK_KEY_RELEASE: %d",event->key.keyval);
+      switch(event->key.keyval) {
+        case GDK_Menu:
+          // show context menu
+          gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+          res=TRUE;
+          break;
+        default:
+          break;
       }
       break;
     default:

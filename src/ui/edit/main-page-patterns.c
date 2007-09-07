@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.142 2007-08-24 20:41:48 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.143 2007-09-07 20:58:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -508,20 +508,9 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       res=TRUE;
     }
   }
-  /*
-  else if(event->keyval==GDK_KP_Add) {
-    if(modifier==GDK_CONTROL_MASK) {
-      on_context_menu_pattern_new_activate(NULL,self);
-      res=TRUE;
-    }
+  else if(event->keyval==GDK_Menu) {
+    gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());   
   }
-  else if(event->keyval==GDK_KP_Subtract) {
-    if(modifier==GDK_CONTROL_MASK) {
-      on_context_menu_pattern_remove_activate(NULL,self);
-      res=TRUE;
-    }
-  }
-  */
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     if(self->priv->pattern) {
       gboolean changed=FALSE;

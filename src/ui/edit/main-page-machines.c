@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.107 2007-07-20 14:56:52 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.108 2007-09-07 20:58:56 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -609,6 +609,35 @@ static void on_hadjustment_changed(GtkAdjustment *adjustment, gpointer user_data
 }
 
 
+static gboolean on_page_switched_idle(gpointer user_data) {
+  BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+
+  if(GTK_WIDGET_REALIZED(self->priv->canvas)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->canvas));
+  }
+  return(FALSE);
+}
+
+static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  //BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
+  static gint prev_page_num=-1;
+
+  if(page_num==BT_MAIN_PAGES_MACHINES_PAGE) {
+    GST_DEBUG("enter machine page");
+    // delay the sequence_table grab
+    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+  }
+  else {
+    // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
+    if(prev_page_num == BT_MAIN_PAGES_MACHINES_PAGE) {
+      GST_DEBUG("leave machine page");
+    }
+  }
+  prev_page_num = page_num;
+}
+
+
+
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
@@ -631,7 +660,6 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         GST_INFO("button=%4d, device=%p, x_root=%6.4lf, y_root=%6.4lf\n",e->button,e->device,e->x_root,e->y_root);
       }
       */
-
       // store mouse coordinates, so that we can later place a newly added machine there
       gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
       if(!(ci=gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y))) {
@@ -671,6 +699,8 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
           }
           else g_object_unref(pci);
         }
+        // gnome_canvas_get_item_at() does not ref()
+        //g_object_unref(ci);
       }
       break;
     case GDK_MOTION_NOTIFY:
@@ -716,6 +746,23 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
         gtk_object_destroy(GTK_OBJECT(self->priv->new_wire));self->priv->new_wire=NULL;
         gnome_canvas_points_free(self->priv->new_wire_points);self->priv->new_wire_points=NULL;
         self->priv->connecting=FALSE;
+      }
+      break;
+    case GDK_KEY_RELEASE:
+      // @todo: need mouse pos to check if there is a canvas item under pointer
+      //gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
+      //gnome_canvas_window_to_world(self->priv->canvas,event->motion.x,event->motion.y,&self->priv->mouse_x,&self->priv->mouse_y);
+      if(!gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y)) {
+        GST_DEBUG("GDK_KEY_RELEASE: %d",event->key.keyval);
+        switch(event->key.keyval) {
+          case GDK_Menu:
+            // show context menu
+            gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
+            res=TRUE;
+            break;
+          default:
+            break;
+        }
       }
       break;
     default:
@@ -893,8 +940,7 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   self->priv->canvas=GNOME_CANVAS(gnome_canvas_new());
   */
   gtk_widget_pop_colormap();
-  // seems to be ignored
-  //gtk_widget_add_events(GTK_WIDGET(self->priv->canvas),GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
+  GTK_WIDGET_SET_FLAGS(self->priv->canvas,GTK_CAN_FOCUS);
   gnome_canvas_set_center_scroll_region(self->priv->canvas,TRUE);
   gnome_canvas_set_scroll_region(self->priv->canvas,
     -MACHINE_VIEW_ZOOM_X,-MACHINE_VIEW_ZOOM_Y,
@@ -905,6 +951,11 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
   bt_main_page_machines_draw_grid(self);
 
+  // create volume popup
+  self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
+  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
+  g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
+
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
@@ -914,17 +965,16 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   self->priv->hadjustment=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   g_signal_connect(G_OBJECT(self->priv->hadjustment),"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
 
+  // set default widget
+  gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->canvas));
+  // listen to page changes
+  g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
+
   // let settings control toolbar style
   on_toolbar_style_changed(settings,NULL,(gpointer)self);
   g_signal_connect(G_OBJECT(settings), "notify::toolbar-style", G_CALLBACK(on_toolbar_style_changed), (gpointer)self);
-
-  // create volume popup
-  self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
-  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
-  g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
-
   g_object_unref(settings);
-
+  
   GST_DEBUG("  done");
   return(TRUE);
 }
@@ -1083,6 +1133,10 @@ static void bt_main_page_machines_dispose(GObject *object) {
   self->priv->dispose_has_run = TRUE;
 
   GST_DEBUG("!!!! self=%p",self);
+
+  // @bug: http://bugzilla.gnome.org/show_bug.cgi?id=414712
+  gtk_container_set_focus_child(GTK_CONTAINER(self),NULL);
+
   if(self->priv->vol_popup) {
     GST_DEBUG("  unrefing popup");
     bt_volume_popup_hide(self->priv->vol_popup);

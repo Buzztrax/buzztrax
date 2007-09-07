@@ -6,12 +6,28 @@ classes, specificly adding a learn mechanism. That is you click a machine
 property, select learn, touch the midi-controller and done.
 
 One important requirement for a power tool, is having keyboard shortcuts for
-almost everything.
+almost everything. For the main menu its easy to do so in gtk+. But then we
+have context menus and toolbars. So I read API docs and code, wrote test
+programs and files bugs and patches [1][2]. The fix for [1] is in svn now, but
+the patch in [2] needs review, anyone? Generally the keyboard accelerator
+functionality needs some updating, seems that thsi has been mostly taken from
+gtk-1. At least I could not figure out how to e,g. define two accelerator to
+e.g. select prev/next item in a combo on a toolbar. Sure most apps won't need
+this, but for productivity tools this is quite mandatory. Finaly I wonder whats
+the policy for the media-keys and how to use them. My gdkkeysyms.h include does
+not have symbolic names for them.
 
-* keyboard shortcuts
+While we're talking about gtk, imho the GtkRuler widget is not that esoteric, it
+would be quite useful if it would have some bugs fixed [3] and be more
+customizable (non-linear scales, more units).
+
 * single/multi-track rendering ui
 * bugfixing
 * waffel installed gishi media wiki extension for syntax highlighting
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=469374
+[2] http://bugzilla.gnome.org/show_bug.cgi?id=131177
+[3] http://bugzilla.gnome.org/show_bug.cgi?id=465041
 
 2007/08 ========================================================================
 

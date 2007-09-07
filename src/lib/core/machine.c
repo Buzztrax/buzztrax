@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.273 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: machine.c,v 1.274 2007-09-07 20:58:55 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -69,10 +69,16 @@
 /*
  * @todo: try to derive this from GstBin!
  *  then put the machines into itself (and not into the songs bin, but insert the machine directly into the song->bin
- *  when adding internal machines we need to fix the ghost pads (this may require relinking)
+ *  - when adding internal machines we need to fix the ghost pads (this may require relinking)
  *    gst_element_add_ghost_pad() and gst_element_remove_ghost_pad()
+ *  - can we have sometimes-shost-pads (look at decodebin)?
  *
  * @todo: when using the tee, we need queue elements after
+ *
+ * @todo: it would be good to have the src-pad of the initialy blocked, then
+ * unblocked when there is a wire connected and again blocked, if the wire is
+ * removed. If we use a tee, we would need to pre-create the request-pad and add
+ * API, so that wire can get the src/dst pad from a machine for linking.
  *
  * @todo: we need BtMachineParameters object with a implementation for the global
  * and one for the voice parameters.
