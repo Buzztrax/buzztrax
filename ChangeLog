@@ -1,5 +1,11 @@
 2007-09-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song-io.c:
+	* src/ui/edit/main-window.c:
+	  Fix path handling for save/save-as. Fixes #1791086.
+
+2007-09-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Finished NEWS.
 

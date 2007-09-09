@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.94 2007-08-29 20:19:40 ensonic Exp $
+/* $Id: main-window.c,v 1.95 2007-09-09 16:49:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -482,20 +482,27 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
   gint result;
-  gchar *folder_name,*file_name=NULL,*file_path;
+  gchar *name,*folder_name,*file_name=NULL;
 
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_get(G_OBJECT(song_info),"file-name",&file_name,NULL);
+  g_object_get(G_OBJECT(song_info),"name",&name,"file-name",&file_name,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
-  // set a default file_name
-  file_path=g_build_filename(folder_name,file_name,NULL);
-  GST_INFO("generated default path is %s",file_path);
-  gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_path);
+  if(!file_name) {
+    GST_WARNING("use defaults %s/%s",folder_name,name);
+    /* the user just created a new document */
+    gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER(dialog), folder_name);
+    gtk_file_chooser_set_current_name (GTK_FILE_CHOOSER(dialog), name);
+  }
+  else {
+    /* the user edited an existing document */
+    GST_WARNING("use last path %s",file_name);
+    gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog),file_name);
+  }
   g_free(file_name);file_name=NULL;
-  g_free(file_path);
   g_free(folder_name);
+  g_free(name);
   g_object_unref(settings);
   g_object_unref(song_info);
   g_object_unref(song);

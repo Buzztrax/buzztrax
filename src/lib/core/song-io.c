@@ -1,4 +1,4 @@
-/* $Id: song-io.c,v 1.70 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: song-io.c,v 1.71 2007-09-09 16:49:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -150,21 +150,21 @@ static GType bt_song_io_detect(const gchar * const file_name) {
  */
 static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong * const song) {
   BtSongInfo *song_info;
-  gchar * const file_path;
-  const gchar *file_name;
+  gchar *file_path;
 
   g_object_get(G_OBJECT(self),"file-name",&file_path,NULL);
-  // file_name is last part from file_path
-  file_name=strrchr(file_path,G_DIR_SEPARATOR);
-  if(file_name) {
-    file_name++;
+  if(!g_path_is_absolute(file_path)) {
+    gchar *cur_path,*rel_path;
+    
+    cur_path=g_get_current_dir();
+    rel_path=file_path;
+    file_path=g_build_filename(cur_path,rel_path,NULL);
+    g_free(cur_path);
+    g_free(rel_path);
   }
-  else {
-    file_name=file_path;
-  }
-  //GST_INFO("file name is : %s",file_name);
+  GST_INFO("file path is : %s",file_path);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
-  g_object_set(song_info,"file-name",file_name,NULL);
+  g_object_set(song_info,"file-name",file_path,NULL);
   g_free(file_path);
   g_object_try_unref(song_info);
 }
@@ -375,7 +375,7 @@ static void bt_song_io_class_init(BtSongIOClass * const klass) {
   g_object_class_install_property(gobject_class,SONG_IO_FILE_NAME,
                                   g_param_spec_string("file-name",
                                      "filename prop",
-                                     "filename for load save operations",
+                                     "full filename for load save operations",
                                      NULL, /* default value */
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
