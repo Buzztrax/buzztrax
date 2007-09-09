@@ -1,5 +1,32 @@
 2007-09-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Start taking notes of new changes.
+
+	* src/lib/core/wire.c:
+	* src/ui/edit/wire-canvas-item.c:
+	  Also remember analysis window states. Fix blocking when opening
+	  ananyzer in not-playing state.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Add widget names (for better screenshots).
+
+	* src/ui/edit/main-menu.c:
+	  More todo-items.
+
+	* src/ui/edit/main-page-info.c:
+	* src/ui/edit/main-page-machines.c:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/main-page-sequence.c:
+	* src/ui/edit/main-pages.c:
+	  Debug focus grabbing problem.
+
+	* src/ui/edit/main-window.c:
+	  Reformat.
+
+2007-09-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/song-io.c:
 	* src/ui/edit/main-window.c:
 	  Fix path handling for save/save-as. Fixes #1791086.

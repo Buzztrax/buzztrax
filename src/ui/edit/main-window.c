@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.95 2007-09-09 16:49:15 ensonic Exp $
+/* $Id: main-window.c,v 1.96 2007-09-09 19:54:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -529,7 +529,10 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
     if((file=fopen(file_name,"rb"))) {
       GST_INFO("file already exists");
       // it already exists, ask the user what to do (do not save, choose new name, overwrite song)
-      cont=bt_dialog_question(self,_("File already exists"),_("File already exists"),_("Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."));
+      cont=bt_dialog_question(self,
+        _("File already exists"),
+        _("File already exists"),
+        _("Choose 'Okay' to overwrite or 'Cancel' to abort saving the song."));
       fclose(file);
     }
     else {

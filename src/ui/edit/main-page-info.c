@@ -1,4 +1,4 @@
-/* $Id: main-page-info.c,v 1.53 2007-08-24 20:41:48 ensonic Exp $
+/* $Id: main-page-info.c,v 1.54 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -74,15 +74,24 @@ static gboolean on_page_switched_idle(gpointer user_data) {
 }
 
 static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint page_num, gpointer user_data) {
+  //BtMainPageInfo *self=BT_MAIN_PAGE_INFO(user_data);
+  static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_INFO_PAGE) {
-    GST_DEBUG("enter info page");
-    // delay the sequence_table grab
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+    // only do this if the page really has changed
+    if(prev_page_num != BT_MAIN_PAGES_INFO_PAGE) {
+      GST_DEBUG("enter info page");
+      // delay the sequence_table grab
+      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+    }
   }
   else {
-    GST_DEBUG("leave info page");
+    // only do this if the page was BT_MAIN_PAGES_INFO_PAGE
+    if(prev_page_num == BT_MAIN_PAGES_INFO_PAGE) {
+      GST_DEBUG("leave info page");
+    }
   }
+  prev_page_num = page_num;
 }
 
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {

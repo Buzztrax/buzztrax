@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.117 2007-09-07 20:58:55 ensonic Exp $
+/* $Id: wire.c,v 1.118 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -47,7 +47,8 @@
 //-- property ids
 
 enum {
-  WIRE_SONG=1,
+  WIRE_PROPERTIES=1,
+  WIRE_SONG,
   WIRE_SRC,
   WIRE_DST,
   WIRE_GAIN,
@@ -74,6 +75,9 @@ typedef enum {
 struct _BtWirePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
+
+  /* (ui) properties accociated with this machine */
+  GHashTable *properties;
 
   /* the song the wire belongs to */
   G_POINTER_ALIAS(BtSong *,song);
@@ -212,10 +216,13 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
   const GList* node;
   GstElement *prev=NULL,*next;
   GstPad *tee_src,*analyzer_sink;
+  gboolean is_playing;
 
   if(!self->priv->analyzers) return;
 
   GST_INFO("add analyzers (%d elements)",g_list_length(self->priv->analyzers));
+  g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
+  
   // do final link afterwards
   for(node=self->priv->analyzers;(node && res);node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
@@ -233,7 +240,8 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
   GST_INFO("blocking tee.src");
   tee_src=gst_element_get_request_pad(self->priv->machines[PART_TEE],"src%d");
   analyzer_sink=gst_element_get_static_pad(GST_ELEMENT(self->priv->analyzers->data),"sink");
-  gst_pad_set_blocked(tee_src,TRUE);
+  if(is_playing)
+    gst_pad_set_blocked(tee_src,TRUE);
   GST_INFO("sync state");
   for(node=self->priv->analyzers;node;node=g_list_next(node)) {
     next=GST_ELEMENT(node->data);
@@ -246,7 +254,8 @@ static void bt_wire_activate_analyzers(const BtWire * const self) {
   //if(!(res=gst_element_link(self->priv->machines[PART_TEE],GST_ELEMENT(self->priv->analyzers->data)))) {
     GST_INFO("cannot link analyzers to tee");
   }
-  gst_pad_set_blocked(tee_src,FALSE);
+  if(is_playing)
+    gst_pad_set_blocked(tee_src,FALSE);
   gst_object_unref(analyzer_sink);
   GST_INFO("add analyzers done");
 }
@@ -263,14 +272,17 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
   GstElement *prev,*next;
   GstPad *src_pad=NULL;
   GstStateChangeReturn state_ret;
+  gboolean is_playing;
 
   if(!self->priv->analyzers) return;
 
   GST_INFO("remove analyzers (%d elements)",g_list_length(self->priv->analyzers));
+  g_object_get(self->priv->song,"is-playing",&is_playing,NULL);
 
   if((src_pad=bt_wire_get_sink_peer_pad(GST_ELEMENT(self->priv->analyzers->data)))) {
-    // block src_pad (off tee)
-    gst_pad_set_blocked(src_pad,TRUE);
+    // block src_pad (of tee)
+    if(is_playing)
+      gst_pad_set_blocked(src_pad,TRUE);
   }
   
   prev=self->priv->machines[PART_TEE];
@@ -290,7 +302,8 @@ static void bt_wire_deactivate_analyzers(const BtWire * const self) {
     }
   }
   if(src_pad) {
-    gst_pad_set_blocked(src_pad,FALSE);
+    if(is_playing)
+      gst_pad_set_blocked(src_pad,FALSE);
     // remove request-pad
     GST_INFO("releasing request pad for tee");
     gst_element_release_request_pad(self->priv->machines[PART_TEE],src_pad);
@@ -695,6 +708,7 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
   const BtWire * const self = BT_WIRE(persistence);
   gchar * const id;
   xmlNodePtr node=NULL;
+  xmlNodePtr child_node;
 
   GST_DEBUG("PERSISTENCE::wire");
 
@@ -707,8 +721,14 @@ static xmlNodePtr bt_wire_persistence_save(const BtPersistence * const persisten
     xmlNewProp(node,XML_CHAR_PTR("dst"),XML_CHAR_PTR(id));
     g_free(id);
 
+    if((child_node=xmlNewChild(node,NULL,XML_CHAR_PTR("properties"),NULL))) {
+      if(!bt_persistence_save_hashtable(self->priv->properties,child_node)) goto Error;
+    }
+    else goto Error;
+    
     xmlNewProp(node,XML_CHAR_PTR("gain"),XML_CHAR_PTR(bt_persistence_strfmt_double(self->priv->gain)));
   }
+Error:
   return(node);
 }
 
@@ -738,6 +758,14 @@ static gboolean bt_wire_persistence_load(const BtPersistence * const persistence
     xmlFree(gain);
   }
   // @todo: handle pan
+  
+  for(node=node->children;node;node=node->next) {
+    if(!xmlNodeIsText(node)) {
+      if(!strncmp((gchar *)node->name,"properties\0",11)) {
+        bt_persistence_load_hashtable(self->priv->properties,node);
+      }
+    }
+  }
 
   // this is simillar to the code in the constructor
   if(bt_wire_connect(self)) {
@@ -792,6 +820,9 @@ static void bt_wire_get_property(GObject      * const object,
   const BtWire *const self = BT_WIRE(object);
   return_if_disposed();
   switch (property_id) {
+    case WIRE_PROPERTIES: {
+      g_value_set_pointer(value, self->priv->properties);
+    } break;
     case WIRE_SONG: {
       g_value_set_object(value, self->priv->song);
     } break;
@@ -914,6 +945,8 @@ static void bt_wire_finalize(GObject * const object) {
 
   GST_DEBUG("!!!! self=%p",self);
 
+  g_hash_table_destroy(self->priv->properties);
+
   G_OBJECT_CLASS(bt_wire_parent_class)->finalize(object);
 }
 
@@ -921,6 +954,9 @@ static void bt_wire_init(BtWire *self) {
   GST_INFO("wire init, no priv data yet");
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->gain = 1.0;
+  self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+
+  GST_DEBUG("!!!! self=%p",self);
 }
 
 static void bt_wire_class_init(BtWireClass * const klass) {
@@ -934,6 +970,12 @@ static void bt_wire_class_init(BtWireClass * const klass) {
   gobject_class->get_property = bt_wire_get_property;
   gobject_class->dispose      = bt_wire_dispose;
   gobject_class->finalize     = bt_wire_finalize;
+
+  g_object_class_install_property(gobject_class,WIRE_PROPERTIES,
+                                  g_param_spec_pointer("properties",
+                                     "properties prop",
+                                     "list of wire properties",
+                                     G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_SONG,
                                   g_param_spec_object("song",

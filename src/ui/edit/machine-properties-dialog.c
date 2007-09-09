@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.91 2007-08-23 15:56:45 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.92 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1453,6 +1453,8 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   gulong global_params,voice_params;
   GstElement *machine;
   BtSettings *settings;
+  
+  gtk_widget_set_name(GTK_WIDGET(self),_("machine properties"));
 
   g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,"settings",&settings,NULL);
   gtk_window_set_transient_for(GTK_WINDOW(self),GTK_WINDOW(main_window));

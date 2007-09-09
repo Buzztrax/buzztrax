@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.182 2007-09-07 20:58:56 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.183 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -512,17 +512,20 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_SEQUENCE_PAGE) {
-    GST_DEBUG("enter sequence page");
-    // add local commands
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    if(main_window) {
-      gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-      // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
-      g_signal_emit_by_name (main_window, "keys-changed", 0);
-      g_object_unref(main_window);
+    // only do this if the page really has changed
+    if(prev_page_num != BT_MAIN_PAGES_SEQUENCE_PAGE) {
+      GST_DEBUG("enter sequence page");
+      // add local commands
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      if(main_window) {
+        gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+        // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
+        g_signal_emit_by_name (main_window, "keys-changed", 0);
+        g_object_unref(main_window);
+      }
+      // delay the sequence_table grab
+      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
-    // delay the sequence_table grab
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
   }
   else {
     // only do this if the page was BT_MAIN_PAGES_SEQUENCE_PAGE

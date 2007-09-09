@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.143 2007-09-07 20:58:56 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.144 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1458,7 +1458,9 @@ static void context_menu_refresh(const BtMainPagePatterns *self,BtMachine *machi
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
 
-  gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  }
   return(FALSE);
 }
 
@@ -1468,26 +1470,29 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_PATTERNS_PAGE) {
-    BtMachine *machine;
-
-    GST_DEBUG("enter pattern page");
-    // only set new text
-    pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
-    if((machine=bt_main_page_patterns_get_current_machine(self))) {
-      // refresh to update colors in the menu (as usage might have changed)
-      pattern_menu_refresh(self,machine);
-      g_object_unref(machine);
+    // only do this if the page really has changed
+    if(prev_page_num != BT_MAIN_PAGES_PATTERNS_PAGE) {
+      BtMachine *machine;
+  
+      GST_DEBUG("enter pattern page");
+      // only set new text
+      pattern_view_update_column_description(self,UPDATE_COLUMN_PUSH);
+      if((machine=bt_main_page_patterns_get_current_machine(self))) {
+        // refresh to update colors in the menu (as usage might have changed)
+        pattern_menu_refresh(self,machine);
+        g_object_unref(machine);
+      }
+      // add local commands
+      g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
+      if(main_window) {
+        gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
+        // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
+        g_signal_emit_by_name (main_window, "keys-changed", 0);
+        g_object_unref(main_window);
+      }
+      // delay the pattern_table grab
+      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
     }
-    // add local commands
-    g_object_get(G_OBJECT(self->priv->app),"main-window",&main_window,NULL);
-    if(main_window) {
-      gtk_window_add_accel_group(GTK_WINDOW(main_window),self->priv->accel_group);
-      // workaround for http://bugzilla.gnome.org/show_bug.cgi?id=469374
-      g_signal_emit_by_name (main_window, "keys-changed", 0);
-      g_object_unref(main_window);
-    }
-    // delay the pattern_table grab
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
   }
   else {
     // only do this if the page was BT_MAIN_PAGES_PATTERNS_PAGE

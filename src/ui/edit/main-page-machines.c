@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.109 2007-09-09 15:32:15 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.110 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -620,6 +620,9 @@ static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
 
   if(GTK_WIDGET_REALIZED(self->priv->canvas)) {
+    GST_DEBUG("grabing focus");
+    // hmm, when it comes from any but pattern page it works
+    // when it comes from pattern page main-pages::on_page_switched comes after this
     gtk_widget_grab_focus(GTK_WIDGET(self->priv->canvas));
   }
   return(FALSE);
@@ -630,9 +633,12 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   static gint prev_page_num=-1;
 
   if(page_num==BT_MAIN_PAGES_MACHINES_PAGE) {
-    GST_DEBUG("enter machine page");
-    // delay the sequence_table grab
-    g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+    // only do this if the page really has changed
+    if(prev_page_num != BT_MAIN_PAGES_MACHINES_PAGE) {
+      GST_DEBUG("enter machine page");
+      // delay the sequence_table grab
+      g_idle_add_full(G_PRIORITY_HIGH_IDLE,on_page_switched_idle,user_data,NULL);
+    }
   }
   else {
     // only do this if the page was BT_MAIN_PAGES_MACHINES_PAGE
@@ -964,22 +970,21 @@ static gboolean bt_main_page_machines_init_ui(const BtMainPageMachines *self,con
   gtk_box_pack_start(GTK_BOX(self),scrolled_window,TRUE,TRUE,0);
   bt_main_page_machines_draw_grid(self);
 
-  // create volume popup
-  self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
-  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
-  g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
-
-  // register event handlers
-  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
-
   self->priv->vadjustment=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   g_signal_connect(G_OBJECT(self->priv->vadjustment),"value-changed",G_CALLBACK(on_vadjustment_changed),(gpointer)self);
   self->priv->hadjustment=gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   g_signal_connect(G_OBJECT(self->priv->hadjustment),"value-changed",G_CALLBACK(on_hadjustment_changed),(gpointer)self);
 
+  // create volume popup
+  self->priv->vol_popup_adj=gtk_adjustment_new(1.0, 0.0, 4.0, 0.05, 0.1, 0.0);
+  self->priv->vol_popup=BT_VOLUME_POPUP(bt_volume_popup_new(GTK_ADJUSTMENT(self->priv->vol_popup_adj)));
+  g_signal_connect(G_OBJECT(self->priv->vol_popup_adj),"value-changed",G_CALLBACK(on_volume_popup_changed),(gpointer)self);
+
   // set default widget
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->canvas));
+  // register event handlers
+  g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->canvas),"event",G_CALLBACK(on_canvas_event),(gpointer)self);
   // listen to page changes
   g_signal_connect(G_OBJECT(pages), "switch-page", G_CALLBACK(on_page_switched), (gpointer)self);
 

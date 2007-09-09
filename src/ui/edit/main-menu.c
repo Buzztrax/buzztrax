@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.77 2007-09-09 15:32:15 ensonic Exp $
+/* $Id: main-menu.c,v 1.78 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -581,6 +581,9 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_tabs_toggled),(gpointer)self);
 
   /* @todo 'Machine properties' show/hide toggle */
+  /* @todo 'Analyzer windows' show/hide toggle */
+  
+  /* @todo 'Fullscreen' toggle */
   
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));

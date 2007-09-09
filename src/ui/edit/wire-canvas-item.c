@@ -1,4 +1,4 @@
-/* $Id: wire-canvas-item.c,v 1.48 2007-09-07 20:58:56 ensonic Exp $
+/* $Id: wire-canvas-item.c,v 1.49 2007-09-09 19:54:07 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -58,6 +58,8 @@ struct _BtWireCanvasItemPrivate {
 
   /* the underlying wire */
   BtWire *wire;
+  /* and its properties */
+  GHashTable *properties;
 
   /* end-points of the wire, relative to the group x,y pos */
   gdouble w,h;
@@ -164,6 +166,8 @@ static void on_wire_analysis_dialog_destroy(GtkWidget *widget, gpointer user_dat
 
   GST_INFO("wire analysis dialog destroy occurred");
   self->priv->analysis_dialog=NULL;
+  // remember open/closed state
+  g_hash_table_remove(self->priv->properties,"analyzer-shown");
 }
 
 static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_data) {
@@ -256,6 +260,9 @@ static void on_context_menu_analysis_activate(GtkMenuItem *menuitem,gpointer use
   GST_INFO("context_menu analysis item selected");
   if(!self->priv->analysis_dialog) {
     if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire)))) {
+      GST_INFO("analyzer dialog opened");
+      // remember open/closed state
+      g_hash_table_insert(self->priv->properties,g_strdup("analyzer-shown"),g_strdup("1"));
       g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
     }
   }
@@ -388,7 +395,10 @@ static void bt_wire_canvas_item_set_property(GObject      *object,
     case WIRE_CANVAS_ITEM_WIRE: {
       g_object_try_unref(self->priv->wire);
       self->priv->wire=BT_WIRE(g_value_dup_object(value));
-      //GST_DEBUG("set the wire for wire_canvas_item: %p",self->priv->wire);
+      if(self->priv->wire) {
+        //GST_DEBUG("set the wire for wire_canvas_item: %p",self->priv->wire);
+        g_object_get(self->priv->wire,"properties",&(self->priv->properties),NULL);
+      }
     } break;
     case WIRE_CANVAS_ITEM_W: {
       self->priv->w=g_value_get_double(value);
@@ -476,6 +486,7 @@ static void bt_wire_canvas_item_finalize(GObject *object) {
 static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
   BtWireCanvasItem *self=BT_WIRE_CANVAS_ITEM(citem);
   GnomeCanvasPoints *points;
+  gchar *prop;
 
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
     (GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)(citem);
@@ -504,6 +515,14 @@ static void bt_wire_canvas_item_realize(GnomeCanvasItem *citem) {
                            "width-pixels", 1,
                            NULL);
   gnome_canvas_points_free(points);
+
+  prop=(gchar *)g_hash_table_lookup(self->priv->properties,"analyzer-shown");
+  if(prop && prop[0]=='1' && prop[1]=='\0') {
+    if((self->priv->analysis_dialog=GTK_WIDGET(bt_wire_analysis_dialog_new(self->priv->app,self->priv->wire)))) {
+      g_signal_connect(G_OBJECT(self->priv->analysis_dialog),"destroy",G_CALLBACK(on_wire_analysis_dialog_destroy),(gpointer)self);
+    }
+  }
+
   //item->realized = TRUE;
 }
 
