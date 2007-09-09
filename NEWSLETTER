@@ -2,7 +2,7 @@
 
 The first big change this month came from berzerka. He wrote midi support for
 the interaction controller subsystem. That required some extension of the
-classes, specificly adding a learn mechanism. That is you click a machine
+classes, specifically adding a learn mechanism. That is you click a machine
 property, select learn, touch the midi-controller and done.
 
 One important requirement for a power tool, is having keyboard shortcuts for
@@ -10,24 +10,38 @@ almost everything. For the main menu its easy to do so in gtk+. But then we
 have context menus and toolbars. So I read API docs and code, wrote test
 programs and files bugs and patches [1][2]. The fix for [1] is in svn now, but
 the patch in [2] needs review, anyone? Generally the keyboard accelerator
-functionality needs some updating, seems that thsi has been mostly taken from
+functionality needs some updating, seems that this has been mostly taken from
 gtk-1. At least I could not figure out how to e,g. define two accelerator to
-e.g. select prev/next item in a combo on a toolbar. Sure most apps won't need
-this, but for productivity tools this is quite mandatory. Finaly I wonder whats
-the policy for the media-keys and how to use them. My gdkkeysyms.h include does
-not have symbolic names for them.
+e.g. select previous/next item in a combo on a toolbar. Sure most apps won't
+need this, but for productivity tools this is quite mandatory. Finally I wonder
+what is the policy for the media-keys and how to use them. My gdkkeysyms.h
+include does not have symbolic names for them.
 
 While we're talking about gtk, imho the GtkRuler widget is not that esoteric, it
 would be quite useful if it would have some bugs fixed [3] and be more
 customizable (non-linear scales, more units).
 
-* single/multi-track rendering ui
-* bugfixing
-* waffel installed gishi media wiki extension for syntax highlighting
+Last month I have started the song-recording UI. The command-line tool already
+supported rendering songs to mixdown files. Now there is UI for it too. In
+addition to render a mixdown it can also render each track to a separate file.
+This is great for postprocessing in a multi-track editor like jokosher [4].
+Ideally we could even create a project file for some editors -help is very
+welcome. 
+
+This month I also started to look into live song graph editing. Sounds scary?
+Its is! GStreamer requires some extra care when adding or removing elements while
+playing. I did this now for the wire-analyzer, that plugs spectrum analyzer and
+level meter into a wire. With the changes it works reliable now and doe not kill
+the playback. Next step is to do this for the song itself too. 
+
+Waffel improved out wiki a bit. We now have geshi extension [5]  installed. This
+adds syntax highlighting to sample code. Really nice. 
 
 [1] http://bugzilla.gnome.org/show_bug.cgi?id=469374
 [2] http://bugzilla.gnome.org/show_bug.cgi?id=131177
 [3] http://bugzilla.gnome.org/show_bug.cgi?id=465041
+[4] http://www.jokosher.org
+[5] http://www.mediawiki.org/wiki/Extension:GeSHiHighlight
 
 2007/08 ========================================================================
 

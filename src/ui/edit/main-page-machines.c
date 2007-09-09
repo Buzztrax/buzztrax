@@ -1,4 +1,4 @@
-/* $Id: main-page-machines.c,v 1.108 2007-09-07 20:58:56 ensonic Exp $
+/* $Id: main-page-machines.c,v 1.109 2007-09-09 15:32:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -208,8 +208,6 @@ static void machine_view_refresh(const BtMainPageMachines *self,const BtSetup *s
     machine_view_get_machine_position(properties,&pos_x,&pos_y);
     // draw machine
     machine_item_new(self,machine,pos_x,pos_y);
-    // @todo: get "properties-window-state" and if set,
-    // get xpos, ypos and open window
   }
   g_list_free(list);
 
@@ -491,6 +489,9 @@ static void on_toolbar_zoom_fit_clicked(GtkButton *button, gpointer user_data) {
 
   GST_INFO("toolbar zoom_fit event occurred: zoom = %lf, center x/y = %+6.4lf,%+6.4lf",self->priv->zoom,c_x,c_y);
   update_machines_zoom(self);
+  if(GTK_WIDGET_REALIZED(self->priv->canvas)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->canvas));
+  }
 }
 
 static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
@@ -502,6 +503,9 @@ static void on_toolbar_zoom_in_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar zoom_in event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   update_machines_zoom(self);
+  if(GTK_WIDGET_REALIZED(self->priv->canvas)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->canvas));
+  }
 }
 
 static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
@@ -513,6 +517,9 @@ static void on_toolbar_zoom_out_clicked(GtkButton *button, gpointer user_data) {
   GST_INFO("toolbar zoom_out event occurred : %lf",self->priv->zoom);
   gnome_canvas_set_pixels_per_unit(self->priv->canvas,self->priv->zoom);
   update_machines_zoom(self);
+  if(GTK_WIDGET_REALIZED(self->priv->canvas)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->canvas));
+  }
 }
 
 /*
@@ -637,7 +644,6 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 }
 
 
-
 static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer user_data) {
   BtMainPageMachines *self=BT_MAIN_PAGE_MACHINES(user_data);
   gboolean res=FALSE;
@@ -749,9 +755,16 @@ static gboolean on_canvas_event(GnomeCanvas *canvas, GdkEvent *event, gpointer u
       }
       break;
     case GDK_KEY_RELEASE:
-      // @todo: need mouse pos to check if there is a canvas item under pointer
-      //gnome_canvas_window_to_world(self->priv->canvas,event->button.x,event->button.y,&self->priv->mouse_x,&self->priv->mouse_y);
-      //gnome_canvas_window_to_world(self->priv->canvas,event->motion.x,event->motion.y,&self->priv->mouse_x,&self->priv->mouse_y);
+      // need mouse pos to check if there is a canvas item under pointer
+      {
+        gint pointer_x,pointer_y;
+        gtk_widget_get_pointer(GTK_WIDGET(self->priv->canvas),&pointer_x,&pointer_y);
+        gnome_canvas_window_to_world(self->priv->canvas,(gdouble)pointer_x,(gdouble)pointer_y,&self->priv->mouse_x,&self->priv->mouse_y);
+        //GST_INFO("button: x=%6.3lf, y=%6.3lf",event->button.x,event->button.y);
+        //GST_INFO("motion: x=%6.3lf, y=%6.3lf",event->motion.x,event->motion.y);
+        //GST_INFO("motion: x=%6d, y=%6d",pointer_x,pointer_y);
+      }
+      
       if(!gnome_canvas_get_item_at(self->priv->canvas,self->priv->mouse_x,self->priv->mouse_y)) {
         GST_DEBUG("GDK_KEY_RELEASE: %d",event->key.keyval);
         switch(event->key.keyval) {

@@ -1,3 +1,18 @@
+2007-09-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Finished NEWS.
+
+	* src/ui/edit/machine-canvas-item.c:
+	  Remember open/close state for property windows.
+
+	* src/ui/edit/main-menu.c:
+	  Add todos.
+
+	* src/ui/edit/main-page-machines.c:
+	  Focus grab improvments. Get mouse pos to check if mouse it over
+	  canvas-item.	  
+
 2007-09-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
@@ -181,7 +196,6 @@
 	  Don't fail test if we can't create dialog.
 
 2007-08-22  Stefan Kost  <ensonic@users.sf.net>
-
 
 	* NEWSLETTER:
 	  Prepare news.

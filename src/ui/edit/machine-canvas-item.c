@@ -1,4 +1,4 @@
-/* $Id: machine-canvas-item.c,v 1.88 2007-09-07 20:58:56 ensonic Exp $
+/* $Id: machine-canvas-item.c,v 1.89 2007-09-09 15:32:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -213,6 +213,8 @@ static void on_machine_properties_dialog_destroy(GtkWidget *widget, gpointer use
 
   GST_INFO("machine properties dialog destroy occurred");
   self->priv->properties_dialog=NULL;
+  // remember open/closed state
+  g_hash_table_remove(self->priv->properties,"properties-shown");
 }
 
 static void on_machine_preferences_dialog_destroy(GtkWidget *widget, gpointer user_data) {
@@ -273,6 +275,9 @@ static void on_context_menu_properties_activate(GtkMenuItem *menuitem,gpointer u
 
   if(!self->priv->properties_dialog) {
     if((self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine)))) {
+      GST_INFO("machine properties dialog opened");
+      // remember open/closed state
+      g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
       g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
     }
   }
@@ -657,7 +662,7 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   gdouble mx1,mx2,my1,my2,mw,mh;
   guint32 bg_color,bg_color2,bg_color3;
   gdouble fh=MACHINE_VIEW_FONT_SIZE;
-  gchar *id;
+  gchar *id,*prop;
   GnomeCanvasPoints *points;
 
   if(GNOME_CANVAS_ITEM_CLASS(parent_class)->realize)
@@ -790,6 +795,14 @@ static void bt_machine_canvas_item_realize(GnomeCanvasItem *citem) {
   gnome_canvas_item_hide(self->priv->state_bypass);
 
   gnome_canvas_points_free(points);
+  
+  prop=(gchar *)g_hash_table_lookup(self->priv->properties,"properties-shown");
+  if(prop && prop[0]=='1' && prop[1]=='\0') {
+    if((self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine)))) {
+      g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
+    }
+  }
+
   //item->realized = TRUE;
 }
 
@@ -807,6 +820,9 @@ static gboolean bt_machine_canvas_item_event(GnomeCanvasItem *citem, GdkEvent *e
       GST_DEBUG("GDK_2BUTTON_RELEASE: %d, 0x%x",event->button.button,event->button.state);
       if(!self->priv->properties_dialog) {
         self->priv->properties_dialog=GTK_WIDGET(bt_machine_properties_dialog_new(self->priv->app,self->priv->machine));
+        GST_INFO("machine properties dialog opened");
+        // remember open/closed state
+        g_hash_table_insert(self->priv->properties,g_strdup("properties-shown"),g_strdup("1"));
         g_signal_connect(G_OBJECT(self->priv->properties_dialog),"destroy",G_CALLBACK(on_machine_properties_dialog_destroy),(gpointer)self);
       }
       res=TRUE;

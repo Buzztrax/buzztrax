@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.76 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: main-menu.c,v 1.77 2007-09-09 15:32:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -580,6 +580,8 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"toggled",G_CALLBACK(on_menu_view_tabs_toggled),(gpointer)self);
 
+  /* @todo 'Machine properties' show/hide toggle */
+  
   subitem=gtk_separator_menu_item_new();
   gtk_widget_set_name(subitem,_("separator"));
   gtk_container_add(GTK_CONTAINER(menu),subitem);
@@ -625,6 +627,32 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_goto_info_view_activate),(gpointer)self);
 
+  /* @todo zoom menu items
+   *  machine view:  zoom-in/zoom-out/zoom-fit
+   *  sequence vide: zoom-in/zoom-out
+   *
+   
+  subitem=gtk_separator_menu_item_new();
+  gtk_widget_set_name(subitem,_("separator"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  gtk_widget_set_sensitive(subitem,FALSE);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_FIT,accel_group);
+  gtk_widget_set_name(subitem,_("Zoom Fit"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_fit_activate),(gpointer)self);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_IN,accel_group);
+  gtk_widget_set_name(subitem,_("Zoom In"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_in_activate),(gpointer)self);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_ZOOM_OUT,accel_group);
+  gtk_widget_set_name(subitem,_("Zoom Out"));
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
+  */
+  
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));
   gtk_widget_set_name(item,_("help menu"));
