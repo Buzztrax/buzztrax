@@ -1,4 +1,4 @@
-/* $Id: t-sink-machine.c,v 1.12 2007-04-04 13:43:59 ensonic Exp $
+/* $Id: t-sink-machine.c,v 1.13 2007-09-23 19:13:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -54,6 +54,7 @@ BT_START_TEST(test_btsinkmachine_settings1) {
 
   //g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
   g_object_set(settings,"audiosink","osssink sync=false",NULL);
+  mark_point();
 
   machine=bt_sink_machine_new(song,"master");
   fail_unless(machine!=NULL, NULL);
@@ -79,7 +80,6 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   BtSong *song=NULL;
   BtSinkMachine *machine=NULL;
   BtSettings *settings=NULL;
-  //gchar *saved_audiosink_name;
 
   /* create a dummy app, song and get settings */
   app=g_object_new(BT_TYPE_APPLICATION,NULL);
@@ -89,17 +89,13 @@ BT_START_TEST(test_btsinkmachine_settings2) {
   settings=bt_settings_new();
   mark_point();
 
-  //g_object_get(settings,"audiosink",&saved_audiosink_name,NULL);
   g_object_set(settings,"audiosink","audioconvert ! osssink sync=false",NULL);
   mark_point();
 
   machine=bt_sink_machine_new(song,"master");
   fail_unless(machine!=NULL, NULL);
 
-  //g_object_set(settings,"audiosink",saved_audiosink_name,NULL);
-
   g_object_unref(settings);
-  //g_free(saved_audiosink_name);
   g_object_unref(machine);
   g_object_checked_unref(song);
   g_object_checked_unref(app);
@@ -121,10 +117,10 @@ BT_START_TEST(test_btsinkmachine_settings3) {
   mark_point();
 
   g_object_set(settings,"audiosink","xvimagsink",NULL);
+  mark_point();
 
   machine=bt_sink_machine_new(song,"master");
   fail_unless(machine!=NULL, NULL);
-
 
   g_object_unref(settings);
   g_object_unref(machine);
@@ -148,10 +144,10 @@ BT_START_TEST(test_btsinkmachine_settings4) {
   mark_point();
 
   g_object_set(settings,"audiosink","alsasink device=invalid:666",NULL);
+  mark_point();
 
   machine=bt_sink_machine_new(song,"master");
   fail_unless(machine!=NULL, NULL);
-
 
   g_object_unref(settings);
   g_object_unref(machine);

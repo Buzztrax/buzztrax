@@ -1,4 +1,4 @@
-/* $Id: sink-bin.c,v 1.39 2007-09-04 14:36:28 ensonic Exp $
+/* $Id: sink-bin.c,v 1.40 2007-09-23 19:13:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -177,7 +177,7 @@ static void bt_sink_bin_clear(const BtSinkBin * const self) {
     GstStateChangeReturn res;
 
     //gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),NULL);
-    GST_DEBUG("released ghost-pad");
+    //GST_DEBUG("released ghost-pad");
 
     while(bin->children) {
       elem=GST_ELEMENT_CAST (bin->children->data);
@@ -502,23 +502,24 @@ static gboolean bt_sink_bin_update(const BtSinkBin * const self) {
   }
 
   // set new ghostpad-target
-  if(first_elem) {
-    GstPad *sink_pad=gst_element_get_pad(first_elem,"sink");
+  if(first_elem && self->priv->sink) {
+    GstPad *sink_pad=gst_element_get_static_pad(first_elem,"sink");
 
-    GST_INFO("updating ghostpad");
+    GST_INFO("updating ghostpad: %p", self->priv->sink);
 
     if(!sink_pad) {
-      GST_INFO("failed to get 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
+      GST_INFO("failed to get static 'sink' pad for element '%s'",GST_OBJECT_NAME(first_elem));
       sink_pad=gst_element_get_request_pad(first_elem,"sink_%d");
       if(!sink_pad) {
-        GST_INFO("failed to get 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
+        GST_INFO("failed to get request 'sink' request-pad for element '%s'",GST_OBJECT_NAME(first_elem));
       }
     }
-    GST_INFO("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
+    GST_INFO ("updating ghost pad : elem=%p (ref_ct=%d),'%s', pad=%p (ref_ct=%d)",
       first_elem,(G_OBJECT(first_elem)->ref_count),GST_OBJECT_NAME(first_elem),
       sink_pad,(G_OBJECT(sink_pad)->ref_count));
     gst_ghost_pad_set_target(GST_GHOST_PAD(self->priv->sink),sink_pad);
     GST_INFO("  done, pad=%p (ref_ct=%d)",sink_pad,(G_OBJECT(sink_pad)->ref_count));
+    // @todo: request pads need to be released
     gst_object_unref(sink_pad);
   }
 
@@ -732,6 +733,7 @@ static void bt_sink_bin_init(GTypeInstance * const instance, gconstpointer g_cla
 
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_SINK_BIN, BtSinkBinPrivate);
 
+  GST_INFO("init sink-bin %p",self);
   self->priv->sink=gst_ghost_pad_new_no_target("sink",GST_PAD_SINK);
   gst_element_add_pad(GST_ELEMENT(self),self->priv->sink);
   bt_sink_bin_update(self);

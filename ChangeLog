@@ -1,5 +1,11 @@
 2007-09-23  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/sink-bin.c:
+	* tests/lib/core/t-sink-machine.c:
+	  Better debug logs while hunting down a broekn test.
+
+2007-09-23  Stefan Kost  <ensonic@users.sf.net>
+
 	* Makefile.am:
 	* configure.ac:
 	  Improved lcov detection.
