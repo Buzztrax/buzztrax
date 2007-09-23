@@ -1,4 +1,4 @@
-## $Id: Makefile.am,v 1.70 2007-08-01 17:11:44 ensonic Exp $
+## $Id: Makefile.am,v 1.71 2007-09-23 14:43:46 ensonic Exp $
 
 SRCDIRS = src tests
 SUBDIRS = $(SRCDIRS) po docs
@@ -131,13 +131,13 @@ distuninstallcheck_listfiles += | grep -v 'icon-theme.cache'
 
 .PHONY: help coverage valgrind dict todo stats splint
 
-if USE_COVERAGE
+if USE_LCOV
 coverage::
 	mkdir -p ./coverage
-	lcov --directory . --zerocounters
+	lcov --compat-libtool --directory . --zerocounters
 	-$(MAKE) check
-	lcov --directory ./src --capture --output-file ./coverage/$(PACKAGE)_tmp.info
-	lcov --extract ./coverage/$(PACKAGE)_tmp.info "$(PWD)/src*" -o ./coverage/$(PACKAGE).info
+	lcov --compat-libtool --directory ./src --capture --output-file ./coverage/$(PACKAGE)_tmp.info
+	lcov --compat-libtool --extract ./coverage/$(PACKAGE)_tmp.info "$(PWD)/src*" -o ./coverage/$(PACKAGE).info
 	$(RM) ./coverage/$(PACKAGE)_tmp.info
 	genhtml -o ./coverage --num-spaces 2 ./coverage/$(PACKAGE).info
 endif

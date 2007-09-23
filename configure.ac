@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.103 2007-07-12 11:49:20 ensonic Exp $
+dnl $Id: configure.ac,v 1.104 2007-09-23 14:43:46 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -153,15 +153,28 @@ AC_ARG_ENABLE(
   [enable_coverage="no"])
 AC_MSG_RESULT($enable_coverage)
 if test "$enable_coverage" = "yes"; then
-  #AC_DEFINE(APP_COVERAGE, [1], [enable coverage analysis])
-  AM_CONDITIONAL(USE_COVERAGE, true)
   COVERAGE_CFLAGS="-O0 -g -fprofile-arcs -ftest-coverage"
   COVERAGE_LIBS="-lgcov"
+
+  AC_PATH_PROG(locv_path, [lcov], [no])
+  if test "x$lcov_path" != "xno" ; then
+    LCOV_VERSION=`lcov --version|head -n 1| 's/^.* version //'`
+    LCOV_MAJOR=`echo $LCOV_VERSION | cut -d. -f1 | sed s/[a-zA-Z\-].*//g`
+    LCOV_MINOR=`echo $LCOV_VERSION | cut -d. -f2 | sed s/[a-zA-Z\-].*//g`
+    if [[ "$LCOV_MAJOR" -lt "1" ]]; then
+      AC_MSG_WARN([lcov >= 1.6 is required, you have $LCOV_VERSION])
+      lcov_path="no"
+    elif [[ "$LCOV_MAJOR" -eq "1" ]] && \
+         [[ "$LCOV_MINOR" -lt "6" ]]; then
+      AC_MSG_WARN([lcov >= 1.6 is required, you have $LCOV_VERSION])
+      lcov_path="no"
+    fi
+  fi
 else
-  AM_CONDITIONAL(USE_COVERAGE, false)
   COVERAGE_CFLAGS=""
   COVERAGE_LIBS=""
 fi
+AM_CONDITIONAL(USE_LCOV, test ! x$lcov_path = xyes)
 
 
 dnl valgrind integration for tests
@@ -172,8 +185,8 @@ AC_ARG_WITH([valgrind],
         [ac_cv_use_valgrind=$withval], [ac_cv_use_valgrind=no])dnl
 AC_MSG_RESULT($ac_cv_use_valgrind)
 VALGRIND=$ac_cv_use_valgrind
-AC_SUBST(VALGRIND)dnl
-AM_CONDITIONAL(USE_VALGRIND, test x$VALGRIND != xno)dnl
+AC_SUBST(VALGRIND)
+AM_CONDITIONAL(USE_VALGRIND, test x$VALGRIND != xno)
 
 VALGRIND_CPPFLAGS=
 if test $ac_cv_use_valgrind != no; then
@@ -190,7 +203,7 @@ if test $ac_cv_use_valgrind != no; then
       VALGRIND_CFLAGS=-I$ac_cv_use_valgrind/valgrind/include
    fi
 fi
-AC_SUBST(VALGRIND_CFLAGS)dnl
+AC_SUBST(VALGRIND_CFLAGS)
 
 
 dnl define custom path for desktop files

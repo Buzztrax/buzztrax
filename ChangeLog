@@ -1,3 +1,9 @@
+2007-09-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* Makefile.am:
+	* configure.ac:
+	  Improved lcov detection.
+
 2007-09-09  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
