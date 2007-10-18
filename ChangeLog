@@ -1,3 +1,17 @@
+2007-10-18  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	* configure.ac:
+	  Fix gcov detection, spotted by Tim Janik.
+
+
+2007-10-18  Stefan Kost  <ensonic@users.sf.net>
+
+	reviewed by: <delete if not using a buddy>
+	patch by: <delete if not someone else's patch>
+
+	* configure.ac:
+
 2007-09-23  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/sink-bin.c:
