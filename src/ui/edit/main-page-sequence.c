@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.184 2007-10-22 14:23:03 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.185 2007-10-22 20:35:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,7 +42,9 @@
  * - label menu
  *   - update menu on sequence edits
  *   - add navigation action
- * - re-arrange rows (needs bt_sequence_move_track_left/right(const BtSequence * const self, gulong track_id);
+ * - re-arrange rows
+ *   -> use new bt_sequence_move_track_left/right(const BtSequence * const self, gulong track_id);
+ *   - add move left/right menu items using GTK_STOCK_GO_BACK/FORWARD
  * - format positions in pos-column and label menu
  * - when we move between tracks, switch the current-machine in pattern-view
  *
@@ -501,8 +503,10 @@ static void sequence_calculate_visible_lines(const BtMainPageSequence *self) {
 static gboolean on_page_switched_idle(gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
-  // do we need to set the cursor here?
-  sequence_view_set_cursor_pos(self);
+  //if(GTK_WIDGET_REALIZED(self->priv->sequence_table)) { 
+    // do we need to set the cursor here?
+    sequence_view_set_cursor_pos(self);
+  //}
   return(FALSE);
 }
 

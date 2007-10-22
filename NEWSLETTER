@@ -1,7 +1,23 @@
+2007/11 ========================================================================
+
+
+
 2007/10 ========================================================================
 
-* remember machine property window and analyzer window state
-* hot-keys on machine-view
+Before its getting even later here is the monthly update. I worked a bit more
+on the 'state persistence' - a song now tracks opened machine and analyser
+windows. There are restored when loading the song. In continuation of previous
+months efforts The machine view got some hot keys now too. 
+
+Now that lcov-1.6 is released, I've added a configure check for it and use the
+new options. The new version does not need to be patched anymore to generate
+coverage reports for user-space apps. While testing the overage, I also added a
+few more tests to increase it.
+
+Waffel has updated our MediaWiki. Now we have opened it again. Unregistered
+users have to solve a captcha every time they edit or when they register. I moved
+our changes into a separate skin to ease further updates. I have tweaked the css
+a bit - more to come if I find good inspiration.
 
 2007/09 ========================================================================
 

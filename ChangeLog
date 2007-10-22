@@ -1,5 +1,12 @@
 2007-10-22  Stefan Kost  <ensonic@users.sf.net>
 
+	* ChangeLog:
+	* NEWSLETTER:
+	* src/ui/edit/main-page-sequence.c:
+	  Add a few comment for adding columnt reshuffling in sequence.
+
+2007-10-22  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:
@@ -22,7 +29,7 @@
 
 	* src/lib/core/sink-bin.c:
 	* tests/lib/core/t-sink-machine.c:
-	  Better debug logs while hunting down a broekn test.
+	  Better debug logs while hunting down a broken test.
 
 2007-09-23  Stefan Kost  <ensonic@users.sf.net>
 
