@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.183 2007-09-09 19:54:07 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.184 2007-10-22 14:23:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,7 +42,7 @@
  * - label menu
  *   - update menu on sequence edits
  *   - add navigation action
- * - re-arrange rows
+ * - re-arrange rows (needs bt_sequence_move_track_left/right(const BtSequence * const self, gulong track_id);
  * - format positions in pos-column and label menu
  * - when we move between tracks, switch the current-machine in pattern-view
  *

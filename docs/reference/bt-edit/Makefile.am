@@ -72,7 +72,8 @@ GTKDOC_LIBS = \
 	$(top_builddir)/src/lib/ic/libbtic.la \
 	$(top_builddir)/src/ui/edit/libbtedit.la \
 	$(BASE_DEPS_LIBS) \
-	$(GUI_DEPS_LIBS)
+	$(GUI_DEPS_LIBS) \
+        	$(BT_LIBS)
 
 # include generic part
 include $(top_srcdir)/gtk-doc.make

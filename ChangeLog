@@ -1,16 +1,22 @@
+2007-10-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	  Fix doc build when building with coverage.
+
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add new methods for moving columns in sequence.
+
 2007-10-18  Stefan Kost  <ensonic@users.sf.net>
 
 	* ChangeLog:
 	* configure.ac:
 	  Fix gcov detection, spotted by Tim Janik.
-
-
-2007-10-18  Stefan Kost  <ensonic@users.sf.net>
-
-	reviewed by: <delete if not using a buddy>
-	patch by: <delete if not someone else's patch>
-
-	* configure.ac:
 
 2007-09-23  Stefan Kost  <ensonic@users.sf.net>
 

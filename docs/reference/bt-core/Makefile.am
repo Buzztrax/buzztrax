@@ -64,7 +64,8 @@ INCLUDES = \
 GTKDOC_LIBS = \
 	$(top_builddir)/src/lib/core/libbtcore.la \
 	$(top_builddir)/src/lib/ic/libbtic.la \
-	$(BASE_DEPS_LIBS)
+	$(BASE_DEPS_LIBS) \
+	$(BT_LIBS)
 
 # include generic part
 include $(top_srcdir)/gtk-doc.make

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.141 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: sequence.c,v 1.142 2007-10-22 14:23:03 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -834,6 +834,64 @@ gboolean bt_sequence_remove_track_by_ix(const BtSequence * const self, const gul
 }
 
 /**
+ * bt_sequence_move_track_left:
+ * @self: the #BtSequence that holds the tracks
+ * @track: the track to move
+ *
+ * Move the selected track on column left.
+ *
+ * Returns: @TRUE for success
+ */
+gboolean bt_sequence_move_track_left(const BtSequence * const self, const gulong track) {
+  BtPattern *pattern;
+  BtMachine *machine;
+  gulong i,ix=track;
+
+  g_return_val_if_fail(track>0,FALSE);
+  
+  for(i=0;i<self->priv->length;i++) {
+    pattern=self->priv->patterns[track];
+    self->priv->patterns[ix]=self->priv->patterns[ix-1];
+    self->priv->patterns[ix-1]=pattern;
+    ix+=self->priv->tracks;
+  }
+  machine=self->priv->machines[track];
+  self->priv->machines[track]=self->priv->machines[track-1];
+  self->priv->machines[track-1]=machine;
+  
+  return(TRUE);
+}
+
+/**
+ * bt_sequence_move_track_right:
+ * @self: the #BtSequence that holds the tracks
+ * @track: the track to move
+ *
+ * Move the selected track on column left.
+ *
+ * Returns: @TRUE for success
+ */
+gboolean bt_sequence_move_track_right(const BtSequence * const self, const gulong track) {
+  BtPattern *pattern;
+  BtMachine *machine;
+  gulong i,ix=track;
+
+  g_return_val_if_fail(track<(self->priv->tracks-1),FALSE);
+  
+  for(i=0;i<self->priv->length;i++) {
+    pattern=self->priv->patterns[track];
+    self->priv->patterns[ix]=self->priv->patterns[ix+1];
+    self->priv->patterns[ix+1]=pattern;
+    ix+=self->priv->tracks;
+  }
+  machine=self->priv->machines[track];
+  self->priv->machines[track]=self->priv->machines[track+1];
+  self->priv->machines[track+1]=machine;
+
+  return(TRUE);
+}
+
+/**
  * bt_sequence_remove_track_by_machine:
  * @self: the #BtSequence that holds the tracks
  * @machine: the #BtMachine
@@ -858,33 +916,6 @@ gboolean bt_sequence_remove_track_by_machine(const BtSequence * const self,const
   GST_INFO("removed tracks for machine %p,ref_count=%d,res=%d",machine,G_OBJECT(machine)->ref_count,res);
   return(res);
 }
-
-/**
- * bt_sequence_set_machine:
- * @self: the #BtSequence that holds the tracks
- * @track: the requested track index
- * @machine: the #BtMachine
- *
- * Sets the #BtMachine for the respective @track.
- * This should only be done once for each track.
- * @deprecated: use bt_sequence_add_track()
- *
-void bt_sequence_set_machine(const BtSequence * const self, const gulong track, const BtMachine * const machine) {
-  g_return_if_fail(BT_IS_SEQUENCE(self));
-  g_return_if_fail(BT_IS_MACHINE(machine));
-  g_return_if_fail(track<self->priv->tracks);
-
-  GST_INFO("set machine for track %d",track);
-
-  if(!self->priv->machines[track]) {
-    self->priv->machines[track]=g_object_ref(G_OBJECT(machine));
-    g_signal_connect(G_OBJECT(machine),"pattern-removed",G_CALLBACK(bt_sequence_on_pattern_removed),(gpointer)self);
-  }
-  else {
-    GST_ERROR("machine has already be set!");
-  }
-}
-*/
 
 /**
  * bt_sequence_get_label:
