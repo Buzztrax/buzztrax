@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.185 2007-10-22 20:35:22 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.186 2007-10-23 19:42:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -42,9 +42,6 @@
  * - label menu
  *   - update menu on sequence edits
  *   - add navigation action
- * - re-arrange rows
- *   -> use new bt_sequence_move_track_left/right(const BtSequence * const self, gulong track_id);
- *   - add move left/right menu items using GTK_STOCK_GO_BACK/FORWARD
  * - format positions in pos-column and label menu
  * - when we move between tracks, switch the current-machine in pattern-view
  *
@@ -1510,6 +1507,56 @@ static void on_track_remove_activated(GtkMenuItem *menuitem, gpointer user_data)
   g_object_unref(song);
 }
 
+static void on_track_move_left_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSong *song;
+  BtSequence *sequence;
+  gulong track=self->priv->cursor_column-1;
+  
+  GST_INFO("move track %d to left",self->priv->cursor_column);
+
+  if(track>0) {
+    // get song from app and then setup from song
+    g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+    g_object_get(song,"sequence",&sequence,NULL);
+    
+    if(bt_sequence_move_track_left(sequence,track)) {
+      self->priv->cursor_column--;
+      // reinit the view
+      sequence_table_refresh(self,song);
+      sequence_model_recolorize(self);
+    }
+
+    g_object_unref(sequence);
+    g_object_unref(song);
+  }
+}
+
+static void on_track_move_right_activated(GtkMenuItem *menuitem, gpointer user_data) {
+  BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
+  BtSong *song;
+  BtSequence *sequence;
+  gulong track=self->priv->cursor_column-1,number_of_tracks;
+
+  GST_INFO("move track %d to right",self->priv->cursor_column);
+
+  // get song from app and then setup from song
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  g_object_get(song,"sequence",&sequence,NULL);
+  g_object_get(G_OBJECT(sequence),"tracks",&number_of_tracks,NULL);
+
+  if(track<number_of_tracks) {
+    if(bt_sequence_move_track_right(sequence,track)) {
+      self->priv->cursor_column++;
+      // reinit the view
+      sequence_table_refresh(self,song);
+      sequence_model_recolorize(self);
+    }
+  }
+  g_object_unref(sequence);
+  g_object_unref(song);
+}
+
 static void on_song_play_pos_notify(const BtSong *song,GParamSpec *arg,gpointer user_data) {
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
   BtSequence *sequence;
@@ -2465,6 +2512,29 @@ static gboolean bt_main_page_sequence_init_ui(const BtMainPageSequence *self,con
   gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
   gtk_widget_show(menu_item);
   g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_remove_activated),(gpointer)self);
+
+  menu_item=gtk_separator_menu_item_new();
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_set_sensitive(menu_item,FALSE);
+  gtk_widget_show(menu_item);
+
+  menu_item=gtk_image_menu_item_new_with_label(_("Move track left"));
+  image=gtk_image_new_from_stock(GTK_STOCK_GO_BACK,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackLeft");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackLeft", GDK_Left, GDK_CONTROL_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_move_left_activated),(gpointer)self);
+
+  menu_item=gtk_image_menu_item_new_with_label(_("Move track right"));
+  image=gtk_image_new_from_stock(GTK_STOCK_GO_FORWARD,GTK_ICON_SIZE_MENU);
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item),image);
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (menu_item), "<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackRight");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/SequenceView/SequenceContext/MoveTrackRight", GDK_Right, GDK_CONTROL_MASK);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self->priv->context_menu),menu_item);
+  gtk_widget_show(menu_item);
+  g_signal_connect(G_OBJECT(menu_item),"activate",G_CALLBACK(on_track_move_right_activated),(gpointer)self);
 
   // --
   // @todo cut, copy, paste

@@ -1,3 +1,8 @@
+2007-10-23  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/main-page-sequence.c:
+	  Implement column reshuffling.
+
 2007-10-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* ChangeLog:
