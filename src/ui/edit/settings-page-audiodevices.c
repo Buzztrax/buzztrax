@@ -1,4 +1,4 @@
-/* $Id: settings-page-audiodevices.c,v 1.35 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: settings-page-audiodevices.c,v 1.36 2007-11-02 15:29:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -154,6 +154,9 @@ static gboolean bt_settings_page_audiodevices_init_ui(const BtSettingsPageAudiod
    * We also need to restore them, when selecting the sink, allowing to reset
    * them to defaults.
    * Finaly sink-bin needs to apply those.
+   *
+   * buffer-time: is the total size of the ring-buffer
+   * latency-time is the allowed latency
    */
 
   g_free(audiosink_name);

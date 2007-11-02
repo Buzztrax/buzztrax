@@ -1,4 +1,4 @@
-/* $Id: source-machine.c,v 1.44 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: source-machine.c,v 1.45 2007-11-02 15:29:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -39,6 +39,17 @@ struct _BtSourceMachinePrivate {
 
 static BtMachineClass *parent_class=NULL;
 
+static void bt_source_machine_post_init(BtSourceMachine * const self) {
+  GstElement * const element;
+  
+  g_object_get(self,"machine",&element,NULL);
+  if(GST_IS_BASE_SRC(element)) {
+    gst_base_src_set_live(GST_BASE_SRC(element),FALSE);
+  }
+  gst_object_unref(element);
+}
+
+
 //-- constructor methods
 
 /**
@@ -68,6 +79,7 @@ BtSourceMachine *bt_source_machine_new(const BtSong * const song, const gchar * 
   if(!bt_machine_new(BT_MACHINE(self))) {
     goto Error;
   }
+  bt_source_machine_post_init(self);
   return(self);
 Error:
   g_object_try_unref(self);
@@ -100,8 +112,9 @@ static xmlNodePtr bt_source_machine_persistence_save(const BtPersistence * const
 }
 
 static gboolean bt_source_machine_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
-  const BtSourceMachine * const self = BT_SOURCE_MACHINE(persistence);
+  BtSourceMachine * const self = BT_SOURCE_MACHINE(persistence);
   const BtPersistenceInterface * const parent_iface=g_type_interface_peek_parent(BT_PERSISTENCE_GET_INTERFACE(persistence));
+  gboolean res;
 
   xmlChar * const plugin_name=xmlGetProp(node,XML_CHAR_PTR("plugin-name"));
   xmlChar * const voices_str=xmlGetProp(node,XML_CHAR_PTR("voices"));
@@ -111,7 +124,11 @@ static gboolean bt_source_machine_persistence_load(const BtPersistence * const p
   xmlFree(voices_str);
   
   // load parent class stuff
-  return(parent_iface->load(persistence,node,location));
+  if((res=parent_iface->load(persistence,node,location))) {  
+    bt_source_machine_post_init(self);
+  }
+  
+  return(res);
 }
 
 static void bt_source_machine_persistence_interface_init(gpointer const g_iface, gpointer const iface_data) {

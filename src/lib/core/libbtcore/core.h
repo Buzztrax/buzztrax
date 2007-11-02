@@ -1,4 +1,4 @@
-/* $Id: core.h,v 1.92 2007-08-03 21:08:15 ensonic Exp $
+/* $Id: core.h,v 1.93 2007-11-02 15:29:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -57,6 +57,7 @@
 #include <gst/gst.h>
 #include <gst/audio/audio.h>
 #include <gst/audio/gstbaseaudiosink.h>
+#include <gst/base/gstbasesrc.h>
 #include <gst/base/gstbasesink.h>
 #include <gst/base/gstbasetransform.h>
 #include <gst/controller/gstcontroller.h>

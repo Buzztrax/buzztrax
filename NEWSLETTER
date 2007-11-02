@@ -1,6 +1,8 @@
 2007/11 ========================================================================
 
-
+bml/gstbml rewrite to support native machines.
+first native machines ported.
+track reordering in sequence tab
 
 2007/10 ========================================================================
 

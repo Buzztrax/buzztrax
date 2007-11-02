@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.191 2007-08-27 20:17:48 ensonic Exp $
+/* $Id: song.c,v 1.192 2007-11-02 15:29:54 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -152,7 +152,11 @@ static void bt_song_update_play_seek_event(const BtSong * const self) {
 
   if(self->priv->play_seek_event) gst_event_unref(self->priv->play_seek_event);
   if(self->priv->loop_seek_event) gst_event_unref(self->priv->loop_seek_event);
-  // we need to use FLUSH for play (due to prerolling), but not for loop
+  /* we need to use FLUSH for play (due to prerolling), otherwise:
+     0:00:00.866899000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1644:gst_base_sink_do_sync:<player> prerolling object 0x818ce90
+     0:00:00.866948000 15884 0x81cee70 DEBUG             basesink gstbasesink.c:1493:gst_base_sink_wait_preroll:<player> waiting in preroll for flush or PLAYING
+     but not for loop
+   */
   if (loop) {
     self->priv->play_seek_event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
         GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
@@ -444,7 +448,8 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // this should be sequence->play_start
         self->priv->play_pos=0;
         // seek to start time
-        GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
+        //GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
+        GST_DEBUG("seek event");
         if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("bin failed to handle seek event");
         }
