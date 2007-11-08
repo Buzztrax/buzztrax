@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.144 2007-09-09 19:54:07 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.145 2007-11-08 15:17:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -487,7 +487,8 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   g_assert(user_data);
   if(!GTK_WIDGET_REALIZED(self->priv->pattern_table)) return(FALSE);
 
-  GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x",event->state,event->keyval,event->hardware_keycode);
+  GST_INFO("pattern_table key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
+    event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
   if(event->keyval==GDK_Return) {  /* GDK_KP_Enter */
     if(modifier==GDK_SHIFT_MASK) {
       BtMainWindow *main_window;
@@ -513,7 +514,9 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   }
   else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
     if(self->priv->pattern) {
+#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
       gboolean changed=FALSE;
+#endif
       BtMachine *machine;
       gulong length,column_ct,voices,global_params,voice_params;
 
@@ -551,7 +554,11 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
         // handle selection
         switch(event->keyval) {
           case GDK_Up:
-            if((self->priv->cursor_row>=0) && changed) {
+            if((self->priv->cursor_row>=0)
+#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+              && changed
+#endif
+              ) {
               GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_start_row==-1) {
                 GST_INFO("up   : new selection");
@@ -575,7 +582,11 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
             }
             break;
           case GDK_Down:
-            if((self->priv->cursor_row<=length) && changed) {
+            if((self->priv->cursor_row<=length)
+#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+              && changed
+#endif
+              ) {
               GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_end_row==-1) {
                 GST_INFO("down : new selection");
@@ -680,8 +691,45 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
       else {
         switch(self->priv->column_keymode[param]) {
           case PATTERN_KEYMODE_NOTE:
-            /* @todo: handle y<->z of key-layouts (event->hardware_keycode) */
-            /* @todo: handle h/b variation in notes */
+            /* handle y<->z of key-layouts (event->hardware_keycode)
+               keyval 0x7a, hw-code 0x34, name z
+               keyval 0x79, hw-code 0x1d, name y
+             */
+            /* @todo: handle h/b variation in notes (locale)
+             * http://en.wikipedia.org/wiki/Note#Note_name
+             */
+            switch(event->hardware_keycode) {
+              case 0x34: str="c-0";break;
+              case 0x27: str="c#0";break;
+              case 0x35: str="d-0";break;
+              case 0x28: str="d#0";break;
+              case 0x36: str="e-0";break;
+              case 0x37: str="f-0";break;
+              case 0x2a: str="f#0";break;
+              case 0x38: str="g-0";break;
+              case 0x2b: str="g#0";break;
+              case 0x39: str="a-0";break;
+              case 0x2c: str="a#0";break;
+              case 0x3a: str="h-0";break;
+              case 0x18: str="c-1";break;
+              case 0x0b: str="c#1";break;
+              case 0x19: str="d-1";break;
+              case 0x0c: str="d#1";break;
+              case 0x1a: str="e-1";break;
+              case 0x1b: str="f-1";break;
+              case 0x0e: str="f#1";break;
+              case 0x1c: str="g-1";break;
+              case 0x0f: str="g#1";break;
+              case 0x1d: str="a-1";break;
+              case 0x10: str="a#1";break;
+              case 0x1e: str="h-1";break;
+              case 0x1f: str="c-2";break;
+              case 0x12: str="c#2";break;
+              case 0x20: str="d-2";break;
+              case 0x13: str="d#2";break;
+              case 0x21: str="e-2";break;
+            }
+            /*
             switch(event->keyval) {
               case GDK_y: str="c-0";break;
               case GDK_s: str="c#0";break;
@@ -713,6 +761,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               case GDK_0: str="d#2";break;
               case GDK_p: str="e-2";break;
             }
+            */
             if(str) {
               oct_str[0]=str[0];
               oct_str[1]=str[1];

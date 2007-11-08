@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.186 2007-10-23 19:42:58 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.187 2007-11-08 15:17:17 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1818,10 +1818,10 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());   
     }
     else if(event->keyval==GDK_Up || event->keyval==GDK_Down || event->keyval==GDK_Left || event->keyval==GDK_Right) {
-      gboolean changed=FALSE;
-
       // work around http://bugzilla.gnome.org/show_bug.cgi?id=371756
 #if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+      gboolean changed=FALSE;
+
       switch(event->keyval) {
         case GDK_Up:
           if(self->priv->cursor_row>0) {
@@ -1850,7 +1850,11 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
         // handle selection
         switch(event->keyval) {
           case GDK_Up:
-            if((self->priv->cursor_row>=0) && changed) {
+            if((self->priv->cursor_row>=0)
+#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+              && changed
+#endif
+              ) {
               GST_INFO("up   : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_start_row==-1) {
                 GST_INFO("up   : new selection");
@@ -1874,8 +1878,13 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             }
             break;
           case GDK_Down:
-            // we expand length
-            //if((self->priv->cursor_row<self->priv->list_length) && changed) {
+            /* we expand length
+            if((self->priv->cursor_row<self->priv->list_length)
+#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
+              && changed
+#endif
+              ) {
+            */
               GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
               if(self->priv->selection_end_row==-1) {
                 GST_INFO("down : new selection");
