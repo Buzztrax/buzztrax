@@ -1,4 +1,4 @@
-/* $Id: edit-application.c,v 1.106 2007-08-25 18:54:25 ensonic Exp $
+/* $Id: edit-application.c,v 1.107 2007-11-12 20:39:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -405,6 +405,9 @@ gboolean bt_edit_application_load_song(const BtEditApplication *self,const char 
     gdk_window_set_cursor(window,NULL);
     g_object_unref(loader);
   }
+  else {
+    GST_WARNING("Unknown extension \"%s\"",file_name);
+  }
   return(res);
 }
 
@@ -446,6 +449,9 @@ gboolean bt_edit_application_save_song(const BtEditApplication *self,const char 
     gtk_widget_set_sensitive(GTK_WIDGET(self->priv->main_window),TRUE);
     gdk_window_set_cursor(window,NULL);
     g_object_unref(saver);
+  }
+  else {
+    GST_WARNING("Unknown extension \"%s\"",file_name);
   }
   return(res);
 }

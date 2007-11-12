@@ -1,5 +1,20 @@
 2007-11-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Reactivate metadata workaround.
+
+	* configure.ac:
+	* src/ui/edit/bt-edit.h:
+	  Conditionally include preset.h
+
+	* src/ui/edit/edit-application.c:
+	  Add warnings when saving to unknows extensions.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Check if current_machine != NULL
+
+2007-11-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  We sent news.
 

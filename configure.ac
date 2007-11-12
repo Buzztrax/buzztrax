@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.105 2007-10-18 11:44:39 ensonic Exp $
+dnl $Id: configure.ac,v 1.106 2007-11-12 20:39:09 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -345,6 +345,7 @@ LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
 AC_CHECK_LIB( gstcontroller-0.10, gst_controller_set_property_disabled, \
   AC_DEFINE(HAVE_GST_CONTROLLER_NEW, [1], [Define to 1 if we have the new gst controller features]) \
 )
+AC_CHECK_HEADERS(gst/gstpreset.h)
 CFLAGS="$ac_cflags_save"
 LDFLAGS="$ac_ldflags_save"
 

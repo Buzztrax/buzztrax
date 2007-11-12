@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.56 2007-08-27 20:17:49 ensonic Exp $
+/* $Id: bt-edit.h,v 1.57 2007-11-12 20:39:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -31,7 +31,9 @@
 //-- gstreamer
 #include <gst/musicenums/musicenums.h>
 #include <gst/help/help.h>
+#ifndef HAVE_GST_GSTPRESET_H
 #include <gst/preset/preset.h>
+#endif
 //-- gtk+
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>

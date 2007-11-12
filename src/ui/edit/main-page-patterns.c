@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.145 2007-11-08 15:17:17 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.146 2007-11-12 20:39:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1654,15 +1654,19 @@ static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
 
   g_assert(user_data);
   GST_INFO("machine_menu changed");
-  machine=bt_main_page_patterns_get_current_machine(self);
-  GST_INFO("refreshing menues for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-  // show new list of pattern in pattern menu
-  pattern_menu_refresh(self,machine);
-  GST_INFO("1st done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-  // refresh context menu
-  context_menu_refresh(self,machine);
-  GST_INFO("2nd done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
-  g_object_try_unref(machine);
+  if((machine=bt_main_page_patterns_get_current_machine(self))) {
+    GST_INFO("refreshing menues for machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    // show new list of pattern in pattern menu
+    pattern_menu_refresh(self,machine);
+    GST_INFO("1st done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    // refresh context menu
+    context_menu_refresh(self,machine);
+    GST_INFO("2nd done for  machine %p,ref_count=%d",machine,G_OBJECT(machine)->ref_count);
+    g_object_try_unref(machine);
+  }
+  else {
+    GST_WARNING("current machine == NULL");
+  }
 }
 
 static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_data) {

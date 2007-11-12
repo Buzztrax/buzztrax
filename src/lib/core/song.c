@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.192 2007-11-02 15:29:54 ensonic Exp $
+/* $Id: song.c,v 1.193 2007-11-12 20:39:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -319,11 +319,15 @@ static void bt_song_send_tags(const BtSong * const self) {
   }
   gst_iterator_free (it);
 
-//#if 0
-  GST_DEBUG("about to send metadata to sources");
-  //it=gst_bin_iterate_sources(self->priv->bin);
-  it=gst_bin_iterate_elements(self->priv->bin);
+#if 1
   done=FALSE;
+  // should be fixed by:
+  // http://freedesktop.org/cgi-bin/viewcvs.cgi/gstreamer/gstreamer/libs/gst/base/gstbasesrc.c.diff?r1=1.139&r2=1.140
+  // but is not :/
+  //GST_DEBUG("about to send metadata to all sources");
+  //it=gst_bin_iterate_sources(self->priv->bin);
+  GST_DEBUG("about to send metadata to all elements");
+  it=gst_bin_iterate_elements(self->priv->bin);
   tag_event=gst_event_new_tag(gst_structure_copy(taglist));
   while(!done) {
     switch(gst_iterator_next(it, &item)) {
@@ -348,7 +352,7 @@ static void bt_song_send_tags(const BtSong * const self) {
   }
   gst_iterator_free (it);
   gst_event_unref(tag_event);
-//#endif
+#endif
 
   gst_tag_list_free(taglist);
 }
