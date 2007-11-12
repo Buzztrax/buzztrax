@@ -32,6 +32,7 @@
   <maintainer>
     <foaf:Person>
        <foaf:name>Stefan Kost</foaf:name>
+       <foaf:mbox_sha1sum>76179624329fba7783720a352767b5ce953846dd</foaf:mbox_sha1sum>
     </foaf:Person>
   </maintainer>
 

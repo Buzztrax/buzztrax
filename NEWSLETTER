@@ -1,8 +1,16 @@
 2007/11 ========================================================================
 
-bml/gstbml rewrite to support native machines.
-first native machines ported.
-track reordering in sequence tab
+Very good news for buzz lovers. Recently FSM joined #buzztard irc channel. He
+gave us access to his buzzmachine sources and the okay to publish them under
+LGPL. One thing that I had on my list for too long was to extend my
+buzz-emulation layer to support natively built buzzmachines. Well now its in CVS,
+A bml/gstbml rewrite to support native machines + initial 5 machines working.
+Means approximately 900 to go. One thing that we still need to be able to port
+some machines is a native implementation of buzz's dsplib. We will look into
+that next and of course port more machines.
+
+Some small progress also in the UI. I've added track reordering in sequence tab
+and keymap independent note entering (y vs z mapping on different key layouts),
 
 2007/10 ========================================================================
 

@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.96 2007-09-09 19:54:09 ensonic Exp $
+/* $Id: main-window.c,v 1.97 2007-11-12 20:33:20 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -403,7 +403,13 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
-  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),folder_name);
+  if(g_file_test(folder_name,G_FILE_TEST_IS_DIR)) {
+    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),folder_name);
+  }
+  else {
+    GST_INFO("song-folder setting '%s' is invalid",folder_name);
+    /* @todo: reset to default ? */
+  }
   g_free(folder_name);
   g_object_unref(settings);
  
@@ -477,13 +483,14 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   BtSettings *settings;
   BtSong *song;
   BtSongInfo *song_info;
+  gchar *name,*folder_name,*file_name=NULL;
+  gint result;
+  GtkFileFilter *filter;
   GtkWidget *dialog=gtk_file_chooser_dialog_new(_("Save a song"),GTK_WINDOW(self),GTK_FILE_CHOOSER_ACTION_SAVE,
 				      GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 				      GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
 				      NULL);
-  gint result;
-  gchar *name,*folder_name,*file_name=NULL;
-
+  
   // get songs file-name
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"settings",&settings,NULL);
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
@@ -503,6 +510,15 @@ void bt_main_window_save_song_as(const BtMainWindow *self) {
   g_free(file_name);file_name=NULL;
   g_free(folder_name);
   g_free(name);
+  
+  // set filter
+  filter=gtk_file_filter_new();
+  // @todo: integrate with bt_song_io
+  gtk_file_filter_set_name(filter,"buzztard song");
+  gtk_file_filter_add_mime_type(filter,"text/xml");
+  gtk_file_filter_add_mime_type(filter,"audio/x-bzt"); // this does not work yet
+  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+  
   g_object_unref(settings);
   g_object_unref(song_info);
   g_object_unref(song);
