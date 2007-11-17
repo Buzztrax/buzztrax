@@ -1,4 +1,4 @@
-/* $Id: main-window.c,v 1.97 2007-11-12 20:33:20 ensonic Exp $
+/* $Id: main-window.c,v 1.98 2007-11-17 18:08:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -403,13 +403,7 @@ void bt_main_window_open_song(const BtMainWindow *self) {
   //gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),DATADIR""G_DIR_SEPARATOR_S""PACKAGE""G_DIR_SEPARATOR_S"songs"G_DIR_SEPARATOR_S);
   g_object_get(G_OBJECT(self->priv->app),"settings",&settings,NULL);
   g_object_get(settings,"song-folder",&folder_name,NULL);
-  if(g_file_test(folder_name,G_FILE_TEST_IS_DIR)) {
-    gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),folder_name);
-  }
-  else {
-    GST_INFO("song-folder setting '%s' is invalid",folder_name);
-    /* @todo: reset to default ? */
-  }
+  gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog),folder_name);
   g_free(folder_name);
   g_object_unref(settings);
  

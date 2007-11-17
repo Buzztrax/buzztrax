@@ -1,4 +1,4 @@
-/* $Id: gconf-settings.c,v 1.38 2007-08-27 20:17:48 ensonic Exp $
+/* $Id: gconf-settings.c,v 1.39 2007-11-17 18:08:22 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -166,7 +166,7 @@ static void bt_gconf_settings_get_property(GObject      * const object,
     /* directory settings */
     case BT_SETTINGS_FOLDER_SONG: {
       gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/song-folder",NULL);
-      if(prop) {
+      if(prop && g_file_test(prop,G_FILE_TEST_IS_DIR)) {
         GST_DEBUG("application reads song-folder gconf_settings : '%s'",prop);
         g_value_set_string(value, prop);
         g_free(prop);
@@ -178,7 +178,7 @@ static void bt_gconf_settings_get_property(GObject      * const object,
     } break;   
     case BT_SETTINGS_FOLDER_RECORD: {
       gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/record-folder",NULL);
-      if(prop) {
+      if(prop && g_file_test(prop,G_FILE_TEST_IS_DIR)) {
         GST_DEBUG("application reads record-folder gconf_settings : '%s'",prop);
         g_value_set_string(value, prop);
         g_free(prop);
@@ -190,7 +190,7 @@ static void bt_gconf_settings_get_property(GObject      * const object,
     } break;   
     case BT_SETTINGS_FOLDER_SAMPLE: {
       gchar * const prop=gconf_client_get_string(self->priv->client,BT_GCONF_PATH_BUZZTARD"/sample-folder",NULL);
-      if(prop) {
+      if(prop && g_file_test(prop,G_FILE_TEST_IS_DIR)) {
         GST_DEBUG("application reads sample-folder gconf_settings : '%s'",prop);
         g_value_set_string(value, prop);
         g_free(prop);
