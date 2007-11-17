@@ -1,5 +1,10 @@
 2007-11-17  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/main-page-sequence.c:
+	  Fix crasher when scrolling with the mouse scroll-wheel in sequence.
+
+2007-11-17  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/gconf-settings.c:
 	* src/ui/edit/main-window.c:
 	  Check path's in setings instead and do it for all of those.

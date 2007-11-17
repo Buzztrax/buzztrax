@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.187 2007-11-08 15:17:17 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.188 2007-11-17 19:10:40 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2235,7 +2235,7 @@ static gboolean on_sequence_table_scroll_event( GtkWidget *widget, GdkEventScrol
   BtMainPageSequence *self=BT_MAIN_PAGE_SEQUENCE(user_data);
 
   if(event) {
-    GdkEventKey keyevent={0,};
+    static GdkEventKey keyevent={0,};
 
     keyevent.type = GDK_KEY_PRESS;
     keyevent.window = event->window;
