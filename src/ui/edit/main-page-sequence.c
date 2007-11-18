@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.188 2007-11-17 19:10:40 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.189 2007-11-18 21:57:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -352,13 +352,15 @@ static gboolean sequence_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath 
 
 static gboolean sequence_view_set_cursor_pos(const BtMainPageSequence *self) {
   GtkTreePath *path;
-  GtkTreeViewColumn *column;
-  GList *columns;
   gboolean res=FALSE;
+  
+  // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010
+  if(!GTK_IS_TREE_VIEW(self->priv->sequence_table) || !gtk_tree_view_get_model(self->priv->sequence_table)) return(FALSE);
 
   if((path=gtk_tree_path_new_from_indices((self->priv->cursor_row/self->priv->bars),-1))) {
+    GList *columns;
     if((columns=gtk_tree_view_get_columns(self->priv->sequence_table))) {
-      column=g_list_nth_data(columns,self->priv->cursor_column);
+      GtkTreeViewColumn *column=g_list_nth_data(columns,self->priv->cursor_column);
       // set cell focus
       gtk_tree_view_set_cursor(self->priv->sequence_table,path,column,FALSE);
 

@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.146 2007-11-12 20:39:09 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.147 2007-11-18 21:57:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -291,22 +291,34 @@ static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *
 
 static gboolean pattern_view_set_cursor_pos(BtMainPagePatterns *self) {
   GtkTreePath *path;
+  gboolean res=FALSE;
+
+  // @todo: http://bugzilla.gnome.org/show_bug.cgi?id=498010
+  if(!GTK_IS_TREE_VIEW(self->priv->pattern_table) || !gtk_tree_view_get_model(self->priv->pattern_table)) return(FALSE);
 
   if((path=gtk_tree_path_new_from_indices(self->priv->cursor_row,-1))) {
-    GtkTreeViewColumn *column;
     GList *columns;
 
-    columns=gtk_tree_view_get_columns(self->priv->pattern_table);
-    column=GTK_TREE_VIEW_COLUMN(g_list_nth_data(columns,self->priv->cursor_column));
-    gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
-    if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
-      gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+    if((columns=gtk_tree_view_get_columns(self->priv->pattern_table))) {
+      GtkTreeViewColumn *column=GTK_TREE_VIEW_COLUMN(g_list_nth_data(columns,self->priv->cursor_column));
+      // set cell focus
+      gtk_tree_view_set_cursor(self->priv->pattern_table,path,column,FALSE);
+
+      res=TRUE;
+      g_list_free(columns);
     }
-    g_list_free(columns);
+    else {
+      GST_WARNING("Can't get columns for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
+    }
     gtk_tree_path_free(path);
-    return TRUE;
   }
-  return FALSE;
+  else {
+    GST_WARNING("Can't create treepath for pos %d:%d",self->priv->cursor_row,self->priv->cursor_column);
+  }
+  if(GTK_WIDGET_REALIZED(self->priv->pattern_table)) {
+    gtk_widget_grab_focus(GTK_WIDGET(self->priv->pattern_table));
+  }
+  return res;
 }
 
 /*
