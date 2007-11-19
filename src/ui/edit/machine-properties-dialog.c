@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.93 2007-11-19 15:24:28 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.94 2007-11-19 20:25:42 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -133,7 +133,6 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   gtk_tree_view_set_model(GTK_TREE_VIEW(self->priv->preset_list),GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
   gst_object_unref(machine);
-  g_list_free(presets);
   GST_INFO("rebuilt preset list");
 }
 

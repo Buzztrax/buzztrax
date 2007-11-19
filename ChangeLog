@@ -1,6 +1,11 @@
 2007-11-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:
+	  That was too quick. Revert last change as its not copied yet.
+
+2007-11-19  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/machine-properties-dialog.c:
 	  Don't leak preset list.
 
 2007-11-18  Stefan Kost  <ensonic@users.sf.net>
