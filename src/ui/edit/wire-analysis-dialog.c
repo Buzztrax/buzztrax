@@ -1,4 +1,4 @@
-/* $Id: wire-analysis-dialog.c,v 1.24 2007-08-23 06:41:22 ensonic Exp $
+/* $Id: wire-analysis-dialog.c,v 1.25 2007-11-19 22:13:30 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -85,7 +85,7 @@ struct _BtWireAnalysisDialogPrivate {
   GtkWidget *spectrum_drawingarea, *level_drawingarea;
   GdkGC *peak_gc;
 
-    /* the gstreamer elements that is used */
+  /* the gstreamer elements that is used */
   GstElement *analyzers[ANALYZER_COUNT];
   GList *analyzers_list;
 
@@ -159,7 +159,7 @@ static gboolean on_wire_analyzer_redraw(gpointer user_data) {
     gdk_window_begin_paint_rect (da->window, &rect);
     gdk_draw_rectangle (da->window, da->style->black_gc, TRUE, 0, 0, SPECT_BANDS, SPECT_HEIGHT);
     for (i = 0; i < SPECT_BANDS; i++) {
-      gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, SPECT_HEIGHT - self->priv->spect[i], 1, self->priv->spect[i]);
+      gdk_draw_rectangle (da->window, da->style->white_gc, TRUE, i, -self->priv->spect[i], 1, SPECT_HEIGHT + self->priv->spect[i]);
     }
     gdk_window_end_paint (da->window);
   }

@@ -1,3 +1,8 @@
+2007-11-20  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Adjust to latest spectrum changes.
+
 2007-11-19  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-properties-dialog.c:
