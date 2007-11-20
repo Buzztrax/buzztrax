@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.94 2007-11-19 20:25:42 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.95 2007-11-20 16:36:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -111,7 +111,7 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   GstElement *machine;
   GtkListStore *store;
   GtkTreeIter tree_iter;
-  GList *presets,*node;
+  gchar **presets,**preset;
   gchar *comment;
 
   GST_INFO("rebuilding preset list");
@@ -122,17 +122,18 @@ static void preset_list_refresh(const BtMachinePropertiesDialog *self) {
   // we store the string twice, as we use the pointer as the key in the hashmap
   // and the string gets copied
   store=gtk_list_store_new(2,G_TYPE_STRING,G_TYPE_STRING);
-  for(node=presets;node;node=g_list_next(node)) {
-    gst_preset_get_meta(GST_PRESET(machine),node->data,"comment",&comment);
-    GST_INFO(" adding item : '%s', '%s'",node->data,safe_string(comment));
+  for(preset=presets;*preset;preset++) {
+    gst_preset_get_meta(GST_PRESET(machine),*preset,"comment",&comment);
+    GST_INFO(" adding item : '%s', '%s'",*preset,safe_string(comment));
 
     gtk_list_store_append(store, &tree_iter);
-    gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,node->data,PRESET_LIST_COMMENT,comment,-1);
+    gtk_list_store_set(store,&tree_iter,PRESET_LIST_LABEL,*preset,PRESET_LIST_COMMENT,comment,-1);
     g_free(comment);
   }
   gtk_tree_view_set_model(GTK_TREE_VIEW(self->priv->preset_list),GTK_TREE_MODEL(store));
   g_object_unref(store); // drop with treeview
   gst_object_unref(machine);
+  g_strfreev(presets);
   GST_INFO("rebuilt preset list");
 }
 

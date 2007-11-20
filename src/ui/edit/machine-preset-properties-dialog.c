@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.7 2007-05-07 14:45:45 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.8 2007-11-20 16:36:33 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -48,7 +48,7 @@ struct _BtMachinePresetPropertiesDialogPrivate {
 
   /* the element that has the presets */
   GstElement *machine;
-  GList *presets;
+  gchar **presets;
 
   /* dialog data */
   gchar *name,*comment;
@@ -62,6 +62,15 @@ static GtkDialogClass *parent_class=NULL;
 
 //-- event handler
 
+static gboolean check_name_exists(BtMachinePresetPropertiesDialog *self, const gchar *name) {
+  gchar **preset;
+  
+  for(preset=self->priv->presets;*preset;preset++) {
+    if(!strcmp(name,*preset)) return TRUE;
+  }
+  return(FALSE);
+}
+
 static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   BtMachinePresetPropertiesDialog *self=BT_MACHINE_PRESET_PROPERTIES_DIALOG(user_data);
   const gchar *name=gtk_entry_get_text(GTK_ENTRY(editable));
@@ -74,10 +83,10 @@ static void on_name_changed(GtkEditable *editable,gpointer user_data) {
   if(!(*name))
     // empty box
     valid=FALSE;
-  else if(*self->priv->name_ptr && strcmp(name,*self->priv->name_ptr) && g_list_find_custom(self->priv->presets,name,(GCompareFunc)strcmp))
+  else if(*self->priv->name_ptr && strcmp(name,*self->priv->name_ptr) && check_name_exists(self,name))
     // non empty old name && name has changed && name already exists
     valid=FALSE;
-  else if(!(*self->priv->name_ptr) && g_list_find_custom(self->priv->presets,name,(GCompareFunc)strcmp))
+  else if(!(*self->priv->name_ptr) && check_name_exists(self,name))
     // name already exists
     valid=FALSE;
 
@@ -298,6 +307,7 @@ static void bt_machine_preset_properties_dialog_finalize(GObject *object) {
 
   g_free(self->priv->name);
   g_free(self->priv->comment);
+  g_strfreev(self->priv->presets);
 
   if(G_OBJECT_CLASS(parent_class)->finalize) {
     (G_OBJECT_CLASS(parent_class)->finalize)(object);

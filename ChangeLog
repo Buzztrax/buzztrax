@@ -1,5 +1,16 @@
 2007-11-20  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Port to new preset API.
+	  
+	* tests/bt-cmd-convert.sh:
+	* tests/bt-cmd-encode.sh:
+	* tests/bt-cmd-info.sh:
+	  Add trap for crashing tests.
+
+2007-11-20  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/ui/edit/wire-analysis-dialog.c:
 	  Adjust to latest spectrum changes.
 

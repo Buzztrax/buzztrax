@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: bt-cmd-info.sh,v 1.11 2007-03-18 12:08:08 ensonic Exp $
+# $Id: bt-cmd-info.sh,v 1.12 2007-11-20 16:36:33 ensonic Exp $
 # run bt-cmd --command=info on all example and test for crashes
 
 . ./bt-cfg.sh
@@ -9,6 +9,14 @@ T_SONGS="$TESTSONGDIR/broken1.xml $TESTSONGDIR/test*.xml"
 
 rm -f /tmp/bt_cmd_info.log
 mkdir -p $TESTRESULTDIR
+res=0
+
+trap crashed TERM
+crashed()
+{
+    echo "!!! crashed"
+    res=1
+}
 
 # test examples
 for song in $E_SONGS; do
@@ -17,5 +25,8 @@ for song in $E_SONGS; do
   info="$TESTRESULTDIR/$info.txt"
   echo >>/tmp/bt_cmd_info.log "== $song =="
   GST_DEBUG_NO_COLOR=1 GST_DEBUG="*:2,bt-*:4" libtool --mode=execute ../src/ui/cmd/bt-cmd >$info 2>>/tmp/bt_cmd_info.log --command=info --input-file=$song
-  if [ $? -ne 0 ]; then exit 1; fi
+  if [ $? -ne 0 ]; then res=1; fi
 done
+
+exit $res;
+
