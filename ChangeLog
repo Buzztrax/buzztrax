@@ -1,3 +1,13 @@
+2007-11-21  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/machine.c:
+	* src/lib/core/wire.c:
+	  Configure audioconvert to not do dithering inbetween.
+
+	* src/ui/edit/machine-preset-properties-dialog.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Fix crasher when having empty preset list.
+
 2007-11-20  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preset-properties-dialog.c:

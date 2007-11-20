@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.118 2007-09-09 19:54:07 ensonic Exp $
+/* $Id: wire.c,v 1.119 2007-11-20 22:54:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -369,6 +369,7 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
   */
     if(!machines[PART_CONVERT]) {
       bt_wire_make_internal_element(self,PART_CONVERT,"audioconvert","audioconvert");
+      g_object_set(machines[PART_CONVERT],"dithering",0,"noise-shaping",0,NULL);
       g_assert(machines[PART_CONVERT]!=NULL);
     }
     GST_DEBUG("trying to link machines with convert");

@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.274 2007-09-07 20:58:55 ensonic Exp $
+/* $Id: machine.c,v 1.275 2007-11-20 22:54:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1274,6 +1274,10 @@ gboolean bt_machine_activate_adder(BtMachine * const self) {
     // adder does not link directly to some elements
     if(!(bt_machine_make_internal_element(self,PART_CAPS_FILTER,"capsfilter","capsfilter"))) goto Error;
     if(!(bt_machine_make_internal_element(self,PART_ADDER_CONVERT,"audioconvert","audioconvert"))) goto Error;
+    if(!BT_IS_SINK_MACHINE(self)) {
+      // only do this for the final mix
+      g_object_set(self->priv->machines[PART_ADDER_CONVERT],"dithering",0,"noise-shaping",0,NULL);
+    }
     GST_DEBUG("  about to link adder -> convert -> dst_elem");
     if(!gst_element_link_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL)) {
       gst_element_unlink_many(self->priv->machines[PART_ADDER], self->priv->machines[PART_CAPS_FILTER], self->priv->machines[PART_ADDER_CONVERT], self->dst_elem, NULL);

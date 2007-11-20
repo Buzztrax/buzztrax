@@ -1,4 +1,4 @@
-/* $Id: machine-preset-properties-dialog.c,v 1.8 2007-11-20 16:36:33 ensonic Exp $
+/* $Id: machine-preset-properties-dialog.c,v 1.9 2007-11-20 22:54:39 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -64,6 +64,9 @@ static GtkDialogClass *parent_class=NULL;
 
 static gboolean check_name_exists(BtMachinePresetPropertiesDialog *self, const gchar *name) {
   gchar **preset;
+  
+  if(!self->priv->presets)
+    return(FALSE);
   
   for(preset=self->priv->presets;*preset;preset++) {
     if(!strcmp(name,*preset)) return TRUE;
