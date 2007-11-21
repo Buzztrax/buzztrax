@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.193 2007-11-12 20:39:09 ensonic Exp $
+/* $Id: song.c,v 1.194 2007-11-21 16:00:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -364,7 +364,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
   const BtSong * const self = BT_SONG(user_data);
   //GstStateChangeReturn res;
 
-  GST_INFO("received SEGMENT_DONE bus message");
+  GST_INFO("received SEGMENT_DONE bus message: %s", GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
 
 #if 0
   // TEST: pause and send seek when paused was reached
@@ -403,7 +403,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 static void on_song_eos(const GstBus * const bus, const GstMessage * const message, gconstpointer user_data) {
   const BtSong * const self = BT_SONG(user_data);
 
-  GST_INFO("received EOS bus message");
+  GST_INFO("received EOS bus message from: %s", GST_OBJECT_NAME (GST_MESSAGE_SRC (message)));
   bt_song_stop(self);
 }
 

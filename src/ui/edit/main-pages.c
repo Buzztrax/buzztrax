@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.41 2007-09-09 19:54:08 ensonic Exp $
+/* $Id: main-pages.c,v 1.42 2007-11-21 16:00:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -123,7 +123,7 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
   // release the reference
   g_object_try_unref(setup);
   g_object_try_unref(song);
-  GST_WARNING("page-switched done");
+  GST_INFO("page-switched done");
 }
 
 //-- helper methods

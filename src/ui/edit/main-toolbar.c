@@ -1,4 +1,4 @@
-/* $Id: main-toolbar.c,v 1.121 2007-08-30 15:35:44 ensonic Exp $
+/* $Id: main-toolbar.c,v 1.122 2007-11-21 16:00:19 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -254,7 +254,8 @@ static void on_song_error(const GstBus * const bus, GstMessage *message, gconstp
   GError *err = NULL;
   gchar *dbg = NULL;
 
-  GST_INFO("received %s bus message",GST_MESSAGE_TYPE_NAME(message));
+  GST_INFO("received %s bus message from %s",
+    GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);
@@ -281,7 +282,8 @@ static void on_song_warning(const GstBus * const bus, GstMessage *message, gcons
   GError *err = NULL;
   gchar *dbg = NULL;
 
-  GST_INFO("received %s bus message",GST_MESSAGE_TYPE_NAME(message));
+  GST_INFO("received %s bus message from %s",
+    GST_MESSAGE_TYPE_NAME(message), GST_OBJECT_NAME(GST_MESSAGE_SRC(message)));
 
   // get song from app
   g_object_get(G_OBJECT(self->priv->app),"song",&song,"main-window",&main_window,NULL);

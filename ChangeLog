@@ -1,5 +1,16 @@
 2007-11-21  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	* src/ui/edit/main-pages.c:
+	* src/ui/edit/main-toolbar.c:
+	  Better error debugging.
+
+	* src/ui/edit/wire-analysis-dialog.c:
+	  Dialog is now resizeable. Queue is leaky to not use too much CPU under
+	  high load.
+
+2007-11-21  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/machine.c:
 	* src/lib/core/wire.c:
 	  Configure audioconvert to not do dithering inbetween.
