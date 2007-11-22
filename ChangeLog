@@ -1,3 +1,19 @@
+2007-11-22  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/song.c:
+	  Use gst debug graphs if available.
+
+	* design/gst/link.c:
+	* design/gst/link2.c:
+	* design/gst/seek1.c:
+	* design/gst/seek2.c:
+	* design/gst/states.c:
+	  Most test tools to track regression.
+	
+	* tests/bt-check.c:
+	  Further ideas for screenshooting.
+
 2007-11-21  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

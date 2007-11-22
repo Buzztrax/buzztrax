@@ -1,10 +1,11 @@
-/** $Id: states.c,v 1.7 2006-09-16 16:28:13 ensonic Exp $
+/** $Id: states.c,v 1.8 2007-11-22 16:10:15 ensonic Exp $
  * test mute, solo, bypass stuff in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` states.c -o states
  */
  
 #include <stdio.h>
+#include <stdlib.h>
 #include <gst/gst.h>
 
 #define SINK_NAME "alsasink"

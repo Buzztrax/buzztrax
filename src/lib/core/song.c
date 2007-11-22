@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.194 2007-11-21 16:00:19 ensonic Exp $
+/* $Id: song.c,v 1.195 2007-11-22 16:10:14 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1036,6 +1036,7 @@ void bt_song_write_to_highlevel_dot_file(const BtSong * const self) {
  * </programlisting></informalexample>
  */
 void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
+#ifndef HAVE_GST_GSTDEBUGUTILS_H
   FILE *out;
   gchar * const song_name;
 
@@ -1199,6 +1200,9 @@ void bt_song_write_to_lowlevel_dot_file(const BtSong * const self) {
     fclose(out);
   }
   g_free(song_name);
+#else
+  GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(self->priv->bin,GST_DEBUG_GRAPH_SHOW_ALL,PACKAGE_NAME);
+#endif
 }
 
 //-- io interface

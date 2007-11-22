@@ -1,10 +1,10 @@
-/** $Id: seek1.c,v 1.6 2007-11-22 16:10:15 ensonic Exp $
+/** $Id: seek2.c,v 1.1 2007-11-22 16:10:15 ensonic Exp $
  *
- * Build a pipeline with testaudiosource->alsasink
- * and sweep frequency and volume
- * Use seeks to play partially or as a loop
+ * Build a pipeline with testaudiosource->alsasink and sweep frequency and
+ * volume. Use seeks to play partially or as a loop and adds a tee + analyzers.
+ * 
  *
- * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` seek1.c -o seek1
+ * gcc -Wall -g `pkg-config gstreamer-0.10 gstreamer-controller-0.10 --cflags --libs` seek2.c -o seek2
  */
 
 #include <gst/gst.h>
@@ -17,9 +17,6 @@
 
 // select loop or start offset mode
 static gboolean loop=FALSE;
-
-//#define PLAY_BROKEN 1
-
 
 static void
 event_loop (GstElement * bin)
@@ -48,9 +45,6 @@ event_loop (GstElement * bin)
 	  GST_WARNING("element failed to handle seek event");
 	}
       } break;
-
-// this fails, if we do this in main it works
-#ifdef PLAY_BROKEN
       case GST_MESSAGE_STATE_CHANGED:
         if(GST_MESSAGE_SRC(message) == GST_OBJECT(bin)) {
           GstStateChangeReturn state_res;
@@ -89,7 +83,6 @@ event_loop (GstElement * bin)
           }
         }
         break;
-#endif
       case GST_MESSAGE_WARNING:
       case GST_MESSAGE_ERROR: {
         GError *gerror;
@@ -113,7 +106,7 @@ gint
 main (gint argc, gchar ** argv)
 {
   gint res = 1;
-  GstElement *src, *sink;
+  GstElement *src, *tee, *queue, *elem, *fakesink, *sink;
   GstElement *bin;
   GstController *ctrl;
   GstClock *clock;
@@ -138,10 +131,23 @@ main (gint argc, gchar ** argv)
   bin = gst_pipeline_new ("pipeline");
   clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
   src = gst_element_factory_make ("audiotestsrc", "gen_audio");
+  tee = gst_element_factory_make ("tee", "tee");
+  queue = gst_element_factory_make ("queue", "queue");
+  // FIXME: it works when using identfy/volume instead 'level'
+  elem = gst_element_factory_make ("level", "level");
+  fakesink = gst_element_factory_make ("fakesink", "fakesink");
   sink = gst_element_factory_make ("alsasink", "play_audio");
-  gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
-  if (!gst_element_link (src, sink)) {
-    GST_WARNING ("can't link elements");
+  
+  g_object_set(src, "wave", 7, NULL);
+  g_object_set(fakesink, "sync", FALSE, "qos", FALSE, "silent", TRUE, NULL);
+  
+  gst_bin_add_many (GST_BIN (bin), src, tee, sink, queue, elem, fakesink, NULL);
+  if (!gst_element_link_many (src, tee, sink, NULL)) {
+    GST_WARNING ("can't link elements: src ! tee ! sink");
+    goto Error;
+  }
+  if (!gst_element_link_many (tee, queue, elem, fakesink, NULL)) {
+    GST_WARNING ("can't link elements: tee ! queue ! elem ! fakesink");
     goto Error;
   }
   // add a controller to the source
@@ -186,37 +192,6 @@ main (gint argc, gchar ** argv)
   if(state_res == GST_STATE_CHANGE_ASYNC) {
     GST_INFO("->PAUSED needs async wait");
   }
-
-  // this works, if we do this in the bus handler it does not :/
-#ifndef PLAY_BROKEN
-  {
-    GstEvent *event;
-
-    if (loop) {
-      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT,
-          GST_SEEK_TYPE_SET, (GstClockTime)0 * GST_SECOND,
-          GST_SEEK_TYPE_SET, (GstClockTime)6 * GST_SECOND);
-    } else {
-      event = gst_event_new_seek(1.0, GST_FORMAT_TIME,
-          GST_SEEK_FLAG_FLUSH,
-          GST_SEEK_TYPE_SET, (GstClockTime)3 * GST_SECOND,
-          GST_SEEK_TYPE_SET, (GstClockTime)7 * GST_SECOND);
-    }
-    if(!(gst_element_send_event(GST_ELEMENT(bin),event))) {
-      GST_WARNING("element failed to handle seek event");
-    }
-  
-    // start playback for 7 second
-    if ((state_res = gst_element_set_´state(GST_ELEMENT(bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
-      GST_WARNING("can't go to playing state");
-      goto Error;
-    }
-    if(state_res == GST_STATE_CHANGE_ASYNC) {
-      GST_INFO("->PLAYING needs async wait");
-    }
-  }
-#endif
 
   event_loop (bin);
   /*

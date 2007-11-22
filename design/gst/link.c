@@ -1,10 +1,11 @@
-/** $Id: link.c,v 1.5 2006-09-16 16:28:13 ensonic Exp $
+/** $Id: link.c,v 1.6 2007-11-22 16:10:15 ensonic Exp $
  * test linking in gst
  *
  * gcc -Wall -g `pkg-config gstreamer-0.10 --cflags --libs` link.c -o link
  */
  
 #include <stdio.h>
+#include <stdlib.h>
 #include <gst/gst.h>
 
 #define SINK_NAME "alsasink"

@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.39 2007-08-01 17:11:44 ensonic Exp $
+/* $Id: bt-check.c,v 1.40 2007-11-22 16:10:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -759,6 +759,10 @@ void check_setup_test_server(void) {
   else {
     g_setenv("DISPLAY",display_name,TRUE);
     GST_INFO("test server \"%s\" is up (pid=%d)",display_name,server_pid);
+    /* also launch:
+    $ metacity --display=XXX
+    $ gnome-settings-daemon --display=XXX
+    */
   }
 #endif
 }
