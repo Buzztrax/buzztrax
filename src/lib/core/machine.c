@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.275 2007-11-20 22:54:39 ensonic Exp $
+/* $Id: machine.c,v 1.276 2007-11-24 19:07:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -2645,6 +2645,9 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
   GList *list,*node;
   GstTimedValue *tv;
 
+  if(!self->priv->global_controller)
+    return;
+  
   for(i=0;i<self->priv->global_params;i++) {
     name=g_strdup_printf("/tmp/buzztard-%s_g%02lu.dat",self->priv->id,i);
     if((file=fopen(name,"wb"))) {
@@ -2657,10 +2660,10 @@ void bt_machine_dbg_dump_global_controller_queue(const BtMachine * const self) {
         list=gst_interpolation_control_source_get_all(GST_INTERPOLATION_CONTROL_SOURCE(cs));
         g_object_unref(cs);
       }
-      if(list) {
 #else
-      if((list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]))) {
+      list=(GList *)gst_controller_get_all(self->priv->global_controller,self->priv->global_names[i]);
 #endif
+      if(list) {
         for(node=list;node;node=g_list_next(node)) {
           tv=(GstTimedValue *)node->data;
           str=g_strdup_value_contents(&tv->value);

@@ -1,5 +1,20 @@
 2007-11-24  Stefan Kost  <ensonic@users.sf.net>
 
+	* design/gst/seek1.c:
+	  Test improvments.
+
+	* docs/help/mk-shadow.sh:
+	  Better comments.
+	
+	* src/lib/core/machine.c:
+	  Formatting.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	  Sketch new API.
+
+2007-11-24  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Prepare news.
 

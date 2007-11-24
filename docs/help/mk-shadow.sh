@@ -2,12 +2,13 @@
 # based on
 # http://joakim.erdfelt.com/thoughts/archives/2-Creating-Drop-Shadows-with-netpbm.html#extended
 # 
-# pngtopnm flower-pink.png | ./pnmdropshadow.sh | pnmtopng -compression=9 > flower-pink-with-shadow.png
+# pngtopnm flower-pink.png | ./mk-shadow.sh | pnmtopng -compression=9 > flower-pink-with-shadow.png
+# jpegtopnm -exif=image.exif image.jpeg  | ./mk-shadow.sh | pnmtojpeg -exif=image.exif > image-with-shadow.jpeg
 #
 # for PNG in *.png
 # do 
 #   echo Adding drop shadow to $PNG
-#   pngtopnm $PNG | ./pnmdropshadow.sh | pnmtopng -compression=9 > ${PNG//.png}-with-shadow.png
+#   pngtopnm $PNG | ./mk-shadow.sh | pnmtopng -compression=9 > ${PNG//.png}-with-shadow.png
 # done
 
 TEMPDIR=".pnmdropshadow"

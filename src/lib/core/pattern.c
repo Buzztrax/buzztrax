@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.100 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: pattern.c,v 1.101 2007-11-24 19:07:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -822,6 +822,52 @@ void bt_pattern_play_tick(const BtPattern * const self, const gulong tick) {
     }
   }
 }
+
+#if 0
+
+/*
+ * bt_pattern_insert_full_row:
+ * @self: the pattern
+ * @tick: the postion to insert at
+ *
+ * Insert one empty row for all parameters.
+ */
+gboolean bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
+}
+
+/*
+ * bt_pattern_delete_full_row:
+ * @self: the pattern
+ * @tick: the postion to delete
+ *
+ * Delete row for all parameters.
+ */
+gboolean bt_pattern_delete_full_row(const BtPattern * const self, const gulong tick) {
+}
+
+/*
+ * bt_pattern_insert_row:
+ * @self: the pattern
+ * @tick: the postion to insert at
+ * @param: the param
+ *
+ * Insert one empty row for given @param.
+ */
+gboolean bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+}
+
+/*
+ * bt_pattern_delete_row:
+ * @self: the pattern
+ * @tick: the postion to delete
+ * @param: the param
+ *
+ * Delete row for given @param.
+ */
+gboolean bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
+}
+
+#endif
 
 //-- io interface
 

@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.142 2007-10-22 14:23:03 ensonic Exp $
+/* $Id: sequence.c,v 1.143 2007-11-24 19:07:36 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1155,6 +1155,51 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
   return(res);
 }
 
+#if 0
+
+/*
+ * bt_sequence_insert_full_row:
+ * @self: the sequence
+ * @time: the postion to insert at
+ *
+ * Insert one empty row for all tracks.
+ */
+gboolean bt_sequence_insert_full_row(const BtSequence * const self, const gulong time) {
+}
+
+/*
+ * bt_sequence_delete_full_row:
+ * @self: the sequence
+ * @time: the postion to delete
+ *
+ * Delete row for all tracks.
+ */
+gboolean bt_sequence_delete_full_row(const BtSequence * const self, const gulong time) {
+}
+
+/*
+ * bt_sequence_insert_row:
+ * @self: the sequence
+ * @time: the postion to insert at
+ * @track: the track
+ *
+ * Insert one empty row for given @track.
+ */
+gboolean bt_sequence_insert_row(const BtSequence * const self, const gulong time, const gulong track) {
+}
+
+/*
+ * bt_sequence_delete_row:
+ * @self: the sequence
+ * @time: the postion to delete
+ * @track: the track
+ *
+ * Delete row for given @track.
+ */
+gboolean bt_sequence_delete_row(const BtSequence * const self, const gulong time, const gulong track) {
+}
+
+#endif
 
 //-- io interface
 

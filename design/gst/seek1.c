@@ -1,4 +1,4 @@
-/** $Id: seek1.c,v 1.6 2007-11-22 16:10:15 ensonic Exp $
+/** $Id: seek1.c,v 1.7 2007-11-24 19:07:36 ensonic Exp $
  *
  * Build a pipeline with testaudiosource->alsasink
  * and sweep frequency and volume
@@ -34,6 +34,8 @@ event_loop (GstElement * bin)
     message = gst_bus_poll (bus, GST_MESSAGE_ANY, -1);
 
     g_assert (message != NULL);
+    
+    GST_INFO("message %s received",GST_MESSAGE_TYPE_NAME(message));
 
     switch (message->type) {
       case GST_MESSAGE_EOS:
@@ -89,6 +91,19 @@ event_loop (GstElement * bin)
           }
         }
         break;
+      case GST_MESSAGE_ASYNC_DONE: {
+          GstStateChangeReturn state_res;
+          GST_INFO("retry playing after async wait");
+          // start playback for 7 second
+          if ((state_res = gst_element_set_state(GST_ELEMENT(bin),GST_STATE_PLAYING))==GST_STATE_CHANGE_FAILURE) {
+            GST_WARNING("can't go to playing state");
+            return;
+          }
+          if(state_res == GST_STATE_CHANGE_ASYNC) {
+            GST_INFO("->PLAYING needs async wait");
+          }
+        }
+        break;
 #endif
       case GST_MESSAGE_WARNING:
       case GST_MESSAGE_ERROR: {
@@ -116,9 +131,6 @@ main (gint argc, gchar ** argv)
   GstElement *src, *sink;
   GstElement *bin;
   GstController *ctrl;
-  GstClock *clock;
-  GstClockID clock_id;
-  //GstClockReturn wait_ret;
   GValue vol = { 0, };
   GstStateChangeReturn state_res;
   GstBus *bus;
@@ -136,7 +148,6 @@ main (gint argc, gchar ** argv)
 
   // build pipeline
   bin = gst_pipeline_new ("pipeline");
-  clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
   src = gst_element_factory_make ("audiotestsrc", "gen_audio");
   sink = gst_element_factory_make ("alsasink", "play_audio");
   gst_bin_add_many (GST_BIN (bin), src, sink, NULL);
@@ -168,11 +179,6 @@ main (gint argc, gchar ** argv)
   gst_controller_set (ctrl, "freq", 2 * GST_SECOND, &vol);
   g_value_set_double (&vol, 440.0);
   gst_controller_set (ctrl, "freq", 6 * GST_SECOND, &vol);
-
-  clock_id =
-      gst_clock_new_single_shot_id (clock,
-      gst_clock_get_time (clock) + (7 * GST_SECOND));
-
 
   // connect to bus
   bus = gst_pipeline_get_bus (GST_PIPELINE (bin));
@@ -219,12 +225,6 @@ main (gint argc, gchar ** argv)
 #endif
 
   event_loop (bin);
-  /*
-  if ((wait_ret = gst_clock_id_wait (clock_id, NULL)) != GST_CLOCK_OK) {
-    GST_WARNING ("clock_id_wait returned: %d", wait_ret);
-  }
-  */
-
   gst_element_set_state (bin, GST_STATE_NULL);
   res = 0;
 Error:
