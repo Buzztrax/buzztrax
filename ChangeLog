@@ -1,3 +1,12 @@
+2007-11-24  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	  Prepare news.
+
+	* src/ui/edit/pattern-view.c:
+	* src/ui/edit/sequence-view.c:
+	  Fix line overlays when view is scrolled horizontaly.
+
 2007-11-22  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:

@@ -1,4 +1,4 @@
-/* $Id: sequence-view.c,v 1.32 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: sequence-view.c,v 1.33 2007-11-24 11:50:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -194,23 +194,23 @@ static gboolean bt_sequence_view_expose_event(GtkWidget *widget,GdkEventExpose *
     // draw play-pos
     y=(gint)(self->priv->play_pos*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+      gdk_draw_line(self->priv->window,self->priv->play_pos_gc,vr.x+0,y,vr.x+w,y);
     }
 
     // draw song-end
     y=(gint)(h)-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->end_pos_gc,0,y,w,y);
+      gdk_draw_line(self->priv->window,self->priv->end_pos_gc,vr.x+0,y,vr.x+w,y);
     }
 
     // draw loop-start/-end
     y=(gint)(self->priv->loop_start*h)-vr.y;
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
+      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
     }
     y=(gint)(self->priv->loop_end*h)-(1+vr.y);
     if((y>=0) && (y<vr.height)) {
-      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,0,y,w,y);
+      gdk_draw_line(self->priv->window,self->priv->loop_pos_gc,vr.x+0,y,vr.x+w,y);
     }
   }
   return(FALSE);

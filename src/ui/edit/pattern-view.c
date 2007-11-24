@@ -1,4 +1,4 @@
-/* $Id: pattern-view.c,v 1.10 2007-07-19 13:23:08 ensonic Exp $
+/* $Id: pattern-view.c,v 1.11 2007-11-24 11:50:28 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -170,7 +170,7 @@ static gboolean bt_pattern_view_expose_event(GtkWidget *widget,GdkEventExpose *e
 
     y=(gint)(self->priv->play_pos*h);
     if((y>=vr.y) && (y<(vr.y+vr.height))) {
-      gdk_draw_line(self->priv->window,self->priv->play_pos_gc,0,y,w,y);
+      gdk_draw_line(self->priv->window,self->priv->play_pos_gc,vr.x+0,y,vr.x+w,y);
     }
   }
   return(FALSE);
