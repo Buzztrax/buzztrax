@@ -1,3 +1,8 @@
+2007-11-25  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
+	  Dump song-graph when linking fails.
+
 2007-11-24  Stefan Kost  <ensonic@users.sf.net>
 
 	* design/gst/seek1.c:
