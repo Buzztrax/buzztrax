@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.143 2007-11-24 19:07:36 ensonic Exp $
+/* $Id: sequence.c,v 1.144 2007-11-26 22:36:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1155,51 +1155,95 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
   return(res);
 }
 
-#if 0
-
-/*
- * bt_sequence_insert_full_row:
- * @self: the sequence
- * @time: the postion to insert at
- *
- * Insert one empty row for all tracks.
- */
-gboolean bt_sequence_insert_full_row(const BtSequence * const self, const gulong time) {
-}
-
-/*
- * bt_sequence_delete_full_row:
- * @self: the sequence
- * @time: the postion to delete
- *
- * Delete row for all tracks.
- */
-gboolean bt_sequence_delete_full_row(const BtSequence * const self, const gulong time) {
-}
-
-/*
+/**
  * bt_sequence_insert_row:
  * @self: the sequence
  * @time: the postion to insert at
  * @track: the track
  *
  * Insert one empty row for given @track.
+ *
+ * Since: 0.3
  */
-gboolean bt_sequence_insert_row(const BtSequence * const self, const gulong time, const gulong track) {
+void bt_sequence_insert_row(const BtSequence * const self, const gulong time, const gulong track) {
+  BtPattern **patterns=&self->priv->patterns[track+(self->priv->length-1)*self->priv->tracks];
+  BtPattern **ptr;
+  gulong i;
+  
+  for(i=time;i<self->priv->length-1;i++) {
+    ptr=patterns;
+    patterns-=self->priv->tracks;
+    *ptr=*patterns;
+  }
+  *patterns=NULL;
 }
 
-/*
+/**
+ * bt_sequence_insert_full_row:
+ * @self: the sequence
+ * @time: the postion to insert at
+ *
+ * Insert one empty row for all tracks.
+ *
+ * Since: 0.3
+ */
+void bt_sequence_insert_full_row(const BtSequence * const self, const gulong time) {
+  gulong j=0;
+
+  g_object_set(G_OBJECT(self),"length",self->priv->length+1,NULL);
+
+  // shift label down
+  memcpy(&self->priv->labels[time],&self->priv->labels[time+1],((self->priv->length-1)-time)*sizeof(gpointer));
+  for(j=0;j<self->priv->tracks;j++) {
+    bt_sequence_insert_row(self,time,j);
+  }
+}
+
+/**
  * bt_sequence_delete_row:
  * @self: the sequence
  * @time: the postion to delete
  * @track: the track
  *
  * Delete row for given @track.
+ *
+ * Since: 0.3
  */
-gboolean bt_sequence_delete_row(const BtSequence * const self, const gulong time, const gulong track) {
+void bt_sequence_delete_row(const BtSequence * const self, const gulong time, const gulong track) {
+  BtPattern **patterns=&self->priv->patterns[track];
+  BtPattern **ptr;
+  gulong i;
+  
+  g_object_try_unref(*patterns);
+  for(i=time;i<self->priv->length-1;i++) {
+    ptr=patterns;
+    patterns+=self->priv->tracks;
+    *ptr=*patterns;
+  }
+  *patterns=NULL;
 }
 
-#endif
+/**
+ * bt_sequence_delete_full_row:
+ * @self: the sequence
+ * @time: the postion to delete
+ *
+ * Delete row for all tracks.
+ *
+ * Since: 0.3
+ */
+void bt_sequence_delete_full_row(const BtSequence * const self, const gulong time) {
+  gulong j=0;
+
+  // shift label up
+  g_free(self->priv->labels[time]);
+  memcpy(&self->priv->labels[time+1],&self->priv->labels[time],((self->priv->length-1)-time)*sizeof(gpointer));
+  for(j=0;j<self->priv->tracks;j++) {
+    bt_sequence_delete_row(self,time,j);
+  }
+
+  g_object_set(G_OBJECT(self),"length",self->priv->length-1,NULL);
+}
 
 //-- io interface
 

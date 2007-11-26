@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.101 2007-11-24 19:07:36 ensonic Exp $
+/* $Id: pattern.c,v 1.102 2007-11-26 22:36:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -826,6 +826,17 @@ void bt_pattern_play_tick(const BtPattern * const self, const gulong tick) {
 #if 0
 
 /*
+ * bt_pattern_insert_row:
+ * @self: the pattern
+ * @tick: the postion to insert at
+ * @param: the param
+ *
+ * Insert one empty row for given @param.
+ */
+gboolean bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+}
+
+/*
  * bt_pattern_insert_full_row:
  * @self: the pattern
  * @tick: the postion to insert at
@@ -833,6 +844,17 @@ void bt_pattern_play_tick(const BtPattern * const self, const gulong tick) {
  * Insert one empty row for all parameters.
  */
 gboolean bt_pattern_insert_full_row(const BtPattern * const self, const gulong tick) {
+}
+
+/*
+ * bt_pattern_delete_row:
+ * @self: the pattern
+ * @tick: the postion to delete
+ * @param: the param
+ *
+ * Delete row for given @param.
+ */
+gboolean bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
 }
 
 /*
@@ -846,26 +868,23 @@ gboolean bt_pattern_delete_full_row(const BtPattern * const self, const gulong t
 }
 
 /*
- * bt_pattern_insert_row:
- * @self: the pattern
- * @tick: the postion to insert at
- * @param: the param
+ * bt_pattern_blend_full:
  *
- * Insert one empty row for given @param.
+ * Fade values from @start_row to @end_row for each param.
  */
-gboolean bt_pattern_insert_row(const BtPattern * const self, const gulong tick, const gulong param) {
+gboolean bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+  
 }
 
 /*
- * bt_pattern_delete_row:
- * @self: the pattern
- * @tick: the postion to delete
- * @param: the param
+ * bt_pattern_randomize_full:
  *
- * Delete row for given @param.
+ * Randomizes values from @start_row to @end_row for each param.
  */
-gboolean bt_pattern_delete_row(const BtPattern * const self, const gulong tick, const gulong param) {
+gboolean bt_pattern_blend_full(const BtPattern * const self, const gulong start_tick,const gulong end_tick, const gulong start_param,const gulong end_param) {
+  
 }
+
 
 #endif
 
