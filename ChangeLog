@@ -1,3 +1,16 @@
+2007-11-26  Stefan Kost  <ensonic@users.sf.net>
+
+	* design/gst/seek2.c:
+	  Small test change.
+
+	* src/lib/core/setup.c:
+	* src/lib/core/wire.c:
+	  Dump graph after loading if there where problems.
+
+	* src/ui/edit/main-menu.c:
+	* src/ui/edit/main-toolbar.c:
+	  Add a playback menu to work around the toolbar accelerator bug in gtk.
+
 2007-11-25  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:

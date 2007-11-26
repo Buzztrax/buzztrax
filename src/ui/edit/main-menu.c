@@ -1,4 +1,4 @@
-/* $Id: main-menu.c,v 1.78 2007-09-09 19:54:07 ensonic Exp $
+/* $Id: main-menu.c,v 1.79 2007-11-26 15:13:27 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -131,7 +131,6 @@ static void on_menu_render_activate(GtkMenuItem *menuitem,gpointer user_data) {
     g_object_try_unref(main_window);
   }
 }
-
 
 static void on_menu_quit_activate(GtkMenuItem *menuitem,gpointer user_data) {
   gboolean cont;
@@ -390,6 +389,32 @@ static void on_menu_goto_info_view_activate(GtkMenuItem *menuitem,gpointer user_
 
   g_object_try_unref(pages);
   g_object_try_unref(main_window);
+}
+
+static void on_menu_play_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtSong *song;
+
+  // get song from app and start playback
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!bt_song_play(song)) {
+    GST_WARNING("failed to play");
+  }
+  // release the reference
+  g_object_try_unref(song);
+}
+
+static void on_menu_stop_activate(GtkMenuItem *menuitem,gpointer user_data) {
+  BtMainMenu *self=BT_MAIN_MENU(user_data);
+  BtSong *song;
+
+  // get song from app and stop playback
+  g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+  if(!bt_song_stop(song)) {
+    GST_WARNING("failed to stop");
+  }
+  // release the reference
+  g_object_try_unref(song);
 }
 
 static void on_menu_help_activate(GtkMenuItem *menuitem,gpointer user_data) {
@@ -655,6 +680,34 @@ static gboolean bt_main_menu_init_ui(const BtMainMenu *self) {
   gtk_container_add(GTK_CONTAINER(menu),subitem);
   g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_zoom_out_activate),(gpointer)self);
   */
+  
+  // playback menu
+  item=gtk_menu_item_new_with_mnemonic(_("_Playback"));
+  gtk_widget_set_name(item,_("playback menu"));
+  gtk_container_add(GTK_CONTAINER(self),item);
+
+  menu=gtk_menu_new();
+  gtk_widget_set_name(menu,_("playback menu"));
+  gtk_menu_item_set_submenu(GTK_MENU_ITEM(item),menu);
+  gtk_menu_set_accel_group(GTK_MENU(menu), accel_group);
+  gtk_menu_set_accel_path(GTK_MENU(menu),"<Buzztard-Main>/MainMenu/Playback");
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_PLAY,accel_group);
+  gtk_widget_set_name(subitem,_("Play"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/Play");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Play", GDK_F5, 0);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_play_activate),(gpointer)self);
+
+  subitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_MEDIA_STOP,accel_group);
+  gtk_widget_set_name(subitem,_("Stop"));
+  gtk_menu_item_set_accel_path (GTK_MENU_ITEM (subitem), "<Buzztard-Main>/MainMenu/Playback/Stop");
+  gtk_accel_map_add_entry ("<Buzztard-Main>/MainMenu/Playback/Stop", GDK_F8, 0);
+  gtk_container_add(GTK_CONTAINER(menu),subitem);
+  g_signal_connect(G_OBJECT(subitem),"activate",G_CALLBACK(on_menu_stop_activate),(gpointer)self);
+
+  /* @todo toggle loop item
+   */
   
   // help menu
   item=gtk_menu_item_new_with_mnemonic(_("_Help"));

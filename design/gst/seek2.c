@@ -1,4 +1,4 @@
-/** $Id: seek2.c,v 1.1 2007-11-22 16:10:15 ensonic Exp $
+/** $Id: seek2.c,v 1.2 2007-11-26 15:13:26 ensonic Exp $
  *
  * Build a pipeline with testaudiosource->alsasink and sweep frequency and
  * volume. Use seeks to play partially or as a loop and adds a tee + analyzers.
@@ -121,7 +121,7 @@ main (gint argc, gchar ** argv)
     else if(!strcasecmp("seek",argv[1])) loop=FALSE;
   }
   else {
-    puts("Usage: seek1 [loop|seek]\n  using seek by default");
+    puts("Usage: seek2 [loop|seek]\n  using seek by default");
   }
 
   gst_init (&argc, &argv);
@@ -130,13 +130,14 @@ main (gint argc, gchar ** argv)
   // build pipeline
   bin = gst_pipeline_new ("pipeline");
   clock = gst_pipeline_get_clock (GST_PIPELINE (bin));
-  src = gst_element_factory_make ("audiotestsrc", "gen_audio");
+  src = gst_element_factory_make ("audiotestsrc", "generate");
   tee = gst_element_factory_make ("tee", "tee");
   queue = gst_element_factory_make ("queue", "queue");
-  // FIXME: it works when using identfy/volume instead 'level'
-  elem = gst_element_factory_make ("level", "level");
+  // FIXME: it works when using identity/volume/audioconvert instead level/spectrum
+  elem = gst_element_factory_make ("level", "elem");
+  //elem = gst_element_factory_make ("identity", "identity");
   fakesink = gst_element_factory_make ("fakesink", "fakesink");
-  sink = gst_element_factory_make ("alsasink", "play_audio");
+  sink = gst_element_factory_make ("alsasink", "render");
   
   g_object_set(src, "wave", 7, NULL);
   g_object_set(fakesink, "sync", FALSE, "qos", FALSE, "silent", TRUE, NULL);

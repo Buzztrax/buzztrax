@@ -1,4 +1,4 @@
-/* $Id: wire.c,v 1.120 2007-11-25 21:16:31 ensonic Exp $
+/* $Id: wire.c,v 1.121 2007-11-26 15:13:26 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -603,9 +603,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   GST_DEBUG("link prepared, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 
   if(!bt_wire_link_machines(self)) {
-    GST_ERROR("linking machines failed");
-    bt_song_write_to_lowlevel_dot_file(self->priv->song);
-    goto Error;
+    GST_ERROR("linking machines failed");goto Error;
   }
   GST_DEBUG("linking machines succeeded, bin->refs=%d, src->refs=%d, dst->refs=%d",G_OBJECT(self->priv->bin)->ref_count,G_OBJECT(src)->ref_count,G_OBJECT(dst)->ref_count);
 

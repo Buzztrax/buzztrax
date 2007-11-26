@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.113 2007-09-02 18:44:38 ensonic Exp $
+/* $Id: setup.c,v 1.114 2007-11-26 15:13:26 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -598,6 +598,7 @@ Error:
 static gboolean bt_setup_persistence_load(const BtPersistence * const persistence, xmlNodePtr node, const BtPersistenceLocation * const location) {
   BtSetup * const self = BT_SETUP(persistence);
   xmlNodePtr child_node;
+  gboolean failed_parts=FALSE;
 
   GST_DEBUG("PERSISTENCE::setup");
   g_assert(node);
@@ -639,6 +640,7 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
                   bt_setup_remember_missing_machine(self,str);
                   g_free(id);
                   g_free(plugin_name);
+                  failed_parts=TRUE;
                 }
                 g_object_unref(machine);
               }
@@ -651,7 +653,9 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
         for(child_node=node->children;child_node;child_node=child_node->next) {
           if(!xmlNodeIsText(child_node)) {
             BtWire * const wire=BT_WIRE(g_object_new(BT_TYPE_WIRE,"song",self->priv->song,NULL));
-            bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL);
+            if(!bt_persistence_load(BT_PERSISTENCE(wire),child_node,NULL)) {
+              failed_parts=TRUE;
+            }
             g_object_unref(wire);
           }
         }
@@ -660,6 +664,9 @@ static gboolean bt_setup_persistence_load(const BtPersistence * const persistenc
         bt_persistence_load_hashtable(self->priv->properties,node);
       }
     }
+  }
+  if(failed_parts) {
+    bt_song_write_to_lowlevel_dot_file(self->priv->song);
   }
   return(TRUE);
 }
