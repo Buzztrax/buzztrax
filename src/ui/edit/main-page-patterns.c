@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.147 2007-11-18 21:57:43 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.148 2007-11-26 15:47:09 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1326,7 +1326,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         "xalign",1.0,
         "family","Monospace",
         "family-set",TRUE,
-        "editable",TRUE,
+        "editable",((cell_edit_mode==GTK_CELL_RENDERER_MODE_EDITABLE)?TRUE:FALSE),
         "editable-set",TRUE,
         NULL);
       // set location data
@@ -1395,7 +1395,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
           "xalign",1.0,
           "family","Monospace",
           "family-set",TRUE,
-          "editable",TRUE,
+          "editable",((cell_edit_mode==GTK_CELL_RENDERER_MODE_EDITABLE)?TRUE:FALSE),
           "editable-set",TRUE,
           NULL);
         // set location data
