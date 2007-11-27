@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.107 2007-11-22 16:10:12 ensonic Exp $
+dnl $Id: configure.ac,v 1.108 2007-11-27 13:49:05 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -339,8 +339,10 @@ dnl )
 
 dnl check for cvs gstreamer additions
 ac_cflags_save="$CFLAGS"
+ac_cppflags_save="$CPPFLAGS"
 ac_ldflags_save="$LDFLAGS"
 CFLAGS="$CFLAGS $BASE_DEPS_CFLAGS"
+CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
 LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
 AC_CHECK_LIB( gstcontroller-0.10, gst_controller_set_property_disabled, \
   AC_DEFINE(HAVE_GST_CONTROLLER_NEW, [1], [Define to 1 if we have the new gst controller features]) \
@@ -348,6 +350,7 @@ AC_CHECK_LIB( gstcontroller-0.10, gst_controller_set_property_disabled, \
 AC_CHECK_HEADERS(gst/gstdebugutils.h)
 AC_CHECK_HEADERS(gst/gstpreset.h)
 CFLAGS="$ac_cflags_save"
+CPPFLAGS="$ac_cppflags_save"
 LDFLAGS="$ac_ldflags_save"
 
 dnl Add additional libraries

@@ -1,5 +1,10 @@
 2007-11-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	  Fix configure magic, by also saving and setting cppflags.
+
+2007-11-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/sequence-methods.h:
 	* src/lib/core/pattern.c:
