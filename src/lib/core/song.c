@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.195 2007-11-22 16:10:14 ensonic Exp $
+/* $Id: song.c,v 1.196 2007-11-27 15:20:45 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -78,7 +78,7 @@ struct _BtSongPrivate {
   /* the application that currently uses the song */
   G_POINTER_ALIAS(BtApplication *,app);
   /* the main gstreamer container element */
-  GstBin *bin;
+  GstBin *bin,*master_bin;
   /* the element that has the clock */
   G_POINTER_ALIAS(BtSinkMachine *,master);
 
@@ -128,7 +128,7 @@ static void bt_song_seek_to_play_pos(const BtSong * const self) {
         GST_SEEK_TYPE_SET, (GstClockTime)self->priv->play_pos*bar_time,
         GST_SEEK_TYPE_SET, (GstClockTime)length*bar_time);
   }
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),event))) {
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),event))) {
       GST_WARNING("element failed to seek to play_pos event");
   }
 }
@@ -379,7 +379,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
 
 #else
   if(self->priv->is_playing) {
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->loop_seek_event)))) {
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->loop_seek_event)))) {
       GST_WARNING("element failed to handle continuing play seek event");
     }
     /*
@@ -392,7 +392,7 @@ static void on_song_segment_done(const GstBus * const bus, const GstMessage * co
   else {
     GST_WARNING("song isn't playing ?!?");
     /*
-    if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->idle_seek_event)))) {
+    if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->idle_seek_event)))) {
       GST_WARNING("element failed to handle continuing idle seek event");
     }
     */
@@ -454,7 +454,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
         // seek to start time
         //GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
         GST_DEBUG("seek event");
-        if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+        if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("bin failed to handle seek event");
         }
         // start playback
@@ -484,7 +484,7 @@ static void on_song_state_changed(const GstBus * const bus, GstMessage *message,
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
         self->priv->is_playing=FALSE;
         g_object_notify(G_OBJECT(self),"is-playing");
-        if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+        if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
           GST_WARNING("element failed to handle continuing play seek event");
         }
         res=gst_element_set_state(GST_ELEMENT(self->priv->bin),GST_STATE_PLAYING);
@@ -628,7 +628,7 @@ gboolean bt_song_idle_start(const BtSong * const self) {
   GST_DEBUG("state change returned %d",res);
 
   // seek to start time
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->idle_seek_event)))) {
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->idle_seek_event)))) {
     GST_WARNING("element failed to handle seek event");
   }
 
@@ -715,7 +715,7 @@ gboolean bt_song_play(const BtSong * const self) {
   // seek to start time
   self->priv->play_pos=0;
   GST_DEBUG("seek event : up=%d, down=%d",GST_EVENT_IS_UPSTREAM(self->priv->play_seek_event),GST_EVENT_IS_DOWNSTREAM(self->priv->play_seek_event));
-  if(!(gst_element_send_event(GST_ELEMENT(self->priv->bin),gst_event_ref(self->priv->play_seek_event)))) {
+  if(!(gst_element_send_event(GST_ELEMENT(self->priv->master_bin),gst_event_ref(self->priv->play_seek_event)))) {
     GST_WARNING("element failed to handle seek event");
   }
   // send tags
@@ -1342,6 +1342,7 @@ static void bt_song_set_property(GObject      * const object,
       g_object_try_weak_unref(self->priv->master);
       self->priv->master = BT_SINK_MACHINE(g_value_get_object(value));
       g_object_try_weak_ref(self->priv->master);
+      g_object_get(G_OBJECT(self->priv->master),"machine",&self->priv->master_bin,NULL);
       GST_DEBUG("set the master for the song: %p (machine-refs: %d)",self->priv->master,(G_OBJECT(self->priv->master))->ref_count);
     } break;
     case SONG_UNSAVED: {
@@ -1394,6 +1395,7 @@ static void bt_song_dispose(GObject * const object) {
   gst_object_unref(bus);
 
   if(self->priv->master) GST_DEBUG("sink-machine-refs: %d",(G_OBJECT(self->priv->master))->ref_count);
+  g_object_try_unref(self->priv->master_bin);
   g_object_try_weak_unref(self->priv->master);
   GST_DEBUG("refs: song_info: %d, sequence: %d, setup: %d, wavetable: %d",
     (G_OBJECT(self->priv->song_info))->ref_count,

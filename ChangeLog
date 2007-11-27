@@ -1,5 +1,10 @@
 2007-11-27  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/song.c:
+	  Workaround for the loop problem.
+
+2007-11-27  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	  Fix configure magic, by also saving and setting cppflags.
 
