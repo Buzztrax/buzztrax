@@ -1,4 +1,4 @@
-$Id: TODO,v 1.27 2007-04-04 13:43:58 ensonic Exp $
+$Id: TODO,v 1.28 2007-12-03 19:42:31 ensonic Exp $
 
 run 'make todo' to get a list of todo comments from source
 
@@ -6,18 +6,6 @@ when releasing do:
   * make check
   * cd po;intltool-update -M
   * make dist
-
-* next tasks
-  * get a list of GstElements from GStreamer registry that are
-    audio-outputs
-    audio-generators (and implement the instrument interface)
-    audio-effects
-  * bt-edit
-    * add volume-control to wire
-      (look at volume popup from gnome-media)
-    * sequence headings
-      * add levvel-meter
-      * add M/S/B Buttons
 
 * how do we implement multiple voices per machine?
   * simulate
@@ -46,3 +34,4 @@ when releasing do:
 * new stats
   * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
     mcstrip tools.c | cyclo -c | sort -k2 -n
+

@@ -1,9 +1,25 @@
 2007/12 ========================================================================
 
-* resizable analyzer window
-* merging preset iface to gstreamer
-* FSM Infector ported, buzzmachine compatibility improvements
-* UI fixes
+After porting some simpler machines last month, FSM and myself where looking at
+infector. This already is a quite complex generator. Porting as such wasn't that
+hard, but unfortunately it did not play. But with the sources at hand we could
+figure out what the issues was and fix the problem. It was a generic problem in
+the buzzmachine host emulation. This could potentially also make other machines
+work. Note to myself - I need to re-test the blacklisted ones.
+One outcome of the better machine compatibility is that some of the original
+buzz song now plays with some extra manual help.
+
+Some improvements on the UI side also. The spectrum analyzer window is now
+re-sizable. We also have a workaround for a gtk+ bug [1], there is now an
+accelerator to start playback.
+
+Unfortunately my recent attempts to merge my preset iface [2] to gstreamer got 
+stopped again. I need to try harder poking the other developers to review it.
+
+That's it for this month - happy x-mas month to everybody.
+
+[1] http://bugzilla.gnome.org/show_bug.cgi?id=131177
+[2] http://bugzilla.gnome.org/show_bug.cgi?id=396779
 
 2007/11 ========================================================================
 

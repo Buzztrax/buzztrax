@@ -1,3 +1,10 @@
+2007-12-03  Stefan Kost  <ensonic@users.sf.net>
+
+	* NEWSLETTER:
+	* TODO:
+	* src/lib/core/sink-machine.c:
+	  Wrote and sent Newsletter. Some TODO cleanup and some new ideas.
+
 2007-11-27  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/song.c:

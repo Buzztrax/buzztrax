@@ -1,4 +1,4 @@
-/* $Id: sink-machine.c,v 1.76 2007-07-19 13:23:06 ensonic Exp $
+/* $Id: sink-machine.c,v 1.77 2007-12-03 19:42:31 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -67,7 +67,9 @@ static void bt_sink_machine_post_init(const BtSinkMachine * const self) {
  * The machine is automaticly added to the setup from the given song object. You
  * don't need to add the machine with
  * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
- * The plugin used for this machine is taken from the #BtSettings.
+ * The element used for this machine is #BtSinkBin which is configured according
+ * to the use-case (playback, recordfing). The playback device is taken from the
+ * #BtSettings.
  *
  * Returns: the new instance or %NULL in case of an error
  */
@@ -93,6 +95,41 @@ Error:
   g_object_try_unref(self);
   return(NULL);
 }
+
+#if 0
+/* @todo: bt_sink_machine_new_dummy:
+ * @song: the song the new instance belongs to
+ * @id: the id, we can use to lookup the machine
+ *
+ * Create a new instance.
+ * The machine is automaticly added to the setup from the given song object. You
+ * don't need to add the machine with
+ * <code>#bt_setup_add_machine(setup,BT_MACHINE(machine));</code>.
+ * The element used for this machine is identity. This sink-machine can be used
+ * to play multiple songs simultaneously.
+ *
+ * Returns: the new instance or %NULL in case of an error
+ */
+BtSinkMachine *bt_sink_machine_new_dummy(const BtSong * const song, const gchar * const id) {
+  g_return_val_if_fail(BT_IS_SONG(song),NULL);
+  g_return_val_if_fail(BT_IS_STRING(id),NULL);
+
+  BtSinkMachine * const self=BT_SINK_MACHINE(g_object_new(BT_TYPE_SINK_MACHINE,"song",song,"id",id,"plugin-name","identity",NULL));
+
+  if(!self) {
+    goto Error;
+  }
+  if(!bt_machine_new(BT_MACHINE(self))) {
+    goto Error;
+  }
+  bt_sink_machine_post_init(self);
+  
+  return(self);
+Error:
+  g_object_try_unref(self);
+  return(NULL);
+}
+#endif
 
 //-- methods
 
