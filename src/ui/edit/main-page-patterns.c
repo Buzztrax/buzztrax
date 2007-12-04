@@ -1,4 +1,4 @@
-/* $Id: main-page-patterns.c,v 1.148 2007-11-26 15:47:09 ensonic Exp $
+/* $Id: main-page-patterns.c,v 1.149 2007-12-04 21:51:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -56,6 +56,8 @@
 
 #include "bt-edit.h"
 
+//#define USE_PATTERN_EDITOR 1
+
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
 };
@@ -78,7 +80,11 @@ struct _BtMainPagePatternsPrivate {
 
   /* the pattern table */
   GtkTreeView *pattern_pos_table;
+#ifdef USE_PATTERN_EDITOR
+  BtPatternEditor *pattern_table;
+#else
   GtkTreeView *pattern_table;
+#endif
 
   /* local commands */
   GtkAccelGroup *accel_group;
@@ -158,7 +164,7 @@ static void on_context_menu_pattern_new_activate(GtkMenuItem *menuitem,gpointer 
 static void on_context_menu_pattern_remove_activate(GtkMenuItem *menuitem,gpointer user_data);
 
 //-- tree cell data functions
-
+#ifndef USE_PATTERN_EDITOR
 static void generic_selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRenderer *renderer, GtkTreeModel *model, GtkTreeIter *iter, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gulong row,column;
@@ -226,6 +232,7 @@ static void enum_selection_cell_data_function(GtkTreeViewColumn *col, GtkCellRen
     "text",str2,
      NULL);
 }
+#endif
 
 //-- tree model helper
 
@@ -260,6 +267,7 @@ static void pattern_model_get_iter_by_pattern(GtkTreeModel *store,GtkTreeIter *i
   } while(gtk_tree_model_iter_next(store,iter));
 }
 
+#ifndef USE_PATTERN_EDITOR
 static gboolean pattern_view_get_cursor_pos(GtkTreeView *tree_view,GtkTreePath *path,GtkTreeViewColumn *column,gulong *col,gulong *row) {
   gboolean res=FALSE;
   GtkTreeModel *store;
@@ -352,6 +360,7 @@ static gboolean pattern_view_get_current_pos(const BtMainPagePatterns *self,gulo
   if(path) gtk_tree_path_free(path);
   return(res);
 }
+#endif
 
 //-- status bar helpers
 
@@ -458,6 +467,7 @@ static void on_pattern_name_changed(BtPattern *pattern,GParamSpec *arg,gpointer 
   g_free(str);
 }
 
+#ifndef USE_PATTERN_EDITOR
 static gboolean on_pattern_table_cursor_changed_idle(gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   GtkTreePath *path;
@@ -1013,6 +1023,7 @@ static void on_pattern_voice_cell_edited(GtkCellRendererText *cellrenderertext,g
     GST_WARNING("Can't get tree-model");
   }
 }
+#endif
 
 //-- event handler helper
 
@@ -1156,6 +1167,7 @@ static void pattern_pos_table_init(const BtMainPagePatterns *self) {
   GST_DEBUG("    number of columns : %d",col_index);
 }
 
+#ifndef USE_PATTERN_EDITOR
 /*
  * pattern_table_clear:
  * @self: the pattern page
@@ -1465,6 +1477,49 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   // release the references
   g_object_unref(store); // drop with treeview
 }
+#else
+
+// FIXME: use real data
+
+float global_vals[64][2];
+float track_vals[4][64][3];
+
+static float
+example_get_data_at (gpointer pattern_data, gpointer column_data, int row, int track, int param)
+{
+  if (track == -1)
+    return global_vals[row][param];
+  else
+    return track_vals[track][row][param];
+}
+
+static void
+example_set_data_at (gpointer pattern_data, int row, int track, int param, float value)
+{
+  if (track == -1)
+    global_vals[row][param] = value;
+  else
+    track_vals[track][row][param] = value;
+}
+
+static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
+  static PatternColumn globals[] = { { PCT_BYTE, 256, 0, 255, NULL}, { PCT_WORD, 65535, 0, 32768, NULL } };
+  static PatternColumn locals[] = { { PCT_NOTE, 255, 0, 127, NULL}, { PCT_BYTE, 255, 0, 125, NULL}, { PCT_TRIGGER, 255, 0, 1, NULL} };
+  static BtPatternEditorCallbacks callbacks = { example_get_data_at, example_set_data_at, NULL };
+  int i, j;
+  
+  for (i=0; i<64; i++) {
+    global_vals[i][0] = i;
+    global_vals[i][1] = i*257;
+    for (j=0; j<4; j++) {
+      track_vals[j][i][0] = i;
+      track_vals[j][i][1] = i;
+      track_vals[j][i][2] = (i&3) ? 255 : ((i>>2)&1);
+    }
+  }
+  bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, 64, 3, 2, 3, globals, locals, &callbacks);
+}
+#endif
 
 /*
  * context_menu_refresh:
@@ -1710,7 +1765,9 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
             // if it is the pattern we currently show, set play-line
             if(pattern==self->priv->pattern) {
               play_pos=(gdouble)(pos-j)/(gdouble)length;
+#ifndef USE_PATTERN_EDITOR
               g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
+#endif
               g_object_set(self->priv->pattern_pos_table,"play-position",play_pos,NULL);
               found=TRUE;
             }
@@ -1723,7 +1780,9 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
   }
   if(!found) {
     // unfortunately the 2nd widget may lag behind with redrawing itself :(
+#ifndef USE_PATTERN_EDITOR
     g_object_set(self->priv->pattern_table,"play-position",0.0,NULL);
+#endif
     g_object_set(self->priv->pattern_pos_table,"play-position",0.0,NULL);
   }
   // release the references
@@ -2120,21 +2179,25 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   scrolled_window=gtk_scrolled_window_new(NULL,NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
+#ifdef USE_PATTERN_EDITOR
+  self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
+#else
   self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_NONE);
   g_object_set(self->priv->pattern_table,"enable-search",FALSE,"rules-hint",TRUE,"fixed-height-mode",TRUE,NULL);
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
-  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
   g_signal_connect_after(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "motion-notify-event", G_CALLBACK(on_pattern_table_motion_notify_event), (gpointer)self);
+#endif
+  gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
 
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
-  //GST_DEBUG("pos_view=%p, data_view=%p", self->priv->pattern_pos_table,self->priv->pattern_table);
 
   GST_DEBUG("  before context menu",self);
   // generate the context menu
@@ -2207,7 +2270,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   // @todo cut, copy, paste
 
   // set default widget
-  //g_signal_connect_after(GTK_WIDGET(self->priv->pattern_table),"realize",G_CALLBACK(on_pattern_view_realized),(gpointer)self);
   gtk_container_set_focus_child(GTK_CONTAINER(self),GTK_WIDGET(self->priv->pattern_table));
   // register event handlers
   g_signal_connect(G_OBJECT(self->priv->app), "notify::song", G_CALLBACK(on_song_changed), (gpointer)self);

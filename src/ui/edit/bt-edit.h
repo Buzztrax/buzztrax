@@ -1,4 +1,4 @@
-/* $Id: bt-edit.h,v 1.57 2007-11-12 20:39:09 ensonic Exp $
+/* $Id: bt-edit.h,v 1.58 2007-12-04 21:51:58 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -74,6 +74,7 @@
 #include "missing-framework-elements-dialog-methods.h"
 #include "missing-song-elements-dialog-methods.h"
 #include "pattern-properties-dialog-methods.h"
+#include "pattern-editor.h"
 #include "pattern-view-methods.h"
 #include "playback-controller-socket-methods.h"
 #include "render-dialog-methods.h"

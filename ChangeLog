@@ -1,3 +1,13 @@
+2007-12-04  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/ui/edit/Makefile.am:
+	* src/ui/edit/bt-edit.h:
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add new pattern-editor widget. Not fully working yet. Uncomment
+	  USE_PATTERN_EDITOR at the top of main-page-patterns.c to use.
+
 2007-12-03  Stefan Kost  <ensonic@users.sf.net>
 
 	* NEWSLETTER:
