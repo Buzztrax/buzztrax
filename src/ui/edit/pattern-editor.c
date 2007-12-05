@@ -1,4 +1,4 @@
-/* $Id: pattern-editor.c,v 1.1 2007-12-04 21:51:59 ensonic Exp $
+/* $Id: pattern-editor.c,v 1.2 2007-12-05 21:34:51 kfoltman Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -18,6 +18,21 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
+
+/**** TODO
+    * API for setting current octave 
+    * block operations
+          o copy
+          o paste
+          o cut
+          o clear
+          o interpolate
+          o expand
+          o shrink 
+    * cursor step (different than Buzz - Buzz did it in a bad way)
+    * integrate with the rest of the code
+    * mouse handling
+    ********************************/
 
 #include <ctype.h>
 #include <string.h>
@@ -41,9 +56,8 @@ bt_pattern_editor_realize (GtkWidget *widget)
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.window_type = GDK_WINDOW_CHILD;
   attributes.event_mask = gtk_widget_get_events (widget) | 
-      GDK_EXPOSURE_MASK | GDK_KEY_PRESS_MASK 
-      /*| GDK_BUTTON_PRESS_MASK | 
-      GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK |
+      GDK_EXPOSURE_MASK | GDK_KEY_PRESS_MASK | GDK_BUTTON_PRESS_MASK | 
+      GDK_BUTTON_RELEASE_MASK /*| GDK_POINTER_MOTION_MASK |
       GDK_POINTER_MOTION_HINT_MASK*/;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
@@ -139,6 +153,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *view,
   }
   return cw * 5;
 }
+
 static int
 bt_pattern_editor_draw_column (BtPatternEditor *view,
                           int x,
@@ -189,7 +204,7 @@ bt_pattern_editor_expose (GtkWidget *widget,
   g_return_val_if_fail (event != NULL, FALSE);
 
   gdk_window_clear_area (widget->window, 0, 0, cx, cy);
-  gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, cx, cy);
+  /* gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, cx, cy); */
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
   pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
@@ -206,18 +221,24 @@ bt_pattern_editor_expose (GtkWidget *widget,
   row = (rect.y + view->ofs_y) / view->ch;
   y += row * view->ch;
   max_y = rect.y + rect.height; /* max y */
+  int start = x;
   x += bt_pattern_editor_draw_rownum(view, x, y, row, pl) + view->cw;
+  view->rowhdr_width = x - start;
   if (view->num_globals) {
+    int start = x;
     for (i = 0; i < view->num_globals; i++) {
       x += bt_pattern_editor_draw_column(view, x, y, &view->globals[i], -1, i, row, max_y, pl);
     }
     x += view->cw;
+    view->global_width = x - start;
   }
   for (t = 0; t < view->num_tracks; t++) {
+    int start = x;
     for (i = 0; i < view->num_locals; i++) {
       x += bt_pattern_editor_draw_column(view, x, y, &view->locals[i], t, i, row, max_y, pl);
     }
     x += view->cw;
+    view->local_width = x - start;
   }
   g_object_unref (pl);
   pango_font_metrics_unref (pfm);
@@ -430,6 +451,89 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   return FALSE;
 }
 
+int bt_pattern_editor_get_row_width (BtPatternEditor *view)
+{
+  return view->rowhdr_width + view->local_width + view->global_width * view->num_tracks;
+}
+
+static gboolean
+char_to_coords(int charpos,
+               PatternColumn *columns, 
+               int num_cols,
+               int *parameter,
+               int *digit)
+{
+  int i, j;
+  for (i = 0; i < num_cols; i++)
+  {
+    struct ParamType *type = &param_types[columns[i].type];
+    if (charpos < type->chars)
+    {
+      for (j = 0; j < type->columns; j++)
+      {
+        if (type->column_pos[j] == charpos) {
+          *parameter = i;
+          *digit = j;
+          return TRUE;
+        }
+      }
+      return FALSE;
+    }
+    charpos -= type->chars + 1;
+  }
+  return FALSE;
+}
+
+static gboolean
+bt_pattern_editor_button_press (GtkWidget *widget,
+                                GdkEventButton *event)
+{
+  BtPatternEditor *view = (BtPatternEditor *)widget;
+  int x = view->ofs_x + event->x;
+  int y = view->ofs_y + event->y;
+  int parameter, digit;
+  if (x < view->rowhdr_width) {
+    bt_pattern_editor_refresh_cursor(view);
+    view->row = y / view->ch;
+    bt_pattern_editor_refresh_cursor_or_scroll(view);
+    return TRUE;
+  }
+  x -= view->rowhdr_width;
+  if (x < view->global_width) {
+    if (char_to_coords(x / view->cw, view->globals, view->num_globals, &parameter, &digit))
+    {
+      bt_pattern_editor_refresh_cursor(view);
+      view->row = y / view->ch;
+      view->track = -1;
+      view->parameter = parameter;
+      view->digit = digit;
+      bt_pattern_editor_refresh_cursor_or_scroll(view);
+      return TRUE;
+    }
+  }
+  x -= view->global_width;
+  if (x >= view->local_width * view->num_tracks)
+    return FALSE;
+  if (char_to_coords((x % view->local_width) / view->cw, view->locals, view->num_locals, &parameter, &digit))
+  {
+    bt_pattern_editor_refresh_cursor(view);
+    view->row = y / view->ch;
+    view->track = x / view->local_width;
+    view->parameter = parameter;
+    view->digit = digit;
+    bt_pattern_editor_refresh_cursor_or_scroll(view);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+static gboolean
+bt_pattern_editor_button_release (GtkWidget *widget,
+                                  GdkEventButton *event)
+{
+  return FALSE;
+}
+
 static void
 bt_pattern_editor_class_init (BtPatternEditorClass *klass)
 {
@@ -438,6 +542,8 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
   klass->parent_class.size_request = bt_pattern_editor_size_request;
   klass->parent_class.size_allocate = bt_pattern_editor_size_allocate;
   klass->parent_class.key_press_event = bt_pattern_editor_key_press;
+  klass->parent_class.button_press_event = bt_pattern_editor_button_press;
+  klass->parent_class.button_release_event = bt_pattern_editor_button_release;
 }
 
 static void

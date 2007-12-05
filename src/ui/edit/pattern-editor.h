@@ -1,4 +1,4 @@
-/* $Id: pattern-editor.h,v 1.1 2007-12-04 21:51:59 ensonic Exp $
+/* $Id: pattern-editor.h,v 1.2 2007-12-05 21:34:51 kfoltman Exp $
  *
  * Buzztard
  * Copyright (C) 2007 Buzztard team <buzztard-devel@lists.sf.net>
@@ -76,6 +76,8 @@ typedef struct _BtPatternEditor
   
   /* font metrics */
   int cw, ch;
+  /* pixel widths of global section and a single track */
+  int global_width, local_width, rowhdr_width;
   
   /* current octave number */
   int octave;
@@ -100,8 +102,9 @@ bt_pattern_editor_set_pattern (BtPatternEditor *view,
 
 GtkWidget *bt_pattern_editor_new();
 
-
 GType bt_pattern_editor_get_type (void);
+
+int bt_pattern_editor_get_row_width (BtPatternEditor *view);
 
 G_END_DECLS
 
