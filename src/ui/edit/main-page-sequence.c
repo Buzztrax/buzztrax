@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.189 2007-11-18 21:57:43 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.190 2007-12-05 17:03:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1880,34 +1880,27 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
             }
             break;
           case GDK_Down:
-            /* we expand length
-            if((self->priv->cursor_row<self->priv->list_length)
-#if HAVE_GTK_2_10 && !HAVE_GTK_2_10_7
-              && changed
-#endif
-              ) {
-            */
-              GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
-              if(self->priv->selection_end_row==-1) {
-                GST_INFO("down : new selection");
-                self->priv->selection_start_column=self->priv->cursor_column;
-                self->priv->selection_end_column=self->priv->cursor_column;
-                self->priv->selection_start_row=self->priv->cursor_row-self->priv->bars;
-                self->priv->selection_end_row=self->priv->cursor_row;
+            /* we expand length */
+            GST_INFO("down : %3d,%3d -> %3d,%3d @ %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row,self->priv->cursor_column,self->priv->cursor_row);
+            if(self->priv->selection_end_row==-1) {
+              GST_INFO("down : new selection");
+              self->priv->selection_start_column=self->priv->cursor_column;
+              self->priv->selection_end_column=self->priv->cursor_column;
+              self->priv->selection_start_row=self->priv->cursor_row-self->priv->bars;
+              self->priv->selection_end_row=self->priv->cursor_row;
+            }
+            else {
+              if(self->priv->selection_end_row==(self->priv->cursor_row-self->priv->bars)) {
+                GST_INFO("down : expand selection");
+                self->priv->selection_end_row+=self->priv->bars;
               }
               else {
-                if(self->priv->selection_end_row==(self->priv->cursor_row-self->priv->bars)) {
-                  GST_INFO("down : expand selection");
-                  self->priv->selection_end_row+=self->priv->bars;
-                }
-                else {
-                  GST_INFO("down : shrink selection");
-                  self->priv->selection_start_row+=self->priv->bars;
-                }
+                GST_INFO("down : shrink selection");
+                self->priv->selection_start_row+=self->priv->bars;
               }
-              GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
-              select=TRUE;
-            //}
+            }
+            GST_INFO("down : %3d,%3d -> %3d,%3d",self->priv->selection_start_column,self->priv->selection_start_row,self->priv->selection_end_column,self->priv->selection_end_row);
+            select=TRUE;
             break;
           case GDK_Left:
             if(self->priv->cursor_column>=0) {
@@ -1987,6 +1980,36 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       if(modifier==GDK_CONTROL_MASK) {
         GST_INFO("ctrl-e pressed, row %lu",row);
         sequence_view_set_pos(self,2,(glong)row);
+      }
+    }
+    else if(event->keyval == GDK_i) {
+      if(modifier==GDK_CONTROL_MASK) {
+        guint i;
+
+        GST_INFO("ctrl-i pressed, row %lu",row);
+        for(i=0;i<self->priv->bars;i++)
+          bt_sequence_insert_full_row(sequence,row);
+        // reinit the view
+        GST_INFO("cursor [  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
+        GST_INFO("cursor ]  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+      }
+    }
+    else if(event->keyval == GDK_d) {
+      if(modifier==GDK_CONTROL_MASK) {
+        guint i;
+
+        GST_INFO("ctrl-d pressed, row %lu",row);
+        for(i=0;i<self->priv->bars;i++)
+          bt_sequence_delete_full_row(sequence,row);
+        // reinit the view
+        GST_INFO("cursor [  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
+        GST_INFO("cursor ]  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
       }
     }
     else if(event->keyval<0x100) {

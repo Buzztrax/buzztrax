@@ -1,3 +1,15 @@
+2007-12-05  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/buzztard.xsd:
+	  Fix ns-url.
+	  
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Add insert/delete for rows.
+
+	* src/ui/edit/machine-preferences-dialog.c:
+	  Use g_ascii_ variant.
+
 2007-12-04  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/Makefile.am:

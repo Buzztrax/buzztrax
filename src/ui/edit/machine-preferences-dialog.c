@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.37 2007-09-09 19:54:07 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.38 2007-12-05 17:03:16 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -127,7 +127,7 @@ static void on_double_entry_property_changed(GtkEditable *editable,gpointer user
   g_assert(user_data);
 
   //GST_INFO("preferences value change received for: '%s'",name);
-  value=g_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
+  value=g_ascii_strtod(gtk_entry_get_text(GTK_ENTRY(editable)),NULL);
   g_object_set(machine,name,value,NULL);
 }
 

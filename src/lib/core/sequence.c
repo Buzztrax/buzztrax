@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.144 2007-11-26 22:36:43 ensonic Exp $
+/* $Id: sequence.c,v 1.145 2007-12-05 17:03:15 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1193,7 +1193,8 @@ void bt_sequence_insert_full_row(const BtSequence * const self, const gulong tim
   g_object_set(G_OBJECT(self),"length",self->priv->length+1,NULL);
 
   // shift label down
-  memcpy(&self->priv->labels[time],&self->priv->labels[time+1],((self->priv->length-1)-time)*sizeof(gpointer));
+  memmove(&self->priv->labels[time+1],&self->priv->labels[time],((self->priv->length-1)-time)*sizeof(gpointer));
+  self->priv->labels[time]=NULL;
   for(j=0;j<self->priv->tracks;j++) {
     bt_sequence_insert_row(self,time,j);
   }
@@ -1237,7 +1238,8 @@ void bt_sequence_delete_full_row(const BtSequence * const self, const gulong tim
 
   // shift label up
   g_free(self->priv->labels[time]);
-  memcpy(&self->priv->labels[time+1],&self->priv->labels[time],((self->priv->length-1)-time)*sizeof(gpointer));
+  memmove(&self->priv->labels[time],&self->priv->labels[time+1],((self->priv->length-1)-time)*sizeof(gpointer));
+  self->priv->labels[self->priv->length-1]=NULL;
   for(j=0;j<self->priv->tracks;j++) {
     bt_sequence_delete_row(self,time,j);
   }
