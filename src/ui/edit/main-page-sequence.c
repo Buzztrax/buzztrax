@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.190 2007-12-05 17:03:15 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.191 2007-12-06 18:31:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -678,7 +678,7 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
       gtk_tree_model_get(store,&iter,SEQUENCE_TABLE_POS,&pos,SEQUENCE_TABLE_LABEL,&old_text,-1);
       GST_INFO("old_text '%s'",old_text);
 
-      if(!(old_text && new_text )) {
+      if(old_text || new_text) {
         changed=TRUE;
         if(old_text && !*old_text) changed=FALSE;
         if(new_text && !*new_text) changed=FALSE;
@@ -687,15 +687,20 @@ static void on_sequence_label_edited(GtkCellRendererText *cellrenderertext,gchar
       if(changed) {
         BtSong *song;
         BtSequence *sequence;
+        gulong length;
 
         GST_INFO("changed");
 
         g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
         g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
+        g_object_get(G_OBJECT(sequence),"length",&length,NULL);
 
         // need to change it in the model
         gtk_list_store_set(GTK_LIST_STORE(store),&iter,SEQUENCE_TABLE_LABEL,new_text,-1);
         // update the sequence
+        if(pos>=length) {
+          g_object_set(G_OBJECT(sequence),"length",pos+1,NULL);
+        }
         bt_sequence_set_label(sequence,pos,new_text);
         // @todo: update label_menu
 
@@ -914,7 +919,6 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
   GtkTreeIter tree_iter,label_menu_iter;
   GtkTreeViewColumn *tree_col;
   gboolean free_str;
-  gboolean is_internal;
 
   GST_INFO("refresh sequence table");
 
@@ -984,31 +988,8 @@ static void sequence_table_refresh(const BtMainPageSequence *self,const BtSong *
       for(j=0;j<track_ct;j++) {
         free_str=FALSE;
         if((pattern=bt_sequence_get_pattern(sequence,i,j))) {
-          g_object_get(pattern,"is-internal",&is_internal,NULL);
-          if(!is_internal) {
-            g_object_get(pattern,"name",&str,NULL);
-            free_str=TRUE;
-          }
-          else {
-            BtPatternCmd cmd=bt_pattern_get_cmd(pattern,0);
-            switch(cmd) {
-                  case BT_PATTERN_CMD_BREAK:
-                    str="---";
-                    break;
-                  case BT_PATTERN_CMD_MUTE:
-                    str="===";
-                    break;
-                  case BT_PATTERN_CMD_SOLO:
-                    str="***";
-                    break;
-                  case BT_PATTERN_CMD_BYPASS:
-                    str="###";
-                    break;
-                  default:
-                    str="???";
-                    GST_ERROR("implement me");
-            }
-          }
+          g_object_get(pattern,"name",&str,NULL);
+          free_str=TRUE;
           g_object_try_unref(pattern);
         }
         else {
@@ -1984,11 +1965,10 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     else if(event->keyval == GDK_i) {
       if(modifier==GDK_CONTROL_MASK) {
-        guint i;
 
-        GST_INFO("ctrl-i pressed, row %lu",row);
-        for(i=0;i<self->priv->bars;i++)
-          bt_sequence_insert_full_row(sequence,row);
+        GST_INFO("ctrl-i pressed, row %lu / %lu");
+        bt_sequence_insert_full_rows(sequence,row,self->priv->bars);
+        self->priv->list_length+=self->priv->bars;
         // reinit the view
         GST_INFO("cursor [  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
         sequence_table_refresh(self,song);
@@ -1999,11 +1979,10 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     }
     else if(event->keyval == GDK_d) {
       if(modifier==GDK_CONTROL_MASK) {
-        guint i;
 
         GST_INFO("ctrl-d pressed, row %lu",row);
-        for(i=0;i<self->priv->bars;i++)
-          bt_sequence_delete_full_row(sequence,row);
+        bt_sequence_delete_full_rows(sequence,row,self->priv->bars);
+        self->priv->list_length-=self->priv->bars;
         // reinit the view
         GST_INFO("cursor [  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
         sequence_table_refresh(self,song);

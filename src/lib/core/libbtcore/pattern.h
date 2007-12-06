@@ -1,4 +1,4 @@
-/* $Id: pattern.h,v 1.20 2006-09-03 13:21:44 ensonic Exp $
+/* $Id: pattern.h,v 1.21 2007-12-06 18:31:51 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -73,8 +73,8 @@ struct _BtPatternClass {
  */
 typedef enum {
   BT_PATTERN_CMD_NORMAL=0,
-  BT_PATTERN_CMD_BREAK,
   BT_PATTERN_CMD_MUTE,
+  BT_PATTERN_CMD_BREAK,
   BT_PATTERN_CMD_SOLO,
   BT_PATTERN_CMD_BYPASS
 } BtPatternCmd;

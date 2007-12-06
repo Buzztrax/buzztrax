@@ -1,3 +1,27 @@
+2007-12-06  Stefan Kost  <ensonic@users.sf.net>
+
+	* ChangeLog:
+	  Add previous CHangelog entry.
+
+	* NEWSLETTER:
+	  Start collecting news.
+
+	* src/lib/core/pattern.c:
+	* src/lib/core/libbtcore/pattern.h:
+	  Fix mismatch of mute/break/bypass command.
+
+	* src/lib/core/libbtcore/sequence-methods.h:
+	* src/lib/core/sequence.c:
+	* src/ui/edit/main-page-sequence.c:
+	  Better working insert/delete in sequence. Fix display of command-
+	  patterns. Fix label editing.
+
+2007-12-05  Krzysztof Foltman  <kfoltman@users.sourceforge.net>
+
+	* pattern-editor.h pattern-editor.c: 
+	  add preliminary mouse support, calculate row width components, add a
+	  function to return total row width (for use as a scrollbar range)
+
 2007-12-05  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/buzztard.xsd:

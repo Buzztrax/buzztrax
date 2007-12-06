@@ -1,4 +1,4 @@
-/* $Id: sequence.c,v 1.145 2007-12-05 17:03:15 ensonic Exp $
+/* $Id: sequence.c,v 1.146 2007-12-06 18:31:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1160,43 +1160,49 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
  * @self: the sequence
  * @time: the postion to insert at
  * @track: the track
+ * @rows: the number of rows to insert
  *
  * Insert one empty row for given @track.
  *
  * Since: 0.3
  */
-void bt_sequence_insert_row(const BtSequence * const self, const gulong time, const gulong track) {
-  BtPattern **patterns=&self->priv->patterns[track+(self->priv->length-1)*self->priv->tracks];
-  BtPattern **ptr;
+void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
+  BtPattern **src=&self->priv->patterns[track+self->priv->tracks*(self->priv->length-(1+rows))];
+  BtPattern **dst=&self->priv->patterns[track+self->priv->tracks*(self->priv->length-1)];
   gulong i;
   
   for(i=time;i<self->priv->length-1;i++) {
-    ptr=patterns;
-    patterns-=self->priv->tracks;
-    *ptr=*patterns;
+    *dst=*src;
+    *src=NULL;
+    src-=self->priv->tracks;
+    dst-=self->priv->tracks;
   }
-  *patterns=NULL;
 }
 
 /**
  * bt_sequence_insert_full_row:
  * @self: the sequence
  * @time: the postion to insert at
+ * @rows: the number of rows to insert
  *
  * Insert one empty row for all tracks.
  *
  * Since: 0.3
  */
-void bt_sequence_insert_full_row(const BtSequence * const self, const gulong time) {
+void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong time, const gulong rows) {
   gulong j=0;
 
-  g_object_set(G_OBJECT(self),"length",self->priv->length+1,NULL);
+  GST_DEBUG("insert %d full-rows at %lu / %lu", rows, time, self->priv->length);
+
+  g_object_set(G_OBJECT(self),"length",self->priv->length+rows,NULL);
 
   // shift label down
-  memmove(&self->priv->labels[time+1],&self->priv->labels[time],((self->priv->length-1)-time)*sizeof(gpointer));
-  self->priv->labels[time]=NULL;
+  memmove(&self->priv->labels[time+rows],&self->priv->labels[time],((self->priv->length-rows)-time)*sizeof(gpointer));
+  for(j=0;j<rows;j++) {
+    self->priv->labels[time+j]=NULL;
+  }
   for(j=0;j<self->priv->tracks;j++) {
-    bt_sequence_insert_row(self,time,j);
+    bt_sequence_insert_rows(self,time,j,rows);
   }
 }
 
@@ -1205,46 +1211,61 @@ void bt_sequence_insert_full_row(const BtSequence * const self, const gulong tim
  * @self: the sequence
  * @time: the postion to delete
  * @track: the track
+ * @rows: the number of rows to remove
  *
  * Delete row for given @track.
  *
  * Since: 0.3
  */
-void bt_sequence_delete_row(const BtSequence * const self, const gulong time, const gulong track) {
-  BtPattern **patterns=&self->priv->patterns[track];
-  BtPattern **ptr;
+void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, const gulong track, const gulong rows) {
+  BtPattern **src=&self->priv->patterns[track+self->priv->tracks*(time+rows)];
+  BtPattern **dst=&self->priv->patterns[track+self->priv->tracks*time];
   gulong i;
-  
-  g_object_try_unref(*patterns);
-  for(i=time;i<self->priv->length-1;i++) {
-    ptr=patterns;
-    patterns+=self->priv->tracks;
-    *ptr=*patterns;
+    
+  for(i=0;i<rows;i++) {
+    g_object_try_unref(dst[i*self->priv->tracks]);
   }
-  *patterns=NULL;
+  for(i=time;i<(self->priv->length-rows);i++) {
+    *dst=*src;
+    //*src=NULL;
+    src+=self->priv->tracks;
+    dst+=self->priv->tracks;
+  }
+  for(i=0;i<rows;i++) {
+    *dst=NULL;
+    dst+=self->priv->tracks;
+  }
 }
 
 /**
  * bt_sequence_delete_full_row:
  * @self: the sequence
  * @time: the postion to delete
+ * @rows: the number of rows to remove
  *
  * Delete row for all tracks.
  *
  * Since: 0.3
  */
-void bt_sequence_delete_full_row(const BtSequence * const self, const gulong time) {
+void bt_sequence_delete_full_rows(const BtSequence * const self, const gulong time, const gulong rows) {
   gulong j=0;
+  
+  GST_DEBUG("delete %d full-rows at %lu / %lu", rows, time, self->priv->length);
 
   // shift label up
-  g_free(self->priv->labels[time]);
-  memmove(&self->priv->labels[time],&self->priv->labels[time+1],((self->priv->length-1)-time)*sizeof(gpointer));
-  self->priv->labels[self->priv->length-1]=NULL;
+  for(j=0;j<rows;j++) {
+    g_free(self->priv->labels[time+j]);
+  }
+  memmove(&self->priv->labels[time],&self->priv->labels[time+rows],((self->priv->length-rows)-time)*sizeof(gpointer));
+  for(j=0;j<rows;j++) {
+    self->priv->labels[self->priv->length-(1+j)]=NULL;
+  }
   for(j=0;j<self->priv->tracks;j++) {
-    bt_sequence_delete_row(self,time,j);
+    bt_sequence_delete_rows(self,time,j,rows);
   }
 
-  g_object_set(G_OBJECT(self),"length",self->priv->length-1,NULL);
+  // don't make it shorter because of loop-end ?
+  g_object_set(G_OBJECT(self),"length",self->priv->length-rows,NULL);
 }
 
 //-- io interface

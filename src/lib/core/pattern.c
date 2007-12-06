@@ -1,4 +1,4 @@
-/* $Id: pattern.c,v 1.102 2007-11-26 22:36:43 ensonic Exp $
+/* $Id: pattern.c,v 1.103 2007-12-06 18:31:50 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -33,7 +33,6 @@
 #include <libbtcore/core.h>
 
 //-- signal ids
-
 
 enum {
   GLOBAL_PARAM_CHANGED_EVENT,
@@ -104,8 +103,8 @@ GType bt_pattern_cmd_get_type(void) {
   if(G_UNLIKELY(type == 0)) {
     static const GEnumValue values[] = {
       { BT_PATTERN_CMD_NORMAL,"BT_PATTERN_CMD_NORMAL","just working" },
-      { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
       { BT_PATTERN_CMD_MUTE,  "BT_PATTERN_CMD_MUTE",  "be quiet immediately" },
+      { BT_PATTERN_CMD_BREAK, "BT_PATTERN_CMD_BREAK", "no more notes" },
       { BT_PATTERN_CMD_SOLO,  "BT_PATTERN_CMD_SOLO",  "be the only one playing" },
       { BT_PATTERN_CMD_BYPASS,"BT_PATTERN_CMD_BYPASS","be uneffective (pass through)" },
       { 0, NULL, NULL},
