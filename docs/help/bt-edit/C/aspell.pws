@@ -1,11 +1,18 @@
-personal_ws-1.1 en 10 
+personal_ws-1.1 en 17 
+Ctrl
 ui
+ogg
+wavetable
 FIXME
+UPnP
+UIs
+audiosink
 gstreamer
 FastTracker
 plugins
+wav
 buzztard
-Buzztard
 SoundTracker
+vorbis
 Kost
 tooltips

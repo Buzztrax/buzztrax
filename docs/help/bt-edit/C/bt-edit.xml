@@ -133,11 +133,11 @@
         <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags)</para></listitem>
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
         <listitem><para>generates cleaner machine UIs (collapsing parts, more distinct widgets)</para></listitem>
-        <listitem><para>has a zoomable machine view</para></listitem>
+        <listitem><para>has a scalable machine view</para></listitem>
         <listitem><para>can use beats other that 4/4</para></listitem>
         <listitem><para>has analyzers in sequence view</para></listitem>
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
-        <listitem><para>can be remote controlled with upnp a/v software</para></listitem>
+        <listitem><para>can be remote controlled with UPnP a/v software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
     </para>
@@ -263,10 +263,10 @@
         Not all machines support all these states.
       </para>
       <para>
-        Machines and wires have context menues. The menu for the wire can be
+        Machines and wires have context menus. The menu for the wire can be
         accessed by right clicking over the triangle shape.
       </para>
-      <note><title>Limmitations</title>
+      <note><title>Limitations</title>
         <para>
           Panorama stuff is still missing and so are stereo elements.
         </para>
@@ -304,10 +304,10 @@
       <para>
         To switch to the sequence editor press <keycap>Enter</keycap> while the pattern editor has focus.
       </para>
-      <note><title>Limmitations</title>
+      <note><title>Limitations</title>
         <para>
-          Editing the pattern is currently not realy comfortable. That will
-          be addressed real soon.
+          Editing the pattern is currently not really comfortable (at least for
+          number value columns). That will be addressed real soon.
         </para>
       </note>
     </sect3>
@@ -333,7 +333,7 @@
       </figure>
       <para>
         The sequence header for each track shows the name of the machine, mute,
-        solo. bypass buttons (depending wheter it is a generator, effect or
+        solo. bypass buttons (depending whether it is a generator, effect or
         sink) and a level-meter.
       </para>
       <para>
@@ -347,20 +347,29 @@
         press <keycap>Enter</keycap>.
       </para>
       <para>
-        To set play position click with left-mouse button in 'pos' column at the
+        To set play position click with left-mouse button in "pos" column at the
         desired time location. To modify the loop start/end instead hold down
         the <keycap>Ctrl</keycap> or <keycap>Win</keycap> (<keycap>Mod</keycap>)
         key while clicking.
       </para>
       <para>
         To expand the sequence, scroll down with the cursor and press
-        <keycombo><keycap>Ctrl</keycap><keycap>E</keycap></keycombo> to
+        <keycombo><keycap>Ctrl</keycap><keycap>e</keycap></keycombo> to
         set the end-line. If the cursor is above the end-line, pressing
         <keycombo><keycap>Ctrl</keycap><keycap>E</keycap></keycombo>
         will set the loop-end marker. To set the loop-begin marker press
-        <keycombo><keycap>Ctrl</keycap><keycap>B</keycap></keycombo>.
+        <keycombo><keycap>Ctrl</keycap><keycap>b</keycap></keycombo>.
       </para>
-      <note><title>Limmitations</title>
+      <para>
+        It is also possible to insert and delete full rows or just entries in a
+        track. The shortcuts for this are 
+        <keycombo><keycap>Ctrl</keycap><keycap>i</keycap></keycombo> to
+        insert a full row and 
+        <keycombo><keycap>Ctrl</keycap><keycap>d</keycap></keycombo> to
+        remove a full row. To only insert or remove inside the current track
+        hold the <keycap>Shift</keycap> key in addition.
+      </para>
+      <note><title>Limitations</title>
         <para>
           The unit-selector in the first column of the sequence header is not
           yet functional. The label-navigator in the second column is not yet
@@ -394,7 +403,7 @@
       <para>
         Samples can be loaded, played and previewed when browsing.
       </para>
-      <note><title>Limmitations</title>
+      <note><title>Limitations</title>
         <para>
           No waveform, no details and no use of loaded waves yet.
         </para>
@@ -474,7 +483,7 @@
     <title id='bt-edit-prefs-playback-controller.title'>Playback controller settings</title>
 
     <para>
-      Upnp A/V remote control via Coherence.
+      UPnP A/V remote control via Coherence.
       (FIXME:)
     </para>
   </sect2>
