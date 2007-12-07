@@ -1,6 +1,18 @@
 2007-12-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* configure.ac:
+	* docs/help/bt-edit/Makefile.am:
+	* docs/help/bt-edit/C/aspell.pws
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Add spell checking rule and initial wordlist.
+
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Fix the build again.
+
+2007-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
 	* src/lib/core/application.c:
 	* src/lib/core/libbtcore/tools.h:
 	* src/lib/core/machine.c:

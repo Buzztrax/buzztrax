@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.41 2007-12-07 15:44:02 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.42 2007-12-07 19:14:11 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -45,7 +45,7 @@
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
 #if HAVE_GLIB_2_14
-  help=g_option_context_get_help(ctx, TRUE, NULL));
+  gchar *help=g_option_context_get_help(ctx, TRUE, NULL);
   puts(help);
   g_free(help);
 #endif

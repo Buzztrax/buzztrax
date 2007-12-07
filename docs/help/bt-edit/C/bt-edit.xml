@@ -126,18 +126,18 @@
   </sect2>
 
   <sect2 id="bt-edit-intro-buzz">
-    <title id='bt-edit-intro-buzz.title'>Comparision to <application>Buzz</application></title>
+    <title id='bt-edit-intro-buzz.title'>Comparison to <application>Buzz</application></title>
     <para>
       &app;:
       <itemizedlist>
-        <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-metadata (tags)</para></listitem>
+        <listitem><para>can render songs to wav/mp3,ogg-vorbis/... including song-meta-data (tags)</para></listitem>
         <listitem><para>uses color-codes for machine-types through its ui</para></listitem>
         <listitem><para>generates cleaner machine UIs (collapsing parts, more distinct widgets)</para></listitem>
         <listitem><para>has a zoomable machine view</para></listitem>
         <listitem><para>can use beats other that 4/4</para></listitem>
         <listitem><para>has analyzers in sequence view</para></listitem>
         <listitem><para>can have multiple wire-analyzers open</para></listitem>
-        <listitem><para>can be remotecontrolled with upnp a/v software</para></listitem>
+        <listitem><para>can be remote controlled with upnp a/v software</para></listitem>
         <listitem><para>supports HID input devices for effect control (e.g. joysticks)</para></listitem>
       </itemizedlist>
     </para>
@@ -147,7 +147,7 @@
   </sect2>
 
   <sect2 id="bt-edit-intro-tracker">
-    <title id='bt-edit-intro-tracker.title'>Comparision to Tracker applications</title>
+    <title id='bt-edit-intro-tracker.title'>Comparison to Tracker applications</title>
     <para>
       (FIXME:)
       <itemizedlist>
@@ -163,8 +163,8 @@
   <title id='bt-edit-main.title'>The main window</title>
   <para>
     After starting the <application>&app; Music Editor</application>, you will see the main window.
-    If you start the application without specifing an initial file
-    (as a parameter on the commandline or by double clicking a song in <application>Nautilus</application>),
+    If you start the application without specifying an initial file
+    (as a parameter on the command line or by double clicking a song in <application>Nautilus</application>),
     the window will look like this.
   </para>
 
@@ -176,7 +176,7 @@
           <imagedata fileref="figures/main-window.png" format="PNG"/>
         </imageobject>
         <textobject>
-          <phrase>Shows &app; main window with menubar, toolbars, editor views and status area.</phrase>
+          <phrase>Shows &app; main window with menu bar, toolbars, editor views and status area.</phrase>
         </textobject>
       </mediaobject>
     </screenshot>
@@ -204,10 +204,10 @@
 
     <para>
       The <menuchoice><guimenu>File</guimenu></menuchoice> menu allows to start a new song, load and save
-      songs, as well as end the program. Songs need other ressources in order to
+      songs, as well as end the program. Songs need other resources in order to
       be played. These are the sound-generators and effects that are used and
-      eventually digital audiosamples. When loading a song &app; checks if all
-      needed ressources are available and if not lists them in one dialog
+      eventually digital audio-samples. When loading a song &app; checks if all
+      needed resources are available and if not lists them in one dialog
       (FIXME: document and link).
     </para>
   </sect2>
@@ -217,7 +217,7 @@
     <para>
       In contrast to <link linkend="bt-edit-main">the menu bar</link> the tool
       bar only shows common operations as shortcuts.
-      On the right end the tollbar shows a volume-meter for each audio-channel
+      On the right end the toolbar shows a volume-meter for each audio-channel
       and a volume control.
     </para>
   </sect2>
@@ -234,12 +234,12 @@
     <sect3 id="bt-edit-main-view-machines">
       <title id='bt-edit-main-view-machines.title'>The machine view of a song</title>
       <para>
-        A song utilises sound generators, effects and sinks - all called machines.
-        A new machine can be added from the context menu that apprear on a right
+        A song utilizes sound generators, effects and sinks - all called machines.
+        A new machine can be added from the context menu that appear on a right
         click over the page area.
-        Machines can be moved around by grabing them with the mouse and draging
+        Machines can be moved around by grabbing them with the mouse and dragging
         them around.
-        To connect machines, move pointer over the source, press shift+left mousebutton
+        To connect machines, move pointer over the source, press shift+left mouse-button
         and drag the wire to the target machine. The wire turns green, if the
         connect can be made.
       </para>

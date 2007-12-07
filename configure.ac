@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.109 2007-12-07 15:44:02 ensonic Exp $
+dnl $Id: configure.ac,v 1.110 2007-12-07 19:14:10 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -223,9 +223,9 @@ PKG_CHECK_MODULES(BASE_DEPS, \
   glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 gmodule-2.0 >= 2.10.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
-  gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
-  gstreamer-base-0.10 >= 0.10.0 \
-  gstreamer-plugins-base-0.10 >= 0.10.0 \
+  gstreamer-0.10 >= 0.10.7 gstreamer-controller-0.10 >= 0.10.7 \
+  gstreamer-base-0.10 >= 0.10.7 \
+  gstreamer-plugins-base-0.10 >= 0.10.7 \
 )
 
 PKG_CHECK_MODULES(GUI_DEPS, \
@@ -381,6 +381,10 @@ fi
 AM_CONDITIONAL(ENABLE_SCROLLKEEPER, test ! x$scrollkeeper_config = xno)
 SCROLLKEEPER_BUILD_REQUIRED=0.3.5
 AC_SUBST(SCROLLKEEPER_BUILD_REQUIRED)
+
+dnl Check for aspell (spellcheck the docs)
+AC_CHECK_PROGS(ASPELL,[aspell],[])
+AM_CONDITIONAL(WITH_ASPELL,[test "x$ASPELL" != "x"])
 
 dnl Checks for header files.
 AC_HEADER_STDC
