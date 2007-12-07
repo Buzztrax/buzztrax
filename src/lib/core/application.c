@@ -1,4 +1,4 @@
-/* $Id: application.c,v 1.64 2007-05-07 14:45:33 ensonic Exp $
+/* $Id: application.c,v 1.65 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -115,9 +115,6 @@ static void bt_application_get_property(GObject      * const object,
   switch (property_id) {
     case APPLICATION_BIN: {
       g_value_set_object(value, self->priv->bin);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->bin);
-      #endif
     } break;
     case APPLICATION_SETTINGS: {
       g_value_set_object(value, self->priv->settings);

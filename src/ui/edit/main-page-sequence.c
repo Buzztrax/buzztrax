@@ -1,4 +1,4 @@
-/* $Id: main-page-sequence.c,v 1.191 2007-12-06 18:31:51 ensonic Exp $
+/* $Id: main-page-sequence.c,v 1.192 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1731,7 +1731,8 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
   g_assert(user_data);
   if(!GTK_WIDGET_REALIZED(self->priv->sequence_table)) return(FALSE);
 
-  GST_DEBUG("sequence_table key : state 0x%x, keyval 0x%x",event->state,event->keyval);
+  GST_INFO("sequence_table key key : state 0x%x, keyval 0x%x, hw-code 0x%x, name %s",
+    event->state,event->keyval,event->hardware_keycode,gdk_keyval_name(event->keyval));
 
   // determine timeline and timelinetrack from cursor pos
   if(sequence_view_get_current_pos(self,&row,&track)) {
@@ -1743,7 +1744,6 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
     gboolean change=FALSE;
     gboolean pattern_usage_changed=FALSE;
     gulong modifier=(gulong)event->state&gtk_accelerator_get_default_mod_mask();
-    //gulong modifier=(gulong)event->state&(GDK_SHIFT_MASK|GDK_CONTROL_MASK|GDK_MOD4_MASK);
 
     g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
     g_object_get(G_OBJECT(song),"sequence",&sequence,NULL);
@@ -1964,31 +1964,47 @@ static gboolean on_sequence_table_key_release_event(GtkWidget *widget,GdkEventKe
       }
     }
     else if(event->keyval == GDK_i) {
-      if(modifier==GDK_CONTROL_MASK) {
-
-        GST_INFO("ctrl-i pressed, row %lu / %lu");
+      if(modifier&GDK_CONTROL_MASK) {
+        GST_INFO("ctrl-i pressed, row %lu",row);
         bt_sequence_insert_full_rows(sequence,row,self->priv->bars);
         self->priv->list_length+=self->priv->bars;
         // reinit the view
-        GST_INFO("cursor [  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
-        GST_INFO("cursor ]  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+      }
+    }
+    else if(event->keyval == GDK_I) {
+      if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+        GST_INFO("ctrl-shift-i pressed, row %lu, track %lu",row,track-1);
+        bt_sequence_insert_rows(sequence,row,track-1,self->priv->bars);
+        //self->priv->list_length+=self->priv->bars;
+        // reinit the view
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
       }
     }
     else if(event->keyval == GDK_d) {
-      if(modifier==GDK_CONTROL_MASK) {
-
+      if(modifier&GDK_CONTROL_MASK) {
         GST_INFO("ctrl-d pressed, row %lu",row);
         bt_sequence_delete_full_rows(sequence,row,self->priv->bars);
         self->priv->list_length-=self->priv->bars;
         // reinit the view
-        GST_INFO("cursor [  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
         sequence_table_refresh(self,song);
         sequence_model_recolorize(self);
         sequence_view_set_cursor_pos(self);
-        GST_INFO("cursor ]  : %3d,%3d",self->priv->cursor_column,self->priv->cursor_row);
+      }
+    }
+    else if(event->keyval == GDK_D) {
+      if(modifier&(GDK_CONTROL_MASK|GDK_SHIFT_MASK)) {
+        GST_INFO("ctrl-shift-d pressed, row %lu, track %lu",row,track-1);
+        bt_sequence_delete_rows(sequence,row,track-1,self->priv->bars);
+        //self->priv->list_length-=self->priv->bars;
+        // reinit the view
+        sequence_table_refresh(self,song);
+        sequence_model_recolorize(self);
+        sequence_view_set_cursor_pos(self);
       }
     }
     else if(event->keyval<0x100) {

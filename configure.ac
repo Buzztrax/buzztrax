@@ -1,4 +1,4 @@
-dnl $Id: configure.ac,v 1.108 2007-11-27 13:49:05 ensonic Exp $
+dnl $Id: configure.ac,v 1.109 2007-12-07 15:44:02 ensonic Exp $
 
 dnl
 dnl current  : the interface         : MAJOR + MINOR
@@ -220,7 +220,7 @@ AC_SUBST(with_desktop_dir)
 
 dnl Checks for libraries.
 PKG_CHECK_MODULES(BASE_DEPS, \
-  glib-2.0 >= 2.6.0 gobject-2.0  >= 2.6.0 gthread-2.0 >= 2.6.0 gmodule-2.0 >= 2.6.0 \
+  glib-2.0 >= 2.10.0 gobject-2.0  >= 2.10.0 gthread-2.0 >= 2.10.0 gmodule-2.0 >= 2.10.0 \
   gnome-vfs-2.0 >= 2.10 gnome-vfs-module-2.0 >= 2.10 \
   libxml-2.0 >= 2.6.0 \
   gstreamer-0.10 >= 0.10.0 gstreamer-controller-0.10 >= 0.10.0 \
@@ -288,24 +288,24 @@ AC_SUBST(GTK_PREFIX)
 AC_SUBST(GST_PREFIX)
 AC_SUBST(GCANVAS_PREFIX)
 
-AC_MSG_CHECKING([glib version >= 2.6])
-if pkg-config --atleast-version=2.6 glib-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIB_2_6, [1], [Define to 1 if we can use API new in glib-2.6])
-else
-  AC_MSG_RESULT(no)
-fi
-AC_MSG_CHECKING([glib version >= 2.8])
-if pkg-config --atleast-version=2.8 glib-2.0; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(HAVE_GLIB_2_8, [1], [Define to 1 if we can use API new in glib-2.8])
-else
-  AC_MSG_RESULT(no)
-fi
 AC_MSG_CHECKING([glib version >= 2.10])
 if pkg-config --atleast-version=2.10 glib-2.0; then
   AC_MSG_RESULT(yes)
   AC_DEFINE(HAVE_GLIB_2_10, [1], [Define to 1 if we can use API new in glib-2.10])
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([glib version >= 2.12])
+if pkg-config --atleast-version=2.12 glib-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GLIB_2_12, [1], [Define to 1 if we can use API new in glib-2.12])
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([glib version >= 2.14])
+if pkg-config --atleast-version=2.14 glib-2.0; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GLIB_2_14, [1], [Define to 1 if we can use API new in glib-2.14])
 else
   AC_MSG_RESULT(no)
 fi

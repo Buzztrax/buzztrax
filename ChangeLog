@@ -1,3 +1,21 @@
+2007-12-07  Stefan Kost  <ensonic@users.sf.net>
+
+	* configure.ac:
+	* src/lib/core/application.c:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/song.c:
+	* src/lib/core/tools.c:
+	* tests/bt-check.c:
+	  We require glib-2.10. Remove older #ifdefs.
+	  
+	* src/ui/cmd/bt-cmd.c:
+	* src/ui/edit/bt-edit.c:
+	  Use glib-2.14 api to print help if available.
+	
+	* src/ui/edit/main-page-sequence.c:
+	  Add Insert/Delete rows in tracks.
+
 2007-12-06  Stefan Kost  <ensonic@users.sf.net>
 
 	* ChangeLog:

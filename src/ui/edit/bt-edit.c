@@ -1,4 +1,4 @@
-/* $Id: bt-edit.c,v 1.43 2007-08-20 13:53:14 ensonic Exp $
+/* $Id: bt-edit.c,v 1.44 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,11 +44,12 @@
 #include "bt-edit.h"
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
-  // @todo need a replacement for this
-  //g_option_context_get_help() in future glib
-  //poptPrintUsage(context,stdout,0);
-  //poptFreeContext(context);
-  //exit(0);
+#if HAVE_GLIB_2_14
+// @idea: show as dialog?
+  help=g_option_context_get_help(ctx, TRUE, NULL));
+  puts(help);
+  g_free(help);
+#endif
 }
 
 static gboolean parse_goption_arg (const gchar * opt, const gchar * arg, gpointer data, GError ** err)

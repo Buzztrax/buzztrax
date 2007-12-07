@@ -1,4 +1,4 @@
-/* $Id: bt-check.c,v 1.40 2007-11-22 16:10:15 ensonic Exp $
+/* $Id: bt-check.c,v 1.41 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -168,18 +168,7 @@ void setup_log(int argc, char **argv) {
  * during testing. In case of probelms that can help to locate the errors.
  */
 void setup_log_capture(void) {
-#ifdef HAVE_GLIB_2_6
   (void)g_log_set_default_handler(check_log_handler,NULL);
-#else
-  (void)g_log_set_handler(G_LOG_DOMAIN  ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GStreamer"   ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GLib"        ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-  (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
-#endif
-  //(void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_CRITICAL|G_LOG_LEVEL_WARNING|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_critical_log_handler, NULL);
-  (void)g_set_printerr_handler(check_print_handler);
 }
 
 

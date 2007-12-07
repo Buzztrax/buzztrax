@@ -1,4 +1,4 @@
-/* $Id: bt-cmd.c,v 1.40 2007-08-20 13:53:14 ensonic Exp $
+/* $Id: bt-cmd.c,v 1.41 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -44,10 +44,11 @@
 #include "bt-cmd.h"
 
 static void usage(int argc, char **argv, GOptionContext *ctx) {
-  // @todo need a replacement for this
-  //g_option_context_get_help() in future glib
-  //poptPrintUsage(context,stdout,0);
-  //poptFreeContext(context);
+#if HAVE_GLIB_2_14
+  help=g_option_context_get_help(ctx, TRUE, NULL));
+  puts(help);
+  g_free(help);
+#endif
   g_option_context_free(ctx);
   exit(0);
 }

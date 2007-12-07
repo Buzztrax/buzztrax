@@ -1,4 +1,4 @@
-/* $Id: tools.h,v 1.21 2007-08-03 21:08:15 ensonic Exp $
+/* $Id: tools.h,v 1.22 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -36,23 +36,12 @@ extern GList *bt_gst_check_core_elements(void);
 extern void bt_gst_element_dbg_pads(GstElement * const elem);
 
 //-- glib compat & helper
-#ifndef HAVE_GLIB_2_8
-extern gpointer g_try_malloc0(const gulong n_bytes);
-#endif // !HAVE_GLIB_2_8
 
 extern GType bt_g_type_get_base_type(const GType type);
 
 #endif // !BT_TOOLS_C
 
 //-- glib compat & helper
-#ifndef HAVE_GLIB_2_8
-#define g_try_new(struct_type, n_structs) \
-  g_try_malloc(sizeof(struct_type)*n_structs)
-
-#define g_try_new0(struct_type, n_structs) \
-  g_try_malloc0(sizeof(struct_type)*n_structs)
-#endif // !HAVE_GLIB_2_8
-
 /**
  * return_if_disposed:
  * @a: return value or nothing
@@ -166,17 +155,8 @@ union { \
 sprintf((str=alloca(g_printf_string_upper_bound(format, args)),format, args)
 */
 
-// workaround for glib<2.8
-#ifndef GST_HAVE_GLIB_2_8
-#define G_OPTION_FLAG_NO_ARG 0
-#endif
-
-#ifndef GST_HAVE_GLIB_2_8
-#define	G_PARAM_STATIC_STRINGS 0
-#else
 #ifndef G_PARAM_STATIC_STRINGS
 #define	G_PARAM_STATIC_STRINGS (G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
-#endif
 #endif
 
 //-- cpu load monitoring

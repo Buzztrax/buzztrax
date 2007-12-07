@@ -1,4 +1,4 @@
-/* $Id: tools.c,v 1.35 2007-05-09 12:50:28 ensonic Exp $
+/* $Id: tools.c,v 1.36 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -219,17 +219,6 @@ void bt_gst_element_dbg_pads(GstElement * const elem) {
 }
 
 //-- glib compat & helper
-
-#ifndef HAVE_GLIB_2_8
-gpointer g_try_malloc0( const gulong n_bytes ) {
-  gpointer const mem=g_try_malloc(n_bytes);
-
-  if(mem) {
-    memset(mem,0,n_bytes);
-  }
-  return(mem);
-}
-#endif
 
 /**
  * bt_g_type_get_base_type:

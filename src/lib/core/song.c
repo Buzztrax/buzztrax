@@ -1,4 +1,4 @@
-/* $Id: song.c,v 1.196 2007-11-27 15:20:45 ensonic Exp $
+/* $Id: song.c,v 1.197 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -1281,9 +1281,6 @@ static void bt_song_get_property(GObject      * const object,
     } break;
     case SONG_BIN: {
       g_value_set_object(value, self->priv->bin);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->bin);
-      #endif
     } break;
     case SONG_MASTER: {
       g_value_set_object(value, self->priv->master);
@@ -1333,9 +1330,6 @@ static void bt_song_set_property(GObject      * const object,
     case SONG_BIN: {
       if(self->priv->bin) gst_object_unref(self->priv->bin);
       self->priv->bin=GST_BIN(g_value_dup_object(value));
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->bin);
-      #endif
       GST_DEBUG("set the bin for the song: %p",self->priv->bin);
     } break;
     case SONG_MASTER: {

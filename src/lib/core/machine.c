@@ -1,4 +1,4 @@
-/* $Id: machine.c,v 1.276 2007-11-24 19:07:36 ensonic Exp $
+/* $Id: machine.c,v 1.277 2007-12-07 15:44:02 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -3005,33 +3005,18 @@ static void bt_machine_get_property(GObject * const object, const guint property
     } break;
     case MACHINE_MACHINE: {
       g_value_set_object(value, self->priv->machines[PART_MACHINE]);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->machines[PART_MACHINE]);
-      #endif
     } break;
     case MACHINE_INPUT_LEVEL: {
       g_value_set_object(value, self->priv->machines[PART_INPUT_LEVEL]);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->machines[PART_INPUT_LEVEL]);
-      #endif
     } break;
     case MACHINE_INPUT_GAIN: {
       g_value_set_object(value, self->priv->machines[PART_INPUT_GAIN]);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->machines[PART_INPUT_GAIN]);
-      #endif
     } break;
     case MACHINE_OUTPUT_LEVEL: {
       g_value_set_object(value, self->priv->machines[PART_OUTPUT_LEVEL]);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->machines[PART_OUTPUT_LEVEL]);
-      #endif
     } break;
     case MACHINE_OUTPUT_GAIN: {
       g_value_set_object(value, self->priv->machines[PART_OUTPUT_GAIN]);
-      #ifndef HAVE_GLIB_2_8
-      gst_object_ref(self->priv->machines[PART_OUTPUT_GAIN]);
-      #endif
     } break;
     case MACHINE_PATTERNS: {
       g_value_set_pointer(value,g_list_copy(self->priv->patterns));
