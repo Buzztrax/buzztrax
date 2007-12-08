@@ -15,9 +15,12 @@ DOC_MAIN_SGML_FILE=$(DOC_MODULE)-docs.sgml
 DOC_SOURCE_DIR=$(top_srcdir)/src/lib/core
 
 # Extra options to pass to gtkdoc-scangobj. Not normally needed.
-SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
+#SCANGOBJ_OPTIONS=--type-init-func="do { void gst_init(int *argc,char **argv[]);g_type_init();gst_init(&argc,&argv); } while (0)"
+#SCANGOBJ_OPTIONS=--type-init-func="g_type_init();gst_init(&argc,&argv)"
+SCANGOBJ_OPTIONS=--type-init-func="g_thread_init(NULL);g_type_init()"
 
 # Extra options to supply to gtkdoc-scan.
+# --rebuild-types requires gtk-doc 1.8
 SCAN_OPTIONS=--deprecated-guards="BT_DISABLE_DEPRECATED"
 
 # Extra options to supply to gtkdoc-mkdb.
@@ -73,3 +76,7 @@ include $(top_srcdir)/gtk-doc.make
 # Other files to distribute
 # e.g. EXTRA_DIST += version.xml.in
 EXTRA_DIST += $(DOC_MODULE).types
+
+# Comment this out if you want your docs-status tested during 'make check'
+TESTS = $(GTKDOC_CHECK)
+

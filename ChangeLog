@@ -1,3 +1,14 @@
+2007-12-08  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-cmd/Makefile.am:
+	* docs/reference/bt-core/Makefile.am:
+	* docs/reference/bt-edit/Makefile.am:
+	* docs/reference/bt-ic/Makefile.am:
+	  Activating tests if new enough gtk-doc is available.
+
+	* po/de.po:
+	  Updating.
+
 2007-12-07  Stefan Kost  <ensonic@users.sf.net>
 
 	* docs/help/bt-edit/C/aspell.pws:
