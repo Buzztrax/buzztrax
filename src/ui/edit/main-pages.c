@@ -1,4 +1,4 @@
-/* $Id: main-pages.c,v 1.42 2007-11-21 16:00:19 ensonic Exp $
+/* $Id: main-pages.c,v 1.43 2007-12-08 18:08:44 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -128,8 +128,11 @@ static void on_page_switched(GtkNotebook *notebook, GtkNotebookPage *page, guint
 
 //-- helper methods
 
-static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,guint index,gchar *str,gchar *icon,gchar *tip) {
+static void bt_main_pages_init_tab(const BtMainPages *self,guint index,gchar *str,gchar *icon,gchar *tip) {
   GtkWidget *label,*event_box,*box,*image;
+#ifndef HAVE_GTK_2_12
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
 
   label=gtk_label_new(str);
   //gtk_label_set_ellipsize(GTK_LABEL(label),PANGO_ELLIPSIZE_END);
@@ -150,14 +153,14 @@ static void bt_main_pages_init_tab(const BtMainPages *self,GtkTooltips *tips,gui
   gtk_container_add(GTK_CONTAINER(event_box),box);
 
   gtk_notebook_set_tab_label(GTK_NOTEBOOK(self),gtk_notebook_get_nth_page(GTK_NOTEBOOK(self),index),event_box);
-  gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),event_box,tip,NULL);
+#ifndef HAVE_GTK_2_12
+  gtk_tooltips_set_tip(tips,event_box,tip,NULL);
+#else
+  gtk_widget_set_tooltip_text(event_box,tip);
+#endif
 }
 
 static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
-  GtkTooltips *tips;
-
-  tips=gtk_tooltips_new();
-
   gtk_widget_set_name(GTK_WIDGET(self),_("song views"));
 
   GST_INFO("before creating pages, app->ref_ct=%d",G_OBJECT(self->priv->app)->ref_count);
@@ -165,27 +168,27 @@ static gboolean bt_main_pages_init_ui(const BtMainPages *self) {
   // add wigets for machine view
   self->priv->machines_page=bt_main_page_machines_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->machines_page));
-  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_MACHINES_PAGE,_("machines"),"tab_machines.png",_("machines used in the song and their wires"));
+  bt_main_pages_init_tab(self,BT_MAIN_PAGES_MACHINES_PAGE,_("machines"),"tab_machines.png",_("machines used in the song and their wires"));
 
   // add wigets for pattern view
   self->priv->patterns_page=bt_main_page_patterns_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->patterns_page));
-  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_PATTERNS_PAGE,_("patterns"),"tab_patterns.png",_("event pattern editor"));
+  bt_main_pages_init_tab(self,BT_MAIN_PAGES_PATTERNS_PAGE,_("patterns"),"tab_patterns.png",_("event pattern editor"));
 
   // add wigets for sequence view
   self->priv->sequence_page=bt_main_page_sequence_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->sequence_page));
-  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence"),"tab_sequence.png",_("song sequence editor"));
+  bt_main_pages_init_tab(self,BT_MAIN_PAGES_SEQUENCE_PAGE,_("sequence"),"tab_sequence.png",_("song sequence editor"));
 
   // add wigets for waves view
   self->priv->waves_page=bt_main_page_waves_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->waves_page));
-  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_WAVES_PAGE,_("wave table"),"tab_waves.png",_("sample wave table editor"));
+  bt_main_pages_init_tab(self,BT_MAIN_PAGES_WAVES_PAGE,_("wave table"),"tab_waves.png",_("sample wave table editor"));
 
   // add widgets for song info view
   self->priv->info_page=bt_main_page_info_new(self->priv->app,self);
   gtk_container_add(GTK_CONTAINER(self),GTK_WIDGET(self->priv->info_page));
-  bt_main_pages_init_tab(self,tips,BT_MAIN_PAGES_INFO_PAGE,_("information"),"tab_info.png",_("song meta data editor"));
+  bt_main_pages_init_tab(self,BT_MAIN_PAGES_INFO_PAGE,_("information"),"tab_info.png",_("song meta data editor"));
 
   // @idea add widgets for machine help view
   // GTK_STOCK_HELP icon

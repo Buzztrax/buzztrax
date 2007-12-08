@@ -1,4 +1,4 @@
-/* $Id: machine-properties-dialog.c,v 1.96 2007-11-20 22:54:39 ensonic Exp $
+/* $Id: machine-properties-dialog.c,v 1.97 2007-12-08 18:08:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -53,7 +53,9 @@ struct _BtMachinePropertiesDialogPrivate {
   GtkWidget *main_toolbar,*preset_toolbar;
   GtkWidget *preset_box;
   GtkWidget *preset_list;
+#ifndef HAVE_GTK_2_12
   GtkTooltips *preset_tips;
+#endif
 
   GtkWidget *param_group_box;
 
@@ -787,6 +789,7 @@ static void on_preset_list_row_activated(GtkTreeView *tree_view,GtkTreePath *pat
   }
 }
 
+#ifndef HAVE_GTK_2_12
 static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *event,gpointer user_data) {
   const BtMachinePropertiesDialog *self=BT_MACHINE_PROPERTIES_DIALOG(user_data);
   GdkWindow *bin_window;
@@ -833,6 +836,33 @@ static void on_preset_list_motion_notify(GtkTreeView *tree_view,GdkEventMotion *
     gtk_tree_path_free(path);
   }
 }
+#else
+static gboolean on_preset_list_query_tooltip(GtkWidget *widget,gint x,gint y,gboolean keyboard_mode,GtkTooltip *tooltip,gpointer user_data) {
+  GtkTreeView *tree_view=GTK_TREE_VIEW(widget);
+  GtkTreePath *path;
+  GtkTreeViewColumn *column;
+  gboolean res=FALSE;
+
+  if(gtk_tree_view_get_path_at_pos(tree_view,x,y,&path,&column,NULL,NULL)) {
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    model=gtk_tree_view_get_model(tree_view);
+    if(gtk_tree_model_get_iter(model,&iter,path)) {
+      gchar *comment;
+      
+      gtk_tree_model_get(model,&iter,PRESET_LIST_COMMENT,&comment,-1);
+      if(comment) {
+        GST_LOG("tip is '%s'",comment);
+        gtk_tooltip_set_text(tooltip,comment);
+        res=TRUE;
+      }
+    }
+    gtk_tree_path_free(path);
+  }
+  return(res);
+}
+#endif
 
 static void on_preset_list_selection_changed(GtkTreeSelection *treeselection,gpointer user_data) {
   gtk_widget_set_sensitive(GTK_WIDGET(user_data),(gtk_tree_selection_count_selected_rows(treeselection)!=0));
@@ -1081,11 +1111,13 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
   GtkWidget *expander=NULL;
   GtkWidget *label,*table;
   GtkWidget *widget1,*widget2;
-  GtkTooltips *tips=gtk_tooltips_new();
   GParamSpec *property;
   GValue *range_min,*range_max;
   GType param_type;
   gulong i,k,params;
+#ifndef HAVE_GTK_2_12
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
 
   // determine params to be skipped
   params=global_params;
@@ -1165,12 +1197,20 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
       if(range_min) { g_free(range_min);range_min=NULL; }
       if(range_max) { g_free(range_max);range_max=NULL; }
 
+#ifndef HAVE_GTK_2_12
       gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+#else
+      gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+#endif
       if(!widget2) {
         gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
       }
       else {
+#ifndef HAVE_GTK_2_12
         gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+#else
+        gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+#endif
         gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         /* @todo how can we avoid the wobble here?
          * hack would be to set some 'good' default size
@@ -1199,13 +1239,15 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   GtkWidget *expander=NULL;
   GtkWidget *label,*table;
   GtkWidget *widget1,*widget2;
-  GtkTooltips *tips=gtk_tooltips_new();
   GParamSpec *property;
   GValue *range_min,*range_max;
   GType param_type;
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
+#ifndef HAVE_GTK_2_12
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
 
   params=voice_params;
   for(i=0;i<voice_params;i++) {
@@ -1294,12 +1336,20 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       if(range_min) { g_free(range_min);range_min=NULL; }
       if(range_max) { g_free(range_max);range_max=NULL; }
 
+#ifndef HAVE_GTK_2_12
       gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+#else
+      gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+#endif
       if(!widget2) {
         gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
       }
       else {
+#ifndef HAVE_GTK_2_12
         gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+#else
+        gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+#endif
         gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         /* @todo how can we avoid the wobble here?
          * hack would be to set some 'good' default size
@@ -1368,12 +1418,14 @@ static void on_machine_voices_notify(const BtMachine *machine,GParamSpec *arg,gp
 
 
 static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachinePropertiesDialog *self) {
-  GtkTooltips *tips=gtk_tooltips_new();
   GtkWidget *scrolled_window;
   GtkWidget *tool_item,*remove_tool_button,*edit_tool_button;
   GtkTreeSelection *tree_sel;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *tree_col;
+#ifndef HAVE_GTK_2_12
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
 
   self->priv->preset_box=gtk_vbox_new(FALSE,0);
 
@@ -1381,22 +1433,38 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   self->priv->preset_toolbar=gtk_toolbar_new();
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ADD));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Add new preset"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Add new preset"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_add_clicked),(gpointer)self);
 
   remove_tool_button=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_REMOVE));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(remove_tool_button),GTK_TOOLTIPS(tips),_("Remove preset"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Remove preset"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(remove_tool_button),-1);
   g_signal_connect(G_OBJECT(remove_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_remove_clicked),(gpointer)self);
 
   edit_tool_button=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_EDIT));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(edit_tool_button),GTK_TOOLTIPS(tips),_("Edit preset name and comment"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Edit preset name and comment"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(edit_tool_button),-1);
   g_signal_connect(G_OBJECT(edit_tool_button),"clicked",G_CALLBACK(on_toolbar_preset_edit_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_NEW));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Generate and load random preset"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Generate and load random preset"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->preset_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_preset_random_clicked),(gpointer)self);
 
@@ -1411,10 +1479,16 @@ static gboolean bt_machine_properties_dialog_init_preset_box(const BtMachineProp
   gtk_widget_set_events(self->priv->preset_list,gtk_widget_get_events(self->priv->preset_list)|GDK_POINTER_MOTION_MASK);
   tree_sel=gtk_tree_view_get_selection(GTK_TREE_VIEW(self->priv->preset_list));
   gtk_tree_selection_set_mode(tree_sel,GTK_SELECTION_SINGLE);
+#ifndef HAVE_GTK_2_12
   self->priv->preset_tips=gtk_tooltips_new();
   gtk_tooltips_set_tip(self->priv->preset_tips,self->priv->preset_list,"",NULL);
-  g_signal_connect(G_OBJECT(self->priv->preset_list), "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->preset_list), "motion-notify-event", G_CALLBACK(on_preset_list_motion_notify), (gpointer)self);
+#else
+  g_object_set(self->priv->preset_list,"has-tooltip",TRUE,NULL);
+  g_signal_connect(G_OBJECT(self->priv->preset_list), "query-tooltip", G_CALLBACK(on_preset_list_query_tooltip), (gpointer)self);
+  // alternative: gtk_tree_view_set_tooltip_row
+#endif
+  g_signal_connect(G_OBJECT(self->priv->preset_list), "row-activated", G_CALLBACK(on_preset_list_row_activated), (gpointer)self);
   g_signal_connect(G_OBJECT(tree_sel), "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)remove_tool_button);
   g_signal_connect(G_OBJECT(tree_sel), "changed", G_CALLBACK(on_preset_list_selection_changed), (gpointer)edit_tool_button);
 
@@ -1450,12 +1524,14 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   GtkWidget *param_box,*hbox;
   GtkWidget *expander,*scrolled_window;
   GtkWidget *tool_item;
-  GtkTooltips *tips=gtk_tooltips_new();
   gchar *id,*title;
   GdkPixbuf *window_icon=NULL;
   gulong global_params,voice_params;
   GstElement *machine;
   BtSettings *settings;
+#ifndef HAVE_GTK_2_12
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
   
   gtk_widget_set_name(GTK_WIDGET(self),_("machine properties"));
 
@@ -1507,12 +1583,20 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   self->priv->main_toolbar=gtk_toolbar_new();
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_ABOUT));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Info about this machine"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Info about this machine"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   g_signal_connect(G_OBJECT(tool_item),"clicked",G_CALLBACK(on_toolbar_about_clicked),(gpointer)self);
 
   tool_item=GTK_WIDGET(gtk_tool_button_new_from_stock(GTK_STOCK_HELP));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Help for this machine"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Help for this machine"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   if(!GST_IS_HELP(machine)) {
     gtk_widget_set_sensitive(tool_item,FALSE);
@@ -1524,7 +1608,11 @@ static gboolean bt_machine_properties_dialog_init_ui(const BtMachinePropertiesDi
   // @todo: add copy/paste buttons
 
   tool_item=GTK_WIDGET(gtk_toggle_tool_button_new_from_stock(GTK_STOCK_INDEX));
+#ifndef HAVE_GTK_2_12
   gtk_tool_item_set_tooltip(GTK_TOOL_ITEM(tool_item),GTK_TOOLTIPS(tips),_("Show/Hide preset pane"),NULL);
+#else
+  gtk_tool_item_set_tooltip_text (GTK_TOOL_ITEM(tool_item),_("Show/Hide preset pane"));
+#endif
   gtk_toolbar_insert(GTK_TOOLBAR(self->priv->main_toolbar),GTK_TOOL_ITEM(tool_item),-1);
   if(!GST_IS_PRESET(machine)) {
     gtk_widget_set_sensitive(tool_item,FALSE);

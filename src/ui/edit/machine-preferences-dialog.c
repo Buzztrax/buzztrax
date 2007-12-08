@@ -1,4 +1,4 @@
-/* $Id: machine-preferences-dialog.c,v 1.38 2007-12-05 17:03:16 ensonic Exp $
+/* $Id: machine-preferences-dialog.c,v 1.39 2007-12-08 18:08:43 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -191,12 +191,14 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
   BtMainWindow *main_window;
   GtkWidget *label,*widget1,*widget2,*table,*scrolled_window;
   GtkAdjustment *spin_adjustment;
-  GtkTooltips *tips=gtk_tooltips_new();
   gchar *id,*title;
   GdkPixbuf *window_icon=NULL;
   GstElement *machine;
   GParamSpec **properties,*property;
   guint i,k,props,number_of_properties;
+#ifndef HAVE_GTK_2_12
+  GtkTooltips *tips=gtk_tooltips_new();
+#endif
 
   gtk_widget_set_name(GTK_WIDGET(self),_("machine preferences"));
 
@@ -448,12 +450,20 @@ static gboolean bt_machine_preferences_dialog_init_ui(const BtMachinePreferences
             widget2=NULL;
           }
         }
+#ifndef HAVE_GTK_2_12
         gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget1,g_param_spec_get_blurb(property),NULL);
+#else
+        gtk_widget_set_tooltip_text(widget1,g_param_spec_get_blurb(property));
+#endif
         if(!widget2) {
           gtk_table_attach(GTK_TABLE(table),widget1, 1, 3, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
         }
         else {
+#ifndef HAVE_GTK_2_12
           gtk_tooltips_set_tip(GTK_TOOLTIPS(tips),widget2,g_param_spec_get_blurb(property),NULL);
+#else
+          gtk_widget_set_tooltip_text(widget2,g_param_spec_get_blurb(property));
+#endif
           gtk_table_attach(GTK_TABLE(table),widget1, 1, 2, k, k+1, GTK_FILL|GTK_EXPAND,GTK_SHRINK, 2,1);
           gtk_table_attach(GTK_TABLE(table),widget2, 2, 3, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
         }
