@@ -1,5 +1,10 @@
 2007-12-08  Stefan Kost  <ensonic@users.sf.net>
 
+	* tests/ui/edit/e-bt-about-dialog.c:
+	  Add log line after dialog test like in other tests.
+
+2007-12-08  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-cmd/Makefile.am:
 	* docs/reference/bt-core/Makefile.am:
 	* docs/reference/bt-edit/Makefile.am:

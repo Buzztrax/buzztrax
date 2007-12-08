@@ -1,4 +1,4 @@
-/* $Id: e-bt-about-dialog.c,v 1.2 2007-07-20 13:49:26 ensonic Exp $
+/* $Id: e-bt-about-dialog.c,v 1.3 2007-12-08 15:59:32 ensonic Exp $
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -52,6 +52,7 @@ BT_START_TEST(test_create_dialog) {
   // create, show and destroy dialog
   dialog=GTK_WIDGET(bt_about_dialog_new(app));
   fail_unless(dialog!=NULL, NULL);
+  GST_INFO("dialog created");
   gtk_widget_show_all(dialog);
   // leave out that line! (modal dialog)
   //gtk_dialog_run(GTK_DIALOG(dialog));
