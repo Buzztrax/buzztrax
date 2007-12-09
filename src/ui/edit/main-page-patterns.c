@@ -115,6 +115,7 @@ struct _BtMainPagePatternsPrivate {
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
+  PatternColumn *global_param_descs, *voice_param_descs;
 
   guint *column_keymode;
 
@@ -1178,8 +1179,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   gchar *str;
   //GParamSpec *pspec;
   GtkTreeViewColumn *tree_col;
-  GType type;
-  gboolean trigger;
   GtkCellRendererMode cell_edit_mode;
   GtkTreeCellDataFunc cell_data_func;
 
@@ -1194,6 +1193,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     gulong i,j,k,pos=0,ix,col_ct;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
+    GType type;
+    gboolean trigger;
 
     g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
@@ -1452,48 +1453,120 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 }
 #else
 
-// FIXME: use real data
+static float pattern_edit_get_data_at(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
+  gchar *str;
 
-float global_vals[64][2];
-float track_vals[4][64][3];
-
-static float
-example_get_data_at (gpointer pattern_data, gpointer column_data, int row, int track, int param)
-{
   if (track == -1)
-    return global_vals[row][param];
+    str=bt_pattern_get_global_event(self->priv->pattern,row,param);
   else
-    return track_vals[track][row][param];
+    str=bt_pattern_get_voice_event(self->priv->pattern,row,track,param);
+  return str?g_ascii_strtod(str,NULL):0.0;
 }
 
-static void
-example_set_data_at (gpointer pattern_data, int row, int track, int param, float value)
-{
+static void pattern_edit_set_data_at(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param, float value) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
+  
   if (track == -1)
-    global_vals[row][param] = value;
+    bt_pattern_set_global_event(self->priv->pattern,row,param,bt_persistence_strfmt_double(value));
   else
-    track_vals[track][row][param] = value;
+    bt_pattern_set_voice_event(self->priv->pattern,row,track,param,bt_persistence_strfmt_double(value));
+}
+
+static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, gboolean trigger) {
+  GType type=bt_g_type_get_base_type(property->value_type);
+
+  // @todo: need min/max/def
+  if(trigger) {
+    // all triggers are off by default
+    col->def=0;
+    if(type==G_TYPE_STRING) {
+      col->type=PCT_NOTE;
+    }
+    else if(type==G_TYPE_BOOLEAN) {
+      col->type=PCT_SWITCH;
+      col->min=0;
+      col->max=1;
+    }
+    else if(type==BT_TYPE_TRIGGER_SWITCH) {
+      col->type=PCT_SWITCH;
+      col->min=0;
+      col->max=1;
+    }
+    else {
+      GST_WARNING("unhandled trigger param type: '%s'",g_type_name(type));
+    }
+  }
+  else {
+    if(type==G_TYPE_BOOLEAN) {
+      const GParamSpecBoolean *bool_property=G_PARAM_SPEC_BOOLEAN(property);
+      col->type=PCT_BYTE;
+      col->min=0;
+      col->max=1;
+      col->def=bool_property->default_value;
+    }
+    else if(type==G_TYPE_ENUM) {
+      const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+      const GEnumClass *enum_class=enum_property->enum_class;
+ 
+      col->type=PCT_BYTE;
+      col->min=enum_class->minimum;
+      col->max=enum_class->maximum;
+      col->def=enum_property->default_value;
+    }
+    else if(type==G_TYPE_INT) {
+      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+
+      col->type=PCT_WORD;
+      col->min=int_property->minimum;
+      col->max=int_property->maximum;
+      col->def=int_property->default_value;
+      if(int_property->minimum>=0 && int_property->maximum<256) {
+        col->type=PCT_BYTE;
+      }
+    }
+    else if(type==G_TYPE_UINT) {
+      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+
+      col->type=PCT_WORD;
+      col->min=uint_property->minimum;
+      col->max=uint_property->maximum;
+      col->def=uint_property->default_value;
+      if(uint_property->minimum>=0 && uint_property->maximum<256) {
+        col->type=PCT_BYTE;
+      }
+    }
+    else if(type==G_TYPE_FLOAT) {
+      const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+
+      col->type=PCT_WORD;
+      col->min=float_property->minimum;
+      col->max=float_property->maximum;
+      col->def=float_property->default_value;
+    }
+    else if(type==G_TYPE_DOUBLE) {
+      const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+      
+      col->type=PCT_WORD;
+      col->min=double_property->minimum;
+      col->max=double_property->maximum;
+      col->def=double_property->default_value;
+    }
+    else {
+      GST_WARNING("unhandled continous param type: '%s'",g_type_name(type));
+    }
+  }
 }
 
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
   static BtPatternEditorCallbacks callbacks = {
-    example_get_data_at,
-    example_set_data_at,
+    pattern_edit_get_data_at,
+    pattern_edit_set_data_at,
     NULL
   };
   
   if(pattern) {
-    static PatternColumn globals[] = {
-      { PCT_BYTE, 256, 0, 255, NULL},
-      { PCT_WORD, 65535, 0, 32768, NULL }
-    };
-    static PatternColumn locals[] = {
-      { PCT_NOTE, 255, 0, 127, NULL},
-      { PCT_BYTE, 255, 0, 125, NULL},
-      { PCT_TRIGGER, 255, 0, 1, NULL}
-    };
-
-    gulong i,j;
+    gulong i;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
 
@@ -1501,23 +1574,31 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
 
-    
-    for (i=0; i<64; i++) {
-      global_vals[i][0] = i;
-      global_vals[i][1] = i*257;
-      for (j=0; j<4; j++) {
-        track_vals[j][i][0] = i;
-        track_vals[j][i][1] = i;
-        track_vals[j][i][2] = (i&3) ? 255 : ((i>>2)&1);
-      }
+    g_free(self->priv->global_param_descs);
+    self->priv->global_param_descs=g_new(PatternColumn,global_params);
+    g_free(self->priv->voice_param_descs);
+    self->priv->voice_param_descs=g_new(PatternColumn,voice_params);
+    // create mapping for global params
+    for(i=0;i<global_params;i++) {
+      pattern_edit_fill_column_type(&self->priv->global_param_descs[i],
+        bt_machine_get_global_param_spec(machine,i),
+        bt_machine_is_global_param_trigger(machine,i));
     }
-    //bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, number_of_ticks, voices, global_params, voice_params, globals, locals, &callbacks);
-    bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, 64, 3, 2, 3, globals, locals, &callbacks);
+    // create mapping for voice params
+    for(i=0;i<voice_params;i++) {
+      pattern_edit_fill_column_type(&self->priv->voice_param_descs[i],
+        bt_machine_get_voice_param_spec(machine,i),
+        bt_machine_is_voice_param_trigger(machine,i));
+    }
+    
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, number_of_ticks, voices,
+      global_params, voice_params, self->priv->global_param_descs, self->priv->voice_param_descs,
+      &callbacks);
     
     g_object_unref(machine);
   }
   else {
-    bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, 0, 0, 0, 0, NULL, NULL, &callbacks);
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, 0, 0, 0, 0, NULL, NULL, &callbacks);
   }
 }
 #endif
@@ -2510,6 +2591,8 @@ static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 
   g_free(self->priv->column_keymode);
+  g_free(self->priv->global_param_descs);
+  g_free(self->priv->voice_param_descs);
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }

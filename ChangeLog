@@ -1,5 +1,17 @@
 2007-12-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/persistence.c:
+	  Use non local variants to convert.
+  
+	* src/ui/edit/main-page-patterns.c:
+	  First attempt to put real pattern data into the new widget.
+
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Add shading, add resizing.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Updating.
 

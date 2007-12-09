@@ -90,9 +90,9 @@ const gchar *bt_persistence_strfmt_ulong(const gulong val) {
  * Returns: a reference to static memory containg the formatted value.
  */
 const gchar *bt_persistence_strfmt_double(const gdouble val) {
-  static gchar str[20];
+  static gchar str[G_ASCII_DTOSTR_BUF_SIZE+1];
 
-  g_sprintf(str,"%lf",val);
+  g_ascii_dtostr(str,G_ASCII_DTOSTR_BUF_SIZE,val);
   return(str);
 }
 

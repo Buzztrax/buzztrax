@@ -20,29 +20,29 @@
  */
 
 /*
-* @todo:
-* * gobject properties
-*       o current octave
-*       o playback position
-* * block operations
-*       o copy
-*       o paste
-*       o cut
-*       o clear
-*       o interpolate
-*       o expand
-*       o shrink 
-* * cursor step (different than Buzz - Buzz did it in a bad way)
-* * integrate with the rest of the code
-* * mouse handling
-* * implement GtkWidgetClass::set_scroll_adjustments_signal
-*   see gtktreeview.{c,h}
-*     o left ticks
-*     o groups (input, global, voice 1, voice 2)
-* * use raw-key codes for note-input (see FIXME below and
-*   main-page-pattern.c:on_pattern_table_key_release_event()
-* * row-shading (see gtk_draw_flat_box)
-*/
+ * @todo:
+ * - no-value handling
+ * - gobject properties
+ *       o current octave
+ *       o playback position
+ * - block operations
+ *       o copy
+ *       o paste
+ *       o cut
+ *       o clear
+ *       o interpolate
+ *       o expand
+ *       o shrink 
+ * - cursor step (different than Buzz - Buzz did it in a bad way)
+ * - integrate with the rest of the code
+ * - mouse handling
+ * - implement GtkWidgetClass::set_scroll_adjustments_signal
+ *   see gtktreeview.{c,h}
+ *     o left ticks
+ *     o groups (input, global, voice 1, voice 2)
+ * - use raw-key codes for note-input (see FIXME below and
+ *   main-page-pattern.c:on_pattern_table_key_release_event()
+ */
 
 #include <ctype.h>
 #include <string.h>
@@ -75,23 +75,23 @@ bt_pattern_editor_realize (GtkWidget *widget)
   widget->window = gdk_window_new (widget->parent->window, &attributes, attributes_mask);
   widget->style = gtk_style_attach (widget->style, widget->window);
   gdk_window_set_user_data (widget->window, widget);
-  gtk_style_set_background (widget->style, widget->window, GTK_STATE_ACTIVE);
+  gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
 }
 
 struct ParamType
 {
   int chars, columns;
-  void (*to_string_func)(gchar *dest, float value, int def_value);
+  void (*to_string_func)(gchar *dest, float value, int def);
   void (*from_key_func)(float *value_ptr, int key, int modifiers); 
   int column_pos[4];
 };
 
 static void
-to_string_note (char *buf, float value, int def_value)
+to_string_note (char *buf, float value, int def)
 {
   static gchar note_names[] = "C-C#D-D#E-F-F#G-G#A-A#B-????????";
   int note = ((int)value)&255, octave;
-  if (note == def_value) {
+  if (note == def) {
     strcpy(buf, "...");
     return;
   }
@@ -107,30 +107,30 @@ to_string_note (char *buf, float value, int def_value)
 }
 
 static void
-to_string_trigger (char *buf, float value, int def_value)
+to_string_trigger (char *buf, float value, int def)
 {
   int v = (int)value;
-  if (v == def_value)
+  if (v == def)
     strcpy(buf, ".");
   else
     sprintf(buf, "%01X", v != 0 ? 1 : 0);
 }
 
 static void
-to_string_byte (char *buf, float value, int def_value)
+to_string_byte (char *buf, float value, int def)
 {
   int v = (int)value;
-  if (v == def_value)
+  if (v == def)
     strcpy(buf, "..");
   else
     sprintf(buf, "%02X", v & 255);
 }
 
 static void
-to_string_word (char *buf, float value, int def_value)
+to_string_word (char *buf, float value, int def)
 {
   int v = (int)value;
-  if (v == def_value)
+  if (v == def)
     strcpy(buf, "....");
   else
     sprintf(buf, "%04X", v & 65535);
@@ -143,6 +143,8 @@ static struct ParamType param_types[] = {
   { 4, 4, to_string_word, NULL, {0, 1, 2, 3}},
 };
 
+
+
 static int
 bt_pattern_editor_draw_rownum (BtPatternEditor *self,
                           int x,
@@ -153,15 +155,21 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *self,
   char buf[16];
   int cw = self->cw, ch = self->ch;
   GtkWidget *widget = GTK_WIDGET(self);
+  int col_w = cw * 5;
 
   while (y < widget->allocation.height && row < self->num_rows) {
+    gdk_draw_rectangle (widget->window,
+      (row&0x1) ? widget->style->bg_gc[widget->state] : widget->style->light_gc[widget->state],
+      TRUE, x, y, col_w, ch);
+    
     sprintf(buf, "%04X", row);
     pango_layout_set_text (pl, buf, 4);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl, &widget->style->fg[1], &widget->style->bg[1]);
+    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl,
+      &widget->style->text[GTK_STATE_NORMAL], NULL);
     y += ch;
     row++;
   }
-  return cw * 5;
+  return col_w;
 }
 
 static int
@@ -175,24 +183,44 @@ bt_pattern_editor_draw_column (BtPatternEditor *self,
                           int max_y,
                           PangoLayout *pl)
 {
+  GtkWidget *widget = GTK_WIDGET(self);
+  struct ParamType *pt = &param_types[col->type];
   char buf[16];
   int cw = self->cw, ch = self->ch;
-  GtkWidget *widget = &self->parent;
-  struct ParamType *pt = &param_types[col->type];
+  int col_w = cw * (pt->chars + 1);
+  /*
+  GdkGC *gcs[]={
+    widget->style->fg_gc[widget->state],
+    widget->style->bg_gc[widget->state],
+    widget->style->light_gc[widget->state],
+    widget->style->dark_gc[widget->state],
+    widget->style->mid_gc[widget->state],
+    widget->style->text_gc[widget->state],
+    widget->style->base_gc[widget->state],
+    widget->style->text_aa_gc[widget->state],
+  };
+  */  
 
   while (y < max_y && row < self->num_rows) {
-    pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, track, param), col->def_value);
+    gdk_draw_rectangle (widget->window,
+      /* gcs[row&0x7] */
+      (row&0x1) ? widget->style->bg_gc[widget->state] : widget->style->light_gc[widget->state],
+      TRUE, x, y, col_w, ch);
+    
+    pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, track, param), col->def);
     pango_layout_set_text (pl, buf, pt->chars);
-    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl, &widget->style->fg[1], &widget->style->bg[1]);
+    gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl,
+      &widget->style->text[GTK_STATE_NORMAL], NULL);
     if (row == self->row && param == self->parameter && track == self->track) {
       int cp = pt->column_pos[self->digit];
       pango_layout_set_text (pl, buf + cp, 1);
-      gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, pl, &widget->style->bg[1], &widget->style->fg[1]);
+      gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, pl,
+        &widget->style->bg[GTK_STATE_NORMAL], &widget->style->text[GTK_STATE_NORMAL]);
     }
     y += ch;
     row++;
   }
-  return cw * (pt->chars + 1);
+  return col_w;
 }
                           
 
@@ -200,11 +228,11 @@ static gboolean
 bt_pattern_editor_expose (GtkWidget *widget,
                      GdkEventExpose *event)
 {
+  BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
   PangoContext *pc;
   PangoLayout *pl;
   PangoFontDescription *pfd;
   PangoFontMetrics *pfm;
-  BtPatternEditor *self = (BtPatternEditor *)widget;
   GdkRectangle rect = event->area;
   int cx = widget->allocation.width, cy = widget->allocation.height;
   int y, x, i, row, t, max_y;
@@ -214,17 +242,22 @@ bt_pattern_editor_expose (GtkWidget *widget,
 
   gdk_window_clear_area (widget->window, 0, 0, cx, cy);
   /* gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, cx, cy); */
-  
+
+  /* calculate font-metrics */  
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
   pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
   pango_font_description_set_absolute_size (pfd, 12 * PANGO_SCALE);
   pango_context_load_font (pc, pfd);
+
   pfm = pango_context_get_metrics (pc, pfd, NULL);
-  pl = pango_layout_new (pc);
-  pango_layout_set_font_description (pl, pfd);
   self->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
   self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
+  pango_font_metrics_unref (pfm);
+
+  pl = pango_layout_new (pc);
+  pango_layout_set_font_description (pl, pfd);
+
   x = -self->ofs_x;
   y = - self->ofs_y;
   /* calculate which row to start from */
@@ -251,18 +284,32 @@ bt_pattern_editor_expose (GtkWidget *widget,
     self->local_width = x - start;
   }
   g_object_unref (pl);
-  pango_font_metrics_unref (pfm);
   pango_font_description_free (pfd);
   return FALSE;
 }
+
+static int
+bt_pattern_editor_get_row_width (BtPatternEditor *self)
+{
+  return self->rowhdr_width + self->local_width + self->global_width * self->num_tracks;
+}
+
+static int
+bt_pattern_editor_get_col_height (BtPatternEditor *self)
+{
+  return self->num_rows * self->ch;
+}
+
 
 static void
 bt_pattern_editor_size_request (GtkWidget *widget,
                            GtkRequisition *requisition)
 {
+  BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
+
   // FIXME: calculate from pattern size
-  requisition->width = 768;
-  requisition->height = 256;
+  requisition->width = bt_pattern_editor_get_row_width(self);
+  requisition->height = bt_pattern_editor_get_col_height(self);
 }
 
 static void
@@ -326,7 +373,7 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   {
     PatternColumn *col = &(self->track == -1 ? self->globals : self->locals)[self->parameter];
     if (event->keyval == '.') {
-      self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, (float)col->def_value);
+      self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter, col->def);
       advance(self);
     }
     else {
@@ -335,9 +382,9 @@ bt_pattern_editor_key_press (GtkWidget *widget,
       float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter);
       const char *p;
       switch(col->type) {
-      case PCT_TRIGGER:
+      case PCT_SWITCH:
         if (event->keyval == '0' || event->keyval == '1') {
-          self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, event->keyval - '0');
+          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter, event->keyval - '0');
           advance(self);
         }
         break;
@@ -346,14 +393,14 @@ bt_pattern_editor_key_press (GtkWidget *widget,
         p = strchr(hexdigits, (char)event->keyval);
         if (p) {
           int value = (int)oldvalue;
-          if (oldvalue == col->def_value)
+          if (oldvalue == col->def)
             value = 0;
           int shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
           value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
           if (value < col->min) value = col->min;
           if (value > col->max) value = col->max;
           
-          self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, value);
+          self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter, value);
           advance(self);
         }
         break;
@@ -366,20 +413,20 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
             
-            self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, value);
+            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter, value);
             advance(self);
           }
         }
         if (self->digit == 1) {
           if (isdigit(event->keyval)) {
             int value = (int)oldvalue;
-            if (oldvalue == col->def_value)
+            if (oldvalue == col->def)
               value = 0;
             value = (value & 15) | ((event->keyval - '0') << 4);
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
             
-            self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, value);
+            self->callbacks->set_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter, value);
             advance(self);
           }
         }
@@ -460,11 +507,6 @@ bt_pattern_editor_key_press (GtkWidget *widget,
     }
   }
   return FALSE;
-}
-
-int bt_pattern_editor_get_row_width (BtPatternEditor *self)
-{
-  return self->rowhdr_width + self->local_width + self->global_width * self->num_tracks;
 }
 
 static gboolean
@@ -557,6 +599,22 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
   widget_class->key_press_event = bt_pattern_editor_key_press;
   widget_class->button_press_event = bt_pattern_editor_button_press;
   widget_class->button_release_event = bt_pattern_editor_button_release;
+
+
+  gtk_widget_class_install_style_property (widget_class,
+                                           g_param_spec_boxed ("even-row-color",
+                                                               "Even Row Color",
+                                                               "Color to use for even rows",
+							       GDK_TYPE_COLOR,
+							       G_PARAM_READABLE));
+
+  gtk_widget_class_install_style_property (widget_class,
+                                           g_param_spec_boxed ("odd-row-color",
+                                                               "Odd Row Color",
+                                                               "Color to use for odd rows",
+							       GDK_TYPE_COLOR,
+							       G_PARAM_READABLE));
+
 }
 
 static void
@@ -589,6 +647,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
                           BtPatternEditorCallbacks *cb
                           )
 {
+  GtkWidget *widget = GTK_WIDGET(self);
   int maxval;
   self->num_rows = num_rows;
   self->num_tracks = num_tracks;
@@ -598,6 +657,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
   self->locals = locals;
   self->pattern_data = pattern_data;
   self->callbacks = cb;
+  
 
   if (self->row >= self->num_rows)
     self->row = 0;
@@ -606,7 +666,10 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
   maxval = self->track == -1 ? self->num_globals : self->num_locals;
   if (self->parameter >= maxval)
     self->parameter = 0;
-  gtk_widget_queue_draw (&self->parent);
+
+  // do this for the after the first redraw  
+  //gtk_widget_queue_resize (widget);
+  gtk_widget_queue_draw (widget);
 }
 
 
@@ -647,7 +710,7 @@ float track_vals[4][64][3];
 
 static float
 example_get_data_at (gpointer pattern_data,
-                     gpointer column_data,
+                     PatternColumn *column_data,
                      int row,
                      int track,
                      int param)
@@ -660,6 +723,7 @@ example_get_data_at (gpointer pattern_data,
 
 static void
 example_set_data_at (gpointer pattern_data,
+                     PatternColumn *column_data,
                      int row,
                      int track,
                      int param,
@@ -684,7 +748,7 @@ destroy( GtkWidget *widget,
 int main(int argc, char *argv[])
 {
   static PatternColumn globals[] = { { PCT_BYTE, 256, 0, 255, NULL}, { PCT_WORD, 65535, 0, 32768, NULL } };
-  static PatternColumn locals[] = { { PCT_NOTE, 255, 0, 127, NULL}, { PCT_BYTE, 255, 0, 125, NULL}, { PCT_TRIGGER, 255, 0, 1, NULL} };
+  static PatternColumn locals[] = { { PCT_NOTE, 255, 0, 127, NULL}, { PCT_BYTE, 255, 0, 125, NULL}, { PCT_SWITCH, 255, 0, 1, NULL} };
   static BtPatternEditorCallbacks callbacks = { example_get_data_at, example_set_data_at, NULL };
   int i, j;
   

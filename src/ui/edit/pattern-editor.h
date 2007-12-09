@@ -37,7 +37,7 @@ G_BEGIN_DECLS
 enum PatternColumnType
 {
   PCT_NOTE,
-  PCT_TRIGGER,
+  PCT_SWITCH,
   PCT_BYTE,
   PCT_WORD
 };
@@ -45,15 +45,14 @@ enum PatternColumnType
 typedef struct _PatternColumn
 {
   enum PatternColumnType type;
-  float def_value;
-  float min, max;
+  float def, min, max;
   gpointer user_data;
 } PatternColumn;
 
 typedef struct _BtPatternEditorCallbacks
 {
-  float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param);
-  void (*set_data_func)(gpointer pattern_data, int row, int track, int param, float value);
+  float (*get_data_func)(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param);
+  void (*set_data_func)(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param, float value);
   void (*notify_cursor_func)(gpointer pattern_data, int row, int track, int param, int digit);
 } BtPatternEditorCallbacks;
 
@@ -76,7 +75,7 @@ typedef struct _BtPatternEditor
   
   /* font metrics */
   int cw, ch;
-  /* pixel widths of global section and a single track */
+  /* pixel widths of global section, a single track and the row-number column*/
   int global_width, local_width, rowhdr_width;
   
   /* current octave number */
@@ -103,8 +102,6 @@ bt_pattern_editor_set_pattern (BtPatternEditor *view,
 GtkWidget *bt_pattern_editor_new();
 
 GType bt_pattern_editor_get_type (void);
-
-int bt_pattern_editor_get_row_width (BtPatternEditor *view);
 
 G_END_DECLS
 
