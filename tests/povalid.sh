@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: povalid.sh,v 1.8 2007-08-23 06:41:22 ensonic Exp $
+# $Id: povalid.sh,v 1.9 2007-12-09 08:45:31 ensonic Exp $
 # test po i18n files
 
 if [ -z $srcdir ]; then
@@ -39,9 +39,13 @@ exec 3< <(LANG=C intltool-update -r 2>&1 | grep "translated messages")
 while read line; do
   #echo "$line"
   n=`echo $line| cut -d\  -f5`
-  fuzzy=$(($fuzzy+$n))
+  if [ "$n" != "" ]; then
+    fuzzy=$(($fuzzy+$n))
+  fi
   n=`echo $line| cut -d\  -f8`
-  missing=$(($missing+$n))
+  if [ "$n" != "" ]; then
+    missing=$(($missing+$n))
+  fi
 done <&3
 if [ \( $fuzzy -gt 0 \) -o \( $missing -gt 0 \) ]; then
   #echo "fail"

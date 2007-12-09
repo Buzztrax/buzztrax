@@ -1,3 +1,9 @@
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
+	* po/de.po:
+	* tests/povalid.sh:
+	  Update translation and fix test.
+
 2007-12-08  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/ui/edit/machine-preferences-dialog.c:
