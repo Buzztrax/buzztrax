@@ -1,5 +1,16 @@
 2007-12-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* NEWSLETTER:
+	  Updating.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Readd context menu for new widget. Hide left pos-bar for new widget.
+
+	* src/ui/edit/pattern-editor.c:
+	  TODO comments. Some renames and use G_OBJECT macros.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* po/de.po:
 	* tests/povalid.sh:
 	  Update translation and fix test.

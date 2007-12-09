@@ -56,7 +56,7 @@
 
 #include "bt-edit.h"
 
-//#define USE_PATTERN_EDITOR 1
+#define USE_PATTERN_EDITOR 1
 
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
@@ -79,10 +79,10 @@ struct _BtMainPagePatternsPrivate {
   GtkComboBox *base_octave_menu;
 
   /* the pattern table */
-  GtkTreeView *pattern_pos_table;
 #ifdef USE_PATTERN_EDITOR
   BtPatternEditor *pattern_table;
 #else
+  GtkTreeView *pattern_pos_table;
   GtkTreeView *pattern_table;
 #endif
 
@@ -751,39 +751,6 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
               case 0x13: str="d#2";break;
               case 0x21: str="e-2";break;
             }
-            /*
-            switch(event->keyval) {
-              case GDK_y: str="c-0";break;
-              case GDK_s: str="c#0";break;
-              case GDK_x: str="d-0";break;
-              case GDK_d: str="d#0";break;
-              case GDK_c: str="e-0";break;
-              case GDK_v: str="f-0";break;
-              case GDK_g: str="f#0";break;
-              case GDK_b: str="g-0";break;
-              case GDK_h: str="g#0";break;
-              case GDK_n: str="a-0";break;
-              case GDK_j: str="a#0";break;
-              case GDK_m: str="h-0";break;
-              case GDK_q: str="c-1";break;
-              case GDK_2: str="c#1";break;
-              case GDK_w: str="d-1";break;
-              case GDK_3: str="d#1";break;
-              case GDK_e: str="e-1";break;
-              case GDK_r: str="f-1";break;
-              case GDK_5: str="f#1";break;
-              case GDK_t: str="g-1";break;
-              case GDK_6: str="g#1";break;
-              case GDK_z: str="a-1";break;
-              case GDK_7: str="a#1";break;
-              case GDK_u: str="h-1";break;
-              case GDK_i: str="c-2";break;
-              case GDK_9: str="c#2";break;
-              case GDK_o: str="d-2";break;
-              case GDK_0: str="d#2";break;
-              case GDK_p: str="e-2";break;
-            }
-            */
             if(str) {
               oct_str[0]=str[0];
               oct_str[1]=str[1];
@@ -855,6 +822,7 @@ static gboolean on_pattern_table_key_release_event(GtkWidget *widget,GdkEventKey
   }
   return(res);
 }
+#endif
 
 static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventButton *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
@@ -863,6 +831,7 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
   g_assert(user_data);
 
   GST_INFO("pattern_table button_press : button 0x%x, type 0x%d",event->button,event->type);
+#ifndef USE_PATTERN_EDITOR
   if(event->button==1) {
     if(gtk_tree_view_get_bin_window(self->priv->pattern_table)==(event->window)) {
       GtkTreePath *path;
@@ -879,13 +848,16 @@ static gboolean on_pattern_table_button_press_event(GtkWidget *widget,GdkEventBu
       if(path) gtk_tree_path_free(path);
     }
   }
-  else if(event->button==3) {
+  else
+#endif
+  if(event->button==3) {
     gtk_menu_popup(self->priv->context_menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
     res=TRUE;
   }
   return(res);
 }
 
+#ifndef USE_PATTERN_EDITOR
 static gboolean on_pattern_table_motion_notify_event(GtkWidget *widget,GdkEventMotion *event,gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   gboolean res=FALSE;
@@ -1133,6 +1105,7 @@ static void wavetable_menu_refresh(const BtMainPagePatterns *self) {
   g_object_unref(store); // drop with comboxbox
 }
 
+#ifndef USE_PATTERN_EDITOR
 /*
  * pattern_pos_table_init:
  * @self: the pattern page
@@ -1167,7 +1140,6 @@ static void pattern_pos_table_init(const BtMainPagePatterns *self) {
   GST_DEBUG("    number of columns : %d",col_index);
 }
 
-#ifndef USE_PATTERN_EDITOR
 /*
  * pattern_table_clear:
  * @self: the pattern page
@@ -1198,11 +1170,7 @@ static void pattern_table_clear(const BtMainPagePatterns *self) {
  * rebuild the pattern table after a new pattern has been chosen
  */
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
-  BtMachine *machine;
   GtkWidget *header;
-  gulong i,j,k,number_of_ticks,pos=0,ix;
-  gulong col_ct,voices,global_params,voice_params;
-  gint col_index;
   GtkCellRenderer *renderer;
   GtkListStore *store;
   GType *store_types;
@@ -1222,6 +1190,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   pattern_table_clear(self);
 
   if(pattern) {
+    gint col_index;
+    gulong i,j,k,pos=0,ix,col_ct;
+    gulong number_of_ticks,voices,global_params,voice_params;
+    BtMachine *machine;
+
     g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
@@ -1503,21 +1476,49 @@ example_set_data_at (gpointer pattern_data, int row, int track, int param, float
 }
 
 static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern *pattern) {
-  static PatternColumn globals[] = { { PCT_BYTE, 256, 0, 255, NULL}, { PCT_WORD, 65535, 0, 32768, NULL } };
-  static PatternColumn locals[] = { { PCT_NOTE, 255, 0, 127, NULL}, { PCT_BYTE, 255, 0, 125, NULL}, { PCT_TRIGGER, 255, 0, 1, NULL} };
-  static BtPatternEditorCallbacks callbacks = { example_get_data_at, example_set_data_at, NULL };
-  int i, j;
+  static BtPatternEditorCallbacks callbacks = {
+    example_get_data_at,
+    example_set_data_at,
+    NULL
+  };
   
-  for (i=0; i<64; i++) {
-    global_vals[i][0] = i;
-    global_vals[i][1] = i*257;
-    for (j=0; j<4; j++) {
-      track_vals[j][i][0] = i;
-      track_vals[j][i][1] = i;
-      track_vals[j][i][2] = (i&3) ? 255 : ((i>>2)&1);
+  if(pattern) {
+    static PatternColumn globals[] = {
+      { PCT_BYTE, 256, 0, 255, NULL},
+      { PCT_WORD, 65535, 0, 32768, NULL }
+    };
+    static PatternColumn locals[] = {
+      { PCT_NOTE, 255, 0, 127, NULL},
+      { PCT_BYTE, 255, 0, 125, NULL},
+      { PCT_TRIGGER, 255, 0, 1, NULL}
+    };
+
+    gulong i,j;
+    gulong number_of_ticks,voices,global_params,voice_params;
+    BtMachine *machine;
+
+    g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
+    g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
+    GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
+
+    
+    for (i=0; i<64; i++) {
+      global_vals[i][0] = i;
+      global_vals[i][1] = i*257;
+      for (j=0; j<4; j++) {
+        track_vals[j][i][0] = i;
+        track_vals[j][i][1] = i;
+        track_vals[j][i][2] = (i&3) ? 255 : ((i>>2)&1);
+      }
     }
+    //bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, number_of_ticks, voices, global_params, voice_params, globals, locals, &callbacks);
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, 64, 3, 2, 3, globals, locals, &callbacks);
+    
+    g_object_unref(machine);
   }
-  bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, 64, 3, 2, 3, globals, locals, &callbacks);
+  else {
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, NULL, 0, 0, 0, 0, NULL, NULL, &callbacks);
+  }
 }
 #endif
 
@@ -1767,8 +1768,10 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
               play_pos=(gdouble)(pos-j)/(gdouble)length;
 #ifndef USE_PATTERN_EDITOR
               g_object_set(self->priv->pattern_table,"play-position",play_pos,NULL);
-#endif
               g_object_set(self->priv->pattern_pos_table,"play-position",play_pos,NULL);
+#else
+              // @todo: need to set playpos
+#endif
               found=TRUE;
             }
             g_object_unref(pattern);
@@ -1782,8 +1785,10 @@ static void on_sequence_tick(const BtSong *song,GParamSpec *arg,gpointer user_da
     // unfortunately the 2nd widget may lag behind with redrawing itself :(
 #ifndef USE_PATTERN_EDITOR
     g_object_set(self->priv->pattern_table,"play-position",0.0,NULL);
-#endif
     g_object_set(self->priv->pattern_pos_table,"play-position",0.0,NULL);
+#else
+    // @todo: need to set playpos
+#endif
   }
   // release the references
   g_object_try_unref(sequence);
@@ -2032,15 +2037,17 @@ static void on_context_menu_pattern_copy_activate(GtkMenuItem *menuitem,gpointer
 //-- helper methods
 
 static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,const BtMainPages *pages) {
-  GtkWidget *toolbar;
-  GtkWidget *box,*tool_item;
-  GtkWidget *scrolled_window,*scrolled_sync_window;
+  GtkWidget *toolbar,*tool_item,*box;
+  GtkWidget *scrolled_window;
   GtkWidget *menu_item,*image;
   GtkCellRenderer *renderer;
-  GtkTreeSelection *tree_sel;
-  GtkAdjustment *vadjust;
   gint i;
   gchar oct_str[2];
+#ifndef USE_PATTERN_EDITOR
+  GtkWidget *scrolled_sync_window;
+  GtkTreeSelection *tree_sel;
+  GtkAdjustment *vadjust;
+#endif
 
   GST_DEBUG("!!!! self=%p",self);
 
@@ -2150,6 +2157,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   self->priv->selection_bg1=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION1);
   self->priv->selection_bg2=bt_ui_ressources_get_gdk_color(BT_UI_RES_COLOR_SELECTION2);
 
+#ifndef USE_PATTERN_EDITOR
   // add hbox for pattern view
   box=gtk_hbox_new(FALSE,0);
   gtk_container_add(GTK_CONTAINER(self),box);
@@ -2171,6 +2179,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
 
   // add vertical separator
   gtk_box_pack_start(GTK_BOX(box), gtk_vseparator_new(), FALSE, FALSE, 0);
+#endif
 
   /* @idea what about adding one control for global params and one for each voice,
    * - then these controls can be folded (hidden)
@@ -2182,6 +2191,8 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
 #ifdef USE_PATTERN_EDITOR
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
+  gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
 #else
   self->priv->pattern_table=GTK_TREE_VIEW(bt_pattern_view_new(self->priv->app));
   tree_sel=gtk_tree_view_get_selection(self->priv->pattern_table);
@@ -2190,14 +2201,15 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_container_add(GTK_CONTAINER(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   g_signal_connect_after(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
-  g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "motion-notify-event", G_CALLBACK(on_pattern_table_motion_notify_event), (gpointer)self);
-#endif
   gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
+#endif
 
+#ifndef USE_PATTERN_EDITOR
   // make first scrolled-window also use the horiz-scrollbar of the second scrolled-window
   vadjust=gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scrolled_window));
   gtk_scrolled_window_set_vadjustment(GTK_SCROLLED_WINDOW(scrolled_sync_window),vadjust);
+#endif
 
   GST_DEBUG("  before context menu",self);
   // generate the context menu

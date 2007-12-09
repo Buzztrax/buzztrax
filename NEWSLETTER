@@ -1,7 +1,9 @@
 2008/01 ========================================================================
 
-* new pattern widget
+* new pattern widget merged
 * sequence editing (insert/delete)
+* sources moved to svn
+* build clean against gtk-2.12 (fixed use of deprecated api)
 
 2007/12 ========================================================================
 

@@ -19,20 +19,30 @@
  * Boston, MA 02111-1307, USA.
  */
 
-/**** TODO
-    * API for setting current octave 
-    * block operations
-          o copy
-          o paste
-          o cut
-          o clear
-          o interpolate
-          o expand
-          o shrink 
-    * cursor step (different than Buzz - Buzz did it in a bad way)
-    * integrate with the rest of the code
-    * mouse handling
-    ********************************/
+/*
+* @todo:
+* * gobject properties
+*       o current octave
+*       o playback position
+* * block operations
+*       o copy
+*       o paste
+*       o cut
+*       o clear
+*       o interpolate
+*       o expand
+*       o shrink 
+* * cursor step (different than Buzz - Buzz did it in a bad way)
+* * integrate with the rest of the code
+* * mouse handling
+* * implement GtkWidgetClass::set_scroll_adjustments_signal
+*   see gtktreeview.{c,h}
+*     o left ticks
+*     o groups (input, global, voice 1, voice 2)
+* * use raw-key codes for note-input (see FIXME below and
+*   main-page-pattern.c:on_pattern_table_key_release_event()
+* * row-shading (see gtk_draw_flat_box)
+*/
 
 #include <ctype.h>
 #include <string.h>
@@ -134,17 +144,17 @@ static struct ParamType param_types[] = {
 };
 
 static int
-bt_pattern_editor_draw_rownum (BtPatternEditor *view,
+bt_pattern_editor_draw_rownum (BtPatternEditor *self,
                           int x,
                           int y,
                           int row,
                           PangoLayout *pl)
 {
   char buf[16];
-  int cw = view->cw, ch = view->ch;
-  GtkWidget *widget = &view->parent;
+  int cw = self->cw, ch = self->ch;
+  GtkWidget *widget = GTK_WIDGET(self);
 
-  while (y < widget->allocation.height && row < view->num_rows) {
+  while (y < widget->allocation.height && row < self->num_rows) {
     sprintf(buf, "%04X", row);
     pango_layout_set_text (pl, buf, 4);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl, &widget->style->fg[1], &widget->style->bg[1]);
@@ -155,7 +165,7 @@ bt_pattern_editor_draw_rownum (BtPatternEditor *view,
 }
 
 static int
-bt_pattern_editor_draw_column (BtPatternEditor *view,
+bt_pattern_editor_draw_column (BtPatternEditor *self,
                           int x,
                           int y,
                           PatternColumn *col,
@@ -166,16 +176,16 @@ bt_pattern_editor_draw_column (BtPatternEditor *view,
                           PangoLayout *pl)
 {
   char buf[16];
-  int cw = view->cw, ch = view->ch;
-  GtkWidget *widget = &view->parent;
+  int cw = self->cw, ch = self->ch;
+  GtkWidget *widget = &self->parent;
   struct ParamType *pt = &param_types[col->type];
 
-  while (y < max_y && row < view->num_rows) {
-    pt->to_string_func(buf, view->callbacks->get_data_func(view->pattern_data, col->user_data, row, track, param), col->def_value);
+  while (y < max_y && row < self->num_rows) {
+    pt->to_string_func(buf, self->callbacks->get_data_func(self->pattern_data, col->user_data, row, track, param), col->def_value);
     pango_layout_set_text (pl, buf, pt->chars);
     gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x, y, pl, &widget->style->fg[1], &widget->style->bg[1]);
-    if (row == view->row && param == view->parameter && track == view->track) {
-      int cp = pt->column_pos[view->digit];
+    if (row == self->row && param == self->parameter && track == self->track) {
+      int cp = pt->column_pos[self->digit];
       pango_layout_set_text (pl, buf + cp, 1);
       gdk_draw_layout_with_colors (widget->window, widget->style->fg_gc[widget->state], x + cw * cp, y, pl, &widget->style->bg[1], &widget->style->fg[1]);
     }
@@ -194,17 +204,17 @@ bt_pattern_editor_expose (GtkWidget *widget,
   PangoLayout *pl;
   PangoFontDescription *pfd;
   PangoFontMetrics *pfm;
-  BtPatternEditor *view = (BtPatternEditor *)widget;
+  BtPatternEditor *self = (BtPatternEditor *)widget;
   GdkRectangle rect = event->area;
   int cx = widget->allocation.width, cy = widget->allocation.height;
   int y, x, i, row, t, max_y;
 
-  g_return_val_if_fail (widget != NULL, FALSE);
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
 
   gdk_window_clear_area (widget->window, 0, 0, cx, cy);
   /* gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, cx, cy); */
+  
   pc = gtk_widget_get_pango_context (widget);
   pfd = pango_font_description_new();
   pango_font_description_set_family_static (pfd, "Bitstream Vera Sans Mono");
@@ -213,32 +223,32 @@ bt_pattern_editor_expose (GtkWidget *widget,
   pfm = pango_context_get_metrics (pc, pfd, NULL);
   pl = pango_layout_new (pc);
   pango_layout_set_font_description (pl, pfd);
-  view->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
-  view->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
-  x = -view->ofs_x;
-  y = - view->ofs_y;
+  self->cw = pango_font_metrics_get_approximate_digit_width (pfm) / PANGO_SCALE;
+  self->ch = (pango_font_metrics_get_ascent (pfm) + pango_font_metrics_get_descent (pfm)) / PANGO_SCALE;
+  x = -self->ofs_x;
+  y = - self->ofs_y;
   /* calculate which row to start from */
-  row = (rect.y + view->ofs_y) / view->ch;
-  y += row * view->ch;
+  row = (rect.y + self->ofs_y) / self->ch;
+  y += row * self->ch;
   max_y = rect.y + rect.height; /* max y */
   int start = x;
-  x += bt_pattern_editor_draw_rownum(view, x, y, row, pl) + view->cw;
-  view->rowhdr_width = x - start;
-  if (view->num_globals) {
+  x += bt_pattern_editor_draw_rownum(self, x, y, row, pl) + self->cw;
+  self->rowhdr_width = x - start;
+  if (self->num_globals) {
     int start = x;
-    for (i = 0; i < view->num_globals; i++) {
-      x += bt_pattern_editor_draw_column(view, x, y, &view->globals[i], -1, i, row, max_y, pl);
+    for (i = 0; i < self->num_globals; i++) {
+      x += bt_pattern_editor_draw_column(self, x, y, &self->globals[i], -1, i, row, max_y, pl);
     }
-    x += view->cw;
-    view->global_width = x - start;
+    x += self->cw;
+    self->global_width = x - start;
   }
-  for (t = 0; t < view->num_tracks; t++) {
+  for (t = 0; t < self->num_tracks; t++) {
     int start = x;
-    for (i = 0; i < view->num_locals; i++) {
-      x += bt_pattern_editor_draw_column(view, x, y, &view->locals[i], t, i, row, max_y, pl);
+    for (i = 0; i < self->num_locals; i++) {
+      x += bt_pattern_editor_draw_column(self, x, y, &self->locals[i], t, i, row, max_y, pl);
     }
-    x += view->cw;
-    view->local_width = x - start;
+    x += self->cw;
+    self->local_width = x - start;
   }
   g_object_unref (pl);
   pango_font_metrics_unref (pfm);
@@ -250,6 +260,7 @@ static void
 bt_pattern_editor_size_request (GtkWidget *widget,
                            GtkRequisition *requisition)
 {
+  // FIXME: calculate from pattern size
   requisition->width = 768;
   requisition->height = 256;
 }
@@ -266,68 +277,68 @@ bt_pattern_editor_size_allocate (GtkWidget *widget,
 }
 
 static void
-bt_pattern_editor_refresh_cursor (BtPatternEditor *view)
+bt_pattern_editor_refresh_cursor (BtPatternEditor *self)
 {
-  int y = view->row * view->ch - view->ofs_y;
-  gtk_widget_queue_draw_area (&view->parent, 0, y, view->parent.allocation.width, view->ch);
+  int y = self->row * self->ch - self->ofs_y;
+  gtk_widget_queue_draw_area (&self->parent, 0, y, self->parent.allocation.width, self->ch);
 }
 
 static void
-bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *view)
+bt_pattern_editor_refresh_cursor_or_scroll (BtPatternEditor *self)
 {
-  int first_row = view->ofs_y / view->ch;
-  int last_row = (view->ofs_y + view->parent.allocation.height) / view->ch - 1;
-  if (view->row < first_row) {
-    view->ofs_y = view->row * view->ch;
-    gtk_widget_queue_draw (&view->parent);
+  int first_row = self->ofs_y / self->ch;
+  int last_row = (self->ofs_y + self->parent.allocation.height) / self->ch - 1;
+  if (self->row < first_row) {
+    self->ofs_y = self->row * self->ch;
+    gtk_widget_queue_draw (&self->parent);
     return;
   }
-  if (view->row > last_row) {
-    int visible_rows = view->parent.allocation.height / view->ch;
-    first_row = view->row - visible_rows + 1;
+  if (self->row > last_row) {
+    int visible_rows = self->parent.allocation.height / self->ch;
+    first_row = self->row - visible_rows + 1;
     if (first_row < 0)
       first_row = 0;
-    view->ofs_y = first_row * view->ch;
-    gtk_widget_queue_draw (&view->parent);
+    self->ofs_y = first_row * self->ch;
+    gtk_widget_queue_draw (&self->parent);
     return;
   }
-  bt_pattern_editor_refresh_cursor(view);
+  bt_pattern_editor_refresh_cursor(self);
 }
 
 static void
-advance (BtPatternEditor *view)
+advance (BtPatternEditor *self)
 {
-  if (view->row < view->num_rows - 1) {
-    bt_pattern_editor_refresh_cursor(view);
-    view->row++;
+  if (self->row < self->num_rows - 1) {
+    bt_pattern_editor_refresh_cursor(self);
+    self->row++;
   }
-  bt_pattern_editor_refresh_cursor_or_scroll(view);
+  bt_pattern_editor_refresh_cursor_or_scroll(self);
 }
 
 static gboolean
 bt_pattern_editor_key_press (GtkWidget *widget,
                         GdkEventKey *event)
 {
-  BtPatternEditor *view = (BtPatternEditor *)widget;
-  if ((view->num_globals || view->num_locals) && 
+  BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
+  if ((self->num_globals || self->num_locals) && 
     (event->keyval >= 32 && event->keyval < 127) &&
-    view->callbacks->set_data_func)
+    self->callbacks->set_data_func)
   {
-    PatternColumn *col = &(view->track == -1 ? view->globals : view->locals)[view->parameter];
+    PatternColumn *col = &(self->track == -1 ? self->globals : self->locals)[self->parameter];
     if (event->keyval == '.') {
-      view->callbacks->set_data_func(view->pattern_data, view->row, view->track, view->parameter, (float)col->def_value);
-      advance(view);
+      self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, (float)col->def_value);
+      advance(self);
     }
     else {
       static const char hexdigits[] = "0123456789abcdef";
       static const char notenames[] = "zsxdcvgbhnjm\t\t\t\tq2w3er5t6y7u\t\t\t\ti9o0p";
-      float oldvalue = view->callbacks->get_data_func(view->pattern_data, col->user_data, view->row, view->track, view->parameter);
+      float oldvalue = self->callbacks->get_data_func(self->pattern_data, col->user_data, self->row, self->track, self->parameter);
       const char *p;
       switch(col->type) {
       case PCT_TRIGGER:
         if (event->keyval == '0' || event->keyval == '1') {
-          view->callbacks->set_data_func(view->pattern_data, view->row, view->track, view->parameter, event->keyval - '0');
-          advance(view);
+          self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, event->keyval - '0');
+          advance(self);
         }
         break;
       case PCT_BYTE:
@@ -337,29 +348,29 @@ bt_pattern_editor_key_press (GtkWidget *widget,
           int value = (int)oldvalue;
           if (oldvalue == col->def_value)
             value = 0;
-          int shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - view->digit);
+          int shift = 4*(((col->type == PCT_BYTE) ? 1 : 3) - self->digit);
           value = (value &~(15 << shift)) | ((p - hexdigits) << shift);
           if (value < col->min) value = col->min;
           if (value > col->max) value = col->max;
           
-          view->callbacks->set_data_func(view->pattern_data, view->row, view->track, view->parameter, value);
-          advance(view);
+          self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, value);
+          advance(self);
         }
         break;
       case PCT_NOTE:
-        if (view->digit == 0) {
+        if (self->digit == 0) {
           // FIXME: use event->hardware_keycode because of y<>z
           p = strchr(notenames, (char)event->keyval);
           if (p) {
-            int value = (p - notenames) + 16 * view->octave;
+            int value = (p - notenames) + 16 * self->octave;
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
             
-            view->callbacks->set_data_func(view->pattern_data, view->row, view->track, view->parameter, value);
-            advance(view);
+            self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, value);
+            advance(self);
           }
         }
-        if (view->digit == 1) {
+        if (self->digit == 1) {
           if (isdigit(event->keyval)) {
             int value = (int)oldvalue;
             if (oldvalue == col->def_value)
@@ -368,8 +379,8 @@ bt_pattern_editor_key_press (GtkWidget *widget,
             if (value < col->min) value = col->min;
             if (value > col->max) value = col->max;
             
-            view->callbacks->set_data_func(view->pattern_data, view->row, view->track, view->parameter, value);
-            advance(view);
+            self->callbacks->set_data_func(self->pattern_data, self->row, self->track, self->parameter, value);
+            advance(self);
           }
         }
         break;
@@ -379,81 +390,81 @@ bt_pattern_editor_key_press (GtkWidget *widget,
   switch(event->keyval)
   {
   case GDK_Up:
-    if (view->row > 0) {
-      bt_pattern_editor_refresh_cursor(view);
-      view->row--;
-      bt_pattern_editor_refresh_cursor_or_scroll(view);
+    if (self->row > 0) {
+      bt_pattern_editor_refresh_cursor(self);
+      self->row--;
+      bt_pattern_editor_refresh_cursor_or_scroll(self);
     }
     return TRUE;
   case GDK_Down:
-    if (view->row < view->num_rows - 1) {
-      bt_pattern_editor_refresh_cursor(view);
-      view->row++;
-      bt_pattern_editor_refresh_cursor_or_scroll(view);
+    if (self->row < self->num_rows - 1) {
+      bt_pattern_editor_refresh_cursor(self);
+      self->row++;
+      bt_pattern_editor_refresh_cursor_or_scroll(self);
     }
     return TRUE;
   case GDK_Left:
-    if (view->digit > 0)
-      view->digit--;
+    if (self->digit > 0)
+      self->digit--;
     else {
-      int lowest = view->num_globals ? -1 : 0;
+      int lowest = self->num_globals ? -1 : 0;
       PatternColumn *pc;
-      if (view->parameter > 0) {
-        view->parameter--;
+      if (self->parameter > 0) {
+        self->parameter--;
       }
-      else if (view->track > lowest) { 
-        view->track--;
-        view->parameter = view->track == -1 ? view->num_globals - 1 : view->num_locals - 1;
+      else if (self->track > lowest) { 
+        self->track--;
+        self->parameter = self->track == -1 ? self->num_globals - 1 : self->num_locals - 1;
       }
       else
         return FALSE;
-      pc = view->track == -1 ? &view->globals[view->parameter] : &view->locals[view->parameter];
-      view->digit = param_types[pc->type].columns - 1;
+      pc = self->track == -1 ? &self->globals[self->parameter] : &self->locals[self->parameter];
+      self->digit = param_types[pc->type].columns - 1;
     }
-    bt_pattern_editor_refresh_cursor (view);
+    bt_pattern_editor_refresh_cursor (self);
     return TRUE;
   case GDK_Right:
     {
-      int maxp = view->track == -1 ? view->num_globals - 1 : view->num_locals - 1;
-      PatternColumn *pc = view->track == -1 ? &view->globals[view->parameter] : &view->locals[view->parameter];
-      int highest = view->num_locals ? view->num_tracks - 1 : -1;
-      if (view->digit < param_types[pc->type].columns - 1)
-        view->digit++;
-      else if (view->parameter < maxp)
-        view->parameter++, view->digit = 0;
-      else if (view->track < highest)
-        view->track++, view->parameter = 0, view->digit = 0;
+      int maxp = self->track == -1 ? self->num_globals - 1 : self->num_locals - 1;
+      PatternColumn *pc = self->track == -1 ? &self->globals[self->parameter] : &self->locals[self->parameter];
+      int highest = self->num_locals ? self->num_tracks - 1 : -1;
+      if (self->digit < param_types[pc->type].columns - 1)
+        self->digit++;
+      else if (self->parameter < maxp)
+        self->parameter++, self->digit = 0;
+      else if (self->track < highest)
+        self->track++, self->parameter = 0, self->digit = 0;
     }
-    bt_pattern_editor_refresh_cursor (view);
+    bt_pattern_editor_refresh_cursor (self);
     return TRUE;  
   case GDK_Tab:
     {
-      int highest = view->num_locals ? view->num_tracks - 1 : -1;
-      if (view->track < highest) {
-        if (view->track == -1)
-          view->parameter = 0, view->digit = 0;
-        view->track++;
+      int highest = self->num_locals ? self->num_tracks - 1 : -1;
+      if (self->track < highest) {
+        if (self->track == -1)
+          self->parameter = 0, self->digit = 0;
+        self->track++;
       }
-      bt_pattern_editor_refresh_cursor (view);
+      bt_pattern_editor_refresh_cursor (self);
       return TRUE;
     }
   case GDK_ISO_Left_Tab:
     {
-      int lowest = view->num_globals ? -1 : 0;
-      if (view->track > lowest)
-        view->track--;
-      if (view->track == -1)
-        view->parameter = 0, view->digit = 0;
-      bt_pattern_editor_refresh_cursor (view);
+      int lowest = self->num_globals ? -1 : 0;
+      if (self->track > lowest)
+        self->track--;
+      if (self->track == -1)
+        self->parameter = 0, self->digit = 0;
+      bt_pattern_editor_refresh_cursor (self);
       return TRUE;
     }
   }
   return FALSE;
 }
 
-int bt_pattern_editor_get_row_width (BtPatternEditor *view)
+int bt_pattern_editor_get_row_width (BtPatternEditor *self)
 {
-  return view->rowhdr_width + view->local_width + view->global_width * view->num_tracks;
+  return self->rowhdr_width + self->local_width + self->global_width * self->num_tracks;
 }
 
 static gboolean
@@ -488,40 +499,40 @@ static gboolean
 bt_pattern_editor_button_press (GtkWidget *widget,
                                 GdkEventButton *event)
 {
-  BtPatternEditor *view = (BtPatternEditor *)widget;
-  int x = view->ofs_x + event->x;
-  int y = view->ofs_y + event->y;
+  BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
+  int x = self->ofs_x + event->x;
+  int y = self->ofs_y + event->y;
   int parameter, digit;
-  if (x < view->rowhdr_width) {
-    bt_pattern_editor_refresh_cursor(view);
-    view->row = y / view->ch;
-    bt_pattern_editor_refresh_cursor_or_scroll(view);
+  if (x < self->rowhdr_width) {
+    bt_pattern_editor_refresh_cursor(self);
+    self->row = y / self->ch;
+    bt_pattern_editor_refresh_cursor_or_scroll(self);
     return TRUE;
   }
-  x -= view->rowhdr_width;
-  if (x < view->global_width) {
-    if (char_to_coords(x / view->cw, view->globals, view->num_globals, &parameter, &digit))
+  x -= self->rowhdr_width;
+  if (x < self->global_width) {
+    if (char_to_coords(x / self->cw, self->globals, self->num_globals, &parameter, &digit))
     {
-      bt_pattern_editor_refresh_cursor(view);
-      view->row = y / view->ch;
-      view->track = -1;
-      view->parameter = parameter;
-      view->digit = digit;
-      bt_pattern_editor_refresh_cursor_or_scroll(view);
+      bt_pattern_editor_refresh_cursor(self);
+      self->row = y / self->ch;
+      self->track = -1;
+      self->parameter = parameter;
+      self->digit = digit;
+      bt_pattern_editor_refresh_cursor_or_scroll(self);
       return TRUE;
     }
   }
-  x -= view->global_width;
-  if (x >= view->local_width * view->num_tracks)
+  x -= self->global_width;
+  if (x >= self->local_width * self->num_tracks)
     return FALSE;
-  if (char_to_coords((x % view->local_width) / view->cw, view->locals, view->num_locals, &parameter, &digit))
+  if (char_to_coords((x % self->local_width) / self->cw, self->locals, self->num_locals, &parameter, &digit))
   {
-    bt_pattern_editor_refresh_cursor(view);
-    view->row = y / view->ch;
-    view->track = x / view->local_width;
-    view->parameter = parameter;
-    view->digit = digit;
-    bt_pattern_editor_refresh_cursor_or_scroll(view);
+    bt_pattern_editor_refresh_cursor(self);
+    self->row = y / self->ch;
+    self->track = x / self->local_width;
+    self->parameter = parameter;
+    self->digit = digit;
+    bt_pattern_editor_refresh_cursor_or_scroll(self);
     return TRUE;
   }
   return FALSE;
@@ -537,32 +548,37 @@ bt_pattern_editor_button_release (GtkWidget *widget,
 static void
 bt_pattern_editor_class_init (BtPatternEditorClass *klass)
 {
-  klass->parent_class.realize = bt_pattern_editor_realize;
-  klass->parent_class.expose_event = bt_pattern_editor_expose;
-  klass->parent_class.size_request = bt_pattern_editor_size_request;
-  klass->parent_class.size_allocate = bt_pattern_editor_size_allocate;
-  klass->parent_class.key_press_event = bt_pattern_editor_key_press;
-  klass->parent_class.button_press_event = bt_pattern_editor_button_press;
-  klass->parent_class.button_release_event = bt_pattern_editor_button_release;
+  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+  
+  widget_class->realize = bt_pattern_editor_realize;
+  widget_class->expose_event = bt_pattern_editor_expose;
+  widget_class->size_request = bt_pattern_editor_size_request;
+  widget_class->size_allocate = bt_pattern_editor_size_allocate;
+  widget_class->key_press_event = bt_pattern_editor_key_press;
+  widget_class->button_press_event = bt_pattern_editor_button_press;
+  widget_class->button_release_event = bt_pattern_editor_button_release;
 }
 
 static void
-bt_pattern_editor_init (BtPatternEditor *view)
+bt_pattern_editor_init (BtPatternEditor *self)
 {
-  view->row = view->parameter = view->digit = 0;
-  view->track = -1;
-  view->ofs_x = 0, view->ofs_y = 0;
-  view->num_globals = 0;
-  view->num_locals = 0;
-  view->num_tracks = 0;
-  view->num_rows = 64;
-  view->globals = NULL;
-  view->locals = NULL;
-  view->octave = 2;
+  self->row = self->parameter = self->digit = 0;
+  self->track = -1;
+  self->ofs_x = 0, self->ofs_y = 0;
+  self->num_globals = 0;
+  self->num_locals = 0;
+  self->num_tracks = 0;
+  self->num_rows = 64;
+  self->globals = NULL;
+  self->locals = NULL;
+  self->octave = 2;
 }
 
+/**
+ * bt_pattern_editor_set_pattern:
+ */
 void
-bt_pattern_editor_set_pattern (BtPatternEditor *view,
+bt_pattern_editor_set_pattern (BtPatternEditor *self,
                           gpointer pattern_data,
                           int num_rows,
                           int num_tracks,
@@ -574,23 +590,23 @@ bt_pattern_editor_set_pattern (BtPatternEditor *view,
                           )
 {
   int maxval;
-  view->num_rows = num_rows;
-  view->num_tracks = num_tracks;
-  view->num_globals = num_globals;
-  view->num_locals = num_locals;
-  view->globals = globals;
-  view->locals = locals;
-  view->pattern_data = pattern_data;
-  view->callbacks = cb;
+  self->num_rows = num_rows;
+  self->num_tracks = num_tracks;
+  self->num_globals = num_globals;
+  self->num_locals = num_locals;
+  self->globals = globals;
+  self->locals = locals;
+  self->pattern_data = pattern_data;
+  self->callbacks = cb;
 
-  if (view->row >= view->num_rows)
-    view->row = 0;
-  if (view->track >= view->num_tracks || !view->num_locals)
-    view->track = -1;
-  maxval = view->track == -1 ? view->num_globals : view->num_locals;
-  if (view->parameter >= maxval)
-    view->parameter = 0;
-  gtk_widget_queue_draw (&view->parent);
+  if (self->row >= self->num_rows)
+    self->row = 0;
+  if (self->track >= self->num_tracks || !self->num_locals)
+    self->track = -1;
+  maxval = self->track == -1 ? self->num_globals : self->num_locals;
+  if (self->parameter >= maxval)
+    self->parameter = 0;
+  gtk_widget_queue_draw (&self->parent);
 }
 
 
