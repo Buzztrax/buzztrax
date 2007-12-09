@@ -39,6 +39,8 @@ typedef struct _BtPersistenceSelectionClass BtPersistenceSelectionClass;
 
 /**
  * BtPersistenceSelection:
+ *
+ * Abstract base class for the selection for a serialisation.
  */
 struct _BtPersistenceSelection {
   const GObject parent;

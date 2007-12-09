@@ -169,6 +169,13 @@ void setup_log(int argc, char **argv) {
  */
 void setup_log_capture(void) {
   (void)g_log_set_default_handler(check_log_handler,NULL);
+  (void)g_log_set_handler(G_LOG_DOMAIN  ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("buzztard"    ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("GStreamer"   ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("GLib"        ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler("GLib-GObject",G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_log_set_handler(NULL          ,G_LOG_LEVEL_MASK|G_LOG_FLAG_FATAL|G_LOG_FLAG_RECURSION, check_log_handler, NULL);
+  (void)g_set_printerr_handler(check_print_handler);
 }
 
 

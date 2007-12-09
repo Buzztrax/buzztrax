@@ -38,7 +38,9 @@ typedef struct _BtPersistenceLocation BtPersistenceLocation;
 typedef struct _BtPersistenceLocationClass BtPersistenceLocationClass;
 
 /**
- * BtPersistenceSelection:
+ * BtPersistenceLocation:
+ *
+ * Abstract base class for the insert location for a deserialisation.
  */
 struct _BtPersistenceLocation {
   const GObject parent;

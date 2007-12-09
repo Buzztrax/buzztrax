@@ -1526,11 +1526,6 @@ static void bt_song_class_init(BtSongClass * const klass) {
                                      G_PARAM_READABLE|G_PARAM_STATIC_STRINGS));
 }
 
-/**
- * bt_song_get_type:
- *
- * Returns: the type of #BtSong
- */
 GType bt_song_get_type(void) {
   static GType type = 0;
   if (G_UNLIKELY(type == 0)) {

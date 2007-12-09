@@ -1,5 +1,15 @@
 2007-12-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/libbtcore/persistence-location.h:
+	* src/lib/core/libbtcore/persistence-selection.h:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song.c:
+	* tests/bt-check.c:
+	  Fix the tests.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* src/lib/core/persistence.c:
 	  Use non local variants to convert.
   

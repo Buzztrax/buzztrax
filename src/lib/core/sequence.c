@@ -1156,7 +1156,7 @@ gboolean bt_sequence_is_pattern_used(const BtSequence * const self,const BtPatte
 }
 
 /**
- * bt_sequence_insert_row:
+ * bt_sequence_insert_rows:
  * @self: the sequence
  * @time: the postion to insert at
  * @track: the track
@@ -1180,7 +1180,7 @@ void bt_sequence_insert_rows(const BtSequence * const self, const gulong time, c
 }
 
 /**
- * bt_sequence_insert_full_row:
+ * bt_sequence_insert_full_rows:
  * @self: the sequence
  * @time: the postion to insert at
  * @rows: the number of rows to insert
@@ -1207,7 +1207,7 @@ void bt_sequence_insert_full_rows(const BtSequence * const self, const gulong ti
 }
 
 /**
- * bt_sequence_delete_row:
+ * bt_sequence_delete_rows:
  * @self: the sequence
  * @time: the postion to delete
  * @track: the track
@@ -1238,7 +1238,7 @@ void bt_sequence_delete_rows(const BtSequence * const self, const gulong time, c
 }
 
 /**
- * bt_sequence_delete_full_row:
+ * bt_sequence_delete_full_rows:
  * @self: the sequence
  * @time: the postion to delete
  * @rows: the number of rows to remove
