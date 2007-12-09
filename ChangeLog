@@ -1,5 +1,10 @@
 2007-12-09  Stefan Kost  <ensonic@users.sf.net>
 
+	* docs/help/bt-edit/C/bt-edit.xml:
+	  Rewording to workaround one aspell warning.
+
+2007-12-09  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/libbtcore/persistence-location.h:
 	* src/lib/core/libbtcore/persistence-selection.h:
