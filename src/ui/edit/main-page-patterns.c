@@ -2380,7 +2380,6 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
 #ifdef USE_PATTERN_EDITOR
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
-  gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_table), 500, 500);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));

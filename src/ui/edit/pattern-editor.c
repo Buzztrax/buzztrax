@@ -41,6 +41,8 @@
  *     o top: groups (input, global, voice 1, voice 2)
  * - use raw-key codes for note-input (see FIXME below and
  *   main-page-pattern.c:on_pattern_table_key_release_event()
+ * - a signal for column changed
+ *   to be able to show the parameter details in the status bar
  */
 
 #include <ctype.h>
@@ -71,7 +73,9 @@ bt_pattern_editor_realize (GtkWidget *widget)
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
-  widget->window = gdk_window_new (widget->parent->window, &attributes, attributes_mask);
+  
+  //widget->window = gdk_window_new (widget->parent->window, &attributes, attributes_mask);
+  widget->window = gdk_window_new ( gtk_widget_get_parent_window (widget), &attributes, attributes_mask);
   widget->style = gtk_style_attach (widget->style, widget->window);
   gdk_window_set_user_data (widget->window, widget);
   gtk_style_set_background (widget->style, widget->window, GTK_STATE_NORMAL);
@@ -239,14 +243,14 @@ bt_pattern_editor_expose (GtkWidget *widget,
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
   
-  /*if (event->count > 0)
+  if (event->count > 0)
     return FALSE;
-    */
+
   
-  printf("Area: %d,%d\n",rect.x, rect.y);
+  //printf("Area: %d,%d -> %d,%d\n",rect.x, rect.y, rect.width, rect.height);
 
   gdk_window_clear_area (widget->window, 0, 0, widget->allocation.width, widget->allocation.height);
-  gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, widget->allocation.width, widget->allocation.height);
+  //gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, widget->allocation.width, widget->allocation.height);
 
   /* calculate font-metrics */  
   pc = gtk_widget_get_pango_context (widget);
@@ -309,13 +313,13 @@ bt_pattern_editor_expose (GtkWidget *widget,
 static int
 bt_pattern_editor_get_row_width (BtPatternEditor *self)
 {
-  return self->rowhdr_width + self->local_width + self->global_width * self->num_tracks;
+  return (self->rowhdr_width + self->global_width + self->local_width * self->num_tracks);
 }
 
 static int
 bt_pattern_editor_get_col_height (BtPatternEditor *self)
 {
-  return self->num_rows * self->ch;
+  return (self->num_rows * self->ch);
 }
 
 
@@ -328,7 +332,7 @@ bt_pattern_editor_size_request (GtkWidget *widget,
   /* calculate from pattern size */
   requisition->width = bt_pattern_editor_get_row_width(self);
   requisition->height = bt_pattern_editor_get_col_height(self);
-  printf("Size: %d,%d\n",requisition->width, requisition->height);
+  //printf("Size: %d,%d\n",requisition->width, requisition->height);
 }
 
 static void
