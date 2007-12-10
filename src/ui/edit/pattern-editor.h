@@ -51,8 +51,8 @@ typedef struct _PatternColumn
 
 typedef struct _BtPatternEditorCallbacks
 {
-  float (*get_data_func)(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param);
-  void (*set_data_func)(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param, float value);
+  float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param);
+  void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value);
   void (*notify_cursor_func)(gpointer pattern_data, int row, int track, int param, int digit);
 } BtPatternEditorCallbacks;
 
@@ -65,6 +65,7 @@ typedef struct _BtPatternEditor
   int parameter;
   int digit;
   /* scroll location */
+  // FIXME: why, gtk+ is doing the scrolling for us
   int ofs_x, ofs_y;
   /* pattern data */
   int num_lines, num_tracks, num_globals, num_locals, num_rows;
@@ -77,6 +78,7 @@ typedef struct _BtPatternEditor
   int cw, ch;
   /* pixel widths of global section, a single track and the row-number column*/
   int global_width, local_width, rowhdr_width;
+  gboolean size_changed;
   
   /* current octave number */
   int octave;

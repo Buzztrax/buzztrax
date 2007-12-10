@@ -34,12 +34,11 @@
  *       o expand
  *       o shrink 
  * - cursor step (different than Buzz - Buzz did it in a bad way)
- * - integrate with the rest of the code
  * - mouse handling
  * - implement GtkWidgetClass::set_scroll_adjustments_signal
  *   see gtktreeview.{c,h}
- *     o left ticks
- *     o groups (input, global, voice 1, voice 2)
+ *     o left: ticks
+ *     o top: groups (input, global, voice 1, voice 2)
  * - use raw-key codes for note-input (see FIXME below and
  *   main-page-pattern.c:on_pattern_table_key_release_event()
  */
@@ -66,9 +65,9 @@ bt_pattern_editor_realize (GtkWidget *widget)
   attributes.wclass = GDK_INPUT_OUTPUT;
   attributes.window_type = GDK_WINDOW_CHILD;
   attributes.event_mask = gtk_widget_get_events (widget) | 
-      GDK_EXPOSURE_MASK | GDK_KEY_PRESS_MASK | GDK_BUTTON_PRESS_MASK | 
-      GDK_BUTTON_RELEASE_MASK /*| GDK_POINTER_MOTION_MASK |
-      GDK_POINTER_MOTION_HINT_MASK*/;
+      GDK_EXPOSURE_MASK | GDK_SCROLL_MASK | GDK_KEY_PRESS_MASK | GDK_BUTTON_PRESS_MASK | 
+      GDK_BUTTON_RELEASE_MASK
+      /*| GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK*/;
   attributes.visual = gtk_widget_get_visual (widget);
   attributes.colormap = gtk_widget_get_colormap (widget);
   attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL | GDK_WA_COLORMAP;
@@ -234,14 +233,20 @@ bt_pattern_editor_expose (GtkWidget *widget,
   PangoFontDescription *pfd;
   PangoFontMetrics *pfm;
   GdkRectangle rect = event->area;
-  int cx = widget->allocation.width, cy = widget->allocation.height;
   int y, x, i, row, t, max_y;
+  int start;
 
   g_return_val_if_fail (BT_IS_PATTERN_EDITOR (widget), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
+  
+  /*if (event->count > 0)
+    return FALSE;
+    */
+  
+  printf("Area: %d,%d\n",rect.x, rect.y);
 
-  gdk_window_clear_area (widget->window, 0, 0, cx, cy);
-  /* gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, cx, cy); */
+  gdk_window_clear_area (widget->window, 0, 0, widget->allocation.width, widget->allocation.height);
+  gdk_draw_line (widget->window, widget->style->fg_gc[widget->state], 0, 0, widget->allocation.width, widget->allocation.height);
 
   /* calculate font-metrics */  
   pc = gtk_widget_get_pango_context (widget);
@@ -259,32 +264,45 @@ bt_pattern_editor_expose (GtkWidget *widget,
   pango_layout_set_font_description (pl, pfd);
 
   x = -self->ofs_x;
-  y = - self->ofs_y;
+  y = -self->ofs_y;
   /* calculate which row to start from */
   row = (rect.y + self->ofs_y) / self->ch;
   y += row * self->ch;
   max_y = rect.y + rect.height; /* max y */
-  int start = x;
+  
+  /* draw row-number column */
+  start = x;
   x += bt_pattern_editor_draw_rownum(self, x, y, row, pl) + self->cw;
   self->rowhdr_width = x - start;
+
+  /* draw global parameter columns */
   if (self->num_globals) {
-    int start = x;
+    start = x;
     for (i = 0; i < self->num_globals; i++) {
       x += bt_pattern_editor_draw_column(self, x, y, &self->globals[i], -1, i, row, max_y, pl);
     }
     x += self->cw;
     self->global_width = x - start;
   }
+
+  /* draw track parameter columns */
   for (t = 0; t < self->num_tracks; t++) {
-    int start = x;
+    start = x;
     for (i = 0; i < self->num_locals; i++) {
       x += bt_pattern_editor_draw_column(self, x, y, &self->locals[i], t, i, row, max_y, pl);
     }
     x += self->cw;
     self->local_width = x - start;
   }
+  
   g_object_unref (pl);
   pango_font_description_free (pfd);
+
+  if (G_UNLIKELY(self->size_changed)) {  
+    // do this for the after the first redraw
+    self->size_changed=FALSE;
+    gtk_widget_queue_resize_no_redraw (widget);
+  }  
   return FALSE;
 }
 
@@ -307,9 +325,10 @@ bt_pattern_editor_size_request (GtkWidget *widget,
 {
   BtPatternEditor *self = BT_PATTERN_EDITOR(widget);
 
-  // FIXME: calculate from pattern size
+  /* calculate from pattern size */
   requisition->width = bt_pattern_editor_get_row_width(self);
   requisition->height = bt_pattern_editor_get_col_height(self);
+  printf("Size: %d,%d\n",requisition->width, requisition->height);
 }
 
 static void
@@ -599,22 +618,6 @@ bt_pattern_editor_class_init (BtPatternEditorClass *klass)
   widget_class->key_press_event = bt_pattern_editor_key_press;
   widget_class->button_press_event = bt_pattern_editor_button_press;
   widget_class->button_release_event = bt_pattern_editor_button_release;
-
-
-  gtk_widget_class_install_style_property (widget_class,
-                                           g_param_spec_boxed ("even-row-color",
-                                                               "Even Row Color",
-                                                               "Color to use for even rows",
-							       GDK_TYPE_COLOR,
-							       G_PARAM_READABLE));
-
-  gtk_widget_class_install_style_property (widget_class,
-                                           g_param_spec_boxed ("odd-row-color",
-                                                               "Odd Row Color",
-                                                               "Color to use for odd rows",
-							       GDK_TYPE_COLOR,
-							       G_PARAM_READABLE));
-
 }
 
 static void
@@ -630,6 +633,7 @@ bt_pattern_editor_init (BtPatternEditor *self)
   self->globals = NULL;
   self->locals = NULL;
   self->octave = 2;
+  self->size_changed = TRUE;
 }
 
 /**
@@ -667,8 +671,7 @@ bt_pattern_editor_set_pattern (BtPatternEditor *self,
   if (self->parameter >= maxval)
     self->parameter = 0;
 
-  // do this for the after the first redraw  
-  //gtk_widget_queue_resize (widget);
+  self->size_changed = TRUE;
   gtk_widget_queue_draw (widget);
 }
 
@@ -710,7 +713,7 @@ float track_vals[4][64][3];
 
 static float
 example_get_data_at (gpointer pattern_data,
-                     PatternColumn *column_data,
+                     gpointer column_data,
                      int row,
                      int track,
                      int param)
@@ -723,7 +726,7 @@ example_get_data_at (gpointer pattern_data,
 
 static void
 example_set_data_at (gpointer pattern_data,
-                     PatternColumn *column_data,
+                     gpointer column_data,
                      int row,
                      int track,
                      int param,

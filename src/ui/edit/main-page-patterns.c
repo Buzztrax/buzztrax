@@ -1453,7 +1453,12 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
 }
 #else
 
-static float pattern_edit_get_data_at(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param) {
+typedef struct {
+  gfloat (*str_to_float)(gchar *in);
+  const gchar *(*float_to_str)(gfloat in);
+} PatternColumnConverters;
+
+static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   gchar *str;
 
@@ -1461,40 +1466,132 @@ static float pattern_edit_get_data_at(gpointer pattern_data, PatternColumn *colu
     str=bt_pattern_get_global_event(self->priv->pattern,row,param);
   else
     str=bt_pattern_get_voice_event(self->priv->pattern,row,track,param);
-  return str?g_ascii_strtod(str,NULL):0.0;
+  
+  if(str) {
+    if(column_data) {
+      return ((PatternColumnConverters *)column_data)->str_to_float(str);
+    }
+    else
+      return g_ascii_strtod(str,NULL);
+  }
+  return 0.0;
 }
 
-static void pattern_edit_set_data_at(gpointer pattern_data, PatternColumn *column_data, int row, int track, int param, float value) {
+static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
+  const gchar *str;
+  
+  if(column_data) {
+    str=((PatternColumnConverters *)column_data)->float_to_str(value);
+  }
+  else
+    str=bt_persistence_strfmt_double(value);
   
   if (track == -1)
-    bt_pattern_set_global_event(self->priv->pattern,row,param,bt_persistence_strfmt_double(value));
+    bt_pattern_set_global_event(self->priv->pattern,row,param,str);
   else
-    bt_pattern_set_voice_event(self->priv->pattern,row,track,param,bt_persistence_strfmt_double(value));
+    bt_pattern_set_voice_event(self->priv->pattern,row,track,param,str);
 }
+
+// @todo: this is a copy of gstbml:src/common.c
+static float  note_str_to_float(gchar *note) {
+  guint tone, octave;
+
+  g_return_val_if_fail(note,0);
+  g_return_val_if_fail((strlen(note)==3),0);
+  g_return_val_if_fail((note[1]=='-' || note[1]=='#'),0);
+
+  // parse note
+  switch(note[0]) {
+    case 'c':
+    case 'C':
+      tone=(note[1]=='-')?0:1;
+      break;
+    case 'd':
+    case 'D':
+      tone=(note[1]=='-')?2:3;
+      break;
+    case 'e':
+    case 'E':
+      tone=4;
+      break;
+    case 'f':
+    case 'F':
+      tone=(note[1]=='-')?5:6;
+      break;
+    case 'g':
+    case 'G':
+      tone=(note[1]=='-')?7:8;
+      break;
+    case 'a':
+    case 'A':
+      tone=(note[1]=='-')?9:10;
+      break;
+    case 'b':
+    case 'B':
+    case 'h':
+    case 'H':
+      tone=11;
+      break;
+    default:
+      g_return_val_if_reached(0.0);
+  }
+  octave=atoi(&note[2]);
+  // 0 is no-value
+  return (float)(1+(octave<<4)+tone);
+}
+
+static const gchar * note_float_to_str(gfloat in) {
+  guint tone, octave, note=(gint)in;
+  static gchar str[4];
+  static const gchar *key[12]= { "c-", "c#", "d-", "d#", "e-", "f-", "f#", "g-", "g#", "a-", "a#", "b-" };
+
+  // 0 is no-value
+  if (note==0) return("");
+
+  g_return_val_if_fail(note<((16*9)+12),0);
+
+  note-=1;
+  octave=note/16;
+  tone=note-(octave*16);
+
+  sprintf(str,"%2s%1d",key[tone],octave);
+  return(str);
+}
+
+static PatternColumnConverters pcc[]={
+  { note_str_to_float, note_float_to_str }
+};
 
 static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, gboolean trigger) {
   GType type=bt_g_type_get_base_type(property->value_type);
 
-  // @todo: need min/max/def
   if(trigger) {
     // all triggers are off by default
     col->def=0;
     if(type==G_TYPE_STRING) {
       col->type=PCT_NOTE;
+      col->min=0;
+      col->max=((16*9)+12);
+      col->user_data=&pcc[0];
     }
     else if(type==G_TYPE_BOOLEAN) {
       col->type=PCT_SWITCH;
       col->min=0;
       col->max=1;
+      col->user_data=NULL;
     }
     else if(type==BT_TYPE_TRIGGER_SWITCH) {
       col->type=PCT_SWITCH;
       col->min=0;
       col->max=1;
+      col->user_data=NULL;
     }
     else {
       GST_WARNING("unhandled trigger param type: '%s'",g_type_name(type));
+      col->type=0;
+      col->min=col->max=0;
+      col->user_data=NULL;
     }
   }
   else {
@@ -1504,6 +1601,7 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=0;
       col->max=1;
       col->def=bool_property->default_value;
+      col->user_data=NULL;
     }
     else if(type==G_TYPE_ENUM) {
       const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
@@ -1513,6 +1611,7 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=enum_class->minimum;
       col->max=enum_class->maximum;
       col->def=enum_property->default_value;
+      col->user_data=NULL;
     }
     else if(type==G_TYPE_INT) {
       const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
@@ -1524,6 +1623,7 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       if(int_property->minimum>=0 && int_property->maximum<256) {
         col->type=PCT_BYTE;
       }
+      col->user_data=NULL;
     }
     else if(type==G_TYPE_UINT) {
       const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
@@ -1535,6 +1635,7 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       if(uint_property->minimum>=0 && uint_property->maximum<256) {
         col->type=PCT_BYTE;
       }
+      col->user_data=NULL;
     }
     else if(type==G_TYPE_FLOAT) {
       const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
@@ -1543,6 +1644,9 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=float_property->minimum;
       col->max=float_property->maximum;
       col->def=float_property->default_value;
+      // @todo: need scaling
+      // scaling factor =  
+      col->user_data=NULL;
     }
     else if(type==G_TYPE_DOUBLE) {
       const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
@@ -1551,9 +1655,14 @@ static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *propert
       col->min=double_property->minimum;
       col->max=double_property->maximum;
       col->def=double_property->default_value;
+      // @todo: need scaling: min->0, max->65536
+      col->user_data=NULL;
     }
     else {
       GST_WARNING("unhandled continous param type: '%s'",g_type_name(type));
+      col->type=0;
+      col->min=col->max=col->def=0;
+      col->user_data=NULL;
     }
   }
 }
@@ -2271,6 +2380,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),GTK_SHADOW_NONE);
 #ifdef USE_PATTERN_EDITOR
   self->priv->pattern_table=BT_PATTERN_EDITOR(bt_pattern_editor_new());
+  gtk_widget_set_size_request(GTK_WIDGET(self->priv->pattern_table), 500, 500);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),GTK_WIDGET(self->priv->pattern_table));
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(scrolled_window));
