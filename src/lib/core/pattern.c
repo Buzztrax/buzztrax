@@ -27,6 +27,18 @@
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
+/*
+ * @todo:
+ * - we need wire_params (volume,panning ) per input
+ *   - only for processor machines sink machine patterns
+ *   - volume: is input-volume for the wire
+ *     - one volume per input
+ *   - panning: is panorama on the wire, if we connect e.g. mono -> stereo
+ *     - panning parameters can change, if the connection changes
+ *     - mono-to-stereo (1->2): 1 parameter
+ *     - mono-to-suround (1->4): 2 parameters
+ *     - stereo-to-surround (2->4): 1 parameter
+ */
 #define BT_CORE
 #define BT_PATTERN_C
 
@@ -81,6 +93,10 @@ struct _BtPatternPrivate {
    * with the size of length*(internal_params+global_params+voices*voice_params)
    */
   GValue *data;
+  
+  /* for each input we need a GValue array too
+   * whenever some machine is linked self->priv->machine, we need to update 
+   */
 };
 
 static GQuark error_domain=0;

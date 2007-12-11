@@ -3,6 +3,7 @@
 * new pattern widget merged
 * sequence editing (insert/delete)
 * sources moved to svn
+* buildbot build all modules now
 * build clean against gtk-2.12 (fixed use of deprecated api)
 
 2007/12 ========================================================================

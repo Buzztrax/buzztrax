@@ -36,7 +36,7 @@
  * - cursor step (different than Buzz - Buzz did it in a bad way)
  * - mouse handling
  * - implement GtkWidgetClass::set_scroll_adjustments_signal
- *   see gtktreeview.{c,h}
+ *   see gtk/gtkviewport.{c,h}
  *     o left: ticks
  *     o top: groups (input, global, voice 1, voice 2)
  * - use raw-key codes for note-input (see FIXME below and
