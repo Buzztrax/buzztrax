@@ -41,7 +41,7 @@
  *     o top: groups (input, global, voice 1, voice 2)
  * - use raw-key codes for note-input (see FIXME below and
  *   main-page-pattern.c:on_pattern_table_key_release_event()
- * - a signal for column changed
+ * - a signal for column changed (group, parameter)
  *   to be able to show the parameter details in the status bar
  */
 

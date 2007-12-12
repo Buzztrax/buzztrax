@@ -1,5 +1,21 @@
 2007-12-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/sequence.c:
+	* src/lib/core/song-io.c:
+	* src/lib/core/wire.c:
+	  Turn g_object_try_unref() into g_object_unref() where it makes no
+	  sense otherwise.
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Sketch ColumnGroup design for pattern editor.
+	  
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* TODO:
 	* src/lib/core/pattern.c:
 	* src/ui/edit/wire-canvas-item.c

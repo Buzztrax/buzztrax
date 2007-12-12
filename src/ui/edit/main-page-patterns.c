@@ -115,6 +115,7 @@ struct _BtMainPagePatternsPrivate {
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
+  // @todo: replace by PatternColumnGroup *param_groups;
   PatternColumn *global_param_descs, *voice_param_descs;
 
   guint *column_keymode;
@@ -1486,7 +1487,25 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   }
   else
     str=bt_persistence_strfmt_double(value);
-  
+
+#if 0
+    switch (group->type) {
+      case 0: {
+        BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
+        bt_wire_pattern_set_event(wire_pattern,row,param,str);
+        g_object_unref(wire_pattern);
+      } break;
+      case 1:
+        bt_pattern_set_global_event(self->priv->pattern,row,param,str);
+        break;
+      case 2:
+        bt_pattern_set_voice_event(self->priv->pattern,row,group->user_data,param,str);
+        break;
+      default:
+        GST_WARNING("invalid column group type");
+    }
+#endif
+
   if (track == -1)
     bt_pattern_set_global_event(self->priv->pattern,row,param,str);
   else
@@ -1678,11 +1697,97 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     gulong i;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
-
+    
     g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
 
+    // wire pattern data
+#if 0
+    PatternColumnGroup *group;
+
+    if(!BT_IS_SOURCE_MACHINE(machine)) {
+      BtSong *song;
+      BtSetup *setup;
+      BtWire *wire;
+      GList *wires,*node;
+      gulong wire_params;
+      
+      // need to iterate over all inputs
+      g_object_get(G_OBJECT(self->priv->app),"song",&song,NULL);
+      g_object_get(G_OBJECT(song),"setup",&setup,NULL);
+      wires=bt_setup_get_wires_by_dst_machine(setup,machine);
+      
+      g_free(self->priv->param_groups);
+      self->priv->param_groups=g_new(PatternColumnGroup,
+        g_list_length(wires)+(global_params>0?1:0)+voices);
+      group=self->priv->param_groups;
+      
+      for(node=wires;node;node=g_list_next(node)) {
+        wire=BT_WIRE(node->data);
+        // check wire config
+        g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
+        group->type=0;
+        group->name=wire.src.name
+        group->user_data=wire;
+        group->num_columns=wire_params;
+        group->columns=g_new(PatternColumn,wire_params);
+        for(i=0;i<wire_params;i++) {
+          pattern_edit_fill_column_type(&group->columns[i],
+            bt_wire_get_param_spec(wire,i),FALSE);
+        }
+        g_object_unref(wire);
+        group++;
+      }
+      g_list_free(wires);
+      g_object_unref(setup);
+      g_object_unref(song);
+    }
+    else {
+      g_free(self->priv->param_groups);
+      self->priv->param_groups=g_new(PatternColumnGroup,(global_params>0?1:0)+voices);
+      group=self->priv->param_groups;      
+    }
+    if(global_params) {
+      // create mapping for global params
+      group->type=1;
+      group->name=g_strdup("globals");
+      group->user_data=0;
+      group->num_columns=global_params;
+      group->columns=g_new(PatternColumn,global_params);
+      for(i=0;i<global_params;i++) {
+        pattern_edit_fill_column_type(&group->columns[i],
+          bt_machine_get_global_param_spec(machine,i),
+          bt_machine_is_global_param_trigger(machine,i));
+      }
+      group++;
+    }
+    if(voices) {
+      PatternColumnGroup *stamp=group;
+      // create mapping for voice params
+      group->type=2;
+      group->name=g_strdup("voice 1");
+      group->user_data=1;
+      group->num_columns=voice_params;
+      group->columns=g_new(PatternColumn,voice_params);
+      for(i=0;i<voice_params;i++) {
+        pattern_edit_fill_column_type(&group->columns[i],
+          bt_machine_get_voice_param_spec(machine,i),
+          bt_machine_is_voice_param_trigger(machine,i));
+      }
+      group++;
+      for(i=1;i<voices;i++) {
+        group->type=2;
+        group->name=g_strdup_printf("voice %d",i);
+        group->user_data=i;
+        group->num_columns=voice_params;
+        group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
+        group++;        
+      }
+    }
+#endif
+
+    // machine pattern data    
     g_free(self->priv->global_param_descs);
     self->priv->global_param_descs=g_new(PatternColumn,global_params);
     g_free(self->priv->voice_param_descs);
@@ -1700,8 +1805,15 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         bt_machine_is_voice_param_trigger(machine,i));
     }
     
-    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, number_of_ticks, voices,
-      global_params, voice_params, self->priv->global_param_descs, self->priv->voice_param_descs,
+    /* - to support the Wire parameters we need to pass [1..,n] PatternColumns for each input
+     * - use PatternColumnGroup
+     * - if we have 5 voice we use 5 groups with dup'ed voice_param_descs (easier when freeing)
+     */
+    
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self,
+      number_of_ticks, voices,
+      global_params, voice_params,
+      self->priv->global_param_descs, self->priv->voice_param_descs,
       &callbacks);
     
     g_object_unref(machine);
@@ -1906,6 +2018,22 @@ static void on_machine_removed(BtSetup *setup,BtMachine *machine,gpointer user_d
   GST_INFO("... machine %p,ref_count=%d has been removed",machine,G_OBJECT(machine)->ref_count);
 }
 
+static void on_wire_added_or_removed(BtSetup *setup,BtWire *wire,gpointer user_data) {
+  BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
+  BtMachine *this_machine,*that_machine;
+  
+  if(!self->priv->pattern) return;
+  
+  g_object_get(self->priv->pattern,"machine",&this_machine,NULL);
+  g_object_get(wire,"dst",&that_machine,NULL);
+  if(this_machine==that_machine) {
+    pattern_table_refresh(self,self->priv->pattern);
+  }
+  g_object_unref(this_machine);
+  g_object_unref(that_machine);
+
+}
+
 static void on_machine_menu_changed(GtkComboBox *menu, gpointer user_data) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(user_data);
   BtMachine *machine;
@@ -2005,11 +2133,13 @@ static void on_song_changed(const BtEditApplication *app,GParamSpec *arg,gpointe
   wavetable_menu_refresh(self);
   g_signal_connect(G_OBJECT(setup),"machine-added",G_CALLBACK(on_machine_added),(gpointer)self);
   g_signal_connect(G_OBJECT(setup),"machine-removed",G_CALLBACK(on_machine_removed),(gpointer)self);
+  g_signal_connect(G_OBJECT(setup),"wire-added",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
+  g_signal_connect(G_OBJECT(setup),"wire-removed",G_CALLBACK(on_wire_added_or_removed),(gpointer)self);
   // subscribe to play-pos changes of song->sequence
   g_signal_connect(G_OBJECT(song), "notify::play-pos", G_CALLBACK(on_sequence_tick), (gpointer)self);
   // release the references
-  g_object_try_unref(setup);
-  g_object_try_unref(song);
+  g_object_unref(setup);
+  g_object_unref(song);
   GST_INFO("song has changed done");
 }
 

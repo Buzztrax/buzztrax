@@ -49,8 +49,23 @@ typedef struct _PatternColumn
   gpointer user_data;
 } PatternColumn;
 
+typedef struct _PatternColumnGroup
+{
+  // just an id to tell groups apart (wire, global, voice)
+  int type;
+  // can be used for the headline above the group
+  char *name;
+  int num_columns;
+  PatternColumn *columns;
+  gpointer user_data;  
+} PatternColumnGroup;
+
 typedef struct _BtPatternEditorCallbacks
 {
+  /* FIXME: what about supplying
+   * - PatternColumn instead of PatternColumn->user_data
+   * - PatternColumnGroup instead of track;
+   */
   float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param);
   void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value);
   void (*notify_cursor_func)(gpointer pattern_data, int row, int track, int param, int digit);
@@ -59,7 +74,8 @@ typedef struct _BtPatternEditorCallbacks
 typedef struct _BtPatternEditor
 {
   GtkWidget parent;
-  /* cursor position */
+  /* cursor position
+   * FIXME: {track, parameter} needs to become {group, parameter} */
   int row;
   int track;
   int parameter;
@@ -67,7 +83,8 @@ typedef struct _BtPatternEditor
   /* scroll location */
   // FIXME: why, gtk+ is doing the scrolling for us
   int ofs_x, ofs_y;
-  /* pattern data */
+  /* pattern data
+   * FIXME: need to use num_groups and PatternColumnGroup* here */
   int num_lines, num_tracks, num_globals, num_locals, num_rows;
   PatternColumn *globals;
   PatternColumn *locals;
@@ -76,7 +93,9 @@ typedef struct _BtPatternEditor
   
   /* font metrics */
   int cw, ch;
-  /* pixel widths of global section, a single track and the row-number column*/
+  /* pixel widths of global section, a single track and the row-number column
+   * FIXME: need rowhdr_width, group_width[num_groups]
+   */
   int global_width, local_width, rowhdr_width;
   gboolean size_changed;
   

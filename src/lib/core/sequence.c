@@ -1075,7 +1075,7 @@ GstClockTime bt_sequence_get_bar_time(const BtSequence * const self) {
   //res=(gulong)(wait_per_position/G_USEC_PER_SEC);
 
   // release the references
-  g_object_try_unref(song_info);
+  g_object_unref(song_info);
 
   GST_LOG("getting songs bar-time %"G_GUINT64_FORMAT,wait_per_position);
 
@@ -1420,7 +1420,7 @@ static gboolean bt_sequence_persistence_load(const BtPersistence * const persist
 	        xmlFree(machine_id);
           }
         }
-        g_object_try_unref(setup);
+        g_object_unref(setup);
       }
     }
   }

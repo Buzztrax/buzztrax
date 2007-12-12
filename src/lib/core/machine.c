@@ -434,7 +434,7 @@ static gboolean bt_machine_change_state(const BtMachine * const self, const BtMa
   }
   self->priv->state=new_state;
 
-  g_object_try_unref(setup);
+  g_object_unref(setup);
   return(res);
 }
 
@@ -499,7 +499,7 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
           }
           g_object_unref(wire);
         }
-        g_object_try_unref(setup);
+        g_object_unref(setup);
       }
       else {
         GST_WARNING("failed to link part '%s' before '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[post]));
@@ -524,7 +524,7 @@ static gboolean bt_machine_insert_element(BtMachine *const self, GstElement * co
           }
           g_object_unref(wire);
         }
-        g_object_try_unref(setup);
+        g_object_unref(setup);
       }
       else {
         GST_WARNING("failed to link part '%s' after '%s' again",GST_OBJECT_NAME(self->priv->machines[part_position]),GST_OBJECT_NAME(self->priv->machines[pre]));

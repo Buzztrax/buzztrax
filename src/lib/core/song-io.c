@@ -166,7 +166,7 @@ static void bt_song_io_update_filename(const BtSongIO * const self, const BtSong
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_set(song_info,"file-name",file_path,NULL);
   g_free(file_path);
-  g_object_try_unref(song_info);
+  g_object_unref(song_info);
 }
 
 //-- constructor methods
@@ -279,7 +279,7 @@ gboolean bt_song_io_save(gconstpointer const self, const BtSong * const song) {
   // this updates the time-stamp
   g_object_get(G_OBJECT(song),"song-info",&song_info,NULL);
   g_object_set(G_OBJECT(song_info),"change-dts",NULL,NULL);
-  g_object_try_unref(song_info);
+  g_object_unref(song_info);
 
   bt_song_idle_stop(self);
   if((result=BT_SONG_IO_GET_CLASS(self)->save(self,song))) {

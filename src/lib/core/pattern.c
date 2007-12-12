@@ -27,8 +27,7 @@
  *
  * The patterns are used in the #BtSequence to form the score of a song.
  */
-/*
- * @todo:
+/* @todo:
  * - we need wire_params (volume,panning ) per input
  *   - only for processor machines sink machine patterns
  *   - volume: is input-volume for the wire
@@ -45,10 +44,7 @@
  *   - the BtWirePattern has volume and panning automation data
  *   - Initialy the hashmap is empty, the patterns are created on demand
  *   - BtWirePattern is not a good name :/
- *   - MainPagePattern need to watch inputs
- *     - listen to setup:wire-added/setup:wire-removed
- *     - if wire::dst == pattern::machine
- *       - update pattern
+ *     - maybe we can make BtPattern a base class and also have BtMachinePattern
  */
 #define BT_CORE
 #define BT_PATTERN_C

@@ -619,7 +619,7 @@ static gboolean bt_wire_connect(const BtWire * const self) {
   res=TRUE;
 
 Error:
-  g_object_try_unref(setup);
+  g_object_unref(setup);
   return(res);
 }
 
