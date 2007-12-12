@@ -26,7 +26,12 @@
  * Provides volume control on the wires, as well as a menu to disconnect wires
  * and to launch the analyzer screen.
  */
-
+/*
+ * @todo:
+ * - can we visualize the parameters on the wire better
+ *   - the wire has volume
+ *   - the wire can have 1/2 panorama sliders
+ */
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C
 

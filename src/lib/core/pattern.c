@@ -38,6 +38,17 @@
  *     - mono-to-stereo (1->2): 1 parameter
  *     - mono-to-suround (1->4): 2 parameters
  *     - stereo-to-surround (2->4): 1 parameter
+ * - BtMachine has list of BtPattern instances
+ * - BtWire should have a hashmap of BtWirePattern instances
+ *   - the hashtable key is the BtPattern in BtMachine
+ *     the wire is connected to
+ *   - the BtWirePattern has volume and panning automation data
+ *   - Initialy the hashmap is empty, the patterns are created on demand
+ *   - BtWirePattern is not a good name :/
+ *   - MainPagePattern need to watch inputs
+ *     - listen to setup:wire-added/setup:wire-removed
+ *     - if wire::dst == pattern::machine
+ *       - update pattern
  */
 #define BT_CORE
 #define BT_PATTERN_C

@@ -1,5 +1,12 @@
 2007-12-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* TODO:
+	* src/lib/core/pattern.c:
+	* src/ui/edit/wire-canvas-item.c
+	  Design ideas regarding the wire-pattern handling.
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* configure.ac:
 	* src/lib/core/libbtcore/tools.h:
 	* src/lib/core/machine.c:

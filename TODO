@@ -35,3 +35,5 @@ when releasing do:
   * http://www.chris-lott.org/resources/cmetrics/cyclo-2.0.tar.gz
     mcstrip tools.c | cyclo -c | sort -k2 -n
 
+* quality checks
+for file in src/lib/core/*.c; do gtkdoc-depscan -v --book gstreamer-0.10:0.10.8 $file; done
