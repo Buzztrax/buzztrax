@@ -287,7 +287,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
       gtk_menu_popup(menu,NULL,NULL,NULL,NULL,3,gtk_get_current_event_time());
       res=TRUE;
     }
-#ifdef HAVE_GST_CONTROLLER_NEW
+#ifdef HAVE_GST_0_10_14
     else if(event->button == 1) {
       GstController *ctrl;
       if((ctrl=gst_object_get_controller(G_OBJECT(param_parent)))) {
@@ -300,7 +300,7 @@ static gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, 
 }
 
 static gboolean on_button_release_event(GtkWidget *widget, GdkEventButton *event, gpointer user_data) {
-#ifdef HAVE_GST_CONTROLLER_NEW
+#ifdef HAVE_GST_0_10_14
   GstObject *param_parent=GST_OBJECT(user_data);
   const gchar *property_name=gtk_widget_get_name(GTK_WIDGET(widget));
 

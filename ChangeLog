@@ -1,5 +1,15 @@
 2007-12-12  Stefan Kost  <ensonic@users.sf.net>
 
+	* configure.ac:
+	* src/lib/core/libbtcore/tools.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/tools.c:
+	* src/ui/edit/machine-properties-dialog.c:
+	  Improve checking for gstreamer versions and add backwards
+	  compatibility mechanism.
+
+2007-12-12  Stefan Kost  <ensonic@users.sf.net>
+
 	* NEWSLETTER:
 	  Updating.
 

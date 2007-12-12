@@ -344,14 +344,26 @@ ac_ldflags_save="$LDFLAGS"
 CFLAGS="$CFLAGS $BASE_DEPS_CFLAGS"
 CPPFLAGS="$CPPFLAGS $BASE_DEPS_CFLAGS"
 LDFLAGS="$LDFLAGS $BASE_DEPS_LIBS"
-AC_CHECK_LIB( gstcontroller-0.10, gst_controller_set_property_disabled, \
-  AC_DEFINE(HAVE_GST_CONTROLLER_NEW, [1], [Define to 1 if we have the new gst controller features]) \
-)
 AC_CHECK_HEADERS(gst/gstdebugutils.h)
 AC_CHECK_HEADERS(gst/gstpreset.h)
 CFLAGS="$ac_cflags_save"
 CPPFLAGS="$ac_cppflags_save"
 LDFLAGS="$ac_ldflags_save"
+
+AC_MSG_CHECKING([gstreamer version >= 0.10.11])
+if pkg-config --atleast-version=0.10.11 gstreamer-0.10; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GST_0_10_11, [1], [Define to 1 if we can use API new in gstreamer-0.10.11])
+else
+  AC_MSG_RESULT(no)
+fi
+AC_MSG_CHECKING([gstreamer version >= 0.10.14])
+if pkg-config --atleast-version=0.10.14 gstreamer-0.10; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(HAVE_GST_0_10_14, [1], [Define to 1 if we can use API new in gstreamer-0.10.14])
+else
+  AC_MSG_RESULT(no)
+fi
 
 dnl Add additional libraries
 BASE_DEPS_LIBS="$LIBINTL $BASE_DEPS_LIBS"

@@ -35,6 +35,12 @@ extern GList *bt_gst_check_core_elements(void);
 //-- debugging
 extern void bt_gst_element_dbg_pads(GstElement * const elem);
 
+//-- gst compat
+
+#ifndef HAVE_GST_0_10_11
+extern G_CONST_RETURN gchar *  gst_element_state_change_return_get_name(GstStateChangeReturn state_ret);
+#endif
+
 //-- glib compat & helper
 
 extern GType bt_g_type_get_base_type(const GType type);

@@ -168,6 +168,50 @@ GList *bt_gst_check_core_elements(void) {
   return(res);
 }
 
+//-- gst compat
+
+#ifndef HAVE_GST_0_10_11
+/**
+ * gst_element_state_change_return_get_name:
+ * @state_ret: a #GstStateChangeReturn to get the name of.
+ *
+ * Gets a string representing the given state change result.
+ *
+ * Returns: a string with the name of the state change result.
+ */
+G_CONST_RETURN gchar *
+gst_element_state_change_return_get_name (GstStateChangeReturn state_ret)
+{
+  switch (state_ret) {
+#ifdef GST_DEBUG_COLOR
+    case GST_STATE_CHANGE_FAILURE:
+      return "\033[01;31mFAILURE\033[00m";
+    case GST_STATE_CHANGE_SUCCESS:
+      return "\033[01;32mSUCCESS\033[00m";
+    case GST_STATE_CHANGE_ASYNC:
+      return "\033[01;33mASYNC\033[00m";
+    case GST_STATE_CHANGE_NO_PREROLL:
+      return "\033[01;34mNO_PREROLL\033[00m";
+    default:
+      /* This is a memory leak */
+      return g_strdup_printf ("\033[01;35;41mUNKNOWN!\033[00m(%d)", state_ret);
+#else
+    case GST_STATE_CHANGE_FAILURE:
+      return "FAILURE";
+    case GST_STATE_CHANGE_SUCCESS:
+      return "SUCCESS";
+    case GST_STATE_CHANGE_ASYNC:
+      return "ASYNC";
+    case GST_STATE_CHANGE_NO_PREROLL:
+      return "NO PREROLL";
+    default:
+      /* This is a memory leak */
+      return g_strdup_printf ("UNKNOWN!(%d)", state_ret);
+#endif
+  }
+}
+#endif
+
 //-- debugging
 
 /**
@@ -234,6 +278,7 @@ GType bt_g_type_get_base_type(GType type) {
   while((base=g_type_parent(type))) type=base;
   return(type);
 }
+
 
 //-- cpu load monitoring
 
