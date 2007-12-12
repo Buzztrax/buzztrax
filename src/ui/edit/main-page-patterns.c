@@ -115,8 +115,12 @@ struct _BtMainPagePatternsPrivate {
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
-  // @todo: replace by PatternColumnGroup *param_groups;
+#if 0
+  gulong number_of_groups;
+  PatternColumnGroup *param_groups;
+#else
   PatternColumn *global_param_descs, *voice_param_descs;
+#endif
 
   guint *column_keymode;
 
@@ -1463,11 +1467,29 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   gchar *str;
 
+#if 0
+    switch (group->type) {
+      case 0: {
+        BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
+        str=bt_wire_pattern_get_event(wire_pattern,row,param);
+        g_object_unref(wire_pattern);
+      } break;
+      case 1:
+        str=bt_pattern_get_global_event(self->priv->pattern,row,param);
+        break;
+      case 2:
+        str=bt_pattern_get_voice_event(self->priv->pattern,row,group->user_data,param);
+        break;
+      default:
+        GST_WARNING("invalid column group type");
+    }
+#else
   if (track == -1)
     str=bt_pattern_get_global_event(self->priv->pattern,row,param);
   else
     str=bt_pattern_get_voice_event(self->priv->pattern,row,track,param);
-  
+#endif
+
   if(str) {
     if(column_data) {
       return ((PatternColumnConverters *)column_data)->str_to_float(str);
@@ -1504,12 +1526,12 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
       default:
         GST_WARNING("invalid column group type");
     }
-#endif
-
+#else
   if (track == -1)
     bt_pattern_set_global_event(self->priv->pattern,row,param,str);
   else
     bt_pattern_set_voice_event(self->priv->pattern,row,track,param,str);
+#endif
 }
 
 // @todo: this is a copy of gstbml:src/common.c
@@ -1705,6 +1727,9 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     // wire pattern data
 #if 0
     PatternColumnGroup *group;
+    
+    self->priv->number_of_groups=(global_params>0?1:0)+voices;
+    g_free(self->priv->param_groups);
 
     if(!BT_IS_SOURCE_MACHINE(machine)) {
       BtSong *song;
@@ -1718,10 +1743,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       g_object_get(G_OBJECT(song),"setup",&setup,NULL);
       wires=bt_setup_get_wires_by_dst_machine(setup,machine);
       
-      g_free(self->priv->param_groups);
-      self->priv->param_groups=g_new(PatternColumnGroup,
-        g_list_length(wires)+(global_params>0?1:0)+voices);
-      group=self->priv->param_groups;
+      self->priv->number_of_groups+=g_list_length(wires);
+      group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);
       
       for(node=wires;node;node=g_list_next(node)) {
         wire=BT_WIRE(node->data);
@@ -1744,9 +1767,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       g_object_unref(song);
     }
     else {
-      g_free(self->priv->param_groups);
-      self->priv->param_groups=g_new(PatternColumnGroup,(global_params>0?1:0)+voices);
-      group=self->priv->param_groups;      
+      group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);  
     }
     if(global_params) {
       // create mapping for global params
@@ -1785,8 +1806,11 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         group++;        
       }
     }
-#endif
 
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self,
+      number_of_ticks, self->priv->number_of_groups, self->priv->param_groups, &callbacks);
+
+#else
     // machine pattern data    
     g_free(self->priv->global_param_descs);
     self->priv->global_param_descs=g_new(PatternColumn,global_params);
@@ -1804,18 +1828,13 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         bt_machine_get_voice_param_spec(machine,i),
         bt_machine_is_voice_param_trigger(machine,i));
     }
-    
-    /* - to support the Wire parameters we need to pass [1..,n] PatternColumns for each input
-     * - use PatternColumnGroup
-     * - if we have 5 voice we use 5 groups with dup'ed voice_param_descs (easier when freeing)
-     */
-    
+      
     bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self,
       number_of_ticks, voices,
       global_params, voice_params,
       self->priv->global_param_descs, self->priv->voice_param_descs,
       &callbacks);
-    
+#endif    
     g_object_unref(machine);
   }
   else {
@@ -2830,8 +2849,18 @@ static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 
   g_free(self->priv->column_keymode);
+#if 0
+  gulong i;
+  
+  for(i=0;i<self->priv->number_of_groups;i++) {
+    g_free(self->priv->param_descs[i].name;
+    g_free(self->priv->param_descs[i].columns;
+  }
+  g_free(self->priv->param_descs);
+#else
   g_free(self->priv->global_param_descs);
   g_free(self->priv->voice_param_descs);
+#endif
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }
