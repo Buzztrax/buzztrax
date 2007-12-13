@@ -57,6 +57,7 @@
 #include "bt-edit.h"
 
 #define USE_PATTERN_EDITOR 1
+#define NEW_PATTERN_LAYOUT
 
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
@@ -115,7 +116,7 @@ struct _BtMainPagePatternsPrivate {
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
-#if 0
+#ifdef NEW_PATTERN_LAYOUT
   gulong number_of_groups;
   PatternColumnGroup *param_groups;
 #else
@@ -1194,7 +1195,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
   pattern_table_clear(self);
 
   if(pattern) {
-    gint col_index;
     gulong i,j,k,pos=0,ix,col_ct;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
@@ -1442,6 +1442,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     "mode",GTK_CELL_RENDERER_MODE_INERT,
     NULL);
   if((tree_col=gtk_tree_view_column_new_with_attributes(/*title=*/NULL,renderer,NULL))) {
+    gint col_index=0;
     g_object_set(tree_col,
       "sizing",GTK_TREE_VIEW_COLUMN_FIXED,
       NULL);
@@ -1465,20 +1466,24 @@ typedef struct {
 
 static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
-  gchar *str;
+  gchar *str = NULL;
 
-#if 0
+#ifdef NEW_PATTERN_LAYOUT
+  PatternColumnGroup *group = &self->priv->param_groups[track];
     switch (group->type) {
       case 0: {
+        /*
         BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
         str=bt_wire_pattern_get_event(wire_pattern,row,param);
         g_object_unref(wire_pattern);
+        */
+        str = g_strdup("Wire");
       } break;
       case 1:
         str=bt_pattern_get_global_event(self->priv->pattern,row,param);
         break;
       case 2:
-        str=bt_pattern_get_voice_event(self->priv->pattern,row,group->user_data,param);
+        str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param);
         break;
       default:
         GST_WARNING("invalid column group type");
@@ -1503,6 +1508,9 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
 static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str;
+#ifdef NEW_PATTERN_LAYOUT
+  PatternColumnGroup *group = &self->priv->param_groups[track];
+#endif
   
   if(column_data) {
     str=((PatternColumnConverters *)column_data)->float_to_str(value);
@@ -1510,18 +1518,20 @@ static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data
   else
     str=bt_persistence_strfmt_double(value);
 
-#if 0
+#ifdef NEW_PATTERN_LAYOUT
     switch (group->type) {
       case 0: {
+        /*
         BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
         bt_wire_pattern_set_event(wire_pattern,row,param,str);
         g_object_unref(wire_pattern);
+        */
       } break;
       case 1:
         bt_pattern_set_global_event(self->priv->pattern,row,param,str);
         break;
       case 2:
-        bt_pattern_set_voice_event(self->priv->pattern,row,group->user_data,param,str);
+        bt_pattern_set_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param,str);
         break;
       default:
         GST_WARNING("invalid column group type");
@@ -1725,7 +1735,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
 
     // wire pattern data
-#if 0
+#ifdef NEW_PATTERN_LAYOUT
     PatternColumnGroup *group;
     
     self->priv->number_of_groups=(global_params>0?1:0)+voices;
@@ -1747,17 +1757,25 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       group=self->priv->param_groups=g_new(PatternColumnGroup,self->priv->number_of_groups);
       
       for(node=wires;node;node=g_list_next(node)) {
+        BtMachine *src=NULL;
         wire=BT_WIRE(node->data);
         // check wire config
-        g_object_get(G_OBJECT(wire),"num-params",&wire_params,NULL);
+        wire_params = 2;
+        g_object_get(G_OBJECT(wire),/*"num-params",&wire_params,*/"src",&src,NULL);
+        g_assert(src != NULL);
         group->type=0;
-        group->name=wire.src.name
+        g_object_get(G_OBJECT(src),"id",&group->name,NULL), 
+        g_assert(group->name != NULL);
+        /* group->name=g_strdup(group->name); */
         group->user_data=wire;
         group->num_columns=wire_params;
         group->columns=g_new(PatternColumn,wire_params);
         for(i=0;i<wire_params;i++) {
-          pattern_edit_fill_column_type(&group->columns[i],
-            bt_wire_get_param_spec(wire,i),FALSE);
+          /* pattern_edit_fill_column_type(&group->columns[i],bt_wire_get_param_spec(wire,i),FALSE); */
+          group->columns[i].min = 0;
+          group->columns[i].max = 128;
+          group->columns[i].def = 255;
+          group->columns[i].type = PCT_BYTE; /* whatever */
         }
         g_object_unref(wire);
         group++;
@@ -1773,7 +1791,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       // create mapping for global params
       group->type=1;
       group->name=g_strdup("globals");
-      group->user_data=0;
+      group->user_data=(gpointer)0;
       group->num_columns=global_params;
       group->columns=g_new(PatternColumn,global_params);
       for(i=0;i<global_params;i++) {
@@ -1788,7 +1806,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       // create mapping for voice params
       group->type=2;
       group->name=g_strdup("voice 1");
-      group->user_data=1;
+      group->user_data=(gpointer)1;
       group->num_columns=voice_params;
       group->columns=g_new(PatternColumn,voice_params);
       for(i=0;i<voice_params;i++) {
@@ -1799,8 +1817,8 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       group++;
       for(i=1;i<voices;i++) {
         group->type=2;
-        group->name=g_strdup_printf("voice %d",i);
-        group->user_data=i;
+        group->name=g_strdup_printf("voice %d",(int)i);
+        group->user_data=(gpointer)(1+i);
         group->num_columns=voice_params;
         group->columns=g_memdup(stamp->columns,sizeof(PatternColumn)*voice_params);
         group++;        
@@ -1838,7 +1856,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     g_object_unref(machine);
   }
   else {
-    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, 0, 0, 0, 0, NULL, NULL, &callbacks);
+    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self, 0, 0, NULL, &callbacks);
   }
 }
 #endif
@@ -2541,6 +2559,7 @@ static gboolean bt_main_page_patterns_init_ui(const BtMainPagePatterns *self,con
   g_signal_connect_after(G_OBJECT(self->priv->pattern_table), "cursor-changed", G_CALLBACK(on_pattern_table_cursor_changed), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "key-release-event", G_CALLBACK(on_pattern_table_key_release_event), (gpointer)self);
   g_signal_connect(G_OBJECT(self->priv->pattern_table), "motion-notify-event", G_CALLBACK(on_pattern_table_motion_notify_event), (gpointer)self);
+  g_signal_connect(G_OBJECT(self->priv->pattern_table), "button-press-event", G_CALLBACK(on_pattern_table_button_press_event), (gpointer)self);
   gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scrolled_window), TRUE, TRUE, 0);
 #endif
 
@@ -2849,14 +2868,14 @@ static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
 
   g_free(self->priv->column_keymode);
-#if 0
+#ifdef NEW_PATTERN_LAYOUT
   gulong i;
   
   for(i=0;i<self->priv->number_of_groups;i++) {
-    g_free(self->priv->param_descs[i].name;
-    g_free(self->priv->param_descs[i].columns;
+    g_free(self->priv->param_groups[i].name);
+    g_free(self->priv->param_groups[i].columns);
   }
-  g_free(self->priv->param_descs);
+  g_free(self->priv->param_groups);
 #else
   g_free(self->priv->global_param_descs);
   g_free(self->priv->voice_param_descs);

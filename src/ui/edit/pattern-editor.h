@@ -58,6 +58,7 @@ typedef struct _PatternColumnGroup
   int num_columns;
   PatternColumn *columns;
   gpointer user_data;  
+  int width; /* in pixels for now, may change to chars some day when needed */
 } PatternColumnGroup;
 
 typedef struct _BtPatternEditorCallbacks
@@ -66,18 +67,17 @@ typedef struct _BtPatternEditorCallbacks
    * - PatternColumn instead of PatternColumn->user_data
    * - PatternColumnGroup instead of track;
    */
-  float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param);
-  void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value);
-  void (*notify_cursor_func)(gpointer pattern_data, int row, int track, int param, int digit);
+  float (*get_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param);
+  void (*set_data_func)(gpointer pattern_data, gpointer column_data, int row, int group, int param, float value);
+  void (*notify_cursor_func)(gpointer pattern_data, int row, int group, int param, int digit);
 } BtPatternEditorCallbacks;
 
 typedef struct _BtPatternEditor
 {
   GtkWidget parent;
-  /* cursor position
-   * FIXME: {track, parameter} needs to become {group, parameter} */
+  /* cursor position */
   int row;
-  int track;
+  int group;
   int parameter;
   int digit;
   /* scroll location */
@@ -85,18 +85,15 @@ typedef struct _BtPatternEditor
   int ofs_x, ofs_y;
   /* pattern data
    * FIXME: need to use num_groups and PatternColumnGroup* here */
-  int num_lines, num_tracks, num_globals, num_locals, num_rows;
-  PatternColumn *globals;
-  PatternColumn *locals;
+  int num_lines, num_groups, num_rows;
+  PatternColumnGroup *groups;
   BtPatternEditorCallbacks *callbacks;
   gpointer pattern_data;
   
   /* font metrics */
   int cw, ch;
-  /* pixel widths of global section, a single track and the row-number column
-   * FIXME: need rowhdr_width, group_width[num_groups]
-   */
-  int global_width, local_width, rowhdr_width;
+  int rowhdr_width;
+
   gboolean size_changed;
   
   /* current octave number */
@@ -113,11 +110,8 @@ extern void
 bt_pattern_editor_set_pattern (BtPatternEditor *view,
                           gpointer pattern_data,
                           int num_rows,
-                          int num_tracks,
-                          int num_globals,
-                          int num_locals,
-                          PatternColumn *globals,
-                          PatternColumn *locals,
+                          int num_groups,
+                          PatternColumnGroup *groups,
                           BtPatternEditorCallbacks *cb);
 
 GtkWidget *bt_pattern_editor_new();

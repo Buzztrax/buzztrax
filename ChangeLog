@@ -1,3 +1,11 @@
+2007-12-13  Krzysztof Foltman  <wdev@foltman.com>
+
+	* src/ui/edit/main-page-patterns.c:
+	* src/ui/edit/pattern-editor.c:
+	* src/ui/edit/pattern-editor.h:
+	  Changed from global+track-based to groups-based approach.
+	  Note column type fixes.
+
 2007-12-13  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:
