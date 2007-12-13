@@ -134,7 +134,6 @@ bt_pattern_test_global_event
 bt_pattern_test_voice_event
 bt_pattern_get_cmd
 bt_pattern_tick_has_data
-bt_pattern_play_tick
 <SUBSECTION Standard>
 BtPatternClass
 BT_PATTERN
@@ -550,6 +549,9 @@ BtWavetablePrivate
 BtWire
 bt_wire_new
 bt_wire_reconnect
+bt_wire_get_pattern
+bt_wire_get_param_spec
+bt_wire_get_param_type
 <SUBSECTION Standard>
 BtWireClass
 BT_WIRE
@@ -563,6 +565,29 @@ bt_wire_get_type
 BtWirePrivate
 bt_wire_dbg_print_parts
 bt_wire_get_element_list
+</SECTION>
+
+<SECTION>
+<FILE>btwirepattern</FILE>
+<TITLE>BtWirePattern</TITLE>
+BtWirePattern
+bt_wire_pattern_new
+bt_wire_pattern_get_event_data
+bt_wire_pattern_set_event
+bt_wire_pattern_get_event
+bt_wire_pattern_test_event
+bt_wire_pattern_tick_has_data
+<SUBSECTION Standard>
+BtWirePatternClass
+BT_WIRE_PATTERN
+BT_IS_WIRE_PATTERN
+BT_WIRE_PATTERN_CLASS
+BT_IS_WIRE_PATTERN_CLASS
+BT_WIRE_PATTERN_GET_CLASS
+BT_TYPE_WIRE_PATTERN
+<SUBSECTION Private>
+bt_wire_pattern_get_type
+BtWirePatternPrivate
 </SECTION>
 
 <SECTION>

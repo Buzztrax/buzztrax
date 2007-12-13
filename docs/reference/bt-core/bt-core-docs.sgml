@@ -27,6 +27,7 @@
 <!ENTITY BtWavelevel SYSTEM "xml/btwavelevel.xml">
 <!ENTITY BtWavetable SYSTEM "xml/btwavetable.xml">
 <!ENTITY BtWire SYSTEM "xml/btwire.xml">
+<!ENTITY BtWirePattern SYSTEM "xml/btwirepattern.xml">
 
 <!ENTITY object-tree-index SYSTEM "xml/tree_index.sgml">
 ]>
@@ -127,6 +128,7 @@
     &BtWavelevel;
     &BtWavetable;
     &BtWire;
+    &BtWirePattern;
   </chapter>
 
   <chapter id="objecttree">

@@ -1,4 +1,4 @@
-/* $Id: wire-methods.h,v 1.13 2006-08-24 20:00:54 ensonic Exp $
+/* $Id$
  *
  * Buzztard
  * Copyright (C) 2006 Buzztard team <buzztard-devel@lists.sf.net>
@@ -19,21 +19,19 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef BT_WIRE_METHODS_H
-#define BT_WIRE_METHODS_H
+#ifndef BT_WIRE_PATTERN_METHODS_H
+#define BT_WIRE_PATTERN_METHODS_H
 
-#include "wire.h"
 #include "wire-pattern.h"
 
-extern BtWire *bt_wire_new(const BtSong *song, const BtMachine *src_machine, const BtMachine *dst_machine);
+extern BtWirePattern *bt_wire_pattern_new(const BtSong * const song, const BtWire * const wire, const BtPattern * const pattern);
 
-extern gboolean bt_wire_reconnect(BtWire *self);
-extern BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *pattern);
+extern GValue *bt_wire_pattern_get_event_data(const BtWirePattern * const self, const gulong tick, const gulong param);
 
-extern GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index);
-extern GType bt_wire_get_param_type(const BtWire * const self, const gulong index);
+extern gboolean bt_wire_pattern_set_event(const BtWirePattern * const self, const gulong tick, const gulong param, const gchar * const value);
+extern gchar *bt_wire_pattern_get_event(const BtWirePattern * const self, const gulong tick, const gulong param);
 
-extern GList *bt_wire_get_element_list(const BtWire *self);
-extern void bt_wire_dbg_print_parts(const BtWire *self);
+extern gboolean bt_wire_pattern_test_event(const BtWirePattern * const self, const gulong tick, const gulong param);
+extern gboolean bt_wire_pattern_tick_has_data(const BtWirePattern * const self, const gulong tick);
 
-#endif // BT_WIRE_METHDOS_H
+#endif // BT_WIRE_PATTERN_METHDOS_H

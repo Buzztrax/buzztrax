@@ -42,7 +42,6 @@ typedef struct _BtPatternPrivate BtPatternPrivate;
  * BtPattern:
  *
  * Class that holds a sequence of events for a #BtMachine.
- * A #BtTimeLineTrack denotes which pattern will be played at which time..
  */
 struct _BtPattern {
   const GObject parent;

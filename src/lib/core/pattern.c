@@ -28,23 +28,8 @@
  * The patterns are used in the #BtSequence to form the score of a song.
  */
 /* @todo:
- * - we need wire_params (volume,panning ) per input
- *   - only for processor machines sink machine patterns
- *   - volume: is input-volume for the wire
- *     - one volume per input
- *   - panning: is panorama on the wire, if we connect e.g. mono -> stereo
- *     - panning parameters can change, if the connection changes
- *     - mono-to-stereo (1->2): 1 parameter
- *     - mono-to-suround (1->4): 2 parameters
- *     - stereo-to-surround (2->4): 1 parameter
- * - BtMachine has list of BtPattern instances
- * - BtWire should have a hashmap of BtWirePattern instances
- *   - the hashtable key is the BtPattern in BtMachine
- *     the wire is connected to
- *   - the BtWirePattern has volume and panning automation data
- *   - Initialy the hashmap is empty, the patterns are created on demand
- *   - BtWirePattern is not a good name :/
- *     - maybe we can make BtPattern a base class and also have BtMachinePattern
+ * - BtWirePattern is not a good name :/
+ *   - maybe we can make BtPattern a base class and also have BtMachinePattern
  */
 #define BT_CORE
 #define BT_PATTERN_C
@@ -100,13 +85,7 @@ struct _BtPatternPrivate {
    * with the size of length*(internal_params+global_params+voices*voice_params)
    */
   GValue *data;
-  
-  /* for each input we need a GValue array too
-   * whenever some machine is linked self->priv->machine, we need to update 
-   */
 };
-
-static GQuark error_domain=0;
 
 static GObjectClass *parent_class=NULL;
 
@@ -461,8 +440,6 @@ gulong bt_pattern_get_global_param_index(const BtPattern * const self, const gch
   ret=bt_machine_get_global_param_index(self->priv->machine,name,&tmp_error);
 
   if (tmp_error!=NULL) {
-    //g_set_error (error, error_domain, /* errorcode= */0,
-    //             "global dparam for name %s not found", name);
     g_propagate_error(error, tmp_error);
   }
   return(ret);
@@ -491,8 +468,6 @@ gulong bt_pattern_get_voice_param_index(const BtPattern * const self, const gcha
   ret=bt_machine_get_voice_param_index(self->priv->machine,name,&tmp_error);
 
   if (tmp_error!=NULL) {
-    //g_set_error (error, error_domain, /* errorcode= */0,
-    //            "voice dparam for name %s not found", name);
     g_propagate_error(error, tmp_error);
   }
   return(ret);
@@ -806,43 +781,6 @@ gboolean bt_pattern_tick_has_data(const BtPattern * const self, const gulong tic
     }
   }
   return(FALSE);
-}
-
-/**
- * bt_pattern_play_tick:
- * @self: the pattern a tick should be played from
- * @tick: the tick index in the pattern
- *
- * Pushes all control changes from this pattern-row into the #BtMachine params.
- */
-void bt_pattern_play_tick(const BtPattern * const self, const gulong tick) {
-  gulong j,k;
-  GValue *data;
-
-  g_return_if_fail(BT_IS_PATTERN(self));
-  g_return_if_fail(tick<self->priv->length);
-
-  data=&self->priv->data[tick*(internal_params+self->priv->global_params+self->priv->voices*self->priv->voice_params)];
-  for(k=0;k<self->priv->global_params;k++) {
-    if(G_IS_VALUE(data)) {
-      bt_machine_set_global_param_value(self->priv->machine,k,data);
-    }
-    else {
-      bt_machine_set_global_param_no_value(self->priv->machine,k);
-    }
-    data++;
-  }
-  for(j=0;j<self->priv->voices;j++) {
-    for(k=0;k<self->priv->voice_params;k++) {
-      if(G_IS_VALUE(data)) {
-        bt_machine_set_voice_param_value(self->priv->machine,j,k,data);
-      }
-      else {
-        bt_machine_set_voice_param_no_value(self->priv->machine,j,k);
-      }
-      data++;
-    }
-  }
 }
 
 #if 0
@@ -1191,8 +1129,6 @@ static void bt_pattern_init(GTypeInstance * const instance, gconstpointer g_clas
 
 static void bt_pattern_class_init(BtPatternClass * const klass) {
   GObjectClass * const gobject_class = G_OBJECT_CLASS(klass);
-
-  error_domain=g_quark_from_static_string("BtPattern");
 
   parent_class=g_type_class_peek_parent(klass);
   g_type_class_add_private(klass,sizeof(BtPatternPrivate));

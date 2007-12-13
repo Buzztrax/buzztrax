@@ -43,6 +43,7 @@ libbtcore_la_SOURCES = \
 	wave.c libbtcore/wave.h libbtcore/wave-methods.h \
 	wavelevel.c libbtcore/wavelevel.h libbtcore/wavelevel-methods.h \
 	wire.c libbtcore/wire.h libbtcore/wire-methods.h \
+	wire-pattern.c libbtcore/wire-pattern.h libbtcore/wire-pattern-methods.h \
 	\
 	marshal.c marshal.h
 

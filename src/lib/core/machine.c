@@ -178,6 +178,7 @@ struct _BtMachinePrivate {
   guint *global_flags,*voice_flags;
   GValue *global_no_val,*voice_no_val;
 
+  /* event patterns */
   GList *patterns;  // each entry points to BtPattern
   guint private_patterns;
 
@@ -1861,7 +1862,7 @@ GParamSpec *bt_machine_get_global_param_spec(const BtMachine * const self, const
   g_return_val_if_fail(index<self->priv->global_params,NULL);
 
   return(g_object_class_find_property(
-    G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
+    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),
     self->priv->global_names[index])
   );
 }
@@ -1881,7 +1882,7 @@ GParamSpec *bt_machine_get_voice_param_spec(const BtMachine * const self, const 
 
   GST_DEBUG("    voice-param %d '%s'",index,self->priv->voice_names[index]);
   return(g_object_class_find_property(
-    G_OBJECT_CLASS(BT_MACHINE_GET_CLASS(self->priv->machines[PART_MACHINE])),
+    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_MACHINE])),
     self->priv->voice_names[index])
   );
 

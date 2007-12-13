@@ -57,7 +57,6 @@
 #include "bt-edit.h"
 
 #define USE_PATTERN_EDITOR 1
-#define NEW_PATTERN_LAYOUT
 
 enum {
   MAIN_PAGE_PATTERNS_APP=1,
@@ -116,13 +115,8 @@ struct _BtMainPagePatternsPrivate {
 
   /* the pattern that is currently shown */
   BtPattern *pattern;
-#ifdef NEW_PATTERN_LAYOUT
   gulong number_of_groups;
   PatternColumnGroup *param_groups;
-#else
-  PatternColumn *global_param_descs, *voice_param_descs;
-#endif
-
   guint *column_keymode;
 
   /* signal handler ids */
@@ -1467,33 +1461,23 @@ typedef struct {
 static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   gchar *str = NULL;
-
-#ifdef NEW_PATTERN_LAYOUT
   PatternColumnGroup *group = &self->priv->param_groups[track];
-    switch (group->type) {
-      case 0: {
-        /*
-        BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-        str=bt_wire_pattern_get_event(wire_pattern,row,param);
-        g_object_unref(wire_pattern);
-        */
-        str = g_strdup("Wire");
-      } break;
-      case 1:
-        str=bt_pattern_get_global_event(self->priv->pattern,row,param);
-        break;
-      case 2:
-        str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param);
-        break;
-      default:
-        GST_WARNING("invalid column group type");
-    }
-#else
-  if (track == -1)
-    str=bt_pattern_get_global_event(self->priv->pattern,row,param);
-  else
-    str=bt_pattern_get_voice_event(self->priv->pattern,row,track,param);
-#endif
+
+  switch (group->type) {
+    case 0: {
+      BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
+      str=bt_wire_pattern_get_event(wire_pattern,row,param);
+      g_object_unref(wire_pattern);
+    } break;
+    case 1:
+      str=bt_pattern_get_global_event(self->priv->pattern,row,param);
+      break;
+    case 2:
+      str=bt_pattern_get_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param);
+      break;
+    default:
+      GST_WARNING("invalid column group type");
+  }
 
   if(str) {
     if(column_data) {
@@ -1508,40 +1492,28 @@ static float pattern_edit_get_data_at(gpointer pattern_data, gpointer column_dat
 static void pattern_edit_set_data_at(gpointer pattern_data, gpointer column_data, int row, int track, int param, float value) {
   BtMainPagePatterns *self=BT_MAIN_PAGE_PATTERNS(pattern_data);
   const gchar *str;
-#ifdef NEW_PATTERN_LAYOUT
   PatternColumnGroup *group = &self->priv->param_groups[track];
-#endif
   
-  if(column_data) {
+  if(column_data)
     str=((PatternColumnConverters *)column_data)->float_to_str(value);
-  }
   else
     str=bt_persistence_strfmt_double(value);
 
-#ifdef NEW_PATTERN_LAYOUT
-    switch (group->type) {
-      case 0: {
-        /*
-        BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
-        bt_wire_pattern_set_event(wire_pattern,row,param,str);
-        g_object_unref(wire_pattern);
-        */
-      } break;
-      case 1:
-        bt_pattern_set_global_event(self->priv->pattern,row,param,str);
-        break;
-      case 2:
-        bt_pattern_set_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param,str);
-        break;
-      default:
-        GST_WARNING("invalid column group type");
-    }
-#else
-  if (track == -1)
-    bt_pattern_set_global_event(self->priv->pattern,row,param,str);
-  else
-    bt_pattern_set_voice_event(self->priv->pattern,row,track,param,str);
-#endif
+  switch (group->type) {
+    case 0: {
+      BtWirePattern *wire_pattern = bt_wire_get_pattern(group->user_data,self->priv->pattern);
+      bt_wire_pattern_set_event(wire_pattern,row,param,str);
+      g_object_unref(wire_pattern);
+    } break;
+    case 1:
+      bt_pattern_set_global_event(self->priv->pattern,row,param,str);
+      break;
+    case 2:
+      bt_pattern_set_voice_event(self->priv->pattern,row,(int)group->user_data - 1,param,str);
+      break;
+    default:
+      GST_WARNING("invalid column group type");
+  }
 }
 
 // @todo: this is a copy of gstbml:src/common.c
@@ -1614,107 +1586,91 @@ static PatternColumnConverters pcc[]={
   { note_str_to_float, note_float_to_str }
 };
 
-static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property, gboolean trigger) {
+static void pattern_edit_fill_column_type(PatternColumn *col,GParamSpec *property) { 
   GType type=bt_g_type_get_base_type(property->value_type);
 
-  if(trigger) {
-    // all triggers are off by default
+  if(type==G_TYPE_STRING) {
+    col->type=PCT_NOTE;
+    col->min=0;
+    col->max=((16*9)+12);
     col->def=0;
-    if(type==G_TYPE_STRING) {
-      col->type=PCT_NOTE;
-      col->min=0;
-      col->max=((16*9)+12);
-      col->user_data=&pcc[0];
+    col->user_data=&pcc[0];
+  }
+  else if(type==BT_TYPE_TRIGGER_SWITCH) {
+    col->type=PCT_SWITCH;
+    col->min=0;
+    col->max=1;
+    col->def=0;
+    col->user_data=NULL;
+  }
+  if(type==G_TYPE_BOOLEAN) {
+    const GParamSpecBoolean *bool_property=G_PARAM_SPEC_BOOLEAN(property);
+    col->type=PCT_SWITCH;
+    col->min=0;
+    col->max=1;
+    col->def=bool_property->default_value;
+    col->user_data=NULL;
+  }
+  else if(type==G_TYPE_ENUM) {
+    const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
+    const GEnumClass *enum_class=enum_property->enum_class;
+
+    col->type=PCT_BYTE;
+    col->min=enum_class->minimum;
+    col->max=enum_class->maximum;
+    col->def=enum_property->default_value;
+    col->user_data=NULL;
+  }
+  else if(type==G_TYPE_INT) {
+    const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
+
+    col->type=PCT_WORD;
+    col->min=int_property->minimum;
+    col->max=int_property->maximum;
+    col->def=int_property->default_value;
+    if(int_property->minimum>=0 && int_property->maximum<256) {
+      col->type=PCT_BYTE;
     }
-    else if(type==G_TYPE_BOOLEAN) {
-      col->type=PCT_SWITCH;
-      col->min=0;
-      col->max=1;
-      col->user_data=NULL;
+    col->user_data=NULL;
+  }
+  else if(type==G_TYPE_UINT) {
+    const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
+
+    col->type=PCT_WORD;
+    col->min=uint_property->minimum;
+    col->max=uint_property->maximum;
+    col->def=uint_property->default_value;
+    if(uint_property->minimum>=0 && uint_property->maximum<256) {
+      col->type=PCT_BYTE;
     }
-    else if(type==BT_TYPE_TRIGGER_SWITCH) {
-      col->type=PCT_SWITCH;
-      col->min=0;
-      col->max=1;
-      col->user_data=NULL;
-    }
-    else {
-      GST_WARNING("unhandled trigger param type: '%s'",g_type_name(type));
-      col->type=0;
-      col->min=col->max=0;
-      col->user_data=NULL;
-    }
+    col->user_data=NULL;
+  }
+  else if(type==G_TYPE_FLOAT) {
+    const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
+
+    col->type=PCT_WORD;
+    col->min=float_property->minimum;
+    col->max=float_property->maximum;
+    col->def=float_property->default_value;
+    // @todo: need scaling
+    // scaling factor =  
+    col->user_data=NULL;
+  }
+  else if(type==G_TYPE_DOUBLE) {
+    const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
+    
+    col->type=PCT_WORD;
+    col->min=double_property->minimum;
+    col->max=double_property->maximum;
+    col->def=double_property->default_value;
+    // @todo: need scaling: min->0, max->65536
+    col->user_data=NULL;
   }
   else {
-    if(type==G_TYPE_BOOLEAN) {
-      const GParamSpecBoolean *bool_property=G_PARAM_SPEC_BOOLEAN(property);
-      col->type=PCT_BYTE;
-      col->min=0;
-      col->max=1;
-      col->def=bool_property->default_value;
-      col->user_data=NULL;
-    }
-    else if(type==G_TYPE_ENUM) {
-      const GParamSpecEnum *enum_property=G_PARAM_SPEC_ENUM(property);
-      const GEnumClass *enum_class=enum_property->enum_class;
- 
-      col->type=PCT_BYTE;
-      col->min=enum_class->minimum;
-      col->max=enum_class->maximum;
-      col->def=enum_property->default_value;
-      col->user_data=NULL;
-    }
-    else if(type==G_TYPE_INT) {
-      const GParamSpecInt *int_property=G_PARAM_SPEC_INT(property);
-
-      col->type=PCT_WORD;
-      col->min=int_property->minimum;
-      col->max=int_property->maximum;
-      col->def=int_property->default_value;
-      if(int_property->minimum>=0 && int_property->maximum<256) {
-        col->type=PCT_BYTE;
-      }
-      col->user_data=NULL;
-    }
-    else if(type==G_TYPE_UINT) {
-      const GParamSpecUInt *uint_property=G_PARAM_SPEC_UINT(property);
-
-      col->type=PCT_WORD;
-      col->min=uint_property->minimum;
-      col->max=uint_property->maximum;
-      col->def=uint_property->default_value;
-      if(uint_property->minimum>=0 && uint_property->maximum<256) {
-        col->type=PCT_BYTE;
-      }
-      col->user_data=NULL;
-    }
-    else if(type==G_TYPE_FLOAT) {
-      const GParamSpecFloat *float_property=G_PARAM_SPEC_FLOAT(property);
-
-      col->type=PCT_WORD;
-      col->min=float_property->minimum;
-      col->max=float_property->maximum;
-      col->def=float_property->default_value;
-      // @todo: need scaling
-      // scaling factor =  
-      col->user_data=NULL;
-    }
-    else if(type==G_TYPE_DOUBLE) {
-      const GParamSpecDouble *double_property=G_PARAM_SPEC_DOUBLE(property);
-      
-      col->type=PCT_WORD;
-      col->min=double_property->minimum;
-      col->max=double_property->maximum;
-      col->def=double_property->default_value;
-      // @todo: need scaling: min->0, max->65536
-      col->user_data=NULL;
-    }
-    else {
-      GST_WARNING("unhandled continous param type: '%s'",g_type_name(type));
-      col->type=0;
-      col->min=col->max=col->def=0;
-      col->user_data=NULL;
-    }
+    GST_WARNING("unhandled param type: '%s'",g_type_name(type));
+    col->type=0;
+    col->min=col->max=col->def=0;
+    col->user_data=NULL;
   }
 }
 
@@ -1729,15 +1685,13 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     gulong i;
     gulong number_of_ticks,voices,global_params,voice_params;
     BtMachine *machine;
+    PatternColumnGroup *group;
     
     g_object_get(G_OBJECT(pattern),"length",&number_of_ticks,"voices",&voices,"machine",&machine,NULL);
     g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,NULL);
     GST_DEBUG("  size is %2d,%2d",number_of_ticks,global_params);
 
     // wire pattern data
-#ifdef NEW_PATTERN_LAYOUT
-    PatternColumnGroup *group;
-    
     self->priv->number_of_groups=(global_params>0?1:0)+voices;
     g_free(self->priv->param_groups);
 
@@ -1760,22 +1714,14 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
         BtMachine *src=NULL;
         wire=BT_WIRE(node->data);
         // check wire config
-        wire_params = 2;
-        g_object_get(G_OBJECT(wire),/*"num-params",&wire_params,*/"src",&src,NULL);
-        g_assert(src != NULL);
+        g_object_get(G_OBJECT(wire),"num-params",&wire_params,"src",&src,NULL);
         group->type=0;
         g_object_get(G_OBJECT(src),"id",&group->name,NULL), 
-        g_assert(group->name != NULL);
-        /* group->name=g_strdup(group->name); */
         group->user_data=wire;
         group->num_columns=wire_params;
         group->columns=g_new(PatternColumn,wire_params);
         for(i=0;i<wire_params;i++) {
-          /* pattern_edit_fill_column_type(&group->columns[i],bt_wire_get_param_spec(wire,i),FALSE); */
-          group->columns[i].min = 0;
-          group->columns[i].max = 128;
-          group->columns[i].def = 255;
-          group->columns[i].type = PCT_BYTE; /* whatever */
+          pattern_edit_fill_column_type(&group->columns[i],bt_wire_get_param_spec(wire,i));
         }
         g_object_unref(wire);
         group++;
@@ -1796,8 +1742,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       group->columns=g_new(PatternColumn,global_params);
       for(i=0;i<global_params;i++) {
         pattern_edit_fill_column_type(&group->columns[i],
-          bt_machine_get_global_param_spec(machine,i),
-          bt_machine_is_global_param_trigger(machine,i));
+          bt_machine_get_global_param_spec(machine,i));
       }
       group++;
     }
@@ -1811,8 +1756,7 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
       group->columns=g_new(PatternColumn,voice_params);
       for(i=0;i<voice_params;i++) {
         pattern_edit_fill_column_type(&group->columns[i],
-          bt_machine_get_voice_param_spec(machine,i),
-          bt_machine_is_voice_param_trigger(machine,i));
+          bt_machine_get_voice_param_spec(machine,i));
       }
       group++;
       for(i=1;i<voices;i++) {
@@ -1828,31 +1772,6 @@ static void pattern_table_refresh(const BtMainPagePatterns *self,const BtPattern
     bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self,
       number_of_ticks, self->priv->number_of_groups, self->priv->param_groups, &callbacks);
 
-#else
-    // machine pattern data    
-    g_free(self->priv->global_param_descs);
-    self->priv->global_param_descs=g_new(PatternColumn,global_params);
-    g_free(self->priv->voice_param_descs);
-    self->priv->voice_param_descs=g_new(PatternColumn,voice_params);
-    // create mapping for global params
-    for(i=0;i<global_params;i++) {
-      pattern_edit_fill_column_type(&self->priv->global_param_descs[i],
-        bt_machine_get_global_param_spec(machine,i),
-        bt_machine_is_global_param_trigger(machine,i));
-    }
-    // create mapping for voice params
-    for(i=0;i<voice_params;i++) {
-      pattern_edit_fill_column_type(&self->priv->voice_param_descs[i],
-        bt_machine_get_voice_param_spec(machine,i),
-        bt_machine_is_voice_param_trigger(machine,i));
-    }
-      
-    bt_pattern_editor_set_pattern(self->priv->pattern_table, (gpointer)self,
-      number_of_ticks, voices,
-      global_params, voice_params,
-      self->priv->global_param_descs, self->priv->voice_param_descs,
-      &callbacks);
-#endif    
     g_object_unref(machine);
   }
   else {
@@ -2866,20 +2785,15 @@ static void bt_main_page_patterns_dispose(GObject *object) {
 
 static void bt_main_page_patterns_finalize(GObject *object) {
   BtMainPagePatterns *self = BT_MAIN_PAGE_PATTERNS(object);
+  gulong i;
 
   g_free(self->priv->column_keymode);
-#ifdef NEW_PATTERN_LAYOUT
-  gulong i;
   
   for(i=0;i<self->priv->number_of_groups;i++) {
     g_free(self->priv->param_groups[i].name);
     g_free(self->priv->param_groups[i].columns);
   }
   g_free(self->priv->param_groups);
-#else
-  g_free(self->priv->global_param_descs);
-  g_free(self->priv->voice_param_descs);
-#endif
 
   G_OBJECT_CLASS(parent_class)->finalize(object);
 }

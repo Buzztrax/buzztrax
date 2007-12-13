@@ -119,6 +119,7 @@
 #include "source-machine-methods.h"
 #include "sink-bin-methods.h"
 #include "wire-methods.h"
+#include "wire-pattern-methods.h"
 #include "setup-methods.h"
 #include "pattern-methods.h"
 #include "sequence-methods.h"

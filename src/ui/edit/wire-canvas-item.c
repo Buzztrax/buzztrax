@@ -31,6 +31,11 @@
  * - can we visualize the parameters on the wire better
  *   - the wire has volume
  *   - the wire can have 1/2 panorama sliders
+ *   - what about changin the triangle into this
+ *     ---------
+ *     \ V: 100 \
+ *     / P: 50L /
+ *     ---------
  * - right now a click on the triangle pops up the volume slider
  *   - it could popup a whole mixer strip
  */

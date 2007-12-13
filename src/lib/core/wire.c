@@ -52,6 +52,7 @@ enum {
   WIRE_SRC,
   WIRE_DST,
   WIRE_GAIN,
+  WIRE_NUM_PARAMS,
   WIRE_ANALYZERS
 };
 
@@ -66,6 +67,7 @@ typedef enum {
   /* wire format conversion elements */
   PART_CONVERT,
   PART_SCALE,
+  /* PART_PAN, @todo: need pan/balance here */
   /* target element in the wire for convinience */
   PART_DST,
   /* how many elements are used */
@@ -90,6 +92,12 @@ struct _BtWirePrivate {
 
   /* volume gain, set machines[PART_GAIN] to passthrough when gain=1.0 */
   gdouble gain;
+
+  /* the number of dynamic params the wire provides */
+  gulong num_params;
+
+  /* event patterns */
+  GHashTable *patterns;  // each entry points to BtPattern
 
   /* the gstreamer elements that is used */
   GstElement *machines[PART_COUNT];
@@ -623,13 +631,6 @@ Error:
   return(res);
 }
 
-#if 0
-BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *patern) {
-  // get pattern from self->priv->pattern hashmap
-}
-
-#endif
-
 //-- constructor methods
 
 /**
@@ -675,6 +676,160 @@ gboolean bt_wire_reconnect(BtWire * const self) {
   bt_wire_unlink_machines(self);
   return(bt_wire_link_machines(self));
 }
+
+/**
+ * bt_wire_get_pattern:
+ * @self: the wire that has the pattern
+ * @pattern: the pattern that the wire-pattern is associated with
+ *
+ * Gets the wire-pattern that hold the automation data for this @wire.
+ *
+ * Returns: a reference to the wire-pattern, unref when done.
+ */
+BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *pattern) {
+  BtWirePattern *wire_pattern;
+
+  if(!(wire_pattern=g_hash_table_lookup(self->priv->patterns,pattern))) {
+    GST_INFO("make new wire-pattern");
+    wire_pattern=bt_wire_pattern_new(self->priv->song, self, pattern);
+    g_hash_table_insert(self->priv->patterns,pattern,wire_pattern);
+  }
+  return(g_object_ref(wire_pattern));
+}
+
+/**
+ * bt_wire_get_param_spec:
+ * @self: the wire to search for the param
+ * @index: the offset in the list of params
+ *
+ * Retrieves the parameter specification for the param
+ *
+ * Returns: the #GParamSpec for the requested param
+ */
+GParamSpec *bt_wire_get_param_spec(const BtWire * const self, const gulong index) {
+  g_return_val_if_fail(BT_IS_WIRE(self),NULL);
+  g_return_val_if_fail(index<self->priv->num_params,NULL);
+
+  GST_DEBUG("    param 0 'volume'");
+  return(g_object_class_find_property(
+    G_OBJECT_CLASS(GST_ELEMENT_GET_CLASS(self->priv->machines[PART_GAIN])),
+    "volume")
+  );
+}
+
+/**
+ * bt_wire_get_param_type:
+ * @self: the wire to search for the param type
+ * @index: the offset in the list of params
+ *
+ * Retrieves the GType of a param
+ *
+ * Returns: the requested GType
+ */
+GType bt_wire_get_param_type(const BtWire * const self, const gulong index) {
+  GParamSpec *pspec=bt_wire_get_param_spec(self,index);
+
+  return(pspec->value_type);
+}
+
+#if 0
+/**
+ * bt_wire_controller_change_value:
+ * @self: the wire to change the param for
+ * @param: the parameter index
+ * @timestamp: the time stamp of the change
+ * @value: the new value or %NULL to unset a previous one
+ *
+ * Depending on wheter the given value is NULL, sets or unsets the controller
+ * value for the specified param and at the given time.
+ */
+void bt_wire_controller_change_value(const BtWire * const self, const gulong param, const GstClockTime timestamp, GValue * const value) {
+  GObject *param_parent;
+  gchar *name;
+#ifdef HAVE_GST_0_10_14
+  GstControlSource *cs;
+#endif
+
+  g_return_if_fail(BT_IS_WIRE(self));
+  g_return_if_fail(param<self->priv->num_params);
+
+  param_parent=G_OBJECT(self->priv->machines[PART_GAIN]);
+  name="volume";
+  //param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
+  //name="panorama";
+
+  if(value) {
+    gboolean add=TRUE;
+
+    // check if the property is alredy controlled
+    if(self->priv->wire_controller) {
+#ifdef HAVE_GST_0_10_14
+      if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+        if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+          add=FALSE;
+        }
+        g_object_unref(cs);
+      }
+#else
+      GList *values;
+      if((values=(GList *)gst_controller_get_all(self->priv->global_controller,name))) {
+        add=FALSE;
+        g_list_free(values);
+      }
+#endif
+    }
+    if(add) {
+      GstController *ctrl=bt_wire_activate_controller(param_parent, name, FALSE);
+
+      g_object_try_unref(self->priv->wire_controller);
+      self->priv->wire_controller=ctrl;
+    }
+    //GST_INFO("set wire controller: %"GST_TIME_FORMAT" param %d:%s",GST_TIME_ARGS(timestamp),param,name);
+#ifdef HAVE_GST_0_10_14
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+      gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
+      g_object_unref(cs);
+    }
+#else
+    gst_controller_set(self->priv->wire_controller,name,timestamp,value);
+#endif
+  }
+  else {
+    gboolean remove=TRUE;
+
+    //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
+#ifdef HAVE_GST_0_10_14
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+      gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
+      g_object_unref(cs);
+    }
+#else
+    gst_controller_unset(self->priv->wire_controller,name,timestamp);
+#endif
+
+    // check if the property is not having control points anymore
+#ifdef HAVE_GST_0_10_14
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+      if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
+        remove=FALSE;
+      }
+      g_object_unref(cs);
+    }
+#else
+    GList *values;
+    if((values=(GList *)gst_controller_get_all(self->priv->wire_controller,name))) {
+      //if(g_list_length(values)>0) {
+        remove=FALSE;
+      //}
+      g_list_free(values);
+    }
+#endif
+    if(remove) {
+      bt_wire_deactivate_controller(param_parent, name);
+    }
+  }
+}
+#endif
 
 //-- debug helper
 
@@ -843,6 +998,9 @@ static void bt_wire_get_property(GObject      * const object,
     case WIRE_GAIN: {
       g_value_set_double(value, self->priv->gain);
     } break;
+    case WIRE_NUM_PARAMS: {
+      g_value_set_ulong(value, self->priv->num_params);
+    } break;
     case WIRE_ANALYZERS: {
       g_value_set_pointer(value, self->priv->analyzers);
     } break;
@@ -882,6 +1040,9 @@ static void bt_wire_set_property(GObject      * const object,
       if(self->priv->machines[PART_GAIN]) {
         bt_wire_change_gain(self);
       }
+    } break;
+    case WIRE_NUM_PARAMS: {
+      self->priv->num_params = g_value_get_ulong(value);
     } break;
     case WIRE_ANALYZERS: {
       bt_wire_deactivate_analyzers(self);
@@ -954,6 +1115,7 @@ static void bt_wire_finalize(GObject * const object) {
   GST_DEBUG("!!!! self=%p",self);
 
   g_hash_table_destroy(self->priv->properties);
+  g_hash_table_destroy(self->priv->patterns);
 
   G_OBJECT_CLASS(bt_wire_parent_class)->finalize(object);
 }
@@ -962,7 +1124,9 @@ static void bt_wire_init(BtWire *self) {
   GST_INFO("wire init, no priv data yet");
   self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self, BT_TYPE_WIRE, BtWirePrivate);
   self->priv->gain = 1.0;
+  self->priv->num_params = 1;
   self->priv->properties=g_hash_table_new_full(g_str_hash,g_str_equal,g_free,g_free);
+  self->priv->patterns=g_hash_table_new_full(g_direct_hash,g_direct_equal,NULL,g_object_unref);
 
   GST_DEBUG("!!!! self=%p",self);
 }
@@ -1013,6 +1177,15 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      0.0,
                                      4.0,
                                      1.0,
+                                     G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property(gobject_class,WIRE_NUM_PARAMS,
+                                  g_param_spec_ulong("num-params",
+                                     "num-params prop",
+                                     "number of params for the wire",
+                                     0,
+                                     G_MAXULONG,
+                                     0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property(gobject_class,WIRE_ANALYZERS,

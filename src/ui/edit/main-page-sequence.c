@@ -30,12 +30,9 @@
  * - cut/copy/paste
  * - add third view for eating remaining space
  * - shortcuts
- *   - Ctrl-I/D : Insert/Delete rows
  *   - Ctrl-<num> :  Stepping
  *     - set increment for cursor-down on edit
  * - sequence header
- *   - add table to separate scrollable window
- *     (no own adjustments, share x-adjustment with sequence-view, show full height)
  *   - add the same context menu as the machines have in machine view when
  *     clicking on track headers
  *   - allow to switch meters (off, level, scope, spectrum)
@@ -44,6 +41,7 @@
  *   - add navigation action
  * - format positions in pos-column and label menu
  * - when we move between tracks, switch the current-machine in pattern-view
+ * - go to next occurence when double clicking a pattern in the pattern list
  *
  * @bugs
  * - keyboard movement is broken: http://bugzilla.gnome.org/show_bug.cgi?id=371756

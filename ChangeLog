@@ -1,3 +1,33 @@
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* docs/reference/bt-core/bt-core-docs.sgml:
+	* docs/reference/bt-core/bt-core-sections.txt:
+	* src/lib/core/Makefile.am:
+	* src/lib/core/libbtcore/Makefile.am:
+	* src/lib/core/libbtcore/core.h:
+	* src/lib/core/libbtcore/pattern-methods.h:
+	* src/lib/core/libbtcore/pattern.h:
+	* src/lib/core/libbtcore/wire-methods.h:
+	* src/lib/core/libbtcore/wire-pattern.h:
+	* src/lib/core/libbtcore/wire-pattern-methods.h:
+	* src/lib/core/machine.c:
+	* src/lib/core/pattern.c:
+	* src/lib/core/wire.c:
+	* src/lib/core/wire-pattern.c:
+	  Add new wire-pattern class and do basic implementation. Its not yet
+	  saved with a song and event are not yet effective. Prepare for adding
+	  panning too. Also clean up some cruft.
+
+	* src/ui/edit/main-page-patterns.c:
+	  Fully switch to new pattern layout. Simplify type mapping code and
+	  achive better coverage.
+
+	* src/ui/edit/main-page-sequence.c:
+	  Add ideas about clikcing in pattern-list.
+
+	* src/ui/edit/wire-canvas-item.c:
+	  Add ideas about better wire visuals.
+
 2007-12-13  Krzysztof Foltman  <wdev@foltman.com>
 
 	* src/ui/edit/main-page-patterns.c:
