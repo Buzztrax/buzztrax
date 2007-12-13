@@ -31,6 +31,8 @@
  * - can we visualize the parameters on the wire better
  *   - the wire has volume
  *   - the wire can have 1/2 panorama sliders
+ * - right now a click on the triangle pops up the volume slider
+ *   - it could popup a whole mixer strip
  */
 #define BT_EDIT
 #define BT_WIRE_CANVAS_ITEM_C

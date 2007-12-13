@@ -36,7 +36,7 @@
  *  What if we can directly connect src->dst, then the wire can't be an element (nothing there to use as ghost-pads).
  *  On the other hand this is only the case, if we do not need converters and have no volume and no monitors.
  *
- * * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
+ * @todo: when connecting to several wires to one src, we need queue elements at the begin of the wire
  */
 
 #define BT_CORE
@@ -622,6 +622,13 @@ Error:
   g_object_unref(setup);
   return(res);
 }
+
+#if 0
+BtWirePattern *bt_wire_get_pattern(const BtWire * const self, BtPattern *patern) {
+  // get pattern from self->priv->pattern hashmap
+}
+
+#endif
 
 //-- constructor methods
 
