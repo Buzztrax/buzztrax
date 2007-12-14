@@ -66,8 +66,13 @@ typedef enum {
   PART_GAIN,
   /* wire format conversion elements */
   PART_CONVERT,
-  PART_SCALE,
-  /* PART_PAN, @todo: need pan/balance here */
+  /*PART_SCALE, unused right now */
+  /*
+  @todo: need pan/balance here, if either src/dst has channesl>1
+         can we remove PART_CONVERT, GAIN doen convert the most formats
+         and pan does the channels
+  PART_PAN,
+   */
   /* target element in the wire for convinience */
   PART_DST,
   /* how many elements are used */
@@ -501,6 +506,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
     gst_bin_remove(self->priv->bin, machines[PART_CONVERT]);
     machines[PART_CONVERT]=NULL;
   }
+  /*
   if(self->priv->machines[PART_SCALE]) {
     GST_DEBUG("  removing scale from bin, obj->ref_count=%d",G_OBJECT(machines[PART_SCALE])->ref_count);
     if((res=gst_element_set_state(self->priv->machines[PART_SCALE],GST_STATE_NULL))==GST_STATE_CHANGE_FAILURE)
@@ -510,6 +516,7 @@ static void bt_wire_unlink_machines(const BtWire * const self) {
     gst_bin_remove(self->priv->bin, machines[PART_SCALE]);
     machines[PART_SCALE]=NULL;
   }
+  */
 }
 
 /*
@@ -853,12 +860,12 @@ void bt_wire_dbg_print_parts(const BtWire * const self) {
   if(self->priv->dst) g_object_get(self->priv->dst,"id",&did,NULL);
 
   /* [Src T G C S Dst] */
-  GST_DEBUG("%s->%s [%s %s %s %s %s %s]", sid, did,
+  GST_DEBUG("%s->%s [%s %s %s %s %s]", sid, did,
     self->priv->machines[PART_SRC]?"SRC":"src",
     self->priv->machines[PART_TEE]?"T":"t",
     self->priv->machines[PART_GAIN]?"G":"g",
     self->priv->machines[PART_CONVERT]?"C":"c",
-    self->priv->machines[PART_SCALE]?"S":"s",
+    /*self->priv->machines[PART_SCALE]?"S":"s",*/
     self->priv->machines[PART_DST]?"DST":"dst"
   );
   g_free(sid);

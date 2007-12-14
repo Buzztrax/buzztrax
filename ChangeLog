@@ -1,5 +1,10 @@
 2007-12-14  Stefan Kost  <ensonic@users.sf.net>
 
+	* src/lib/core/wire.c:
+	  Thinking.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
 	* docs/reference/bt-core/bt-core-docs.sgml:
 	* docs/reference/bt-core/bt-core-sections.txt:
 	* src/lib/core/Makefile.am:
