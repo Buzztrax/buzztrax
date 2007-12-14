@@ -1,6 +1,11 @@
 2007-12-14  Stefan Kost  <ensonic@users.sf.net>
 
 	* src/lib/core/wire.c:
+	  More thinking.
+
+2007-12-14  Stefan Kost  <ensonic@users.sf.net>
+
+	* src/lib/core/wire.c:
 	  Thinking.
 
 2007-12-14  Stefan Kost  <ensonic@users.sf.net>

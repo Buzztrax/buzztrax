@@ -369,6 +369,13 @@ static gboolean bt_wire_link_machines(const BtWire * const self) {
     GST_DEBUG("created tee element for wire : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   }
 
+  /* @todo: if dst.channels==2 add panorama
+   * pad = gst_element_get_static_pad(dst.machines[PART_CAPS_FILTER],"sink");
+   * caps = gst_pad_get_pad_template_caps(pad);
+   * structure = gst_caps_get_structure(caps)
+   * gst_structure_get_int (structure, "channels", &channels);
+   */
+  
   GST_DEBUG("trying to link machines directly : %p '%s' -> %p '%s'",src->src_elem,GST_OBJECT_NAME(src->src_elem),dst->dst_elem,GST_OBJECT_NAME(dst->dst_elem));
   // try link src to dst {directly, with convert, with scale, with ...}
   /* @todo: if we try linking without audioconvert and this links to an adder,
