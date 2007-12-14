@@ -677,6 +677,9 @@ static gboolean bt_machine_get_property_meta_value(GValue * const value, GParamS
     g_value_init(value,property->value_type);
     switch(base_type) {
       case G_TYPE_BOOLEAN:
+        // @todo: this does not work, for no_value it results in
+        // g_value_set_boolean(value,255);
+        // which is the same as TRUE
         g_value_set_boolean(value,GPOINTER_TO_INT(qdata));
         break;
       case G_TYPE_INT:
@@ -1773,7 +1776,9 @@ gboolean bt_machine_is_voice_param_no_value(const BtMachine * const self, const 
 
   if(!G_IS_VALUE(&self->priv->voice_no_val[index])) return(FALSE);
 
-  if(gst_value_compare(&self->priv->voice_no_val[index],value)==GST_VALUE_EQUAL) return(TRUE);
+  if(gst_value_compare(&self->priv->voice_no_val[index],value)==GST_VALUE_EQUAL) {
+    return(TRUE);
+  }
   return(FALSE);
 }
 

@@ -1113,7 +1113,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
   GtkWidget *widget1,*widget2;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType param_type;
+  GType base_type,param_type;
   gulong i,k,params;
 #ifndef HAVE_GTK_2_12
   GtkTooltips *tips=gtk_tooltips_new();
@@ -1144,7 +1144,8 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
-      param_type=bt_g_type_get_base_type(bt_machine_get_global_param_type(self->priv->machine,i));
+      param_type=bt_machine_get_global_param_type(self->priv->machine,i);
+      base_type=bt_g_type_get_base_type(param_type);
       GST_INFO("... base type is : %s",g_type_name(param_type));
 
       range_min=bt_machine_get_global_param_min_value(self->priv->machine,i);
@@ -1159,7 +1160,7 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
       // DEBUG
 
       // implement widget types
-      switch(param_type) {
+      switch(base_type) {
         case G_TYPE_STRING:
           widget1=gtk_label_new("string");
           widget2=NULL;
@@ -1184,10 +1185,13 @@ static GtkWidget *make_global_param_box(const BtMachinePropertiesDialog *self,gu
           widget2=gtk_label_new(NULL);
           widget1=make_double_range_widget(self,GST_OBJECT(machine),property,range_min,range_max,widget2);
           break;
-        case G_TYPE_ENUM:
-          widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+        case G_TYPE_ENUM: {
+          if(param_type==BT_TYPE_TRIGGER_SWITCH)
+            widget1=make_checkbox_widget(self,GST_OBJECT(machine),property);
+          else
+            widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
           widget2=NULL;
-          break;
+        } break;
         default: {
           gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
           widget1=gtk_label_new(str);g_free(str);
@@ -1241,7 +1245,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
   GtkWidget *widget1,*widget2;
   GParamSpec *property;
   GValue *range_min,*range_max;
-  GType param_type;
+  GType base_type, param_type;
   GstObject *machine_voice;
   gchar *name;
   gulong i,k,params;
@@ -1283,7 +1287,8 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       gtk_misc_set_alignment(GTK_MISC(label),1.0,0.5);
       gtk_table_attach(GTK_TABLE(table),label, 0, 1, k, k+1, GTK_FILL,GTK_SHRINK, 2,1);
 
-      param_type=bt_g_type_get_base_type(bt_machine_get_voice_param_type(self->priv->machine,i));
+      param_type=bt_machine_get_voice_param_type(self->priv->machine,i);
+      base_type=bt_g_type_get_base_type(param_type);
       GST_INFO("... base typoe is : %s",g_type_name(param_type));
 
       range_min=bt_machine_get_voice_param_min_value(self->priv->machine,i);
@@ -1298,7 +1303,7 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
       // DEBUG
 
       // implement widget types
-      switch(param_type) {
+      switch(base_type) {
         case G_TYPE_STRING:
           widget1=gtk_label_new("string");
           widget2=NULL;
@@ -1323,10 +1328,13 @@ static GtkWidget *make_voice_param_box(const BtMachinePropertiesDialog *self,gul
           widget2=gtk_label_new(NULL);
           widget1=make_double_range_widget(self,machine_voice,property,range_min,range_max,widget2);
           break;
-        case G_TYPE_ENUM:
-          widget1=make_combobox_widget(self,GST_OBJECT(machine),property,range_min,range_max);
+        case G_TYPE_ENUM: {
+          if(param_type==BT_TYPE_TRIGGER_SWITCH)
+            widget1=make_checkbox_widget(self,machine_voice,property);
+          else
+            widget1=make_combobox_widget(self,machine_voice,property,range_min,range_max);
           widget2=NULL;
-          break;
+        } break;
         default: {
           gchar *str=g_strdup_printf("unhandled type \"%s\"",G_PARAM_SPEC_TYPE_NAME(property));
           widget1=gtk_label_new(str);g_free(str);

@@ -79,6 +79,9 @@ typedef enum {
   PART_COUNT
 } BtWirePart;
 
+/* volume, panorama */
+#define MAX_NUM_PARAMS 2
+
 struct _BtWirePrivate {
   /* used to validate if dispose has run */
   gboolean dispose_has_run;
@@ -100,9 +103,12 @@ struct _BtWirePrivate {
 
   /* the number of dynamic params the wire provides */
   gulong num_params;
+  
+  /* dynamic parameter control */
+  GstController *wire_controller[MAX_NUM_PARAMS];
 
   /* event patterns */
-  GHashTable *patterns;  // each entry points to BtPattern
+  GHashTable *patterns;  // each entry points to BtWirePattern using BtPattern as a key
 
   /* the gstreamer elements that is used */
   GstElement *machines[PART_COUNT];
@@ -767,18 +773,26 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
   g_return_if_fail(BT_IS_WIRE(self));
   g_return_if_fail(param<self->priv->num_params);
 
-  param_parent=G_OBJECT(self->priv->machines[PART_GAIN]);
-  name="volume";
-  //param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
-  //name="panorama";
+  switch(param) {
+    case 0:
+      param_parent=G_OBJECT(self->priv->machines[PART_GAIN]);
+      name="volume";
+      break;
+    /*
+    case 1:
+      param_parent=G_OBJECT(self->priv->machines[PART_PAN]);
+      name="panorama";
+      break,
+    */
+  }
 
   if(value) {
     gboolean add=TRUE;
 
     // check if the property is alredy controlled
-    if(self->priv->wire_controller) {
+    if(self->priv->wire_controller[param]) {
 #ifdef HAVE_GST_0_10_14
-      if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+      if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
         if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
           add=FALSE;
         }
@@ -795,17 +809,17 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     if(add) {
       GstController *ctrl=bt_wire_activate_controller(param_parent, name, FALSE);
 
-      g_object_try_unref(self->priv->wire_controller);
-      self->priv->wire_controller=ctrl;
+      g_object_try_unref(self->priv->wire_controller[param]);
+      self->priv->wire_controller[param]=ctrl;
     }
     //GST_INFO("set wire controller: %"GST_TIME_FORMAT" param %d:%s",GST_TIME_ARGS(timestamp),param,name);
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
       gst_interpolation_control_source_set(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp,value);
       g_object_unref(cs);
     }
 #else
-    gst_controller_set(self->priv->wire_controller,name,timestamp,value);
+    gst_controller_set(self->priv->wire_controller[param],name,timestamp,value);
 #endif
   }
   else {
@@ -813,17 +827,17 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
 
     //GST_INFO("%s unset global controller: %"GST_TIME_FORMAT" param %d:%s",self->priv->id,GST_TIME_ARGS(timestamp),param,self->priv->global_names[param]);
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
       gst_interpolation_control_source_unset(GST_INTERPOLATION_CONTROL_SOURCE(cs),timestamp);
       g_object_unref(cs);
     }
 #else
-    gst_controller_unset(self->priv->wire_controller,name,timestamp);
+    gst_controller_unset(self->priv->wire_controller[param],name,timestamp);
 #endif
 
     // check if the property is not having control points anymore
 #ifdef HAVE_GST_0_10_14
-    if((cs=gst_controller_get_control_source(self->priv->wire_controller,name))) {
+    if((cs=gst_controller_get_control_source(self->priv->wire_controller[param],name))) {
       if(gst_interpolation_control_source_get_count(GST_INTERPOLATION_CONTROL_SOURCE(cs))) {
         remove=FALSE;
       }
@@ -831,7 +845,7 @@ void bt_wire_controller_change_value(const BtWire * const self, const gulong par
     }
 #else
     GList *values;
-    if((values=(GList *)gst_controller_get_all(self->priv->wire_controller,name))) {
+    if((values=(GList *)gst_controller_get_all(self->priv->wire_controller[param],name))) {
       //if(g_list_length(values)>0) {
         remove=FALSE;
       //}
@@ -1198,7 +1212,7 @@ static void bt_wire_class_init(BtWireClass * const klass) {
                                      "num-params prop",
                                      "number of params for the wire",
                                      0,
-                                     G_MAXULONG,
+                                     MAX_NUM_PARAMS,
                                      0,
                                      G_PARAM_READWRITE|G_PARAM_STATIC_STRINGS));
 

@@ -214,7 +214,7 @@ gboolean bt_persistence_set_value(GValue* const gvalue, const gchar *svalue) {
       g_value_set_float(gvalue,val);
     } break;
     case G_TYPE_BOOLEAN: {
-      const gint val=svalue?atoi(svalue):0;
+      const gboolean val=svalue?atoi(svalue):FALSE;
       g_value_set_boolean(gvalue,val);
     } break;
     case G_TYPE_STRING: {

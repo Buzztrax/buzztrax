@@ -569,6 +569,7 @@ static void bt_sequence_repair_damage(const BtSequence * const self) {
       g_object_get(G_OBJECT(machine),"global-params",&global_params,"voice-params",&voice_params,"voices",&voices,NULL);
       if((hash=g_hash_table_lookup(self->priv->damage,machine))) {
         GST_DEBUG("repair damage for track %d",i);
+        // @todo: need bt_sequence_repair_wire_damage_entry
         // repair damage of global params
         for(j=0;j<global_params;j++) {
           if((param_hash=g_hash_table_lookup(hash,GUINT_TO_POINTER(j)))) {
@@ -1018,24 +1019,17 @@ void bt_sequence_set_pattern(const BtSequence * const self, const gulong time, c
     self->priv->patterns[index]=NULL;
   }
   if(pattern) {
-    //gulong pattern_uses;
-
     GST_DEBUG("set new pattern");
     // enter the new pattern
     self->priv->patterns[index]=g_object_try_ref(G_OBJECT(pattern));
     //g_object_add_weak_pointer(G_OBJECT(pattern),(gpointer *)(&self->priv->patterns[index]));
 
     // attatch a signal handler if this is the first usage
-    //pattern_uses=bt_sequence_get_number_of_pattern_uses(self,pattern);
     if(bt_sequence_get_number_of_pattern_uses(self,pattern)==1) {
-    //if(pattern_uses==1) {
       //GST_INFO("subscribing to changes for pattern %p",pattern);
       g_signal_connect(G_OBJECT(pattern),"global-param-changed",G_CALLBACK(bt_sequence_on_pattern_global_param_changed),(gpointer)self);
       g_signal_connect(G_OBJECT(pattern),"voice-param-changed",G_CALLBACK(bt_sequence_on_pattern_voice_param_changed),(gpointer)self);
     }
-    //else {
-    //  GST_INFO("not subscribing to changes for pattern %p, uses=%lu",pattern,pattern_uses);
-    //}
     // mark region covered by new pattern as damaged
     bt_sequence_invalidate_pattern_region(self,time,track,pattern);
     // repair damage
